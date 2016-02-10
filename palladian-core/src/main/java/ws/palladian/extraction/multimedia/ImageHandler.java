@@ -1,42 +1,11 @@
 package ws.palladian.extraction.multimedia;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.color.CMMException;
-import java.awt.image.BufferedImage;
-import java.awt.image.renderable.ParameterBlock;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.media.jai.InterpolationBicubic;
-import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
-import javax.swing.ImageIcon;
-
 import org.apache.commons.lang.Validate;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -47,39 +16,64 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.media.jai.InterpolationBicubic;
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
+import javax.media.jai.operator.ColorQuantizerDescriptor;
+import javax.swing.*;
+import java.awt.Color;
+import java.awt.*;
+import java.awt.color.CMMException;
+import java.awt.image.BufferedImage;
+import java.awt.image.renderable.ParameterBlock;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+
 /**
  * <p>
  * A handler for images.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
 public class ImageHandler {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandler.class);
 
     public static final List<ws.palladian.extraction.multimedia.Color> COLORS;
 
-	static {
-		InputStream inputStream = ImageHandler.class.getResourceAsStream("/colors.csv");
-		final List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
-		FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
-			@Override
-			public void performAction(String line, int lineNumber) {
-				String[] split = line.split(";");
-				colors.add(new ws.palladian.extraction.multimedia.Color(split[0], split[1], split[2]));
-			}
-		});
-		COLORS = Collections.unmodifiableList(colors);
-	}
+    static {
+        InputStream inputStream = ImageHandler.class.getResourceAsStream("/colors.csv");
+        final List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
+        FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] split = line.split(";");
+                colors.add(new ws.palladian.extraction.multimedia.Color(split[0], split[1], split[2]));
+            }
+        });
+        COLORS = Collections.unmodifiableList(colors);
+    }
 
     /**
      * <p>
      * An extracted image.
      * </p>
-     * 
+     *
      * @author David Urbansky
      */
     private static final class ExtractedImage extends BasicWebImage {
@@ -107,7 +101,9 @@ public class ImageHandler {
     }
 
     /**
-     * <p>A color cluster.</p>
+     * <p>
+     * A color cluster.
+     * </p>
      */
     private static final class ColorCluster {
         long totalRed = 0L;
@@ -116,15 +112,19 @@ public class ImageHandler {
         int population;
 
         public Color getCenterColor() {
-            return new Color((int)((double)totalRed / population), (int)((double)totalGreen / population),
-                    (int)((double)totalBlue / population));
+            return new Color((int) ((double) totalRed / population), (int) ((double) totalGreen / population),
+                    (int) ((double) totalBlue / population));
         }
     }
 
-    /** Image similarity mean square error. */
+    /**
+     * Image similarity mean square error.
+     */
     public static final int MSE = 1;
 
-    /** Image similarity with Minkowsi. */
+    /**
+     * Image similarity with Minkowsi.
+     */
     public static final int MINKOWSKI = 2;
 
     // image similarity with image difference and average gray values
@@ -138,7 +138,7 @@ public class ImageHandler {
      * <p>
      * Load an image from disk.
      * </p>
-     * 
+     *
      * @param imageFile The image file on disk.
      * @return The buffered image.
      * @throws IOException
@@ -151,7 +151,7 @@ public class ImageHandler {
      * <p>
      * Load an image from an URL.
      * </p>
-     * 
+     *
      * @param url The url of the image.
      * @return The buffered image.
      */
@@ -168,10 +168,6 @@ public class ImageHandler {
             } else {
                 bufferedImage = ImageIO.read(new File(url));
             }
-        } catch (MalformedURLException e) {
-            LOGGER.error(url + ", " + e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(url + ", " + e.getMessage());
         } catch (Exception e) {
             LOGGER.error(url + ", " + e.getMessage());
         }
@@ -192,22 +188,16 @@ public class ImageHandler {
         try {
 
             // normalize all images to fixed width
-            List<ExtractedImage> normalizedImages = new ArrayList<ExtractedImage>();
+            List<ExtractedImage> normalizedImages = new ArrayList<>();
 
             for (WebImage image : images) {
-                BufferedImage bufferedImage = null;
+                BufferedImage bufferedImage;
                 try {
                     bufferedImage = load(image.getUrl());
                     if (bufferedImage != null) {
                         bufferedImage = rescaleImage(bufferedImage, 200);
                         normalizedImages.add(new ExtractedImage(image, bufferedImage));
                     }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    LOGGER.error(image.getUrl());
-                } catch (IllegalArgumentException e) {
-                    LOGGER.error(image.getUrl());
-                } catch (CMMException e) {
-                    LOGGER.error(image.getUrl());
                 } catch (Exception e) {
                     LOGGER.error(image.getUrl());
                 }
@@ -226,8 +216,8 @@ public class ImageHandler {
                             continue;
                         }
 
-                        if (!MathHelper.isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(),
-                                0.05)) {
+                        if (!MathHelper
+                                .isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
                             continue;
                         }
                         if (isDuplicate(image1.imageContent, image2.imageContent)) {
@@ -246,7 +236,7 @@ public class ImageHandler {
             Collections.sort(normalizedImages, new Comparator<ExtractedImage>() {
                 @Override
                 public int compare(ExtractedImage image1, ExtractedImage image2) {
-                    return (int)(1000 * image2.getRanking() - 1000 * image1.getRanking());
+                    return (int) (1000 * image2.getRanking() - 1000 * image1.getRanking());
                 }
             });
             // CollectionHelper.print(normalizedImages);
@@ -278,9 +268,9 @@ public class ImageHandler {
      * <p>
      * Example 2: a 100x400 image is transformed to 25x100 to fit a 200x100 box.
      * </p>
-     * 
-     * @param image The buffered image which should be transformed.
-     * @param boxWidth The width of the box in which the image should be positioned.
+     *
+     * @param image     The buffered image which should be transformed.
+     * @param boxWidth  The width of the box in which the image should be positioned.
      * @param boxHeight The height of the box in which the image should be positioned.
      * @return The transformed buffered image.
      */
@@ -306,9 +296,9 @@ public class ImageHandler {
      * Example 2: a 100x400 image is transformed to 200x800 to fit a 200x100 box. 200px at the top and bottom will be
      * cropped (800-400/2).
      * </p>
-     * 
-     * @param image The buffered image which should be transformed.
-     * @param boxWidth The width of the box in which the image should be positioned.
+     *
+     * @param image     The buffered image which should be transformed.
+     * @param boxWidth  The width of the box in which the image should be positioned.
      * @param boxHeight The height of the box in which the image should be positioned.
      * @return The transformed buffered image.
      */
@@ -317,15 +307,13 @@ public class ImageHandler {
         Validate.notNull(image);
 
         // scale to fill the target box completely
-        double scale = Math.max((double)boxWidth / (double)image.getWidth(),
-                (double)boxHeight / (double)image.getHeight());
+        double scale = Math.max((double) boxWidth / (double) image.getWidth(),
+                (double) boxHeight / (double) image.getHeight());
 
-        int targetWidth = Math.max((int)(image.getWidth() * scale), boxWidth);
-        int targetHeight = Math.max((int)(image.getHeight() * scale), boxHeight);
+        int targetWidth = Math.max((int) (image.getWidth() * scale), boxWidth);
+        int targetHeight = Math.max((int) (image.getHeight() * scale), boxHeight);
 
         image = boxFit(image, targetWidth, targetHeight, false);
-
-        // saveImage(image, "jpg", "test.jpg");
 
         int iWidth = image.getWidth();
         int iHeight = image.getHeight();
@@ -341,18 +329,18 @@ public class ImageHandler {
             return image;
         }
 
-        return image.getSubimage((int)xOffset, (int)yOffset, Math.min(boxWidth, iWidth), Math.min(boxHeight, iHeight));
+        return image.getSubimage((int) xOffset, (int) yOffset, Math.min(boxWidth, iWidth), Math.min(boxHeight, iHeight));
     }
 
     /**
      * <p>
      * Batch rescale images in a folder.
      * </p>
-     * 
+     *
      * @param imageFolder The folder with the images to rescale.
-     * @param imageWidth The target image width.
+     * @param imageWidth  The target image width.
      * @param imageHeight The target image height.
-     * @param fit Whether images should be fit to the box or cropped to match the imageWidth and imageHeight.
+     * @param fit         Whether images should be fit to the box or cropped to match the imageWidth and imageHeight.
      * @throws IOException
      */
     public static void rescaleAllImages(String imageFolder, int imageWidth, int imageHeight, boolean fit)
@@ -381,8 +369,8 @@ public class ImageHandler {
         int iWidth = bufferedImage.getWidth();
         int iHeight = bufferedImage.getHeight();
 
-        double scaleX = (double)boxWidth / (double)iWidth;
-        double scaleY = (double)boxHeight / (double)iHeight;
+        double scaleX = (double) boxWidth / (double) iWidth;
+        double scaleY = (double) boxHeight / (double) iHeight;
         double scale = Math.min(scaleX, scaleY);
 
         if (toFit) {
@@ -423,9 +411,7 @@ public class ImageHandler {
         // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
         // RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
-        RenderedOp resizedImage = null;
-
-        resizedImage = JAI.create("SubsampleAverage", pb, qualityHints1);
+        RenderedOp resizedImage = JAI.create("SubsampleAverage", pb, qualityHints1);
 
         return resizedImage.getAsBufferedImage();
     }
@@ -439,16 +425,17 @@ public class ImageHandler {
         }
 
         ParameterBlock pb = new ParameterBlock();
-        pb.addSource(bufferedImage); // The source image
+        // the source image
+        pb.addSource(bufferedImage);
         // x scale
         if (upscale) {
-            pb.add((float)scale);
+            pb.add((float) scale);
         } else {
             pb.add(scale);
         }
         // y scale
         if (upscale) {
-            pb.add((float)scale);
+            pb.add((float) scale);
         } else {
             pb.add(scale);
         }
@@ -466,7 +453,7 @@ public class ImageHandler {
         // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
         // RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
-        RenderedOp resizedImage = null;
+        RenderedOp resizedImage;
 
         if (upscale) {
             resizedImage = JAI.create("scale", pb, qualityHints1);
@@ -481,10 +468,10 @@ public class ImageHandler {
      * <p>
      * Rescaling an image using JAI SubsampleAverage. The image looks smooth after rescaling.
      * </p>
-     * 
+     *
      * @param bufferedImage The input image.
-     * @param newWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
+     * @param newWidth      The desired new width (size) of the image.
+     * @param fit           If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
     private static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
@@ -497,10 +484,10 @@ public class ImageHandler {
         int iWidth = bufferedImage.getWidth();
         int iHeight = bufferedImage.getHeight();
 
-        double scale = (double)newWidth / (double)iWidth;
+        double scale = (double) newWidth / (double) iWidth;
 
         if (fit && iWidth < iHeight) {
-            scale = (double)newWidth / (double)iHeight;
+            scale = (double) newWidth / (double) iHeight;
         }
 
         return rescaleImage(bufferedImage, scale);
@@ -514,19 +501,19 @@ public class ImageHandler {
      * <p>
      * Rescaling an image using java.awt.Image.getScaledInstance. The image looks smooth after rescaling.
      * </p>
-     * 
+     *
      * @param bufferedImage The input image.
-     * @param boxWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
+     * @param boxWidth      The desired new width (size) of the image.
+     * @param fit           If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
     private static BufferedImage scaleUp(BufferedImage bufferedImage, double scaleX, double scaleY) {
         ImageIcon imageIcon = new ImageIcon(bufferedImage);
         Image image = imageIcon.getImage();
-        Image resizedImage = null;
+        Image resizedImage;
 
-        int width = (int)(Math.round(scaleX * bufferedImage.getWidth()));
-        int height = (int)(Math.round(scaleY * bufferedImage.getHeight()));
+        int width = (int) (Math.round(scaleX * bufferedImage.getWidth()));
+        int height = (int) (Math.round(scaleY * bufferedImage.getHeight()));
         resizedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
 
         // ensure that all the pixels in the image are loaded.
@@ -551,7 +538,6 @@ public class ImageHandler {
         boolean success = false;
 
         try {
-
             BufferedImage bi = load(url);
 
             // get file extension
@@ -570,13 +556,7 @@ public class ImageHandler {
             ImageIO.write(bi, fileExtension, new File(savePath));
 
             success = true;
-        } catch (MalformedURLException e) {
-            LOGGER.error(url, e);
-        } catch (IOException e) {
-            LOGGER.error(url, e);
-        } catch (NullPointerException e) {
-            LOGGER.error(url, e);
-        } catch (IllegalArgumentException e) {
+        } catch (IOException | NullPointerException | IllegalArgumentException e) {
             LOGGER.error(url, e);
         }
 
@@ -604,14 +584,14 @@ public class ImageHandler {
                 double greenNormalized = 0.59 * Math.abs(c1.getGreen() - c2.getGreen());
                 double blueNormalized = 0.11 * Math.abs(c1.getBlue() - c2.getBlue());
 
-                int gray = (int)(redNormalized + greenNormalized + blueNormalized);
+                int gray = (int) (redNormalized + greenNormalized + blueNormalized);
                 Color cg = new Color(gray, gray, gray);
                 substractedImage.setRGB(i, j, cg.getRGB());
                 grayCount += gray;
             }
         }
 
-        float averageGray = grayCount / (float)pixelCount;
+        float averageGray = grayCount / (float) pixelCount;
 
         LOGGER.debug("{}", averageGray);
 
@@ -631,13 +611,12 @@ public class ImageHandler {
                 double greenNormalized = 0.59 * c1.getGreen();
                 double blueNormalized = 0.11 * c1.getBlue();
 
-                int gray = (int)(redNormalized + greenNormalized + blueNormalized);
+                int gray = (int) (redNormalized + greenNormalized + blueNormalized);
                 grayCount += gray;
             }
         }
 
-        float averageGray = grayCount / (float)pixelCount;
-        return averageGray;
+        return grayCount / (float) pixelCount;
     }
 
     public static double getAverageRed(BufferedImage bufferedImage, boolean ignoreWhite) {
@@ -657,8 +636,7 @@ public class ImageHandler {
             }
         }
 
-        double averageRed = 0.3 * redCount / pixelCount;
-        return averageRed;
+        return 0.3 * redCount / pixelCount;
     }
 
     public static double getAverageGreen(BufferedImage bufferedImage, boolean ignoreWhite) {
@@ -678,8 +656,7 @@ public class ImageHandler {
             }
         }
 
-        double averageGreen = 0.59 * greenCount / pixelCount;
-        return averageGreen;
+        return 0.59 * greenCount / pixelCount;
     }
 
     public static double getAverageBlue(BufferedImage bufferedImage, boolean ignoreWhite) {
@@ -699,8 +676,7 @@ public class ImageHandler {
             }
         }
 
-        double averageBlau = 0.11 * blueCount / pixelCount;
-        return averageBlau;
+        return 0.11 * blueCount / pixelCount;
     }
 
     public static double getSimilarity(BufferedImage image1, BufferedImage image2, int measure) {
@@ -735,7 +711,7 @@ public class ImageHandler {
             }
         }
 
-        double meanSquareError = 1 / (double)(image1.getWidth() * image1.getHeight()) * squaredError;
+        double meanSquareError = 1 / (double) (image1.getWidth() * image1.getHeight()) * squaredError;
         return meanSquareError;
     }
 
@@ -755,7 +731,7 @@ public class ImageHandler {
             for (int j = 0; j < Math.min(image1.getHeight(), image2.getHeight()); j++) {
                 Color color1 = new Color(image1.getRGB(i, j));
                 Color color2 = new Color(image2.getRGB(i, j));
-                squaredError += Math.pow((color1.getRed() - color2.getRed()) / (double)255, r);
+                squaredError += Math.pow((color1.getRed() - color2.getRed()) / (double) 255, r);
             }
         }
 
@@ -783,7 +759,7 @@ public class ImageHandler {
         for (int i = 0; i < bufferedImage.getWidth(); i++) {
             for (int j = 0; j < bufferedImage.getHeight(); j++) {
                 Color color = new Color(bufferedImage.getRGB(i, j));
-                int gray = (int)(0.3 * color.getRed() + 0.59 * color.getGreen() + 0.11 * color.getBlue());
+                int gray = (int) (0.3 * color.getRed() + 0.59 * color.getGreen() + 0.11 * color.getBlue());
                 Color cg = new Color(gray, gray, gray);
                 bufferedImage.setRGB(i, j, cg.getRGB());
             }
@@ -811,21 +787,21 @@ public class ImageHandler {
 
         double similarity = getSimilarity(image1, image2, DIFFG);
         // System.out.println(similarity);
-        if (similarity > 0.82) {
-            return true;
-        }
-
-        return false;
+        return similarity > 0.82;
     }
 
     /**
      * Save an image to disk. This methods wraps the ImageIO.write method and does error handling.
-     * 
-     * @param image The image to save.
+     *
+     * @param image    The image to save.
      * @param fileType The image type (e.g. "jpg")
      * @param filePath The path where the image should be saved.
      * @return True if the image was saved successfully, false otherwise.
      */
+    public static boolean saveImage(BufferedImage image, String filePath) {
+        return saveImage(image, FileHelper.getFileType(filePath), filePath);
+    }
+
     public static boolean saveImage(BufferedImage image, String fileType, String filePath) {
         return saveImage(image, fileType, filePath, 1.0f);
     }
@@ -856,52 +832,6 @@ public class ImageHandler {
 
             return true;
 
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return false;
-    }
-
-    /**
-     * Save an image to disk. This methods wraps the ImageIO.write method and does error handling.
-     * 
-     * @param image The image to save.
-     * @param fileType The image type (e.g. "jpg")
-     * @param filePath The path where the image should be saved.
-     * @return True if the image was saved successfully, false otherwise.
-     */
-    @Deprecated
-    public static boolean saveImage2(BufferedImage image, String fileType, String filePath) {
-        try {
-            ImageIO.write(image, fileType, new File(filePath));
-            return true;
-        } catch (IOException e) {
-            LOGGER.error("saving of image failed, " + e.getMessage());
-        } catch (NullPointerException e) {
-            LOGGER.error("saving of image failed, " + e.getMessage());
-        }
-        return false;
-    }
-
-    /**
-     * <p>
-     * Save an image to disk. This methods wraps the JAI.create method and does error handling.
-     * </p>
-     * 
-     * @param image The image to save.
-     * @param fileType The image type (e.g. "jpg")
-     * @param filePath The path where the image should be saved.
-     * @return True if the image was saved successfully, false otherwise.
-     */
-    @Deprecated
-    public static boolean saveImage3(BufferedImage bufferedImage, String fileType, String filePath) {
-
-        try {
-            JAI.create("encode", bufferedImage, new FileOutputStream(new File(filePath)), fileType.toUpperCase(), null);
-            return true;
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -915,7 +845,7 @@ public class ImageHandler {
      * than one image, we pick the one with the highest resolution. We return a set of image URLs with the highest
      * resolving pictures.
      * </p>
-     * 
+     *
      * @param imageUrls A collection of image URLs.
      * @return A set of image URLs that all represent different images (the highest resolving images per cluster).
      */
@@ -924,10 +854,10 @@ public class ImageHandler {
         Set<String> selectedImages = new HashSet<>();
 
         // keep the index of the loaded image and tie it to the image URL
-        Map<Integer, String> indexUrlMap = new HashMap<Integer, String>();
+        Map<Integer, String> indexUrlMap = new HashMap<>();
 
         // load all images
-        List<BufferedImage> loadedImages = new ArrayList<BufferedImage>();
+        List<BufferedImage> loadedImages = new ArrayList<>();
         for (String imageUrl : imageUrls) {
             indexUrlMap.put(loadedImages.size(), imageUrl);
             BufferedImage loadedImage = load(imageUrl);
@@ -935,10 +865,10 @@ public class ImageHandler {
         }
 
         // hold the representatives per cluster, <clusterId,[imageIds]>
-        Map<Integer, List<Integer>> representatives = new HashMap<Integer, List<Integer>>();
+        Map<Integer, List<Integer>> representatives = new HashMap<>();
 
         // remember all image ids that are in a cluster already
-        Set<Integer> clusteredImageIds = new HashSet<Integer>();
+        Set<Integer> clusteredImageIds = new HashSet<>();
 
         for (int i = 0; i < loadedImages.size(); i++) {
 
@@ -969,9 +899,7 @@ public class ImageHandler {
                     representatives.get(i).add(j);
                     clusteredImageIds.add(j);
                 }
-
             }
-
         }
 
         // pick highest resolving representative
@@ -1066,18 +994,18 @@ public class ImageHandler {
             }
         });
 
-//        for (ColorCluster cluster : clusters) {
-//            if (cluster.population > 50) {
-//                System.out.println(rgbToHex(cluster.getCenterColor()) + " : " + cluster.population);
-//            }
-//        }
+        // for (ColorCluster cluster : clusters) {
+        // if (cluster.population > 50) {
+        // System.out.println(rgbToHex(cluster.getCenterColor()) + " : " + cluster.population);
+        // }
+        // }
 
         List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
         Set<String> seenMainColors = new HashSet<>();
 
         // go through clusters and get top 3 main colors
         for (ColorCluster cluster : clusters) {
-            
+
             Color imageColor = cluster.getCenterColor();
             String hex = rgbToHex(imageColor);
 
@@ -1087,13 +1015,14 @@ public class ImageHandler {
                 Color color = hexToRgb(currentColor.getHexCode());
                 double distance = colorDistance(imageColor, color);
                 if (bestMatch == null || distance < bestMatch.getValue0()) {
-                    bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, currentColor
-                    		.getSpecificColorName(), currentColor.getMainColorName()));
+                    bestMatch = Pair.with(distance,
+                            new ws.palladian.extraction.multimedia.Color(hex, currentColor.getSpecificColorName(),
+                                    currentColor.getMainColorName()));
                 }
 
             }
 
-            if (seenMainColors.add(bestMatch.getValue1().getMainColorName())){
+            if (seenMainColors.add(bestMatch.getValue1().getMainColorName())) {
                 colors.add(bestMatch.getValue1());
             }
 
@@ -1114,26 +1043,82 @@ public class ImageHandler {
         return Math.sqrt(rDistance * rDistance + gDistance * gDistance + bDistance * bDistance);
     }
 
+    public static BufferedImage reduceColors(BufferedImage image, int numberOfColors) {
+
+        // NOTE: 256 seems to be a good number for OCTTREE as upper bound, default would be 65536, this parameter is
+        // ColorQuantizerType dependent!
+        final RenderedOp cqImage = ColorQuantizerDescriptor.create(image, ColorQuantizerDescriptor.OCTTREE,
+                numberOfColors, 256, null, null, null, null);
+
+        return cqImage.getAsBufferedImage();
+    }
+
+    public static LinkedHashMap<Color, Integer> getColorFrequencies(BufferedImage image) {
+
+        Bag<Color> colorCounter = Bag.create();
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                int rgb = image.getRGB(x, y);
+                colorCounter.add(new Color(rgb));
+            }
+        }
+        Bag<Color> sorted = colorCounter.createSorted(CollectionHelper.Order.DESCENDING);
+        LinkedHashMap<Color, Integer> frequencies = new LinkedHashMap<>();
+        for (Color s : sorted.uniqueItems()) {
+            frequencies.put(s, sorted.count(s));
+        }
+
+        return frequencies;
+    }
+
+    public static Color getRandomColor() {
+        return new Color(MathHelper.getRandomIntBetween(0, 255), MathHelper.getRandomIntBetween(0, 255), MathHelper.getRandomIntBetween(0, 255));
+    }
+
+    /**
+     * Fill a region with the same color with a new color.
+     * NOTE: This is recursive and might require to increase stack size (-Xss) for larger images.
+     *
+     * @param image            The image.
+     * @param x                Starting x for the flood fill.
+     * @param y                Starting y for the flood fill.
+     * @param followColor      The color to follow.
+     * @param replacementColor The replacement color.
+     * @param pixels           A collection of pixels that were changed.
+     */
+    public static void floodFill(BufferedImage image, int x, int y, Color followColor, Color replacementColor, Collection<Point> pixels) {
+        if (image.getRGB(x, y) != followColor.getRGB()) {
+            return;
+        }
+        image.setRGB(x, y, replacementColor.getRGB());
+        pixels.add(new Point(x, y));
+        floodFill(image, x - 1, y - 1, followColor, replacementColor, pixels);
+        floodFill(image, x, y - 1, followColor, replacementColor, pixels);
+        floodFill(image, x + 1, y - 1, followColor, replacementColor, pixels);
+        floodFill(image, x - 1, y, followColor, replacementColor, pixels);
+        floodFill(image, x + 1, y, followColor, replacementColor, pixels);
+        floodFill(image, x - 1, y + 1, followColor, replacementColor, pixels);
+        floodFill(image, x, y + 1, followColor, replacementColor, pixels);
+        floodFill(image, x + 1, y + 1, followColor, replacementColor, pixels);
+    }
+
     public static void main(String[] args) throws Exception {
 
         // BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
         // BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
-        BufferedImage testImg = ImageHandler
-                .load("https://res.svh24.de/images2/720/2/257/1012007099_1.jpg");
+        BufferedImage testImg = ImageHandler.load("https://res.svh24.de/images2/720/2/257/1012007099_1.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
-        testImg = ImageHandler
-                .load("https://res.svh24.de/images2/720/4/119/1000000095_1.jpg");
+        testImg = ImageHandler.load("https://res.svh24.de/images2/720/4/119/1000000095_1.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
-        testImg = ImageHandler
-                .load("https://res.svh24.de/images2/720/1/271/1011038627_1.jpg");
+        testImg = ImageHandler.load("https://res.svh24.de/images2/720/1/271/1011038627_1.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler
                 .load("http://cdn1-www.webecoist.momtastic.com/assets/uploads/2008/12/8-green-camera.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load("http://www.fotokoch.de/bilddaten/bildklein/samsung-wb50f-rot_60185.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
-        testImg = ImageHandler.load(
-                "http://cdn.itechnews.net/wp-content/uploads/2012/09/HTC-8X-Windows-Phone-8-Smartphone-flaming-red.jpg");
+        testImg = ImageHandler
+                .load("http://cdn.itechnews.net/wp-content/uploads/2012/09/HTC-8X-Windows-Phone-8-Smartphone-flaming-red.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load("http://image01.bonprix.de/bonprixbilder/460x644/1427714799/15023250-ujoMmNo0.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
