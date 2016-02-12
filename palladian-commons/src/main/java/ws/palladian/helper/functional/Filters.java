@@ -30,6 +30,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return item != null;
         }
+        @Override
+        public String toString() {
+        	return "not_null";
+        };
     };
 
     /** A filter which accepts all elements. */
@@ -38,6 +42,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return true;
         }
+        @Override
+        public String toString() {
+        	return "all";
+        };
     };
 
     /** A filter which rejects all elements. */
@@ -46,6 +54,10 @@ public final class Filters {
         public boolean accept(Object item) {
             return false;
         }
+        @Override
+        public String toString() {
+        	return "none";
+        };
     };
 
     /** A filter which rejects empty {@link CharSequence}s. */
@@ -54,6 +66,10 @@ public final class Filters {
         public boolean accept(CharSequence item) {
             return item != null && item.length() > 0;
         }
+        @Override
+        public String toString() {
+        	return "empty";
+        };
     };
 
     /**
@@ -70,20 +86,24 @@ public final class Filters {
             public boolean accept(T item) {
                 return !filter.accept(item);
             }
+            @Override
+            public String toString() {
+            	return "not [" + filter + "]";
+            }
         };
     }
 
     public static <T> Filter<T> equal(T value) {
-        return new EqualsFilter<T>(Collections.singleton(value));
+        return new EqualsFilter<>(Collections.singleton(value));
     }
 
     public static <T> Filter<T> equal(Collection<T> values) {
-        return new EqualsFilter<T>(new HashSet<T>(values));
+        return new EqualsFilter<>(new HashSet<T>(values));
     }
 
     @SafeVarargs
     public static <T> Filter<T> equal(T... values) {
-        return new EqualsFilter<T>(new HashSet<T>(Arrays.asList(values)));
+        return new EqualsFilter<>(new HashSet<T>(Arrays.asList(values)));
     }
 
     /**
@@ -150,14 +170,14 @@ public final class Filters {
     /**
      * <p>
      * Combine multiple filters so that they act as <code>AND</code> combination (i.e. each of the given filters needs
-     * to accept and item). The filters are processed in the given order.
+     * to accept an item). The filters are processed in the given order.
      * 
      * @param filters The filters to combine, not <code>null</code>.
      * @return An <code>AND</code>-combination of the given filters.
      */
     public static <T> Filter<T> and(Collection<? extends Filter<? super T>> filters) {
         Validate.notNull(filters, "filters must not be null");
-        return new AndFilter<T>(filters);
+        return new AndFilter<>(filters);
     }
 
     /**
@@ -171,7 +191,36 @@ public final class Filters {
     @SafeVarargs
     public static <T> Filter<T> and(Filter<? super T>... filters) {
         Validate.notNull(filters, "filters must not be null");
-        return new AndFilter<T>(new LinkedHashSet<>(Arrays.asList(filters)));
+        return new AndFilter<>(new LinkedHashSet<>(Arrays.asList(filters)));
+    }
+    
+	/**
+	 * Combine multiple filters so that they act as <code>OR</code> combination
+	 * (i.e. at least one of the given filters needs to accept and item). The
+	 * filters are processed in the given order using short-circuit evaluation.
+	 * 
+	 * @param filters
+	 *            The filters to combine, not <code>null</code>.
+	 * @return An <code>OR</code>-combination of the given filters.
+	 */
+	public static <T> Filter<T> or(Collection<? extends Filter<? super T>> filters) {
+		Validate.notNull(filters, "filters must not be null");
+		return new OrFilter<>(filters);
+	}
+    
+	/**
+	 * Combine multiple filters so that they act as <code>OR</code> combination
+	 * (i.e. at least one of the given filters needs to accept and item). The
+	 * filters are processed in the given order using short-circuit evaluation.
+	 * 
+	 * @param filters
+	 *            The filters to combine, not <code>null</code>.
+	 * @return An <code>OR</code>-combination of the given filters.
+	 */
+    @SafeVarargs
+	public static <T> Filter<T> or(Filter<? super T>... filters) {
+    	Validate.notNull(filters, "filters must not be null");
+    	return new OrFilter<>(new LinkedHashSet<>(Arrays.asList(filters)));
     }
 
     /**
@@ -202,12 +251,40 @@ public final class Filters {
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("FilterChain [filters=");
+            builder.append("And [filters=");
             builder.append(filters);
             builder.append("]");
             return builder.toString();
         }
 
+    }
+    
+    private static final class OrFilter<T> implements Filter<T> {
+    	private final Collection<? extends Filter<? super T>> filters;
+
+		OrFilter(Collection<? extends Filter<? super T>> filters) {
+			this.filters = filters;
+		}
+
+		@Override
+		public boolean accept(T item) {
+			for (Filter<? super T> filter : filters) {
+				if (filter.accept(item)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+            builder.append("Or [filters=");
+            builder.append(filters);
+            builder.append("]");
+            return builder.toString();
+		}
+    	
     }
 
     /**
