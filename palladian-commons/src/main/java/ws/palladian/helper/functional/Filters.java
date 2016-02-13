@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
@@ -32,7 +33,7 @@ public final class Filters {
         }
         @Override
         public String toString() {
-        	return "not_null";
+        	return "!= null";
         };
     };
 
@@ -44,7 +45,7 @@ public final class Filters {
         }
         @Override
         public String toString() {
-        	return "all";
+        	return "true";
         };
     };
 
@@ -56,7 +57,7 @@ public final class Filters {
         }
         @Override
         public String toString() {
-        	return "none";
+        	return "false";
         };
     };
 
@@ -68,7 +69,7 @@ public final class Filters {
         }
         @Override
         public String toString() {
-        	return "empty";
+        	return "length() > 0";
         };
     };
 
@@ -88,7 +89,7 @@ public final class Filters {
             }
             @Override
             public String toString() {
-            	return "not [" + filter + "]";
+            	return "! " + filter;
             }
         };
     }
@@ -158,11 +159,7 @@ public final class Filters {
 
         @Override
         public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("RegexFilter [pattern=");
-            builder.append(pattern);
-            builder.append("]");
-            return builder.toString();
+        	return pattern.toString();
         }
 
     }
@@ -250,11 +247,7 @@ public final class Filters {
 
         @Override
         public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("And [filters=");
-            builder.append(filters);
-            builder.append("]");
-            return builder.toString();
+        	return "(" + StringUtils.join(filters, " && ") + ")";
         }
 
     }
@@ -278,11 +271,7 @@ public final class Filters {
 		
 		@Override
 		public String toString() {
-			StringBuilder builder = new StringBuilder();
-            builder.append("Or [filters=");
-            builder.append(filters);
-            builder.append("]");
-            return builder.toString();
+			return "(" + StringUtils.join(filters, " || ") + ")";
 		}
     	
     }
