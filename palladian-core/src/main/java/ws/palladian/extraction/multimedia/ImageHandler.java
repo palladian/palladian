@@ -9,7 +9,9 @@ import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.math.SlimStats;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -1042,8 +1044,8 @@ public class ImageHandler {
      * @return A distance between the colors.
      */
     private static double colorDistance(Color color1, Color color2) {
-        double[] lab1 = new ColorSpaceConverter().RgbToLab(color1.getRed(), color1.getGreen(), color1.getBlue());
-        double[] lab2 = new ColorSpaceConverter().RgbToLab(color2.getRed(), color2.getGreen(), color2.getBlue());
+        double[] lab1 = new ColorSpaceConverter().rgbToLab(color1.getRed(), color1.getGreen(), color1.getBlue());
+        double[] lab2 = new ColorSpaceConverter().rgbToLab(color2.getRed(), color2.getGreen(), color2.getBlue());
 
         double lDistance = Math.pow(lab1[0] - lab2[0], 2);
         double aDistance = Math.pow(lab1[1] - lab2[1], 2);
@@ -1148,7 +1150,62 @@ public class ImageHandler {
         floodFill(image, x + 1, y + 1, followColor, replacementColor, pixels);
     }
 
+    /**
+     * Use a simple 3x3 kernel on a gray scale image to detect frequencies (quick changes in brightness).
+     * @param image The image
+     * @return Statistics about brightness differences.
+     */
+    public static FatStats detectFrequencies(BufferedImage image) {
+        BufferedImage grayImage = toGrayScale(image);
+        ColorSpaceConverter csc = new ColorSpaceConverter();
+
+        FatStats frequencyStats = new FatStats();
+        for (int i = 1; i < grayImage.getWidth() - 1; i++) {
+            for (int j = 1; j < grayImage.getHeight() - 1; j++) {
+                Color thisColor = new Color(grayImage.getRGB(i, j));
+                Set<Color> colors = new HashSet<>();
+                Color color1 = new Color(grayImage.getRGB(i - 1, j - 1));
+                Color color2 = new Color(grayImage.getRGB(i, j - 1));
+                Color color3 = new Color(grayImage.getRGB(i, j + 1));
+                Color color4 = new Color(grayImage.getRGB(i - 1, j));
+                Color color5 = new Color(grayImage.getRGB(i + 1, j));
+                Color color6 = new Color(grayImage.getRGB(i - 1, j + 1));
+                Color color7 = new Color(grayImage.getRGB(i, j + 1));
+                Color color8 = new Color(grayImage.getRGB(i + 1, j + 1));
+                colors.add(color1);
+                colors.add(color2);
+                colors.add(color3);
+                colors.add(color4);
+                colors.add(color5);
+                colors.add(color6);
+                colors.add(color7);
+                colors.add(color8);
+                double[] doubles = csc.rgbToHsb(thisColor);
+                double v = 0.;
+                for (Color color : colors) {
+                    double[] doubles2 = csc.rgbToHsb(color);
+                    v += Math.abs(doubles2[2] - doubles[2]);
+                }
+                frequencyStats.add(v / colors.size());
+            }
+        }
+
+        return frequencyStats;
+    }
+
     public static void main(String[] args) throws Exception {
+
+        System.out.println("=== LOW");
+        detectFrequencies(load("D:\\yelp\\train_photos\\266414.jpg")); // should be low
+        detectFrequencies(load("D:\\yelp\\train_photos\\266895.jpg")); // should be low
+        detectFrequencies(load("D:\\yelp\\train_photos\\266876.jpg")); // should be low
+        detectFrequencies(load("D:\\yelp\\train_photos\\266991.jpg")); // should be low
+        System.out.println("=== HIGH");
+        detectFrequencies(load("D:\\yelp\\train_photos\\266453.jpg")); // should be high
+        detectFrequencies(load("D:\\yelp\\train_photos\\266921.jpg")); // should be high
+        detectFrequencies(load("D:\\yelp\\train_photos\\266966.jpg")); // should be high
+        detectFrequencies(load("D:\\yelp\\train_photos\\266958.jpg")); // should be high
+        System.exit(0);
 
         List<Color> palette = new ArrayList<>();
         palette.add(Color.BLACK);
