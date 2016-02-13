@@ -76,7 +76,7 @@ public class ColorSpaceConverter {
      * @param B Value (0..1)
      * @return RGB values
      */
-    public int[] HsbToRrb(double H, double S, double B) {
+    public int[] hsbToRrb(double H, double S, double B) {
         int[] result = new int[3];
         int rgb = Color.HSBtoRGB((float) H, (float) S, (float) B);
         result[0] = (rgb >> 16) & 0xff;
@@ -85,8 +85,8 @@ public class ColorSpaceConverter {
         return result;
     }
 
-    public int[] HsbToRrb(double[] HSB) {
-        return HsbToRrb(HSB[0], HSB[1], HSB[2]);
+    public int[] hsbToRrb(double[] HSB) {
+        return hsbToRrb(HSB[0], HSB[1], HSB[2]);
     }
 
     /**
@@ -97,12 +97,12 @@ public class ColorSpaceConverter {
      * @param b
      * @return RGB values
      */
-    public int[] LabToRgb(double L, double a, double b) {
-        return XyzToRgb(LabToXyz(L, a, b));
+    public int[] labToRgb(double L, double a, double b) {
+        return xyzToRgb(labToXyz(L, a, b));
     }
 
-    public int[] LabToRgb(double[] Lab) {
-        return XyzToRgb(LabToXyz(Lab));
+    public int[] labToRgb(double[] Lab) {
+        return xyzToRgb(labToXyz(Lab));
     }
 
     /**
@@ -113,7 +113,7 @@ public class ColorSpaceConverter {
      * @param b
      * @return XYZ values
      */
-    public double[] LabToXyz(double L, double a, double b) {
+    public double[] labToXyz(double L, double a, double b) {
         double[] result = new double[3];
 
         double y = (L + 16.0) / 116.0;
@@ -146,8 +146,8 @@ public class ColorSpaceConverter {
         return result;
     }
 
-    public double[] LabToXyz(double[] Lab) {
-        return LabToXyz(Lab[0], Lab[1], Lab[2]);
+    public double[] labToXyz(double[] Lab) {
+        return labToXyz(Lab[0], Lab[1], Lab[2]);
     }
 
     /**
@@ -156,7 +156,10 @@ public class ColorSpaceConverter {
      * @param B Blue in range 0..255
      * @return HSB values: H is 0..360 degrees / 360 (0..1), S is 0..1, B is 0..1
      */
-    public double[] RgbToHsb(int R, int G, int B) {
+    public double[] rgbToHsb(Color color) {
+        return rgbToHsb(color.getRed(), color.getGreen(), color.getBlue());
+    }
+    public double[] rgbToHsb(int R, int G, int B) {
         double[] result = new double[3];
         float[] hsb = new float[3];
         Color.RGBtoHSB(R, G, B, hsb);
@@ -166,8 +169,8 @@ public class ColorSpaceConverter {
         return result;
     }
 
-    public double[] RgbToHsb(int[] RGB) {
-        return RgbToHsb(RGB[0], RGB[1], RGB[2]);
+    public double[] rgbToHsb(int[] RGB) {
+        return rgbToHsb(RGB[0], RGB[1], RGB[2]);
     }
 
     /**
@@ -178,12 +181,12 @@ public class ColorSpaceConverter {
      * @param b
      * @return Lab values
      */
-    public double[] RgbToLab(int r, int g, int b) {
-        return XyzToLab(RgbToXyz(r, g, b));
+    public double[] rgbToLab(int r, int g, int b) {
+        return xyzToLab(rgbToXyz(r, g, b));
     }
 
-    public double[] RgbToLab(int[] rgb) {
-        return XyzToLab(RgbToXyz(rgb));
+    public double[] rgbToLab(int[] rgb) {
+        return xyzToLab(rgbToXyz(rgb));
     }
 
     /**
@@ -194,7 +197,7 @@ public class ColorSpaceConverter {
      * @param blue
      * @return XYZ in double array.
      */
-    public double[] RgbToXyz(int red, int green, int blue) {
+    public double[] rgbToXyz(int red, int green, int blue) {
         double[] result = new double[3];
 
         // convert 0..255 into 0..1
@@ -237,8 +240,8 @@ public class ColorSpaceConverter {
      * @param rgb
      * @return XYZ in double array.
      */
-    public double[] RgbToXyz(int[] rgb) {
-        return RgbToXyz(rgb[0], rgb[1], rgb[2]);
+    public double[] rgbToXyz(int[] rgb) {
+        return rgbToXyz(rgb[0], rgb[1], rgb[2]);
     }
 
     /**
@@ -275,7 +278,7 @@ public class ColorSpaceConverter {
      * @param Z
      * @return Lab values
      */
-    public double[] XyzToLab(double X, double Y, double Z) {
+    public double[] xyzToLab(double X, double Y, double Z) {
 
         double x = X / whitePoint[0];
         double y = Y / whitePoint[1];
@@ -306,8 +309,8 @@ public class ColorSpaceConverter {
         return result;
     }
 
-    public double[] XyzToLab(double[] xyz) {
-        return XyzToLab(xyz[0], xyz[1], xyz[2]);
+    public double[] xyzToLab(double[] xyz) {
+        return xyzToLab(xyz[0], xyz[1], xyz[2]);
     }
 
     /**
@@ -318,7 +321,7 @@ public class ColorSpaceConverter {
      * @param Z
      * @return RGB in int array.
      */
-    public int[] XyzToRgb(double X, double Y, double Z) {
+    public int[] xyzToRgb(double X, double Y, double Z) {
         int[] result = new int[3];
 
         double x = X / 100.0;
@@ -365,11 +368,11 @@ public class ColorSpaceConverter {
      * @param xyz in a double array.
      * @return RGB in int array.
      */
-    public int[] XyzToRgb(double[] xyz) {
-        return XyzToRgb(xyz[0], xyz[1], xyz[2]);
+    public int[] xyzToRgb(double[] xyz) {
+        return xyzToRgb(xyz[0], xyz[1], xyz[2]);
     }
 
-    public double[] XyzToxyY(double X, double Y, double Z) {
+    public double[] xyzToxyY(double X, double Y, double Z) {
         double[] result = new double[3];
         if ((X + Y + Z) == 0) {
             result[0] = chromaWhitePoint[0];
@@ -383,8 +386,8 @@ public class ColorSpaceConverter {
         return result;
     }
 
-    public double[] XyzToxyY(double[] XYZ) {
-        return XyzToxyY(XYZ[0], XYZ[1], XYZ[2]);
+    public double[] xyzToxyY(double[] XYZ) {
+        return xyzToxyY(XYZ[0], XYZ[1], XYZ[2]);
     }
 
 }
