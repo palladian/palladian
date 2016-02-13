@@ -56,7 +56,10 @@ public class PalladianContentExtractorTest {
     }
 
     @Test
+    @Ignore
     public void testDominantImageExtraction() throws PageContentExtractorException, FileNotFoundException {
+    	
+    	// FIXME make this work without internet connection!
 
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         WebImage image;

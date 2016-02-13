@@ -1,18 +1,7 @@
 package ws.palladian.helper.math;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,18 +26,24 @@ public final class MathHelper {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
-    
+
     public static final Random RANDOM = new Random();
 
     private static final Map<Double, String> FRACTION_MAP;
-    
+
     private static final Map<Double, Double> LOC_Z_MAPPING;
-    
+
+    private static final Pattern FRACTION_PATTERN = Pattern.compile("(\\d+)/(\\d+)");
+    private static final Pattern EX_PATTERN = Pattern.compile("\\d+\\.\\d+e\\d+");
+    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("[^0-9.]");
+    private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
+    private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
+
     /** The supported confidence levels. */
     public static final Collection<Double> CONFIDENCE_LEVELS;
 
     static {
-        FRACTION_MAP = new HashMap<Double, String>();
+        FRACTION_MAP = new HashMap<>();
         FRACTION_MAP.put(0.5, "1/2");
         FRACTION_MAP.put(0.3333, "1/3");
         FRACTION_MAP.put(0.6667, "2/3");
@@ -80,7 +75,7 @@ public final class MathHelper {
         FRACTION_MAP.put(0.3, "3/10");
         FRACTION_MAP.put(0.7, "7/10");
         FRACTION_MAP.put(0.9, "9/10");
-        
+
         Map<Double, Double> locZMapping = new LinkedHashMap<>();
         locZMapping.put(0.75, 1.151);
         locZMapping.put(0.85, 1.139);
@@ -110,23 +105,23 @@ public final class MathHelper {
      */
     @Deprecated
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
-//        Validate.notNull(setA, "setA must not be null");
-//        Validate.notNull(setB, "setB must not be null");
-//
-//        Set<T> intersection = new HashSet<>();
-//        intersection.addAll(setA);
-//        intersection.retainAll(setB);
-//
-//        if (intersection.size() == 0) {
-//            return 0;
-//        }
-//
-//        Set<T> union = new HashSet<>();
-//        union.addAll(setA);
-//        union.addAll(setB);
-//
-//        return (double)intersection.size() / union.size();
-        
+        // Validate.notNull(setA, "setA must not be null");
+        // Validate.notNull(setB, "setB must not be null");
+        //
+        // Set<T> intersection = new HashSet<>();
+        // intersection.addAll(setA);
+        // intersection.retainAll(setB);
+        //
+        // if (intersection.size() == 0) {
+        // return 0;
+        // }
+        //
+        // Set<T> union = new HashSet<>();
+        // union.addAll(setA);
+        // union.addAll(setB);
+        //
+        // return (double)intersection.size() / union.size();
+
         return SetSimilarities.JACCARD.getSimilarity(setA, setB);
     }
 
@@ -143,16 +138,16 @@ public final class MathHelper {
      */
     @Deprecated
     public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
-//        if (setA.size() == 0 || setB.size() == 0) {
-//            return 0;
-//        }
-//
-//        Set<T> intersection = new HashSet<>();
-//        intersection.addAll(setA);
-//        intersection.retainAll(setB);
-//
-//        return (double)intersection.size() / Math.min(setA.size(), setB.size());
-        
+        // if (setA.size() == 0 || setB.size() == 0) {
+        // return 0;
+        // }
+        //
+        // Set<T> intersection = new HashSet<>();
+        // intersection.addAll(setA);
+        // intersection.retainAll(setB);
+        //
+        // return (double)intersection.size() / Math.min(setA.size(), setB.size());
+
         return SetSimilarities.OVERLAP.getSimilarity(setA, setB);
     }
 
@@ -441,56 +436,56 @@ public final class MathHelper {
      * @return A random entry from the collection.
      */
     public static <T> T randomEntry(Collection<T> collection) {
-//        Collection<T> randomSample = randomSample(collection, 1);
+        // Collection<T> randomSample = randomSample(collection, 1);
         Collection<T> randomSample = sample(collection, 1);
         return CollectionHelper.getFirst(randomSample);
     }
 
-//    /**
-//     * <p>
-//     * Create a random sample from a given collection.
-//     * </p>
-//     * 
-//     * @param collection The collection from we want to sample from.
-//     * @param sampleSize The size of the sample.
-//     * @return A collection with samples from the collection.
-//     */
-//    public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
-//
-//        if (collection.size() < sampleSize) {
-//            LOGGER.debug(
-//                    "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
-//                    collection.size(), sampleSize);
-//            return collection;
-//        } else if (collection.size() == sampleSize) {
-//            return collection;
-//        }
-//
-//        Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
-//
-//        Set<Integer> indicesUsed = new HashSet<Integer>();
-//        Set<T> sampledCollection = new HashSet<T>();
-//
-//        for (int randomIndex : randomNumbers) {
-//
-//            int currentIndex = 0;
-//            for (T o : collection) {
-//
-//                if (currentIndex < randomIndex) {
-//                    currentIndex++;
-//                    continue;
-//                }
-//
-//                sampledCollection.add(o);
-//                indicesUsed.add(randomIndex);
-//                break;
-//            }
-//
-//        }
-//
-//        return sampledCollection;
-//    }
-    
+    // /**
+    // * <p>
+    // * Create a random sample from a given collection.
+    // * </p>
+    // *
+    // * @param collection The collection from we want to sample from.
+    // * @param sampleSize The size of the sample.
+    // * @return A collection with samples from the collection.
+    // */
+    // public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
+    //
+    // if (collection.size() < sampleSize) {
+    // LOGGER.debug(
+    // "tried to sample from a collection that was smaller than the sample size (Collection: {}, sample size: {}",
+    // collection.size(), sampleSize);
+    // return collection;
+    // } else if (collection.size() == sampleSize) {
+    // return collection;
+    // }
+    //
+    // Set<Integer> randomNumbers = MathHelper.createRandomNumbers(sampleSize, 0, collection.size());
+    //
+    // Set<Integer> indicesUsed = new HashSet<Integer>();
+    // Set<T> sampledCollection = new HashSet<T>();
+    //
+    // for (int randomIndex : randomNumbers) {
+    //
+    // int currentIndex = 0;
+    // for (T o : collection) {
+    //
+    // if (currentIndex < randomIndex) {
+    // currentIndex++;
+    // continue;
+    // }
+    //
+    // sampledCollection.add(o);
+    // indicesUsed.add(randomIndex);
+    // break;
+    // }
+    //
+    // }
+    //
+    // return sampledCollection;
+    // }
+
     /**
      * <p>
      * Create a random sampling of the given size using a <a
@@ -933,7 +928,7 @@ public final class MathHelper {
         }
 
         // resolve fractions like "1/2"
-        Matcher matcher = Pattern.compile("(\\d+)/(\\d+)").matcher(stringNumber);
+        Matcher matcher = FRACTION_PATTERN.matcher(stringNumber);
         if (matcher.find()) {
             int nominator = Integer.parseInt(matcher.group(1));
             int denominator = Integer.parseInt(matcher.group(2));
@@ -941,10 +936,21 @@ public final class MathHelper {
             stringNumber = stringNumber.replace(matcher.group(), StringUtils.EMPTY);
         }
 
+        // number.numberEX e.g. 4.4353E3 = 4435.3
+        Matcher exPattern = EX_PATTERN.matcher(stringNumber);
+        if (exPattern.find()) {
+            try {
+                value += Double.valueOf(exPattern.group(0));
+                return value;
+            } catch (Exception e) {
+                // ccl
+            }
+        }
+
         // parse the rest
-        stringNumber = stringNumber.replaceAll("[^0-9.]", StringUtils.EMPTY);
-        stringNumber = stringNumber.replaceAll("\\.(?!\\d)", StringUtils.EMPTY);
-        stringNumber = stringNumber.replaceAll("(?<!\\d)\\.", StringUtils.EMPTY);
+        stringNumber = CLEAN_PATTERN1.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
+        stringNumber = CLEAN_PATTERN2.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
+        stringNumber = CLEAN_PATTERN3.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         stringNumber = stringNumber.trim();
         if (!stringNumber.isEmpty()) {
             try {
