@@ -10,15 +10,15 @@ package ws.palladian;
 public interface PalladianVersion {
 
     /** Palladian version number. */
-    final String VERSION = "${project.version}";
+    String VERSION = "${project.version}";
 
     /** Palladian build. */
-    final String BUILD = "${timestamp}";
+    String BUILD = "${timestamp}";
 
     /** Palladian copyright. */
-    final String COPYRIGHT = "Copyright 2009-2015 by David Urbansky, Philipp Katz, Klemens Muthmann";
+    String COPYRIGHT = "Copyright 2009-2016 by David Urbansky, Philipp Katz, Klemens Muthmann";
 
     /** Palladian info. */
-    final String INFO = "Palladian version " + VERSION + " (build " + BUILD + ")\n" + COPYRIGHT + "\n";
+    String INFO = "Palladian version " + VERSION + " (build " + BUILD + ")\n" + COPYRIGHT + "\n";
 
 }

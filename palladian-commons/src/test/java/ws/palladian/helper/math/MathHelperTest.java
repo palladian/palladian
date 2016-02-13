@@ -173,6 +173,7 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
+        assertEquals(60000000, MathHelper.parseStringNumber("6.0E7 mpix"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1.5 c. bowls"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("0.5 bla"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("1/2 bla"), 0.001);
