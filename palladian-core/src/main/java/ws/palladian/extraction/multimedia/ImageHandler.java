@@ -28,7 +28,6 @@ import javax.media.jai.operator.ColorQuantizerDescriptor;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.*;
-import java.awt.color.CMMException;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.ByteArrayInputStream;
@@ -205,7 +204,7 @@ public class ImageHandler {
             images.clear();
 
             // compare images with almost or exactly the same width height ratio
-            Set<String> duplicateImages = new HashSet<String>();
+            Set<String> duplicateImages = new HashSet<>();
             for (int i = 0; i < normalizedImages.size() - 1; i++) {
                 ExtractedImage image1 = normalizedImages.get(i);
 
@@ -1035,12 +1034,22 @@ public class ImageHandler {
         return colors;
     }
 
+    /**
+     * Compute the perceptual distance of two colors. We use the CIE Lab color space as that is closer to how humans perceive colors.
+     *
+     * @param color1 First color.
+     * @param color2 Second color.
+     * @return A distance between the colors.
+     */
     private static double colorDistance(Color color1, Color color2) {
-        int rDistance = Math.abs(color1.getRed() - color2.getRed());
-        int gDistance = Math.abs(color1.getGreen() - color2.getGreen());
-        int bDistance = Math.abs(color1.getBlue() - color2.getBlue());
+        double[] lab1 = new ColorSpaceConverter().RgbToLab(color1.getRed(), color1.getGreen(), color1.getBlue());
+        double[] lab2 = new ColorSpaceConverter().RgbToLab(color2.getRed(), color2.getGreen(), color2.getBlue());
 
-        return Math.sqrt(rDistance * rDistance + gDistance * gDistance + bDistance * bDistance);
+        double lDistance = Math.pow(lab1[0] - lab2[0], 2);
+        double aDistance = Math.pow(lab1[1] - lab2[1], 2);
+        double bDistance = Math.pow(lab1[2] - lab2[2], 2);
+
+        return Math.sqrt(lDistance + aDistance + bDistance);
     }
 
     public static BufferedImage reduceColors(BufferedImage image, int numberOfColors) {
@@ -1051,6 +1060,43 @@ public class ImageHandler {
                 numberOfColors, 256, null, null, null, null);
 
         return cqImage.getAsBufferedImage();
+    }
+
+    public static Color getNearestColor(Color color, Collection<Color> colorPalette) {
+
+        Pair<Color, Double> nearestMatch = Pair.with(null, Double.MAX_VALUE);
+        for (Color color1 : colorPalette) {
+            Double distance = colorDistance(color, color1);
+            if (nearestMatch.getValue0() == null || nearestMatch.getValue1() > distance) {
+                nearestMatch = Pair.with(color1, distance);
+            }
+        }
+
+        return nearestMatch.getValue0();
+    }
+
+    public static BufferedImage pixelate(BufferedImage image, int boxSize) {
+        return pixelate(image, boxSize, null);
+    }
+
+    public static BufferedImage pixelate(BufferedImage image, int boxSize, Collection<Color> colorPalette) {
+
+        for (int w = 0; w < image.getWidth(); w += boxSize) {
+            for (int h = 0; h < image.getHeight(); h += boxSize) {
+                Color color = new Color(image.getRGB(w, h));
+
+                if (colorPalette != null) {
+                    color = getNearestColor(color, colorPalette);
+                }
+
+                Graphics imageGraphics = image.getGraphics();
+
+                imageGraphics.setColor(color);
+                imageGraphics.fillRect(w, h, boxSize, boxSize);
+            }
+        }
+
+        return image;
     }
 
     public static LinkedHashMap<Color, Integer> getColorFrequencies(BufferedImage image) {
@@ -1103,6 +1149,31 @@ public class ImageHandler {
     }
 
     public static void main(String[] args) throws Exception {
+
+        List<Color> palette = new ArrayList<>();
+        palette.add(Color.BLACK);
+        palette.add(Color.WHITE);
+        palette.add(Color.GRAY);
+        // chromatic circle
+        palette.add(new Color(7, 139, 91));
+        palette.add(new Color(134, 185, 53));
+        palette.add(new Color(234, 227, 49));
+        palette.add(new Color(245, 194, 46));
+        palette.add(new Color(235, 139, 47));
+        palette.add(new Color(229, 95, 45));
+        palette.add(new Color(221, 38, 44));
+        palette.add(new Color(190, 0, 121));
+        palette.add(new Color(107, 51, 133));
+        palette.add(new Color(71, 71, 145));
+        palette.add(new Color(53, 104, 169));
+        palette.add(new Color(36, 143, 181));
+        int pixelSize = 10;
+        String iName = "264505";
+        BufferedImage pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"), 10);
+        ImageHandler.saveImage(pixelated, "data/temp/pics/pixelated-nopalette.jpg");
+        pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"), pixelSize, palette);
+        ImageHandler.saveImage(pixelated, "data/temp/pics/pixelated-palette.jpg");
+        System.exit(0);
 
         // BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
         // BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");
