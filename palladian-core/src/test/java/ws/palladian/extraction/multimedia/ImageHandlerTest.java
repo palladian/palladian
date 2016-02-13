@@ -196,8 +196,8 @@ public class ImageHandlerTest {
     	BufferedImage image = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
     	List<Color> detectedColors = ImageHandler.detectColors(image);
     	assertEquals(3, detectedColors.size());
-    	assertEquals(new Color("#1d3776", "Catalina Blue", "Blue"), detectedColors.get(0));
-    	assertEquals(new Color("#f2ecf5", "white smoke", "Gray"), detectedColors.get(1));
-    	assertEquals(new Color("#c8112d", "crimson", "Red"), detectedColors.get(2));
+    	assertEquals(new Color("#273e7a", "Congress Blue", "Blue"), detectedColors.get(0));
+    	assertEquals(new Color("#cc1b36", "crimson", "Red"), detectedColors.get(1));
+    	assertEquals(new Color("#eddfeb", "Carousel Pink", "Pink"), detectedColors.get(2));
     }
 }
