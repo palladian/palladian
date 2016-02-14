@@ -127,10 +127,14 @@ public class CsvDatasetReader implements Iterable<Instance> {
 						// would be to detect an implicit data schema before
 						// parsing
                 		builder.set(name, Double.NaN);
-                	} else {
-                		long longValue = Long.parseLong(value);
-                		builder.set(name, longValue);
-                	}
+					} else if (value.equals("Infinity")) {
+						builder.set(name, Double.POSITIVE_INFINITY);
+					} else if (value.equals("-Infinity")) {
+						builder.set(name, Double.NEGATIVE_INFINITY);
+					} else {
+						long longValue = Long.parseLong(value);
+						builder.set(name, longValue);
+					}
                 } catch (NumberFormatException e) {
                     String stringValue = stringPool.get(value);
                     builder.set(name, stringValue);
