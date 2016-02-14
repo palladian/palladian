@@ -122,6 +122,11 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 	if (value.contains(".")) {
                 		double doubleValue = Double.parseDouble(value);
                 		builder.set(name, doubleValue);
+                	} else if (value.equals("NaN")) {
+						// XXX hotfix, where NaN was parsed as string; better
+						// would be to detect an implicit data schema before
+						// parsing
+                		builder.set(name, Double.NaN);
                 	} else {
                 		long longValue = Long.parseLong(value);
                 		builder.set(name, longValue);
