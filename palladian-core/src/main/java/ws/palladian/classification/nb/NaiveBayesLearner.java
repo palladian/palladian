@@ -68,5 +68,10 @@ public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
 
         return new NaiveBayesModel(nominalCounts.getMatrix(), categories, sampleMeans, standardDeviations);
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName();
+    }
 
 }

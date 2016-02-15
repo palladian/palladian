@@ -31,5 +31,10 @@ public class QuickMlClassifier implements Classifier<QuickMlModel> {
         }
         return builder.create();
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName();
+    }
 
 }

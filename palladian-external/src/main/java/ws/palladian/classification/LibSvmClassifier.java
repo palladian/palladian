@@ -45,5 +45,10 @@ public final class LibSvmClassifier implements Classifier<LibSvmModel> {
         }
         return builder.create();
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName();
+    }
 
 }
