@@ -81,5 +81,10 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
         return categoryEntriesBuilder.create();
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + " (laplace=" + laplace + ")";
+    }
 
 }

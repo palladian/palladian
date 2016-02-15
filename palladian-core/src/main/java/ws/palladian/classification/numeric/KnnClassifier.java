@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
@@ -37,29 +36,29 @@ public final class KnnClassifier implements Classifier<KnnModel> {
      */
     private final int k;
 
-    /**
-     * <p>
-     * Creates a new completely initialized KNN classifier with specified k using a {@link MinMaxNormalizer}. A typical
-     * value for k is 3. This constructor should be used if the created object is used for prediction.
-     * </p>
-     * 
-     * @param k The parameter k specifying the k nearest neighbors to use for classification. Must be greater zero.
-     */
-    public KnnClassifier(int k) {
-        Validate.isTrue(k > 0, "k must be greater zero");
-        this.k = k;
-    }
+	/**
+	 * <p>
+	 * Creates a new KNN classifier with specified k. A typical value for k is
+	 * 3.
+	 * </p>
+	 * 
+	 * @param k
+	 *            The parameter k specifying the k nearest neighbors to use for
+	 *            classification. Must be greater zero.
+	 */
+	public KnnClassifier(int k) {
+		Validate.isTrue(k > 0, "k must be greater zero");
+		this.k = k;
+	}
 
-    /**
-     * <p>
-     * Creates a new completely initialized KNN classifier with a k of 3 and a {@link MinMaxNormalizer}. This
-     * constructor should typically be used if the class is used for learning. In that case the value of k is not
-     * important. It is only used during prediction.
-     * </p>
-     */
-    public KnnClassifier() {
-        this(3);
-    }
+	/**
+	 * <p>
+	 * Creates a new KNN classifier with a k of 3.
+	 * </p>
+	 */
+	public KnnClassifier() {
+		this(3);
+	}
 
     @Override
     public CategoryEntries classify(FeatureVector featureVector, KnnModel model) {
@@ -96,6 +95,11 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         }
 
         return builder.create();
+    }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + " (k=" + k + ")"; 
     }
 
 }

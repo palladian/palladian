@@ -166,5 +166,10 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         }
         return features.toArray(new de.bwaldvogel.liblinear.Feature[features.size()]);
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName(); // TODO better description for all parameters
+    }
 
 }
