@@ -20,6 +20,7 @@ public class SlimStatsTest {
         assertEquals(119.833, stats.getMse(), 0.001);
         assertEquals(10.947, stats.getRmse(), 0.001);
         assertEquals(22, stats.getRange(), 0);
+        assertEquals(0.9778, stats.getRelativeStandardDeviation(), 0.001);
     }
 
     @Test

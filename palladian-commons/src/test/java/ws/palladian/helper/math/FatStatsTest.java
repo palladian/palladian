@@ -22,6 +22,7 @@ public class FatStatsTest {
         assertEquals(10.947, stats.getRmse(), 0.001);
         assertEquals(0.5, stats.getCumulativeProbability(6), 0.001);
         assertEquals(22, stats.getRange(), 0);
+        assertEquals(0.9778, stats.getRelativeStandardDeviation(), 0.001);
         // System.out.println(stats);
     }
 
