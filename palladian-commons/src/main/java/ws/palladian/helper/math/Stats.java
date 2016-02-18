@@ -110,7 +110,7 @@ public interface Stats {
     double getRelativeStandardDeviation();
     
     /**
-     * @return The variance.
+     * @return The variance (ie. {@link #getStandardDeviation()}^2).
      */
     double getVariance();
 
