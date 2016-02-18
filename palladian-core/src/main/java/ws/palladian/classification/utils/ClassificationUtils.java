@@ -238,6 +238,7 @@ public final class ClassificationUtils {
      *      dataset in memory.
      */
     // TODO remove and replace by filterFeaturesIterable
+    @Deprecated
     public static List<Instance> filterFeatures(Iterable<? extends Instance> instances,
             Filter<? super String> nameFilter) {
         List<Instance> result = new ArrayList<>();
@@ -298,15 +299,18 @@ public final class ClassificationUtils {
      * @return
      */
     // XXX currently, only get from first item in the dataset
-    public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
-        Validate.notNull(dataset, "dataset must not be null");
-        Set<String> featureNames = new TreeSet<>();
-        FeatureVector featureVector = CollectionHelper.getFirst(dataset);
-        for (VectorEntry<String, Value> entry : featureVector) {
-            featureNames.add(entry.key());
-        }
-        return featureNames;
-    }
+	public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
+		Validate.notNull(dataset, "dataset must not be null");
+		Set<String> featureNames = new TreeSet<>();
+		FeatureVector featureVector = CollectionHelper.getFirst(dataset);
+		if (featureVector == null) {
+			throw new IllegalArgumentException("The dataset was empty.");
+		}
+		for (VectorEntry<String, Value> entry : featureVector) {
+			featureNames.add(entry.key());
+		}
+		return featureNames;
+	}
 
     // XXX nice would be to have this code as Classifier taking multiple models
     public static <M extends Model, T extends FeatureVector> CategoryEntries classifyWithMultipleModels(
