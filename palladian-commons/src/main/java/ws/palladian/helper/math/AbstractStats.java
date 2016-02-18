@@ -45,7 +45,8 @@ public abstract class AbstractStats implements Stats {
 		if (getCount() == 0) {
 			return Double.NaN;
 		}
-		return Math.sqrt(getStandardDeviation());
+		double stdDev = getStandardDeviation();
+		return stdDev * stdDev;
 	}
 
 }
