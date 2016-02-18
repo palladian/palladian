@@ -36,7 +36,8 @@ public abstract class AbstractStats implements Stats {
 		if (getCount() == 0) {
 			return Double.NaN;
 		}
-		return getStandardDeviation() / getMean();
+		double mean = getMean();
+		return mean != 0 ? getStandardDeviation() / mean : 0;
 	}
 	
 	@Override
