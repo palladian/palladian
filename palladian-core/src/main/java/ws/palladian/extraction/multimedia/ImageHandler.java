@@ -1195,16 +1195,22 @@ public class ImageHandler {
         return frequencyStats;
     }
 
+    /**
+     * Detect edges in the given image using SOBEL.
+     * @param image The image in which we want to detect edges.
+     * @return The image with detected edges.
+     */
     public static BufferedImage detectEdges(BufferedImage image) {
-        // paint detected colors white
-//        float[] floats = new float[25];
-//        for (int i = 0; i < 25; i++) {
-//            floats[i] = 1;
-//        }
-//        RenderedOp dilateOperation = ErodeDescriptor.create(image, new KernelJAI(5, 5, floats), null);
-//        BufferedImage dilatedImage = dilateOperation.getAsBufferedImage();
 
-        PlanarImage temp = GradientMagnitudeDescriptor.create(image,
+        // erode image first to get rid of noise around real edges
+        float[] floats = new float[25];
+        for (int i = 0; i < 25; i++) {
+            floats[i] = 1;
+        }
+        RenderedOp erodeOp = ErodeDescriptor.create(image, new KernelJAI(5, 5, floats), null);
+        BufferedImage erodedImage = erodeOp.getAsBufferedImage();
+
+        PlanarImage temp = GradientMagnitudeDescriptor.create(erodedImage,
                 KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL,
                 KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL, null).createInstance();
 
