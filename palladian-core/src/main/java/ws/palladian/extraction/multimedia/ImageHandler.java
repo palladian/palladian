@@ -1,5 +1,6 @@
 package ws.palladian.extraction.multimedia;
 
+import edu.emory.mathcs.jtransforms.dct.DoubleDCT_2D;
 import org.apache.commons.lang.Validate;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -23,19 +24,19 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import javax.media.jai.InterpolationBicubic;
-import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.ColorQuantizerDescriptor;
+import javax.media.jai.*;
+import javax.media.jai.operator.*;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.color.ColorSpace;
+import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Native;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
@@ -1152,6 +1153,7 @@ public class ImageHandler {
 
     /**
      * Use a simple 3x3 kernel on a gray scale image to detect frequencies (quick changes in brightness).
+     *
      * @param image The image
      * @return Statistics about brightness differences.
      */
@@ -1193,7 +1195,87 @@ public class ImageHandler {
         return frequencyStats;
     }
 
+    public static BufferedImage detectEdges(BufferedImage image) {
+        // paint detected colors white
+//        float[] floats = new float[25];
+//        for (int i = 0; i < 25; i++) {
+//            floats[i] = 1;
+//        }
+//        RenderedOp dilateOperation = ErodeDescriptor.create(image, new KernelJAI(5, 5, floats), null);
+//        BufferedImage dilatedImage = dilateOperation.getAsBufferedImage();
+
+        PlanarImage temp = GradientMagnitudeDescriptor.create(image,
+                KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL,
+                KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL, null).createInstance();
+
+        return temp.getAsBufferedImage();
+    }
+
     public static void main(String[] args) throws Exception {
+
+//        BufferedImage loadedImage = load("http://de.mathworks.com/help/releases/R2015b/examples/images/DetectEdgesInImagesExample_01.png");
+        BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
+        saveImage(detectEdges(loadedImage), "gradient.png");
+        saveImage(detectEdges(toGrayScale(loadedImage)), "gradient-grey.png");
+//        System.out.println(ImageHandler.detectEdginess(load("gradient-grey.png")));
+        System.exit(0);
+
+        // spaghetti 0.49
+        // balloons 124871: 0.375
+        // menu 170357: 0.206
+        // plate 170350: 0.234
+
+//        ParameterBlock param = new ParameterBlock();
+//        BufferedImage load = load("D:\\yelp\\train_photos\\248344.jpg");
+//        int w = load.getWidth();
+//        int h = load.getHeight();
+//
+//        GraphicsDevice gs = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
+//        GraphicsConfiguration gc = gs.getDefaultConfiguration();
+//
+//        BufferedImage img = gc.createCompatibleImage(w, h, Transparency.OPAQUE);
+//        img.getGraphics().drawImage(load, 0, 0, null);
+//
+////        System.out.println(load.getColorModel());
+////        param.addSource(load);
+//////        param.add(DFTDescriptor.SCALING_NONE);
+//////        param.add(DFTDescriptor.REAL_TO_COMPLEX);
+//////        param.add(DCTDescriptor.NO_PARAMETER_DEFAULT);
+////        RenderedOp dft = JAI.create("DCT", param);
+////
+////        PlanarImage dct = JAI.create("dct", param, null);
+////        int w = dct.getWidth();
+////        int h = dct.getHeight();
+//
+//        // obtain information in frequency domain
+////        int dctData[] = dct.getData().getPixels(0, 0, w, h, (int[])null);
+////        double[] pixels = new double[dctData.length];
+//
+//        int[] rgb1 = new int[w*h];
+//        img.getRaster().getDataElements(0, 0, w, h, rgb1);
+//        double[] array = new double[w*h];
+//
+//        for (int i=0; i<w*h; i++) {
+//            array[i] = (double) (rgb1[i] & 0xFF);
+//        }
+//
+//        DoubleDCT_2D tr = new DoubleDCT_2D(w, h);
+//        tr.forward(array, true);
+//
+//        SlimStats stat = new SlimStats();
+//        for (int i=0; i<w*h; i++)
+//        {
+//            // Grey levels
+//            int val= Math.min((int) (array[i]+128), 255);
+//            rgb1[i] = (val <<16) | (val << 8) | val;
+//            stat.add(rgb1[i]);
+//
+//        }
+//
+//        img.getRaster().setDataElements(0, 0, w, h, rgb1);
+//
+//        System.out.println(stat);
+//        saveImage(img, "data/temp/pics/dct3.jpg");
 
         System.out.println("=== LOW");
         detectFrequencies(load("D:\\yelp\\train_photos\\266414.jpg")); // should be low
