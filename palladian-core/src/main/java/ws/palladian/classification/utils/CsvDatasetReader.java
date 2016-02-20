@@ -122,10 +122,19 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 	if (value.contains(".")) {
                 		double doubleValue = Double.parseDouble(value);
                 		builder.set(name, doubleValue);
-                	} else {
-                		long longValue = Long.parseLong(value);
-                		builder.set(name, longValue);
-                	}
+                	} else if (value.equals("NaN")) {
+						// XXX hotfix, where NaN was parsed as string; better
+						// would be to detect an implicit data schema before
+						// parsing
+                		builder.set(name, Double.NaN);
+					} else if (value.equals("Infinity")) {
+						builder.set(name, Double.POSITIVE_INFINITY);
+					} else if (value.equals("-Infinity")) {
+						builder.set(name, Double.NEGATIVE_INFINITY);
+					} else {
+						long longValue = Long.parseLong(value);
+						builder.set(name, longValue);
+					}
                 } catch (NumberFormatException e) {
                     String stringValue = stringPool.get(value);
                     builder.set(name, stringValue);

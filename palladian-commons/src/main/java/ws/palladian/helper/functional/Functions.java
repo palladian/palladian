@@ -95,4 +95,20 @@ public final class Functions {
         };
     }
 
+    /**
+     * @return A function which simply returns its input.
+     */
+	public static <I> Function<I, I> identity() {
+		return new Function<I, I>() {
+			@Override
+			public I compute(I input) {
+				return input;
+			}
+			@Override
+			public String toString() {
+				return "identity";
+			}
+		};
+	}
+
 }

@@ -71,5 +71,10 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
         }
         return classifiable;
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName();
+    }
 
 }

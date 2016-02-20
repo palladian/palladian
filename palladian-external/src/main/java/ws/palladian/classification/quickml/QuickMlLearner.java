@@ -113,7 +113,7 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
 
     @Override
     public String toString() {
-        return "QuickMlLearner (" + builder + ")";
+        return getClass().getSimpleName() + " (" + builder.getClass().getSimpleName() + ")";
     }
 
 }

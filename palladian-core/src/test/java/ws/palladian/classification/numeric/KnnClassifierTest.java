@@ -64,25 +64,6 @@ public class KnnClassifierTest {
         assertEquals("A", result.getMostLikelyCategory());
     }
 
-    /**
-     * <p>
-     * Tests whether the {@link KnnClassifier} works correctly on a larger dataset loaded directly from a CSV file.
-     * </p>
-     */
-    @Test
-    public void testKnnClassifierLoadFromFile() throws Exception {
-        // create the KNN classifier and add the training instances
-        KnnLearner knnLearner = new KnnLearner(new NoNormalizer());
-        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.csv")).readAll();
-        KnnModel model = knnLearner.train(instances);
-        assertEquals(3, model.getCategories().size());
-
-        // classify
-        CategoryEntries result = new KnnClassifier(3).classify(createTestInstance(), model);
-        assertEquals(1, result.getProbability(result.getMostLikelyCategory()), 0);
-        assertEquals("1", result.getMostLikelyCategory());
-    }
-
     @Test
     public void testKnnClassifierSerialization() throws Exception {
         // create the KNN classifier and add the training instances
