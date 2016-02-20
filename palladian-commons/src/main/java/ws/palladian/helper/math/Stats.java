@@ -103,5 +103,15 @@ public interface Stats {
      * @return The probability for being less/equal t.
      */
     double getCumulativeProbability(double t);
+    
+    /**
+     * @return The relative standard deviation, aka. <a href="https://en.wikipedia.org/wiki/Coefficient_of_variation">coefficient of variation</a>.
+     */
+    double getRelativeStandardDeviation();
+    
+    /**
+     * @return The variance (ie. {@link #getStandardDeviation()}^2).
+     */
+    double getVariance();
 
 }

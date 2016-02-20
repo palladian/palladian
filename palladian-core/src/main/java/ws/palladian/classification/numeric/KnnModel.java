@@ -110,11 +110,20 @@ public final class KnnModel implements Model {
 	
 	double[] getNormalizedVectorForClassification(FeatureVector vector) {
 		Objects.requireNonNull(vector, "vector must not be null");
-        FeatureVector normalizedFeatureVector = normalization.normalize(vector);
+//        FeatureVector normalizedFeatureVector = normalization.normalize(vector);
 		double[] numericVector = new double[labels.size()];
 		for (int idx = 0; idx < labels.size(); idx++) {
-			NumericValue value = (NumericValue) normalizedFeatureVector.get(labels.get(idx));
-			numericVector[idx] = value.getDouble();
+			Value value = vector.get(labels.get(idx));
+			if (value instanceof NumericValue) {
+				NumericValue numericValue = (NumericValue) value;
+				double normalizedValue = normalization.normalize(labels.get(idx), numericValue.getDouble());
+				numericVector[idx] = normalizedValue;
+			} else {
+				throw new IllegalArgumentException("Expected value " + labels.get(idx) + " to be of type "
+						+ NumericValue.class + ", but was " + value.getClass() + " (" + value + ")");
+			}
+//			NumericValue value = (NumericValue) normalizedFeatureVector.get(labels.get(idx));
+//			numericVector[idx] = value.getDouble();
 		}
 		return numericVector;
 	}

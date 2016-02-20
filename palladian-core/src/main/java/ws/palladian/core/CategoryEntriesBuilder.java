@@ -139,7 +139,11 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
                     probability = 1 - probability;
                 }
             }
-            String name = entry.getKey();
+			String name = entry.getKey();
+			if (probability < 0) { // debugging
+				throw new IllegalStateException(
+						"probability was < 0; this should not happen (obviously caused by mixing negative and positive values)");
+			}
             Category category = new ImmutableCategory(name, probability);
             map.put(name, category);
             if (mostLikely == null || mostLikely.getProbability() < probability) {

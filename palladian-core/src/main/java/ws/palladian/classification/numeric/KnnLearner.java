@@ -53,5 +53,10 @@ public final class KnnLearner implements Learner<KnnModel> {
         Normalization normalization = normalizer.calculate(featureVectors);
         return new KnnModel(instances, normalization);
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + " (" + normalizer.getClass().getSimpleName() + ")";
+    }
 
 }

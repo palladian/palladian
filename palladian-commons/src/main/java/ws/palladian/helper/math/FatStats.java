@@ -22,7 +22,7 @@ import ws.palladian.helper.functional.Function;
  * 
  * @author Philipp Katz
  */
-public class FatStats implements Stats {
+public class FatStats extends AbstractStats {
 
     /**
      * <p>
@@ -171,26 +171,6 @@ public class FatStats implements Stats {
         }
         return Math.sqrt(s / (getCount() - 1));
     }
-
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.math.Stats#getMedian()
-     */
-    @Override
-    public double getMedian() {
-//        if (values.isEmpty()) {
-//            return Double.NaN;
-//        }
-//        List<Double> temp = getDoubleValues();
-//        Collections.sort(temp);
-//        int numValues = temp.size();
-//        if (numValues % 2 == 0) {
-//            // return 0.5 * (temp.get(numValues / 2) + temp.get(numValues / 2 - 1));
-//            return 0.5 * temp.get(numValues / 2) + 0.5 * temp.get(numValues / 2 - 1);
-//        } else {
-//            return temp.get(numValues / 2);
-//        }
-        return getPercentile(50);
-    }
     
     @Override
     public double getPercentile(int p) {
@@ -254,17 +234,6 @@ public class FatStats implements Stats {
     }
 
     /* (non-Javadoc)
-     * @see ws.palladian.helper.math.Stats#getRange()
-     */
-    @Override
-    public double getRange() {
-        if (values.isEmpty()) {
-            return Double.NaN;
-        }
-        return getMax() - getMin();
-    }
-
-    /* (non-Javadoc)
      * @see ws.palladian.helper.math.Stats#getSum()
      */
     @Override
@@ -289,14 +258,6 @@ public class FatStats implements Stats {
             mse += Math.pow(value, 2);
         }
         return mse / values.size();
-    }
-
-    /* (non-Javadoc)
-     * @see ws.palladian.helper.math.Stats#getRmse()
-     */
-    @Override
-    public double getRmse() {
-        return Math.sqrt(getMse());
     }
 
     /* (non-Javadoc)

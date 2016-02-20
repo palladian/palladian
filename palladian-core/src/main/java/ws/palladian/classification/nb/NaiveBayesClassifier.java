@@ -60,19 +60,19 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         for (String category : model.getCategories()) {
 
             // initially set all category probabilities to their priors
-            double probability = model.getPrior(category);
+            double probability = Math.log(model.getPrior(category));
 
             for (VectorEntry<String, Value> feature : featureVector) {
                 String featureName = feature.key();
                 Value value = feature.value();
                 if (value instanceof NominalValue) {
                     String nominalValue = ((NominalValue)value).getString();
-                    probability *= model.getProbability(featureName, nominalValue, category, laplace);
+                    probability += Math.log(model.getProbability(featureName, nominalValue, category, laplace));
                 } else if (value instanceof NumericValue) {
                     double doubleValue = ((NumericValue)value).getDouble();
                     double density = model.getDensity(featureName, doubleValue, category);
                     if (density > 0) {
-                        probability *= density;
+                        probability += Math.log(density);
                     }
                 }
             }
@@ -80,6 +80,11 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         }
 
         return categoryEntriesBuilder.create();
+    }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + " (laplace=" + laplace + ")";
     }
 
 }
