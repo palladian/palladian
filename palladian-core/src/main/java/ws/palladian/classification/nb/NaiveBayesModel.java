@@ -4,6 +4,7 @@ import static java.lang.Math.PI;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -219,5 +220,15 @@ public final class NaiveBayesModel implements Model {
     public Set<String> getCategories() {
         return categories.uniqueItems();
     }
+    
+	/**
+	 * @return The names of the features which were used for training.
+	 */
+	public Set<String> getLearnedFeatures() {
+		Set<String> result = new HashSet<>();
+		result.addAll(nominalCounts.getColumnKeys());
+		result.addAll(sampleMeans.getColumnKeys());
+		return Collections.unmodifiableSet(result);
+	}
 
 }
