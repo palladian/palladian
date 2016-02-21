@@ -9,7 +9,6 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -61,10 +60,9 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
             // initially set all category probabilities to their priors
             double probability = Math.log(model.getPrior(category));
-
-            for (VectorEntry<String, Value> feature : featureVector) {
-                String featureName = feature.key();
-                Value value = feature.value();
+            
+            for (String featureName : model.getLearnedFeatures()) {
+                Value value = featureVector.get(featureName);
                 if (value instanceof NominalValue) {
                     String nominalValue = ((NominalValue)value).getString();
                     probability += Math.log(model.getProbability(featureName, nominalValue, category, laplace));
