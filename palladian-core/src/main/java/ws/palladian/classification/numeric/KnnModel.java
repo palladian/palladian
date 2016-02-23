@@ -2,12 +2,13 @@ package ws.palladian.classification.numeric;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import ws.palladian.classification.discretization.DatasetStatistics;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
@@ -15,8 +16,6 @@ import ws.palladian.core.Model;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.math.ImmutableNumericVector;
-import ws.palladian.helper.math.NumericVector;
 
 /**
  * <p>
@@ -28,11 +27,17 @@ import ws.palladian.helper.math.NumericVector;
  */
 public final class KnnModel implements Model {
 
-    /** Used for serializing objects of this class. Should only change if the attribute set of the class changes. */
-    private static final long serialVersionUID = -6528509220813706056L;
-
+	/** Used for serializing objects of this class. Should only change if the attribute set of the class changes. */
+	private static final long serialVersionUID = 2203790409168130472L;
+    
+	/** The labels and their index within the vectors. */
+    private final List<String> labels;
+    
     /** Training examples which are used for classification. */
     private final List<TrainingExample> trainingExamples;
+    
+    /** The trained category names. */
+    private final Set<String> categories;
 
     /**
      * An object carrying the information to normalize {@link FeatureVector}s based on the normalized
@@ -48,26 +53,40 @@ public final class KnnModel implements Model {
      * @param trainingInstances The {@link Instance}s this model is based on.
      */
     KnnModel(Iterable<? extends Instance> trainingInstances, Normalization normalization) {
-        this.trainingExamples = initTrainingInstances(trainingInstances, normalization);
+    	this.labels = getLabels(trainingInstances);
+    	this.categories = getCategories(trainingInstances);
+        this.trainingExamples = initTrainingInstances(trainingInstances, normalization, labels);
         this.normalization = normalization;
     }
 
-    private List<TrainingExample> initTrainingInstances(Iterable<? extends Instance> instances,
-            Normalization normalization) {
+    private static Set<String> getCategories(Iterable<? extends Instance> trainingInstances) {
+    	return new DatasetStatistics(trainingInstances).getCategoryPriors().getNames();
+	}
+
+	private static List<String> getLabels(Iterable<? extends Instance> trainingInstances) {
+    	Instance firstInstance = trainingInstances.iterator().next();
+    	List<String> lables = new ArrayList<>();
+    	for (VectorEntry<String, Value> entry : firstInstance.getVector()) {
+			if (entry.value() instanceof NumericValue) {
+				lables.add(entry.key());
+			}
+		}
+    	return lables;
+	}
+
+	private static List<TrainingExample> initTrainingInstances(Iterable<? extends Instance> instances,
+            Normalization normalization, List<String> labels) {
         List<TrainingExample> ret = new ArrayList<>();
         for (Instance instance : instances) {
             FeatureVector normalizedFeatureVector = normalization.normalize(instance.getVector());
-            ret.add(new TrainingExample(normalizedFeatureVector, instance.getCategory()));
+            double[] vector = new double[labels.size()];
+            for (int idx = 0; idx < labels.size(); idx++) {
+				NumericValue value = (NumericValue) normalizedFeatureVector.get(labels.get(idx));
+				vector[idx] = value.getDouble();
+			}
+            ret.add(new TrainingExample(vector, instance.getCategory()));
         }
         return ret;
-    }
-
-    /**
-     * @return The training instances underlying this {@link KnnModel}. They are used by the {@code KnnClassifier} to
-     *         make a classification decision.
-     */
-    public List<TrainingExample> getTrainingExamples() {
-        return trainingExamples;
     }
 
     @Override
@@ -82,41 +101,68 @@ public final class KnnModel implements Model {
 
     @Override
     public Set<String> getCategories() {
-        Set<String> categories = new HashSet<>();
-        for (TrainingExample example : trainingExamples) {
-            categories.add(example.category);
-        }
-        return categories;
+    	return Collections.unmodifiableSet(categories);
     }
-
-    public Normalization getNormalization() {
-        return normalization;
-    }
+    
+    List<TrainingExample> getTrainingExamples() {
+		return Collections.unmodifiableList(trainingExamples);
+	}
+	
+	double[] getNormalizedVectorForClassification(FeatureVector vector) {
+		Objects.requireNonNull(vector, "vector must not be null");
+//        FeatureVector normalizedFeatureVector = normalization.normalize(vector);
+		double[] numericVector = new double[labels.size()];
+		for (int idx = 0; idx < labels.size(); idx++) {
+			Value value = vector.get(labels.get(idx));
+			if (value instanceof NumericValue) {
+				NumericValue numericValue = (NumericValue) value;
+				double normalizedValue = normalization.normalize(labels.get(idx), numericValue.getDouble());
+				numericVector[idx] = normalizedValue;
+			} else {
+				throw new IllegalArgumentException("Expected value " + labels.get(idx) + " to be of type "
+						+ NumericValue.class + ", but was " + value.getClass() + " (" + value + ")");
+			}
+//			NumericValue value = (NumericValue) normalizedFeatureVector.get(labels.get(idx));
+//			numericVector[idx] = value.getDouble();
+		}
+		return numericVector;
+	}
 
 }
 
-class TrainingExample implements Serializable {
-    private static final long serialVersionUID = 6007693177447711704L;
-    final String category;
-    final Map<String, Double> features;
+final class TrainingExample implements Serializable {
+	private static final long serialVersionUID = -2340565652781930965L;
+	final double[] features;
+	final String category;
 
-    public TrainingExample(FeatureVector featureVector, String category) {
-        this.category = category;
-        features = new HashMap<String, Double>();
-        for (VectorEntry<String, Value> entry : featureVector) {
-            Value value = entry.value();
-            if (value instanceof NumericValue) {
-                features.put(entry.key(), ((NumericValue)entry.value()).getDouble());
-            }
-        }
-    }
-    
-    public NumericVector<String> getVector() {
-        return new ImmutableNumericVector<String>(features);
-    }
+	public TrainingExample(double[] features, String category) {
+		this.features = features;
+		this.category = category;
+	}
 
-    @Override
-    public String toString() {
-        return category + ":" + features;
-    }
+	/**
+	 * The Euclidean distance to the given vector.
+	 * 
+	 * @param other
+	 *            The vector, not <code>null</code>.
+	 * @return The distance.
+	 */
+	public double distance(double[] other) {
+		Objects.requireNonNull(other, "other must not be null");
+		if (features.length != other.length) {
+			throw new IllegalArgumentException(
+					"length of given vector must be " + features.length + ", but was " + other.length);
+		}
+		double distance = 0;
+		for (int idx = 0; idx < this.features.length; idx++) {
+			double value = this.features[idx] - other[idx];
+			distance += value * value;
+		}
+		return distance;
+	}
+
+	@Override
+	public String toString() {
+		return category + ":" + Arrays.toString(features);
+	}
 }

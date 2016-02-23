@@ -9,7 +9,6 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -60,19 +59,18 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         for (String category : model.getCategories()) {
 
             // initially set all category probabilities to their priors
-            double probability = model.getPrior(category);
-
-            for (VectorEntry<String, Value> feature : featureVector) {
-                String featureName = feature.key();
-                Value value = feature.value();
+            double probability = Math.log(model.getPrior(category));
+            
+            for (String featureName : model.getLearnedFeatures()) {
+                Value value = featureVector.get(featureName);
                 if (value instanceof NominalValue) {
                     String nominalValue = ((NominalValue)value).getString();
-                    probability *= model.getProbability(featureName, nominalValue, category, laplace);
+                    probability += Math.log(model.getProbability(featureName, nominalValue, category, laplace));
                 } else if (value instanceof NumericValue) {
                     double doubleValue = ((NumericValue)value).getDouble();
                     double density = model.getDensity(featureName, doubleValue, category);
                     if (density > 0) {
-                        probability *= density;
+                        probability += Math.log(density);
                     }
                 }
             }
@@ -80,6 +78,11 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         }
 
         return categoryEntriesBuilder.create();
+    }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + " (laplace=" + laplace + ")";
     }
 
 }

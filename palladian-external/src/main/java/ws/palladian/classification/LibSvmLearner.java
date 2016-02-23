@@ -207,5 +207,10 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
         ret.weight = new double[0];
         return ret;
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + " (" + kernel.getClass().getSimpleName() + ")";
+    }
 
 }

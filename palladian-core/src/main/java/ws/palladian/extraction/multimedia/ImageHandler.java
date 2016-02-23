@@ -9,6 +9,7 @@ import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -21,14 +22,13 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import javax.media.jai.InterpolationBicubic;
-import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
+import javax.media.jai.*;
 import javax.media.jai.operator.ColorQuantizerDescriptor;
+import javax.media.jai.operator.ErodeDescriptor;
+import javax.media.jai.operator.GradientMagnitudeDescriptor;
 import javax.swing.*;
 import java.awt.Color;
 import java.awt.*;
-import java.awt.color.CMMException;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.ByteArrayInputStream;
@@ -205,7 +205,7 @@ public class ImageHandler {
             images.clear();
 
             // compare images with almost or exactly the same width height ratio
-            Set<String> duplicateImages = new HashSet<String>();
+            Set<String> duplicateImages = new HashSet<>();
             for (int i = 0; i < normalizedImages.size() - 1; i++) {
                 ExtractedImage image1 = normalizedImages.get(i);
 
@@ -1035,12 +1035,22 @@ public class ImageHandler {
         return colors;
     }
 
+    /**
+     * Compute the perceptual distance of two colors. We use the CIE Lab color space as that is closer to how humans perceive colors.
+     *
+     * @param color1 First color.
+     * @param color2 Second color.
+     * @return A distance between the colors.
+     */
     private static double colorDistance(Color color1, Color color2) {
-        int rDistance = Math.abs(color1.getRed() - color2.getRed());
-        int gDistance = Math.abs(color1.getGreen() - color2.getGreen());
-        int bDistance = Math.abs(color1.getBlue() - color2.getBlue());
+        double[] lab1 = new ColorSpaceConverter().rgbToLab(color1.getRed(), color1.getGreen(), color1.getBlue());
+        double[] lab2 = new ColorSpaceConverter().rgbToLab(color2.getRed(), color2.getGreen(), color2.getBlue());
 
-        return Math.sqrt(rDistance * rDistance + gDistance * gDistance + bDistance * bDistance);
+        double lDistance = Math.pow(lab1[0] - lab2[0], 2);
+        double aDistance = Math.pow(lab1[1] - lab2[1], 2);
+        double bDistance = Math.pow(lab1[2] - lab2[2], 2);
+
+        return Math.sqrt(lDistance + aDistance + bDistance);
     }
 
     public static BufferedImage reduceColors(BufferedImage image, int numberOfColors) {
@@ -1051,6 +1061,43 @@ public class ImageHandler {
                 numberOfColors, 256, null, null, null, null);
 
         return cqImage.getAsBufferedImage();
+    }
+
+    public static Color getNearestColor(Color color, Collection<Color> colorPalette) {
+
+        Pair<Color, Double> nearestMatch = Pair.with(null, Double.MAX_VALUE);
+        for (Color color1 : colorPalette) {
+            Double distance = colorDistance(color, color1);
+            if (nearestMatch.getValue0() == null || nearestMatch.getValue1() > distance) {
+                nearestMatch = Pair.with(color1, distance);
+            }
+        }
+
+        return nearestMatch.getValue0();
+    }
+
+    public static BufferedImage pixelate(BufferedImage image, int boxSize) {
+        return pixelate(image, boxSize, null);
+    }
+
+    public static BufferedImage pixelate(BufferedImage image, int boxSize, Collection<Color> colorPalette) {
+
+        for (int w = 0; w < image.getWidth(); w += boxSize) {
+            for (int h = 0; h < image.getHeight(); h += boxSize) {
+                Color color = new Color(image.getRGB(w, h));
+
+                if (colorPalette != null) {
+                    color = getNearestColor(color, colorPalette);
+                }
+
+                Graphics imageGraphics = image.getGraphics();
+
+                imageGraphics.setColor(color);
+                imageGraphics.fillRect(w, h, boxSize, boxSize);
+            }
+        }
+
+        return image;
     }
 
     public static LinkedHashMap<Color, Integer> getColorFrequencies(BufferedImage image) {
@@ -1102,7 +1149,174 @@ public class ImageHandler {
         floodFill(image, x + 1, y + 1, followColor, replacementColor, pixels);
     }
 
+    /**
+     * Use a simple 3x3 kernel on a gray scale image to detect frequencies (quick changes in brightness).
+     *
+     * @param image The image
+     * @return Statistics about brightness differences.
+     */
+    public static FatStats detectFrequencies(BufferedImage image) {
+        BufferedImage grayImage = toGrayScale(image);
+        ColorSpaceConverter csc = new ColorSpaceConverter();
+
+        FatStats frequencyStats = new FatStats();
+        for (int i = 1; i < grayImage.getWidth() - 1; i++) {
+            for (int j = 1; j < grayImage.getHeight() - 1; j++) {
+                Color thisColor = new Color(grayImage.getRGB(i, j));
+                Set<Color> colors = new HashSet<>();
+                Color color1 = new Color(grayImage.getRGB(i - 1, j - 1));
+                Color color2 = new Color(grayImage.getRGB(i, j - 1));
+                Color color3 = new Color(grayImage.getRGB(i, j + 1));
+                Color color4 = new Color(grayImage.getRGB(i - 1, j));
+                Color color5 = new Color(grayImage.getRGB(i + 1, j));
+                Color color6 = new Color(grayImage.getRGB(i - 1, j + 1));
+                Color color7 = new Color(grayImage.getRGB(i, j + 1));
+                Color color8 = new Color(grayImage.getRGB(i + 1, j + 1));
+                colors.add(color1);
+                colors.add(color2);
+                colors.add(color3);
+                colors.add(color4);
+                colors.add(color5);
+                colors.add(color6);
+                colors.add(color7);
+                colors.add(color8);
+                double[] doubles = csc.rgbToHsb(thisColor);
+                double v = 0.;
+                for (Color color : colors) {
+                    double[] doubles2 = csc.rgbToHsb(color);
+                    v += Math.abs(doubles2[2] - doubles[2]);
+                }
+                frequencyStats.add(v / colors.size());
+            }
+        }
+
+        return frequencyStats;
+    }
+
+    /**
+     * Detect edges in the given image using SOBEL.
+     * @param image The image in which we want to detect edges.
+     * @return The image with detected edges.
+     */
+    public static BufferedImage detectEdges(BufferedImage image) {
+
+        // erode image first to get rid of noise around real edges
+        float[] floats = new float[25];
+        for (int i = 0; i < 25; i++) {
+            floats[i] = 1;
+        }
+        RenderedOp erodeOp = ErodeDescriptor.create(image, new KernelJAI(5, 5, floats), null);
+        BufferedImage erodedImage = erodeOp.getAsBufferedImage();
+
+        PlanarImage temp = GradientMagnitudeDescriptor.create(erodedImage,
+                KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL,
+                KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL, null).createInstance();
+
+        return temp.getAsBufferedImage();
+    }
+
     public static void main(String[] args) throws Exception {
+
+//        BufferedImage loadedImage = load("http://de.mathworks.com/help/releases/R2015b/examples/images/DetectEdgesInImagesExample_01.png");
+        BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
+        saveImage(detectEdges(loadedImage), "gradient.png");
+        saveImage(detectEdges(toGrayScale(loadedImage)), "gradient-grey.png");
+//        System.out.println(ImageHandler.detectEdginess(load("gradient-grey.png")));
+        System.exit(0);
+
+        // spaghetti 0.49
+        // balloons 124871: 0.375
+        // menu 170357: 0.206
+        // plate 170350: 0.234
+
+//        ParameterBlock param = new ParameterBlock();
+//        BufferedImage load = load("D:\\yelp\\train_photos\\248344.jpg");
+//        int w = load.getWidth();
+//        int h = load.getHeight();
+//
+//        GraphicsDevice gs = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
+//        GraphicsConfiguration gc = gs.getDefaultConfiguration();
+//
+//        BufferedImage img = gc.createCompatibleImage(w, h, Transparency.OPAQUE);
+//        img.getGraphics().drawImage(load, 0, 0, null);
+//
+////        System.out.println(load.getColorModel());
+////        param.addSource(load);
+//////        param.add(DFTDescriptor.SCALING_NONE);
+//////        param.add(DFTDescriptor.REAL_TO_COMPLEX);
+//////        param.add(DCTDescriptor.NO_PARAMETER_DEFAULT);
+////        RenderedOp dft = JAI.create("DCT", param);
+////
+////        PlanarImage dct = JAI.create("dct", param, null);
+////        int w = dct.getWidth();
+////        int h = dct.getHeight();
+//
+//        // obtain information in frequency domain
+////        int dctData[] = dct.getData().getPixels(0, 0, w, h, (int[])null);
+////        double[] pixels = new double[dctData.length];
+//
+//        int[] rgb1 = new int[w*h];
+//        img.getRaster().getDataElements(0, 0, w, h, rgb1);
+//        double[] array = new double[w*h];
+//
+//        for (int i=0; i<w*h; i++) {
+//            array[i] = (double) (rgb1[i] & 0xFF);
+//        }
+//
+//        DoubleDCT_2D tr = new DoubleDCT_2D(w, h);
+//        tr.forward(array, true);
+//
+//        SlimStats stat = new SlimStats();
+//        for (int i=0; i<w*h; i++)
+//        {
+//            // Grey levels
+//            int val= Math.min((int) (array[i]+128), 255);
+//            rgb1[i] = (val <<16) | (val << 8) | val;
+//            stat.add(rgb1[i]);
+//
+//        }
+//
+//        img.getRaster().setDataElements(0, 0, w, h, rgb1);
+//
+//        System.out.println(stat);
+//        saveImage(img, "data/temp/pics/dct3.jpg");
+
+        System.out.println("=== LOW");
+        detectFrequencies(load("D:\\yelp\\train_photos\\266414.jpg")); // should be low
+        detectFrequencies(load("D:\\yelp\\train_photos\\266895.jpg")); // should be low
+        detectFrequencies(load("D:\\yelp\\train_photos\\266876.jpg")); // should be low
+        detectFrequencies(load("D:\\yelp\\train_photos\\266991.jpg")); // should be low
+        System.out.println("=== HIGH");
+        detectFrequencies(load("D:\\yelp\\train_photos\\266453.jpg")); // should be high
+        detectFrequencies(load("D:\\yelp\\train_photos\\266921.jpg")); // should be high
+        detectFrequencies(load("D:\\yelp\\train_photos\\266966.jpg")); // should be high
+        detectFrequencies(load("D:\\yelp\\train_photos\\266958.jpg")); // should be high
+        System.exit(0);
+
+        List<Color> palette = new ArrayList<>();
+        palette.add(Color.BLACK);
+        palette.add(Color.WHITE);
+        palette.add(Color.GRAY);
+        // chromatic circle
+        palette.add(new Color(7, 139, 91));
+        palette.add(new Color(134, 185, 53));
+        palette.add(new Color(234, 227, 49));
+        palette.add(new Color(245, 194, 46));
+        palette.add(new Color(235, 139, 47));
+        palette.add(new Color(229, 95, 45));
+        palette.add(new Color(221, 38, 44));
+        palette.add(new Color(190, 0, 121));
+        palette.add(new Color(107, 51, 133));
+        palette.add(new Color(71, 71, 145));
+        palette.add(new Color(53, 104, 169));
+        palette.add(new Color(36, 143, 181));
+        int pixelSize = 10;
+        String iName = "264505";
+        BufferedImage pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"), 10);
+        ImageHandler.saveImage(pixelated, "data/temp/pics/pixelated-nopalette.jpg");
+        pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"), pixelSize, palette);
+        ImageHandler.saveImage(pixelated, "data/temp/pics/pixelated-palette.jpg");
+        System.exit(0);
 
         // BufferedImage testImg = ImageHandler.load("data/temp/img/testImage.jpg");
         // BufferedImage testImg = ImageHandler.load("http://162.61.226.249/PicOriginal/ChocolatePecanPie8917.jpg");

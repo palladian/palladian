@@ -74,8 +74,13 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         private String internalToString(String format) {
             NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
             numberFormat.setMaximumFractionDigits(5);
-            return String.format(format, numberFormat.format(t), numberFormat.format(pr), numberFormat.format(rc),
-                    numberFormat.format(getF1()), numberFormat.format(getAccuracy()), makeBar(getF1()));
+            return String.format(format, 
+            		numberFormat.format(t), 
+            		numberFormat.format(pr), 
+            		numberFormat.format(rc),
+                    numberFormat.format(getF1()), 
+                    numberFormat.format(getAccuracy()), makeBar(getF1()))
+            		.replace("\uFFFD", "NaN"); // avoid ?, instead use NaN (same as ConfusionMatrix)
         }
 
         private String makeBar(double f1) {
@@ -167,18 +172,19 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         return new AbstractIterator<ThresholdEntry>() {
             // start in the bin, where we actually have entries (everything below gives same values as here).
             int bin = Collections.min(retrievedItems.uniqueItems());
+            // first bin which provides no more entries
+            final int end = Collections.max(retrievedItems.uniqueItems()) + 1;
 
             @Override
             protected ThresholdEntry getNext() throws Finished {
+            	if (bin > end) {
+            		throw FINISHED;
+            	}
                 double threshold = (double)bin++ / numBins;
                 if (threshold > 1) {
                     throw FINISHED;
                 }
-                ThresholdEntry entry = getEntry(threshold);
-                if (entry.rc == 0) { // no more useful information from here, stop.
-                    throw FINISHED;
-                }
-                return entry;
+                return getEntry(threshold);
             }
         };
     }

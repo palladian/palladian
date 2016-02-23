@@ -1,5 +1,7 @@
 package ws.palladian.core;
 
+import java.util.Set;
+
 /**
  * <p>
  * The {@link CategoryEntries} represent a result from a {@link Classifier}. It typically holds a number of potential
@@ -83,5 +85,10 @@ public interface CategoryEntries extends Iterable<Category> {
      * @return The sum of all category counts, or <code>-1</code>, in case no counts are available.
      */
     int getTotalCount();
+    
+    /**
+     * @return The names of all categories.
+     */
+    Set<String> getNames();
 
 }

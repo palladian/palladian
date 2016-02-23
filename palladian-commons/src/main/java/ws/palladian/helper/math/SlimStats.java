@@ -14,7 +14,7 @@ import ws.palladian.helper.functional.Factory;
  * 
  * @author Philipp Katz
  */
-public class SlimStats implements Stats {
+public class SlimStats extends AbstractStats {
 
     /**
      * <p>
@@ -83,15 +83,6 @@ public class SlimStats implements Stats {
     }
 
     @Override
-    public SlimStats add(Number... values) {
-        Validate.notNull(values, "values must not be null");
-        for (Number value : values) {
-            add(value);
-        }
-        return this;
-    }
-
-    @Override
     public double getMean() {
         return count == 0 ? Double.NaN : mean;
     }
@@ -133,11 +124,6 @@ public class SlimStats implements Stats {
     }
 
     @Override
-    public double getRange() {
-        return count == 0 ? Double.NaN : max - min;
-    }
-
-    @Override
     public double getSum() {
         return sum;
     }
@@ -145,11 +131,6 @@ public class SlimStats implements Stats {
     @Override
     public double getMse() {
         return count == 0 ? Double.NaN : mse;
-    }
-
-    @Override
-    public double getRmse() {
-        return Math.sqrt(getMse());
     }
 
     @Override
