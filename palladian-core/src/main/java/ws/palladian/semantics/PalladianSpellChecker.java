@@ -1,19 +1,20 @@
 package ws.palladian.semantics;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -41,11 +42,15 @@ public class PalladianSpellChecker {
     private boolean germanCompoundSupport = false;
 
     /**
-     * The longer the words, the longer it takes to created the variations (edits). This is the maxium word length we allow for correction.
+     * The longer the words, the longer it takes to created the variations (edits). This is the maxium word length we
+     * allow for correction.
      */
     private int maxWordLength = 20;
     private int maxWordLengthDistanceTwo = 10;
     private int minWordLength = 2;
+
+    /** The number of occurrences for a candidate before we skip breaking German compounds apart. */
+    private int germanCompoundStopCount = 50;
 
     /**
      * Manual spelling mappings. Word, e.g. "cov" => "cow" and phrase, e.g. "i pad" => "ipad"
@@ -101,9 +106,11 @@ public class PalladianSpellChecker {
     /**
      * <p>
      * Set manual mappings by providing a mapping file. Each line must follow the following format:
+     * 
      * <pre>
-     *         wrongword=correctword
-     *     </pre>
+     * wrongword = correctword
+     * </pre>
+     * 
      * </p>
      *
      * @param mappingFile The file with mappings.
@@ -231,7 +238,8 @@ public class PalladianSpellChecker {
         String[] textWords = SPLIT.split(text);
         for (String word : textWords) {
             int length = word.length();
-            if (length < minWordLength || length > maxWordLength || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
+            if (length < minWordLength || length > maxWordLength
+                    || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
                 correctedText.append(word).append(" ");
                 continue;
             }
@@ -262,7 +270,9 @@ public class PalladianSpellChecker {
      * Automatically detect and correct spelling mistakes in a word.
      * </p>
      * <p/>
-     * <p>NOTE: The given word must be lowercase. This saves time in the process.</p>
+     * <p>
+     * NOTE: The given word must be lowercase. This saves time in the process.
+     * </p>
      *
      * @param word The word to check for errors.
      * @return The auto-corrected word.
@@ -336,15 +346,15 @@ public class PalladianSpellChecker {
         // and might cause incorrect corrections, we therefore split the compound and test its parts for misspellings
         boolean compoundCorrect = false;
         if (isGermanCompoundSupport()) {
-            if (candidates.keySet().isEmpty() || Collections.max(candidates.keySet()) < 10) {
+            if (candidates.keySet().isEmpty() || Collections.max(candidates.keySet()) < germanCompoundStopCount) {
                 compoundCorrect = true;
                 List<String> strings = WordTransformer.splitGermanCompoundWords(word);
                 for (String string : strings) {
                     if (words.get(string) == null) {
                         String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
-//                        if (words.get(key) == null && strings.size() > 1) {
-//                            key = autoCorrect(key, true);
-//                        }
+                        // if (words.get(key) == null && strings.size() > 1) {
+                        // key = autoCorrect(key, true);
+                        // }
                         if (words.get(key) == null) {
                             compoundCorrect = false;
                             break;
@@ -423,6 +433,14 @@ public class PalladianSpellChecker {
 
     public void setMinWordLength(int minWordLength) {
         this.minWordLength = minWordLength;
+    }
+
+    public int getGermanCompoundStopCount() {
+        return germanCompoundStopCount;
+    }
+
+    public void setGermanCompoundStopCount(int germanCompoundStopCount) {
+        this.germanCompoundStopCount = germanCompoundStopCount;
     }
 
     public static void main(String[] args) throws IOException {
