@@ -31,7 +31,7 @@ public class ImageHandlerTest {
     /**
      * Some of these tests fail when run under Mac OS X. In contrast to other platforms where the JAI implementation is
      * supplied directly by Sun, Apple provides its own version of JAI, which i suspect contains a bug or behaves
-     * somehow differently. Therefor, we check the platform here and simply skip this test if run under Mac OS X.
+     * somehow differently. Therefore, we check the platform here and simply skip this test if run under Mac OS X.
      * 
      * Philipp, 2010-06-28.
      */
@@ -48,7 +48,7 @@ public class ImageHandlerTest {
     public void testClusterImages() throws FileNotFoundException {
     	checkOperatingSystem();
 
-        Collection<String> imageUrls = new ArrayList<String>();
+        Collection<String> imageUrls = new ArrayList<>();
         imageUrls.add(ResourceHelper.getResourcePath("/images/imageA1.jpg"));
         imageUrls.add(ResourceHelper.getResourcePath("/images/imageA2.jpg"));
         imageUrls.add(ResourceHelper.getResourcePath("/images/imageB1.jpg"));
@@ -71,7 +71,7 @@ public class ImageHandlerTest {
     public void testRescaleImage() throws FileNotFoundException {
     	checkOperatingSystem();
     	
-        BufferedImage bufferedImage = null;
+        BufferedImage bufferedImage;
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
         bufferedImage = ImageHandler.boxCrop(bufferedImage, 200, 200);
@@ -113,42 +113,10 @@ public class ImageHandlerTest {
         assertEquals(1010, bufferedImage.getHeight());
     }
 
-    // public void testSaveImage() {
-    // BufferedImage bufferedImage = null;
-    //
-    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk1.jpg"));
-    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg",
-    // ResourceHelper.getResourcePath("/images/generated0.jpg")));
-    // assertEquals(true,
-    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated0.jpg")));
-    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated0.jpg")));
-    //
-    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/tdk5.jpg"));
-    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "jpg",
-    // ResourceHelper.getResourcePath("/images/generated1.jpg")));
-    // assertEquals(true,
-    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated1.jpg")));
-    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated1.jpg")));
-    //
-    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
-    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "png",
-    // ResourceHelper.getResourcePath("/images/generated2.png")));
-    // assertEquals(true,
-    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated2.png")));
-    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated2.png")));
-    //
-    // bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/homer.gif"));
-    // assertEquals(true, ImageHandler.saveImage(bufferedImage, "gif",
-    // ResourceHelper.getResourcePath("/images/generated3.gif")));
-    // assertEquals(true,
-    // FileHelper.fileExists(ResourceHelper.getResourcePath("/images/generated3.gif")));
-    // assertEquals(true, FileHelper.delete(ResourceHelper.getResourcePath("/images/generated3.gif")));
-    // }
-
     @Test
     public void testIsDuplicate() throws FileNotFoundException {
     	checkOperatingSystem();
-    	
+
         BufferedImage image1;
         BufferedImage image2;
 
@@ -196,8 +164,8 @@ public class ImageHandlerTest {
     	BufferedImage image = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
     	List<Color> detectedColors = ImageHandler.detectColors(image);
     	assertEquals(3, detectedColors.size());
-    	assertEquals(new Color("#1d3776", "Catalina Blue", "Blue"), detectedColors.get(0));
-    	assertEquals(new Color("#f2ecf5", "white smoke", "Gray"), detectedColors.get(1));
-    	assertEquals(new Color("#c8112d", "crimson", "Red"), detectedColors.get(2));
+    	assertEquals(new Color("#273e7a", "Congress Blue", "Blue"), detectedColors.get(0));
+    	assertEquals(new Color("#cc1b36", "crimson", "Red"), detectedColors.get(1));
+    	assertEquals(new Color("#eddfeb", "Carousel Pink", "Pink"), detectedColors.get(2));
     }
 }

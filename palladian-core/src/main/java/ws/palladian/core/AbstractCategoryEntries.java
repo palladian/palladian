@@ -1,6 +1,8 @@
 package ws.palladian.core;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
@@ -83,6 +85,15 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
             }
         }
         return totalCount;
+    }
+    
+    @Override
+    public Set<String> getNames() {
+    	Set<String> names = new HashSet<>();
+    	for (Category category : this) {
+			names.add(category.getName());
+		}
+    	return names;
     }
 
     @Override

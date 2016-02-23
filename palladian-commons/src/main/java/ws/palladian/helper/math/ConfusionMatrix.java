@@ -1,7 +1,10 @@
 package ws.palladian.helper.math;
 
+import static java.lang.Math.sqrt;
+
 import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -508,6 +511,35 @@ public class ConfusionMatrix {
         }
         return accuracy / count;
     }
+    
+	/**
+	 * <p>
+	 * Calculate the
+	 * <a href="https://en.wikipedia.org/wiki/Matthews_correlation_coefficient">
+	 * Matthews correlation coefficient</a>, in case this is a binary
+	 * classification problem (ie. {@link #getCategories()} has a size of two).
+	 * A coefficient of +1 represents a perfect prediction, 0 represents a
+	 * random prediction by prior, -1 represents worst prediction.
+	 * </p>
+	 * 
+	 * @return The Matthews correlation coefficient in range [-1,+1].
+	 */
+	public double getMatthewsCorrelationCoefficient() {
+		if (getCategories().size() != 2) {
+			throw new IllegalStateException("Matthews correlation coefficient only works for binary classifications");
+		}
+		Iterator<String> iterator = getCategories().iterator();
+		// it doesn't matter, which class we consider positive or negative;
+		// result is the same
+		String positive = iterator.next();
+		String negative = iterator.next();
+		int tp = getConfusions(positive, positive);
+		int tn = getConfusions(negative, negative);
+		int fp = getConfusions(negative, positive);
+		int fn = getConfusions(positive, negative);
+		double denominator = sqrt(tp + fp) * sqrt(tp + fn) * sqrt(tn + fp) * sqrt(tn + fn);
+		return denominator != 0 ? (tp * tn - fp * fn) / denominator : 0;
+	}
 
     @Override
     public String toString() {
@@ -580,6 +612,9 @@ public class ConfusionMatrix {
         out.append("Average Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append('\n');
         out.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append('\n');
         out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
+        if (getCategories().size() == 2) {
+        	out.append("Matthews Correlation Coefficient:\t").append(MathHelper.round(getMatthewsCorrelationCoefficient(), 4)).append('\n');
+        }
         out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
 

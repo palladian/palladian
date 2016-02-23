@@ -1,5 +1,11 @@
 package ws.palladian.classification.nb;
 
+import static java.lang.Math.PI;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -26,6 +32,9 @@ public final class NaiveBayesModel implements Model {
     private final Matrix<String, Double> sampleMeans;
 
     private final Matrix<String, Double> standardDeviations;
+    
+    /** Cache those values, but do not serialize them (stay compatible to existing models). */
+    private transient Map<String, Double> densityNormalization;
 
     /**
      * <p>
@@ -84,7 +93,7 @@ public final class NaiveBayesModel implements Model {
         // P(X = i) = n_i / N becomes P(X = i) = (n_i + 1) / (N + K)
 
         // return (double)(count + 1) / (categories.getCount(category) + categories.uniqueSize());
-        return (double)(count + laplace) / (categories.count(category) + laplace * categories.unique().size());
+        return (count + laplace) / (categories.count(category) + laplace * categories.unique().size());
     }
 
     /**
@@ -142,10 +151,51 @@ public final class NaiveBayesModel implements Model {
             return 0;
         }
 
-        return 1 / (Math.sqrt(2 * Math.PI) * standardDeviation)
-                * Math.pow(Math.E, -Math.pow(featureValue - mean, 2) / (2 * Math.pow(standardDeviation, 2)));
+		double variance = standardDeviation * standardDeviation;
+		double probabilityDensity = 1. / Math.sqrt(2 * PI * variance)
+				* Math.exp(-Math.pow(featureValue - mean, 2) / (2 * variance));
 
-    }
+		// normalize using the sum of maximum values for each category
+		return probabilityDensity / getDensityNormalization(featureName);
+	}
+
+	/**
+	 * Get a normalization quotient for the probability density function. We
+	 * simply assume, that the density functions for each category have equal
+	 * means, determine the maximum values for each category at these points and
+	 * sum the values (as this would be the maximum possible sum of densities
+	 * for each category). Note: I implemented this to overcome weird issues
+	 * introduced when changing to log scoring (see
+	 * #3f66cf8b442de42c8f6b28e8d654d06eda555aac) where we suddenly had positive
+	 * and negative scores which lead to further issues. This fix works for me,
+	 * but IANAM (I am not a mathematician).
+	 * 
+	 * @param featureName
+	 *            The name of the feature.
+	 * @return The normalization quotient which ensures that the density value
+	 *         remains in [0,1].
+	 */
+	private double getDensityNormalization(String featureName) {
+		if (densityNormalization == null) {
+			densityNormalization = calcDensityNormalization(standardDeviations);
+		}
+		return densityNormalization.get(featureName);
+	}
+	
+	private static Map<String, Double> calcDensityNormalization(Matrix<String, Double> standardDeviations) {
+		Map<String, Double> normalizations = new HashMap<>();
+		for (String featureName : standardDeviations.getColumnKeys()) {
+			double normalization = 0;
+			for (Double standardDeviation : standardDeviations.getColumn(featureName).values()) {
+				if (standardDeviation > 0) {
+					// this is the maximum of the PDF
+					normalization += 1. / (standardDeviation * Math.sqrt(2. * PI));
+				}
+			}
+			normalizations.put(featureName, normalization);
+		}
+		return Collections.unmodifiableMap(normalizations);
+	}
 
     /*
      * (non-Javadoc)
@@ -170,5 +220,15 @@ public final class NaiveBayesModel implements Model {
     public Set<String> getCategories() {
         return categories.uniqueItems();
     }
+    
+	/**
+	 * @return The names of the features which were used for training.
+	 */
+	public Set<String> getLearnedFeatures() {
+		Set<String> result = new HashSet<>();
+		result.addAll(nominalCounts.getColumnKeys());
+		result.addAll(sampleMeans.getColumnKeys());
+		return Collections.unmodifiableSet(result);
+	}
 
 }
