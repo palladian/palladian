@@ -124,6 +124,11 @@ public final class Filters {
         public boolean accept(T item) {
             return item != null && values.contains(item);
         }
+        
+        @Override
+        public String toString() {
+        	return values.size() == 1 ? values.iterator().next().toString() : values.toString();
+        }
     }
 
     public static Filter<String> regex(String pattern) {
