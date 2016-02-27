@@ -243,7 +243,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
         try {
             // run with all features
-            TestRun initialRun = new TestRun(trainSet, validationSet, Arrays.asList(Filters.ALL), progress);
+            TestRun initialRun = new TestRun(trainSet, validationSet, Arrays.asList(Filters.NONE), progress);
             TestRunResult startScore = initialRun.call();
             LOGGER.info("Score with all features {}", startScore.score);
 
