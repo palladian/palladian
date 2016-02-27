@@ -285,6 +285,9 @@ public final class ClassificationUtils {
 				if (category == null) {
 					throw new IllegalArgumentException("No feature with name \"" + featureName + "\".");
 				}
+				if (category == NullValue.NULL) {
+					throw new IllegalArgumentException("Feature is NULL");
+				}
 				return new InstanceBuilder().add(featureVector).create(category.toString());
 			}
 		});
