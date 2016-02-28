@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
-import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Classifier;
@@ -53,12 +52,12 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * @author Philipp Katz
  * @param <M> Type of the model.
  */
-public final class BackwardFeatureElimination<M extends Model> extends AbstractFeatureRanker {
+public final class BackwardFeatureElimination extends AbstractFeatureRanker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BackwardFeatureElimination.class);
     
-    private final BackwardFeatureEliminationConfig<M> config;
+    private final BackwardFeatureEliminationConfig config;
 
     /** Use {@link BackwardFeatureEliminationConfig.Builder#scoreAccuracy()} instead. */
     @Deprecated
@@ -127,12 +126,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
             Iterable<Instance> eliminatedTrainData = ClassificationUtils.filterFeaturesIterable(trainData, filter);
             Iterable<Instance> eliminatedTestData = ClassificationUtils.filterFeaturesIterable(testData, filter);
 
-            // create a new learner and classifier
-            Learner<M> learner = config.createLearner();
-            Classifier<M> classifier = config.createClassifier();
-
-            M model = learner.train(eliminatedTrainData);
-            Double score = config.evaluator().score(classifier, model, eliminatedTestData);
+            Double score = config.evaluator().score(eliminatedTrainData, eliminatedTestData);
 
             LOGGER.debug("Finished elimination for {}", eliminatedFeature);
             progress.increment();
@@ -155,7 +149,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 	 * Configuration constructor; used by
 	 * {@link BackwardFeatureEliminationConfig.Builder}.
 	 */
-	BackwardFeatureElimination(BackwardFeatureEliminationConfig<M> config) {
+	BackwardFeatureElimination(BackwardFeatureEliminationConfig config) {
 		this.config = config;
 	}
 
@@ -172,7 +166,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * @deprecated Use the {@link BackwardFeatureEliminationConfig.Builder} instead.
      */
     @Deprecated
-    public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier, Function<ConfusionMatrix, Double> scorer) {
+    public <M extends Model> BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier, Function<ConfusionMatrix, Double> scorer) {
     	this(BackwardFeatureEliminationConfig.with(learner, classifier).scorer(scorer).createConfig());
     }
 
@@ -186,7 +180,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * @deprecated Use the {@link BackwardFeatureEliminationConfig.Builder} instead.
      */
     @Deprecated
-    public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier) {
+    public <M extends Model> BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier) {
     	this(BackwardFeatureEliminationConfig.with(learner, classifier).scoreAccuracy().createConfig());
     }
 
@@ -204,7 +198,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * @param numThreads Use the specified number of threads to parallelize training/testing. Must be greater/equal one.
      * @deprecated Use the {@link BackwardFeatureEliminationConfig.Builder} instead.
      */
-    public BackwardFeatureElimination(Factory<? extends Learner<M>> learnerFactory,
+    public <M extends Model> BackwardFeatureElimination(Factory<? extends Learner<M>> learnerFactory,
             Factory<? extends Classifier<M>> classifierFactory, Function<ConfusionMatrix, Double> scorer, int numThreads) {
     	this(BackwardFeatureEliminationConfig.with(learnerFactory, classifierFactory).scorer(scorer).numThreads(numThreads).createConfig());
     }
@@ -329,8 +323,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
         Function<ConfusionMatrix, Double> scorer = new FMeasureScorer("true");
 
-        BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<>(
-                learnerFactory, predictorFactory, scorer, 1);
+        BackwardFeatureElimination elimination = new BackwardFeatureElimination(learnerFactory, predictorFactory, scorer, 1);
         FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet, new ProgressMonitor());
         CollectionHelper.print(featureRanking.getAll());
     }

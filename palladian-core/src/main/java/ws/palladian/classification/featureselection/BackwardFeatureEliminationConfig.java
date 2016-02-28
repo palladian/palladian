@@ -17,32 +17,36 @@ import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
-public final class BackwardFeatureEliminationConfig<M extends Model> {
+public final class BackwardFeatureEliminationConfig {
 	static final class EvaluationMeasure<M extends Model, R> {
-		private ClassificationEvaluator<R> evaluator;
-		private Function<R, Double> mapper;
-		private EvaluationMeasure(ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
+		private final Factory<? extends Learner<M>> learnerFactory;
+		private final Factory<? extends Classifier<M>> classifierFactory;
+		private final ClassificationEvaluator<R> evaluator;
+		private final Function<R, Double> mapper;
+		private EvaluationMeasure(Factory<? extends Learner<M>> learnerFactory, Factory<? extends Classifier<M>> classifierFactory, ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
+			this.learnerFactory = learnerFactory;
+			this.classifierFactory = classifierFactory;
 			this.evaluator = evaluator;
 			this.mapper = mapper;
 		}
-		public double score(Classifier<M> classifier, M model, Iterable<? extends Instance> data) {
-			return mapper.compute(evaluator.evaluate(classifier, model, data));
+		public double score(Iterable<? extends Instance> trainData, Iterable<? extends Instance> testData) {
+			return mapper.compute(evaluator.evaluate(learnerFactory.create(), classifierFactory.create(), trainData, testData));
 		}
 	}
-	public static final class Builder<M extends Model> implements Factory<BackwardFeatureElimination<M>>{
-		private Factory<? extends Learner<M>> learnerFactory;
-		private Factory<? extends Classifier<M>> classifierFactory;
-		@SuppressWarnings("deprecation")
-		private EvaluationMeasure<M, ?> evaluator = new EvaluationMeasure<>(new ConfusionMatrixEvaluator(), BackwardFeatureElimination.ACCURACY_SCORER);
+	public static final class Builder<M extends Model> implements Factory<BackwardFeatureElimination>{
+		private final Factory<? extends Learner<M>> learnerFactory;
+		private final Factory<? extends Classifier<M>> classifierFactory;
+		private EvaluationMeasure<M, ?> evaluator;
 		private int numThreads = 1;
 		private Collection<Filter<? super String>> featureGroups = new HashSet<>();
 		private Builder(Learner<M> learner, Classifier<M> classifier) {
-			this.learnerFactory = Factories.constant(learner);
-			this.classifierFactory = Factories.constant(classifier);
+			this(Factories.constant(learner), Factories.constant(classifier));
 		}
+		@SuppressWarnings("deprecation")
 		private Builder(Factory<? extends Learner<M>> learnerFactory, Factory<? extends Classifier<M>> classifierFactory) {
 			this.learnerFactory = learnerFactory;
 			this.classifierFactory = classifierFactory;
+			this.evaluator = new EvaluationMeasure<>(learnerFactory, classifierFactory, new ConfusionMatrixEvaluator(), BackwardFeatureElimination.ACCURACY_SCORER);
 		}
 //		public Builder<M> learner(Learner<M> learner) {
 //			Validate.notNull(learner, "learner must not be null");
@@ -81,7 +85,7 @@ public final class BackwardFeatureEliminationConfig<M extends Model> {
 			return this;
 		}
 		public <R> Builder<M> evaluator(ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
-			this.evaluator = new EvaluationMeasure<M, R>(evaluator, mapper);
+			this.evaluator = new EvaluationMeasure<M, R>(learnerFactory, classifierFactory, evaluator, mapper);
 			return this;
 		}
 		public Builder<M> numThreads(int numThreads) {
@@ -100,17 +104,17 @@ public final class BackwardFeatureEliminationConfig<M extends Model> {
 			return this;
 		}
 		@Override
-		public BackwardFeatureElimination<M> create() {
-			return new BackwardFeatureElimination<>(createConfig());
+		public BackwardFeatureElimination create() {
+			return new BackwardFeatureElimination(createConfig());
 		}
-		BackwardFeatureEliminationConfig<M> createConfig() {
+		BackwardFeatureEliminationConfig createConfig() {
 			if (learnerFactory == null) {
 				throw new IllegalArgumentException("no learner specified");
 			}
 			if (classifierFactory == null) {
 				throw new IllegalArgumentException("no classifier specified");
 			}
-			return new BackwardFeatureEliminationConfig<>(this);
+			return new BackwardFeatureEliminationConfig(this);
 		}
 	}
 	public static <M extends Model> Builder<M> with(Learner<M> learner, Classifier<M> classifier) {
@@ -119,25 +123,25 @@ public final class BackwardFeatureEliminationConfig<M extends Model> {
 	public static <M extends Model> Builder<M> with(Factory<? extends Learner<M>> learnerFactory, Factory<? extends Classifier<M>> classifierFactory) {
 		return new Builder<M>(learnerFactory, classifierFactory);
 	}
-	private final Factory<? extends Learner<M>> learnerFactory;
-	private final Factory<? extends Classifier<M>> classifierFactory;
-	private final EvaluationMeasure<M, ?> evaluator;
+//	private final Factory<? extends Learner<M>> learnerFactory;
+//	private final Factory<? extends Classifier<M>> classifierFactory;
+	private final EvaluationMeasure<?, ?> evaluator;
 	private final int numThreads;
 	private final Collection<? extends Filter<? super String>> featureGroups;
-	private BackwardFeatureEliminationConfig(Builder<M> builder) {
-		learnerFactory = builder.learnerFactory;
-		classifierFactory = builder.classifierFactory;
+	private BackwardFeatureEliminationConfig(Builder<?> builder) {
+//		learnerFactory = builder.learnerFactory;
+//		classifierFactory = builder.classifierFactory;
 		evaluator = builder.evaluator;
 		numThreads = builder.numThreads;
 		featureGroups = builder.featureGroups;
 	}
-	public Learner<M> createLearner() {
-		return learnerFactory.create();
-	}
-	public Classifier<M> createClassifier() {
-		return classifierFactory.create();
-	}
-	public EvaluationMeasure<M, ?> evaluator() {
+//	public Learner<M> createLearner() {
+//		return learnerFactory.create();
+//	}
+//	public Classifier<M> createClassifier() {
+//		return classifierFactory.create();
+//	}
+	public EvaluationMeasure<?, ?> evaluator() {
 		return evaluator;
 	}
 	public int numThreads() {
