@@ -5,7 +5,7 @@ import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
 
-public class ConfusionMatrixEvaluator implements ClassificationEvaluator<ConfusionMatrix> {
+public class ConfusionMatrixEvaluator extends AbstractClassificationEvaluator<ConfusionMatrix> {
 
 	@Override
 	public <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, M model,

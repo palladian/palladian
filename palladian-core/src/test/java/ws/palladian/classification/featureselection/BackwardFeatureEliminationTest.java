@@ -39,7 +39,7 @@ public class BackwardFeatureEliminationTest {
     public void testElimination() throws FileNotFoundException {
     	Builder<NaiveBayesModel> builder = BackwardFeatureEliminationConfig.with(
     			new NaiveBayesLearner(), new NaiveBayesClassifier());
-    	BackwardFeatureElimination<NaiveBayesModel> elimination = builder.create();
+    	BackwardFeatureElimination elimination = builder.create();
         FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
         String bestFeatureValue = ranking.getAll().get(0).getName();
 
@@ -53,7 +53,7 @@ public class BackwardFeatureEliminationTest {
     	Builder<NaiveBayesModel> builder = BackwardFeatureEliminationConfig.with(
     			new NaiveBayesLearner(), new NaiveBayesClassifier());
     	builder.addFeatureGroup(regex("plasma|bmi|pedigree"));
-    	BackwardFeatureElimination<NaiveBayesModel> elimination = builder.create();
+    	BackwardFeatureElimination elimination = builder.create();
     	FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
     	CollectionHelper.print(ranking.getAll());
     	String bestFeatureValue = ranking.getAll().get(0).getName();
