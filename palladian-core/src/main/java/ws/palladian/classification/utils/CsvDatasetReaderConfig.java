@@ -7,7 +7,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.functional.Factory;
 
 public class CsvDatasetReaderConfig {
-	public static final class Builder implements Factory<CsvDatasetReaderConfig> {
+	public static final class Builder implements Factory<CsvDatasetReader> {
 
 		private final File filePath;
 		private boolean readHeader = true;
@@ -58,8 +58,12 @@ public class CsvDatasetReaderConfig {
 		}
 
 		@Override
-		public CsvDatasetReaderConfig create() {
-			return new CsvDatasetReaderConfig(this);
+		public CsvDatasetReader create() {
+			return new CsvDatasetReader(createConfig());
+		}
+		
+		CsvDatasetReaderConfig createConfig() {
+			return new CsvDatasetReaderConfig(this);	
 		}
 
 	}
