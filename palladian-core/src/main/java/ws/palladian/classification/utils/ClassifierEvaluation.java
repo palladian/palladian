@@ -15,6 +15,7 @@ import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.ThresholdAnalyzer;
@@ -98,18 +99,37 @@ public final class ClassifierEvaluation {
     public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model,
             Iterable<? extends Instance> testData, String correctClass) {
         Validate.isTrue(model.getCategories().size() == 2, "binary model required");
-
-        ThresholdAnalyzer thresholdAnalyzer = new ThresholdAnalyzer(100);
-
-        for (Instance testInstance : testData) {
-            CategoryEntries classification = classifier.classify(testInstance.getVector(), model);
-            double probability = classification.getProbability(correctClass);
-            String realCategory = testInstance.getCategory();
-            thresholdAnalyzer.add(realCategory.equals(correctClass), probability);
-        }
-
-        return thresholdAnalyzer;
+        return evaluateBinary(classifier, model, testData, correctClass, new ThresholdAnalyzer(100));
     }
+    
+	/**
+	 * Evaluate a binary classification (ie. two possible classes, true/false
+	 * for example).
+	 * 
+	 * @param classifier
+	 *            The classifier.
+	 * @param model
+	 *            The model.
+	 * @param testData
+	 *            The testing data.
+	 * @param correctClass
+	 *            Label of the correct class (usually "true").
+	 * @param evaluator
+	 *            The evaluator.
+	 * @return The evaluation result
+	 */
+	public static <M extends Model, E extends ClassificationEvaluator> E evaluateBinary(Classifier<M> classifier,
+			M model, Iterable<? extends Instance> testData, String correctClass, E evaluator) {
+		Validate.isTrue(model.getCategories().size() == 2, "binary model required");
+		Validate.notNull(evaluator, "evaluator must not be null");
+		for (Instance testInstance : testData) {
+			CategoryEntries classification = classifier.classify(testInstance.getVector(), model);
+			double probability = classification.getProbability(correctClass);
+			String realCategory = testInstance.getCategory();
+			evaluator.add(realCategory.equals(correctClass), probability);
+		}
+		return evaluator;
+	}
 
     /**
      * <p>
