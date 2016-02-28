@@ -23,7 +23,7 @@ public class CsvDatasetReaderTest {
 		config.readHeader(false);
 		config.readClassFromLastColumn(true);
 		config.fieldSeparator(";");
-		CsvDatasetReader reader = new CsvDatasetReader(config.create());
+		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			assertTrue(iterator.hasNext());
 			Instance instance = iterator.next();
@@ -40,7 +40,7 @@ public class CsvDatasetReaderTest {
 		config.readHeader(false);
 		config.readClassFromLastColumn(false);
 		config.fieldSeparator(";");
-		CsvDatasetReader reader = new CsvDatasetReader(config.create());
+		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
 			assertEquals(15, instance.getVector().size());
@@ -54,7 +54,7 @@ public class CsvDatasetReaderTest {
 		config.readHeader(true);
 		config.readClassFromLastColumn(true);
 		config.fieldSeparator(";");
-		CsvDatasetReader reader = new CsvDatasetReader(config.create());
+		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
 			assertEquals(8, instance.getVector().size());
@@ -68,7 +68,7 @@ public class CsvDatasetReaderTest {
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
 		config.fieldSeparator(";");
-		CsvDatasetReader reader = new CsvDatasetReader(config.create());
+		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
 			assertEquals(6, instance.getVector().size());

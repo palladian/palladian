@@ -209,7 +209,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
     	CsvDatasetReaderConfig.Builder configBuilder = CsvDatasetReaderConfig.filePath(filePath);
     	configBuilder.readHeader(readHeader);
     	configBuilder.fieldSeparator(fieldSeparator);
-    	config = configBuilder.create();
+    	config = configBuilder.createConfig();
     }
     
     /**

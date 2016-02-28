@@ -22,7 +22,7 @@ import ws.palladian.helper.collection.Bag;
  * @see <a href="http://en.wikipedia.org/wiki/Precision_and_recall">Precision and recall</a>
  * @see <a href="http://en.wikipedia.org/wiki/F1_score">F1 score</a>
  */
-public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEntry>, ClassificationEvaluator {
+public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEntry> {
 
     /**
      * An entry for a specific threshold supplying precision, recall and f-measure.
@@ -260,7 +260,6 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * @param relevant Whether this record is actually relevant.
      * @param confidence The confidence, determined by some algorithm to evaluate, for prediction relevant.
      */
-    @Override
 	public void add(boolean relevant, double confidence) {
         int bin = getBin(confidence);
         if (relevant) {

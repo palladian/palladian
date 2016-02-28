@@ -36,6 +36,8 @@ public final class ClassifierEvaluation {
 
     // XXX misleading; I thought that would test multiple models, but it acutally combines the models?
     // document, and also have a look at comment in ClassificationUtils.classifyWithMultipleModels
+    /** Use a concrete {@link ClassificationEvaluator} instead. */
+    @Deprecated
     public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
             Iterable<? extends Instance> testData, M... models) {
 
@@ -99,37 +101,18 @@ public final class ClassifierEvaluation {
     public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model,
             Iterable<? extends Instance> testData, String correctClass) {
         Validate.isTrue(model.getCategories().size() == 2, "binary model required");
-        return evaluateBinary(classifier, model, testData, correctClass, new ThresholdAnalyzer(100));
+
+        ThresholdAnalyzer thresholdAnalyzer = new ThresholdAnalyzer(100);
+
+        for (Instance testInstance : testData) {
+            CategoryEntries classification = classifier.classify(testInstance.getVector(), model);
+            double probability = classification.getProbability(correctClass);
+            String realCategory = testInstance.getCategory();
+            thresholdAnalyzer.add(realCategory.equals(correctClass), probability);
+        }
+
+        return thresholdAnalyzer;
     }
-    
-	/**
-	 * Evaluate a binary classification (ie. two possible classes, true/false
-	 * for example).
-	 * 
-	 * @param classifier
-	 *            The classifier.
-	 * @param model
-	 *            The model.
-	 * @param testData
-	 *            The testing data.
-	 * @param correctClass
-	 *            Label of the correct class (usually "true").
-	 * @param evaluator
-	 *            The evaluator.
-	 * @return The evaluation result
-	 */
-	public static <M extends Model, E extends ClassificationEvaluator> E evaluateBinary(Classifier<M> classifier,
-			M model, Iterable<? extends Instance> testData, String correctClass, E evaluator) {
-		Validate.isTrue(model.getCategories().size() == 2, "binary model required");
-		Validate.notNull(evaluator, "evaluator must not be null");
-		for (Instance testInstance : testData) {
-			CategoryEntries classification = classifier.classify(testInstance.getVector(), model);
-			double probability = classification.getProbability(correctClass);
-			String realCategory = testInstance.getCategory();
-			evaluator.add(realCategory.equals(correctClass), probability);
-		}
-		return evaluator;
-	}
 
     /**
      * <p>

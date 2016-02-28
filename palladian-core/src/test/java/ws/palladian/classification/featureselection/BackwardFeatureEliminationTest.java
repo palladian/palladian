@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static ws.palladian.helper.functional.Filters.regex;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +16,7 @@ import ws.palladian.classification.featureselection.BackwardFeatureEliminationCo
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
-import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -30,15 +31,14 @@ public class BackwardFeatureEliminationTest {
 
 	@BeforeClass
 	public static void getData() throws FileNotFoundException {
-		String testFile = ResourceHelper.getResourcePath("/classifier/diabetes2.csv");
-		instances = ClassificationUtils.readCsv(testFile, true);
+		File testFile = ResourceHelper.getResourceFile("/classifier/diabetes2.csv");
+		instances = CsvDatasetReaderConfig.filePath(testFile).readHeader(true).create().readAll();
 	}
 	
     @Test
     public void testElimination() throws FileNotFoundException {
-    	Builder<NaiveBayesModel> builder = new BackwardFeatureEliminationConfig.Builder<NaiveBayesModel>();
-    	builder.learner(new NaiveBayesLearner());
-    	builder.classifier(new NaiveBayesClassifier());
+    	Builder<NaiveBayesModel> builder = BackwardFeatureEliminationConfig.with(
+    			new NaiveBayesLearner(), new NaiveBayesClassifier());
     	BackwardFeatureElimination<NaiveBayesModel> elimination = builder.create();
         FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
         String bestFeatureValue = ranking.getAll().get(0).getName();
@@ -50,9 +50,8 @@ public class BackwardFeatureEliminationTest {
     
     @Test
     public void testElimination_FeatureGroups() throws FileNotFoundException {
-    	Builder<NaiveBayesModel> builder = new BackwardFeatureEliminationConfig.Builder<NaiveBayesModel>();
-    	builder.learner(new NaiveBayesLearner());
-    	builder.classifier(new NaiveBayesClassifier());
+    	Builder<NaiveBayesModel> builder = BackwardFeatureEliminationConfig.with(
+    			new NaiveBayesLearner(), new NaiveBayesClassifier());
     	builder.addFeatureGroup(regex("plasma|bmi|pedigree"));
     	BackwardFeatureElimination<NaiveBayesModel> elimination = builder.create();
     	FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
