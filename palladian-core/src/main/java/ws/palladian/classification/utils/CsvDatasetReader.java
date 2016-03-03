@@ -74,6 +74,11 @@ public class CsvDatasetReader implements Iterable<Instance> {
                     LOGGER.debug("Finished reading {} lines", config.readHeader() ? lineNumber - 1 : lineNumber);
                     return false;
                 }
+                if (line.isEmpty()) { // skip empty lines
+                	lineNumber++;
+                	line = null;
+                	return hasNext();
+                }
                 String[] parts = line.split(config.fieldSeparator());
                 if (parts.length < 2) {
                     throw new IllegalStateException("Separator '" + config.fieldSeparator()
