@@ -13,6 +13,7 @@ import ws.palladian.core.ImmutableLongValue;
 import ws.palladian.core.Instance;
 import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 
 public class CsvDatasetReaderTest {
@@ -31,6 +32,7 @@ public class CsvDatasetReaderTest {
 			assertEquals(new ImmutableLongValue(25), instance.getVector().get("0"));
 			assertEquals(new ImmutableStringValue("Private"), instance.getVector().get("1"));
 			assertEquals("<=50K", instance.getCategory());
+			assertEquals(1000, CollectionHelper.count(reader.iterator()));
 		}
 	}
 
@@ -45,6 +47,7 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(15, instance.getVector().size());
 			assertEquals(new ImmutableStringValue("<=50K"), instance.getVector().get("14"));
+			assertEquals(1000, CollectionHelper.count(reader.iterator()));
 		}
 	}
 
@@ -59,6 +62,7 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(8, instance.getVector().size());
 			assertTrue(instance.getVector().keys().contains("numPregnant"));
+			assertEquals(768, CollectionHelper.count(reader.iterator()));
 		}
 	}
 	
