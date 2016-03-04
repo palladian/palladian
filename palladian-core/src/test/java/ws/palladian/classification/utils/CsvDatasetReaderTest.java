@@ -14,6 +14,7 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.CloseableIterator;
 
 public class CsvDatasetReaderTest {
@@ -82,6 +83,26 @@ public class CsvDatasetReaderTest {
 			assertEquals(new ImmutableDoubleValue(Double.NaN), instance.getVector().get("NaN"));
 			assertEquals(new ImmutableDoubleValue(Double.POSITIVE_INFINITY), instance.getVector().get("positiveInfinity"));
 			assertEquals(new ImmutableDoubleValue(Double.NEGATIVE_INFINITY), instance.getVector().get("negativeInfinity"));
+		}
+	}
+	
+	@Test
+	public void testCsvReading_customParser() throws IOException {
+		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
+		config.readHeader(true);
+		config.readClassFromLastColumn(false);
+		config.fieldSeparator(";");
+		config.parser(new CustomCsvValueParser.Builder().stringValues(Filters.ALL).create());
+		CsvDatasetReader reader = config.create();
+		try (CloseableIterator<Instance> iterator = reader.iterator()) {
+			Instance instance = iterator.next();
+			assertEquals(6, instance.getVector().size());
+			assertEquals(new ImmutableStringValue("1.23"), instance.getVector().get("double"));
+			assertEquals(new ImmutableStringValue("123"), instance.getVector().get("long"));
+			assertEquals(new ImmutableStringValue("test"), instance.getVector().get("string"));
+			assertEquals(new ImmutableStringValue("NaN"), instance.getVector().get("NaN"));
+			assertEquals(new ImmutableStringValue("Infinity"), instance.getVector().get("positiveInfinity"));
+			assertEquals(new ImmutableStringValue("-Infinity"), instance.getVector().get("negativeInfinity"));
 		}
 	}
 
