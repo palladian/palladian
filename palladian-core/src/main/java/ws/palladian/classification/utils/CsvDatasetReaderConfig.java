@@ -13,6 +13,7 @@ public class CsvDatasetReaderConfig {
 		private boolean readHeader = true;
 		private String fieldSeparator = ";";
 		private boolean readClassFromLastColumn = true;
+		private CsvValueParser parser = new CsvDatasetReader.DefaultCsvValueParser();
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -56,6 +57,19 @@ public class CsvDatasetReaderConfig {
 			this.readClassFromLastColumn = readClassFromLastColumn;
 			return this;
 		}
+		
+		/**
+		 * @param parser
+		 *            allows to specify a custom parser. Per default, the data
+		 *            types are detected automatically, which may fail in some
+		 *            cases. By specifying a custom parser, this behavior can
+		 *            be adapted as necessary.
+		 * @return The builder.
+		 */
+		public Builder parser(CsvValueParser parser) {
+			this.parser = parser;
+			return this;
+		}
 
 		@Override
 		public CsvDatasetReader create() {
@@ -80,16 +94,18 @@ public class CsvDatasetReaderConfig {
 		return new Builder(filePath);
 	}
 
-	private File filePath;
-	private boolean readHeader;
-	private String fieldSeparator;
-	private boolean readClassFromLastColumn;
+	private final File filePath;
+	private final boolean readHeader;
+	private final String fieldSeparator;
+	private final boolean readClassFromLastColumn;
+	private final CsvValueParser parser;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
 		this.readHeader = builder.readHeader;
 		this.fieldSeparator = builder.fieldSeparator;
 		this.readClassFromLastColumn = builder.readClassFromLastColumn;
+		this.parser = builder.parser;
 	}
 
 	File filePath() {
@@ -106,5 +122,9 @@ public class CsvDatasetReaderConfig {
 
 	boolean readClassFromLastColumn() {
 		return readClassFromLastColumn;
+	}
+	
+	public CsvValueParser parser() {
+		return parser;
 	}
 }
