@@ -1,5 +1,6 @@
 package ws.palladian.extraction.multimedia;
 
+import com.sun.media.jai.codec.SeekableStream;
 import org.apache.commons.lang.Validate;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -31,10 +32,7 @@ import java.awt.Color;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
@@ -164,9 +162,17 @@ public class ImageHandler {
                 HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
                 url = url.replace(" ", "%20");
                 HttpResult httpResult = retriever.httpGet(url);
-                bufferedImage = ImageIO.read(new ByteArrayInputStream(httpResult.getContent()));
+                try {
+                    bufferedImage = ImageIO.read(new ByteArrayInputStream(httpResult.getContent()));
+                } catch (Exception e) {
+                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new ByteArrayInputStream(httpResult.getContent()), true)).getAsBufferedImage();
+                }
             } else {
-                bufferedImage = ImageIO.read(new File(url));
+                try {
+                    bufferedImage = ImageIO.read(new File(url));
+                } catch (Exception e) {
+                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new FileInputStream(new File(url)), true)).getAsBufferedImage();
+                }
             }
         } catch (Exception e) {
             LOGGER.error(url + ", " + e.getMessage());
@@ -817,7 +823,7 @@ public class ImageHandler {
                     iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                     iwp.setCompressionQuality(quality);
                 } else if (quality < 1) {
-                    LOGGER.warn("compression is not supported for " + fileType + " files, " + filePath);
+                    LOGGER.debug("compression is not supported for " + fileType + " files, " + filePath);
                 }
 
                 FileHelper.createDirectoriesAndFile(filePath);
@@ -1195,6 +1201,7 @@ public class ImageHandler {
 
     /**
      * Detect edges in the given image using SOBEL.
+     *
      * @param image The image in which we want to detect edges.
      * @return The image with detected edges.
      */
@@ -1218,9 +1225,14 @@ public class ImageHandler {
     public static void main(String[] args) throws Exception {
 
 //        BufferedImage loadedImage = load("http://de.mathworks.com/help/releases/R2015b/examples/images/DetectEdgesInImagesExample_01.png");
-        BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
-        saveImage(detectEdges(loadedImage), "gradient.png");
-        saveImage(detectEdges(toGrayScale(loadedImage)), "gradient-grey.png");
+//        BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
+//        BufferedImage loadedImage = load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Novelties/Clown_Cone_000l.jpg");
+//        BufferedImage loadedImage = load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Sundaes/Sundae_Enlarged_2scoop2.jpg");
+        BufferedImage loadedImage = load("http://www.cariboucoffee.com/media/image/1/cooler_chocolate.jpg");
+//        BufferedImage loadedImage = load("GrilledChickenCaesarSalad_579x441.jpg");
+        System.out.println(loadedImage.getWidth());
+//        saveImage(detectEdges(loadedImage), "gradient.png");
+//        saveImage(detectEdges(toGrayScale(loadedImage)), "gradient-grey.png");
 //        System.out.println(ImageHandler.detectEdginess(load("gradient-grey.png")));
         System.exit(0);
 
