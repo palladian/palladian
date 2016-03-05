@@ -301,7 +301,8 @@ public final class ClassificationUtils {
      * @param dataset
      * @return
      */
-    // XXX currently, only get from first item in the dataset
+    // TODO currently, only get from first item in the dataset
+	// TODO duplicate of DatasetStatistics.getFeatureNames()
 	public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
 		Validate.notNull(dataset, "dataset must not be null");
 		Set<String> featureNames = new TreeSet<>();

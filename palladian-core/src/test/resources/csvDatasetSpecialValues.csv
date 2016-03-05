@@ -1,2 +1,2 @@
-double;long;string;NaN;positiveInfinity;negativeInfinity
-1.23;123;test;NaN;Infinity;-Infinity
+double;long;string;NaN;positiveInfinity;negativeInfinity;null
+1.23;123;test;NaN;Infinity;-Infinity;?
