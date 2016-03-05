@@ -41,9 +41,6 @@ public class CsvDatasetReader implements Iterable<Instance> {
 
 		@Override
 		public Value parse(String name, String input) {
-            if (input.equals("?")) {
-            	return NullValue.NULL;
-            }
             try { // XXX make better.
             	if (input.contains(".")) {
             		return new ImmutableDoubleValue(Double.parseDouble(input));
@@ -113,7 +110,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 	line = null;
                 	return hasNext();
                 }
-                String[] parts = line.split(config.fieldSeparator());
+                String[] parts = line.split(config.fieldSeparator(), -1);
                 if (parts.length < 2) {
                     throw new IllegalStateException("Separator '" + config.fieldSeparator()
                             + "' was not found, lines cannot be split ('" + line + "').");
@@ -147,14 +144,21 @@ public class CsvDatasetReader implements Iterable<Instance> {
             if (line == null) {
                 read();
             }
-            String[] parts = line.split(config.fieldSeparator());
+            // TODO why are we splitting twice? see line 113 ... split once and keep array
+            String[] parts = line.split(config.fieldSeparator(), -1);
             line = null;
             InstanceBuilder builder = new InstanceBuilder();
-            for (int f = 0; f < parts.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
-                String name = headNames == null ? String.valueOf(f) : headNames[f];
-                String value = parts[f];
-                builder.set(name, config.parser().parse(name, value));
-            }
+			for (int f = 0; f < parts.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
+				String name = headNames == null ? String.valueOf(f) : headNames[f];
+				String value = parts[f];
+				Value parsedValue;
+				if (value.equals(config.nullValue())) {
+					parsedValue = NullValue.NULL;
+				} else {
+					parsedValue = config.parser().parse(name, value);
+				}
+				builder.set(name, parsedValue);
+			}
             String targetClass = config.readClassFromLastColumn() ? stringPool.get(parts[parts.length - 1]) : "dummy";
             if (lineNumber % 100000 == 0) {
                 LOGGER.debug("Read {} lines", lineNumber);
