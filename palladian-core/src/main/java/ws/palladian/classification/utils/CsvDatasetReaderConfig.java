@@ -4,16 +4,20 @@ import java.io.File;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.value.NullValue;
 import ws.palladian.helper.functional.Factory;
 
 public class CsvDatasetReaderConfig {
 	public static final class Builder implements Factory<CsvDatasetReader> {
+		
+		public static final String DEFAULT_NULL_VALUE = "?";
 
 		private final File filePath;
 		private boolean readHeader = true;
 		private String fieldSeparator = ";";
 		private boolean readClassFromLastColumn = true;
 		private CsvValueParser parser = new CsvDatasetReader.DefaultCsvValueParser();
+		private String nullValue = DEFAULT_NULL_VALUE;
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -67,7 +71,21 @@ public class CsvDatasetReaderConfig {
 		 * @return The builder.
 		 */
 		public Builder parser(CsvValueParser parser) {
+			Validate.notNull(parser, "parser must not be null");
 			this.parser = parser;
+			return this;
+		}
+		
+		/**
+		 * @param nullValue
+		 *            The character(s) to be treated as {@link NullValue}.
+		 *            Default configuration treats {@value #DEFAULT_NULL_VALUE}
+		 *            as NullValue. Can also be an empty string.
+		 * @return The builder.
+		 */
+		public Builder treatAsNullValue(String nullValue) {
+			Validate.notNull(nullValue, "nullValue must not be null");
+			this.nullValue = nullValue;
 			return this;
 		}
 
@@ -99,6 +117,7 @@ public class CsvDatasetReaderConfig {
 	private final String fieldSeparator;
 	private final boolean readClassFromLastColumn;
 	private final CsvValueParser parser;
+	private final String nullValue;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -106,6 +125,7 @@ public class CsvDatasetReaderConfig {
 		this.fieldSeparator = builder.fieldSeparator;
 		this.readClassFromLastColumn = builder.readClassFromLastColumn;
 		this.parser = builder.parser;
+		this.nullValue = builder.nullValue;
 	}
 
 	File filePath() {
@@ -126,5 +146,9 @@ public class CsvDatasetReaderConfig {
 	
 	public CsvValueParser parser() {
 		return parser;
+	}
+	
+	public String nullValue() {
+		return nullValue;
 	}
 }
