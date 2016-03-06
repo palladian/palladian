@@ -12,7 +12,7 @@ import ws.palladian.core.FeatureVector;
  */
 public final class NoNormalizer implements Normalizer {
 
-    private static final Normalization NOP = new AbstractNormalization() {
+    public static final Normalization NO_NORMALIZATION = new AbstractNormalization() {
 
         private static final long serialVersionUID = 1L;
 
@@ -29,7 +29,7 @@ public final class NoNormalizer implements Normalizer {
 
     @Override
     public Normalization calculate(Iterable<? extends FeatureVector> featureVectors) {
-        return NOP;
+        return NO_NORMALIZATION;
     }
 
 }
