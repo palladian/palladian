@@ -164,5 +164,11 @@ public class BagTest {
         Bag<String> copy = Bag.create(bag1);
         assertTrue(copy.equals(bag1));
     }
+    
+    @Test
+    public void testAdd() {
+    	assertEquals(4, bag1.add(ELEMENT1, 1));
+    	assertEquals(10, bag1.add(ELEMENT1, 6));
+    }
 
 }
