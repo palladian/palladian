@@ -138,6 +138,11 @@ public class SlimStats extends AbstractStats {
         throw new UnsupportedOperationException(
                 "Calculating cumulative probabilities is not supported by this stats.");
     }
+    
+    @Override
+    public double getMode() {
+    	throw new UnsupportedOperationException("Calculating the mode is not supported by this stats.");
+    }
 
     @Override
     public String toString() {
