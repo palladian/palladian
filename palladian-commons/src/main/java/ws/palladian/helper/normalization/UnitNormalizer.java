@@ -101,7 +101,7 @@ public class UnitNormalizer {
         return UnitType.CURRENT.contains(unit);
     }
 
-    private static boolean isElectricCharge(String unit) {
+    private static boolean isElectricChargeUnit(String unit) {
         return UnitType.ELECTRIC_CHARGE.contains(unit);
     }
 
@@ -491,8 +491,11 @@ public class UnitNormalizer {
             if (isCurrentUnit(word)) {
                 unitType = UnitType.CURRENT;
             }
-            if (isElectricCharge(word)) {
+            if (isElectricChargeUnit(word)) {
                 unitType = UnitType.ELECTRIC_CHARGE;
+            }
+            if (isBandwidthUnit(word)) {
+                unitType = UnitType.BANDWIDTH;
             }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit
