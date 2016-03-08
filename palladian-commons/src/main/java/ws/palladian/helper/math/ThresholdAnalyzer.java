@@ -118,8 +118,8 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
             throw new IllegalArgumentException("numBins must be least two, was " + numBins);
         }
         this.numBins = numBins;
-        this.retrievedItems = Bag.create();
-        this.relevantItems = Bag.create();
+        retrievedItems = Bag.create();
+        relevantItems = Bag.create();
 //        this.relevantItems = 0;
     }
 
@@ -260,7 +260,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * @param relevant Whether this record is actually relevant.
      * @param confidence The confidence, determined by some algorithm to evaluate, for prediction relevant.
      */
-    public void add(boolean relevant, double confidence) {
+	public void add(boolean relevant, double confidence) {
         int bin = getBin(confidence);
         if (relevant) {
 //            relevantItems++;

@@ -113,5 +113,10 @@ public interface Stats {
      * @return The variance (ie. {@link #getStandardDeviation()}^2).
      */
     double getVariance();
+    
+	/**
+	 * @return The mode (in case, there are multiple modes, it will return one of them).
+	 */
+    double getMode();
 
 }

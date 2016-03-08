@@ -179,15 +179,15 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * 
      * @param item The item which count should be incremented, not <code>null</code>.
      * @param increment The count by which to increment (negative values decrement).
+     * @return The item's new count, after adding.
      */
-    public void add(T item, int increment) {
-        Validate.notNull(item, "item must not be null");
-        if (increment != 0) {
-            int count = count(item);
-            map.put(item, count + increment);
-            size += increment;
-        }
-    }
+	public int add(T item, int increment) {
+		Validate.notNull(item, "item must not be null");
+		int newCount = count(item) + increment;
+		map.put(item, newCount);
+		size += increment;
+		return newCount;
+	}
 
     /**
      * <p>

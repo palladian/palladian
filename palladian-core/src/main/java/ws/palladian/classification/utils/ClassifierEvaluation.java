@@ -15,8 +15,10 @@ import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.math.ThresholdAnalysisEvaluator;
 import ws.palladian.helper.math.ThresholdAnalyzer;
 
 /**
@@ -35,6 +37,8 @@ public final class ClassifierEvaluation {
 
     // XXX misleading; I thought that would test multiple models, but it acutally combines the models?
     // document, and also have a look at comment in ClassificationUtils.classifyWithMultipleModels
+    /** Use a concrete {@link ClassificationEvaluator} instead. */
+    @Deprecated
     public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
             Iterable<? extends Instance> testData, M... models) {
 
@@ -95,6 +99,8 @@ public final class ClassifierEvaluation {
         return evaluate(classifier, test, model);
     }
 
+    /** @deprecated Use the {@link ThresholdAnalysisEvaluator} instead. */
+    @Deprecated
     public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model,
             Iterable<? extends Instance> testData, String correctClass) {
         Validate.isTrue(model.getCategories().size() == 2, "binary model required");

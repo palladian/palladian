@@ -12,8 +12,13 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.ImmutableLongValue;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.value.ImmutableDoubleValue;
+import ws.palladian.core.value.ImmutableStringValue;
+import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
@@ -30,6 +35,32 @@ import ws.palladian.helper.nlp.StringPool;
  * @author Philipp Katz
  */
 public class CsvDatasetReader implements Iterable<Instance> {
+	
+	static class DefaultCsvValueParser implements CsvValueParser {
+        final StringPool stringPool = new StringPool();
+
+		@Override
+		public Value parse(String name, String input) {
+            try { // XXX make better.
+            	if (input.contains(".")) {
+            		return new ImmutableDoubleValue(Double.parseDouble(input));
+            	} else if (input.equals("NaN")) {
+					// XXX hotfix, where NaN was parsed as string; better
+					// would be to detect an implicit data schema before
+					// parsing
+            		return new ImmutableDoubleValue(Double.NaN);
+				} else if (input.equals("Infinity")) {
+					return new ImmutableDoubleValue(Double.POSITIVE_INFINITY);
+				} else if (input.equals("-Infinity")) {
+					return new ImmutableDoubleValue(Double.NEGATIVE_INFINITY);
+				} else {
+					return new ImmutableLongValue(Long.parseLong(input));
+				}
+            } catch (NumberFormatException e) {
+                return new ImmutableStringValue(stringPool.get(input));
+            }
+		}
+	}
 
     private static final class CsvDatasetIterator implements CloseableIterator<Instance> {
     	private final CsvDatasetReaderConfig config;
@@ -74,7 +105,12 @@ public class CsvDatasetReader implements Iterable<Instance> {
                     LOGGER.debug("Finished reading {} lines", config.readHeader() ? lineNumber - 1 : lineNumber);
                     return false;
                 }
-                String[] parts = line.split(config.fieldSeparator());
+                if (line.isEmpty()) { // skip empty lines
+                	lineNumber++;
+                	line = null;
+                	return hasNext();
+                }
+                String[] parts = line.split(config.fieldSeparator(), -1);
                 if (parts.length < 2) {
                     throw new IllegalStateException("Separator '" + config.fieldSeparator()
                             + "' was not found, lines cannot be split ('" + line + "').");
@@ -108,38 +144,21 @@ public class CsvDatasetReader implements Iterable<Instance> {
             if (line == null) {
                 read();
             }
-            String[] parts = line.split(config.fieldSeparator());
+            // TODO why are we splitting twice? see line 113 ... split once and keep array
+            String[] parts = line.split(config.fieldSeparator(), -1);
             line = null;
             InstanceBuilder builder = new InstanceBuilder();
-            for (int f = 0; f < parts.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
-                String name = headNames == null ? String.valueOf(f) : headNames[f];
-                String value = parts[f];
-                if (value.equals("?")) {
-                    builder.setNull(name);
-                    continue;
-                }
-                try { // XXX make better.
-                	if (value.contains(".")) {
-                		double doubleValue = Double.parseDouble(value);
-                		builder.set(name, doubleValue);
-                	} else if (value.equals("NaN")) {
-						// XXX hotfix, where NaN was parsed as string; better
-						// would be to detect an implicit data schema before
-						// parsing
-                		builder.set(name, Double.NaN);
-					} else if (value.equals("Infinity")) {
-						builder.set(name, Double.POSITIVE_INFINITY);
-					} else if (value.equals("-Infinity")) {
-						builder.set(name, Double.NEGATIVE_INFINITY);
-					} else {
-						long longValue = Long.parseLong(value);
-						builder.set(name, longValue);
-					}
-                } catch (NumberFormatException e) {
-                    String stringValue = stringPool.get(value);
-                    builder.set(name, stringValue);
-                }
-            }
+			for (int f = 0; f < parts.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
+				String name = headNames == null ? String.valueOf(f) : headNames[f];
+				String value = parts[f];
+				Value parsedValue;
+				if (value.equals(config.nullValue())) {
+					parsedValue = NullValue.NULL;
+				} else {
+					parsedValue = config.parser().parse(name, value);
+				}
+				builder.set(name, parsedValue);
+			}
             String targetClass = config.readClassFromLastColumn() ? stringPool.get(parts[parts.length - 1]) : "dummy";
             if (lineNumber % 100000 == 0) {
                 LOGGER.debug("Read {} lines", lineNumber);
@@ -209,7 +228,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
     	CsvDatasetReaderConfig.Builder configBuilder = CsvDatasetReaderConfig.filePath(filePath);
     	configBuilder.readHeader(readHeader);
     	configBuilder.fieldSeparator(fieldSeparator);
-    	config = configBuilder.create();
+    	config = configBuilder.createConfig();
     }
     
     /**

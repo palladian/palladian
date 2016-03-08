@@ -491,7 +491,9 @@ public class ConfusionMatrix {
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
      *            each category equally.
      * @return The average accuracy for all categories.
+     * @deprecated Why should one want to average this?
      */
+    @Deprecated
     public double getAverageAccuracy(boolean weighted) {
         double accuracy = 0.0;
         for (String category : getCategories()) {
@@ -604,12 +606,7 @@ public class ConfusionMatrix {
         }
 
         out.append("\n");
-        out.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
-        out.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
-        out.append("Average F1:\t").append(MathHelper.round(getAverageF(0.5, true), 4)).append('\n');
-        out.append("Average Sensitivity:\t").append(MathHelper.round(getAverageSensitivity(true), 4)).append('\n');
-        out.append("Average Specificity:\t").append(MathHelper.round(getAverageSpecificity(true), 4)).append('\n');
-        out.append("Average Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append('\n');
+        out.append("Accuracy:\t").append(MathHelper.round(getAccuracy(), 4)).append('\n');
         out.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append('\n');
         out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
         if (getCategories().size() == 2) {
@@ -617,6 +614,13 @@ public class ConfusionMatrix {
         }
         out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
+        out.append("\n");
+        out.append("Average Precision:\t").append(MathHelper.round(getAveragePrecision(true), 4)).append('\n');
+        out.append("Average Recall:\t").append(MathHelper.round(getAverageRecall(true), 4)).append('\n');
+        out.append("Average F1:\t").append(MathHelper.round(getAverageF(0.5, true), 4)).append('\n');
+        out.append("Average Sensitivity:\t").append(MathHelper.round(getAverageSensitivity(true), 4)).append('\n');
+        out.append("Average Specificity:\t").append(MathHelper.round(getAverageSpecificity(true), 4)).append('\n');
+        // out.append("Average Accuracy:\t").append(MathHelper.round(getAverageAccuracy(true), 4)).append('\n');
 
         return out.toString();
 

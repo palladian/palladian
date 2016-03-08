@@ -22,18 +22,26 @@ import ws.palladian.helper.functional.Factory;
 public final class LazyMap<K, V> implements Map<K, V> {
 
     private final Map<K, V> map;
-    private final Factory<V> factory;
+    private final Factory<? extends V> factory;
 
-    private LazyMap(Map<K,V> map, Factory<V> factory) {
+    public LazyMap(Map<K,V> map, Factory<? extends V> factory) {
         this.map = map;
         this.factory = factory;
     }
+    
+    public LazyMap(Factory<? extends V> factory) {
+    	this(new HashMap<K, V>(), factory);
+    }
 
-    public static <K, V> LazyMap<K, V> create(Factory<V> factory) {
+    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
+    @Deprecated
+    public static <K, V> LazyMap<K, V> create(Factory<? extends V> factory) {
         return new LazyMap<K, V>(new HashMap<K, V>(), factory);
     }
     
-    public static <K, V> LazyMap<K, V> create(Map<K,V> map, Factory<V> factory) {
+    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
+    @Deprecated
+    public static <K, V> LazyMap<K, V> create(Map<K,V> map, Factory<? extends V> factory) {
         return new LazyMap<K, V>(map, factory);
     }
 
