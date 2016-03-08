@@ -18,7 +18,7 @@ import ws.palladian.helper.functional.Filter;
  */
 class FilterIterator<E> extends AbstractIterator<E> {
 
-    private final Iterator<E> iterator;
+    private final Iterator<? extends E> iterator;
     private final Filter<? super E> filter;
 
     /**
@@ -27,7 +27,7 @@ class FilterIterator<E> extends AbstractIterator<E> {
      * @param iterator The iterator to wrap, not <code>null</code>.
      * @param filter The filter to apply, not <code>null</code>.
      */
-    public FilterIterator(Iterator<E> iterator, Filter<? super E> filter) {
+    public FilterIterator(Iterator<? extends E> iterator, Filter<? super E> filter) {
         Validate.notNull(iterator, "iterator must not be null");
         Validate.notNull(filter, "filter must not be null");
         this.iterator = iterator;

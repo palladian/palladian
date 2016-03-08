@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.functional.Function;
@@ -554,7 +555,7 @@ public final class CollectionHelper {
      * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
      *         are not accepted by the filter.
      */
-    public static <T> Iterator<T> filter(Iterator<T> iterator, Filter<? super T> filter) {
+    public static <T> Iterator<T> filter(Iterator<? extends T> iterator, Filter<? super T> filter) {
         Validate.notNull(iterator, "iterator must not be null");
         Validate.notNull(filter, "filter must not be null");
         return new FilterIterator<T>(iterator, filter);
@@ -570,16 +571,49 @@ public final class CollectionHelper {
      * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
      *         are not accepted by the filter.
      */
-    public static <T> Iterable<T> filter(final Iterable<T> iterable, final Filter<? super T> filter) {
+    public static <T> Iterable<T> filter(final Iterable<? extends T> iterable, final Filter<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return filter(iterable.iterator(), filter);
-            }
-        };
+//        return new Iterable<T>() {
+//            @Override
+//            public Iterator<T> iterator() {
+//                return filter(iterable.iterator(), filter);
+//            }
+//        };
+        return filter(iterable, new Factory<Filter<? super T>>() {
+			@Override
+			public Filter<? super T> create() {
+				return filter;
+			}
+        });
     }
+
+	/**
+	 * <p>
+	 * Apply a {@link Filter} to an {@link Iterable}. This method takes a
+	 * factory, which produces the filter, thus allowing stateful filters which
+	 * need to be re-created for each newly produced iterator.
+	 * 
+	 * @param iterable
+	 *            The iterable to filter, not <code>null</code>.
+	 * @param filter
+	 *            The filter to apply, supplied via {@link Factory}, not
+	 *            <code>null</code>.
+	 * @return A new iterator, where the given filter is applied, thus
+	 *         eliminating the entries in the iterator, which are not accepted
+	 *         by the filter.
+	 */
+	public static <T> Iterable<T> filter(final Iterable<? extends T> iterable,
+			final Factory<? extends Filter<? super T>> filter) {
+		Validate.notNull(iterable, "iterable must not be null");
+		Validate.notNull(filter, "filter must not be null");
+		return new Iterable<T>() {
+			@Override
+			public Iterator<T> iterator() {
+				return filter(iterable.iterator(), filter.create());
+			}
+		};
+	}
 
     /**
      * <p>

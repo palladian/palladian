@@ -243,7 +243,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         List<Instance> validationSet = new CsvDatasetReader(validationCsv).readAll();
 
         FMeasureScorer scorer = new FMeasureScorer("true");
-        BackwardFeatureElimination<M> featureElimination = new BackwardFeatureElimination<M>(learner, predictor, scorer);
+        BackwardFeatureElimination featureElimination = new BackwardFeatureElimination(learner, predictor, scorer);
         FeatureRanking featureRanking = featureElimination.rankFeatures(trainSet, validationSet, NoProgress.INSTANCE);
         CollectionHelper.print(featureRanking.getAll());
     }

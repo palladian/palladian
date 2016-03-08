@@ -148,6 +148,8 @@ public class ConfusionMatrixTest {
 		confusionMatrix.add("false", "false", 15);
 		confusionMatrix.add("true", "false", 8);
 		confusionMatrix.add("false", "true", 3);
+		assertEquals(confusionMatrix.getSensitivity("true"), 0.8222, 0.0001);
+		assertEquals(confusionMatrix.getSpecificity("true"), 0.8333, 0.0001);
 		assertEquals(confusionMatrix.getHighestPrior(), 0.7143, 0.0001);
 		assertEquals(confusionMatrix.getAccuracy(), 0.8254, 0.0001);
 		assertEquals(confusionMatrix.getSuperiority(), 1.1556, 0.0001);
@@ -156,6 +158,8 @@ public class ConfusionMatrixTest {
 		confusionMatrix = new ConfusionMatrix();
 		confusionMatrix.add("true", "true", 45);
 		confusionMatrix.add("false", "true", 18);
+		assertEquals(confusionMatrix.getSensitivity("true"), 1, 0.0001);
+		assertEquals(confusionMatrix.getSpecificity("true"), 0, 0.0001);
 		assertEquals(confusionMatrix.getHighestPrior(), 0.7143, 0.0001);
 		assertEquals(confusionMatrix.getAccuracy(), 0.7143, 0.0001);
 		assertEquals(confusionMatrix.getSuperiority(), 1, 0.0001);

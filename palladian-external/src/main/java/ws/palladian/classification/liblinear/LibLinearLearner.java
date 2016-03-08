@@ -82,6 +82,25 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
         this.bias = bias;
         this.normalizer = normalizer;
     }
+    
+	/**
+	 * <p>
+	 * Create a new {@link LibLinearLearner} with 'L2-regularized logistic
+	 * regression', a cost value of 1.0 for constraints violation, a value of
+	 * 0.01 as stopping criterion, and a bias term of one
+	 * </p>
+	 * 
+	 * @param normalizer
+	 *            The normalizer to use, not <code>null</code>. Use a
+	 *            {@link NoNormalizer} to skip normalization.
+	 */
+	public LibLinearLearner(Normalizer normalizer) {
+		this(new Parameter(SolverType.L2R_LR, //
+				1.0, // cost of constraints violation
+				0.01), // stopping criteria
+				1, // bias term
+				normalizer); // normalizer
+	}
 
     /**
      * <p>
@@ -91,11 +110,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
      * </p>
      */
     public LibLinearLearner() {
-        this(new Parameter(SolverType.L2R_LR, //
-                1.0, // cost of constraints violation
-                0.01), // stopping criteria
-                1, // bias term
-                new ZScoreNormalizer()); // normalizer
+        this(new ZScoreNormalizer());
     }
 
     @Override

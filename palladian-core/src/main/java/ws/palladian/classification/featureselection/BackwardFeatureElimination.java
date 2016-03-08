@@ -1,5 +1,9 @@
 package ws.palladian.classification.featureselection;
 
+import static ws.palladian.helper.functional.Filters.equal;
+import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Filters.or;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -22,10 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
-import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.classification.utils.ClassifierEvaluation;
-import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
@@ -51,19 +52,15 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * @author Philipp Katz
  * @param <M> Type of the model.
  */
-public final class BackwardFeatureElimination<M extends Model> extends AbstractFeatureRanker {
+public final class BackwardFeatureElimination extends AbstractFeatureRanker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BackwardFeatureElimination.class);
+    
+    private final BackwardFeatureEliminationConfig config;
 
-    private final Factory<? extends Learner<M>> learnerFactory;
-
-    private final Factory<? extends Classifier<M>> classifierFactory;
-
-    private final Function<ConfusionMatrix, Double> scorer;
-
-    private final int numThreads;
-
+    /** Use {@link BackwardFeatureEliminationConfig.Builder#scoreAccuracy()} instead. */
+    @Deprecated
     public static final Function<ConfusionMatrix, Double> ACCURACY_SCORER = new Function<ConfusionMatrix, Double>() {
         @Override
         public Double compute(ConfusionMatrix input) {
@@ -77,7 +74,9 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * </p>
      * 
      * @author Philipp Katz
+     * @deprecated Use {@link BackwardFeatureEliminationConfig.Builder#scoreF1(String)} instead.
      */
+    @Deprecated
     public static final class FMeasureScorer implements Function<ConfusionMatrix, Double> {
 
         private final String className;
@@ -107,34 +106,27 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
         private final Iterable<? extends Instance> trainData;
         private final Iterable<? extends Instance> testData;
-        private final List<String> featuresToEliminate;
+        private final List<? extends Filter<? super String>> featuresToEliminate;
         private final ProgressReporter progress;
 
         public TestRun(Iterable<? extends Instance> trainData, Iterable<? extends Instance> testData,
-                List<String> featuresToEliminate, ProgressReporter progress) {
-            this.trainData = trainData;
-            this.testData = testData;
-            this.featuresToEliminate = featuresToEliminate;
-            this.progress = progress;
-        }
+				List<? extends Filter<? super String>> featuresToEliminate, ProgressReporter progress) {
+        	this.trainData = trainData;
+        	this.testData = testData;
+        	this.featuresToEliminate = featuresToEliminate;
+        	this.progress = progress;
+		}
 
-        @Override
+		@Override
         public TestRunResult call() throws Exception {
-            String eliminatedFeature = CollectionHelper.getLast(featuresToEliminate);
+            Filter<? super String> eliminatedFeature = CollectionHelper.getLast(featuresToEliminate);
             LOGGER.debug("Starting elimination for {}", eliminatedFeature);
 
-            Filter<String> filter = Filters.not(Filters.equal(featuresToEliminate));
-            List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainData, filter);
-            List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(testData, filter);
+            Filter<String> filter = Filters.not(Filters.or(featuresToEliminate));
+            Iterable<Instance> eliminatedTrainData = ClassificationUtils.filterFeaturesIterable(trainData, filter);
+            Iterable<Instance> eliminatedTestData = ClassificationUtils.filterFeaturesIterable(testData, filter);
 
-            // create a new learner and classifier
-            Learner<M> learner = learnerFactory.create();
-            Classifier<M> classifier = classifierFactory.create();
-
-            M model = learner.train(eliminatedTrainData);
-            @SuppressWarnings("unchecked")
-            ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, eliminatedTestData, model);
-            Double score = scorer.compute(confusionMatrix);
+            Double score = config.evaluator().score(eliminatedTrainData, eliminatedTestData);
 
             LOGGER.debug("Finished elimination for {}", eliminatedFeature);
             progress.increment();
@@ -145,14 +137,22 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
     private static final class TestRunResult {
         private final Double score;
-        private final String eliminatedFeature;
+        private final Filter<? super String> eliminatedFeature;
 
-        public TestRunResult(Double score, String eliminatedFeature) {
+        public TestRunResult(Double score, Filter<? super String> eliminatedFeature) {
             this.score = score;
             this.eliminatedFeature = eliminatedFeature;
         }
     }
-    
+
+	/**
+	 * Configuration constructor; used by
+	 * {@link BackwardFeatureEliminationConfig.Builder}.
+	 */
+	BackwardFeatureElimination(BackwardFeatureEliminationConfig config) {
+		this.config = config;
+	}
+
     /**
      * <p>
      * Create a new {@link BackwardFeatureElimination} with the given learner and classifier. The scoring can be
@@ -163,9 +163,11 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * @param learner The learner, not <code>null</code>.
      * @param classifier The classifier, not <code>null</code>.
      * @param scorer The function for determining the score, not <code>null</code>.
+     * @deprecated Use the {@link BackwardFeatureEliminationConfig.Builder} instead.
      */
-    public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier, Function<ConfusionMatrix, Double> scorer) {
-        this(Factories.constant(learner), Factories.constant(classifier), scorer, 1);
+    @Deprecated
+    public <M extends Model> BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier, Function<ConfusionMatrix, Double> scorer) {
+    	this(BackwardFeatureEliminationConfig.with(learner, classifier).scorer(scorer).createConfig());
     }
 
     /**
@@ -175,9 +177,11 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * 
      * @param learner The learner, not <code>null</code>.
      * @param classifier The classifier, not <code>null</code>.
+     * @deprecated Use the {@link BackwardFeatureEliminationConfig.Builder} instead.
      */
-    public BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier) {
-        this(learner, classifier, ACCURACY_SCORER);
+    @Deprecated
+    public <M extends Model> BackwardFeatureElimination(Learner<M> learner, Classifier<M> classifier) {
+    	this(BackwardFeatureEliminationConfig.with(learner, classifier).scoreAccuracy().createConfig());
     }
 
     /**
@@ -192,17 +196,11 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
      * @param classifierFactory Factory for the classifier, not <code>null</code>.
      * @param scorer The function for determining the score, not <code>null</code>.
      * @param numThreads Use the specified number of threads to parallelize training/testing. Must be greater/equal one.
+     * @deprecated Use the {@link BackwardFeatureEliminationConfig.Builder} instead.
      */
-    public BackwardFeatureElimination(Factory<? extends Learner<M>> learnerFactory,
+    public <M extends Model> BackwardFeatureElimination(Factory<? extends Learner<M>> learnerFactory,
             Factory<? extends Classifier<M>> classifierFactory, Function<ConfusionMatrix, Double> scorer, int numThreads) {
-        Validate.notNull(learnerFactory, "learnerFactory must not be null");
-        Validate.notNull(classifierFactory, "classifierFactory must not be null");
-        Validate.notNull(scorer, "scorer must not be null");
-        Validate.isTrue(numThreads > 0, "numThreads must be greater zero");
-        this.learnerFactory = learnerFactory;
-        this.classifierFactory = classifierFactory;
-        this.scorer = scorer;
-        this.numThreads = numThreads;
+    	this(BackwardFeatureEliminationConfig.with(learnerFactory, classifierFactory).scorer(scorer).numThreads(numThreads).createConfig());
     }
 
     @Override
@@ -229,40 +227,40 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         Map<String, Integer> ranks = new HashMap<>();
 
         Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
-        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
-        final List<String> eliminatedFeatures = new ArrayList<>();
-        final int iterations = allFeatures.size() * (allFeatures.size() + 1) / 2;
+        final Set<Filter<? super String>> allFeatureFilters = constructFeatureFilters(trainingVectors);
+        final List<Filter<? super String>> eliminatedFeatures = new ArrayList<>();
+        final int iterations = allFeatureFilters.size() * (allFeatureFilters.size() + 1) / 2;
         progress.startTask("Backwards feature elimination", iterations);
         int featureIndex = 0;
 
-        LOGGER.info("# of features in dataset: {}", allFeatures.size());
+        LOGGER.info("# of features or feature sets: {}", allFeatureFilters.size());
         LOGGER.info("# of iterations: {}", iterations);
 
         try {
             // run with all features
-            TestRun initialRun = new TestRun(trainSet, validationSet, Arrays.asList("<none>"), progress);
+            TestRun initialRun = new TestRun(trainSet, validationSet, Arrays.asList(Filters.NONE), progress);
             TestRunResult startScore = initialRun.call();
             LOGGER.info("Score with all features {}", startScore.score);
 
-            ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+            ExecutorService executor = Executors.newFixedThreadPool(config.numThreads());
 
             // stepwise elimination
             for (;;) {
-                Set<String> featuresToCheck = new HashSet<>(allFeatures);
+                Set<Filter<? super String>> featuresToCheck = new HashSet<>(allFeatureFilters);
                 featuresToCheck.removeAll(eliminatedFeatures);
                 if (featuresToCheck.isEmpty()) {
                     break;
                 }
                 List<TestRun> runs = new ArrayList<>();
 
-                for (String currentFeature : featuresToCheck) {
-                    List<String> featuresToEliminate = new ArrayList<>(eliminatedFeatures);
+                for (Filter<? super String> currentFeature : featuresToCheck) {
+                    List<Filter<? super String>> featuresToEliminate = new ArrayList<>(eliminatedFeatures);
                     featuresToEliminate.add(currentFeature);
                     runs.add(new TestRun(trainSet, validationSet, featuresToEliminate, progress));
                 }
 
                 List<Future<TestRunResult>> runFutures = executor.invokeAll(runs);
-                String selectedFeature = null;
+                Filter<? super String> selectedFeature = null;
                 double highestScore = 0;
                 for (Future<TestRunResult> future : runFutures) {
                     TestRunResult testRunResult = future.get();
@@ -274,24 +272,41 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
 
                 LOGGER.info("Selected {} for elimination, score {}", selectedFeature, highestScore);
                 eliminatedFeatures.add(selectedFeature);
-                ranks.put(selectedFeature, featureIndex++);
+                ranks.put(selectedFeature.toString(), featureIndex++);
             }
 
             executor.shutdown();
 
-        } catch (InterruptedException e) {
-            throw new IllegalStateException(e);
-        } catch (ExecutionException e) {
-            throw new IllegalStateException(e);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
         return new FeatureRanking(ranks);
     }
 
-    public static void main(String[] args) {
-        List<Instance> trainSet = new CsvDatasetReader(new File("/path/to/training.csv")).readAll();
-        List<Instance> validationSet = new CsvDatasetReader(new File("/path/to/validation.csv")).readAll();
+	/**
+	 * Check which features are matched by any of the filters, then construct
+	 * individual (singleton) filters for all remaining features. The result is
+	 * a collection of filters, where the union of all filter results represents
+	 * the entire feature set.
+	 * 
+	 * @param data
+	 *            The dataset.
+	 * @return A set of filters for every feature within the dataset.
+	 */
+	private Set<Filter<? super String>> constructFeatureFilters(Iterable<FeatureVector> data) {
+		// XXX check, whether the filters are disjunct?
+		Set<Filter<? super String>> filters = new HashSet<>(config.featureGroups());
+		Set<String> allFeatures = ClassificationUtils.getFeatureNames(data);
+		Iterable<String> unmatchedFeatures = CollectionHelper.filter(allFeatures, not(or(config.featureGroups())));
+		for (String unmatchedFeature : unmatchedFeatures) {
+			filters.add(equal(unmatchedFeature));
+		}
+		return filters;
+	}
+
+	public static void main(String[] args) {
+		List<Instance> trainSet = CsvDatasetReaderConfig.filePath(new File("/path/to/training.csv")).create().readAll();
+		List<Instance> validationSet = CsvDatasetReaderConfig.filePath(new File("/path/to/validation.csv")).create().readAll();
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
@@ -308,8 +323,7 @@ public final class BackwardFeatureElimination<M extends Model> extends AbstractF
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
         Function<ConfusionMatrix, Double> scorer = new FMeasureScorer("true");
 
-        BackwardFeatureElimination<QuickDtModel> elimination = new BackwardFeatureElimination<>(
-                learnerFactory, predictorFactory, scorer, 1);
+        BackwardFeatureElimination elimination = new BackwardFeatureElimination(learnerFactory, predictorFactory, scorer, 1);
         FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet, new ProgressMonitor());
         CollectionHelper.print(featureRanking.getAll());
     }

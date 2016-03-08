@@ -6,6 +6,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -28,7 +29,10 @@ public final class FreeGeoIpLookup implements IpLookup {
 	 * request usually yields a success. In this case, this is the maximum # of
 	 * attempts being made.
 	 */
-	private static final int MAX_RETRIES = 3;
+	private static final int MAX_RETRIES = 5;
+	
+	/** Wait so many milliseconds before retrying a failed request. */
+	private static final long WAIT_BETWEEN_RETRIES = 500;
 
 	@Override
 	public IpLookupResult lookup(String ip) throws IpLookupException {
@@ -40,14 +44,22 @@ public final class FreeGeoIpLookup implements IpLookup {
 			try {
 				httpResult = retriever.httpGet(requestUrl);
 			} catch (HttpException e) {
-				throw new IpLookupException("HTTP exception", e);
+				if (attempt == MAX_RETRIES) {
+					throw new IpLookupException("HTTP exception", e);
+				} else {
+					LOGGER.debug("Attempt {} failed with HTTP exception, retrying in {} ms", attempt,
+							attempt * WAIT_BETWEEN_RETRIES);
+					ThreadHelper.deepSleep(attempt * WAIT_BETWEEN_RETRIES);
+					continue;
+				}
 			}
 			if (httpResult.errorStatus()) {
 				if (httpResult.getStatusCode() != 503 || attempt == MAX_RETRIES) {
 					throw new IpLookupException("HTTP status " + httpResult.getStatusCode() + " for " + requestUrl);
 				} else {
-					LOGGER.debug("Attempt {} failed with HTTP status {}, retrying", attempt,
-							httpResult.getStatusCode());
+					LOGGER.debug("Attempt {} failed with HTTP status {}, retrying in {} ms", attempt,
+							httpResult.getStatusCode(), attempt * WAIT_BETWEEN_RETRIES);
+					ThreadHelper.deepSleep(attempt * WAIT_BETWEEN_RETRIES);
 					continue;
 				}
 			}

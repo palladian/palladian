@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.functional.Factory;
@@ -278,6 +279,21 @@ public class FatStats extends AbstractStats {
 		}
 		return (double) count / getCount();
 	}
+	
+	@Override
+	public double getMode() {
+		double mode = Double.NaN;
+		int maxCount = 0;
+		Bag<Double> counts = Bag.create();
+		for (Double value : values) {
+			int newCount = counts.add(value, 1);
+			if (newCount > maxCount) {
+				maxCount = newCount;
+				mode = value;
+			}
+		}
+		return mode;
+	}
 
     @Override
     public String toString() {
@@ -287,6 +303,7 @@ public class FatStats extends AbstractStats {
         stringBuilder.append("Max: ").append(getMax()).append("\n");
         stringBuilder.append("Standard Deviation: ").append(getStandardDeviation()).append("\n");
         stringBuilder.append("Mean: ").append(getMean()).append("\n");
+        stringBuilder.append("Mode: " ).append(getMode()).append('\n');
         for (int p = 10; p < 100; p += 10) {
             stringBuilder.append(p + "-Percentile: ").append(getPercentile(p)).append('\n');
         }
