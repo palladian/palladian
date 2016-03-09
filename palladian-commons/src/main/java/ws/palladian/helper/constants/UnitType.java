@@ -564,6 +564,7 @@ public enum UnitType {
         unitList.add("grams");
         unitList.add("g");
         unitList.add("gs");
+        unitList.add("gr.");
         unitList.add("gr");
         UnitType.WEIGHT.units.add(Pair.of(unitList, 1.));
 
