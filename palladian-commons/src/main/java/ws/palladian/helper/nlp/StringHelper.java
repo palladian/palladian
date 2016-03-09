@@ -447,11 +447,11 @@ public final class StringHelper {
      * @return True, if the word is contained, false if not.
      */
     public static boolean containsWordCaseSensitive(String word, String searchString) {
-        return containsWordCaseSensitiveRecursive(word, searchString, false);
+        return containsWordCaseSensitiveRecursive(word, searchString, false, -1);
     }
 
-    public static boolean containsWordCaseSensitiveRecursive(String word, String searchString, boolean contained) {
-        int index = searchString.indexOf(word);
+    public static boolean containsWordCaseSensitiveRecursive(String word, String searchString, boolean contained, int startIndex) {
+        int index = searchString.indexOf(word, startIndex);
         if (index == -1 || word.isEmpty()) {
             return contained;
         }
@@ -478,7 +478,7 @@ public final class StringHelper {
             return true;
         }
 
-        return containsWordCaseSensitiveRecursive(word, searchString.replaceFirst(Pattern.quote(word), ""), false);
+        return containsWordCaseSensitiveRecursive(word, searchString, false, index+1);
     }
 
     /**

@@ -75,14 +75,15 @@ public class StringHelperTest {
         assertTrue(StringHelper.containsWord("Nokia N9", "hello, this (Nokia N9) is pretty cool."));
         assertFalse(StringHelper.containsWord("cab", "Copacabana, he went there."));
 
+        assertTrue(StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
+        assertFalse(StringHelper.containsWordCaseSensitive("m", "gehaus aus --------- ø ca 40 mm"));
         assertTrue(StringHelper.containsWordCaseSensitive("test", "a test b"));
         assertFalse(StringHelper.containsWordCaseSensitive("test", "a Test b"));
         assertTrue(StringHelper.containsWordCaseSensitive("test", "test"));
         assertFalse(StringHelper.containsWordCaseSensitive("Test", "test"));
-        assertTrue(StringHelper.containsWordCaseSensitive("test", "abtester ist test"));
+
         assertFalse(StringHelper.containsWordCaseSensitive("tester", "abtester ist test"));
         assertFalse(StringHelper.containsWordCaseSensitive("a+", "energieklasse a++"));
-
         assertTrue(StringHelper.containsWordRegExp("test", "a test b"));
         assertTrue(StringHelper.containsWordRegExp("test", "test"));
         assertTrue(StringHelper.containsWordRegExp("yes", "Yes, he went there."));
