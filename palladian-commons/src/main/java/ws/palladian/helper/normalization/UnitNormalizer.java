@@ -587,8 +587,9 @@ public class UnitNormalizer {
             if (multiplier != -1.0) {
                 // when a subsequent unit is searched is has to be smaller than the previous one
                 // e.g. 1 hour 23 minutes (minutes < hour) otherwise 2GB 80GB causes problems
-                if (combinedSearch && !(unitsSameType(combinedSearchPreviousUnit, wordSequence)
-                        && isBigger(combinedSearchPreviousUnit, wordSequence))) {
+                if (combinedSearch
+                        && !(unitsSameType(combinedSearchPreviousUnit, wordSequence) && isBigger(
+                                combinedSearchPreviousUnit, wordSequence))) {
                     return 0.0;
                 }
                 break;
