@@ -124,8 +124,10 @@ public class StopWatch {
     }
 
     /**
-     * <p>Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
-     * called.</p>
+     * <p>
+     * Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
+     * called.
+     * </p>
      * 
      * @param output If true, the elapsed time will be printed to the console as well.
      * @return The elapsed time as a string.
@@ -151,13 +153,15 @@ public class StopWatch {
     }
 
     /**
-     * <p>Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
-     * called and the increment in time since this method or getElapsedTimeString was called last.</p>
+     * <p>
+     * Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
+     * called and the increment in time since this method or getElapsedTimeString was called last.
+     * </p>
      *
      * @return
      */
     public String getElapsedTimeStringAndIncrement() {
-        return getElapsedTimeString()+" (+"+DateHelper.formatDuration(0,lastElapsedTimeStringCallInterval)+")";
+        return getElapsedTimeString() + " (+" + DateHelper.formatDuration(0, lastElapsedTimeStringCallInterval) + ")";
     }
 
     private String shortenTimeString(String elapsed) {

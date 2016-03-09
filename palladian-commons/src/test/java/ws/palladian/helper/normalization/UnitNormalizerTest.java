@@ -16,6 +16,12 @@ public class UnitNormalizerTest {
 
         String input;
 
+        input = "120 gr.";
+        collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.WEIGHT));
+
+        input = "230 MB/s";
+        collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.BANDWIDTH));
+
         input = "1 mAh";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.ELECTRIC_CHARGE));
 

@@ -110,6 +110,11 @@ public enum UnitType {
         UnitType.BANDWIDTH.units.add(Pair.of(unitList, 1000000.0));
 
         unitList = new ArrayList<>();
+        unitList.add("MB/s");
+        unitList.add("Mbyte/s");
+        UnitType.BANDWIDTH.units.add(Pair.of(unitList, 8000000.0));
+
+        unitList = new ArrayList<>();
         unitList.add("gbit/s");
         unitList.add("gbps");
         unitList.add("gBit/s");
@@ -559,6 +564,7 @@ public enum UnitType {
         unitList.add("grams");
         unitList.add("g");
         unitList.add("gs");
+        unitList.add("gr.");
         unitList.add("gr");
         UnitType.WEIGHT.units.add(Pair.of(unitList, 1.));
 
