@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class ThreadHelper {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadHelper.class);
 

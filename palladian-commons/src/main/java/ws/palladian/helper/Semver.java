@@ -2,6 +2,7 @@ package ws.palladian.helper;
 
 /**
  * Simple semantic versioning class, @see http://semver.org for more information.
+ * 
  * @author David Urbansky
  */
 public class Semver {
