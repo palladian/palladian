@@ -1,6 +1,25 @@
 package ws.palladian.core.value;
 
+import ws.palladian.core.value.io.ValueParser;
+
 public final class ImmutableDoubleValue extends AbstractValue implements NumericValue {
+	
+	public static final ValueParser PARSER = new ValueParser() {
+		@Override
+		public Value parse(String input) {
+			return new ImmutableDoubleValue(Double.parseDouble(input));
+		}
+
+		@Override
+		public boolean canParse(String input) {
+			try {
+				Double.parseDouble(input);
+				return true;
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		}
+	};
 
     private final double doubleValue;
 
