@@ -111,6 +111,7 @@ public enum UnitType {
 
         unitList = new ArrayList<>();
         unitList.add("MB/s");
+        unitList.add("mb/s");
         unitList.add("Mbyte/s");
         UnitType.BANDWIDTH.units.add(Pair.of(unitList, 8000000.0));
 
