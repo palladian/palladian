@@ -19,6 +19,9 @@ public class UnitNormalizerTest {
         input = "120 gr.";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.WEIGHT));
 
+        input = "bis zu 230mb/s";
+        collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("mb/s"));
+
         input = "230 MB/s";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.BANDWIDTH));
 
