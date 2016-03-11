@@ -1,11 +1,16 @@
 package ws.palladian.classification.utils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.helper.functional.Factory;
+import ws.palladian.helper.functional.Filter;
+import ws.palladian.helper.functional.Filters;
 
 public class CsvDatasetReaderConfig {
 	public static final class Builder implements Factory<CsvDatasetReader> {
@@ -16,7 +21,7 @@ public class CsvDatasetReaderConfig {
 		private boolean readHeader = true;
 		private String fieldSeparator = ";";
 		private boolean readClassFromLastColumn = true;
-		private CsvValueParser parser = new CsvDatasetReader.DefaultCsvValueParser();
+		private List<TargetValueParser> parsers = new ArrayList<>();
 		private String nullValue = DEFAULT_NULL_VALUE;
 
 		private Builder(File filePath) {
@@ -63,16 +68,35 @@ public class CsvDatasetReaderConfig {
 		}
 		
 		/**
+		 * Allows to specify a custom parser for the given column name.
+		 * 
+		 * @param name
+		 *            A filter for the column name (thus allowing to specify the
+		 *            filter for multiple columns).
 		 * @param parser
-		 *            allows to specify a custom parser. Per default, the data
-		 *            types are detected automatically, which may fail in some
-		 *            cases. By specifying a custom parser, this behavior can
-		 *            be adapted as necessary.
+		 *            The parser.
 		 * @return The builder.
 		 */
-		public Builder parser(CsvValueParser parser) {
+		public Builder parser(Filter<? super String> name, ValueParser parser) {
+			Validate.notNull(name, "name must not be null");
 			Validate.notNull(parser, "parser must not be null");
-			this.parser = parser;
+			parsers.add(new TargetValueParser(name, parser));
+			return this;
+		}
+		
+		/**
+		 * Allows to specify a custom parser for the given column name.
+		 * 
+		 * @param name
+		 *            The column name.
+		 * @param parser
+		 *            The parser.
+		 * @return The builder.
+		 */
+		public Builder parser(String name, ValueParser parser) {
+			Validate.notEmpty(name, "name must not be empty");
+			Validate.notNull(parser, "parser must not be null");
+			parsers.add(new TargetValueParser(name, parser));
 			return this;
 		}
 		
@@ -99,6 +123,19 @@ public class CsvDatasetReaderConfig {
 		}
 
 	}
+	
+	/** {@link ValueParser} targeted on (a) specific column(s). */
+	private static final class TargetValueParser {
+		final Filter<? super String> columnName;
+		final ValueParser parser;
+		TargetValueParser(Filter<? super String> columnName, ValueParser parser) {
+			this.columnName = columnName;
+			this.parser = parser;
+		}
+		TargetValueParser(String columnName, ValueParser parser) {
+			this(Filters.equal(columnName), parser);
+		}
+	}
 
 	/**
 	 * Create a new configuration for the {@link CsvDatasetReader}, which reads
@@ -116,7 +153,7 @@ public class CsvDatasetReaderConfig {
 	private final boolean readHeader;
 	private final String fieldSeparator;
 	private final boolean readClassFromLastColumn;
-	private final CsvValueParser parser;
+	private final List<TargetValueParser> parsers;
 	private final String nullValue;
 
 	private CsvDatasetReaderConfig(Builder builder) {
@@ -124,7 +161,7 @@ public class CsvDatasetReaderConfig {
 		this.readHeader = builder.readHeader;
 		this.fieldSeparator = builder.fieldSeparator;
 		this.readClassFromLastColumn = builder.readClassFromLastColumn;
-		this.parser = builder.parser;
+		this.parsers = new ArrayList<>(builder.parsers);
 		this.nullValue = builder.nullValue;
 	}
 
@@ -144,8 +181,18 @@ public class CsvDatasetReaderConfig {
 		return readClassFromLastColumn;
 	}
 	
-	public CsvValueParser parser() {
-		return parser;
+	/**
+	 * Get a ValueParser for the given column name.
+	 * @param name The name of the column.
+	 * @return The parser.
+	 */
+	public ValueParser getParser(String name) {
+		for (TargetValueParser targetValueParser : parsers) {
+			if (targetValueParser.columnName.accept(name)) {
+				return targetValueParser.parser;
+			}
+		}
+		return null;
 	}
 	
 	public String nullValue() {

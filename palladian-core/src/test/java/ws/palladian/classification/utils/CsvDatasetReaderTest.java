@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.junit.Test;
 
 import ws.palladian.classification.utils.CsvDatasetReaderConfig.Builder;
-import ws.palladian.core.ImmutableLongValue;
 import ws.palladian.core.Instance;
 import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
@@ -31,7 +30,7 @@ public class CsvDatasetReaderTest {
 			assertTrue(iterator.hasNext());
 			Instance instance = iterator.next();
 			assertEquals(14, instance.getVector().size());
-			assertEquals(new ImmutableLongValue(25), instance.getVector().get("0"));
+			assertEquals(new ImmutableDoubleValue(25), instance.getVector().get("0"));
 			assertEquals(new ImmutableStringValue("Private"), instance.getVector().get("1"));
 			assertEquals("<=50K", instance.getCategory());
 			assertEquals(1000, CollectionHelper.count(reader.iterator()));
@@ -79,7 +78,7 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(7, instance.getVector().size());
 			assertEquals(new ImmutableDoubleValue(1.23), instance.getVector().get("double"));
-			assertEquals(new ImmutableLongValue(123), instance.getVector().get("long"));
+			assertEquals(new ImmutableDoubleValue(123), instance.getVector().get("long"));
 			assertEquals(new ImmutableStringValue("test"), instance.getVector().get("string"));
 			assertEquals(new ImmutableDoubleValue(Double.NaN), instance.getVector().get("NaN"));
 			assertEquals(new ImmutableDoubleValue(Double.POSITIVE_INFINITY), instance.getVector().get("positiveInfinity"));
@@ -94,7 +93,7 @@ public class CsvDatasetReaderTest {
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
 		config.fieldSeparator(";");
-		config.parser(new CustomCsvValueParser.Builder().stringValues(Filters.ALL).create());
+		config.parser(Filters.ALL, ImmutableStringValue.PARSER);
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
