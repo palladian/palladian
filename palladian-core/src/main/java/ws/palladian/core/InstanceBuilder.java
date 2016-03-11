@@ -9,6 +9,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.value.ImmutableBooleanValue;
 import ws.palladian.core.value.ImmutableDoubleValue;
+import ws.palladian.core.value.ImmutableLongValue;
 import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.ImmutableTextValue;
 import ws.palladian.core.value.NullValue;
