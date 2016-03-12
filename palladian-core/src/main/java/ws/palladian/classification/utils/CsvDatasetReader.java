@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -14,8 +15,10 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.featurevector.FlyweightVectorBuilder;
+import ws.palladian.core.featurevector.FlyweightVectorSchema;
 import ws.palladian.core.value.ImmutableBooleanValue;
 import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
@@ -61,6 +64,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
         final StringPool stringPool;
         /** The parsers to use; they are auto-detected from the first line, in case not explicitly specified. */
         ValueParser[] parsers;
+		FlyweightVectorSchema vectorSchema;
 
         CsvDatasetIterator(CsvDatasetReaderConfig config) {
             InputStream inputStream = null;
@@ -112,16 +116,19 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 }
                 if (lineNumber == 0) {
                     expectedColumns = splitLine.length;
+                    int numValues = config.readClassFromLastColumn() ? splitLine.length - 1 : splitLine.length;
                     if (config.readHeader()) {
                         headNames = splitLine;
                         lineNumber++;
                         splitLine = null;
+                        vectorSchema = new FlyweightVectorSchema(Arrays.copyOf(headNames, numValues));
                         return hasNext();
                     } else { // generate default header names
-                    	headNames = new String[expectedColumns];
-                    	for (int c = 0; c < expectedColumns; c++) {
+                    	headNames = new String[numValues];
+						for (int c = 0; c < numValues; c++) {
                     		headNames[c] = String.valueOf(c);
                     	}
+						vectorSchema = new FlyweightVectorSchema(headNames);
                     }
                 } else {
                     if (expectedColumns != splitLine.length) {
@@ -148,8 +155,9 @@ public class CsvDatasetReader implements Iterable<Instance> {
 		 *            The split line.
 		 */
 		private void detectParsers(String[] parts) {
-			parsers = new ValueParser[parts.length];
-			for (int i = 0; i < parts.length; i++) {
+			int numValues = config.readClassFromLastColumn() ? parts.length - 1 : parts.length;
+			parsers = new ValueParser[numValues];
+			for (int i = 0; i < numValues; i++) {
 				// (1) try to use parser defined via configuration
 				ValueParser parser = config.getParser(headNames[i]);
 				// (2) if not, auto-detect applicable parser
@@ -175,7 +183,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
             if (splitLine == null) {
                 read();
             }
-            InstanceBuilder builder = new InstanceBuilder();
+            FlyweightVectorBuilder builder = vectorSchema.builder();
 			for (int f = 0; f < splitLine.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
 				String name = headNames[f];
 				String value = splitLine[f];
@@ -192,7 +200,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 LOGGER.debug("Read {} lines", lineNumber);
             }
             splitLine = null;
-            return builder.create(targetClass);
+            return new ImmutableInstance(builder.create(), targetClass);
         }
 
         @Override
