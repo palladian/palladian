@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.value.ImmutableBooleanValue;
 import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
@@ -209,8 +210,8 @@ public class CsvDatasetReader implements Iterable<Instance> {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvDatasetReader.class);
     
-	private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableDoubleValue.PARSER,
-			ImmutableStringValue.PARSER };
+	private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableBooleanValue.PARSER,
+			ImmutableDoubleValue.PARSER, ImmutableStringValue.PARSER };
 
 	private final CsvDatasetReaderConfig config;
 
