@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -59,14 +61,19 @@ public class CsvDatasetReader implements Iterable<Instance> {
         /** The parsers to use; they are auto-detected from the first line, in case not explicitly specified. */
         ValueParser[] parsers;
 
-        public CsvDatasetIterator(CsvDatasetReaderConfig config) {
-            FileInputStream inputStream = null;
+        CsvDatasetIterator(CsvDatasetReaderConfig config) {
+            InputStream inputStream = null;
             try {
                 inputStream = new FileInputStream(config.filePath());
+                if (config.gzip()) {
+                	inputStream = new GZIPInputStream(inputStream);
+                }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException(config.filePath() + " not found.");
-            }
+            } catch (IOException e) {
+            	throw new IllegalStateException("IOException for" + config.filePath());
+			}
             this.config = config;
             this.closed = false;
             this.stringPool = new StringPool();
