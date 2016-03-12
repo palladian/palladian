@@ -1,8 +1,10 @@
 package ws.palladian.classification.quickml;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,7 +87,7 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
     @Override
     public QuickMlModel train(Iterable<? extends Instance> instances) {
         Validate.notNull(instances, "instances must not be null");
-        Set<ClassifierInstance> trainingInstances = new HashSet<>();
+        List<ClassifierInstance> trainingInstances = new ArrayList<>();
         Set<String> classes = new HashSet<>();
         for (Instance instance : instances) {
             AttributesMap input = getInput(instance.getVector());
