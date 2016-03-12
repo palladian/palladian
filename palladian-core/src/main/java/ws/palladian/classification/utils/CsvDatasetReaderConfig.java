@@ -23,6 +23,7 @@ public class CsvDatasetReaderConfig {
 		private boolean readClassFromLastColumn = true;
 		private List<TargetValueParser> parsers = new ArrayList<>();
 		private String nullValue = DEFAULT_NULL_VALUE;
+		private boolean gzip = false;
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -112,6 +113,17 @@ public class CsvDatasetReaderConfig {
 			this.nullValue = nullValue;
 			return this;
 		}
+		
+		/**
+		 * @param gzip
+		 *            <code>true</code> in case the input file is gzip
+		 *            compressed.
+		 * @return The builder.
+		 */
+		public Builder gzip(boolean gzip) {
+			this.gzip = gzip;
+			return this;
+		}
 
 		@Override
 		public CsvDatasetReader create() {
@@ -155,6 +167,7 @@ public class CsvDatasetReaderConfig {
 	private final boolean readClassFromLastColumn;
 	private final List<TargetValueParser> parsers;
 	private final String nullValue;
+	private final boolean gzip;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -163,6 +176,7 @@ public class CsvDatasetReaderConfig {
 		this.readClassFromLastColumn = builder.readClassFromLastColumn;
 		this.parsers = new ArrayList<>(builder.parsers);
 		this.nullValue = builder.nullValue;
+		this.gzip = builder.gzip;
 	}
 
 	File filePath() {
@@ -197,5 +211,9 @@ public class CsvDatasetReaderConfig {
 	
 	public String nullValue() {
 		return nullValue;
+	}
+	
+	public boolean gzip() {
+		return gzip;
 	}
 }
