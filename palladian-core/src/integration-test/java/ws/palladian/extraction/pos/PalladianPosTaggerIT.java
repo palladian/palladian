@@ -58,7 +58,7 @@ public class PalladianPosTaggerIT {
                 taggedString);
 
         taggedString = ppt.getTaggedString("The quick brown fox jumps over the lazy dog and eats seven mice.");
-        assertEquals("The/AT quick/RB brown/JJ fox/NN jumps/NNS over/UNDER the/AT lazy/JJ dog/NN and/CC eats/VBZ seven/CD mice/NNS ./.",
+        assertEquals("The/AT quick/RB brown/JJ fox/NN jumps/NNS over/RP the/AT lazy/JJ dog/NN and/CC eats/NNS seven/CD mice/NNS ./.",
                 taggedString);
 
         // XXX run evaluation on test data for integration tests
