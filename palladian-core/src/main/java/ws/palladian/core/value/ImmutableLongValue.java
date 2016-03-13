@@ -58,4 +58,14 @@ public final class ImmutableLongValue extends AbstractValue implements LongValue
 		return longValue;
 	}
 
+	@Override
+	public int getInt() {
+		return (int) longValue;
+	}
+
+	@Override
+	public Number getNumber() {
+		return longValue;
+	}
+
 }

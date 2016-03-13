@@ -58,4 +58,14 @@ public final class ImmutableDoubleValue extends AbstractValue implements DoubleV
 		return (float) doubleValue;
 	}
 
+	@Override
+	public int getInt() {
+		return (int) doubleValue;
+	}
+
+	@Override
+	public Number getNumber() {
+		return doubleValue;
+	}
+
 }
