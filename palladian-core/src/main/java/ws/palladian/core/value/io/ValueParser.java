@@ -21,8 +21,10 @@ public interface ValueParser {
 	 * @param input
 	 *            The input value.
 	 * @return The parsed input value.
+	 * @throws ValueParserException
+	 *             in case the value could not be parsed.
 	 */
-	Value parse(String input);
+	Value parse(String input) throws ValueParserException;
 
 	/**
 	 * Determine, whether the given input value can be parsed.
