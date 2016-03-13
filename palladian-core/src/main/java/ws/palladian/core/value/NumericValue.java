@@ -7,5 +7,9 @@ public interface NumericValue extends Value {
     long getLong();
     
     float getFloat();
+    
+    int getInt();
+    
+    Number getNumber();
 
 }

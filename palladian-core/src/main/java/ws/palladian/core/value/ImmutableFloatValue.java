@@ -60,4 +60,14 @@ public final class ImmutableFloatValue extends AbstractValue implements FloatVal
 		return floatValue;
 	}
 
+	@Override
+	public int getInt() {
+		return (int) floatValue;
+	}
+
+	@Override
+	public Number getNumber() {
+		return floatValue;
+	}
+
 }
