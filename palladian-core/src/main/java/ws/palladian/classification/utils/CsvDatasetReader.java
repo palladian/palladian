@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.featurevector.FlyweightVectorBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorSchema;
 import ws.palladian.core.value.ImmutableBooleanValue;
@@ -50,7 +51,7 @@ import ws.palladian.helper.nlp.StringPool;
  * 
  * @author Philipp Katz
  */
-public class CsvDatasetReader implements Iterable<Instance> {
+public class CsvDatasetReader implements Dataset {
 
     private static final class CsvDatasetIterator implements CloseableIterator<Instance> {
 		private final CsvDatasetReaderConfig config;
