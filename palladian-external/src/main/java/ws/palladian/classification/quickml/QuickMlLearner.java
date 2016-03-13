@@ -64,9 +64,7 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
      * 
      * @param builder The builder to use, not <code>null</code>.
      * @see {@link #tree()} and {@link #randomForest()} for a predefined learner.
-     * @deprecated Use {@link #tree()} or {@link #randomForest()} to create instances.
      */
-    @Deprecated
     public QuickMlLearner(PredictiveModelBuilder<? extends Classifier, ClassifierInstance> builder) {
         Validate.notNull(builder, "builder must not be null");
         this.builder = builder;
