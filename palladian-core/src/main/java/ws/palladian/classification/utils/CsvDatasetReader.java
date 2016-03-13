@@ -197,7 +197,7 @@ public class CsvDatasetReader implements Dataset {
 				builder.set(name, parsedValue);
 			}
             String targetClass = config.readClassFromLastColumn() ? stringPool.get(splitLine[splitLine.length - 1]) : "dummy";
-            if (lineNumber % 100000 == 0) {
+            if (lineNumber % 1000 == 0) {
                 LOGGER.debug("Read {} lines", lineNumber);
             }
             splitLine = null;
