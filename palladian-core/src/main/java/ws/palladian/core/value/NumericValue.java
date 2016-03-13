@@ -5,5 +5,7 @@ public interface NumericValue extends Value {
     double getDouble();
     
     long getLong();
+    
+    float getFloat();
 
 }

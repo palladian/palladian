@@ -15,8 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import quickml.data.AttributesMap;
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.value.BooleanValue;
+import ws.palladian.core.value.DoubleValue;
+import ws.palladian.core.value.FloatValue;
+import ws.palladian.core.value.LongValue;
 import ws.palladian.core.value.NominalValue;
-import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -50,10 +53,16 @@ class FlyweightAttributesMap extends AbstractMap<String, Serializable> {
 			for (VectorEntry<String, Value> feature : featureVector) {
 				int idx = keysIndices.get(feature.key());
 				Value value = feature.value();
-				if (value instanceof NominalValue) {
+				if (value instanceof BooleanValue) {
+					data[idx] = ((BooleanValue) value).getBoolean();
+				} else if (value instanceof NominalValue) {
 					data[idx] = ((NominalValue) value).getString();
-				} else if (value instanceof NumericValue) {
-					data[idx] = ((NumericValue) value).getDouble();
+				} else if (value instanceof DoubleValue) {
+					data[idx] = ((DoubleValue) value).getDouble();
+				} else if (value instanceof FloatValue) {
+					data[idx] = ((FloatValue) value).getFloat();
+				} else if (value instanceof LongValue) {
+					data[idx] = ((LongValue) value).getLong();
 				} else {
 					LOGGER.trace("Unsupported type for {}: {}", feature.key(), value.getClass().getName());
 				}

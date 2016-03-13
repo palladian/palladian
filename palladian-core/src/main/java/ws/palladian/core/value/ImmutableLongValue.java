@@ -2,7 +2,7 @@ package ws.palladian.core.value;
 
 import ws.palladian.core.value.io.ValueParser;
 
-public final class ImmutableLongValue extends AbstractValue implements NumericValue {
+public final class ImmutableLongValue extends AbstractValue implements LongValue {
 	
 	public static final ValueParser PARSER = new ValueParser() {
 		@Override
@@ -51,6 +51,11 @@ public final class ImmutableLongValue extends AbstractValue implements NumericVa
 	@Override
 	public String toString() {
 		return String.valueOf(longValue);
+	}
+
+	@Override
+	public float getFloat() {
+		return longValue;
 	}
 
 }

@@ -2,7 +2,7 @@ package ws.palladian.core.value;
 
 import ws.palladian.core.value.io.ValueParser;
 
-public final class ImmutableFloatValue extends AbstractValue implements NumericValue {
+public final class ImmutableFloatValue extends AbstractValue implements FloatValue {
 
 	public static final ValueParser PARSER = new ValueParser() {
 
@@ -23,36 +23,41 @@ public final class ImmutableFloatValue extends AbstractValue implements NumericV
 
 	};
 
-	private final float value;
+	private final float floatValue;
 
 	public ImmutableFloatValue(float value) {
-		this.value = value;
+		this.floatValue = value;
 	}
 
 	@Override
 	public int hashCode() {
-		return Float.valueOf(value).hashCode();
+		return Float.valueOf(floatValue).hashCode();
 	}
 
 	@Override
 	protected boolean equalsValue(Value value) {
 		ImmutableFloatValue other = (ImmutableFloatValue) value;
-		return Float.floatToIntBits(this.value) == Float.floatToIntBits(other.value);
+		return Float.floatToIntBits(this.floatValue) == Float.floatToIntBits(other.floatValue);
 	}
 
 	@Override
 	public String toString() {
-		return String.valueOf(value);
+		return String.valueOf(floatValue);
 	}
 
 	@Override
 	public double getDouble() {
-		return value;
+		return floatValue;
 	}
 
 	@Override
 	public long getLong() {
-		return (long) value;
+		return (long) floatValue;
+	}
+
+	@Override
+	public float getFloat() {
+		return floatValue;
 	}
 
 }
