@@ -1,24 +1,21 @@
 package ws.palladian.core.value;
 
+import ws.palladian.core.value.io.AbstractValueParser;
 import ws.palladian.core.value.io.ValueParser;
+import ws.palladian.core.value.io.ValueParserException;
 
 public final class ImmutableBooleanValue extends AbstractValue implements BooleanValue {
 	
-	public static final ValueParser PARSER = new ValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser() {
 
 		@Override
-		public Value parse(String input) {
+		public Value parse(String input) throws ValueParserException {
 			if ("true".equals(input)) {
 				return TRUE;
 			} else if ("false".equals(input)) {
 				return FALSE;
 			}
-			throw new IllegalArgumentException("\"" + input + "\" cannot be parsed as boolean value.");
-		}
-
-		@Override
-		public boolean canParse(String input) {
-			return input.matches("true|false");
+			throw new ValueParserException();
 		}
 		
 	};

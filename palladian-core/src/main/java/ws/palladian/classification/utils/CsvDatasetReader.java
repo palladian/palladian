@@ -26,6 +26,7 @@ import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.core.value.io.ValueParser;
+import ws.palladian.core.value.io.ValueParserException;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
@@ -192,7 +193,12 @@ public class CsvDatasetReader implements Dataset {
 				if (value.equals(config.nullValue())) {
 					parsedValue = NullValue.NULL;
 				} else {
-					parsedValue = parsers[f].parse(value);
+					try {
+						parsedValue = parsers[f].parse(value);
+					} catch (ValueParserException e) {
+						throw new IllegalStateException("Could not parse value \"" + value + "\" in column \"" + name
+								+ "\", row " + lineNumber + " using " + parsers[f].getClass().getName() + ".", e);
+					}
 				}
 				builder.set(name, parsedValue);
 			}
