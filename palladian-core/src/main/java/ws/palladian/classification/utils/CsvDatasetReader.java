@@ -2,23 +2,30 @@ package ws.palladian.classification.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.featurevector.FlyweightVectorBuilder;
+import ws.palladian.core.featurevector.FlyweightVectorSchema;
+import ws.palladian.core.value.ImmutableBooleanValue;
 import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.core.value.io.ValueParser;
+import ws.palladian.core.value.io.ValueParserException;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
@@ -44,32 +51,24 @@ import ws.palladian.helper.nlp.StringPool;
  * 
  * @author Philipp Katz
  */
-public class CsvDatasetReader implements Iterable<Instance> {
+public class CsvDatasetReader implements Dataset {
 
-    private static final class CsvDatasetIterator implements CloseableIterator<Instance> {
-		private final CsvDatasetReaderConfig config;
+    private final class CsvDatasetIterator implements CloseableIterator<Instance> {
 		String[] splitLine;
-        String[] headNames;
-        int expectedColumns;
         BufferedReader reader;
         int lineNumber;
         boolean closed;
-        /** Save some memory when reading datasets with nominal values. */
-        final StringPool stringPool;
-        /** The parsers to use; they are auto-detected from the first line, in case not explicitly specified. */
-        ValueParser[] parsers;
 
-        public CsvDatasetIterator(CsvDatasetReaderConfig config) {
-            FileInputStream inputStream = null;
+        CsvDatasetIterator() {
             try {
-                inputStream = new FileInputStream(config.filePath());
+            	InputStream inputStream = config.openInputStream();
                 reader = new BufferedReader(new InputStreamReader(inputStream));
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException(config.filePath() + " not found.");
-            }
-            this.config = config;
+            } catch (IOException e) {
+            	throw new IllegalStateException("IOException for" + config.filePath());
+			}
             this.closed = false;
-            this.stringPool = new StringPool();
         }
 
         @Override
@@ -86,6 +85,10 @@ public class CsvDatasetReader implements Iterable<Instance> {
         private boolean read() {
             try {
                 final String line = reader.readLine();
+                if (lineNumber == 0 && config.readHeader()) {
+                	lineNumber++;
+                	return hasNext();
+                }
                 if (line == null) {
                 	splitLine = null;
                     close();
@@ -102,27 +105,9 @@ public class CsvDatasetReader implements Iterable<Instance> {
                     throw new IllegalStateException("Separator '" + config.fieldSeparator()
                             + "' was not found, lines cannot be split ('" + line + "').");
                 }
-                if (lineNumber == 0) {
-                    expectedColumns = splitLine.length;
-                    if (config.readHeader()) {
-                        headNames = splitLine;
-                        lineNumber++;
-                        splitLine = null;
-                        return hasNext();
-                    } else { // generate default header names
-                    	headNames = new String[expectedColumns];
-                    	for (int c = 0; c < expectedColumns; c++) {
-                    		headNames[c] = String.valueOf(c);
-                    	}
-                    }
-                } else {
-                    if (expectedColumns != splitLine.length) {
-                        throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
-                                + splitLine.length + ", but should be " + expectedColumns + ")");
-                    }
-                }
-                if (parsers == null) {
-                	detectParsers(splitLine);
+                if (expectedColumns != splitLine.length) {
+                    throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
+                            + splitLine.length + ", but should be " + expectedColumns + ")");
                 }
                 lineNumber++;
                 return true;
@@ -130,34 +115,6 @@ public class CsvDatasetReader implements Iterable<Instance> {
                 throw new IllegalStateException("I/O exception while trying to read from file", e);
             }
         }
-
-		/**
-		 * Initialize appropriate parsers for the data; either by consider the
-		 * parsers provided via configuration, or by trying to parse the value
-		 * as different types (see {@link CsvDatasetReader#DEFAULT_PARSERS}).
-		 * 
-		 * @param parts
-		 *            The split line.
-		 */
-		private void detectParsers(String[] parts) {
-			parsers = new ValueParser[parts.length];
-			for (int i = 0; i < parts.length; i++) {
-				// (1) try to use parser defined via configuration
-				ValueParser parser = config.getParser(headNames[i]);
-				// (2) if not, auto-detect applicable parser
-				if (parser == null) {
-					String input = parts[i];
-					for (ValueParser currentParser : DEFAULT_PARSERS) {
-						if (currentParser.canParse(input)) {
-							parser = currentParser;
-							break;
-						}
-					}
-				}
-				LOGGER.debug("Parser for {}: {}", headNames[i], parser.getClass().getName());
-				parsers[i] = parser;
-			}
-		}
 
 		@Override
         public Instance next() {
@@ -167,7 +124,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
             if (splitLine == null) {
                 read();
             }
-            InstanceBuilder builder = new InstanceBuilder();
+            FlyweightVectorBuilder builder = vectorSchema.builder();
 			for (int f = 0; f < splitLine.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
 				String name = headNames[f];
 				String value = splitLine[f];
@@ -175,16 +132,21 @@ public class CsvDatasetReader implements Iterable<Instance> {
 				if (value.equals(config.nullValue())) {
 					parsedValue = NullValue.NULL;
 				} else {
-					parsedValue = parsers[f].parse(value);
+					try {
+						parsedValue = parsers[f].parse(value);
+					} catch (ValueParserException e) {
+						throw new IllegalStateException("Could not parse value \"" + value + "\" in column \"" + name
+								+ "\", row " + lineNumber + " using " + parsers[f].getClass().getName() + ".", e);
+					}
 				}
 				builder.set(name, parsedValue);
 			}
             String targetClass = config.readClassFromLastColumn() ? stringPool.get(splitLine[splitLine.length - 1]) : "dummy";
-            if (lineNumber % 100000 == 0) {
+            if (lineNumber % 1000 == 0) {
                 LOGGER.debug("Read {} lines", lineNumber);
             }
             splitLine = null;
-            return builder.create(targetClass);
+            return new ImmutableInstance(builder.create(), targetClass);
         }
 
         @Override
@@ -202,10 +164,25 @@ public class CsvDatasetReader implements Iterable<Instance> {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvDatasetReader.class);
     
-	private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableDoubleValue.PARSER,
-			ImmutableStringValue.PARSER };
+	private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableBooleanValue.PARSER,
+			ImmutableDoubleValue.PARSER, ImmutableStringValue.PARSER };
 
 	private final CsvDatasetReaderConfig config;
+	
+    private final String[] headNames;
+    
+    private final int expectedColumns;
+
+    /** Save some memory when reading datasets with nominal values. */
+    private final StringPool stringPool = new StringPool();
+    
+    /** The parsers to use; they are auto-detected from the first line, in case not explicitly specified. */
+    private final ValueParser[] parsers;
+	
+    private final FlyweightVectorSchema vectorSchema;
+    
+    /** The number of items in this dataset; cached once it is requested. */
+    private long size = -1;
 
     /**
      * <p>
@@ -249,10 +226,7 @@ public class CsvDatasetReader implements Iterable<Instance> {
      */
     @Deprecated
     public CsvDatasetReader(File filePath, boolean readHeader, String fieldSeparator) {
-    	CsvDatasetReaderConfig.Builder configBuilder = CsvDatasetReaderConfig.filePath(filePath);
-    	configBuilder.readHeader(readHeader);
-    	configBuilder.fieldSeparator(fieldSeparator);
-    	config = configBuilder.createConfig();
+    	this(CsvDatasetReaderConfig.filePath(filePath).readHeader(readHeader).fieldSeparator(fieldSeparator).createConfig());
     }
     
     /**
@@ -265,12 +239,41 @@ public class CsvDatasetReader implements Iterable<Instance> {
     public CsvDatasetReader(CsvDatasetReaderConfig config) {
     	Validate.notNull(config, "config must not be null");
     	this.config = config;
+		try (InputStream inputStream = config.openInputStream()) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+			String line = reader.readLine();
+			for (;;) {
+				if (line == null) {
+					throw new IllegalStateException("No lines in file.");
+				}
+				if (line.isEmpty()) {
+					continue;
+				}
+				String[] splitLine = line.split(config.fieldSeparator(), -1);
+				expectedColumns = splitLine.length;
+				int numValues = config.readClassFromLastColumn() ? splitLine.length - 1 : splitLine.length;
+				if (config.readHeader()) {
+					headNames = splitLine;
+					vectorSchema = new FlyweightVectorSchema(Arrays.copyOf(headNames, numValues));
+					// XXX consider case, that multiple blank lines might follow
+					line = reader.readLine();
+					splitLine = line.split(config.fieldSeparator(), -1);
+				} else { // generate default header names
+					headNames = new String[numValues];
+					for (int c = 0; c < numValues; c++) {
+						headNames[c] = String.valueOf(c);
+					}
+					vectorSchema = new FlyweightVectorSchema(headNames);
+				}
+				parsers = detectParsers(splitLine);
+				break;
+			}
+		} catch (FileNotFoundException e) {
+			throw new IllegalStateException(config.filePath() + " not found.");
+		} catch (IOException e) {
+			throw new IllegalStateException("IOException for" + config.filePath());
+		}
 	}
-
-    @Override
-    public CloseableIterator<Instance> iterator() {
-        return new CsvDatasetIterator(config);
-    }
 
     /**
      * <p>
@@ -288,5 +291,61 @@ public class CsvDatasetReader implements Iterable<Instance> {
             FileHelper.close(iterator);
         }
     }
+    
+	/**
+	 * Initialize appropriate parsers for the data; either by consider the
+	 * parsers provided via configuration, or by trying to parse the value as
+	 * different types (see {@link CsvDatasetReader#DEFAULT_PARSERS}).
+	 * 
+	 * @param parts
+	 *            The split line.
+	 * @return The parsers.
+	 */
+	private final ValueParser[] detectParsers(String[] parts) {
+		int numValues = config.readClassFromLastColumn() ? parts.length - 1 : parts.length;
+		ValueParser[] parsers = new ValueParser[numValues];
+		for (int i = 0; i < numValues; i++) {
+			// (1) try to use parser defined via configuration
+			ValueParser parser = config.getParser(headNames[i]);
+			// (2) if not, auto-detect applicable parser
+			if (parser == null) {
+				String input = parts[i];
+				for (ValueParser currentParser : DEFAULT_PARSERS) {
+					if (currentParser.canParse(input)) {
+						parser = currentParser;
+						break;
+					}
+				}
+			}
+			LOGGER.debug("Parser for {}: {}", headNames[i], parser.getClass().getName());
+			parsers[i] = parser;
+		}
+		return parsers;
+	}
+	
+	// ws.palladian.core.dataset.Dataset
+	
+	@Override
+    public CloseableIterator<Instance> iterator() {
+        return new CsvDatasetIterator();
+    }
+
+	@Override
+	public Set<String> getFeatureNames() {
+		return vectorSchema.keys();
+	}
+
+	@Override
+	public long size() {
+		if (size == -1) {
+			try (InputStream inputStream = config.openInputStream()) {
+				int lineNumber = FileHelper.getNumberOfLines(inputStream);
+				size = config.readHeader() ? lineNumber - 1 : lineNumber;
+			} catch (IOException e) {
+				throw new IllegalStateException("IOException for" + config.filePath());
+			}
+		}
+		return size;
+	}
 
 }

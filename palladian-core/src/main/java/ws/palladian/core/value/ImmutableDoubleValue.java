@@ -1,24 +1,21 @@
 package ws.palladian.core.value;
 
+import ws.palladian.core.value.io.AbstractValueParser;
 import ws.palladian.core.value.io.ValueParser;
+import ws.palladian.core.value.io.ValueParserException;
 
-public final class ImmutableDoubleValue extends AbstractValue implements NumericValue {
+public final class ImmutableDoubleValue extends AbstractValue implements DoubleValue {
 	
-	public static final ValueParser PARSER = new ValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser() {
 		@Override
-		public Value parse(String input) {
-			return new ImmutableDoubleValue(Double.parseDouble(input));
-		}
-
-		@Override
-		public boolean canParse(String input) {
+		public Value parse(String input) throws ValueParserException {
 			try {
-				Double.parseDouble(input);
-				return true;
+				return new ImmutableDoubleValue(Double.parseDouble(input));
 			} catch (NumberFormatException e) {
-				return false;
+				throw new ValueParserException(e);
 			}
 		}
+
 	};
 
     private final double doubleValue;
@@ -51,6 +48,21 @@ public final class ImmutableDoubleValue extends AbstractValue implements Numeric
 	@Override
 	public long getLong() {
 		return (long) doubleValue;
+	}
+
+	@Override
+	public float getFloat() {
+		return (float) doubleValue;
+	}
+
+	@Override
+	public int getInt() {
+		return (int) doubleValue;
+	}
+
+	@Override
+	public Number getNumber() {
+		return doubleValue;
 	}
 
 }

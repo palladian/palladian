@@ -1,8 +1,12 @@
 package ws.palladian.classification.quickml;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Set;
 
 import quickml.supervised.classifier.Classifier;
+import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForest;
+import quickml.supervised.inspection.RandomForestDumper;
 import ws.palladian.core.Model;
 
 /**
@@ -35,9 +39,16 @@ public class QuickMlModel implements Model {
         return classes;
     }
 
-    @Override
-    public String toString() {
-    	return classifier.toString();
-    }
+	@Override
+	public String toString() {
+		if (classifier instanceof RandomDecisionForest) {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			PrintStream printStream = new PrintStream(out);
+			new RandomForestDumper().summarizeForest(printStream, (RandomDecisionForest) classifier);
+			return out.toString();
+		} else {
+			return classifier.toString();
+		}
+	}
 
 }
