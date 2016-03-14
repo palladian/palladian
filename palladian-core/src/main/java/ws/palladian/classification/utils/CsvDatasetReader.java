@@ -284,7 +284,9 @@ public class CsvDatasetReader extends AbstractDataset {
      * </p>
      * 
      * @return List with instances from the dataset.
+     * @deprecated Use {@link #buffer()} instead.
      */
+    @Deprecated
     public List<Instance> readAll() {
         CloseableIterator<Instance> iterator = iterator();
         try {
