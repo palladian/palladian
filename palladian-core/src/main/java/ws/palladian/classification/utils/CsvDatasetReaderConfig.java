@@ -1,8 +1,12 @@
 package ws.palladian.classification.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.Validate;
 
@@ -215,5 +219,13 @@ public class CsvDatasetReaderConfig {
 	
 	public boolean gzip() {
 		return gzip;
+	}
+	
+	public InputStream openInputStream() throws IOException {
+		InputStream inputStream = new FileInputStream(filePath());
+        if (gzip()) {
+        	inputStream = new GZIPInputStream(inputStream);
+        }
+        return inputStream;
 	}
 }
