@@ -55,7 +55,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
         Validate.notNull(settings, "settings must not be null");
         textClassifier = new PalladianTextClassifier(featureSetting);
         numericClassifier = new KnnClassifier(3);
-        nominalClassifier = new NaiveBayesClassifier();
+        nominalClassifier = new NaiveBayesClassifier(NaiveBayesClassifier.DEFAULT_LAPLACE_CORRECTOR, false);
         this.settings = new HashSet<>(Arrays.asList(settings));
     }
 
