@@ -18,5 +18,10 @@ public abstract class AbstractDataset implements Dataset {
 		Objects.requireNonNull(instanceFilter, "instanceFilter must not be null");
 		return new SubDataset(this, instanceFilter);
 	}
+	
+	@Override
+	public Dataset buffer() {
+		return new CollectionDataset(this);
+	}
 
 }
