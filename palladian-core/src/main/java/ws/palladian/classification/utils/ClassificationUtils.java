@@ -21,15 +21,19 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.discretization.DatasetStatistics;
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.FilteredVector;
+import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
@@ -213,17 +217,18 @@ public final class ClassificationUtils {
     public static FeatureVector filterFeatures(FeatureVector featureVector, Filter<? super String> nameFilter) {
         Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
-        InstanceBuilder builder = new InstanceBuilder();
-        for (VectorEntry<String, Value> entry : featureVector) {
-            if (nameFilter.accept(entry.key())) {
-                builder.set(entry.key(), entry.value());
-            }
-        }
-        FeatureVector newFeatureVector = builder.create();
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Reduced from {} to {}", featureVector.size(), newFeatureVector.size());
-        }
-        return newFeatureVector;
+//        InstanceBuilder builder = new InstanceBuilder();
+//        for (VectorEntry<String, Value> entry : featureVector) {
+//            if (nameFilter.accept(entry.key())) {
+//                builder.set(entry.key(), entry.value());
+//            }
+//        }
+//        FeatureVector newFeatureVector = builder.create();
+//        if (LOGGER.isTraceEnabled()) {
+//            LOGGER.trace("Reduced from {} to {}", featureVector.size(), newFeatureVector.size());
+//        }
+//        return newFeatureVector;
+        return new FilteredVector(featureVector, nameFilter);
     }
 
     /**
@@ -236,8 +241,8 @@ public final class ClassificationUtils {
      * @return A {@link List} with new {@link Trainable} instances containing the filtered {@link FeatureVector}.
      * @see #filterFeaturesIterable(Iterable, Filter) which does the same on an iterable, without loading the whole
      *      dataset in memory.
+     * @deprecated Use {@link Dataset#filterFeatures(Filter)} instead.
      */
-    // TODO remove and replace by filterFeaturesIterable
     @Deprecated
     public static List<Instance> filterFeatures(Iterable<? extends Instance> instances,
             Filter<? super String> nameFilter) {
@@ -257,7 +262,9 @@ public final class ClassificationUtils {
      * @param dataset The dataset to filter, not <code>null</code>.
      * @param nameFilter The filter specifying which features to ignore, not <code>null</code>.
      * @return A new {@link Iterable} providing the filtered feature set.
+     * @deprecated Use {@link Dataset#filterFeatures(Filter)} instead.
      */
+    @Deprecated
     public static Iterable<Instance> filterFeaturesIterable(Iterable<? extends Instance> dataset,
             Filter<? super String> nameFilter) {
         return new DatasetFeatureFilter(dataset, nameFilter);
@@ -288,7 +295,8 @@ public final class ClassificationUtils {
 				if (category == NullValue.NULL) {
 					throw new IllegalArgumentException("Feature is NULL");
 				}
-				return new InstanceBuilder().add(featureVector).create(category.toString());
+//				return new InstanceBuilder().add(featureVector).create(category.toString());
+				return new ImmutableInstance(featureVector, category.toString());
 			}
 		});
 	}
@@ -300,9 +308,9 @@ public final class ClassificationUtils {
      * 
      * @param dataset
      * @return
+     * @deprecated Use {@link Dataset#getFeatureNames()} instead.
      */
-    // TODO currently, only get from first item in the dataset
-	// TODO duplicate of DatasetStatistics.getFeatureNames()
+	@Deprecated
 	public static Set<String> getFeatureNames(Iterable<? extends FeatureVector> dataset) {
 		Validate.notNull(dataset, "dataset must not be null");
 		Set<String> featureNames = new TreeSet<>();
@@ -361,7 +369,8 @@ public final class ClassificationUtils {
         });
     }
     
-    // TODO duplicate of ws.palladian.classification.discretization.DatasetStatistics.getCategoryPriors()
+    /** @deprecated Use {@link DatasetStatistics#getCategoryPriors()} instead. */
+    @Deprecated
     public static CategoryEntries getCategoryCounts(Iterable<? extends Instance> instances) {
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (Instance instance : instances) {

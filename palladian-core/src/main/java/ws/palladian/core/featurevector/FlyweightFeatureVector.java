@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
+import ws.palladian.core.AbstractFeatureVector;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.value.Value;
 
@@ -16,7 +17,7 @@ import ws.palladian.core.value.Value;
  * 
  * @author pk
  */
-final class FlyweightFeatureVector implements FeatureVector {
+final class FlyweightFeatureVector extends AbstractFeatureVector {
 	private final FlyweightVectorSchema schema;
 	private final Value[] values;
 
@@ -50,21 +51,5 @@ final class FlyweightFeatureVector implements FeatureVector {
 		return schema.iterator(values);
 	}
 	
-	@Override
-	public String toString() {
-		StringBuilder string = new StringBuilder();
-		string.append('[');
-		boolean first = true;
-		for (VectorEntry<String, Value> entry : this) {
-			if (first) {
-				first = false;
-			} else {
-				string.append(", ");
-			}
-			string.append(entry.key()).append('=').append(entry.value());
-		}
-		string.append(']');
-		return string.toString();
-	}
 
 }
