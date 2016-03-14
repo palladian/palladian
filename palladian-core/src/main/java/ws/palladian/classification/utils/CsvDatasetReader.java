@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
-import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.AbstractDataset;
 import ws.palladian.core.featurevector.FlyweightVectorBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorSchema;
 import ws.palladian.core.value.ImmutableBooleanValue;
@@ -26,6 +26,7 @@ import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.core.value.io.ValueParserException;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
@@ -51,13 +52,14 @@ import ws.palladian.helper.nlp.StringPool;
  * 
  * @author Philipp Katz
  */
-public class CsvDatasetReader implements Dataset {
+public class CsvDatasetReader extends AbstractDataset {
 
     private final class CsvDatasetIterator implements CloseableIterator<Instance> {
 		String[] splitLine;
         BufferedReader reader;
         int lineNumber;
         boolean closed;
+        final StopWatch stopWatch = new StopWatch();
 
         CsvDatasetIterator() {
             try {
@@ -143,7 +145,7 @@ public class CsvDatasetReader implements Dataset {
 			}
             String targetClass = config.readClassFromLastColumn() ? stringPool.get(splitLine[splitLine.length - 1]) : "dummy";
             if (lineNumber % 1000 == 0) {
-                LOGGER.debug("Read {} lines", lineNumber);
+                LOGGER.debug("Read {} lines in {}", lineNumber, stopWatch);
             }
             splitLine = null;
             return new ImmutableInstance(builder.create(), targetClass);
