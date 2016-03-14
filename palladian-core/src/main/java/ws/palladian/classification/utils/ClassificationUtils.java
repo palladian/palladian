@@ -34,6 +34,7 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DatasetWithFeatureAsCategory;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
@@ -212,8 +213,9 @@ public final class ClassificationUtils {
      * @param classifiable The {@link Classifiable} to filter, not <code>null</code>.
      * @param nameFilter The filter specifying which features to remove, not <code>null</code>.
      * @return The FeatureVector without the features filtered out by the nameFilter.
+     * @deprecated Use {@link FilteredVector} instead.
      */
-    // TODO move to InstanceBuilder
+    @Deprecated
     public static FeatureVector filterFeatures(FeatureVector featureVector, Filter<? super String> nameFilter) {
         Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(nameFilter, "nameFilter must not be null");
@@ -279,7 +281,9 @@ public final class ClassificationUtils {
 	 * @param featureName
 	 *            The name of the feature which should be used as category.
 	 * @return A new {@link Iterable} which provides the converted instances.
+	 * @deprecated Use {@link DatasetWithFeatureAsCategory} instead.
 	 */
+    @Deprecated
 	public static Iterable<Instance> useFeatureAsCategory(Iterable<? extends Instance> dataset,
 			final String featureName) {
 		Validate.notNull(dataset, "dataset must not be null");
