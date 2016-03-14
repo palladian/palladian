@@ -48,7 +48,14 @@ public interface Dataset extends Iterable<Instance> {
 	 */
 	Dataset filterFeatures(Filter<? super String> nameFilter);
 	
-//	Dataset subset(Filter<? super Instance> instanceFilter);
+	/**
+	 * Get a subset of the dataset.
+	 * 
+	 * @param instanceFilter
+	 *            The filter which defines the subset.
+	 * @return The subset with instances matching the filter.
+	 */
+	Dataset subset(Filter<? super Instance> instanceFilter);
 	
 //	/**
 //	 * Read the whole dataset in memory. Only do that for small datasets and for
