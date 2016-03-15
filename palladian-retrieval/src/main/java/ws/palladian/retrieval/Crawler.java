@@ -79,6 +79,9 @@ public class Crawler {
     /** If true, all query params in the URL ?= will be stripped. */
     private boolean stripQueryParams = true;
 
+    /** If false, rel="nofollow" links will indeed not be followed. */
+    private boolean respectNoFollow = false;
+
     /** The callback that is called after the crawler finished crawling. */
     private Callback crawlerCallbackOnFinish = null;
 
@@ -119,10 +122,10 @@ public class Crawler {
                         currentUrl, urlStack.size(), visitedUrls.size()});
             }
 
-            addUrlsToStack(links, currentUrl);
+            addUrlsToStack(links);
         } else if (documentRetriever.getDownloadFilter().accept(currentUrl)){
             LOGGER.error("could not get " + currentUrl + ", putting it back on the stack for later");
-            addUrlToStack(currentUrl, currentUrl);
+            addUrlToStack(currentUrl);
         }
 
     }
@@ -279,9 +282,9 @@ public class Crawler {
         urlRules.add(rule);
     }
 
-    private synchronized void addUrlsToStack(Set<String> urls, String sourceURL) {
+    private synchronized void addUrlsToStack(Set<String> urls) {
         for (String url : urls) {
-            addUrlToStack(url, sourceURL);
+            addUrlToStack(url);
         }
     }
 
@@ -297,7 +300,7 @@ public class Crawler {
         return url;
     }
 
-    private synchronized void addUrlToStack(String url, String sourceUrl) {
+    private synchronized void addUrlToStack(String url) {
 
         url = cleanUrl(url);
 
@@ -367,6 +370,14 @@ public class Crawler {
 
     public boolean isStripQueryParams() {
         return stripQueryParams;
+    }
+
+    public boolean isRespectNoFollow() {
+        return respectNoFollow;
+    }
+
+    public void setRespectNoFollow(boolean respectNoFollow) {
+        this.respectNoFollow = respectNoFollow;
     }
 
     public void setStripQueryParams(boolean stripQueryParams) {
