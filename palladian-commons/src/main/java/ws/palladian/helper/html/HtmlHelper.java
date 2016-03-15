@@ -2,27 +2,14 @@ package ws.palladian.helper.html;
 
 import java.io.File;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
@@ -67,9 +54,9 @@ public final class HtmlHelper {
     /** "Junk" elements which do not contain relevant content. */
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
-    private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("\\<(br|li)\\s?\\/?\\>",
+    private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("<(br|li)\\s?/?>",
             Pattern.CASE_INSENSITIVE);
-    private static final Pattern HTML_TO_READABLE_TEXT2 = Pattern.compile("\\<\\/p\\>", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HTML_TO_READABLE_TEXT2 = Pattern.compile("</p>", Pattern.CASE_INSENSITIVE);
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
     private static final Pattern STRIP_ALL_TAGS = Pattern
     // .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
@@ -137,11 +124,11 @@ public final class HtmlHelper {
      * @return The number of tags.
      */
     public static int countTags(String htmlText, boolean distinct) {
-        Set<String> tags = new HashSet<String>();
+        Set<String> tags = new HashSet<>();
 
         int tagCount = 0;
 
-        Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("(<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(htmlText);
 
         while (matcher.find()) {
@@ -291,10 +278,9 @@ public final class HtmlHelper {
      */
     public static List<String> getConcreteTags(String pageString, String beginTag, String endTag) {
 
-        List<String> tagList = new ArrayList<String>();
+        List<String> tagList = new ArrayList<>();
         String regExp = "";
         if (beginTag.equals(endTag)) {
-            // regExp = "<"+beginTag+".*?>.*?</"+endTag+">";
             regExp = "<" + beginTag + ".*?>(.*?</" + endTag + ">)?";
 
         } else {
@@ -307,10 +293,6 @@ public final class HtmlHelper {
         while (matcher.find()) {
             tagList.add(matcher.group(0));
         }
-
-        // LOGGER.info("get concrete tags took " + sw.getElapsedTimeString() +
-        // " for a string of length "+
-        // pageString.length());
 
         return tagList;
     }
@@ -514,11 +496,7 @@ public final class HtmlHelper {
             Transformer transformer = factory.newTransformer();
             transformer.transform(source, result);
             success = true;
-        } catch (TransformerConfigurationException e) {
-            LOGGER.error("Exception while writing to file", e);
-        } catch (TransformerFactoryConfigurationError e) {
-            LOGGER.error("Exception while writing to file", e);
-        } catch (TransformerException e) {
+        } catch (TransformerFactoryConfigurationError | TransformerException e) {
             LOGGER.error("Exception while writing to file", e);
         }
         return success;
@@ -526,11 +504,8 @@ public final class HtmlHelper {
 
     /**
      * <p>
-     * Returns a String representation of the supplied Node, excluding the Node itself, like innerHTML in
-     * JavaScript/DOM.
+     * Returns a String representation of the supplied Node.
      * </p>
-     * 
-     * FIXME David: the JavaDoc is not correct, the root node of the page is not excluded, rename method?
      * 
      * @param node
      * @return
@@ -769,9 +744,12 @@ public final class HtmlHelper {
         return sb.toString().replaceAll("[ ]{2,}", "");
     }
 
-    // TODO doesn't this belong to PageAnalyzer (actually it was there in the
-    // past)
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
+        return getLinks(document, inDomain, outDomain, prefix, false);
+    }
+
+    public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix,
+            boolean respectNoFollow) {
 
         Set<String> pageLinks = new HashSet<>();
 
@@ -795,6 +773,17 @@ public final class HtmlHelper {
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a/@href");
         for (int i = 0; i < linkNodes.size(); i++) {
+
+            if (respectNoFollow) {
+                Node rel = linkNodes.get(i).getAttributes().getNamedItem("rel");
+                if (rel != null) {
+                    String relText = rel.getTextContent();
+                    if (relText != null && relText.equalsIgnoreCase("nofollow")) {
+                        continue;
+                    }
+                }
+            }
+
             String currentLink = linkNodes.get(i).getTextContent();
             currentLink = currentLink.trim();
 
@@ -810,7 +799,6 @@ public final class HtmlHelper {
             }
 
             String currentDomain = UrlHelper.getDomain(currentLink, false);
-            // currentDomain = currentDomain.replaceFirst("[a-zA-Z-_]+\\.(?=[a-z]+\\.)", "");
 
             boolean inDomainLink = currentDomain.toLowerCase().endsWith(domain);
 
@@ -833,8 +821,6 @@ public final class HtmlHelper {
      *            of the source page are added.
      * @return A set of urls.
      */
-    // TODO doesn't this belong to PageAnalyzer (actually it was there in the
-    // past)
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain) {
         return getLinks(document, inDomain, outDomain, "");
     }
