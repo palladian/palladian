@@ -3,6 +3,7 @@ package ws.palladian.core.dataset;
 import java.util.Set;
 
 import ws.palladian.core.Instance;
+import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.CloseableIterator;
 
 /**
@@ -38,9 +39,23 @@ public interface Dataset extends Iterable<Instance> {
 	 */
 	long size();
 
-//	Dataset filterFeatures(Filter<? super String> nameFilter);
+	/**
+	 * Filter the features. The returned dataset will only contain the features
+	 * which passed the provided filter.
+	 * 
+	 * @param nameFilter The filter to apply.
+	 * @return The filtered dataset.
+	 */
+	Dataset filterFeatures(Filter<? super String> nameFilter);
 	
-//	Dataset subset(Filter<? super Instance> instanceFilter);
+	/**
+	 * Get a subset of the dataset.
+	 * 
+	 * @param instanceFilter
+	 *            The filter which defines the subset.
+	 * @return The subset with instances matching the filter.
+	 */
+	Dataset subset(Filter<? super Instance> instanceFilter);
 	
 //	/**
 //	 * Read the whole dataset in memory. Only do that for small datasets and for

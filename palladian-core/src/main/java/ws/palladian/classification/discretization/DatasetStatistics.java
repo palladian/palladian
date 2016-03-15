@@ -6,6 +6,7 @@ import java.util.Set;
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
+import ws.palladian.core.dataset.Dataset;
 
 public class DatasetStatistics {
 
@@ -27,6 +28,8 @@ public class DatasetStatistics {
         return categoryPriors;
     }
     
+    /** @deprecated Replaced by {@link Dataset#getFeatureNames()}. */
+    @Deprecated
     public Set<String> getFeatureNames() {
         return featureNames;
     }

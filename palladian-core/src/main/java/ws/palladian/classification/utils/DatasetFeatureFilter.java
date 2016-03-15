@@ -5,8 +5,9 @@ import java.util.Iterator;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.FilteredDataset;
 import ws.palladian.helper.functional.Filter;
 
 /**
@@ -15,7 +16,9 @@ import ws.palladian.helper.functional.Filter;
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated Replaced by {@link FilteredDataset}.
  */
+@Deprecated
 final class DatasetFeatureFilter implements Iterable<Instance> {
 
     private final Iterable<? extends Instance> dataset;
@@ -46,7 +49,8 @@ final class DatasetFeatureFilter implements Iterable<Instance> {
             public Instance next() {
                 Instance item = iterator.next();
                 FeatureVector filteredFeatures = ClassificationUtils.filterFeatures(item.getVector(), nameFilter);
-                return new InstanceBuilder().add(filteredFeatures).create(item.getCategory());
+                // return new InstanceBuilder().add(filteredFeatures).create(item.getCategory());
+                return new ImmutableInstance(filteredFeatures, item.getCategory());
             }
 
             @Override
