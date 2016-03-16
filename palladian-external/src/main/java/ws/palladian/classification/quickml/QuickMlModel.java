@@ -71,7 +71,7 @@ public class QuickMlModel implements Model {
 
     private final Set<String> classes;
 
-    /** Package visibility, as it is to be instantiated by the QuickDtClassifier only. */
+    /** Package visibility, as it is to be instantiated by the QuickMlLearner only. */
     QuickMlModel(Classifier classifier, Set<String> classes) {
         this.classifier = classifier;
         this.classes = classes;
