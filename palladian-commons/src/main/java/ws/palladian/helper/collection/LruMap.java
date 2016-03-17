@@ -1,13 +1,14 @@
 package ws.palladian.helper.collection;
 
-import java.util.LinkedHashMap;
-
 import org.apache.commons.lang3.Validate;
+
+import java.util.LinkedHashMap;
 
 /**
  * <p>
  * Simple, most-recently-used cache implemented using {@link LinkedHashMap}.
  * </p>
+ * NOTE: This class is NOT thread-safe.
  * 
  * @author Philipp Katz
  * 
