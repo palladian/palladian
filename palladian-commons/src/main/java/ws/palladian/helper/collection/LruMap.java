@@ -28,7 +28,7 @@ public class LruMap<K, V> extends LinkedHashMap<K, V> {
      * @param maxEntries The maximum entries to keep, greater zero.
      */
     public static <K, V> LruMap<K, V> insertionOrder(int maxEntries) {
-        return new LruMap<K, V>(maxEntries, false);
+        return new LruMap<>(maxEntries, false);
     }
 
     /**

@@ -1,9 +1,7 @@
 package ws.palladian.helper.collection;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import ws.palladian.helper.functional.Factory;
 
@@ -19,13 +17,12 @@ import ws.palladian.helper.functional.Factory;
  * @param <K> Key.
  * @param <V> Value.
  */
-public final class LazyMap<K, V> implements Map<K, V> {
+public final class LazyMap<K, V> extends MapDecorator<K, V> {
 
-    private final Map<K, V> map;
     private final Factory<? extends V> factory;
 
     public LazyMap(Map<K,V> map, Factory<? extends V> factory) {
-        this.map = map;
+        super(map);
         this.factory = factory;
     }
     
@@ -46,86 +43,21 @@ public final class LazyMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public void clear() {
-        map.clear();
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-        return map.containsKey(key);
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return map.containsValue(value);
-    }
-
-    @Override
-    public Set<java.util.Map.Entry<K, V>> entrySet() {
-        return map.entrySet();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return map.equals(o);
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public V get(Object key) {
-        V value = map.get(key);
+        V value = getMap().get(key);
         if (value == null) {
             value = factory.create();
-            map.put((K)key, value);
+            put((K)key, value);
         }
         return value;
-    }
-
-    @Override
-    public int hashCode() {
-        return map.hashCode();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return map.isEmpty();
-    }
-
-    @Override
-    public Set<K> keySet() {
-        return map.keySet();
-    }
-
-    @Override
-    public V put(K key, V value) {
-        return map.put(key, value);
-    }
-
-    @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-        map.putAll(m);
-    }
-
-    @Override
-    public V remove(Object key) {
-        return map.remove(key);
-    }
-
-    @Override
-    public int size() {
-        return map.size();
-    }
-
-    @Override
-    public Collection<V> values() {
-        return map.values();
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("LazyMap [map=");
-        builder.append(map);
+        builder.append(getMap());
         builder.append("]");
         return builder.toString();
     }

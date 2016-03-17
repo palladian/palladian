@@ -107,5 +107,15 @@ public class CsvDatasetReaderTest {
 			assertEquals(NullValue.NULL, instance.getVector().get("null"));
 		}
 	}
+	
+	@Test
+	public void testSize() throws IOException {
+		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt"));
+		config.readHeader(false);
+		config.readClassFromLastColumn(true);
+		config.fieldSeparator(";");
+		CsvDatasetReader reader = config.create();
+		assertEquals(1000, reader.size());
+	}
 
 }
