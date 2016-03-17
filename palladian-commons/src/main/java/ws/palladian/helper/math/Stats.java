@@ -8,7 +8,7 @@ package ws.palladian.helper.math;
  * @author Philipp Katz
  * 
  */
-public interface Stats {
+public interface Stats extends Iterable<Double> {
 
     /**
      * <p>

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -293,6 +294,11 @@ public class FatStats extends AbstractStats {
 			}
 		}
 		return mode;
+	}
+	
+	@Override
+	public Iterator<Double> iterator() {
+		return CollectionHelper.unmodifiableIterator(values.iterator());
 	}
 
     @Override
