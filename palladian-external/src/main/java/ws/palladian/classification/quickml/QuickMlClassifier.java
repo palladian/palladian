@@ -23,7 +23,8 @@ public class QuickMlClassifier implements Classifier<QuickMlModel> {
         Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(model, "model must not be null");
         quickml.supervised.classifier.Classifier pm = model.getClassifier();
-        AttributesMap attributes = QuickMlLearner.getInput(featureVector);
+        FlyweightAttributesMap.Builder mapBuilder = new FlyweightAttributesMap.Builder(featureVector.keys());
+        AttributesMap attributes = mapBuilder.create(featureVector);
         PredictionMap prediction = pm.predict(attributes);
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         for (String targetClass : model.getCategories()) {

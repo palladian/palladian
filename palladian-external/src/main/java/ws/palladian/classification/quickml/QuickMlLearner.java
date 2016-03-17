@@ -1,14 +1,11 @@
 package ws.palladian.classification.quickml;
 
-import java.io.Serializable;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import quickml.data.AttributesMap;
 import quickml.data.instances.ClassifierInstance;
@@ -16,13 +13,9 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import ws.palladian.core.FeatureVector;
+import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
-import ws.palladian.core.value.NominalValue;
-import ws.palladian.core.value.NumericValue;
-import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -32,9 +25,6 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * @author Philipp Katz
  */
 public final class QuickMlLearner implements Learner<QuickMlModel> {
-
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(QuickMlLearner.class);
 
     /** The builder used for creating the predictive mode. */
     private final PredictiveModelBuilder<? extends Classifier, ClassifierInstance> builder;
@@ -74,9 +64,7 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
      * 
      * @param builder The builder to use, not <code>null</code>.
      * @see {@link #tree()} and {@link #randomForest()} for a predefined learner.
-     * @deprecated Use {@link #tree()} or {@link #randomForest()} to create instances.
      */
-    @Deprecated
     public QuickMlLearner(PredictiveModelBuilder<? extends Classifier, ClassifierInstance> builder) {
         Validate.notNull(builder, "builder must not be null");
         this.builder = builder;
@@ -85,30 +73,18 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
     @Override
     public QuickMlModel train(Iterable<? extends Instance> instances) {
         Validate.notNull(instances, "instances must not be null");
-        Set<ClassifierInstance> trainingInstances = new HashSet<>();
+		Set<String> featureNames = ClassificationUtils
+				.getFeatureNames(ClassificationUtils.unwrapInstances(instances));
+        FlyweightAttributesMap.Builder mapBuilder = new FlyweightAttributesMap.Builder(featureNames);
+        List<ClassifierInstance> trainingInstances = new ArrayList<>();
         Set<String> classes = new HashSet<>();
         for (Instance instance : instances) {
-            AttributesMap input = getInput(instance.getVector());
+            AttributesMap input = mapBuilder.create(instance.getVector());
             trainingInstances.add(new ClassifierInstance(input, instance.getCategory()));
             classes.add(instance.getCategory());
         }
         Classifier classifier = builder.buildPredictiveModel(trainingInstances);
         return new QuickMlModel(classifier, classes);
-    }
-
-    static AttributesMap getInput(FeatureVector featureVector) {
-        Map<String, Serializable> inputs = new HashMap<>();
-        for (VectorEntry<String, Value> feature : featureVector) {
-            Value value = feature.value();
-            if (value instanceof NominalValue) {
-                inputs.put(feature.key(), ((NominalValue)value).getString());
-            } else if (value instanceof NumericValue) {
-                inputs.put(feature.key(), ((NumericValue)value).getDouble());
-            } else {
-                LOGGER.trace("Unsupported type for {}: {}", feature.key(), value.getClass().getName());
-            }
-        }
-        return new AttributesMap(inputs);
     }
 
     @Override

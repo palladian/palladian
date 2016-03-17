@@ -23,10 +23,13 @@ import ws.palladian.core.value.Value;
 public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
     /** The default value for the Laplace smoothing. */
-    private static final double DEFAULT_LAPLACE_CORRECTOR = 0.00001;
+    public static final double DEFAULT_LAPLACE_CORRECTOR = 0.00001;
 
     /** The corrector for the Laplace smoothing. */
     private final double laplace;
+
+    /** Flag to denote whether to score in log. space. */
+	private final boolean logSpace;
 
     /**
      * <p>
@@ -47,8 +50,25 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
      *            means no smoothing.
      */
     public NaiveBayesClassifier(double laplaceCorrector) {
-        Validate.isTrue(laplaceCorrector >= 0, "The Laplace corrector must be equal or greater than zero.");
-        this.laplace = laplaceCorrector;
+    	this(DEFAULT_LAPLACE_CORRECTOR, true);
+    }
+    
+	/**
+	 * Create a new Naive Bayes classifier.
+	 * 
+	 * @param laplaceCorrector
+	 *            The Laplace corrector for smoothing. Must be greater or equal
+	 *            to zero. A value of zero means no smoothing.
+	 * @param logSpace
+	 *            Set to <code>false</code> in order to perform scoring
+	 *            calculations as addition; this will give better distributed
+	 *            probability estimates. If <code>true</code>, the calculation
+	 *            will be done in log space in order to avoid underflows.
+	 */
+    public NaiveBayesClassifier(double laplaceCorrector, boolean logSpace) {
+    	Validate.isTrue(laplaceCorrector >= 0, "The Laplace corrector must be equal or greater than zero.");
+    	this.laplace = laplaceCorrector;
+    	this.logSpace = logSpace;
     }
 
     @Override
@@ -59,18 +79,30 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
         for (String category : model.getCategories()) {
 
             // initially set all category probabilities to their priors
-            double probability = Math.log(model.getPrior(category));
+            double probability = model.getPrior(category);
+            if (logSpace) {
+            	probability = Math.log(probability);
+            }
             
             for (String featureName : model.getLearnedFeatures()) {
                 Value value = featureVector.get(featureName);
                 if (value instanceof NominalValue) {
                     String nominalValue = ((NominalValue)value).getString();
-                    probability += Math.log(model.getProbability(featureName, nominalValue, category, laplace));
+                    double currentProbability = model.getProbability(featureName, nominalValue, category, laplace);
+					if (logSpace) {
+                    	probability += Math.log(currentProbability);
+                    } else {
+                    	probability *= currentProbability;
+                    }
                 } else if (value instanceof NumericValue) {
                     double doubleValue = ((NumericValue)value).getDouble();
                     double density = model.getDensity(featureName, doubleValue, category);
                     if (density > 0) {
-                        probability += Math.log(density);
+                    	if (logSpace) {
+                    		probability += Math.log(density);
+                    	} else {
+                    		probability *= density;
+                    	}
                     }
                 }
             }

@@ -23,7 +23,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
      * @author Philipp Katz
      */
     private final class RowIterator implements Iterator<MatrixVector<K, V>> {
-        final Iterator<K> rowNameIterator = new LinkedHashSet<K>(getRowKeys()).iterator();
+        final Iterator<K> rowNameIterator = new LinkedHashSet<>(getRowKeys()).iterator();
         K currentRowKey;
 
         @Override
@@ -49,7 +49,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
      * @author Philipp Katz
      */
     private final class ColumnIterator implements Iterator<MatrixVector<K, V>> {
-        final Iterator<K> columnNameIterator = new LinkedHashSet<K>(getColumnKeys()).iterator();
+        final Iterator<K> columnNameIterator = new LinkedHashSet<>(getColumnKeys()).iterator();
         K currentColumnKey;
 
         @Override

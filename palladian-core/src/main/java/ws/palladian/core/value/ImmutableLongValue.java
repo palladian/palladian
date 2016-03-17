@@ -1,30 +1,49 @@
 package ws.palladian.core.value;
 
+import ws.palladian.core.value.io.AbstractValueParser;
 import ws.palladian.core.value.io.ValueParser;
+import ws.palladian.core.value.io.ValueParserException;
 
-public final class ImmutableLongValue extends AbstractValue implements NumericValue {
+public final class ImmutableLongValue extends AbstractValue implements LongValue {
 	
-	public static final ValueParser PARSER = new ValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser() {
 		@Override
-		public Value parse(String input) {
-			return new ImmutableLongValue(Long.parseLong(input));
-		}
-
-		@Override
-		public boolean canParse(String input) {
+		public Value parse(String input) throws ValueParserException {
 			try {
-				Long.parseLong(input);
-				return true;
+				return ImmutableLongValue.valueOf(Long.parseLong(input));
 			} catch (NumberFormatException e) {
-				return false;
+				throw new ValueParserException(e);
 			}
 		}
 	};
+	
+	private static final class ValueCache {
+		private static final ImmutableLongValue[] CACHE;
+		private static final int LOW = -128;
+		private static final int HIGH = 127;
+
+		static {
+			CACHE = new ImmutableLongValue[HIGH - LOW + 1];
+			int j = LOW;
+			for (int i = 0; i < CACHE.length; i++) {
+				CACHE[i] = new ImmutableLongValue(j++);
+			}
+		}
+	}
 
 	private final long longValue;
 
-	public ImmutableLongValue(long value) {
-		this.longValue = value;
+	/** @deprecated Use {@link #valueOf(int)} instead, because it provides cached values. */
+	@Deprecated
+	public ImmutableLongValue(long longValue) {
+		this.longValue = longValue;
+	}
+
+	public static ImmutableLongValue valueOf(long longValue) {
+		if (longValue >= ValueCache.LOW && longValue <= ValueCache.HIGH) {
+			return ValueCache.CACHE[(int) (longValue + -ValueCache.LOW)];
+		}
+		return new ImmutableLongValue(longValue);
 	}
 
 	@Override
@@ -51,6 +70,21 @@ public final class ImmutableLongValue extends AbstractValue implements NumericVa
 	@Override
 	public String toString() {
 		return String.valueOf(longValue);
+	}
+
+	@Override
+	public float getFloat() {
+		return longValue;
+	}
+
+	@Override
+	public int getInt() {
+		return (int) longValue;
+	}
+
+	@Override
+	public Number getNumber() {
+		return longValue;
 	}
 
 }
