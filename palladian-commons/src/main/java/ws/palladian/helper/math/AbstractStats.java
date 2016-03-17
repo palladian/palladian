@@ -1,5 +1,7 @@
 package ws.palladian.helper.math;
 
+import java.util.Iterator;
+
 import org.apache.commons.lang.Validate;
 
 public abstract class AbstractStats implements Stats {
@@ -47,6 +49,11 @@ public abstract class AbstractStats implements Stats {
 		}
 		double stdDev = getStandardDeviation();
 		return stdDev * stdDev;
+	}
+	
+	@Override
+	public Iterator<Double> iterator() {
+		throw new UnsupportedOperationException("Not supported by this stats implementation");
 	}
 
 }
