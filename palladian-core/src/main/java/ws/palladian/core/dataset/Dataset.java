@@ -57,12 +57,12 @@ public interface Dataset extends Iterable<Instance> {
 	 */
 	Dataset subset(Filter<? super Instance> instanceFilter);
 	
-//	/**
-//	 * Read the whole dataset in memory. Only do that for small datasets and for
-//	 * performance reasons. Else wise prefer using the {@link #iterator()}.
-//	 * 
-//	 * @return The dataset.
-//	 */
-//	Dataset buffer();
+	/**
+	 * Read the whole dataset into memory. Only do that for small datasets and
+	 * for performance reasons. Else wise prefer using the {@link #iterator()}.
+	 * 
+	 * @return The in-memory dataset.
+	 */
+	Dataset buffer();
 	
 }

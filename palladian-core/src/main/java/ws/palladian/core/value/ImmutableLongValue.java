@@ -10,17 +10,40 @@ public final class ImmutableLongValue extends AbstractValue implements LongValue
 		@Override
 		public Value parse(String input) throws ValueParserException {
 			try {
-				return new ImmutableLongValue(Long.parseLong(input));
+				return ImmutableLongValue.valueOf(Long.parseLong(input));
 			} catch (NumberFormatException e) {
 				throw new ValueParserException(e);
 			}
 		}
 	};
+	
+	private static final class ValueCache {
+		private static final ImmutableLongValue[] CACHE;
+		private static final int LOW = -128;
+		private static final int HIGH = 127;
+
+		static {
+			CACHE = new ImmutableLongValue[HIGH - LOW + 1];
+			int j = LOW;
+			for (int i = 0; i < CACHE.length; i++) {
+				CACHE[i] = new ImmutableLongValue(j++);
+			}
+		}
+	}
 
 	private final long longValue;
 
-	public ImmutableLongValue(long value) {
-		this.longValue = value;
+	/** @deprecated Use {@link #valueOf(int)} instead, because it provides cached values. */
+	@Deprecated
+	public ImmutableLongValue(long longValue) {
+		this.longValue = longValue;
+	}
+
+	public static ImmutableLongValue valueOf(long longValue) {
+		if (longValue >= ValueCache.LOW && longValue <= ValueCache.HIGH) {
+			return ValueCache.CACHE[(int) (longValue + -ValueCache.LOW)];
+		}
+		return new ImmutableLongValue(longValue);
 	}
 
 	@Override
