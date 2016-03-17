@@ -31,7 +31,7 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
 
-    public static enum ClassifierSetting {
+    public enum ClassifierSetting {
         KNN, TEXT, BAYES
     }
 

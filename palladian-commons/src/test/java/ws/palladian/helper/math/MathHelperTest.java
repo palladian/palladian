@@ -19,6 +19,11 @@ import ws.palladian.helper.io.ResourceHelper;
 public class MathHelperTest {
 
     @Test
+    public void testCantorize() {
+        assertNotEquals(MathHelper.cantorize(2,3), MathHelper.cantorize(3,2));
+    }
+
+    @Test
     public void testRandomSample() {
         Collection<Integer> numbers = CollectionHelper.newArrayList(new AbstractIterator<Integer>() {
             int counter = 0;
