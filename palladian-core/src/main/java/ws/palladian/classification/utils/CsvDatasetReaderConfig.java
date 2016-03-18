@@ -35,6 +35,7 @@ public class CsvDatasetReaderConfig {
 				throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
 			}
 			this.filePath = filePath;
+			this.gzip = filePath.getName().toLowerCase().endsWith(".gz");
 		}
 
 		/**
@@ -155,7 +156,10 @@ public class CsvDatasetReaderConfig {
 
 	/**
 	 * Create a new configuration for the {@link CsvDatasetReader}, which reads
-	 * a CSV file from the given path.
+	 * a CSV file from the given path. In case, a file with extension
+	 * <tt>.gz</tt> is supplied, the reader will automatically uncompress the
+	 * file on the fly (this behavior can be explicitly overridden by
+	 * {@link CsvDatasetReaderConfig.Builder#gzip(boolean)}.
 	 * 
 	 * @param filePath
 	 *            The path to the CSV file.
