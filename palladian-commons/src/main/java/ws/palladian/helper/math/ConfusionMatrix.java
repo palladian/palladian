@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CountMatrix;
 
@@ -38,7 +39,7 @@ public class ConfusionMatrix {
      * Add a classification result to this confusion matrix.
      * </p>
      *
-     * @param realCategory      The real category of the item.
+     * @param realCategory The real category of the item.
      * @param predictedCategory The category which was predicted by the classification.
      */
     public void add(String realCategory, String predictedCategory) {
@@ -50,9 +51,9 @@ public class ConfusionMatrix {
      * Add a classification result to this confusion matrix.
      * </p>
      *
-     * @param realCategory      The real category of the item.
+     * @param realCategory The real category of the item.
      * @param predictedCategory The category which was predicted by the classification.
-     * @param count             The number of the classification.
+     * @param count The number of the classification.
      */
     public void add(String realCategory, String predictedCategory, int count) {
         confusionMatrix.add(predictedCategory, realCategory, count);
@@ -66,7 +67,7 @@ public class ConfusionMatrix {
      * @return The accuracy.
      */
     public double getAccuracy() {
-        return (double) getTotalCorrect() / getTotalDocuments();
+        return (double)getTotalCorrect() / getTotalDocuments();
     }
 
     /**
@@ -125,7 +126,7 @@ public class ConfusionMatrix {
      * Get the number of confusions between two categories.
      * </p>
      *
-     * @param realCategory      The real category.
+     * @param realCategory The real category.
      * @param predictedCategory The category which was predicted by the classifier.
      * @return The number of confusions between the real and the predicted category.
      */
@@ -150,7 +151,7 @@ public class ConfusionMatrix {
                     continue;
                 }
                 int confusions = getConfusions(c1, c2);
-                double confusion = (double) confusions / possible;
+                double confusion = (double)confusions / possible;
                 list.add(Triple.of(c1, c2, confusion));
             }
         }
@@ -162,7 +163,8 @@ public class ConfusionMatrix {
 
     /**
      * <p>
-     * Get the most confusing categories, i.e. categories that were classified frequently even though it should have become a different category.
+     * Get the most confusing categories, i.e. categories that were classified frequently even though it should have
+     * become a different category.
      * </p>
      *
      * @return An ordered list categories.
@@ -173,7 +175,7 @@ public class ConfusionMatrix {
         for (String c1 : getCategories()) {
             int real = getRealDocuments(c1);
             int classified = getClassifiedDocuments(c1);
-            double confusion = (double) classified / real;
+            double confusion = (double)classified / real;
             list.add(Pair.of(c1, confusion));
         }
 
@@ -225,7 +227,7 @@ public class ConfusionMatrix {
         if (sum == 0) {
             return 0;
         }
-        return (double) max / sum;
+        return (double)max / sum;
     }
 
     /**
@@ -257,7 +259,7 @@ public class ConfusionMatrix {
         if (classified == 0) {
             return Double.NaN;
         }
-        return (double) correct / classified;
+        return (double)correct / classified;
     }
 
     /**
@@ -274,7 +276,7 @@ public class ConfusionMatrix {
         if (real == 0) {
             return 1;
         }
-        return (double) correct / real;
+        return (double)correct / real;
     }
 
     /**
@@ -283,8 +285,8 @@ public class ConfusionMatrix {
      * </p>
      *
      * @param category The category.
-     * @param alpha    A value between 0 and 1 to weight precision and recall (1.0 for F1). Use values of 2.0 for
-     *                 F2 score and 0.5 for F0.5 score and so on.
+     * @param alpha A value between 0 and 1 to weight precision and recall (1.0 for F1). Use values of 2.0 for
+     *            F2 score and 0.5 for F0.5 score and so on.
      * @return The F measure for a given category.
      */
     public double getF(double alpha, String category) {
@@ -314,7 +316,7 @@ public class ConfusionMatrix {
         if (truePositives + falseNegatives == 0) {
             return Double.NaN;
         }
-        return (double) truePositives / (truePositives + falseNegatives);
+        return (double)truePositives / (truePositives + falseNegatives);
     }
 
     /**
@@ -340,7 +342,7 @@ public class ConfusionMatrix {
             return Double.NaN;
         }
 
-        return (double) trueNegatives / (trueNegatives + falsePositives);
+        return (double)trueNegatives / (trueNegatives + falsePositives);
     }
 
     /**
@@ -364,7 +366,7 @@ public class ConfusionMatrix {
             return Double.NaN;
         }
 
-        return (double) (truePositives + trueNegatives)
+        return (double)(truePositives + trueNegatives)
                 / (truePositives + trueNegatives + falsePositives + falseNegatives);
     }
 
@@ -383,7 +385,7 @@ public class ConfusionMatrix {
         if (totalAssigned == 0) {
             return 0;
         }
-        return (double) documentCount / totalAssigned;
+        return (double)documentCount / totalAssigned;
     }
 
     /**
@@ -392,7 +394,7 @@ public class ConfusionMatrix {
      * </p>
      *
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
-     *                 each category equally.
+     *            each category equally.
      * @return The average precision of all categories.
      */
     public double getAveragePrecision(boolean weighted) {
@@ -421,7 +423,7 @@ public class ConfusionMatrix {
      * </p>
      *
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
-     *                 each category equally.
+     *            each category equally.
      * @return The average recall of all categories.
      */
     public double getAverageRecall(boolean weighted) {
@@ -449,10 +451,10 @@ public class ConfusionMatrix {
      * Get the average F measure of all categories.
      * </p>
      *
-     * @param alpha    A value between 0 and 1 to weight precision and recall (1.0 for F1). Use values of 2.0 for
-     *                 F2 score and 0.5 for F0.5 score and so on.
+     * @param alpha A value between 0 and 1 to weight precision and recall (1.0 for F1). Use values of 2.0 for
+     *            F2 score and 0.5 for F0.5 score and so on.
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
-     *                 each category equally.
+     *            each category equally.
      * @return The average F of all categories.
      */
     public double getAverageF(double alpha, boolean weighted) {
@@ -481,7 +483,7 @@ public class ConfusionMatrix {
      * </p>
      *
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
-     *                 each category equally.
+     *            each category equally.
      * @return The average sensitivity for all categories.
      */
     public double getAverageSensitivity(boolean weighted) {
@@ -510,7 +512,7 @@ public class ConfusionMatrix {
      * </p>
      *
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
-     *                 each category equally.
+     *            each category equally.
      * @return The average accuracy for all categories.
      */
     public double getAverageSpecificity(boolean weighted) {
@@ -539,7 +541,7 @@ public class ConfusionMatrix {
      * </p>
      *
      * @param weighted <code>true</code> to weight each category by its prior probability, <code>false</code> to weight
-     *                 each category equally.
+     *            each category equally.
      * @return The average accuracy for all categories.
      * @deprecated Why should one want to average this?
      */
@@ -630,7 +632,7 @@ public class ConfusionMatrix {
                 if (!tsv) {
                     int valueSize = value.toString().length();
                     int remainingLength = predictedClazz.length() - valueSize + 1;
-                    int spacesInFrontOfValue = Math.max((int) Math.ceil((double) remainingLength / 2), 0);
+                    int spacesInFrontOfValue = Math.max((int)Math.ceil((double)remainingLength / 2), 0);
                     out.append(CharBuffer.allocate(spacesInFrontOfValue).toString().replace('\0', ' '));
                     out.append(value);
                     int spacesAfterValue = Math.max(predictedClazz.length() - valueSize - spacesInFrontOfValue, 1);
@@ -648,9 +650,11 @@ public class ConfusionMatrix {
         out.append("\n");
 
         out.append("Strongest Confusions (Top 100):\n");
-        List<Triple<String, String, Double>> strongConfusions = CollectionHelper.getSublist(getOrderedConfusions(),0, 100);
+        List<Triple<String, String, Double>> strongConfusions = CollectionHelper.getSublist(getOrderedConfusions(), 0,
+                100);
         for (Triple strongConfusion : strongConfusions) {
-            out.append(strongConfusion.getLeft()).append(" => ").append(strongConfusion.getMiddle()).append("\t").append(strongConfusion.getRight()).append("\n");
+            out.append(strongConfusion.getLeft()).append(" => ").append(strongConfusion.getMiddle()).append("\t")
+                    .append(strongConfusion.getRight()).append("\n");
         }
         out.append("\n");
 
@@ -687,8 +691,8 @@ public class ConfusionMatrix {
             out.append(prior);
             if (!tsv) {
                 int precisionSpaces = "prior  ".length() - String.valueOf(prior).length();
-                out.append(CharBuffer.allocate(Math.max(precisionSpaces, 0)).toString().replace('\0', ' ')).append(
-                        precision);
+                out.append(CharBuffer.allocate(Math.max(precisionSpaces, 0)).toString().replace('\0', ' '))
+                        .append(precision);
             } else {
                 out.append("\t").append(precision);
             }
@@ -700,14 +704,15 @@ public class ConfusionMatrix {
             }
             if (!tsv) {
                 int f1MeasureSpaces = "recall ".length() - String.valueOf(recall).length();
-                out.append(CharBuffer.allocate(Math.max(f1MeasureSpaces, 0)).toString().replace('\0', ' ')).append(
-                        f1measure);
+                out.append(CharBuffer.allocate(Math.max(f1MeasureSpaces, 0)).toString().replace('\0', ' '))
+                        .append(f1measure);
             } else {
                 out.append("\t").append(f1measure);
             }
             if (!tsv) {
                 int accuracySpaces = "f1-measure ".length() - String.valueOf(f1measure).length();
-                out.append(CharBuffer.allocate(Math.max(accuracySpaces, 0)).toString().replace('\0', ' ')).append(accuracy);
+                out.append(CharBuffer.allocate(Math.max(accuracySpaces, 0)).toString().replace('\0', ' '))
+                        .append(accuracy);
             } else {
                 out.append("\t").append(accuracy);
             }
@@ -719,7 +724,8 @@ public class ConfusionMatrix {
         out.append("Highest Prior:\t").append(MathHelper.round(getHighestPrior(), 4)).append('\n');
         out.append("Superiority:\t").append(MathHelper.round(getSuperiority(), 4)).append('\n');
         if (getCategories().size() == 2) {
-            out.append("Matthews Correlation Coefficient:\t").append(MathHelper.round(getMatthewsCorrelationCoefficient(), 4)).append('\n');
+            out.append("Matthews Correlation Coefficient:\t")
+                    .append(MathHelper.round(getMatthewsCorrelationCoefficient(), 4)).append('\n');
         }
         out.append("# Documents:\t").append(getTotalDocuments()).append('\n');
         out.append("# Correctly Classified:\t").append(getTotalCorrect()).append('\n');
@@ -734,6 +740,5 @@ public class ConfusionMatrix {
         return out.toString();
 
     }
-
 
 }

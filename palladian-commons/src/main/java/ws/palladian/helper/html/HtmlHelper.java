@@ -478,9 +478,7 @@ public final class HtmlHelper {
                 Node emptyTextNode = emptyTextNodes.item(i);
                 emptyTextNode.getParentNode().removeChild(emptyTextNode);
             }
-        } catch (XPathExpressionException e) {
-            LOGGER.error("Exception while removing whitespace", e);
-        } catch (DOMException e) {
+        } catch (XPathExpressionException | DOMException e) {
             LOGGER.error("Exception while removing whitespace", e);
         }
 
@@ -772,10 +770,10 @@ public final class HtmlHelper {
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a/@href");
-        for (int i = 0; i < linkNodes.size(); i++) {
+        for (Node linkNode : linkNodes) {
 
             if (respectNoFollow) {
-                Node rel = linkNodes.get(i).getAttributes().getNamedItem("rel");
+                Node rel = linkNode.getAttributes().getNamedItem("rel");
                 if (rel != null) {
                     String relText = rel.getTextContent();
                     if (relText != null && relText.equalsIgnoreCase("nofollow")) {
@@ -784,7 +782,7 @@ public final class HtmlHelper {
                 }
             }
 
-            String currentLink = linkNodes.get(i).getTextContent();
+            String currentLink = linkNode.getTextContent();
             currentLink = currentLink.trim();
 
             // remove anchors from link

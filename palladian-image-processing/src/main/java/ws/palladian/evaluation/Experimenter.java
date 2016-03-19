@@ -27,6 +27,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static ws.palladian.classification.utils.ClassificationUtils.filterFeaturesIterable;
 import static ws.palladian.classification.utils.ClassificationUtils.useFeatureAsCategory;
 
+/**
+ * Run experiments and output results and models.
+ * @author Philipp Katz
+ * @author David Urbansky
+ */
 public class Experimenter {
 	
 	private static final class Experiment {
@@ -237,11 +242,13 @@ public class Experimenter {
 					if (evaluationResult.getModel().getCategories().size() == 2) {
 						csvResult.append(confusionMatrix.getMatthewsCorrelationCoefficient()).append(';');
 						csvResult.append(evaluationResult.getRocCurves().getAreaUnderCurve()).append('\n');
-					}
+					} else {
+                        csvResult.append('\n');
+                    }
 					FileHelper.appendFile(summaryCsv.getAbsolutePath(), csvResult);
 
                     // write separate confusion matrix (to be opened with csv programs)
-                    FileHelper.writeToFile(resultsDirectory.getAbsolutePath() + File.separator + "confusion.tsv",confusionMatrix.toString(true));
+                    FileHelper.writeToFile(resultsDirectory.getAbsolutePath() + File.separator + "confusion-" + timestamp + ".tsv",confusionMatrix.toString(true));
 
 					// write the model
 					File serializedFile = new File(resultsDirectory, "model-" + timestamp + ".ser.gz");

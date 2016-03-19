@@ -2,15 +2,17 @@ package ws.palladian.evaluation;
 
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
+import ws.palladian.classification.numeric.KnnClassifier;
+import ws.palladian.classification.numeric.KnnLearner;
+import ws.palladian.classification.quickml.QuickMlClassifier;
+import ws.palladian.classification.quickml.QuickMlLearner;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.dataset.ImageDataset;
 import ws.palladian.dataset.ImageValue;
-import ws.palladian.features.FeatureExtractor;
-import ws.palladian.features.StatisticsFeatureExtractor;
+import ws.palladian.features.*;
 import ws.palladian.features.color.ColorExtractor;
-import ws.palladian.features.color.Luminosity;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.date.DateHelper;
@@ -31,6 +33,14 @@ import java.util.concurrent.TimeUnit;
 import static java.util.Arrays.asList;
 import static ws.palladian.helper.functional.Filters.or;
 import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.features.color.Luminosity.LUMINOSITY;
+import static ws.palladian.features.color.RGB.*;
+import static ws.palladian.features.color.HSB.*;
+import static ws.palladian.features.ColorFeatureExtractor.*;
+import static ws.palladian.features.BoundsFeatureExtractor.*;
+import static ws.palladian.features.EdginessFeatureExtractor.*;
+import static ws.palladian.features.FrequencyFeatureExtractor.*;
+import static ws.palladian.features.RegionFeatureExtractor.*;
 
 /**
  * Take a dataset and evaluate.
@@ -126,15 +136,30 @@ public class Evaluator {
 
         ImageDataset imageDataset = new ImageDataset(new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
 
-        ColorExtractor[] colorExtractors = new ColorExtractor[]{Luminosity.LUMINOSITY};
+        ColorExtractor[] colorExtractors = new ColorExtractor[] { LUMINOSITY, RED, GREEN, BLUE, HUE, SATURATION, BRIGHTNESS };
         List<FeatureExtractor> extractors = new ArrayList<>();
         extractors.add(new StatisticsFeatureExtractor(colorExtractors));
+        extractors.add(new LocalFeatureExtractor(2, new StatisticsFeatureExtractor(colorExtractors)));
+        extractors.add(new LocalFeatureExtractor(3, new StatisticsFeatureExtractor(colorExtractors)));
+        extractors.add(new LocalFeatureExtractor(4, new StatisticsFeatureExtractor(colorExtractors)));
+        extractors.add(BOUNDS);
+        extractors.add(COLOR);
+        extractors.add(new SymmetryFeatureExtractor(colorExtractors));
+        extractors.add(REGION);
+        extractors.add(FREQUENCY);
+        extractors.add(new GridSimilarityExtractor(2));
+        extractors.add(new GridSimilarityExtractor(3));
+        extractors.add(new GridSimilarityExtractor(4));
+        // extractors.add(new GridSimilarityExtractor(5));
+        extractors.add(EDGINESS);
 
         //// read training data and create features
 //        extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
 
         //// read test data and create features
 //        extractFeatures(extractors, imageDataset, ImageDataset.TEST);
+
+//        System.exit(0);
 
         // train and test
         CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTrainFeaturesFile());
@@ -162,12 +187,14 @@ public class Evaluator {
         Filter<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
         List<Filter<String>> allCombinations = asList(surfFeatures, siftFeatures, boundsFeatures, colorFeatures, statisticsFeatures, symmetryFeatures, regionFeatures, frequencyFeatures, gridFeatures, allQuantitativeFeatures, allFeatures);
 
+        List<Filter<String>> smallList = asList(colorFeatures);
+
+        experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), smallList);
+//		experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), smallList);
+//        experimenter.addClassifier(new KnnLearner(), new KnnClassifier(), smallList);
 //		experimenter.addClassifier(new ZeroRLearner(), new ZeroRClassifier(), asList(Filters.NONE));
-		experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), asList(allQuantitativeFeatures));
 //		experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), allCombinations);
-//		experimenter.addClassifier(new KnnLearner(), new KnnClassifier(), allCombinations);
 //		experimenter.addClassifier(QuickMlLearner.tree(), new QuickMlClassifier(), allCombinations);
-//		experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), asList(siftFeatures));
 
         experimenter.run();
     }
