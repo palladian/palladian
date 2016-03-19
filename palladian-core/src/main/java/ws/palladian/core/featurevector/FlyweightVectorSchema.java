@@ -31,11 +31,16 @@ public class FlyweightVectorSchema {
 	}
 
 	public Value get(String name, Value[] values) {
-		return values[keys.get(name)];
+		Integer index = keys.get(name);
+		return index != null ? values[index] : null;
 	}
 
 	public void set(String name, Value value, Value[] values) {
-		values[keys.get(name)] = value;
+		Integer index = keys.get(name);
+		if (index == null) {
+			throw new IllegalArgumentException("Schema contains no key with name \"" + name + "\".");
+		}
+		values[index] = value;
 	}
 
 	public int size() {
