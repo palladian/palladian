@@ -104,7 +104,7 @@ public final class ClassificationUtils {
      * <code>feature1 .. featureN NominalClass</code>. Each line is one training instance.
      * </p>
      * <p>
-     * Each field must be separated by {@code fieldSeparator} and each line must end with a line break.
+     * Each field must be separated by {@code setFieldSeparator} and each line must end with a line break.
      * </p>
      * 
      * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource

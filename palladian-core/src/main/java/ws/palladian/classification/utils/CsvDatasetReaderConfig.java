@@ -54,8 +54,8 @@ public class CsvDatasetReaderConfig {
 		 *            The separator between entries, usually colon or semicolon.
 		 * @return The builder.
 		 */
-		public Builder fieldSeparator(String fieldSeparator) {
-			Validate.notEmpty(fieldSeparator, "fieldSeparator must not be empty");
+		public Builder setFieldSeparator(String fieldSeparator) {
+			Validate.notEmpty(fieldSeparator, "setFieldSeparator must not be empty");
 			this.fieldSeparator = fieldSeparator;
 			return this;
 		}
