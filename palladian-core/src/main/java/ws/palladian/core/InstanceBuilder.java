@@ -169,7 +169,7 @@ public final class InstanceBuilder {
      * @return A new (immutable) feature vector.
      */
     public FeatureVector create() {
-        return new ImmutableFeatureVector(valueMap);
+        return new ImmutableFeatureVector(new LinkedHashMap<>(valueMap));
     }
 
     /**
