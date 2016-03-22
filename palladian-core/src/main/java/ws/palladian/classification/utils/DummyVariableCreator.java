@@ -158,7 +158,7 @@ public class DummyVariableCreator implements Serializable {
                 String nominalValue = ((NominalValue)featureValue).getString();
                 Collection<String> featureDomain = domain.get(featureName);
                 if (featureDomain.isEmpty()) {
-                    LOGGER.debug("Unknown feature {} will be dropped", featureName);
+                    LOGGER.trace("Unknown feature {} will be dropped", featureName);
                 } else if (featureDomain.size() < 3) {
                     double numericValue = nominalValue.equals(CollectionHelper.getFirst(featureDomain)) ? 1 : 0;
                     builder.set(featureName, numericValue);
