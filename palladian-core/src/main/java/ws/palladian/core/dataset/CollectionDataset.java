@@ -1,8 +1,6 @@
 package ws.palladian.core.dataset;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -12,10 +10,10 @@ import ws.palladian.helper.io.CloseableIteratorAdapter;
 public class CollectionDataset extends AbstractDataset {
 
 	private final List<Instance> instances;
-	private final Set<String> featureNames;
+	private final FeatureInformation featureInformation;
 
 	public CollectionDataset(Dataset dataset) {
-		featureNames = dataset.getFeatureNames();
+		featureInformation = dataset.getFeatureInformation();
 		instances = CollectionHelper.newArrayList(dataset.iterator());
 	}
 
@@ -25,8 +23,8 @@ public class CollectionDataset extends AbstractDataset {
 	}
 
 	@Override
-	public Set<String> getFeatureNames() {
-		return Collections.unmodifiableSet(featureNames);
+	public FeatureInformation getFeatureInformation() {
+		return featureInformation;
 	}
 
 	@Override

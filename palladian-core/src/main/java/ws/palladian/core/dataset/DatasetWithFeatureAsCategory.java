@@ -1,9 +1,6 @@
 package ws.palladian.core.dataset;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import ws.palladian.core.FilteredVector;
 import ws.palladian.core.ImmutableInstance;
@@ -36,7 +33,7 @@ public class DatasetWithFeatureAsCategory extends AbstractDataset {
 		protected Instance getNext() throws AbstractIterator.Finished {
 			if (iterator.hasNext()) {
 				Instance next = iterator.next();
-				FilteredVector filteredVector = new FilteredVector(next.getVector(), featureNames);
+				FilteredVector filteredVector = new FilteredVector(next.getVector(), featureInformation.getFeatureNames());
 				Value category = next.getVector().get(featureName);
 				if (category == null) {
 					throw new IllegalArgumentException("No feature with name \"" + featureName + "\".");
@@ -59,23 +56,22 @@ public class DatasetWithFeatureAsCategory extends AbstractDataset {
 
 	private final Dataset dataset;
 	private final String featureName;
-	private final Set<String> featureNames;
+	private final FeatureInformation featureInformation;
 
 	public DatasetWithFeatureAsCategory(Dataset dataset, String featureName) {
 		this.dataset = dataset;
 		this.featureName = featureName;
-		this.featureNames = new HashSet<>(dataset.getFeatureNames());
-		this.featureNames.remove(featureName);
+		this.featureInformation = new FeatureInformationBuilder().add(dataset.getFeatureInformation()).remove(featureName).create();
 	}
 
 	@Override
 	public CloseableIterator<Instance> iterator() {
 		return new DatasetWithFeatureAsCategoryIterator(dataset.iterator());
 	}
-
+	
 	@Override
-	public Set<String> getFeatureNames() {
-		return Collections.unmodifiableSet(featureNames);
+	public FeatureInformation getFeatureInformation() {
+		return featureInformation;
 	}
 
 	@Override

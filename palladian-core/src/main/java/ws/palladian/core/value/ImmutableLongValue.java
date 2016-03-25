@@ -6,7 +6,7 @@ import ws.palladian.core.value.io.ValueParserException;
 
 public final class ImmutableLongValue extends AbstractValue implements LongValue {
 	
-	public static final ValueParser PARSER = new AbstractValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser(ImmutableLongValue.class) {
 		@Override
 		public Value parse(String input) throws ValueParserException {
 			try {

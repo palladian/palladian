@@ -23,8 +23,15 @@ public interface Dataset extends Iterable<Instance> {
 
 	/**
 	 * @return The names of the features in this dataset.
+	 * @deprecated Use {@link #getFeatureInformation()} instead.
 	 */
+	@Deprecated
 	Set<String> getFeatureNames();
+	
+	/**
+	 * @return Information about the features in this dataset.
+	 */
+	FeatureInformation getFeatureInformation();
 
 	/**
 	 * Get an estimate of the dataset's size (i.e. the number of rows). The

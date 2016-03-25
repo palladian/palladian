@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -17,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.AbstractDataset;
+import ws.palladian.core.dataset.FeatureInformation;
+import ws.palladian.core.dataset.FeatureInformationBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorSchema;
 import ws.palladian.core.value.ImmutableBooleanValue;
@@ -333,10 +334,14 @@ public class CsvDatasetReader extends AbstractDataset {
     public CloseableIterator<Instance> iterator() {
         return new CsvDatasetIterator();
     }
-
+	
 	@Override
-	public Set<String> getFeatureNames() {
-		return vectorSchema.keys();
+	public FeatureInformation getFeatureInformation() {
+		FeatureInformationBuilder builder = new FeatureInformationBuilder();
+		for (int i = 0; i < headNames.length; i++) {
+			builder.set(headNames[i], parsers[i].getType());
+		}
+		return builder.create();
 	}
 
 	@Override
