@@ -26,9 +26,9 @@ public final class DatasetManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
-    
+
     private DatasetManager() {
-        
+
     }
 
     /**
@@ -152,7 +152,7 @@ public final class DatasetManager {
 
         return indexFilename;
     }
-    
+
     /**
      * <p>
      * Create a balanced index that each class has the same number of items in the dataset.
@@ -186,8 +186,8 @@ public final class DatasetManager {
      * @param totalInstances The total number of instances.
      * @throws IOException
      */
-    public static String createIndexExcerptRandom(String indexFilePath, final String separator, final int totalInstances)
-            throws IOException {
+    public static String createIndexExcerptRandom(String indexFilePath, final String separator,
+            final int totalInstances) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -258,8 +258,8 @@ public final class DatasetManager {
      * @return The list of files used for the folds.
      * @throws IOException
      */
-    public static List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds, int numberOfInstances)
-            throws IOException {
+    public static List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds,
+            int numberOfInstances) throws IOException {
 
         List<String[]> fileSplits = new ArrayList<String[]>();
 
@@ -320,15 +320,19 @@ public final class DatasetManager {
      * @throws IOException
      */
     public static String[] splitIndex(String indexFilePath, int splitPercentage) throws IOException {
-        return splitIndex(indexFilePath, splitPercentage, " ");
+        return splitIndex(indexFilePath, splitPercentage, " ", false);
     }
 
-    public static String[] splitIndex(String indexFilePath, int splitPercentage, String separator) throws IOException {
+    public static String[] splitIndex(String indexFilePath, int splitPercentage, String separator, boolean hasHeader)
+            throws IOException {
 
         StopWatch sw = new StopWatch();
 
-        String split1Name = FileHelper.appendToFileName(indexFilePath, "_split1");
-        String split2Name = FileHelper.appendToFileName(indexFilePath, "_split2");
+        String split1Name;
+        String split2Name;
+
+        split1Name = FileHelper.appendToFileName(indexFilePath, "-train-" + splitPercentage);
+        split2Name = FileHelper.appendToFileName(indexFilePath, "-test-" + (100 - splitPercentage));
 
         FileWriter splitFile1 = new FileWriter(split1Name);
         FileWriter splitFile2 = new FileWriter(split2Name);
@@ -337,7 +341,14 @@ public final class DatasetManager {
         Map<String, Set<String>> classMap = new HashMap<>();
 
         List<String> lines = FileHelper.readFileToArray(indexFilePath);
+        int c = 0;
+        String header = "";
         for (String line : lines) {
+            c++;
+            if (hasHeader && c == 1) {
+                header = line;
+                continue;
+            }
 
             String[] parts = line.split(separator);
             Set<String> links = classMap.get(parts[1]);
@@ -348,13 +359,21 @@ public final class DatasetManager {
             } else {
                 links.add(parts[0]);
             }
+
+        }
+
+        if (hasHeader) {
+            splitFile1.write(header);
+            splitFile1.write("\n");
+            splitFile2.write(header);
+            splitFile2.write("\n");
         }
 
         // make the split
         for (Entry<String, Set<String>> entry : classMap.entrySet()) {
 
             Set<String> links = entry.getValue();
-            int maxEntriesSplit1 = (int) (links.size() * splitPercentage / (double) 100);
+            int maxEntriesSplit1 = (int)(links.size() * splitPercentage / (double)100);
             int entriesSplit1 = 0;
             for (String string : links) {
 
@@ -382,7 +401,7 @@ public final class DatasetManager {
 
         LOGGER.info("file " + indexFilePath + " splitted in " + sw.getElapsedTimeString());
 
-        return new String[] { split1Name, split2Name };
+        return new String[] {split1Name, split2Name};
     }
 
     /**
@@ -505,7 +524,7 @@ public final class DatasetManager {
         List<String> linesTraining = new ArrayList<String>();
         List<String> linesTest = new ArrayList<String>();
 
-        int trainingLines = (int) (percentageTraining * lines.size());
+        int trainingLines = (int)(percentageTraining * lines.size());
         for (int i = 0; i < lines.size(); i++) {
 
             if (i < trainingLines) {
@@ -532,7 +551,7 @@ public final class DatasetManager {
     public static Bag<String> calculateClassDistribution(final Dataset dataset) {
         return calculateClassDistribution(dataset, null);
     }
-    
+
     public static Bag<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
 
         final Bag<String> classCounts = Bag.create();
@@ -551,7 +570,7 @@ public final class DatasetManager {
         };
 
         FileHelper.performActionOnEveryLine(dataset.getPath(), la);
-        
+
         if (csvPath != null) {
             StringBuilder csv = new StringBuilder();
             for (String entry : classCounts) {
@@ -559,7 +578,7 @@ public final class DatasetManager {
             }
             FileHelper.writeToFile(csvPath, csv);
         }
-        
+
         return classCounts;
     }
 
@@ -636,7 +655,6 @@ public final class DatasetManager {
 
         return modifiedDataset;
     }
-
 
     /**
      * @param args
