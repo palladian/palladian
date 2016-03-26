@@ -1,12 +1,15 @@
 package ws.palladian.evaluation;
 
+import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.numeric.KnnClassifier;
 import ws.palladian.classification.numeric.KnnLearner;
 import ws.palladian.classification.quickml.QuickMlClassifier;
 import ws.palladian.classification.quickml.QuickMlLearner;
+import ws.palladian.classification.text.*;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
+import ws.palladian.classifiers.PalladianDictionaryClassifier;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.dataset.ImageDataset;
@@ -78,7 +81,7 @@ public class Evaluator {
                     instanceBuilder.add(extractor.extract(imageValue.getImage()));
                 } catch (Exception e) {
                     // FIXME
-                    System.err.println("problem with file "  + imagePath);
+                    System.err.println("problem with file " + imagePath);
                 }
             }
             synchronized (writer) {
@@ -132,11 +135,51 @@ public class Evaluator {
         }
     }
 
-    public static void main(String[] args) throws IOException, JsonException {
+    public static void evaluateTrainTestSplits() throws IOException, JsonException {
+        List<FeatureExtractor> extractors = new ArrayList<>();
+        extractors.add(BlockCodeExtractor.BLOCK_CODE);
+        Filter<String> blockCodeFeatures = regex("text");
 
         ImageDataset imageDataset = new ImageDataset(new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
 
-        ColorExtractor[] colorExtractors = new ColorExtractor[] { LUMINOSITY, RED, GREEN, BLUE, HUE, SATURATION, BRIGHTNESS };
+        File resultDirectory = new File(imageDataset.getBasePath() + "results-" + DateHelper.getCurrentDatetime());
+
+        // for 10% to 90% training data
+        for (int i = 10; i <= 90; i+=10) {
+            DatasetManager.splitIndex(imageDataset.getBasePath() + "index.txt", i, imageDataset.getSeparator(), true);
+
+            imageDataset.setTrainFilePath("train-" + i + ".txt");
+            imageDataset.setTrainFilePath("test-" + (100 - i) + ".txt");
+
+            //// read training data and create features
+            extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
+
+            //// read test data and create features
+            extractFeatures(extractors, imageDataset, ImageDataset.TEST);
+
+            // train and test
+            CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTrainFeaturesFile());
+            csvConfigBuilder.setFieldSeparator(";");
+            Iterable<Instance> trainingInstances = csvConfigBuilder.create();
+            csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTestFeaturesFile());
+            Iterable<Instance> testingInstances = csvConfigBuilder.create();
+
+
+            Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
+            List<Filter<String>> smallList = asList(blockCodeFeatures);
+            experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+        }
+
+    }
+
+    public static void main(String[] args) throws IOException, JsonException {
+
+//        evaluateTrainTestSplits();
+//        System.exit(0);
+
+        ImageDataset imageDataset = new ImageDataset(new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
+
+        ColorExtractor[] colorExtractors = new ColorExtractor[]{LUMINOSITY, RED, GREEN, BLUE, HUE, SATURATION, BRIGHTNESS};
         List<FeatureExtractor> extractors = new ArrayList<>();
         extractors.add(new StatisticsFeatureExtractor(colorExtractors));
         extractors.add(new LocalFeatureExtractor(2, new StatisticsFeatureExtractor(colorExtractors)));
@@ -152,6 +195,9 @@ public class Evaluator {
         extractors.add(new GridSimilarityExtractor(4));
         // extractors.add(new GridSimilarityExtractor(5));
         extractors.add(EDGINESS);
+
+        extractors.clear();
+        extractors.add(BlockCodeExtractor.BLOCK_CODE);
 
         //// read training data and create features
 //        extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
@@ -179,17 +225,32 @@ public class Evaluator {
         Filter<String> local4StatisticsFeatures = regex("cell-\\d/4.*");
         Filter<String> local9StatisticsFeatures = regex("cell-\\d/9.*");
         Filter<String> symmetryFeatures = regex("symmetry-.*");
+        Filter<String> edginessFeatures = regex("edginess-.*");
         Filter<String> regionFeatures = regex(".*_region.*");
         Filter<String> frequencyFeatures = regex("frequency-.*");
         Filter<String> gridFeatures = regex("4x4-similarity_.*");
+        Filter<String> blockCodeFeatures = regex("text");
 
-        Filter<String> allQuantitativeFeatures = or(boundsFeatures, colorFeatures, statisticsFeatures, symmetryFeatures, local4StatisticsFeatures, local9StatisticsFeatures, regionFeatures, frequencyFeatures, gridFeatures);
-        Filter<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
-        List<Filter<String>> allCombinations = asList(surfFeatures, siftFeatures, boundsFeatures, colorFeatures, statisticsFeatures, symmetryFeatures, regionFeatures, frequencyFeatures, gridFeatures, allQuantitativeFeatures, allFeatures);
+        Filter<String> allQuantitativeFeatures = or(colorFeatures, statisticsFeatures, symmetryFeatures, local4StatisticsFeatures, local9StatisticsFeatures, regionFeatures, edginessFeatures, frequencyFeatures, gridFeatures);
+//        Filter<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
+        List<Filter<String>> allCombinations = asList(colorFeatures, statisticsFeatures, symmetryFeatures, regionFeatures, frequencyFeatures, gridFeatures, allQuantitativeFeatures);
 
-        List<Filter<String>> smallList = asList(colorFeatures);
+//        List<Filter<String>> smallList = asList(colorFeatures,statisticsFeatures);
+//        List<Filter<String>> smallList = asList(allQuantitativeFeatures);
+        List<Filter<String>> smallList = asList(blockCodeFeatures);
 
-        experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), smallList);
+//        experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), smallList);
+//        experimenter.addClassifier(new PalladianDictionaryClassifier(), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 7).create()), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.COMPLEMENT, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 2).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 4).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 5).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.COMPLEMENT,BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.COMPLEMENT,BayesScorer.Options.LAPLACE)), smallList);
 //		experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), smallList);
 //        experimenter.addClassifier(new KnnLearner(), new KnnClassifier(), smallList);
 //		experimenter.addClassifier(new ZeroRLearner(), new ZeroRClassifier(), asList(Filters.NONE));
