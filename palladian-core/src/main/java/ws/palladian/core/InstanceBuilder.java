@@ -9,6 +9,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.value.ImmutableBooleanValue;
 import ws.palladian.core.value.ImmutableDoubleValue;
+import ws.palladian.core.value.ImmutableIntegerValue;
 import ws.palladian.core.value.ImmutableLongValue;
 import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.ImmutableTextValue;
@@ -49,9 +50,25 @@ public final class InstanceBuilder {
      */
     public InstanceBuilder set(String name, long value) {
     	Validate.notEmpty(name, "name must not be empty");
-    	valueMap.put(name, new ImmutableLongValue(value));
+    	valueMap.put(name, ImmutableLongValue.valueOf(value));
     	return this;
-    }
+	}
+
+	/**
+	 * Set an integer value (overwrite an existing value with the same name, in
+	 * case it exists).
+	 * 
+	 * @param name
+	 *            Name of the value to set, not <code>null</code> or empty.
+	 * @param value
+	 *            Value to set.
+	 * @return The builder instance for method chaining.
+	 */
+	public InstanceBuilder set(String name, int value) {
+		Validate.notEmpty(name, "name must not be empty");
+		valueMap.put(name, ImmutableIntegerValue.valueOf(value));
+		return this;
+	}
 
     /**
      * Set a String value (overwrite an existing value with the same name, in case it exists).
@@ -152,7 +169,7 @@ public final class InstanceBuilder {
      * @return A new (immutable) feature vector.
      */
     public FeatureVector create() {
-        return new ImmutableFeatureVector(valueMap);
+        return new ImmutableFeatureVector(new LinkedHashMap<>(valueMap));
     }
 
     /**

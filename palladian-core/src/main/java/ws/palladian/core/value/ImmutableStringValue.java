@@ -2,19 +2,15 @@ package ws.palladian.core.value;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.value.io.AbstractValueParser;
 import ws.palladian.core.value.io.ValueParser;
 
 public final class ImmutableStringValue extends AbstractValue implements NominalValue {
 	
-	public static final ValueParser PARSER = new ValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser(ImmutableStringValue.class) {
 		@Override
 		public Value parse(String input) {
 			return new ImmutableStringValue(input);
-		}
-
-		@Override
-		public boolean canParse(String input) {
-			return true;
 		}
 	};
 

@@ -34,5 +34,10 @@ public interface ValueParser {
 	 * @return <code>true</code> in case this parser can handle the given value.
 	 */
 	boolean canParse(String input);
+	
+	/**
+	 * @return The type of the value.
+	 */
+	Class<? extends Value> getType();
 
 }

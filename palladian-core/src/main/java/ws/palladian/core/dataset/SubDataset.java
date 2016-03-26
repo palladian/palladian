@@ -1,7 +1,6 @@
 package ws.palladian.core.dataset;
 
 import java.io.IOException;
-import java.util.Set;
 
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -52,8 +51,8 @@ class SubDataset extends AbstractDataset {
 	}
 
 	@Override
-	public Set<String> getFeatureNames() {
-		return dataset.getFeatureNames();
+	public FeatureInformation getFeatureInformation() {
+		return dataset.getFeatureInformation();
 	}
 
 	@Override

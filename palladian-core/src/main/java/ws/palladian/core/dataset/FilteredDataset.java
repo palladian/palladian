@@ -1,15 +1,12 @@
 package ws.palladian.core.dataset;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.FilteredVector;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.CloseableIterator;
 
@@ -34,7 +31,7 @@ public class FilteredDataset extends AbstractDataset {
 		protected Instance getNext() throws Finished {
 			if (original.hasNext()) {
 				Instance current = original.next();
-				FeatureVector filteredVector = new FilteredVector(current.getVector(), filteredNames);
+				FeatureVector filteredVector = new FilteredVector(current.getVector(), featureInformation.getFeatureNames());
 				return new ImmutableInstance(filteredVector, current.getCategory());
 			}
 			throw FINISHED;
@@ -44,21 +41,21 @@ public class FilteredDataset extends AbstractDataset {
 
 	private final Dataset original;
 
-	private final Set<String> filteredNames;
+	private final FeatureInformation featureInformation;
 
 	public FilteredDataset(Dataset original, Filter<? super String> filteredFeatures) {
 		this.original = original;
-		this.filteredNames = CollectionHelper.filterSet(original.getFeatureNames(), filteredFeatures);
+		this.featureInformation = new FeatureInformationBuilder().add(original.getFeatureInformation()).filter(filteredFeatures).create();
 	}
 
 	@Override
 	public CloseableIterator<Instance> iterator() {
 		return new FilteredDatasetIterator();
 	}
-
+	
 	@Override
-	public Set<String> getFeatureNames() {
-		return Collections.unmodifiableSet(filteredNames);
+	public FeatureInformation getFeatureInformation() {
+		return featureInformation;
 	}
 
 	@Override
