@@ -1,7 +1,8 @@
 package ws.palladian.classification.zeror;
 
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.collection.Bag;
 
 /**
@@ -12,12 +13,12 @@ import ws.palladian.helper.collection.Bag;
  * @author Philipp Katz
  * @see <a href="http://www.saedsayad.com/zeror.htm">ZeroR</a>
  */
-public final class ZeroRLearner implements Learner<ZeroRModel> {
+public final class ZeroRLearner extends AbstractLearner<ZeroRModel> {
 
     @Override
-    public ZeroRModel train(Iterable<? extends Instance> instances) {
+    public ZeroRModel train(Dataset dataset) {
         Bag<String> categoryCounts = Bag.create();
-        for (Instance trainingInstance : instances) {
+        for (Instance trainingInstance : dataset) {
             categoryCounts.add(trainingInstance.getCategory());
         }
         return new ZeroRModel(categoryCounts);

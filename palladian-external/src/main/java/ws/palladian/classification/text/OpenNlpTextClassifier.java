@@ -17,13 +17,14 @@ import opennlp.tools.util.ObjectStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.constants.Language;
 
@@ -32,7 +33,7 @@ import ws.palladian.helper.constants.Language;
  * 
  * @author Philipp Katz
  */
-public final class OpenNlpTextClassifier implements Learner<OpenNlpTextClassifier.OpenNlpTextClassifierModel>,
+public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClassifier.OpenNlpTextClassifierModel> implements
         Classifier<OpenNlpTextClassifier.OpenNlpTextClassifierModel> {
 
     private static final class InstanceObjectStream implements ObjectStream<DocumentSample> {
@@ -131,9 +132,9 @@ public final class OpenNlpTextClassifier implements Learner<OpenNlpTextClassifie
     }
 
     @Override
-    public OpenNlpTextClassifierModel train(Iterable<? extends Instance> instances) {
+    public OpenNlpTextClassifierModel train(Dataset dataset) {
         try {
-            ObjectStream<DocumentSample> samples = new InstanceObjectStream(instances.iterator());
+            ObjectStream<DocumentSample> samples = new InstanceObjectStream(dataset.iterator());
             DoccatModel model = DocumentCategorizerME.train(language != null ? language.getIso6391()
                     : StringUtils.EMPTY, samples, DEFAULT_CUTOFF, DEFAULT_ITERATIONS, featureGenerator);
             return new OpenNlpTextClassifierModel(model, featureGenerator.getClass().getName());

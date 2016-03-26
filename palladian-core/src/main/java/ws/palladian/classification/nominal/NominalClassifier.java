@@ -2,12 +2,13 @@ package ws.palladian.classification.nominal;
 
 import java.util.Set;
 
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CountMatrix;
@@ -17,14 +18,14 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NominalClassifier implements Learner<NominalClassifierModel>, Classifier<NominalClassifierModel> {
+public final class NominalClassifier extends AbstractLearner<NominalClassifierModel> implements Classifier<NominalClassifierModel> {
 
     @Override
-    public NominalClassifierModel train(Iterable<? extends Instance> instances) {
+    public NominalClassifierModel train(Dataset dataset) {
 
         CountMatrix<String> cooccurrenceMatrix = CountMatrix.create();
 
-        for (Instance instance : instances) {
+        for (Instance instance : dataset) {
             String categoryName = instance.getCategory();
             FeatureVector featureVector = instance.getVector();
             for (VectorEntry<String, Value> entry : featureVector) {

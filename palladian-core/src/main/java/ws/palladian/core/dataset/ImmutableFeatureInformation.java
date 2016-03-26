@@ -58,5 +58,26 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 			}
 		};
 	}
+	
+	@Override
+	public int count() {
+		return nameValues.size();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("FeatureInformation: ");
+		boolean first = true;
+		for (FeatureInformation.FeatureInformationEntry entry : this) {
+			if (first) {
+				first = false;
+			} else {
+				builder.append(", ");
+			}
+			builder.append(entry.getName()).append(':').append(entry.getType().getSimpleName());
+		}
+		return builder.toString();
+	}
 
 }
