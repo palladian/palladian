@@ -338,7 +338,8 @@ public class CsvDatasetReader extends AbstractDataset {
 	@Override
 	public FeatureInformation getFeatureInformation() {
 		FeatureInformationBuilder builder = new FeatureInformationBuilder();
-		for (int i = 0; i < headNames.length; i++) {
+		int numValues = config.readClassFromLastColumn() ? headNames.length-1 : headNames.length;
+		for (int i = 0; i < numValues; i++) {
 			builder.set(headNames[i], parsers[i].getType());
 		}
 		return builder.create();
