@@ -4,6 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import ws.palladian.core.Instance;
+import ws.palladian.helper.functional.Factories;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 
 public abstract class AbstractDataset implements Dataset {
@@ -17,7 +19,13 @@ public abstract class AbstractDataset implements Dataset {
 	@Override
 	public Dataset subset(Filter<? super Instance> instanceFilter) {
 		Objects.requireNonNull(instanceFilter, "instanceFilter must not be null");
-		return new SubDataset(this, instanceFilter);
+		return new SubDataset(this, Factories.constant(instanceFilter));
+	}
+	
+	@Override
+	public Dataset subset(Factory<? extends Filter<? super Instance>> instanceFilterFactory) {
+		Objects.requireNonNull(instanceFilterFactory, "instanceFilterFactory must not be null");
+		return new SubDataset(this, instanceFilterFactory);
 	}
 	
 	@Override
