@@ -56,7 +56,7 @@ public class Evaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
 //    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
-    private static final int NUM_THREADS = 4;
+    private static final int NUM_THREADS = 6;
 
     private static final class FeatureExtractionTask implements Runnable {
 
@@ -251,6 +251,9 @@ public class Evaluator {
                                                 new BayesScorer(BayesScorer.Options.FREQUENCIES,
                                                         BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
                                 smallList);
+
+                        experimenter.setDescription("Number of colors: " + numberOfColor + ", pixelation size: " + pixelationSize + ", block size: " + blockSize + ", image sections: " + imageSection);
+
                         experimenter.run();
                         c++;
                     }

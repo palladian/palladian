@@ -33,7 +33,7 @@ import static ws.palladian.classification.utils.ClassificationUtils.useFeatureAs
  * @author David Urbansky
  */
 public class Experimenter {
-	
+
 	private static final class Experiment {
 		final ClassifierCombination<?> classifierCombination;
 		final Collection<? extends Filter<? super String>> featureSets;
@@ -49,6 +49,9 @@ public class Experimenter {
 	private final Iterable<Instance> training;
 
 	private final Iterable<Instance> testing;
+
+    /** Describe the experiments. */
+    private String description;
 
 	private final File resultsDirectory;
 
@@ -81,7 +84,7 @@ public class Experimenter {
 	 *            The transformer for the features.
 	 * @return This instance.
 	 */
-	public Experimenter withTransformer(Function<Instance, Instance> transformer) {
+	public Experimenter addTransformer(Function<Instance, Instance> transformer) {
 		transformers.add(transformer);
 		return this;
 	}
@@ -157,7 +160,15 @@ public class Experimenter {
 		return numCombinations;
 	}
 
-	private void runExpriments(ProgressReporter progress, String classLabel, Iterable<Instance> classTraining,
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    private void runExpriments(ProgressReporter progress, String classLabel, Iterable<Instance> classTraining,
 			Iterable<Instance> classTesting, boolean dryRun) {
 		for (Experiment experiment : experiments) {
 			if (dryRun) {
@@ -192,6 +203,7 @@ public class Experimenter {
 					result.append("Features:    ").append(featureNames.size()).append('\n');
 					result.append("Filter:      ").append(featureSet).append('\n');
 					result.append("Transformer: ").append(transformer).append('\n');
+					result.append("Description: ").append(getDescription()).append('\n');
 					result.append('\n');
 					for (String featureName : featureNames) {
 						result.append(featureName).append('\n');
@@ -223,7 +235,11 @@ public class Experimenter {
 					File summaryCsv = new File(resultsDirectory, "_summary.csv");
 					StringBuilder csvResult = new StringBuilder();
 					if (!summaryCsv.exists()) {
-						csvResult.append("classLabel;details;learner;classifier;featureSet;numFeatures;transformer;timeTraining;timeTesting;precision;recall;f1;accuracy;superiority;matthewsCorrelationCoefficient;rocAuc\n");
+						csvResult.append("classLabel;details;learner;classifier;featureSet;numFeatures;transformer;timeTraining;timeTesting;precision;recall;f1;accuracy;superiority");
+                        if (evaluationResult.getModel().getCategories().size() == 2) {
+                            csvResult.append(";matthewsCorrelationCoefficient;rocAuc");
+                        }
+                        csvResult.append("\n");
 					}
 					csvResult.append(classLabel).append(';');
 					csvResult.append(resultFile.getName()).append(';');
