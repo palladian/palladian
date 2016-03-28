@@ -1,5 +1,8 @@
 package ws.palladian.evaluation;
 
+import com.sun.scenario.effect.ImageData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ws.palladian.classification.DatasetManager;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
@@ -12,6 +15,7 @@ import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.classifiers.PalladianDictionaryClassifier;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.value.ImmutableTextValue;
 import ws.palladian.dataset.ImageDataset;
 import ws.palladian.dataset.ImageValue;
 import ws.palladian.features.*;
@@ -53,6 +57,9 @@ import static ws.palladian.features.RegionFeatureExtractor.*;
  */
 public class Evaluator {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
+
     private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
 
     private static final class FeatureExtractionTask implements Runnable {
@@ -63,7 +70,8 @@ public class Evaluator {
         private final CsvDatasetWriter writer;
         private final ProgressReporter progressMonitor;
 
-        FeatureExtractionTask(Instance instance, Collection<FeatureExtractor> extractors, CsvDatasetWriter writer, String basePath, ProgressReporter progressMonitor) {
+        FeatureExtractionTask(Instance instance, Collection<FeatureExtractor> extractors, CsvDatasetWriter writer,
+                String basePath, ProgressReporter progressMonitor) {
             this.instance = instance;
             this.extractors = extractors;
             this.writer = writer;
@@ -106,7 +114,6 @@ public class Evaluator {
 
         File csvOutput = new File(imageDataset.getBasePath() + stringType + "-features.csv");
 
-
         CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig.filePath(file);
         csvConfigBuilder.setFieldSeparator(imageDataset.getSeparator());
         Iterable<Instance> instances = csvConfigBuilder.create();
@@ -114,8 +121,8 @@ public class Evaluator {
         extractFeatures(instances, csvOutput, extractors, imageDataset.getBasePath());
     }
 
-    public static void extractFeatures(Iterable<Instance> instances, File csvOutput, Collection<FeatureExtractor> extractors, String basePath)
-            throws IOException {
+    public static void extractFeatures(Iterable<Instance> instances, File csvOutput,
+            Collection<FeatureExtractor> extractors, String basePath) throws IOException {
 
         FileHelper.delete(csvOutput);
 
@@ -137,15 +144,16 @@ public class Evaluator {
 
     public static void evaluateTrainTestSplits() throws IOException, JsonException {
         List<FeatureExtractor> extractors = new ArrayList<>();
-        extractors.add(BlockCodeExtractor.BLOCK_CODE);
+        extractors.add(new BlockCodeExtractor());
         Filter<String> blockCodeFeatures = regex("text");
 
-        ImageDataset imageDataset = new ImageDataset(new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
+        ImageDataset imageDataset = new ImageDataset(
+                new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
 
         File resultDirectory = new File(imageDataset.getBasePath() + "results-" + DateHelper.getCurrentDatetime());
 
         // for 10% to 90% training data
-        for (int i = 10; i <= 90; i+=10) {
+        for (int i = 10; i <= 90; i += 10) {
             DatasetManager.splitIndex(imageDataset.getBasePath() + "index.txt", i, imageDataset.getSeparator(), true);
 
             imageDataset.setTrainFilePath("train-" + i + ".txt");
@@ -158,28 +166,120 @@ public class Evaluator {
             extractFeatures(extractors, imageDataset, ImageDataset.TEST);
 
             // train and test
-            CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTrainFeaturesFile());
+            CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig
+                    .filePath(imageDataset.getTrainFeaturesFile());
             csvConfigBuilder.setFieldSeparator(";");
+            csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
             Iterable<Instance> trainingInstances = csvConfigBuilder.create();
             csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTestFeaturesFile());
+            csvConfigBuilder.setFieldSeparator(";");
+            csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
             Iterable<Instance> testingInstances = csvConfigBuilder.create();
-
 
             Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
             List<Filter<String>> smallList = asList(blockCodeFeatures);
-            experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
+            experimenter.addClassifier(
+                    new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(
+                            BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+                    smallList);
+        }
+
+    }
+
+    /**
+     * Run multiple block code configurations to see what works best.
+     */
+    public static void runBlockCodeExperiments(ImageDataset imageDataset) throws IOException, JsonException {
+
+        Filter<String> blockCodeFeatures = regex("text");
+
+        File resultDirectory = new File(
+                imageDataset.getBasePath() + "blockcode-evaluation-results-" + DateHelper.getCurrentDatetime());
+
+        // number of colors we want to normalize the image to
+        BlockCodeExtractor.Colors[] numberOfColors = BlockCodeExtractor.Colors.values();
+
+        // number of pixels to cluster when pixelating the image
+        int[] pixelationSizes = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        // block size in pixels. This is basically the word size
+        BlockCodeExtractor.BlockSize[] blockSizes = new BlockCodeExtractor.BlockSize[] {
+                BlockCodeExtractor.BlockSize.TWO_BY_TWO, BlockCodeExtractor.BlockSize.THREE_BY_THREE};
+
+        // image sections. Has to be a square number starting with 4
+        BlockCodeExtractor.BlockSize[] imageSections = BlockCodeExtractor.BlockSize.values();
+
+        int combinations = numberOfColors.length * pixelationSizes.length * blockSizes.length * imageSections.length;
+
+        LOGGER.info("block code experiments with " + combinations + " combinations");
+
+        int c = 1;
+        for (BlockCodeExtractor.Colors numberOfColor : numberOfColors) {
+            for (int pixelationSize : pixelationSizes) {
+                for (BlockCodeExtractor.BlockSize blockSize : blockSizes) {
+                    for (BlockCodeExtractor.BlockSize imageSection : imageSections) {
+
+                        LOGGER.info("======================== running combination " + c + "/" + combinations
+                                + " ========================");
+
+                        BlockCodeExtractor blockCodeExtractor = new BlockCodeExtractor(numberOfColor, pixelationSize,
+                                blockSize, imageSection);
+                        List<FeatureExtractor> extractors = new ArrayList<>();
+                        extractors.add(blockCodeExtractor);
+
+                        //// read training data and create features
+                        extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
+
+                        //// read test data and create features
+                        extractFeatures(extractors, imageDataset, ImageDataset.TEST);
+
+                        // train and test
+                        CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig
+                                .filePath(imageDataset.getTrainFeaturesFile());
+                        csvConfigBuilder.setFieldSeparator(";");
+                        csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
+                        Iterable<Instance> trainingInstances = csvConfigBuilder.create();
+                        csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTestFeaturesFile());
+                        csvConfigBuilder.setFieldSeparator(";");
+                        csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
+                        Iterable<Instance> testingInstances = csvConfigBuilder.create();
+
+                        Experimenter experimenter = new Experimenter(trainingInstances, testingInstances,
+                                resultDirectory);
+                        List<Filter<String>> smallList = asList(blockCodeFeatures);
+                        experimenter.addClassifier(
+                                new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
+                        experimenter
+                                .addClassifier(
+                                        new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(),
+                                                new BayesScorer(BayesScorer.Options.FREQUENCIES,
+                                                        BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+                                smallList);
+                        experimenter.run();
+                        c++;
+                    }
+                }
+            }
         }
 
     }
 
     public static void main(String[] args) throws IOException, JsonException {
 
-//        evaluateTrainTestSplits();
-//        System.exit(0);
+        String datasetPath = "E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json";
 
-        ImageDataset imageDataset = new ImageDataset(new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
+        if (args.length > 0) {
+            datasetPath = args[0];
+        }
 
-        ColorExtractor[] colorExtractors = new ColorExtractor[]{LUMINOSITY, RED, GREEN, BLUE, HUE, SATURATION, BRIGHTNESS};
+        ImageDataset imageDataset = new ImageDataset(new File(datasetPath));
+
+        // evaluateTrainTestSplits();
+        runBlockCodeExperiments(imageDataset);
+        System.exit(0);
+
+        ColorExtractor[] colorExtractors = new ColorExtractor[] {LUMINOSITY, RED, GREEN, BLUE, HUE, SATURATION,
+                BRIGHTNESS};
         List<FeatureExtractor> extractors = new ArrayList<>();
         extractors.add(new StatisticsFeatureExtractor(colorExtractors));
         extractors.add(new LocalFeatureExtractor(2, new StatisticsFeatureExtractor(colorExtractors)));
@@ -197,21 +297,24 @@ public class Evaluator {
         extractors.add(EDGINESS);
 
         extractors.clear();
-        extractors.add(BlockCodeExtractor.BLOCK_CODE);
+        extractors.add(new BlockCodeExtractor());
 
         //// read training data and create features
-//        extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
+        extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
 
         //// read test data and create features
-//        extractFeatures(extractors, imageDataset, ImageDataset.TEST);
+        extractFeatures(extractors, imageDataset, ImageDataset.TEST);
 
-//        System.exit(0);
+        // System.exit(0);
 
         // train and test
-        CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTrainFeaturesFile());
+        CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig
+                .filePath(imageDataset.getTrainFeaturesFile());
+        csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
         csvConfigBuilder.setFieldSeparator(";");
         Iterable<Instance> trainingInstances = csvConfigBuilder.create();
         csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTestFeaturesFile());
+        csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
         Iterable<Instance> testingInstances = csvConfigBuilder.create();
 
         File resultDirectory = new File(imageDataset.getBasePath() + "results-" + DateHelper.getCurrentDatetime());
@@ -221,7 +324,8 @@ public class Evaluator {
         Filter<String> siftFeatures = regex("SIFT.*");
         Filter<String> boundsFeatures = regex("width|height|ratio");
         Filter<String> colorFeatures = regex("main_color.*");
-        Filter<String> statisticsFeatures = regex("(?!(cell|4x4)-).*_(max|mean|min|range|stdDev|relStdDev|sum|count|\\d{2}-percentile)");
+        Filter<String> statisticsFeatures = regex(
+                "(?!(cell|4x4)-).*_(max|mean|min|range|stdDev|relStdDev|sum|count|\\d{2}-percentile)");
         Filter<String> local4StatisticsFeatures = regex("cell-\\d/4.*");
         Filter<String> local9StatisticsFeatures = regex("cell-\\d/9.*");
         Filter<String> symmetryFeatures = regex("symmetry-.*");
@@ -231,31 +335,52 @@ public class Evaluator {
         Filter<String> gridFeatures = regex("4x4-similarity_.*");
         Filter<String> blockCodeFeatures = regex("text");
 
-        Filter<String> allQuantitativeFeatures = or(colorFeatures, statisticsFeatures, symmetryFeatures, local4StatisticsFeatures, local9StatisticsFeatures, regionFeatures, edginessFeatures, frequencyFeatures, gridFeatures);
-//        Filter<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
-        List<Filter<String>> allCombinations = asList(colorFeatures, statisticsFeatures, symmetryFeatures, regionFeatures, frequencyFeatures, gridFeatures, allQuantitativeFeatures);
+        Filter<String> allQuantitativeFeatures = or(colorFeatures, statisticsFeatures, symmetryFeatures,
+                local4StatisticsFeatures, local9StatisticsFeatures, regionFeatures, edginessFeatures, frequencyFeatures,
+                gridFeatures);
+        // Filter<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
+        List<Filter<String>> allCombinations = asList(colorFeatures, statisticsFeatures, symmetryFeatures,
+                regionFeatures, frequencyFeatures, gridFeatures, allQuantitativeFeatures);
 
-//        List<Filter<String>> smallList = asList(colorFeatures,statisticsFeatures);
-//        List<Filter<String>> smallList = asList(allQuantitativeFeatures);
+        // List<Filter<String>> smallList = asList(colorFeatures,statisticsFeatures);
+        // List<Filter<String>> smallList = asList(allQuantitativeFeatures);
         List<Filter<String>> smallList = asList(blockCodeFeatures);
 
-//        experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), smallList);
-//        experimenter.addClassifier(new PalladianDictionaryClassifier(), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 7).create()), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.COMPLEMENT, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 2).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
-        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 4).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 5).create(), new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.COMPLEMENT,BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
-//        experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(BayesScorer.Options.COMPLEMENT,BayesScorer.Options.LAPLACE)), smallList);
-//		experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), smallList);
-//        experimenter.addClassifier(new KnnLearner(), new KnnClassifier(), smallList);
-//		experimenter.addClassifier(new ZeroRLearner(), new ZeroRClassifier(), asList(Filters.NONE));
-//		experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), allCombinations);
-//		experimenter.addClassifier(QuickMlLearner.tree(), new QuickMlClassifier(), allCombinations);
+        // experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), smallList);
+        // experimenter.addClassifier(new PalladianDictionaryClassifier(), smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()),
+        // smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 7).create()),
+        // smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new
+        // BayesScorer(BayesScorer.Options.COMPLEMENT, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+        // smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1).create(), new
+        // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+        // smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 2).create(), new
+        // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+        // smallList);
+        experimenter.addClassifier(
+                new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(
+                        BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+                smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 4).create(), new
+        // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+        // smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 5).create(), new
+        // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+        // smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new
+        // BayesScorer(BayesScorer.Options.COMPLEMENT,BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE,
+        // BayesScorer.Options.PRIORS)), smallList);
+        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new
+        // BayesScorer(BayesScorer.Options.COMPLEMENT,BayesScorer.Options.LAPLACE)), smallList);
+        // experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), smallList);
+        // experimenter.addClassifier(new KnnLearner(), new KnnClassifier(), smallList);
+        // experimenter.addClassifier(new ZeroRLearner(), new ZeroRClassifier(), asList(Filters.NONE));
+        // experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), allCombinations);
+        // experimenter.addClassifier(QuickMlLearner.tree(), new QuickMlClassifier(), allCombinations);
 
         experimenter.run();
     }
