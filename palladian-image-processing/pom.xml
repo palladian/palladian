@@ -66,6 +66,7 @@
 						<classpath />
 						<!-- allow passing main class as CLI argument, same as in exec:java -->
 						<argument>${exec.mainClass}</argument>
+						<argument>${exec.args}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
