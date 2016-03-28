@@ -1,18 +1,34 @@
 package ws.palladian.evaluation;
 
-import com.sun.scenario.effect.ImageData;
+import static java.util.Arrays.asList;
+import static ws.palladian.features.BoundsFeatureExtractor.BOUNDS;
+import static ws.palladian.features.ColorFeatureExtractor.COLOR;
+import static ws.palladian.features.EdginessFeatureExtractor.EDGINESS;
+import static ws.palladian.features.FrequencyFeatureExtractor.FREQUENCY;
+import static ws.palladian.features.RegionFeatureExtractor.REGION;
+import static ws.palladian.features.color.HSB.*;
+import static ws.palladian.features.color.Luminosity.LUMINOSITY;
+import static ws.palladian.features.color.RGB.*;
+import static ws.palladian.helper.functional.Filters.or;
+import static ws.palladian.helper.functional.Filters.regex;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.classification.DatasetManager;
-import ws.palladian.classification.nb.NaiveBayesClassifier;
-import ws.palladian.classification.nb.NaiveBayesLearner;
-import ws.palladian.classification.numeric.KnnClassifier;
-import ws.palladian.classification.numeric.KnnLearner;
-import ws.palladian.classification.quickml.QuickMlClassifier;
-import ws.palladian.classification.quickml.QuickMlLearner;
-import ws.palladian.classification.text.*;
+import ws.palladian.classification.text.BayesScorer;
+import ws.palladian.classification.text.FeatureSettingBuilder;
+import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
-import ws.palladian.classifiers.PalladianDictionaryClassifier;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.value.ImmutableTextValue;
@@ -28,27 +44,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.utils.CsvDatasetWriter;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import static java.util.Arrays.asList;
-import static ws.palladian.helper.functional.Filters.or;
-import static ws.palladian.helper.functional.Filters.regex;
-import static ws.palladian.features.color.Luminosity.LUMINOSITY;
-import static ws.palladian.features.color.RGB.*;
-import static ws.palladian.features.color.HSB.*;
-import static ws.palladian.features.ColorFeatureExtractor.*;
-import static ws.palladian.features.BoundsFeatureExtractor.*;
-import static ws.palladian.features.EdginessFeatureExtractor.*;
-import static ws.palladian.features.FrequencyFeatureExtractor.*;
-import static ws.palladian.features.RegionFeatureExtractor.*;
-
 /**
  * Take a dataset and evaluate.
  *
@@ -60,7 +55,8 @@ public class Evaluator {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
-    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
+//    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
+    private static final int NUM_THREADS = 4;
 
     private static final class FeatureExtractionTask implements Runnable {
 
@@ -89,7 +85,7 @@ public class Evaluator {
                     instanceBuilder.add(extractor.extract(imageValue.getImage()));
                 } catch (Exception e) {
                     // FIXME
-                    System.err.println("problem with file " + imagePath);
+                    System.err.println("problem with file " + imagePath + ", base path: " + basePath);
                 }
             }
             synchronized (writer) {
