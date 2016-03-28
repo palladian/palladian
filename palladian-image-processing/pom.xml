@@ -28,6 +28,47 @@
 					<configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19.1</version>
+				<configuration>
+					<argLine>-Xmx10G -Xss1G</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<executable>java</executable>
+					<arguments>
+						<argument>-Xmx10G</argument>
+						<!-- stack size for flood fill -->
+						<argument>-Xss1G</argument>
+						<argument>-classpath</argument>
+						<classpath />
+						<!-- allow passing main class as CLI argument, same as in exec:java -->
+						<argument>${exec.mainClass}</argument>
+					</arguments>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
