@@ -89,6 +89,17 @@ public class PalladianTextClassifierIT {
     }
 
     @Test
+    public void test20NewsgroupsWord2() {
+    	String trainFile = config.getString("dataset.20newsgroups.split1");
+    	String testFile = config.getString("dataset.20newsgroups.split2");
+    	ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
+    	FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).createSkipGrams().create();
+    	assertAccuracy(trainFile, testFile, featureSetting, 0.91, new DefaultScorer());
+    	// without skip grams: 0.9052599666515082
+    	// skip grams: 0.9104138244656662
+    }
+
+    @Test
     public void test20NewsgroupsWord_Bayes() {
         String trainFile = config.getString("dataset.20newsgroups.split1");
         String testFile = config.getString("dataset.20newsgroups.split2");

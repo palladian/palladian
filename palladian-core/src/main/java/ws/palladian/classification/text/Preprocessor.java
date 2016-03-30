@@ -41,6 +41,9 @@ public class Preprocessor implements Function<String, Iterator<String>> {
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
             tokenIterator = new WordTokenizer().iterateTokens(content);
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
+            if (featureSetting.isCreateSkipGrams()) {
+            	tokenIterator = new SkipGramWrapperIterator(tokenIterator);
+            }
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
