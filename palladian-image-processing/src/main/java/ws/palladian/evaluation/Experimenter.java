@@ -235,7 +235,7 @@ public class Experimenter {
 					File summaryCsv = new File(resultsDirectory, "_summary.csv");
 					StringBuilder csvResult = new StringBuilder();
 					if (!summaryCsv.exists()) {
-						csvResult.append("classLabel;details;learner;classifier;featureSet;numFeatures;transformer;timeTraining;timeTesting;precision;recall;f1;accuracy;superiority");
+						csvResult.append("classLabel;details;learner;classifier;featureSet;description;numFeatures;transformer;timeTraining;timeTesting;precision;recall;f1;accuracy;superiority");
                         if (evaluationResult.getModel().getCategories().size() == 2) {
                             csvResult.append(";matthewsCorrelationCoefficient;rocAuc");
                         }
@@ -246,6 +246,7 @@ public class Experimenter {
 					csvResult.append(experiment.classifierCombination.getLearner()).append(';');
 					csvResult.append(experiment.classifierCombination.getClassifier()).append(';');
 					csvResult.append(featureSet).append(';');
+					csvResult.append(getDescription().replace(";",",")).append(';');
 					csvResult.append(featureNames.size()).append(';');
 					csvResult.append(transformer).append(';');
 					csvResult.append(secondsTraining).append(';');

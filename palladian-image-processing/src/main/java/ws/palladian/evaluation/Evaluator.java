@@ -56,7 +56,7 @@ public class Evaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
 //    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
-    private static final int NUM_THREADS = 6;
+    private static final int NUM_THREADS = 8;
 
     private static final class FeatureExtractionTask implements Runnable {
 
@@ -193,17 +193,19 @@ public class Evaluator {
                 imageDataset.getBasePath() + "blockcode-evaluation-results-" + DateHelper.getCurrentDatetime());
 
         // number of colors we want to normalize the image to
-        BlockCodeExtractor.Colors[] numberOfColors = BlockCodeExtractor.Colors.values();
+        BlockCodeExtractor.Colors[] numberOfColors = new BlockCodeExtractor.Colors[] {
+                BlockCodeExtractor.Colors.EIGHT, BlockCodeExtractor.Colors.FOURTEEN, BlockCodeExtractor.Colors.TWENTY_EIGHT};
 
         // number of pixels to cluster when pixelating the image
-        int[] pixelationSizes = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int[] pixelationSizes = new int[] {4, 5, 6, 7, 8, 9, 10, 11, 12};
 
         // block size in pixels. This is basically the word size
         BlockCodeExtractor.BlockSize[] blockSizes = new BlockCodeExtractor.BlockSize[] {
                 BlockCodeExtractor.BlockSize.TWO_BY_TWO, BlockCodeExtractor.BlockSize.THREE_BY_THREE};
 
         // image sections. Has to be a square number starting with 4
-        BlockCodeExtractor.BlockSize[] imageSections = BlockCodeExtractor.BlockSize.values();
+        BlockCodeExtractor.BlockSize[] imageSections = new BlockCodeExtractor.BlockSize[] {
+                BlockCodeExtractor.BlockSize.ONE_BY_ONE, BlockCodeExtractor.BlockSize.TWO_BY_TWO, BlockCodeExtractor.BlockSize.THREE_BY_THREE};
 
         int combinations = numberOfColors.length * pixelationSizes.length * blockSizes.length * imageSections.length;
 
@@ -243,8 +245,8 @@ public class Evaluator {
                         Experimenter experimenter = new Experimenter(trainingInstances, testingInstances,
                                 resultDirectory);
                         List<Filter<String>> smallList = asList(blockCodeFeatures);
-                        experimenter.addClassifier(
-                                new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
+//                        experimenter.addClassifier(
+//                                new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
                         experimenter
                                 .addClassifier(
                                         new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(),

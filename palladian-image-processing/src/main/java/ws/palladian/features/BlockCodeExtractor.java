@@ -21,11 +21,11 @@ import java.util.List;
 public class BlockCodeExtractor implements FeatureExtractor {
 
     public enum Colors {
-        GREY_SCALE_4, EIGHT, FOURTEEN
+        GREY_SCALE_5, EIGHT, FOURTEEN, TWENTY_EIGHT
     }
 
     public enum BlockSize {
-        TWO_BY_TWO(2), THREE_BY_THREE(3), FOUR_BY_FOUR(4), FIVE_BY_FIVE(5);
+        ONE_BY_ONE(1), TWO_BY_TWO(2), THREE_BY_THREE(3), FOUR_BY_FOUR(4), FIVE_BY_FIVE(5);
 
         int length;
 
@@ -36,13 +36,12 @@ public class BlockCodeExtractor implements FeatureExtractor {
         public int getLength() {
             return length;
         }
-
     }
 
     private List<Color> palette = new ArrayList<>();
 
     /** Number of colors we want to normalize the image to. */
-    private Colors numberOfColors = Colors.GREY_SCALE_4;
+    private Colors numberOfColors = Colors.GREY_SCALE_5;
 
     /** Number of pixels to cluster when pixelating the image. */
     private int pixelationSize = 4;
@@ -71,7 +70,8 @@ public class BlockCodeExtractor implements FeatureExtractor {
         palette.add(Color.WHITE);
 
         switch (numberOfColors) {
-            case GREY_SCALE_4:
+            case GREY_SCALE_5:
+                palette.add(Color.LIGHT_GRAY);
                 palette.add(Color.GRAY);
                 palette.add(Color.DARK_GRAY);
                 break;
@@ -99,6 +99,36 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 palette.add(new Color(107, 51, 133));
                 palette.add(new Color(71, 71, 145));
                 palette.add(new Color(53, 104, 169));
+                palette.add(new Color(36, 143, 181));
+                break;
+            case TWENTY_EIGHT:
+                palette.add(Color.GRAY);
+                palette.add(Color.LIGHT_GRAY);
+                palette.add(Color.DARK_GRAY);
+                // chromatic circle colors + average rgb steps in between:
+                // https://thesisterisadoraknocking.files.wordpress.com/2014/06/chromatic-circle.png all outer colors
+                palette.add(new Color(7, 139, 91));
+                palette.add(new Color(70, 162, 71)); // averaged
+                palette.add(new Color(134, 185, 53));
+                palette.add(new Color(184, 206, 51)); // averaged
+                palette.add(new Color(234, 227, 49));
+                palette.add(new Color(240, 210, 47)); // averaged
+                palette.add(new Color(245, 194, 46));
+                palette.add(new Color(240, 166, 46)); // averaged
+                palette.add(new Color(235, 139, 47));
+                palette.add(new Color(232, 117, 46)); // averaged
+                palette.add(new Color(229, 95, 45));
+                palette.add(new Color(225, 67, 45)); // averaged
+                palette.add(new Color(221, 38, 44));
+                palette.add(new Color(206, 19, 82)); // averaged
+                palette.add(new Color(190, 0, 121));
+                palette.add(new Color(149, 26, 127)); // averaged
+                palette.add(new Color(107, 51, 133));
+                palette.add(new Color(94, 61, 139)); // averaged
+                palette.add(new Color(71, 71, 145));
+                palette.add(new Color(62, 88, 157)); // averaged
+                palette.add(new Color(53, 104, 169));
+                palette.add(new Color(45, 124, 175));// averaged
                 palette.add(new Color(36, 143, 181));
                 break;
         }
