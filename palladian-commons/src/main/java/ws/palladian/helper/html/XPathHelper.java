@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
@@ -56,6 +57,9 @@ public final class XPathHelper {
     
     /** XHTML namespace URI. */
     private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
+
+    private static final Pattern AND_OR = Pattern.compile("and|or");
+    private static final Pattern XHTML_TAGGABLE = Pattern.compile("[a-zA-Z][\\w]*|\\*");
 
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<>();
@@ -441,7 +445,7 @@ public final class XPathHelper {
 
         List<String> xPathParts = new ArrayList<>();
         StringBuilder buf = new StringBuilder();
-        List<Character> split = Arrays.asList('/', ' ', '[', ']', '|', ')');
+        List<Character> split = Arrays.asList('/', ' ', '[', ']', '|', ')', ':');
 
         for (int i = 0; i < xPath.length(); i++) {
             char currentChar = xPath.charAt(i);
@@ -459,7 +463,7 @@ public final class XPathHelper {
 
         StringBuilder result = new StringBuilder();
         for (String xPathPart : xPathParts) {
-            if (xPathPart.matches("[a-zA-Z][\\w]*|\\*") && !xPathPart.matches("and|or")) {
+            if (XHTML_TAGGABLE.matcher(xPathPart).matches() && !AND_OR.matcher(xPathPart).matches()) {
                 result.append("xhtml:");
             }
             result.append(xPathPart);
