@@ -55,8 +55,8 @@ public class Evaluator {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
-//    private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
-    private static final int NUM_THREADS = 8;
+    // private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
+    private static final int NUM_THREADS = 9;
 
     private static final class FeatureExtractionTask implements Runnable {
 
@@ -194,10 +194,13 @@ public class Evaluator {
 
         // number of colors we want to normalize the image to
         BlockCodeExtractor.Colors[] numberOfColors = new BlockCodeExtractor.Colors[] {
-                BlockCodeExtractor.Colors.EIGHT, BlockCodeExtractor.Colors.FOURTEEN, BlockCodeExtractor.Colors.TWENTY_EIGHT};
+                BlockCodeExtractor.Colors.FOURTEEN, BlockCodeExtractor.Colors.TWENTY_EIGHT,
+                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_2,
+                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_3,
+                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_4};
 
         // number of pixels to cluster when pixelating the image
-        int[] pixelationSizes = new int[] {4, 5, 6, 7, 8, 9, 10, 11, 12};
+        int[] pixelationSizes = new int[] {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
         // block size in pixels. This is basically the word size
         BlockCodeExtractor.BlockSize[] blockSizes = new BlockCodeExtractor.BlockSize[] {
@@ -205,9 +208,12 @@ public class Evaluator {
 
         // image sections. Has to be a square number starting with 4
         BlockCodeExtractor.BlockSize[] imageSections = new BlockCodeExtractor.BlockSize[] {
-                BlockCodeExtractor.BlockSize.ONE_BY_ONE, BlockCodeExtractor.BlockSize.TWO_BY_TWO, BlockCodeExtractor.BlockSize.THREE_BY_THREE};
+                BlockCodeExtractor.BlockSize.ONE_BY_ONE, BlockCodeExtractor.BlockSize.TWO_BY_TWO,
+                BlockCodeExtractor.BlockSize.THREE_BY_THREE};
 
-        int combinations = numberOfColors.length * pixelationSizes.length * blockSizes.length * imageSections.length;
+        boolean[] includeNumberOfColors = new boolean[] {false, true};
+
+        int combinations = numberOfColors.length * pixelationSizes.length * blockSizes.length * imageSections.length * includeNumberOfColors.length;
 
         LOGGER.info("block code experiments with " + combinations + " combinations");
 
@@ -216,48 +222,51 @@ public class Evaluator {
             for (int pixelationSize : pixelationSizes) {
                 for (BlockCodeExtractor.BlockSize blockSize : blockSizes) {
                     for (BlockCodeExtractor.BlockSize imageSection : imageSections) {
+                        for (boolean includeNumberOfColor : includeNumberOfColors) {
 
-                        LOGGER.info("======================== running combination " + c + "/" + combinations
-                                + " ========================");
+                            LOGGER.info("======================== running combination " + c + "/" + combinations
+                                    + " ========================");
 
-                        BlockCodeExtractor blockCodeExtractor = new BlockCodeExtractor(numberOfColor, pixelationSize,
-                                blockSize, imageSection);
-                        List<FeatureExtractor> extractors = new ArrayList<>();
-                        extractors.add(blockCodeExtractor);
+                            BlockCodeExtractor blockCodeExtractor = new BlockCodeExtractor(numberOfColor,
+                                    pixelationSize, blockSize, imageSection, includeNumberOfColor);
+                            List<FeatureExtractor> extractors = new ArrayList<>();
+                            extractors.add(blockCodeExtractor);
 
-                        //// read training data and create features
-                        extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
+                            //// read training data and create features
+                            extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
 
-                        //// read test data and create features
-                        extractFeatures(extractors, imageDataset, ImageDataset.TEST);
+                            //// read test data and create features
+                            extractFeatures(extractors, imageDataset, ImageDataset.TEST);
 
-                        // train and test
-                        CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig
-                                .filePath(imageDataset.getTrainFeaturesFile());
-                        csvConfigBuilder.setFieldSeparator(";");
-                        csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
-                        Iterable<Instance> trainingInstances = csvConfigBuilder.create();
-                        csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTestFeaturesFile());
-                        csvConfigBuilder.setFieldSeparator(";");
-                        csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
-                        Iterable<Instance> testingInstances = csvConfigBuilder.create();
+                            // train and test
+                            CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig
+                                    .filePath(imageDataset.getTrainFeaturesFile());
+                            csvConfigBuilder.setFieldSeparator(";");
+                            csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
+                            Iterable<Instance> trainingInstances = csvConfigBuilder.create();
+                            csvConfigBuilder = CsvDatasetReaderConfig.filePath(imageDataset.getTestFeaturesFile());
+                            csvConfigBuilder.setFieldSeparator(";");
+                            csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
+                            Iterable<Instance> testingInstances = csvConfigBuilder.create();
 
-                        Experimenter experimenter = new Experimenter(trainingInstances, testingInstances,
-                                resultDirectory);
-                        List<Filter<String>> smallList = asList(blockCodeFeatures);
-//                        experimenter.addClassifier(
-//                                new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
-                        experimenter
-                                .addClassifier(
-                                        new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(),
-                                                new BayesScorer(BayesScorer.Options.FREQUENCIES,
-                                                        BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
-                                smallList);
+                            Experimenter experimenter = new Experimenter(trainingInstances, testingInstances,
+                                    resultDirectory);
+                            List<Filter<String>> smallList = asList(blockCodeFeatures);
+                            // experimenter.addClassifier(
+                            // new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
+                            experimenter.addClassifier(
+                                    new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(),
+                                            new BayesScorer(BayesScorer.Options.FREQUENCIES,
+                                                    BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+                                    smallList);
 
-                        experimenter.setDescription("Number of colors: " + numberOfColor + ", pixelation size: " + pixelationSize + ", block size: " + blockSize + ", image sections: " + imageSection);
+                            experimenter.setDescription(
+                                    "Number of colors: " + numberOfColor + ", pixelation size: " + pixelationSize
+                                            + ", block size: " + blockSize + ", image sections: " + imageSection);
 
-                        experimenter.run();
-                        c++;
+                            experimenter.run();
+                            c++;
+                        }
                     }
                 }
             }
@@ -267,7 +276,7 @@ public class Evaluator {
 
     public static void main(String[] args) throws IOException, JsonException {
 
-//        String datasetPath = "E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json";
+        // String datasetPath = "E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json";
         String datasetPath = "/home/david/datasets/dataset.json";
 
         if (args.length > 0) {

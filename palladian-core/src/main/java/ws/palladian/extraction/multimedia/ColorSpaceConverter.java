@@ -156,10 +156,10 @@ public class ColorSpaceConverter {
      * @param B Blue in range 0..255
      * @return HSB values: H is 0..360 degrees / 360 (0..1), S is 0..1, B is 0..1
      */
-    public double[] rgbToHsb(Color color) {
+    public static double[] rgbToHsb(Color color) {
         return rgbToHsb(color.getRed(), color.getGreen(), color.getBlue());
     }
-    public double[] rgbToHsb(int R, int G, int B) {
+    public static double[] rgbToHsb(int R, int G, int B) {
         double[] result = new double[3];
         float[] hsb = new float[3];
         Color.RGBtoHSB(R, G, B, hsb);

@@ -3,6 +3,7 @@ package ws.palladian.features;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.value.ImmutableTextValue;
+import ws.palladian.extraction.multimedia.ColorSpaceConverter;
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -21,7 +22,7 @@ import java.util.List;
 public class BlockCodeExtractor implements FeatureExtractor {
 
     public enum Colors {
-        GREY_SCALE_5, EIGHT, FOURTEEN, TWENTY_EIGHT
+        GREY_SCALE_5, EIGHT, FOURTEEN, TWENTY_EIGHT, TWENTY_EIGHT_AND_BRIGHTNESS_2, TWENTY_EIGHT_AND_BRIGHTNESS_3, TWENTY_EIGHT_AND_BRIGHTNESS_4
     }
 
     public enum BlockSize {
@@ -52,11 +53,15 @@ public class BlockCodeExtractor implements FeatureExtractor {
     /** Image sections. Has to be a square number starting with 4. */
     private BlockSize imageSections = BlockSize.TWO_BY_TWO;
 
-    public BlockCodeExtractor(Colors numberOfColors, int pixelationSize, BlockSize blockSize, BlockSize imageSections) {
+    /** Whether to include the number of colors in a certain pixel block in the block code. */
+    private boolean numberOfColorsInCode = true;
+
+    public BlockCodeExtractor(Colors numberOfColors, int pixelationSize, BlockSize blockSize, BlockSize imageSections, boolean numberOfColorsInCode) {
         this.numberOfColors = numberOfColors;
         this.pixelationSize = pixelationSize;
         this.blockSize = blockSize;
         this.imageSections = imageSections;
+        this.numberOfColorsInCode = numberOfColorsInCode;
         init();
     }
 
@@ -102,6 +107,9 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 palette.add(new Color(36, 143, 181));
                 break;
             case TWENTY_EIGHT:
+            case TWENTY_EIGHT_AND_BRIGHTNESS_2:
+            case TWENTY_EIGHT_AND_BRIGHTNESS_3:
+            case TWENTY_EIGHT_AND_BRIGHTNESS_4:
                 palette.add(Color.GRAY);
                 palette.add(Color.LIGHT_GRAY);
                 palette.add(Color.DARK_GRAY);
@@ -235,9 +243,14 @@ public class BlockCodeExtractor implements FeatureExtractor {
         int shapeCode = 0;
 
         Bag<Color> colorCounter = Bag.create();
+        double averageBlockBrightness = 0;
         for (Color aBlock : block) {
             colorCounter.add(aBlock);
+            double[] doubles = ColorSpaceConverter.rgbToHsb(aBlock);
+            averageBlockBrightness += doubles[2];
         }
+        averageBlockBrightness /= block.length;
+
         Bag<Color> sorted = colorCounter.createSorted(CollectionHelper.Order.DESCENDING);
         LinkedHashMap<Color, Integer> frequencies = new LinkedHashMap<>();
         for (Color s : sorted.uniqueItems()) {
@@ -297,6 +310,25 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 throw new UnsupportedOperationException("block size must be 2x2 or 3x3");
         }
 
+        String brightness = "";
+        int quantificationLevel = 0;
+
+        switch (this.numberOfColors) {
+            case TWENTY_EIGHT_AND_BRIGHTNESS_2:
+                quantificationLevel = 2;
+                break;
+            case TWENTY_EIGHT_AND_BRIGHTNESS_3:
+                quantificationLevel = 3;
+                break;
+            case TWENTY_EIGHT_AND_BRIGHTNESS_4:
+                quantificationLevel = 4;
+                break;
+            default:
+        }
+        if (quantificationLevel > 0) {
+            int brightnessNormalized = (int)(quantificationLevel * averageBlockBrightness / 256);
+            brightness = String.valueOf(brightnessNormalized);
+        }
 
         // if (numberOfColors == 1) {
         // shapeCode = 1;
@@ -314,6 +346,13 @@ public class BlockCodeExtractor implements FeatureExtractor {
         // shapeCode = 7;
         // }
 
-        return numberOfColors + mainColorCode + shapeCode + Character.toString((char)(96 + imageSection)) + "!";
+        String blockCode = "";
+        if (numberOfColorsInCode) {
+            blockCode += numberOfColors;
+        }
+
+        blockCode += mainColorCode + shapeCode + Character.toString((char)(96 + imageSection)) + brightness + "!";
+
+        return blockCode;
     }
 }
