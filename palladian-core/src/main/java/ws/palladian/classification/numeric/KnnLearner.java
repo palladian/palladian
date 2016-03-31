@@ -7,9 +7,9 @@ import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 
 /**
  * <p>
@@ -20,7 +20,7 @@ import ws.palladian.core.Learner;
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
-public final class KnnLearner implements Learner<KnnModel> {
+public final class KnnLearner extends AbstractLearner<KnnModel> {
 
     /** The normalizer for numeric values. */
     private final Normalizer normalizer;
@@ -48,10 +48,10 @@ public final class KnnLearner implements Learner<KnnModel> {
     }
 
     @Override
-    public KnnModel train(Iterable<? extends Instance> instances) {
-        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(instances);
+    public KnnModel train(Dataset dataset) {
+        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(dataset);
         Normalization normalization = normalizer.calculate(featureVectors);
-        return new KnnModel(instances, normalization);
+        return new KnnModel(dataset, normalization);
     }
     
     @Override

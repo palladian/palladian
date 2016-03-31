@@ -9,6 +9,7 @@ import ws.palladian.core.value.Value;
  * provides the names and types of the features.
  * 
  * @author pk
+ * @see FeatureInformationBuilder
  */
 public interface FeatureInformation extends Iterable<FeatureInformation.FeatureInformationEntry> {
 	
@@ -20,5 +21,7 @@ public interface FeatureInformation extends Iterable<FeatureInformation.FeatureI
 	Set<String> getFeatureNames();
 	
 	Set<String> getFeatureNamesOfType(Class<? extends Value> valueType);
+	
+	int count();
 
 }

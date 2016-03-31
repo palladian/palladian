@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
@@ -15,7 +16,7 @@ import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.functional.Function;
@@ -35,7 +36,7 @@ import ws.palladian.helper.functional.Function;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class PalladianTextClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
+public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> implements Classifier<DictionaryModel> {
 
     /**
      * <p>
@@ -184,9 +185,9 @@ public class PalladianTextClassifier implements Learner<DictionaryModel>, Classi
     }
 
     @Override
-    public DictionaryModel train(Iterable<? extends Instance> instances) {
-        Validate.notNull(instances, "instances must not be null");
-        for (Instance instance : instances) {
+    public DictionaryModel train(Dataset dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
+        for (Instance instance : dataset) {
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
             Iterator<String> iterator = preprocessor.compute(textValue.getText());

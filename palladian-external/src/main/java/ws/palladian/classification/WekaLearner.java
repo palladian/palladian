@@ -13,10 +13,11 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instances;
 import weka.core.SparseInstance;
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
@@ -35,7 +36,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * @version 3.1
  * @since 0.1.7
  */
-public final class WekaLearner implements Learner<WekaModel> {
+public final class WekaLearner extends AbstractLearner<WekaModel> {
 
     /**
      * This is necessary, because there is a bug when using sparse features in Weka ARFF files, therefore we need to add
@@ -62,9 +63,9 @@ public final class WekaLearner implements Learner<WekaModel> {
     }
 
     @Override
-    public WekaModel train(Iterable<? extends Instance> instances) {
-        Validate.notNull(instances, "instances must not be null");
-        int numInstances = CollectionHelper.count(instances.iterator());
+    public WekaModel train(Dataset dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
+        int numInstances = CollectionHelper.count(dataset.iterator());
         FastVector schema = new FastVector();
         Instances data = new Instances("dataset", schema, numInstances);
 
@@ -72,8 +73,8 @@ public final class WekaLearner implements Learner<WekaModel> {
         List<Map<Integer, Double>> wekaFeatureSets = new ArrayList<>();
         Set<String> classes = new HashSet<>();
         List<String> instanceClasses = new ArrayList<>();
-        for (Instance instance : instances) {
-            Map<Integer,Double>wekaFeatureSet=createWekaFeatureSet(instance.getVector(),data,instances);
+        for (Instance instance : dataset) {
+            Map<Integer, Double> wekaFeatureSet = createWekaFeatureSet(instance.getVector(),data, dataset);
             wekaFeatureSets.add(wekaFeatureSet);
             classes.add(instance.getCategory());
             instanceClasses.add(instance.getCategory());

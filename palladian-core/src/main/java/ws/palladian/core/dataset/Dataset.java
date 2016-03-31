@@ -3,6 +3,7 @@ package ws.palladian.core.dataset;
 import java.util.Set;
 
 import ws.palladian.core.Instance;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.CloseableIterator;
 
@@ -63,6 +64,15 @@ public interface Dataset extends Iterable<Instance> {
 	 * @return The subset with instances matching the filter.
 	 */
 	Dataset subset(Filter<? super Instance> instanceFilter);
+	
+	/**
+	 * Get a subset of the dataset.
+	 * 
+	 * @param instanceFilterFactory
+	 *            The factory with the filter which defines the subset.
+	 * @return The subset with instances matching the filter.
+	 */
+	Dataset subset(Factory<? extends Filter<? super Instance>> instanceFilterFactory);
 	
 	/**
 	 * Read the whole dataset into memory. Only do that for small datasets and
