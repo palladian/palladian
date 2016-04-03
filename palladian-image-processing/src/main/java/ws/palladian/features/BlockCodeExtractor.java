@@ -196,6 +196,8 @@ public class BlockCodeExtractor implements FeatureExtractor {
         int i2 = (int)((double)image.getHeight() / wordLength);
 
         switch (blockSize) {
+            // FIXME, this is confusing, ONE_BY_ONE means only 2x2 but discard the shape code later
+            case ONE_BY_ONE:
             case TWO_BY_TWO:
                 for (int j = 0; j < i2; j++) {
                     for (int i = 0; i < i1; i++) {
