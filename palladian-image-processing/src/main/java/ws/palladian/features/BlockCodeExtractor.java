@@ -22,7 +22,7 @@ import java.util.List;
 public class BlockCodeExtractor implements FeatureExtractor {
 
     public enum Colors {
-        GREY_SCALE_5, EIGHT, FOURTEEN, TWENTY_EIGHT, TWENTY_EIGHT_AND_BRIGHTNESS_2, TWENTY_EIGHT_AND_BRIGHTNESS_3, TWENTY_EIGHT_AND_BRIGHTNESS_4
+        GREY_SCALE_5, EIGHT, FOURTEEN, TWENTY_EIGHT, FIFTY_ONE, TWENTY_EIGHT_AND_BRIGHTNESS_2, TWENTY_EIGHT_AND_BRIGHTNESS_3, TWENTY_EIGHT_AND_BRIGHTNESS_4, TWENTY_EIGHT_AND_BRIGHTNESS_6, TWENTY_EIGHT_AND_BRIGHTNESS_8, TWENTY_EIGHT_AND_BRIGHTNESS_10
     }
 
     public enum BlockSize {
@@ -56,7 +56,8 @@ public class BlockCodeExtractor implements FeatureExtractor {
     /** Whether to include the number of colors in a certain pixel block in the block code. */
     private boolean numberOfColorsInCode = true;
 
-    public BlockCodeExtractor(Colors numberOfColors, int pixelationSize, BlockSize blockSize, BlockSize imageSections, boolean numberOfColorsInCode) {
+    public BlockCodeExtractor(Colors numberOfColors, int pixelationSize, BlockSize blockSize, BlockSize imageSections,
+            boolean numberOfColorsInCode) {
         this.numberOfColors = numberOfColors;
         this.pixelationSize = pixelationSize;
         this.blockSize = blockSize;
@@ -107,9 +108,13 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 palette.add(new Color(36, 143, 181));
                 break;
             case TWENTY_EIGHT:
+            case FIFTY_ONE:
             case TWENTY_EIGHT_AND_BRIGHTNESS_2:
             case TWENTY_EIGHT_AND_BRIGHTNESS_3:
             case TWENTY_EIGHT_AND_BRIGHTNESS_4:
+            case TWENTY_EIGHT_AND_BRIGHTNESS_6:
+            case TWENTY_EIGHT_AND_BRIGHTNESS_8:
+            case TWENTY_EIGHT_AND_BRIGHTNESS_10:
                 palette.add(Color.GRAY);
                 palette.add(Color.LIGHT_GRAY);
                 palette.add(Color.DARK_GRAY);
@@ -139,6 +144,28 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 palette.add(new Color(45, 124, 175));// averaged
                 palette.add(new Color(36, 143, 181));
                 break;
+        }
+
+        if (numberOfColors == Colors.FIFTY_ONE) {
+            // use two different brightnesses 30% and 70% of the of the 28 colors (skip the 5 grey values
+            int c = 0;
+            List<Color> colorsToAdd = new ArrayList<>();
+            for (Color color : palette) {
+                c++;
+                if (c <= 5) {
+                    continue;
+                }
+                double[] doubles = ColorSpaceConverter.rgbToHsb(color);
+                doubles[2] = 0.25 * 256;
+                int[] ints = ColorSpaceConverter.hsbToRrb(doubles);
+                Color shiftedColor1 = new Color(ints[0],ints[1],ints[2]);
+                doubles[2] = 0.75 * 256;
+                ints = ColorSpaceConverter.hsbToRrb(doubles);
+                Color shiftedColor2 = new Color(ints[0],ints[1],ints[2]);
+                colorsToAdd.add(shiftedColor1);
+                colorsToAdd.add(shiftedColor2);
+            }
+            palette.addAll(colorsToAdd);
         }
 
     }
@@ -269,6 +296,9 @@ public class BlockCodeExtractor implements FeatureExtractor {
         numberOfColors = sorted.uniqueItems().size();
 
         switch (blockSize) {
+            case ONE_BY_ONE:
+                shapeCode = 1;
+                break;
             case TWO_BY_TWO:
                 // shape one of 4 possibilities
                 if (numberOfColors == 1) {
@@ -290,18 +320,18 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 if (numberOfColors == 1) {
                     // all the same
                     shapeCode = 1;
-                } else if ((block[0].equals(block[3]) && block[0].equals(block[6])) ||
-                           (block[1].equals(block[4]) && block[1].equals(block[7])) ||
-                           (block[2].equals(block[5]) && block[2].equals(block[8]))) {
+                } else if ((block[0].equals(block[3]) && block[0].equals(block[6]))
+                        || (block[1].equals(block[4]) && block[1].equals(block[7]))
+                        || (block[2].equals(block[5]) && block[2].equals(block[8]))) {
                     // |
                     shapeCode = 2;
-                } else if ((block[0].equals(block[1]) && block[0].equals(block[2])) ||
-                        (block[3].equals(block[4]) && block[3].equals(block[5])) ||
-                        (block[6].equals(block[7]) && block[6].equals(block[8]))) {
+                } else if ((block[0].equals(block[1]) && block[0].equals(block[2]))
+                        || (block[3].equals(block[4]) && block[3].equals(block[5]))
+                        || (block[6].equals(block[7]) && block[6].equals(block[8]))) {
                     // -
                     shapeCode = 3;
-                } else if ((block[0].equals(block[4]) && block[0].equals(block[8])) ||
-                           (block[2].equals(block[4]) && block[2].equals(block[6]))) {
+                } else if ((block[0].equals(block[4]) && block[0].equals(block[8]))
+                        || (block[2].equals(block[4]) && block[2].equals(block[6]))) {
                     // X
                     shapeCode = 4;
                 }
@@ -322,6 +352,15 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 break;
             case TWENTY_EIGHT_AND_BRIGHTNESS_4:
                 quantificationLevel = 4;
+                break;
+            case TWENTY_EIGHT_AND_BRIGHTNESS_6:
+                quantificationLevel = 6;
+                break;
+            case TWENTY_EIGHT_AND_BRIGHTNESS_8:
+                quantificationLevel = 8;
+                break;
+            case TWENTY_EIGHT_AND_BRIGHTNESS_10:
+                quantificationLevel = 10;
                 break;
             default:
         }
@@ -350,8 +389,11 @@ public class BlockCodeExtractor implements FeatureExtractor {
         if (numberOfColorsInCode) {
             blockCode += numberOfColors;
         }
+        if (!brightness.isEmpty()) {
+            mainColorCode = brightness;
+        }
 
-        blockCode += mainColorCode + shapeCode + Character.toString((char)(96 + imageSection)) + brightness + "!";
+        blockCode += mainColorCode + shapeCode + Character.toString((char)(96 + imageSection)) + "!";
 
         return blockCode;
     }

@@ -56,7 +56,7 @@ public class Evaluator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
     // private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
-    private static final int NUM_THREADS = 9;
+    private static final int NUM_THREADS = 6;
 
     private static final class FeatureExtractionTask implements Runnable {
 
@@ -194,26 +194,31 @@ public class Evaluator {
 
         // number of colors we want to normalize the image to
         BlockCodeExtractor.Colors[] numberOfColors = new BlockCodeExtractor.Colors[] {
-                BlockCodeExtractor.Colors.FOURTEEN, BlockCodeExtractor.Colors.TWENTY_EIGHT,
+                BlockCodeExtractor.Colors.TWENTY_EIGHT,
                 BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_2,
                 BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_3,
-                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_4};
+                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_4,
+//                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_6,
+                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_8,
+                BlockCodeExtractor.Colors.TWENTY_EIGHT_AND_BRIGHTNESS_10,
+                BlockCodeExtractor.Colors.FIFTY_ONE};
 
         // number of pixels to cluster when pixelating the image
-        int[] pixelationSizes = new int[] {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+        int[] pixelationSizes = new int[] {5, 6, 7, 8, 9, 10, 11};
 
         // block size in pixels. This is basically the word size
         BlockCodeExtractor.BlockSize[] blockSizes = new BlockCodeExtractor.BlockSize[] {
+                BlockCodeExtractor.BlockSize.ONE_BY_ONE,
                 BlockCodeExtractor.BlockSize.TWO_BY_TWO, BlockCodeExtractor.BlockSize.THREE_BY_THREE};
 
         // image sections. Has to be a square number starting with 4
         BlockCodeExtractor.BlockSize[] imageSections = new BlockCodeExtractor.BlockSize[] {
-                BlockCodeExtractor.BlockSize.ONE_BY_ONE, BlockCodeExtractor.BlockSize.TWO_BY_TWO,
-                BlockCodeExtractor.BlockSize.THREE_BY_THREE};
+                BlockCodeExtractor.BlockSize.TWO_BY_TWO, BlockCodeExtractor.BlockSize.THREE_BY_THREE, BlockCodeExtractor.BlockSize.FOUR_BY_FOUR};
 
         boolean[] includeNumberOfColors = new boolean[] {false, true};
 
-        int combinations = numberOfColors.length * pixelationSizes.length * blockSizes.length * imageSections.length * includeNumberOfColors.length;
+        int combinations = numberOfColors.length * pixelationSizes.length * blockSizes.length * imageSections.length
+                * includeNumberOfColors.length;
 
         LOGGER.info("block code experiments with " + combinations + " combinations");
 
@@ -260,9 +265,9 @@ public class Evaluator {
                                                     BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
                                     smallList);
 
-                            experimenter.setDescription(
-                                    "Number of colors: " + numberOfColor + ", pixelation size: " + pixelationSize
-                                            + ", block size: " + blockSize + ", image sections: " + imageSection);
+                            experimenter.setDescription("Number of colors: " + numberOfColor + ", pixelation size: "
+                                    + pixelationSize + ", block size: " + blockSize + ", image sections: "
+                                    + imageSection + ", include#colors: " + includeNumberOfColor);
 
                             experimenter.run();
                             c++;
