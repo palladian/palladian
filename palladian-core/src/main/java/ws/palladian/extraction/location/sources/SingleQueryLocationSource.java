@@ -65,5 +65,4 @@ public abstract class SingleQueryLocationSource implements LocationSource {
     public int size() {
         throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
-
 }
