@@ -1,10 +1,14 @@
 package ws.palladian.classification.utils;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.LazyMap;
@@ -46,6 +50,28 @@ abstract class AbstractStatsNormalizer implements Normalizer {
         }
 
         return create(statsMap);
+    }
+    
+    @Override
+    public Normalization calculate(Dataset dataset) {
+    	Validate.notNull(dataset, "dataset must not be null");
+    	
+    	Map<String, Stats> statsMap = new LazyMap<>(SlimStats.FACTORY);
+    	
+    	Set<String> numericFeatures = dataset.getFeatureInformation().getFeatureNamesOfType(NumericValue.class);
+    	for (Instance instance : dataset) {
+    		FeatureVector featureVector = instance.getVector();
+    		for (String numericFeature : numericFeatures) {
+    			Value value = featureVector.get(numericFeature);
+    			if (value instanceof NullValue) {
+    				continue;
+    			}
+    			double doubleValue = ((NumericValue) value).getDouble();
+    			statsMap.get(numericFeature).add(doubleValue);
+    		}
+    	}
+    	
+    	return create(statsMap);
     }
 
 }

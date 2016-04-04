@@ -1,6 +1,7 @@
 package ws.palladian.classification.utils;
 
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.dataset.Dataset;
 
 /**
  * <p>
@@ -20,7 +21,18 @@ public interface Normalizer {
      * 
      * @param featureVectors The {@link FeatureVector}s for which to calculate the normalization, not <code>null</code>.
      * @return The {@link Normalization}.
+     * @deprecated Use {@link #calculate(Dataset)} instead.
      */
+	@Deprecated
     Normalization calculate(Iterable<? extends FeatureVector> featureVectors);
+    
+	/**
+     * <p>
+     * Calculate normalization information for the given dataset.
+     * 
+	 * @param dataset The dataset for which to calculate the normalization, not <code>null</code>.
+	 * @return The {@link Normalization}
+	 */
+    Normalization calculate(Dataset dataset);
 
 }
