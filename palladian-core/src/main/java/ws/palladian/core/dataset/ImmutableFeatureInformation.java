@@ -52,6 +52,10 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 						public String getName() {
 							return current.getKey();
 						}
+						@Override
+						public String toString() {
+							return getName() + ":" + getType().getSimpleName();
+						}
 					};
 				}
 				throw FINISHED;
@@ -75,7 +79,7 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 			} else {
 				builder.append(", ");
 			}
-			builder.append(entry.getName()).append(':').append(entry.getType().getSimpleName());
+			builder.append(entry);
 		}
 		return builder.toString();
 	}
