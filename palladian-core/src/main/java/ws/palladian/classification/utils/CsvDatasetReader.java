@@ -71,7 +71,7 @@ public class CsvDatasetReader extends AbstractDataset {
             } catch (IOException e) {
             	throw new IllegalStateException("IOException for" + config.filePath());
 			}
-            this.closed = false;
+            closed = false;
         }
 
         @Override
@@ -200,7 +200,8 @@ public class CsvDatasetReader extends AbstractDataset {
      * @param filePath Path to the CSV file, not <code>null</code>.
      * @deprecated Use {@link #CsvDatasetReader(CsvDatasetReaderConfig)} instead.
      */
-    public CsvDatasetReader(File filePath) {
+    @Deprecated
+	public CsvDatasetReader(File filePath) {
         this(filePath, true);
     }
 
