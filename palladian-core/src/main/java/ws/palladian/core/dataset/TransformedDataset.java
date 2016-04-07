@@ -27,7 +27,7 @@ class TransformedDataset extends AbstractDataset implements Dataset {
 		@Override
 		protected Instance getNext() throws Finished {
 			if (iterator.hasNext()) {
-				transformer.compute(iterator.next());
+				return transformer.compute(iterator.next());
 			}
 			throw FINISHED;
 		}
