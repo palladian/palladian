@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DatasetTransformer;
 
 /**
  * <p>
@@ -12,7 +13,7 @@ import ws.palladian.core.dataset.Dataset;
  * 
  * @author Philipp Katz
  */
-public interface Normalization extends Serializable {
+public interface Normalization extends Serializable, DatasetTransformer {
 
     /**
      * <p>
@@ -42,7 +43,9 @@ public interface Normalization extends Serializable {
 	 * @param dataset
 	 *            The Dataset to normalize, not <code>null</code>.
 	 * @return The normalized Dataset.
+	 * @deprecated Use {@link Dataset#transform(DatasetTransformer)} instead.
 	 */
+    @Deprecated
 	Dataset normalize(Dataset dataset);
 
 }

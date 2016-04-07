@@ -38,5 +38,11 @@ public abstract class AbstractDataset implements Dataset {
 	public Set<String> getFeatureNames() {
 		return getFeatureInformation().getFeatureNames();
 	}
+	
+	@Override
+	public Dataset transform(DatasetTransformer transformer) {
+		Objects.requireNonNull(transformer, "transformer must not be null");
+		return new TransformedDataset(this, transformer);
+	}
 
 }

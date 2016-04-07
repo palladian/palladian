@@ -122,7 +122,7 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
         Normalization normalization = normalizer.calculate(dataset);
         DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset);
         
-        Dataset convertedDataset = dummyCoder.convert(dataset);
+        Dataset convertedDataset = dataset.transform(dummyCoder);
         List<String> featureLabels = new ArrayList<>(convertedDataset.getFeatureInformation().getFeatureNames());
         
         Problem problem = new Problem();

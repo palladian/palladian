@@ -17,8 +17,8 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.dataset.AbstractDataset;
 import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DatasetTransformer;
 import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.dataset.FeatureInformationBuilder;
@@ -27,13 +27,10 @@ import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.io.CloseableIterator;
-import ws.palladian.helper.io.CloseableIteratorAdapter;
 import ws.palladian.helper.nlp.StringPool;
 
 /**
@@ -48,7 +45,7 @@ import ws.palladian.helper.nlp.StringPool;
  * @see <a href="http://de.slideshare.net/jtneill/multiple-linear-regression/15">Dummy variables</a>
  * @see <a href="http://en.wikiversity.org/wiki/Dummy_variable_(statistics)">Dummy variable (statistics)</a>
  */
-public class DummyVariableCreator implements Serializable {
+public class DummyVariableCreator implements Serializable, DatasetTransformer {
 
     private static final long serialVersionUID = 1L;
 
@@ -189,57 +186,37 @@ public class DummyVariableCreator implements Serializable {
 
     }
     
+    /**
+     * @deprecated Use {@link Dataset#transform(DatasetTransformer)} instead.
+     */
+    @Deprecated
     public Dataset convert(final Dataset dataset) {
     	Validate.notNull(dataset, "data must not be null");
-    	
-    	return new AbstractDataset() {
-			
-			@Override
-			public long size() {
-				return dataset.size();
-			}
-			
-			@Override
-			public CloseableIterator<Instance> iterator() {
-				final CloseableIterator<Instance> wrapped = dataset.iterator();
-				
-				Iterator<Instance> iterator = new AbstractIterator<Instance>() {
-
-					@Override
-					protected Instance getNext() throws Finished {
-						if (wrapped.hasNext()) {
-							Instance current = wrapped.next();
-							return new ImmutableInstance(convert(current.getVector()), current.getCategory());
-						}
-						throw FINISHED;
-					}
-
-				};
-				
-				// FIXME iterator should actually be closed
-				return new CloseableIteratorAdapter<>(iterator);
-			}
-			
-			@Override
-			public FeatureInformation getFeatureInformation() {
-				FeatureInformation inputFeatureInformation = dataset.getFeatureInformation();
-				FeatureInformationBuilder resultBuilder = new FeatureInformationBuilder();
-				for (FeatureInformationEntry infoEntry : inputFeatureInformation) {
-					Collection<String> featureDomain = domain.get(infoEntry.getName());
-					if (featureDomain == null) {
-						resultBuilder.set(infoEntry.getName(), infoEntry.getType());
-					} else if (featureDomain.size() < 3) {
-						resultBuilder.set(infoEntry.getName(), ImmutableDoubleValue.class);
-					} else {
-						for (String domainValue : featureDomain) {
-							resultBuilder.set(infoEntry.getName() + ":" + domainValue, ImmutableDoubleValue.class);
-						}
-					}
-				}
-				return resultBuilder.create();
-			}
-		};
+    	return dataset.transform(this);
     }
+    
+	@Override
+	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+		FeatureInformationBuilder resultBuilder = new FeatureInformationBuilder();
+		for (FeatureInformationEntry infoEntry : featureInformation) {
+			Collection<String> featureDomain = domain.get(infoEntry.getName());
+			if (featureDomain == null) {
+				resultBuilder.set(infoEntry.getName(), infoEntry.getType());
+			} else if (featureDomain.size() < 3) {
+				resultBuilder.set(infoEntry.getName(), ImmutableDoubleValue.class);
+			} else {
+				for (String domainValue : featureDomain) {
+					resultBuilder.set(infoEntry.getName() + ":" + domainValue, ImmutableDoubleValue.class);
+				}
+			}
+		}
+		return resultBuilder.create();
+	}
+    
+	@Override
+	public Instance compute(Instance input) {
+		return new ImmutableInstance(convert(input.getVector()), input.getCategory());
+	}
 
     /**
      * <p>
