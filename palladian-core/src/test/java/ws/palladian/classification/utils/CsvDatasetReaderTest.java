@@ -31,6 +31,7 @@ public class CsvDatasetReaderTest {
 			assertTrue(iterator.hasNext());
 			Instance instance = iterator.next();
 			assertEquals(14, instance.getVector().size());
+			assertEquals(14, reader.getFeatureInformation().count());
 			assertEquals(new ImmutableDoubleValue(25), instance.getVector().get("0"));
 			assertEquals(new ImmutableStringValue("Private"), instance.getVector().get("1"));
 			assertEquals("<=50K", instance.getCategory());
@@ -48,6 +49,7 @@ public class CsvDatasetReaderTest {
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
 			assertEquals(15, instance.getVector().size());
+			assertEquals(15, reader.getFeatureInformation().count());
 			assertEquals(new ImmutableStringValue("<=50K"), instance.getVector().get("14"));
 			assertEquals(1000, CollectionHelper.count(reader.iterator()));
 		}
@@ -63,6 +65,7 @@ public class CsvDatasetReaderTest {
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
 			assertEquals(8, instance.getVector().size());
+			assertEquals(8, reader.getFeatureInformation().count());
 			assertTrue(instance.getVector().keys().contains("numPregnant"));
 			assertEquals(768, CollectionHelper.count(reader.iterator()));
 		}
@@ -78,6 +81,7 @@ public class CsvDatasetReaderTest {
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
 			assertEquals(7, instance.getVector().size());
+			assertEquals(7, reader.getFeatureInformation().count());
 			assertEquals(new ImmutableDoubleValue(1.23), instance.getVector().get("double"));
 			assertEquals(new ImmutableDoubleValue(123), instance.getVector().get("long"));
 			assertEquals(new ImmutableStringValue("test"), instance.getVector().get("string"));
@@ -99,6 +103,7 @@ public class CsvDatasetReaderTest {
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
 			assertEquals(7, instance.getVector().size());
+			assertEquals(7, reader.getFeatureInformation().count());
 			assertEquals(new ImmutableStringValue("1.23"), instance.getVector().get("double"));
 			assertEquals(new ImmutableStringValue("123"), instance.getVector().get("long"));
 			assertEquals(new ImmutableStringValue("test"), instance.getVector().get("string"));
