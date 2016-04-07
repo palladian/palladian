@@ -33,9 +33,8 @@ public abstract class AbstractDataset implements Dataset {
 		return new CollectionDataset(this);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	public Set<String> getFeatureNames() {
+	public final Set<String> getFeatureNames() {
 		return getFeatureInformation().getFeatureNames();
 	}
 	
