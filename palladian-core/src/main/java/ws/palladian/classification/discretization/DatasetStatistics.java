@@ -8,6 +8,7 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
 
+// TODO move to ws.palladian.core.dataset
 public class DatasetStatistics {
 
     private CategoryEntries categoryPriors;
@@ -26,6 +27,10 @@ public class DatasetStatistics {
 
     public CategoryEntries getCategoryPriors() {
         return categoryPriors;
+    }
+    
+    public int getNumCategories() {
+    	return getCategoryPriors().size();
     }
     
     /** @deprecated Replaced by {@link Dataset#getFeatureNames()}. */

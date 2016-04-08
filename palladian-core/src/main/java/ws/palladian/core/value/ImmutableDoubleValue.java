@@ -6,7 +6,7 @@ import ws.palladian.core.value.io.ValueParserException;
 
 public final class ImmutableDoubleValue extends AbstractValue implements DoubleValue {
 	
-	public static final ValueParser PARSER = new AbstractValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser(ImmutableDoubleValue.class) {
 		@Override
 		public Value parse(String input) throws ValueParserException {
 			try {

@@ -31,6 +31,7 @@ public class XPathHelperTest {
 
     @Test
     public void testAddNamespaceToXPath() {
+        assertEquals("//xhtml:img[not(ancestor::xhtml:header)]", XPathHelper.addXhtmlNsToXPath("//img[not(ancestor::header)]"));
         assertEquals("//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]", XPathHelper.addXhtmlNsToXPath("//TABLE/TR/TD/A[4]"));
         assertEquals("/xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]", XPathHelper.addXhtmlNsToXPath("/TABLE/TR/TD/A[4]"));
         assertEquals("/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A", XPathHelper.addXhtmlNsToXPath("/TABLE/TR[2]/TD/A"));

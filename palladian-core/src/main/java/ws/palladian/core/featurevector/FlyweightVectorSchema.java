@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -28,6 +29,10 @@ public class FlyweightVectorSchema {
 		for (int idx = 0; idx < keys.length; idx++) {
 			this.keys.put(keys[idx], idx);
 		}
+	}
+	
+	public FlyweightVectorSchema(FeatureInformation featureInformation) {
+		this(featureInformation.getFeatureNames().toArray(new String[0]));
 	}
 
 	public Value get(String name, Value[] values) {

@@ -19,14 +19,14 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.NoNormalizer;
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 
-public class UniversalClassifier implements Learner<UniversalClassifierModel>, Classifier<UniversalClassifierModel> {
+public class UniversalClassifier extends AbstractLearner<UniversalClassifierModel> implements Classifier<UniversalClassifierModel> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UniversalClassifier.class);
@@ -60,21 +60,21 @@ public class UniversalClassifier implements Learner<UniversalClassifierModel>, C
     }
 
     @Override
-    public UniversalClassifierModel train(Iterable<? extends Instance> instances) {
+    public UniversalClassifierModel train(Dataset dataset) {
         NaiveBayesModel nominalModel = null;
         KnnModel numericModel = null;
         DictionaryModel textModel = null;
         if (settings.contains(ClassifierSetting.TEXT)) {
             LOGGER.debug("training text classifier");
-            textModel = textClassifier.train(instances);
+            textModel = textClassifier.train(dataset);
         }
         if (settings.contains(ClassifierSetting.KNN)) {
             LOGGER.debug("training knn classifier");
-            numericModel = new KnnLearner(new NoNormalizer()).train(instances);
+            numericModel = new KnnLearner(new NoNormalizer()).train(dataset);
         }
         if (settings.contains(ClassifierSetting.BAYES)) {
             LOGGER.debug("training bayes classifier");
-            nominalModel = new NaiveBayesLearner().train(instances);
+            nominalModel = new NaiveBayesLearner().train(dataset);
         }
         return new UniversalClassifierModel(nominalModel, numericModel, textModel);
     }

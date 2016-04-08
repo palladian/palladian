@@ -6,15 +6,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
-import ws.palladian.core.Model;
-import ws.palladian.core.value.TextValue;
-
 import com.aliasi.classify.Classification;
 import com.aliasi.classify.Classified;
 import com.aliasi.classify.ScoredClassification;
@@ -23,7 +14,17 @@ import com.aliasi.classify.TfIdfClassifierTrainer;
 import com.aliasi.util.AbstractExternalizable;
 import com.aliasi.util.FeatureExtractor;
 
-public final class LingPipeTextClassifier implements Learner<LingPipeTextClassifier.LingPipeTextClassifierModel>,
+import ws.palladian.core.AbstractLearner;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.core.Classifier;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.value.TextValue;
+
+public final class LingPipeTextClassifier extends AbstractLearner<LingPipeTextClassifier.LingPipeTextClassifierModel> implements
         Classifier<LingPipeTextClassifier.LingPipeTextClassifierModel> {
 
     public static final class LingPipeTextClassifierModel implements Model {
@@ -68,9 +69,9 @@ public final class LingPipeTextClassifier implements Learner<LingPipeTextClassif
     }
 
     @Override
-    public LingPipeTextClassifierModel train(Iterable<? extends Instance> instances) {
+    public LingPipeTextClassifierModel train(Dataset dataset) {
         TfIdfClassifierTrainer<CharSequence> trainer = new TfIdfClassifierTrainer<CharSequence>(featureExtractor);
-        for (Instance instance : instances) {
+        for (Instance instance : dataset) {
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
             String text = textValue.getText();
             Classification classification = new Classification(instance.getCategory());

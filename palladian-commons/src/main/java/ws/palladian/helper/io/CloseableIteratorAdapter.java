@@ -3,13 +3,14 @@ package ws.palladian.helper.io;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class CloseableIteratorAdapter<T> implements CloseableIterator<T> {
 	
-	private final Iterator<T> iterator;
+	private final Iterator<? extends T> iterator;
 
-	public CloseableIteratorAdapter(Iterator<T> iterator) {
-		this.iterator = iterator;
+	public CloseableIteratorAdapter(Iterator<? extends T> iterator) {
+		this.iterator = Objects.requireNonNull(iterator, "iterator must not be null");
 	}
 
 	@Override

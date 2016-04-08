@@ -515,6 +515,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return getImages(imageParentNode, document);
     }
     public List<WebImage> getImages(Node imageParentNode, Document webDocument) {
+        // we need to query the result document with an xpath but the name space check has to be done on the original
+        // document
+        String imgXPath = ".//xhtml:img";
+        return getImages(imageParentNode, webDocument, imgXPath);
+    }
+    public List<WebImage> getImages(Node imageParentNode, Document webDocument, String imgXPath) {
 
         if (imageUrls != null) {
             return imageUrls;
@@ -526,9 +532,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return imageUrls;
         }
 
-        // we need to query the result document with an xpath but the name space check has to be done on the original
-        // document
-        String imgXPath = ".//xhtml:img";
+        // is there a base href?"
+        String base = XPathHelper.getXhtmlNodeTextContent(webDocument, "//head/base/@href");
 
         List<Node> imageNodes = new ArrayList<>();
 
@@ -545,7 +550,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 String imageUrl = nnm.getNamedItem("src").getTextContent();
 
                 if (!imageUrl.startsWith("http")) {
-                    imageUrl = UrlHelper.makeFullUrl(webDocument.getDocumentURI(), null, imageUrl);
+                    if (base.isEmpty()) {
+                        imageUrl = UrlHelper.makeFullUrl(webDocument.getDocumentURI(), null, imageUrl);
+                    } else {
+                        imageUrl = UrlHelper.makeFullUrl(base, null, imageUrl);
+                    }
                 }
                 builder.setImageUrl(imageUrl);
                 builder.setFileType(FileHelper.getFileType(imageUrl));
@@ -623,7 +632,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     @Override
     public String getResultTitle() {
         // try to get it from the biggest headline, take last one as we assume this to be the most specific
-        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1");
+        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1[not(ancestor::header) and not(ancestor::footer)]");
         Node h1Node = CollectionHelper.getLast(xhtmlNodes);
 
         String resultTitle = "";
@@ -775,20 +784,20 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public WebImage getDominantImage(String contentIncludeXPath) {
 
         // check meta property first
-        Node xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//meta[@property=\"og:image\"]//@content");
+        Node xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//meta[@property='og:image']//@content");
         if (xhtmlNode != null) {
             return new BasicWebImage.Builder().setImageUrl(xhtmlNode.getTextContent().trim()).create();
         }
 
         // look for itemprop image
-        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//*[@itemprop='image' or @itemprop='photo']//@src");
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//*[(@itemprop='image' or @itemprop='photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
         if (xhtmlNode != null) {
             String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
             return new BasicWebImage.Builder().setImageUrl(url).create();
         }
 
         // look for "main image"
-        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//img[contains(@class,'main-photo') or contains(@class,'main-image')]//@src");
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]//@src");
         if (xhtmlNode != null) {
             String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
             return new BasicWebImage.Builder().setImageUrl(url).create();
@@ -801,7 +810,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         WebImage image = null;
-        List<WebImage> images = getImages(mainContentNode, getDocument());
+        List<WebImage> images = getImages(mainContentNode, getDocument(),".//img[not(ancestor::header) and not(ancestor::footer)]");
         filter(images, "jpeg", "png", "jpg");
         if (!images.isEmpty()) {
             // only sort by size if the first one is below a certain size

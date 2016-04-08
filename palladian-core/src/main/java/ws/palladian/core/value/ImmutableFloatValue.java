@@ -6,7 +6,7 @@ import ws.palladian.core.value.io.ValueParserException;
 
 public final class ImmutableFloatValue extends AbstractValue implements FloatValue {
 
-	public static final ValueParser PARSER = new AbstractValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser(ImmutableFloatValue.class) {
 
 		@Override
 		public Value parse(String input) throws ValueParserException {

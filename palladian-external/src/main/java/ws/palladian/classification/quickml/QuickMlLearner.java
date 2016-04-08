@@ -13,9 +13,9 @@ import quickml.supervised.PredictiveModelBuilder;
 import quickml.supervised.classifier.Classifier;
 import quickml.supervised.ensembles.randomForest.randomDecisionForest.RandomDecisionForestBuilder;
 import quickml.supervised.tree.decisionTree.DecisionTreeBuilder;
-import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 
 /**
  * <p>
@@ -24,7 +24,7 @@ import ws.palladian.core.Learner;
  * 
  * @author Philipp Katz
  */
-public final class QuickMlLearner implements Learner<QuickMlModel> {
+public final class QuickMlLearner extends AbstractLearner<QuickMlModel> {
 
     /** The builder used for creating the predictive mode. */
     private final PredictiveModelBuilder<? extends Classifier, ClassifierInstance> builder;
@@ -71,14 +71,13 @@ public final class QuickMlLearner implements Learner<QuickMlModel> {
     }
 
     @Override
-    public QuickMlModel train(Iterable<? extends Instance> instances) {
-        Validate.notNull(instances, "instances must not be null");
-		Set<String> featureNames = ClassificationUtils
-				.getFeatureNames(ClassificationUtils.unwrapInstances(instances));
+    public QuickMlModel train(Dataset dataset) {
+        Validate.notNull(dataset, "instances must not be null");
+		Set<String> featureNames = dataset.getFeatureInformation().getFeatureNames();
         FlyweightAttributesMap.Builder mapBuilder = new FlyweightAttributesMap.Builder(featureNames);
         List<ClassifierInstance> trainingInstances = new ArrayList<>();
         Set<String> classes = new HashSet<>();
-        for (Instance instance : instances) {
+        for (Instance instance : dataset) {
             AttributesMap input = mapBuilder.create(instance.getVector());
             trainingInstances.add(new ClassifierInstance(input, instance.getCategory()));
             classes.add(instance.getCategory());

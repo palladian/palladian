@@ -6,9 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -17,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.AbstractDataset;
+import ws.palladian.core.dataset.FeatureInformation;
+import ws.palladian.core.dataset.FeatureInformationBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorSchema;
 import ws.palladian.core.value.ImmutableBooleanValue;
@@ -70,7 +71,7 @@ public class CsvDatasetReader extends AbstractDataset {
             } catch (IOException e) {
             	throw new IllegalStateException("IOException for" + config.filePath());
 			}
-            this.closed = false;
+            closed = false;
         }
 
         @Override
@@ -129,6 +130,9 @@ public class CsvDatasetReader extends AbstractDataset {
             FlyweightVectorBuilder builder = vectorSchema.builder();
 			for (int f = 0; f < splitLine.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
 				String name = headNames[f];
+				if (name == null) {
+					continue;
+				}
 				String value = splitLine[f];
 				Value parsedValue;
 				if (value.equals(config.nullValue())) {
@@ -171,6 +175,7 @@ public class CsvDatasetReader extends AbstractDataset {
 
 	private final CsvDatasetReaderConfig config;
 	
+	/** Names of the headers, in case a value is <code>null</code> it will be skipped during parsing. */
     private final String[] headNames;
     
     private final int expectedColumns;
@@ -195,7 +200,8 @@ public class CsvDatasetReader extends AbstractDataset {
      * @param filePath Path to the CSV file, not <code>null</code>.
      * @deprecated Use {@link #CsvDatasetReader(CsvDatasetReaderConfig)} instead.
      */
-    public CsvDatasetReader(File filePath) {
+    @Deprecated
+	public CsvDatasetReader(File filePath) {
         this(filePath, true);
     }
 
@@ -254,14 +260,23 @@ public class CsvDatasetReader extends AbstractDataset {
 				String[] splitLine = line.split(config.fieldSeparator(), -1);
 				expectedColumns = splitLine.length;
 				int numValues = config.readClassFromLastColumn() ? splitLine.length - 1 : splitLine.length;
+				headNames = new String[numValues];
 				if (config.readHeader()) {
-					headNames = splitLine;
-					vectorSchema = new FlyweightVectorSchema(Arrays.copyOf(headNames, numValues));
+					List<String> usedHeadNames = new ArrayList<>();
+					for (int c = 0; c < numValues; c++) {
+						String columnName = splitLine[c];
+						if (config.isSkippedColumn(columnName)) {
+							LOGGER.debug("Skipping column {}", columnName);
+							continue;
+						}
+						headNames[c] = columnName;
+						usedHeadNames.add(columnName);
+					}
+					vectorSchema = new FlyweightVectorSchema(usedHeadNames.toArray(new String[0]));
 					// XXX consider case, that multiple blank lines might follow
 					line = reader.readLine();
 					splitLine = line.split(config.fieldSeparator(), -1);
 				} else { // generate default header names
-					headNames = new String[numValues];
 					for (int c = 0; c < numValues; c++) {
 						headNames[c] = String.valueOf(c);
 					}
@@ -310,7 +325,11 @@ public class CsvDatasetReader extends AbstractDataset {
 		ValueParser[] parsers = new ValueParser[numValues];
 		for (int i = 0; i < numValues; i++) {
 			// (1) try to use parser defined via configuration
-			ValueParser parser = config.getParser(headNames[i]);
+			String columnName = headNames[i];
+			if (columnName == null) {
+				continue;
+			}
+			ValueParser parser = config.getParser(columnName);
 			// (2) if not, auto-detect applicable parser
 			if (parser == null) {
 				String input = parts[i];
@@ -333,10 +352,18 @@ public class CsvDatasetReader extends AbstractDataset {
     public CloseableIterator<Instance> iterator() {
         return new CsvDatasetIterator();
     }
-
+	
 	@Override
-	public Set<String> getFeatureNames() {
-		return vectorSchema.keys();
+	public FeatureInformation getFeatureInformation() {
+		FeatureInformationBuilder builder = new FeatureInformationBuilder();
+		for (int i = 0; i < headNames.length; i++) {
+			String columnName = headNames[i];
+			if (columnName == null) {
+				continue;
+			}
+			builder.set(columnName, parsers[i].getType());
+		}
+		return builder.create();
 	}
 
 	@Override

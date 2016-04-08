@@ -3,6 +3,7 @@ package ws.palladian.core.dataset;
 import java.util.Set;
 
 import ws.palladian.core.Instance;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.io.CloseableIterator;
 
@@ -23,8 +24,15 @@ public interface Dataset extends Iterable<Instance> {
 
 	/**
 	 * @return The names of the features in this dataset.
+	 * @deprecated Use {@link #getFeatureInformation()} instead.
 	 */
+	@Deprecated
 	Set<String> getFeatureNames();
+	
+	/**
+	 * @return Information about the features in this dataset.
+	 */
+	FeatureInformation getFeatureInformation();
 
 	/**
 	 * Get an estimate of the dataset's size (i.e. the number of rows). The
@@ -58,11 +66,29 @@ public interface Dataset extends Iterable<Instance> {
 	Dataset subset(Filter<? super Instance> instanceFilter);
 	
 	/**
+	 * Get a subset of the dataset.
+	 * 
+	 * @param instanceFilterFactory
+	 *            The factory with the filter which defines the subset.
+	 * @return The subset with instances matching the filter.
+	 */
+	Dataset subset(Factory<? extends Filter<? super Instance>> instanceFilterFactory);
+	
+	/**
 	 * Read the whole dataset into memory. Only do that for small datasets and
 	 * for performance reasons. Else wise prefer using the {@link #iterator()}.
 	 * 
 	 * @return The in-memory dataset.
 	 */
 	Dataset buffer();
+	
+	/**
+	 * Apply a transformation on the instances in this dataset.
+	 * 
+	 * @param transformer
+	 *            The transformer.
+	 * @return The transformed dataset.
+	 */
+	Dataset transform(DatasetTransformer transformer);
 	
 }

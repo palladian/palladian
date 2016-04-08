@@ -1,7 +1,8 @@
 package ws.palladian.classification.nb;
 
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
@@ -24,10 +25,10 @@ import ws.palladian.helper.math.Stats;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
+public final class NaiveBayesLearner extends AbstractLearner<NaiveBayesModel> {
 
     @Override
-    public NaiveBayesModel train(Iterable<? extends Instance> instances) {
+    public NaiveBayesModel train(Dataset dataset) {
 
         // store the counts of different categories
         Bag<String> categories = Bag.create();
@@ -36,7 +37,7 @@ public final class NaiveBayesLearner implements Learner<NaiveBayesModel> {
         // store mean and standard deviation for numeric features (name, category)
         Matrix<String, Stats> stats = LazyMatrix.create(SlimStats.FACTORY);
 
-        for (Instance instance : instances) {
+        for (Instance instance : dataset) {
             String category = instance.getCategory();
             categories.add(category);
 

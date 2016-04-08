@@ -27,6 +27,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     boolean stem = FeatureSetting.DEFAULT_STEM;
     boolean removeStopwords = FeatureSetting.DEFAULT_REMOVE_STOPWORDS;
     Language language = FeatureSetting.DEFAULT_LANGUAGE;
+    boolean createSkipGrams = FeatureSetting.DEFAULT_CREATE_SKIP_GRAMS;
 
     /**
      * <p>
@@ -126,6 +127,10 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         this.maxTermLength = other.getMaximumTermLength();
         this.caseSensitive = other.isCaseSensitive();
         this.characterPadding = other.isCharacterPadding();
+        this.stem = other.isStem();
+        this.removeStopwords = other.isRemoveStopwords();
+        this.language = other.getLanguage();
+        this.createSkipGrams = other.isCreateSkipGrams();
     }
 
     /**
@@ -276,6 +281,26 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         this.language = language;
         return this;
     }
+    
+	/**
+	 * Enable to extract skip grams. This is relevant when using the
+	 * {@link #words()} mode and an n-gram length greater/equal three. This
+	 * means, that a text which contains the 3-gram "the quick brown", a feature
+	 * "the $skip$ brown" will be extacted additionally.
+	 * 
+	 * @return The builder to allow method chaining.
+	 */
+	public FeatureSettingBuilder createSkipGrams() {
+		if (featureType != TextFeatureType.WORD_NGRAMS) {
+			throw new UnsupportedOperationException(
+					"Skip grams are only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
+		}
+		if (maxNGramLength <= 2) {
+			throw new UnsupportedOperationException("n-gram length must be > 2 for skip grams.");
+		}
+		this.createSkipGrams = true;
+		return this;
+	}
 
     @Override
     public FeatureSetting create() {

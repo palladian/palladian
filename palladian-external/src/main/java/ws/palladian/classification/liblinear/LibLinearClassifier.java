@@ -66,8 +66,8 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
         Filter<String> nameFilter = Filters.equal(model.getFeatureLabels());
         classifiable = ClassificationUtils.filterFeatures(classifiable, nameFilter);
         int numIgnored = oldSize - classifiable.size();
-        if (numIgnored > 0 && LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Ignoring {} unknown features", numIgnored);
+        if (numIgnored > 0 && LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Ignoring {} unknown features", numIgnored);
         }
         return classifiable;
     }

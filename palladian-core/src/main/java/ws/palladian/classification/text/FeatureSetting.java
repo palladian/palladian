@@ -53,6 +53,8 @@ public class FeatureSetting implements Serializable {
 
     /** Name of the key for langauge setting. */
     public static final String PROPERTY_LANGUAGE = "language";
+    
+    public static final String PROPERTY_CREATE_SKIP_GRAMS = "createSkipGrams";
 
     /** The default maximum term length. */
     static final int DEFAULT_MIN_TERM_LENGTH = 3;
@@ -80,6 +82,8 @@ public class FeatureSetting implements Serializable {
     static final boolean DEFAULT_REMOVE_STOPWORDS = false;
 
     public static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
+    
+    static final boolean DEFAULT_CREATE_SKIP_GRAMS = false;
 
     public static enum TextFeatureType {
         /** Use n-Grams on a character level. */
@@ -126,6 +130,9 @@ public class FeatureSetting implements Serializable {
 
     /** The language used for stemming and stop word removal. */
     private Language language = DEFAULT_LANGUAGE;
+    
+    /** Whether to create skip grams, e.g. for "the quick brown", a skip gram would be "the brown". */
+    private boolean createSkipGrams = false;
 
     /**
      * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
@@ -171,6 +178,7 @@ public class FeatureSetting implements Serializable {
         this.stem = builder.stem;
         this.removeStopwords = builder.removeStopwords;
         this.language = builder.language;
+        this.createSkipGrams = builder.createSkipGrams;
     }
 
     /**
@@ -197,6 +205,8 @@ public class FeatureSetting implements Serializable {
         this.removeStopwords = swValue != null ? Boolean.parseBoolean(swValue) : DEFAULT_REMOVE_STOPWORDS;
         String langValue = properties.get(PROPERTY_LANGUAGE);
         this.language = langValue != null ? Language.valueOf(langValue) : DEFAULT_LANGUAGE;
+        String skipGramsValue = properties.get(PROPERTY_CREATE_SKIP_GRAMS);
+        this.createSkipGrams = skipGramsValue != null ? Boolean.parseBoolean(skipGramsValue) : DEFAULT_CREATE_SKIP_GRAMS;
     }
 
     public TextFeatureType getTextFeatureType() {
@@ -249,6 +259,10 @@ public class FeatureSetting implements Serializable {
     public Language getLanguage() {
         return language;
     }
+    
+    public boolean isCreateSkipGrams() {
+		return createSkipGrams;
+	}
 
     @Override
     public String toString() {
@@ -283,6 +297,9 @@ public class FeatureSetting implements Serializable {
         if (getLanguage() != null) {
             builder.append(", language=").append(language);
         }
+        if (isCreateSkipGrams()) {
+        	builder.append(", createSkipGrams");
+        }
         builder.append("]");
         return builder.toString();
     }
@@ -303,6 +320,7 @@ public class FeatureSetting implements Serializable {
         map.put(PROPERTY_STEM, String.valueOf(stem));
         map.put(PROPERTY_REMOVE_STOPWORDS, String.valueOf(removeStopwords));
         map.put(PROPERTY_LANGUAGE, String.valueOf(language));
+        map.put(PROPERTY_CREATE_SKIP_GRAMS, String.valueOf(createSkipGrams));
         return map;
     }
     
@@ -310,17 +328,7 @@ public class FeatureSetting implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (caseSensitive ? 1231 : 1237);
-        result = prime * result + (characterPadding ? 1231 : 1237);
-        result = prime * result + maxNGramLength;
-        result = prime * result + maxTerms;
-        result = prime * result + maximumTermLength;
-        result = prime * result + minNGramLength;
-        result = prime * result + minimumTermLength;
-        result = prime * result + ((textFeatureType == null) ? 0 : textFeatureType.hashCode());
-        return result;
+    	return toMap().hashCode();
     }
 
     @Override
@@ -332,23 +340,7 @@ public class FeatureSetting implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         FeatureSetting other = (FeatureSetting)obj;
-        if (caseSensitive != other.caseSensitive)
-            return false;
-        if (characterPadding != other.characterPadding)
-            return false;
-        if (maxNGramLength != other.maxNGramLength)
-            return false;
-        if (maxTerms != other.maxTerms)
-            return false;
-        if (maximumTermLength != other.maximumTermLength)
-            return false;
-        if (minNGramLength != other.minNGramLength)
-            return false;
-        if (minimumTermLength != other.minimumTermLength)
-            return false;
-        if (textFeatureType != other.textFeatureType)
-            return false;
-        return true;
+        return toMap().equals(other.toMap());
     }
 
 }

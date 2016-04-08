@@ -16,8 +16,9 @@ import quickdt.PredictiveModel;
 import quickdt.PredictiveModelBuilder;
 import quickdt.TreeBuilder;
 import quickdt.randomForest.RandomForestBuilder;
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
@@ -32,7 +33,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * 
  * @author Philipp Katz
  */
-public final class QuickDtLearner implements Learner<QuickDtModel> {
+public final class QuickDtLearner extends AbstractLearner<QuickDtModel> {
     
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(QuickDtLearner.class);
@@ -84,10 +85,10 @@ public final class QuickDtLearner implements Learner<QuickDtModel> {
     }
 
     @Override
-    public QuickDtModel train(Iterable<? extends ws.palladian.core.Instance> instances) {
+    public QuickDtModel train(Dataset dataset) {
         Set<Instance> trainingInstances = new HashSet<>();
         Set<String> classes = new HashSet<>();
-        for (ws.palladian.core.Instance instance : instances) {
+        for (ws.palladian.core.Instance instance : dataset) {
             Serializable[] input = getInput(instance.getVector());
             trainingInstances.add(HashMapAttributes.create(input).classification(instance.getCategory()));
             classes.add(instance.getCategory());

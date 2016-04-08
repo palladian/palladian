@@ -6,7 +6,7 @@ import ws.palladian.core.value.io.ValueParserException;
 
 public final class ImmutableBooleanValue extends AbstractValue implements BooleanValue {
 	
-	public static final ValueParser PARSER = new AbstractValueParser() {
+	public static final ValueParser PARSER = new AbstractValueParser(ImmutableBooleanValue.class) {
 
 		@Override
 		public Value parse(String input) throws ValueParserException {

@@ -8,18 +8,17 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
 import de.bwaldvogel.liblinear.FeatureNode;
@@ -42,7 +41,7 @@ import de.bwaldvogel.liblinear.SolverType;
  * 
  * @author Philipp Katz
  */
-public final class LibLinearLearner implements Learner<LibLinearModel> {
+public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LibLinearLearner.class);
@@ -114,25 +113,32 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
     }
 
     @Override
-    public LibLinearModel train(Iterable<? extends Instance> instances) {
-        Validate.notNull(instances, "instances must not be null");
-        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(instances);
-        Normalization normalization = normalizer.calculate(featureVectors);
-        DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
+    public LibLinearModel train(Dataset dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
+        // Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(dataset);
+        // Normalization normalization = normalizer.calculate(featureVectors);
+        // DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
+        
+        Normalization normalization = normalizer.calculate(dataset);
+        DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset);
+        
+        Dataset convertedDataset = dataset.transform(dummyCoder);
+        List<String> featureLabels = new ArrayList<>(convertedDataset.getFeatureInformation().getFeatureNames());
+        
         Problem problem = new Problem();
-        List<String> featureLabels = new ArrayList<>();
+//        List<String> featureLabels = new ArrayList<>();
         List<String> classIndices = new ArrayList<>();
-        for (Instance instance : instances) {
+        for (Instance instance : dataset) {
             problem.l++;
-            FeatureVector featureVector = dummyCoder.convert(instance.getVector());
-            for (VectorEntry<String, Value> entry : featureVector) {
-                Value value = entry.value();
-                if (value instanceof NumericValue) {
-                    if (!featureLabels.contains(entry.key())) {
-                        featureLabels.add(entry.key());
-                    }
-                }
-            }
+//            FeatureVector featureVector = dummyCoder.convert(instance.getVector());
+//            for (VectorEntry<String, Value> entry : featureVector) {
+//                Value value = entry.value();
+//                if (value instanceof NumericValue) {
+//                    if (!featureLabels.contains(entry.key())) {
+//                        featureLabels.add(entry.key());
+//                    }
+//                }
+//            }
             if (!classIndices.contains(instance.getCategory())) {
                 classIndices.add(instance.getCategory());
             }
@@ -148,7 +154,7 @@ public final class LibLinearLearner implements Learner<LibLinearModel> {
             problem.n++; // add one for bias term
         }
         int index = 0;
-        for (Instance instance : instances) {
+        for (Instance instance : dataset) {
             FeatureVector featureVector = normalization.normalize(instance.getVector());
             featureVector = dummyCoder.convert(featureVector);
             problem.x[index] = makeInstance(featureLabels, featureVector, bias);

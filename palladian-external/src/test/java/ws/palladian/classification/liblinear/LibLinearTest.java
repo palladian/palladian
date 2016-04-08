@@ -52,10 +52,10 @@ public class LibLinearTest {
 
     private List<Instance> createSampleData() {
         List<Instance> data = new ArrayList<>();
-        data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0.2).set("d", 0).set("e", 0).create("1"));
-        data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0.3).set("d", -1.2).set("e", 0).create("2"));
-        data.add(new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("d", 0).set("e", 0).create("1"));
-        data.add(new InstanceBuilder().set("a", 0).set("b", 0.1).set("c", 0).set("d", 1.4).set("e", 0.5).create("2"));
+        data.add(new InstanceBuilder().set("a", 0.).set("b", 0.1).set("c", 0.2).set("d", 0.).set("e", 0.).create("1"));
+        data.add(new InstanceBuilder().set("a", 0.).set("b", 0.1).set("c", 0.3).set("d", -1.2).set("e", 0.).create("2"));
+        data.add(new InstanceBuilder().set("a", 0.4).set("b", 0.).set("c", 0.).set("d", 0.).set("e", 0.).create("1"));
+        data.add(new InstanceBuilder().set("a", 0.).set("b", 0.1).set("c", 0.).set("d", 1.4).set("e", 0.5).create("2"));
         data.add(new InstanceBuilder().set("a", -0.1).set("b", -0.2).set("c", 0.1).set("d", 1.1).set("e", 0.1)
                 .create("3"));
         return data;

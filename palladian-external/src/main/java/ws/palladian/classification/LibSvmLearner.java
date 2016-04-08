@@ -23,9 +23,10 @@ import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
+import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -41,7 +42,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * @version 2.0
  * @since 2.0
  */
-public final class LibSvmLearner implements Learner<LibSvmModel> {
+public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
     
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LibSvmLearner.class);
@@ -83,17 +84,17 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
     }
 
     @Override
-    public LibSvmModel train(Iterable<? extends Instance> instances) {
-        Validate.notNull(instances, "instances must not be null");
+    public LibSvmModel train(Dataset dataset) {
+        Validate.notNull(dataset, "dataset must not be null");
 
-        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(instances);
+        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(dataset);
         Normalization normalization = NORMALIZER.calculate(featureVectors);
         DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
 
         // determine feature and class names
         List<String> featureNames = new ArrayList<>();
         List<String> classNames = new ArrayList<>();
-        for (Instance instance : instances) {
+        for (Instance instance : dataset) {
             FeatureVector featureVector = dummyCoder.convert(instance.getVector());
             for (VectorEntry<String, Value> entry : featureVector) {
                 Value value = entry.value();
@@ -113,7 +114,7 @@ public final class LibSvmLearner implements Learner<LibSvmModel> {
                     "The training data contains less than two different classes. Training not possible on such a dataset.");
         }
         svm_parameter params = getParameter();
-        svm_problem problem = createProblem(instances, params, featureNames, classNames, normalization, dummyCoder);
+        svm_problem problem = createProblem(dataset, params, featureNames, classNames, normalization, dummyCoder);
         String errorMessage = svm.svm_check_parameter(problem, params);
         if (errorMessage != null) {
             throw new IllegalStateException(errorMessage);
