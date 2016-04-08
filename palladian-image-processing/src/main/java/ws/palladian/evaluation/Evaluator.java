@@ -84,6 +84,7 @@ public class Evaluator {
                 try {
                     instanceBuilder.add(extractor.extract(imageValue.getImage()));
                 } catch (Exception e) {
+                    e.printStackTrace();
                     // FIXME
                     System.err.println("problem with file " + imagePath + ", base path: " + basePath);
                 }
@@ -281,8 +282,8 @@ public class Evaluator {
 
     public static void main(String[] args) throws IOException, JsonException {
 
-        // String datasetPath = "E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json";
-        String datasetPath = "/home/david/datasets/dataset.json";
+         String datasetPath = "E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json";
+//        String datasetPath = "/home/david/datasets/dataset.json";
 
         if (args.length > 0) {
             datasetPath = args[0];

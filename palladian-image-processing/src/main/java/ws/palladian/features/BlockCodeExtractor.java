@@ -26,6 +26,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
     }
 
     public enum BlockSize {
+        // FIXME should be (1) but for evaluation purposes this was a dirty fix
         ONE_BY_ONE(2), TWO_BY_TWO(2), THREE_BY_THREE(3), FOUR_BY_FOUR(4), FIVE_BY_FIVE(5);
 
         int length;
