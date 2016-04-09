@@ -3,14 +3,13 @@
  */
 package ws.palladian.classification;
 
-import libsvm.svm;
-import libsvm.svm_node;
-
 import org.apache.commons.lang.Validate;
 
+import libsvm.svm;
+import libsvm.svm_node;
+import ws.palladian.core.AbstractClassifier;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 
 /**
@@ -23,7 +22,7 @@ import ws.palladian.core.FeatureVector;
  * @version 2.0
  * @since 2.0
  */
-public final class LibSvmClassifier implements Classifier<LibSvmModel> {
+public final class LibSvmClassifier extends AbstractClassifier<LibSvmModel> {
 
     static {
         LibSvmLearner.redirectLogOutput();
@@ -44,11 +43,6 @@ public final class LibSvmClassifier implements Classifier<LibSvmModel> {
             builder.set(model.transformClassToString(i), probabilities[i]);
         }
         return builder.create();
-    }
-    
-    @Override
-    public String toString() {
-    	return getClass().getSimpleName();
     }
 
 }
