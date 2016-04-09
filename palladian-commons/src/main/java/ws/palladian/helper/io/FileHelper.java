@@ -1136,6 +1136,9 @@ public final class FileHelper {
     public static boolean delete(String filename) {
         return delete(filename, true);
     }
+    public static boolean delete(File file) {
+        return delete(file.getAbsolutePath(), false);
+    }
 
     /**
      * Delete all files inside a directory.
