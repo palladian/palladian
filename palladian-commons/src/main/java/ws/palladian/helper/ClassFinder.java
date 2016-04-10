@@ -144,8 +144,8 @@ public final class ClassFinder {
         return result;
     }
 
-    private static String pathToClassName(String name) {
-        return name.replace(File.separatorChar, '.').replace(CLASS_FILE_EXTENSION, "");
-    }
+	static String pathToClassName(String name) {
+		return name.replace(File.separatorChar, '.').replaceAll(CLASS_FILE_EXTENSION + "$", "");
+	}
 
 }
