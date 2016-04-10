@@ -37,5 +37,10 @@ public final class NoNormalizer implements Normalizer {
 	public Normalization calculate(Dataset dataset) {
 		return NO_NORMALIZATION;
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
 
 }

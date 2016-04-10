@@ -73,5 +73,10 @@ abstract class AbstractStatsNormalizer implements Normalizer {
     	
     	return create(statsMap);
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName();
+    }
 
 }
