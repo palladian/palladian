@@ -117,19 +117,20 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
         Set<String> nominalFeatureNames = dataset.getFeatureInformation().getFeatureNamesOfType(NominalValue.class);
         if (nominalFeatureNames.isEmpty()) {
         	LOGGER.debug("No nominal features in dataset.");
-        }
-        for (Instance instance : dataset) {
-            for (String featureName : nominalFeatureNames) {
-                Value value = instance.getVector().get(featureName);
-                if (value == NullValue.NULL) {
-                    continue;
-                }
-                NominalValue nominalValue = (NominalValue)value;
-                String featureValue = nominalValue.getString();
-                if (!domain.get(featureName).contains(featureValue)) {
-                    domain.add(featureName, featureValue);
-                }
-            }
+        } else {
+	        for (Instance instance : dataset) {
+	            for (String featureName : nominalFeatureNames) {
+	                Value value = instance.getVector().get(featureName);
+	                if (value == NullValue.NULL) {
+	                    continue;
+	                }
+	                NominalValue nominalValue = (NominalValue)value;
+	                String featureValue = nominalValue.getString();
+	                if (!domain.get(featureName).contains(featureValue)) {
+	                    domain.add(featureName, featureValue);
+	                }
+	            }
+	        }
         }
         LOGGER.debug("... finished determining domain in {}", stopWatch);
         return domain;
