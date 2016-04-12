@@ -111,13 +111,13 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
     }
 	
     private static MultiMap<String, String> datermineDomains(Dataset dataset) {
-        LOGGER.debug("Determine domain for dataset ...");
-        StopWatch stopWatch = new StopWatch();
         MultiMap<String, String> domain = DefaultMultiMap.createWithList();
         Set<String> nominalFeatureNames = dataset.getFeatureInformation().getFeatureNamesOfType(NominalValue.class);
         if (nominalFeatureNames.isEmpty()) {
         	LOGGER.debug("No nominal features in dataset.");
         } else {
+        	LOGGER.debug("Determine domain for dataset ...");
+        	StopWatch stopWatch = new StopWatch();
 	        for (Instance instance : dataset) {
 	            for (String featureName : nominalFeatureNames) {
 	                Value value = instance.getVector().get(featureName);
@@ -131,8 +131,8 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
 	                }
 	            }
 	        }
+	        LOGGER.debug("... finished determining domain in {}", stopWatch);
         }
-        LOGGER.debug("... finished determining domain in {}", stopWatch);
         return domain;
 	}
 
