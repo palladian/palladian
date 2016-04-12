@@ -59,16 +59,18 @@ abstract class AbstractStatsNormalizer implements Normalizer {
     	Map<String, Stats> statsMap = new LazyMap<>(SlimStats.FACTORY);
     	
     	Set<String> numericFeatures = dataset.getFeatureInformation().getFeatureNamesOfType(NumericValue.class);
-    	for (Instance instance : dataset) {
-    		FeatureVector featureVector = instance.getVector();
-    		for (String numericFeature : numericFeatures) {
-    			Value value = featureVector.get(numericFeature);
-    			if (value instanceof NullValue) {
-    				continue;
-    			}
-    			double doubleValue = ((NumericValue) value).getDouble();
-    			statsMap.get(numericFeature).add(doubleValue);
-    		}
+    	if (numericFeatures.size() > 0) {
+	    	for (Instance instance : dataset) {
+	    		FeatureVector featureVector = instance.getVector();
+	    		for (String numericFeature : numericFeatures) {
+	    			Value value = featureVector.get(numericFeature);
+	    			if (value instanceof NullValue) {
+	    				continue;
+	    			}
+	    			double doubleValue = ((NumericValue) value).getDouble();
+	    			statsMap.get(numericFeature).add(doubleValue);
+	    		}
+	    	}
     	}
     	
     	return create(statsMap);

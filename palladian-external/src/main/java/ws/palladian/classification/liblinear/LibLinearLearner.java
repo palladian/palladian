@@ -115,9 +115,6 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
     @Override
     public LibLinearModel train(Dataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-        // Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(dataset);
-        // Normalization normalization = normalizer.calculate(featureVectors);
-        // DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
         
         Normalization normalization = normalizer.calculate(dataset);
         DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset);
@@ -126,44 +123,34 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
         List<String> featureLabels = new ArrayList<>(convertedDataset.getFeatureInformation().getFeatureNames());
         
         Problem problem = new Problem();
-//        List<String> featureLabels = new ArrayList<>();
-        List<String> classIndices = new ArrayList<>();
-        for (Instance instance : dataset) {
-            problem.l++;
-//            FeatureVector featureVector = dummyCoder.convert(instance.getVector());
-//            for (VectorEntry<String, Value> entry : featureVector) {
-//                Value value = entry.value();
-//                if (value instanceof NumericValue) {
-//                    if (!featureLabels.contains(entry.key())) {
-//                        featureLabels.add(entry.key());
-//                    }
-//                }
-//            }
-            if (!classIndices.contains(instance.getCategory())) {
-                classIndices.add(instance.getCategory());
-            }
-        }
         LOGGER.debug("Features = {}", featureLabels);
-        LOGGER.debug("Classes = {}", classIndices);
         problem.n = featureLabels.size();
-        problem.x = new de.bwaldvogel.liblinear.Feature[problem.l][];
-        problem.y = new double[problem.l];
         if (bias >= 0) {
             LOGGER.debug("Add bias correction {}", bias);
             problem.bias = bias; // bias feature
             problem.n++; // add one for bias term
         }
-        int index = 0;
-        for (Instance instance : dataset) {
-            FeatureVector featureVector = normalization.normalize(instance.getVector());
-            featureVector = dummyCoder.convert(featureVector);
-            problem.x[index] = makeInstance(featureLabels, featureVector, bias);
-            problem.y[index] = classIndices.indexOf(instance.getCategory());
-            index++;
-        }
+        List<String> categoryToIndex = new ArrayList<>();
+        List<de.bwaldvogel.liblinear.Feature[]> features = new ArrayList<>();
+        List<Integer> assignedClassIndices = new ArrayList<>();
+		for (Instance instance : dataset) {
+			problem.l++;
+			FeatureVector featureVector = normalization.normalize(instance.getVector());
+			featureVector = dummyCoder.convert(featureVector);
+			features.add(makeInstance(featureLabels, featureVector, bias));
+			if (!categoryToIndex.contains(instance.getCategory())) {
+				categoryToIndex.add(instance.getCategory());
+			}
+			assignedClassIndices.add(categoryToIndex.indexOf(instance.getCategory()));
+		}
+        problem.x = features.toArray(new de.bwaldvogel.liblinear.Feature[0][]);
+        problem.y = new double[problem.l];
+        for (int i = 0; i < assignedClassIndices.size(); i++) {
+        	problem.y[i] = assignedClassIndices.get(i);
+		}
         LOGGER.debug("n={}, l={}", problem.n, problem.l);
         Model model = Linear.train(problem, parameter);
-        return new LibLinearModel(model, featureLabels, classIndices, normalization, dummyCoder);
+        return new LibLinearModel(model, featureLabels, categoryToIndex, normalization, dummyCoder);
     }
 
     static de.bwaldvogel.liblinear.Feature[] makeInstance(List<String> labels, FeatureVector featureVector, double bias) {
