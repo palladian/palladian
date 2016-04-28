@@ -11,10 +11,10 @@ import ws.palladian.helper.io.CloseableIterator;
 
 class SubDataset extends AbstractDataset {
 
-	private final class SubDatasetIterator extends AbstractIterator<Instance> implements CloseableIterator<Instance> {
+	private static final class SubDatasetIterator extends AbstractIterator<Instance> implements CloseableIterator<Instance> {
 
 		private final CloseableIterator<Instance> iterator;
-		private Filter<? super Instance> instanceFilter;
+		private final Filter<? super Instance> instanceFilter;
 
 		public SubDatasetIterator(CloseableIterator<Instance> iterator, Filter<? super Instance> instanceFilter) {
 			this.iterator = iterator;

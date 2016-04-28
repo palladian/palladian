@@ -84,6 +84,12 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     private int lastOutput = -1;
 
     /**
+     * A callback instance that is called when progress is written
+     */
+    private Callback callback;
+
+
+    /**
      * <p>
      * Create a new {@link ProgressMonitor}.
      * </p>
@@ -250,6 +256,11 @@ public final class ProgressMonitor extends AbstractProgressReporter {
             System.out.println(progressString);
             lastOutput = output;
             lastPrintTime = elapsedTime;
+
+            // call the callback if it is set
+            if(callback != null) {
+                callback.callback();
+            }
         }
     }
 
@@ -288,6 +299,10 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     public void setEnhancedStats(boolean enhancedStats) {
         this.enhancedStats = enhancedStats;
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
     public static void main(String[] args) {

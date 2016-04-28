@@ -1,6 +1,7 @@
 package ws.palladian.classification.utils;
 
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.dataset.Dataset;
 
 /**
  * <p>
@@ -31,5 +32,15 @@ public final class NoNormalizer implements Normalizer {
     public Normalization calculate(Iterable<? extends FeatureVector> featureVectors) {
         return NO_NORMALIZATION;
     }
+
+	@Override
+	public Normalization calculate(Dataset dataset) {
+		return NO_NORMALIZATION;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
 
 }

@@ -6,16 +6,16 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.bwaldvogel.liblinear.Linear;
 import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.core.AbstractClassifier;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
-import de.bwaldvogel.liblinear.Linear;
 
 /**
  * <p>
@@ -24,7 +24,7 @@ import de.bwaldvogel.liblinear.Linear;
  * 
  * @author Philipp Katz
  */
-public final class LibLinearClassifier implements Classifier<LibLinearModel> {
+public final class LibLinearClassifier extends AbstractClassifier<LibLinearModel> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LibLinearClassifier.class);
@@ -66,15 +66,10 @@ public final class LibLinearClassifier implements Classifier<LibLinearModel> {
         Filter<String> nameFilter = Filters.equal(model.getFeatureLabels());
         classifiable = ClassificationUtils.filterFeatures(classifiable, nameFilter);
         int numIgnored = oldSize - classifiable.size();
-        if (numIgnored > 0 && LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Ignoring {} unknown features", numIgnored);
+        if (numIgnored > 0 && LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Ignoring {} unknown features", numIgnored);
         }
         return classifiable;
-    }
-    
-    @Override
-    public String toString() {
-    	return getClass().getSimpleName();
     }
 
 }

@@ -33,10 +33,15 @@ public abstract class AbstractDataset implements Dataset {
 		return new CollectionDataset(this);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
-	public Set<String> getFeatureNames() {
+	public final Set<String> getFeatureNames() {
 		return getFeatureInformation().getFeatureNames();
+	}
+	
+	@Override
+	public Dataset transform(DatasetTransformer transformer) {
+		Objects.requireNonNull(transformer, "transformer must not be null");
+		return new TransformedDataset(this, transformer);
 	}
 
 }
