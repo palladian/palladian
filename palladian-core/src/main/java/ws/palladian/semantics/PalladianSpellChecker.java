@@ -151,6 +151,10 @@ public class PalladianSpellChecker {
 
         int n = word.length();
 
+        if (n == 0) {
+            return result;
+        }
+
         // caching substrings is about 2x performance boost
         Map<Integer, String> zeroToNSubstrings = new HashMap<>();
         zeroToNSubstrings.put(n, word);
