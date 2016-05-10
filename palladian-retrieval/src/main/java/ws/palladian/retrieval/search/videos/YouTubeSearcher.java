@@ -276,8 +276,10 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         builder.setSummary(entry.queryString("snippet/description"));
         builder.setThumbnailUrl(entry.queryString("snippet/thumbnails/high/url"));
         // like/dislike statistics
-        long numDislikes = entry.queryInt("statistics/dislikeCount");
-        long numLikes = entry.queryInt("statistics/likeCount");
+        Long numDislikesTmp = entry.tryQueryLong("statistics/dislikeCount");
+        Long numLikesTmp = entry.tryQueryLong("statistics/likeCount");
+        long numDislikes = numDislikesTmp != null ? numDislikesTmp : 0;
+        long numLikes = numLikesTmp != null ? numLikesTmp : 0;
         long total = numLikes + numDislikes;
         if (total > 0) {
             builder.setRating(numLikes / (double)total);
