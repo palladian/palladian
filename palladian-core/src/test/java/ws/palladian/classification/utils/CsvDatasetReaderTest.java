@@ -119,7 +119,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(";");
+		config.setFieldSeparator(";");
 		config.skipColumns(regex("NaN|positiveInfinity|negativeInfinity"));
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {

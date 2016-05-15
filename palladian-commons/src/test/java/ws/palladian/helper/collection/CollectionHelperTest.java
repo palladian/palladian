@@ -55,7 +55,7 @@ public class CollectionHelperTest {
 
     @Test
     public void testSortyMapByValue() {
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        Map<Integer, Integer> map = new HashMap<>();
         map.put(1, 5);
         map.put(3, 3);
         map.put(2, 4);
@@ -81,7 +81,7 @@ public class CollectionHelperTest {
 
     @Test
     public void testRoundRobinList() {
-        RoundRobinList<String> rrl = new RoundRobinList<String>();
+        RoundRobinList<String> rrl = new RoundRobinList<>();
         rrl.add("a");
         rrl.add("b");
         rrl.add("c");
@@ -106,7 +106,7 @@ public class CollectionHelperTest {
     public void testFunction() {
 
         // strings
-        Collection<NameObject> set = new HashSet<NameObject>();
+        Collection<NameObject> set = new HashSet<>();
         set.add(new NameObject("A"));
         set.add(new NameObject("B"));
 
@@ -141,7 +141,7 @@ public class CollectionHelperTest {
 
     @Test
     public void removeNulls() {
-        List<Integer> list = new ArrayList<Integer>(Arrays.asList(null, 1, 2, 3, 4, null));
+        List<Integer> list = new ArrayList<>(Arrays.asList(null, 1, 2, 3, 4, null));
         int removed = CollectionHelper.removeNulls(list);
         assertEquals(2, removed);
         assertEquals(4, list.size());
@@ -155,9 +155,6 @@ public class CollectionHelperTest {
         hashMap.put("A", "A");
         hashMap.put("BB", "B");
         hashMap.put("CCC", "C");
-
-        // CollectionHelper.print(hashMap);
-        // CollectionHelper.print(CollectionHelper.sortByStringKeyLength(hashMap, false));
 
         assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, Order.DESCENDING).entrySet().iterator()
                 .next().getKey());
