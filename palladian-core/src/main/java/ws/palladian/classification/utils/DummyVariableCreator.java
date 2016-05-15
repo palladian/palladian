@@ -14,7 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.ImmutableInstance;
+import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DatasetTransformer;
+import ws.palladian.core.dataset.FeatureInformation;
+import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
+import ws.palladian.core.dataset.FeatureInformationBuilder;
+import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
@@ -37,7 +45,7 @@ import ws.palladian.helper.nlp.StringPool;
  * @see <a href="http://de.slideshare.net/jtneill/multiple-linear-regression/15">Dummy variables</a>
  * @see <a href="http://en.wikiversity.org/wiki/Dummy_variable_(statistics)">Dummy variable (statistics)</a>
  */
-public class DummyVariableCreator implements Serializable {
+public class DummyVariableCreator implements Serializable, DatasetTransformer {
 
     private static final long serialVersionUID = 1L;
 
@@ -56,13 +64,24 @@ public class DummyVariableCreator implements Serializable {
      * </p>
      * 
      * @param trainingSet The dataset, not <code>null</code>.
+     * @deprecated Use {@link #DummyVariableCreator(Dataset)} instead.
      */
+    @Deprecated
     public DummyVariableCreator(Iterable<? extends FeatureVector> dataSet) {
         Validate.notNull(dataSet, "dataSet must not be null");
         this.domain = determineDomains(dataSet);
     }
 
-    private static MultiMap<String, String> determineDomains(Iterable<? extends FeatureVector> dataset) {
+    /**
+     * Create a new {@link DummyVariableCreator} for the given dataset.
+     * @param dataset The dataset, not <code>null</code>.
+     */
+    public DummyVariableCreator(Dataset dataset) {
+    	Validate.notNull(dataset, "dataset must not be null");
+    	this.domain = datermineDomains(dataset);
+    }
+
+	private static MultiMap<String, String> determineDomains(Iterable<? extends FeatureVector> dataset) {
         LOGGER.debug("Determine domain for dataset ...");
         StopWatch stopWatch = new StopWatch();
         MultiMap<String, String> domain = DefaultMultiMap.createWithList();
@@ -90,6 +109,32 @@ public class DummyVariableCreator implements Serializable {
         LOGGER.debug("... finished determining domain in {}", stopWatch);
         return domain;
     }
+	
+    private static MultiMap<String, String> datermineDomains(Dataset dataset) {
+        MultiMap<String, String> domain = DefaultMultiMap.createWithList();
+        Set<String> nominalFeatureNames = dataset.getFeatureInformation().getFeatureNamesOfType(NominalValue.class);
+        if (nominalFeatureNames.isEmpty()) {
+        	LOGGER.debug("No nominal features in dataset.");
+        } else {
+        	LOGGER.debug("Determine domain for dataset ...");
+        	StopWatch stopWatch = new StopWatch();
+	        for (Instance instance : dataset) {
+	            for (String featureName : nominalFeatureNames) {
+	                Value value = instance.getVector().get(featureName);
+	                if (value == NullValue.NULL) {
+	                    continue;
+	                }
+	                NominalValue nominalValue = (NominalValue)value;
+	                String featureValue = nominalValue.getString();
+	                if (!domain.get(featureName).contains(featureValue)) {
+	                    domain.add(featureName, featureValue);
+	                }
+	            }
+	        }
+	        LOGGER.debug("... finished determining domain in {}", stopWatch);
+        }
+        return domain;
+	}
 
     private static Set<String> getNominalFeatureNames(FeatureVector featureVector) {
         Set<String> nominalFeatureNames = new HashSet<>();
@@ -108,7 +153,9 @@ public class DummyVariableCreator implements Serializable {
      * 
      * @param data The dataset, not <code>null</code>.
      * @return Dataset with converted features.
+     * @deprecated Use {@link #convert(Dataset)} instead.
      */
+    @Deprecated
     public Iterable<FeatureVector> convert(final Iterable<? extends FeatureVector> data) {
         Validate.notNull(data, "data must not be null");
 
@@ -139,6 +186,38 @@ public class DummyVariableCreator implements Serializable {
         };
 
     }
+    
+    /**
+     * @deprecated Use {@link Dataset#transform(DatasetTransformer)} instead.
+     */
+    @Deprecated
+    public Dataset convert(final Dataset dataset) {
+    	Validate.notNull(dataset, "data must not be null");
+    	return dataset.transform(this);
+    }
+    
+	@Override
+	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+		FeatureInformationBuilder resultBuilder = new FeatureInformationBuilder();
+		for (FeatureInformationEntry infoEntry : featureInformation) {
+			Collection<String> featureDomain = domain.get(infoEntry.getName());
+			if (featureDomain == null) {
+				resultBuilder.set(infoEntry.getName(), infoEntry.getType());
+			} else if (featureDomain.size() < 3) {
+				resultBuilder.set(infoEntry.getName(), ImmutableDoubleValue.class);
+			} else {
+				for (String domainValue : featureDomain) {
+					resultBuilder.set(infoEntry.getName() + ":" + domainValue, ImmutableDoubleValue.class);
+				}
+			}
+		}
+		return resultBuilder.create();
+	}
+    
+	@Override
+	public Instance compute(Instance input) {
+		return new ImmutableInstance(convert(input.getVector()), input.getCategory());
+	}
 
     /**
      * <p>

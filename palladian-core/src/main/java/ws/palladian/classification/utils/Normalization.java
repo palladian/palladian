@@ -3,6 +3,8 @@ package ws.palladian.classification.utils;
 import java.io.Serializable;
 
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DatasetTransformer;
 
 /**
  * <p>
@@ -11,7 +13,7 @@ import ws.palladian.core.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public interface Normalization extends Serializable {
+public interface Normalization extends Serializable, DatasetTransformer {
 
     /**
      * <p>
@@ -34,5 +36,16 @@ public interface Normalization extends Serializable {
      * @return A new FeatureVector with normalized values.
      */
     FeatureVector normalize(FeatureVector featureVector);
+    
+	/**
+	 * Normalize a {@link Dataset} based on the normalization information.
+	 * 
+	 * @param dataset
+	 *            The Dataset to normalize, not <code>null</code>.
+	 * @return The normalized Dataset.
+	 * @deprecated Use {@link Dataset#transform(DatasetTransformer)} instead.
+	 */
+    @Deprecated
+	Dataset normalize(Dataset dataset);
 
 }

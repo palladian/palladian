@@ -632,7 +632,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     @Override
     public String getResultTitle() {
         // try to get it from the biggest headline, take last one as we assume this to be the most specific
-        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1");
+        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1[not(ancestor::header) and not(ancestor::footer)]");
         Node h1Node = CollectionHelper.getLast(xhtmlNodes);
 
         String resultTitle = "";
@@ -810,7 +810,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         WebImage image = null;
-        List<WebImage> images = getImages(mainContentNode, getDocument(),".//img[not(ancestor::header) and not(ancestor::footer)]");
+
+        // get images that are not in header or footer or that link to the index (which are usually logos and banners)
+        List<WebImage> images = getImages(mainContentNode, getDocument(),".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]");
         filter(images, "jpeg", "png", "jpg");
         if (!images.isEmpty()) {
             // only sort by size if the first one is below a certain size

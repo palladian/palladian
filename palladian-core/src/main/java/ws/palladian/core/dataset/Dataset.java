@@ -82,4 +82,13 @@ public interface Dataset extends Iterable<Instance> {
 	 */
 	Dataset buffer();
 	
+	/**
+	 * Apply a transformation on the instances in this dataset.
+	 * 
+	 * @param transformer
+	 *            The transformer.
+	 * @return The transformed dataset.
+	 */
+	Dataset transform(DatasetTransformer transformer);
+	
 }

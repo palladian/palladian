@@ -28,6 +28,7 @@ public class CsvDatasetReaderConfig {
 		private List<TargetValueParser> parsers = new ArrayList<>();
 		private String nullValue = DEFAULT_NULL_VALUE;
 		private boolean gzip = false;
+		private List<Filter<? super String>> skipColumns = new ArrayList<>();
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -129,6 +130,22 @@ public class CsvDatasetReaderConfig {
 			this.gzip = gzip;
 			return this;
 		}
+		
+		/**
+		 * Specify, that the columns <i>matching</i> the given filter will be
+		 * skipped during parsing. This can yield in a performance gain in
+		 * contrast to a filtering applied later, when parsing bug datasets and
+		 * not all columns are required.
+		 * 
+		 * @param name
+		 *            Filter for the column names to skip.
+		 * @return The builder.
+		 */
+		public Builder skipColumns(Filter<? super String> name) {
+			Validate.notNull(name, "name must not be null");
+			this.skipColumns.add(name);
+			return this;
+		}
 
 		@Override
 		public CsvDatasetReader create() {
@@ -176,6 +193,7 @@ public class CsvDatasetReaderConfig {
 	private final List<TargetValueParser> parsers;
 	private final String nullValue;
 	private final boolean gzip;
+	private final List<Filter<? super String>> skipColumns;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -185,6 +203,7 @@ public class CsvDatasetReaderConfig {
 		this.parsers = new ArrayList<>(builder.parsers);
 		this.nullValue = builder.nullValue;
 		this.gzip = builder.gzip;
+		this.skipColumns = new ArrayList<>(builder.skipColumns);
 	}
 
 	File filePath() {
@@ -231,5 +250,14 @@ public class CsvDatasetReaderConfig {
         	inputStream = new GZIPInputStream(inputStream);
         }
         return inputStream;
+	}
+	
+	public boolean isSkippedColumn(String name) {
+		for (Filter<? super String> columnFilter : skipColumns) {
+			if (columnFilter.accept(name)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

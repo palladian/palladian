@@ -4,9 +4,9 @@ import org.apache.commons.lang3.Validate;
 
 import quickml.data.AttributesMap;
 import quickml.data.PredictionMap;
+import ws.palladian.core.AbstractClassifier;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 
 /**
@@ -16,7 +16,7 @@ import ws.palladian.core.FeatureVector;
  * 
  * @author Philipp Katz
  */
-public class QuickMlClassifier implements Classifier<QuickMlModel> {
+public class QuickMlClassifier extends AbstractClassifier<QuickMlModel> {
 
     @Override
     public CategoryEntries classify(FeatureVector featureVector, QuickMlModel model) {
@@ -31,11 +31,6 @@ public class QuickMlClassifier implements Classifier<QuickMlModel> {
             builder.set(targetClass, prediction.get(targetClass));
         }
         return builder.create();
-    }
-    
-    @Override
-    public String toString() {
-    	return getClass().getSimpleName();
     }
 
 }

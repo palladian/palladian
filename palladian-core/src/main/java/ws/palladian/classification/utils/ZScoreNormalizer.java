@@ -46,7 +46,7 @@ public final class ZScoreNormalizer extends AbstractStatsNormalizer {
             Double mean = means.get(name);
             if (standardDeviation == null || mean == null) {
                 // throw new IllegalArgumentException("No normalization information for \"" + featureName + "\".");
-                LOGGER.debug("No normalization information for \"{}\".", name);
+                LOGGER.trace("No normalization information for \"{}\".", name);
                 return value;
             }
             double normalizedValue = value - mean;

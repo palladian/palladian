@@ -22,7 +22,7 @@ public interface Vector<K, V> extends Iterable<VectorEntry<K, V>> {
      * @param <K>
      * @param <V>
      */
-    public interface VectorEntry<K, V> {
+    interface VectorEntry<K, V> {
 
         /**
          * @return The key of this entry.
