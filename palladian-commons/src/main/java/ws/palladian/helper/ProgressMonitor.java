@@ -10,7 +10,9 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import org.w3c.dom.Document;
 import ws.palladian.helper.date.DateHelper;
+import ws.palladian.helper.functional.Consumer;
 
 /**
  * <p>
