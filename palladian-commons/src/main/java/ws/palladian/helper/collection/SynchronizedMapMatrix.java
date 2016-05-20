@@ -62,10 +62,17 @@ public class SynchronizedMapMatrix<K, V> extends AbstractMatrix<K, V> implements
             if (row == null) {
                 row = Collections.synchronizedMap(new HashMap<K, V>());
                 matrix.put(y, row);
+
             }
-            keysX.add(x);
-            keysY.add(y);
-            row.put(x, value);
+            synchronized (keysY) {
+                synchronized (keysX) {
+                    synchronized (row){
+                        keysX.add(x);
+                        keysY.add(y);
+                        row.put(x, value);
+                    }
+                }
+            }
         }
     }
 
