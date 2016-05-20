@@ -11,22 +11,30 @@ import java.util.Map.Entry;
  * {@link #getRow(Object)} is <b>much</b> faster than accessing a column using {@link #getColumn(Object)}, because in
  * the latter case, all entries need to be iterated.
  * </p>
- * 
+ *
  * @param <K> Type of the keys.
  * @param <V> Type of the values.
  */
 public class SynchronizedMapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializable {
 
-    /** The serial version id. */
+    /**
+     * The serial version id.
+     */
     private static final long serialVersionUID = 2L;
 
-    /** The maps holding the matrix. */
+    /**
+     * The maps holding the matrix.
+     */
     private final Map<K, Map<K, V>> matrix = Collections.synchronizedMap(new HashMap<K, Map<K, V>>());
 
-    /** All keys for the x-axis used in the matrix. */
+    /**
+     * All keys for the x-axis used in the matrix.
+     */
     private final Set<K> keysX = Collections.synchronizedSet(new LinkedHashSet<K>());
 
-    /** All keys for the y-axis used in the matrix. */
+    /**
+     * All keys for the y-axis used in the matrix.
+     */
     private final Set<K> keysY = Collections.synchronizedSet(new LinkedHashSet<K>());
 
     public static <K, V> SynchronizedMapMatrix<K, V> create() {
@@ -64,15 +72,9 @@ public class SynchronizedMapMatrix<K, V> extends AbstractMatrix<K, V> implements
                 matrix.put(y, row);
 
             }
-            synchronized (keysY) {
-                synchronized (keysX) {
-                    synchronized (row){
-                        keysX.add(x);
-                        keysY.add(y);
-                        row.put(x, value);
-                    }
-                }
-            }
+            keysX.add(x);
+            keysY.add(y);
+            row.put(x, value);
         }
     }
 
