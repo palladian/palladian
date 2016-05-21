@@ -28,7 +28,7 @@ public abstract class AbstractSentimentClassifier {
      * @return A CategoryEntry with the likelihood.
      */
     public Category getPolarity(String text) {
-        opinionatedSentences = new HashMap<String, List<String>>();
+        opinionatedSentences = new HashMap<>();
         return getPolarity(text, null);
     }
     

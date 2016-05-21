@@ -3,6 +3,7 @@ package ws.palladian.extraction.token;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Token;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.helper.StopWatch;
@@ -143,6 +144,8 @@ public final class Tokenizer {
      * @return A set of possible splits.
      */
     public static Set<List<String>> computeSplits(String string, int n1, int n2, int maxSplits) {
+        Validate.notEmpty(string);
+        Validate.notNull(string);
 
         Set<List<String>> splits = new HashSet<>();
         computeSplits(splits, new ArrayList<>(), string, n1, n2, maxSplits);
