@@ -210,7 +210,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
         // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
         // "data/temp/lingPipeNER_.model",
         // TaggingFormat.COLUMN);
-        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getMucResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
         // using a dataset
@@ -221,7 +221,7 @@ public class LingPipeNer extends TrainableNamedEntityRecognizer {
         // Dataset testingDataset = new Dataset();
         // testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
         // EvaluationResult er = tagger.evaluate(testingDataset, "data/temp/lingpipe.model");
-        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getMucResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
 
     }

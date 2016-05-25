@@ -50,7 +50,7 @@ public class StanfordNerIT {
         // precision MUC: 85.22%, recall MUC: 83.55%, F1 MUC: 84.38%
         // precision exact: 76.6%, recall exact: 75.09%, F1 exact: 75.84%
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getMucResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.84);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.76);

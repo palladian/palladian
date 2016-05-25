@@ -287,7 +287,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         tagger.loadModel("data/temp/stanfordNER2.model");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/tud/tud2011_test.txt", TaggingFormat.COLUMN);
 
-        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getMucResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 
         // Dataset trainingDataset = new Dataset();
@@ -298,7 +298,7 @@ public class StanfordNer extends TrainableNamedEntityRecognizer {
         // testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
         // EvaluationResult er = tagger.evaluate(testingDataset, "data/temp/stanfordner." +
         // tagger.getModelFileEnding());
-        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getMucResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
     }
 

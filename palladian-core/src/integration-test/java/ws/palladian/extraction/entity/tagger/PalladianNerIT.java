@@ -77,7 +77,7 @@ public class PalladianNerIT {
         // precision MUC: 55.95%, recall MUC: 49.91%, F1 MUC: 52.75%
         // precision exact: 42.54%, recall exact: 37.94%, F1 exact: 40.11%
         EvaluationResult er = tagger.evaluate(testPath, COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getMucResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
         ITHelper.assertMin("F1-MUC", 0.61, er.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.44, er.getF1(EXACT_MATCH));
@@ -113,7 +113,7 @@ public class PalladianNerIT {
         // precision MUC: 68.49%, recall MUC: 83.88%, F1 MUC: 75.4%
         // precision exact: 60.13%, recall exact: 73.64%, F1 exact: 66.2%
         EvaluationResult er = tagger.evaluate(testPath, COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getMucResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
         ITHelper.assertMin("F1-MUC", 0.84, er.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.74, er.getF1(EXACT_MATCH));
@@ -130,7 +130,7 @@ public class PalladianNerIT {
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
         // precision MUC: 50.84%, recall MUC: 54.87%, F1 MUC: 52.78%
         // precision exact: 28.71%, recall exact: 30.99%, F1 exact: 29.81%
-        // System.out.println(result.getMUCResultsReadable());
+        // System.out.println(result.getMucResultsReadable());
         // System.out.println(result.getExactMatchResultsReadable());
         ITHelper.assertMin("F1-MUC", 0.54, result.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.31, result.getF1(EXACT_MATCH));
@@ -147,7 +147,7 @@ public class PalladianNerIT {
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
         // precision MUC: 50.38%, recall MUC: 16.56%, F1 MUC: 24.93%
         // precision exact: 34.23%, recall exact: 11.25%, F1 exact: 16.93%
-        // System.out.println(result.getMUCResultsReadable());
+        // System.out.println(result.getMucResultsReadable());
         // System.out.println(result.getExactMatchResultsReadable());
         ITHelper.assertMin("F1-MUC", 0.26, result.getF1(MUC));
         ITHelper.assertMin("F1-Exact", 0.16, result.getF1(EXACT_MATCH));
@@ -168,7 +168,7 @@ public class PalladianNerIT {
         PalladianNer ner = new PalladianNer(builder.create());
         ner.train(trainingFile, new File(tempDirectory, "palladianNerWikipedia.model.gz"));
         EvaluationResult result = ner.evaluate(testPath, COLUMN);
-        // System.out.println(result.getMUCResultsReadable());
+        // System.out.println(result.getMucResultsReadable());
         // System.out.println(result.getExactMatchResultsReadable());
         // precision MUC: 80.45%, recall MUC: 84.63%, F1 MUC: 82.49%
         // precision exact: 70.9%, recall exact: 74.58%, F1 exact: 72.69%

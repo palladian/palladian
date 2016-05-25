@@ -60,7 +60,7 @@
 //
 //        // EvaluationResult er = tagger.evaluate(ResourceHelper.getResourcePath("/ner/test.txt"),
 //        // ResourceHelper.getResourcePath("/ner/juliener.mod"), TaggingFormat.COLUMN);
-//        // System.out.println(er.getMUCResultsReadable());
+//        // System.out.println(er.getMucResultsReadable());
 //        // System.out.println(er.getExactMatchResultsReadable());
 //
 //        tagger.loadModel(julieNerModelFile);

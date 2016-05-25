@@ -54,7 +54,7 @@ public class LingPipeNerIT {
         // precision MUC: 81.93%, recall MUC: 74.04%, F1 MUC: 77.79%
         // precision exact: 72.96%, recall exact: 65.93%, F1 exact: 69.27%
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getMucResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
         assertTrue(er.getF1(EvaluationMode.MUC) > 0.77);
         assertTrue(er.getF1(EvaluationMode.EXACT_MATCH) > 0.69);

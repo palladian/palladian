@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 
@@ -168,7 +169,7 @@ public class EvaluationResult {
      */
     public EvaluationResult(List<? extends Annotation> goldStandard) {
         Validate.notNull(goldStandard, "goldStandard must not be null");
-        this.assignments = LazyMap.create(new Bag.BagFactory<ResultType>());
+        this.assignments = LazyMap.create(new Bag.BagFactory<>());
         this.resultAnnotations = DefaultMultiMap.createWithList();
         this.confusionMatrix = new ConfusionMatrix();
         this.actualAssignments = Bag.create();
@@ -216,8 +217,8 @@ public class EvaluationResult {
 
     /** Get correct assignments weighted by MUC scheme. */
     private int getWeightedMuc(String tagName) {
-        return getResultTypeCount(tagName, ResultType.ERROR3) + getResultTypeCount(tagName, ResultType.ERROR4) + 2
-                * getResultTypeCount(tagName, ResultType.CORRECT);
+        return getResultTypeCount(tagName, ResultType.ERROR3) + getResultTypeCount(tagName, ResultType.ERROR4)
+                + 2 * getResultTypeCount(tagName, ResultType.CORRECT);
     }
 
     public double getF1For(String tagName, EvaluationMode type) {
@@ -331,7 +332,7 @@ public class EvaluationResult {
         StringBuilder builder = new StringBuilder();
         builder.append(getExactMatchResultsReadable());
         builder.append(", ");
-        builder.append(getMUCResultsReadable());
+        builder.append(getMucResultsReadable());
         return builder.toString();
     }
 
@@ -346,7 +347,7 @@ public class EvaluationResult {
         return builder.toString();
     }
 
-    public String getMUCResultsReadable() {
+    public String getMucResultsReadable() {
         StringBuilder builder = new StringBuilder();
         builder.append("precision MUC: ");
         builder.append(MathHelper.round(100 * getPrecision(EvaluationMode.MUC), 2)).append("%");
@@ -369,7 +370,7 @@ public class EvaluationResult {
         results.append("predicted\\real;");
 
         // order of tag names for matrix
-        List<String> tagOrder = new ArrayList<String>();
+        List<String> tagOrder = new ArrayList<>();
         for (String tagName : assignments.keySet()) {
             tagOrder.add(tagName);
             results.append(tagName).append(";");
@@ -378,7 +379,8 @@ public class EvaluationResult {
         tagOrder.add(OTHER_MARKER);
         results.append(OTHER_MARKER).append(";");
 
-        results.append("#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
+        results.append(
+                "#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
 
         int totalTagAssignments = 0;
         for (String predictedTag : assignments.keySet()) {
@@ -421,8 +423,8 @@ public class EvaluationResult {
         results.append(totalTagAssignments).append(";");
 
         // precision, recall, and F1 for exact match
-        results.append("tag averaged:")
-                .append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4)).append(", overall:");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4))
+                .append(", overall:");
         results.append(MathHelper.round(getPrecision(EvaluationMode.EXACT_MATCH), 4)).append(";");
         results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4))
                 .append(", overall:");
@@ -478,9 +480,7 @@ public class EvaluationResult {
 
     private Bag<String> getAnnotationCount(ResultType resultType) {
         Bag<String> counts = Bag.create();
-        for (Annotation annotation : getAnnotations(resultType)) {
-            counts.add(annotation.getTag());
-        }
+        counts.addAll(getAnnotations(resultType).stream().map(Annotation::getTag).collect(Collectors.toList()));
         return counts;
     }
 
@@ -511,8 +511,8 @@ public class EvaluationResult {
 
     public Collection<Annotation> getAnnotations(ResultType resultType) {
         Collection<Annotation> annotations = resultAnnotations.get(resultType);
-        return annotations != null ? Collections.unmodifiableCollection(annotations) : Collections
-                .<Annotation> emptyList();
+        return annotations != null ? Collections.unmodifiableCollection(annotations)
+                : Collections.<Annotation> emptyList();
     }
 
     /**

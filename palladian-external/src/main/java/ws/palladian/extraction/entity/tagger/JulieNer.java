@@ -357,13 +357,13 @@
 //        // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener_small.mod");
 //        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt",
 //        // "data/temp/juliener_small.mod", TaggingFormat.COLUMN);
-//        System.out.println(er.getMUCResultsReadable());
+//        System.out.println(er.getMucResultsReadable());
 //        System.out.println(er.getExactMatchResultsReadable());
 //
 //        // tagger.train("data/datasets/ner/politician/text/training.tsv", "data/temp/juliener.mod");
 //        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
 //        // "data/temp/juliener.mod", TaggingFormat.COLUMN);
-//        // System.out.println(er.getMUCResultsReadable());
+//        // System.out.println(er.getMucResultsReadable());
 //        // System.out.println(er.getExactMatchResultsReadable());
 //
 //    }

@@ -170,7 +170,8 @@ public final class Tokenizer {
 
         for (String ngram : ngrams) {
             currentSplit.add(ngram);
-            computeSplits(splits, currentSplit, string.replaceAll("^" + ngram, "").trim(), n1, n2, maxSplits);
+//            computeSplits(splits, currentSplit, string.replaceAll("^" + ngram, "").trim(), n1, n2, maxSplits);
+            computeSplits(splits, currentSplit, string.startsWith(ngram) ? string.substring(ngram.length()).trim() : string, n1, n2, maxSplits);
         }
         if (!currentSplit.isEmpty()) {
             currentSplit.remove(currentSplit.size() - 1);

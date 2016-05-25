@@ -44,7 +44,7 @@ public class PalladianNerExperiments {
 
         EvaluationResult evaluationResult = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
                 TaggingFormat.COLUMN);
-        System.out.println(evaluationResult.getMUCResultsReadable());
+        System.out.println(evaluationResult.getMucResultsReadable());
         System.out.println(evaluationResult.getExactMatchResultsReadable());
         //        FileHelper.writeToFile("data/temp/conllEvaluation", evaluationResult.toString());
     }
