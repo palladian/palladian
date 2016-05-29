@@ -16,4 +16,14 @@ public enum ComparisonType {
     public String getOperator() {
         return operator;
     }
+
+    public static ComparisonType getByOperator(String operator) {
+        for (ComparisonType comparisonType : values()) {
+            if (comparisonType.getOperator().equals(operator)) {
+                return comparisonType;
+            }
+        }
+
+        return null;
+    }
 }
