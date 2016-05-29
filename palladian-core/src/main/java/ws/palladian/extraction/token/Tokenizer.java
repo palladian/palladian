@@ -147,6 +147,9 @@ public final class Tokenizer {
         Validate.notEmpty(string);
         Validate.notNull(string);
 
+        // we need to prepare the string a bit
+        string = string.replaceAll(",(?=\\w)"," ");
+
         Set<List<String>> splits = new HashSet<>();
         computeSplits(splits, new ArrayList<>(), string, n1, n2, maxSplits);
 
