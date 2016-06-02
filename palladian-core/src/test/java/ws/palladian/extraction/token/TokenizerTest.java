@@ -1,12 +1,17 @@
 package ws.palladian.extraction.token;
 
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
 
+import org.junit.rules.ErrorCollector;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -18,6 +23,31 @@ import ws.palladian.helper.constants.Language;
  * @author Philipp Katz
  */
 public class TokenizerTest {
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
+
+    @Test
+    public void testComputeStartingWordNGrams() {
+//        CollectionHelper.print(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8,500));
+
+        collector.checkThat(Tokenizer.computeStartingWordNGrams("This is a test.", 1, 3), hasItem("This"));
+        collector.checkThat(Tokenizer.computeStartingWordNGrams("This is a test.", 1, 3), hasItem("This is"));
+        collector.checkThat(Tokenizer.computeStartingWordNGrams("This is a test.", 1, 3), hasItem("This is a"));
+        collector.checkThat(Tokenizer.computeStartingWordNGrams("This is a test.", 1, 3).size(), is(3));
+
+        collector.checkThat(Tokenizer.computeStartingWordNGrams("my broccoli rabe “spaghetti,” tomato & chicken", 1, 3).size(), is(3));
+
+    }
+    @Test
+    public void testComputeSplits() {
+//        CollectionHelper.print(Tokenizer.computeSplits("This is a test.", 1, 8,500));
+//        CollectionHelper.print(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8,500));
+//        CollectionHelper.print(Tokenizer.computeSplits("This is a 3,5 test with,another comma.", 1, 8,500));
+
+        collector.checkThat(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8, 1000).size(), is(64));
+        collector.checkThat(Tokenizer.computeSplits("This is a 3,5 test with,another comma.", 1, 4, 1000).size(), is(56));
+    }
 
     @Test
     public void testCalculateCharNGrams() {

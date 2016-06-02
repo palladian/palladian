@@ -147,9 +147,6 @@ public final class Tokenizer {
         Validate.notEmpty(string);
         Validate.notNull(string);
 
-        // we need to prepare the string a bit
-        string = string.replaceAll(",(?=\\w)"," ");
-
         Set<List<String>> splits = new HashSet<>();
         computeSplits(splits, new ArrayList<>(), string, n1, n2, maxSplits);
 
@@ -193,7 +190,7 @@ public final class Tokenizer {
     public static List<String> computeStartingWordNGrams(String string, int n1, int n2) {
         ArrayList<String> ngrams = new ArrayList<>();
 
-        String[] split = string.split("[ ,]");
+        String[] split = string.split(" ");
         n2 = Math.min(n2, split.length);
         for (int i = 0; i < Math.min(split.length, n2 - n1 + 1); i++) {
             String ngram = "";
