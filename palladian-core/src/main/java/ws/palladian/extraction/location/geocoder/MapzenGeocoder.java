@@ -91,21 +91,26 @@ public final class MapzenGeocoder implements Geocoder, ReverseGeocoder {
 				JsonObject firstFeature = featuresJson.getJsonObject(0);
 				JsonObject propertiesObject = firstFeature.getJsonObject("properties");
 				Builder builder = new ImmutablePlace.Builder();
-				builder.setHouseNumber(propertiesObject.getString("housenumber"));
-				builder.setStreet(propertiesObject.getString("street"));
-				builder.setPostalcode(propertiesObject.getString("postalcode"));
-				builder.setCountry(propertiesObject.getString("country"));
-				builder.setRegion(propertiesObject.getString("region"));
-				builder.setCounty(propertiesObject.getString("county"));
-				builder.setLocality(propertiesObject.getString("locality"));
-				builder.setNeighbourhood(propertiesObject.getString("neighbourhood"));
-				builder.setLabel(propertiesObject.getString("label"));
+				builder.setHouseNumber(propertiesObject.tryGetString("housenumber"));
+				builder.setStreet(propertiesObject.tryGetString("street"));
+				builder.setPostalcode(propertiesObject.tryGetString("postalcode"));
+				builder.setCountry(propertiesObject.tryGetString("country"));
+				builder.setRegion(propertiesObject.tryGetString("region"));
+				builder.setCounty(propertiesObject.tryGetString("county"));
+				builder.setLocality(propertiesObject.tryGetString("locality"));
+				builder.setNeighbourhood(propertiesObject.tryGetString("neighbourhood"));
+				builder.setLabel(propertiesObject.tryGetString("label"));
 				return builder.create();
 			}
 		} catch (JsonException e) {
 			throw new GeocoderException("Error while parsing JSON result (" + result.getStringContent() + ").", e);
 		}
 		return null;
+	}
+	
+	public static void main(String[] args) throws GeocoderException {
+		MapzenGeocoder geocoder = new MapzenGeocoder("search-oX0j-9I");
+		geocoder.reverseGeoCode(new ImmutableGeoCoordinate(48.8583701,2.2944813));
 	}
 
 }
