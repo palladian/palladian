@@ -11,13 +11,13 @@ public class FreeGeoIpLookupIT {
 		IpLookupResult result = ipLookup.lookup("80.134.78.133");
 		assertEquals("DE", result.getCountryCode());
 		assertEquals("Germany", result.getCountryName());
-		assertEquals("NW", result.getRegionCode());
-		assertEquals("North Rhine-Westphalia", result.getRegionName());
-		assertEquals("Mülheim", result.getCity());
-		assertEquals("45403", result.getZipCode());
+		assertEquals("SN", result.getRegionCode());
+		assertEquals("Saxony", result.getRegionName());
+		assertEquals("Dresden", result.getCity());
+		assertEquals("01097", result.getZipCode());
 		assertEquals("Europe/Berlin", result.getTimeZone());
-		assertEquals(51.4333, result.getCoordinate().getLatitude(), 0.001);
-		assertEquals(6.8833, result.getCoordinate().getLongitude(), 0.001);
+		assertEquals(51.071, result.getCoordinate().getLatitude(), 0.001);
+		assertEquals(13.74, result.getCoordinate().getLongitude(), 0.001);
 		assertEquals("0", result.getMetroCode());
 		// System.out.println(result);
 	}

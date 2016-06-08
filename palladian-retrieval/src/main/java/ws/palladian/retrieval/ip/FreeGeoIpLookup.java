@@ -54,6 +54,9 @@ public final class FreeGeoIpLookup implements IpLookup {
 				}
 			}
 			if (httpResult.errorStatus()) {
+				if (httpResult.getStatusCode() == 404) {
+					return null;
+				}
 				if (httpResult.getStatusCode() != 503 || attempt == MAX_RETRIES) {
 					throw new IpLookupException("HTTP status " + httpResult.getStatusCode() + " for " + requestUrl);
 				} else {
