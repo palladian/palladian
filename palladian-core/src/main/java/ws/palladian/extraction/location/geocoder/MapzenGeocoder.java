@@ -2,8 +2,12 @@ package ws.palladian.extraction.location.geocoder;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.geocoder.ImmutablePlace.Builder;
 import ws.palladian.helper.UrlHelper;
@@ -27,8 +31,11 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  */
 public final class MapzenGeocoder implements Geocoder, ReverseGeocoder {
 
+	/** The logger for this class. */
+	private static final Logger LOGGER = LoggerFactory.getLogger(MapzenGeocoder.class);
+
 	/** API allows 6 requests per second. */
-	private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, SECONDS, 6);
+	private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, SECONDS, 5);
 
 	public static final String CONFIG_API_KEY = "api.mapzen.apikey";
 
@@ -67,17 +74,26 @@ public final class MapzenGeocoder implements Geocoder, ReverseGeocoder {
 	}
 
 	private HttpResult performRequest(String url) throws GeocoderException {
-		HttpResult result;
-		try {
-			THROTTLE.hold();
-			result = HttpRetrieverFactory.getHttpRetriever().httpGet(url);
-		} catch (HttpException e) {
-			throw new GeocoderException("Encountered HTTP exception for \"" + url + "\".", e);
+		for (;;) {
+			try {
+				THROTTLE.hold();
+				HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet(url);
+				if (result.errorStatus()) {
+					if (result.getStatusCode() == 429) {
+						LOGGER.info("Received HTTP status 429, delaying for 10 seconds");
+						try {
+							Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+						} catch (InterruptedException e) {
+							throw new IllegalStateException(e);
+						}
+					}
+					throw new GeocoderException("Received HTTP status code " + result.getStatusCode());
+				}
+				return result;
+			} catch (HttpException e) {
+				throw new GeocoderException("Encountered HTTP exception for \"" + url + "\".", e);
+			}
 		}
-		if (result.errorStatus()) {
-			throw new GeocoderException("Received HTTP status code " + result.getStatusCode());
-		}
-		return result;
 	}
 
 	@Override
