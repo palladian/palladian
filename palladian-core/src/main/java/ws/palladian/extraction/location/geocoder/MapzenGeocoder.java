@@ -78,18 +78,19 @@ public final class MapzenGeocoder implements Geocoder, ReverseGeocoder {
 			try {
 				THROTTLE.hold();
 				HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet(url);
-				if (result.errorStatus()) {
-					if (result.getStatusCode() == 429) {
-						LOGGER.info("Received HTTP status 429, delaying for 10 seconds");
-						try {
-							Thread.sleep(TimeUnit.SECONDS.toMillis(10));
-						} catch (InterruptedException e) {
-							throw new IllegalStateException(e);
-						}
-					}
-					throw new GeocoderException("Received HTTP status code " + result.getStatusCode());
+				if (!result.errorStatus()) {
+					return result;
 				}
-				return result;
+				if (result.getStatusCode() == 429) {
+					LOGGER.info("Received HTTP status 429, delaying for 10 seconds");
+					try {
+						Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+					} catch (InterruptedException e) {
+						throw new IllegalStateException(e);
+					}
+					continue;
+				}
+				throw new GeocoderException("Received HTTP status code " + result.getStatusCode());
 			} catch (HttpException e) {
 				throw new GeocoderException("Encountered HTTP exception for \"" + url + "\".", e);
 			}
@@ -122,11 +123,6 @@ public final class MapzenGeocoder implements Geocoder, ReverseGeocoder {
 			throw new GeocoderException("Error while parsing JSON result (" + result.getStringContent() + ").", e);
 		}
 		return null;
-	}
-	
-	public static void main(String[] args) throws GeocoderException {
-		MapzenGeocoder geocoder = new MapzenGeocoder("search-oX0j-9I");
-		geocoder.reverseGeoCode(new ImmutableGeoCoordinate(48.8583701,2.2944813));
 	}
 
 }
