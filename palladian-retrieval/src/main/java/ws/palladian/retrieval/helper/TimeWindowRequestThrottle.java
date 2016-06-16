@@ -56,7 +56,7 @@ public class TimeWindowRequestThrottle implements RequestThrottle {
         // if maximum request counts would be exceeded, we need to wait
         if (getNumRequestsInWindow() >= maximumRequests) {
             Long oldestTimestamp = requestTimestamps.poll();
-            long timeToWait = oldestTimestamp - (System.currentTimeMillis() - timeWindow);
+            long timeToWait = Math.max(0, oldestTimestamp - (System.currentTimeMillis() - timeWindow));
             totalThrottledTime += timeToWait;
             if (timeToWait > 5000) { // show info, when we have to wait long
                 LOGGER.info("Waiting for {}", DateHelper.getTimeString(timeToWait));
