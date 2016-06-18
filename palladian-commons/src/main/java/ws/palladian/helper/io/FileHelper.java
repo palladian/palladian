@@ -991,8 +991,6 @@ public final class FileHelper {
             out = new FileOutputStream(new File(destinationFile));
             copy(in, out);
             success = true;
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
