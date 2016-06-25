@@ -966,13 +966,17 @@ public final class MathHelper {
     /**
      * Map two natural numbers (non-negative!) to a third natural number. N x N => N.
      * f(a,b) = c where there are now two settings for a and b that produce the same c.
+     * 
+     * The mapping for two maximum most 16 bit integers (65535, 65535) will be 8589803520 which as you see cannot be fit
+     * into 32 bits and must be long.
+     * 
      * @see https://en.wikipedia.org/wiki/Pairing_function
      * @param a The first number.
      * @param b The second number.
      * @return The target number.
      */
-    public static int cantorize(int a, int b) {
-        return ((a + b) * (a + b + 1) / 2) + b;
+    public static long cantorize(int a, int b) {
+        return (((long)a + (long)b) * ((long)a + (long)b + 1) / 2) + (long)b;
     }
 
     /**
