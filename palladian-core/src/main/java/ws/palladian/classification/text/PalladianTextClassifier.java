@@ -110,7 +110,8 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         }
 
         @Override
-        public double scoreCategory(String category, double categoryScore, double categoryProbability, boolean matched) {
+        public double scoreCategory(String category, double categoryScore, double categoryProbability,
+                boolean matched) {
             // If we have a category weight by matching terms from the document, use them to create the probability
             // distribution. Else wise return the prior probability distribution of the categories.
             return matched ? categoryScore : categoryProbability;
@@ -268,9 +269,9 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         return classify(featureVector, model);
     }
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName() + "[scorer=" + scorer + ", featureSetting=" + featureSetting + "]";
-	}
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[scorer=" + scorer + ", featureSetting=" + featureSetting + "]";
+    }
 
 }

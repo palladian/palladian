@@ -54,9 +54,13 @@ public final class AddressTagger implements Tagger {
 
             // XXX ugly; in case of "Bla St", check, if following character is a . and extend annotation, as the . was
             // swallowed by StringTagger
-            if (value.endsWith(" St") && text.length() >= annotation.getEndPosition()
-                    && text.charAt(annotation.getEndPosition()) == '.') {
-                value += ".";
+            try {
+                if (value.endsWith(" St") && text.length() >= annotation.getEndPosition()
+                        && text.charAt(annotation.getEndPosition()) == '.') {
+                    value += ".";
+                }
+            } catch (Exception e) {
+                // ccl
             }
 
             Matcher matcher = STREET_PATTERN.matcher(value);
