@@ -43,19 +43,19 @@ public class BlockCodeExtractor implements FeatureExtractor {
     private List<Color> palette = new ArrayList<>();
 
     /** Number of colors we want to normalize the image to. */
-    private Colors numberOfColors = Colors.GREY_SCALE_5;
+    private Colors numberOfColors = Colors.TWENTY_EIGHT;
 
     /** Number of pixels to cluster when pixelating the image. */
-    private int pixelationSize = 4;
+    private int pixelationSize = 8;
 
     /** Block size in pixels. This is basically the word size. */
-    private BlockSize blockSize = BlockSize.TWO_BY_TWO;
+    private BlockSize blockSize = BlockSize.THREE_BY_THREE;
 
     /** Image sections. Has to be a square number starting with 4. */
-    private BlockSize imageSections = BlockSize.TWO_BY_TWO;
+    private BlockSize imageSections = BlockSize.THREE_BY_THREE;
 
     /** Whether to include the number of colors in a certain pixel block in the block code. */
-    private boolean numberOfColorsInCode = true;
+    private boolean numberOfColorsInCode = false;
 
     public BlockCodeExtractor(Colors numberOfColors, int pixelationSize, BlockSize blockSize, BlockSize imageSections,
             boolean numberOfColorsInCode) {

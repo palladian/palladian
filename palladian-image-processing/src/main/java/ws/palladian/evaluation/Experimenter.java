@@ -51,7 +51,7 @@ public class Experimenter {
 	private final Iterable<Instance> testing;
 
     /** Describe the experiments. */
-    private String description;
+    private String description = "";
 
 	private final File resultsDirectory;
 
