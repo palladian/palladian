@@ -367,26 +367,33 @@ public enum UnitType {
         // DIGITAL units are normalized to bytes
         unitList = new ArrayList<>();
         unitList.add("tera bytes");
+        unitList.add("tera byte");
         unitList.add("terabytes");
+        unitList.add("terabyte");
         unitList.add("tb");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1099511627776.0));
 
         unitList = new ArrayList<>();
+        unitList.add("giga bytes");
         unitList.add("giga byte");
         unitList.add("gigabytes");
+        unitList.add("gigabyte");
         unitList.add("gb");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1073741824.0));
 
         unitList = new ArrayList<>();
+        unitList.add("mega bytes");
         unitList.add("mega byte");
         unitList.add("megabytes");
+        unitList.add("megabyte");
         unitList.add("mb");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1048576.0));
 
         unitList = new ArrayList<>();
+        unitList.add("kilo bytes");
         unitList.add("kilo byte");
-        unitList.add("kilobyte");
         unitList.add("kilobytes");
+        unitList.add("kilobyte");
         unitList.add("kb");
         unitList.add("kbyte");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1024.0));
