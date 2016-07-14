@@ -219,10 +219,6 @@ public class PalladianSpellChecker {
         return autoCorrect(text, false);
     }
 
-    public String autoCorrectCaseSensitive(String text) {
-        return autoCorrect(text, true);
-    }
-
     /**
      * <p>
      * Automatically detect and correct spelling mistakes.
