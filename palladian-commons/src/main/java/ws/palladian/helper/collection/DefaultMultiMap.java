@@ -74,7 +74,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
      * @param collectionFactory The factory which creates the {@link Collection}s for the key, not <code>null</code>.
      */
     public DefaultMultiMap(Factory<Collection<V>> collectionFactory) {
-    	super(new HashMap<K, Collection<V>>());
+    	super(new HashMap<>());
         Validate.notNull(collectionFactory, "collectionFactory must not be null");
         this.collectionFactory = collectionFactory;
     }

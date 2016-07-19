@@ -27,13 +27,10 @@ public class SynonymDictionary extends HashMap<String, List<String>> {
     public List<String> get(String key) {
         List<String> list = super.get(key);
         if(list == null){
-            list = new ArrayList<String>();
+            list = new ArrayList<>();
             list.add(key);
             put(key, list);
         }
         return list;
     }
-
-
-
 }
