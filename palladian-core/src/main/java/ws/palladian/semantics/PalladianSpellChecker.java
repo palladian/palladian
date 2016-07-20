@@ -61,7 +61,7 @@ public class PalladianSpellChecker {
     /**
      * Do not correct words that contain any of these characters.
      */
-    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+'") + "]");
+    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+'&") + "]");
 
     private Trie<Integer> words = new Trie<>();
 
