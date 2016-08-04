@@ -1192,7 +1192,10 @@ public final class FileHelper {
      * @return An array of files that are in that folder or in any subfolder.
      */
     public static File[] getFilesRecursive(String folderPath) {
-        return getFiles(folderPath, "", true);
+        return getFilesRecursive(folderPath, "");
+    }
+    public static File[] getFilesRecursive(String folderPath, String substring) {
+        return getFiles(folderPath, substring, true);
     }
 
     /**
@@ -1224,18 +1227,20 @@ public final class FileHelper {
             File[] files = folder.listFiles();
             List<File> matchingFiles = new ArrayList<>();
 
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    if (recursive) {
-                        matchingFiles.addAll(Arrays.asList(getFilesRecursive(file.getPath())));
-                    } else {
-                        if (!includeDirectories) {
-                            continue;
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        if (recursive) {
+                            matchingFiles.addAll(Arrays.asList(getFilesRecursive(file.getPath(), substring)));
+                        } else {
+                            if (!includeDirectories) {
+                                continue;
+                            }
                         }
                     }
-                }
-                if (file.getName().indexOf(substring) > -1) {
-                    matchingFiles.add(file);
+                    if (file.getName().contains(substring)) {
+                        matchingFiles.add(file);
+                    }
                 }
             }
 
