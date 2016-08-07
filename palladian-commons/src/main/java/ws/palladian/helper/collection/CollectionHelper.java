@@ -1,24 +1,7 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -940,12 +923,7 @@ public final class CollectionHelper {
     public static <T> Iterable<T> limit(final Iterable<T> iterable, final int limit) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return limit(iterable.iterator(), limit);
-            }
-        };
+        return () -> limit(iterable.iterator(), limit);
     }
 
     /**
@@ -1122,7 +1100,35 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <T> T getRandom(Collection<T> collection) {
-        return new ArrayList<T>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
+        return new ArrayList<>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
+    }
+
+    /**
+     * Use divide and conquer to find the index in a sorted list that has <= the query number.
+     * E.g. num = 10 and list [2,8,11,88] => return 1 (index of 8 because it is <= 10)
+     * @param num The query number.
+     * @param list The <b>sorted</b> list of numbers.
+     * @param <T> Type of number.
+     * @return
+     */
+    public static <T extends Number> int findIndexBefore(T num, List<T> list) {
+        return findIndexBefore(num, list, 0);
+    }
+
+    private static <T extends Number> int findIndexBefore(T num, List<T> list, int globalIndex) {
+
+        int i = list.size() / 2;
+
+        if (Objects.equals(list.get(i), num) || list.size() == 1) {
+            return globalIndex + i;
+        } else if (list.get(i).doubleValue() > num.doubleValue()) {
+            list = list.subList(0, i);
+        } else {
+            globalIndex += i;
+            list = list.subList(i, list.size());
+        }
+
+        return findIndexBefore(num, list, globalIndex);
     }
 
 }

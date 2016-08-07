@@ -42,12 +42,7 @@ public final class GeoUtils {
     private static final Pattern PATTERN_PARSE_DMS = Pattern.compile(DMS);
 
     /** Distance function between two {@link GeoCoordinate}s. */
-    public static final Distance<GeoCoordinate> DISTANCE = new Distance<GeoCoordinate>() {
-        @Override
-        public double getDistance(GeoCoordinate c1, GeoCoordinate c2) {
-            return c1.distance(c2);
-        }
-    };
+    public static final Distance<GeoCoordinate> DISTANCE = GeoCoordinate::distance;
 
     /**
      * <p>
@@ -62,7 +57,7 @@ public final class GeoUtils {
      * @param coordinates The {@link GeoCoordinate}s, not empty or <code>null</code>.
      * @return An array with the midpoint, first element is latitude, second element is longitude.
      */
-    public static final GeoCoordinate getMidpoint(Collection<? extends GeoCoordinate> coordinates) {
+    public static GeoCoordinate getMidpoint(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "locations must not be empty");
         int count = coordinates.size();
         if (count == 1) { // shortcut
@@ -105,7 +100,7 @@ public final class GeoUtils {
      * @see <a href="http://en.wikipedia.org/wiki/Geometric_median">Wikipedia: Geometric median</a>
      * @see Elementary Statistics for Geographers, James E. Burt, Gerald M. Barber, Guilford Press, 1996
      */
-    public static final GeoCoordinate getCenterOfMinimumDistance(Collection<? extends GeoCoordinate> coordinates) {
+    public static GeoCoordinate getCenterOfMinimumDistance(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "coordinates must not be empty");
 
         if (coordinates.size() == 1) { // shortcut
@@ -187,7 +182,7 @@ public final class GeoUtils {
      * @return The double value with decimal degree.
      * @throws NumberFormatException in case the string could not be parsed.
      */
-    public static final double parseDms(String dmsString) {
+    public static double parseDms(String dmsString) {
         Validate.notEmpty(dmsString, "dmsString must not be empty");
         Matcher matcher = PATTERN_PARSE_DMS.matcher(dmsString);
         if (!matcher.matches()) {
@@ -219,16 +214,29 @@ public final class GeoUtils {
      * @return The approximate distance between the two coordinates.
      */
     // XXX consider moving directly to GeoCoordinate
-    public static final double approximateDistance(GeoCoordinate c1, GeoCoordinate c2) {
+    public static double approximateDistance(double lat1, double lng1, double lat2, double lng2) {
+        double x = (lng2 - lng1) * Math.cos((lat1 + lat2) / 2);
+        double y = (lat2 - lat1);
+        return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
+    }
+
+    public static double approximateDistance(GeoCoordinate c1, GeoCoordinate c2) {
         Validate.notNull(c1, "c1 must not be null");
         Validate.notNull(c2, "c2 must not be null");
         double lat1 = toRadians(c1.getLatitude());
         double lat2 = toRadians(c2.getLatitude());
-        double lon2 = toRadians(c2.getLongitude());
-        double lon1 = toRadians(c1.getLongitude());
-        double x = (lon2 - lon1) * Math.cos((lat1 + lat2) / 2);
-        double y = (lat2 - lat1);
-        return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
+        double lng1 = toRadians(c1.getLongitude());
+        double lng2 = toRadians(c2.getLongitude());
+        return approximateDistance(lat1, lng1, lat2, lng2);
+    }
+
+    public static double computeDistance(double lat1, double lng1, double lat2, double lng2) {
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS_KM * c;
     }
 
     /**
@@ -299,7 +307,7 @@ public final class GeoUtils {
         }
         return result;
     }
-    
+
     /**
      * <p>
      * For each pair in the given Collection of {@link GeoCoordinate}s determine the distance, and return the highest

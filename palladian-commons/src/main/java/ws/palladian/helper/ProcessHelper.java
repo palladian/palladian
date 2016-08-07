@@ -72,7 +72,7 @@ public final class ProcessHelper {
      *
      * @return Free memory in bytes.
      */
-    public static final long getFreeMemory() {
+    public static long getFreeMemory() {
         Runtime runtime = Runtime.getRuntime();
         return runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
     }
