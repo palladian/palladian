@@ -213,7 +213,6 @@ public final class GeoUtils {
      * @param c2 Second coordinate, not <code>null</code>.
      * @return The approximate distance between the two coordinates.
      */
-    // XXX consider moving directly to GeoCoordinate
     public static double approximateDistance(double lat1, double lng1, double lat2, double lng2) {
         double x = (lng2 - lng1) * Math.cos((lat1 + lat2) / 2);
         double y = (lat2 - lat1);
@@ -230,6 +229,14 @@ public final class GeoUtils {
         return approximateDistance(lat1, lng1, lat2, lng2);
     }
 
+    /**
+     * Compute the exact distance between two coordinates.
+     * @param lat1 Latitude Point 1.
+     * @param lng1 Longitude Point 1.
+     * @param lat2 Latitude Point 2.
+     * @param lng2 Longitude Point 2.
+     * @return The distance between the two points in kilometers.
+     */
     public static double computeDistance(double lat1, double lng1, double lat2, double lng2) {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLng = Math.toRadians(lng2 - lng1);
@@ -237,6 +244,16 @@ public final class GeoUtils {
                 * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return EARTH_RADIUS_KM * c;
+    }
+
+    public static double computeDistance(GeoCoordinate c1, GeoCoordinate c2) {
+        Validate.notNull(c1, "c1 must not be null");
+        Validate.notNull(c2, "c2 must not be null");
+        double lat1 = toRadians(c1.getLatitude());
+        double lat2 = toRadians(c2.getLatitude());
+        double lng1 = toRadians(c1.getLongitude());
+        double lng2 = toRadians(c2.getLongitude());
+        return computeDistance(lat1, lng1, lat2, lng2);
     }
 
     /**
