@@ -319,6 +319,9 @@ public class PalladianSpellChecker {
         }
 
         // correct words don't need to be corrected
+        if (word.isEmpty()) {
+            return word;
+        }
         if (words.get(word) != null) {
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(word);
