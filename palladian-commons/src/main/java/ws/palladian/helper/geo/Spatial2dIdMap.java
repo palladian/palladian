@@ -20,8 +20,8 @@ public class Spatial2dIdMap {
 
     private DoubleArrayList latValues = new DoubleArrayList();
     private List<IdCoordinate> latIds = new ObjectArrayList<>();
-    private DoubleArrayList lonValues = new DoubleArrayList();
-    private List<IdCoordinate> lonIds = new ObjectArrayList<>();
+    private DoubleArrayList lngValues = new DoubleArrayList();
+    private List<IdCoordinate> lngIds = new ObjectArrayList<>();
 
     public Set<IdCoordinate> findInBox(double lat1, double lng1, double lat2, double lng2) {
 
@@ -38,11 +38,11 @@ public class Spatial2dIdMap {
 //        System.out.println("to set in " + stopWatch.getElapsedTimeStringAndIncrement());
 
         Set<IdCoordinate> longitudeMatches;
-        i1 = CollectionHelper.findIndexBefore(lng1, lonValues);
-        i2 = CollectionHelper.findIndexBefore(lng2, lonValues);
+        i1 = CollectionHelper.findIndexBefore(lng1, lngValues);
+        i2 = CollectionHelper.findIndexBefore(lng2, lngValues);
 //        System.out.println("longitude matches in " + stopWatch.getElapsedTimeStringAndIncrement());
 
-        subList = lonIds.subList(i1, i2);
+        subList = lngIds.subList(i1, i2);
         longitudeMatches = subList.stream().filter(latitudeMatches::contains).collect(Collectors.toSet());
 //        System.out.println("longitude matches stream in " + stopWatch.getElapsedTimeStringAndIncrement());
 
@@ -57,18 +57,18 @@ public class Spatial2dIdMap {
         // idCoordinate.setCoordinate(new ImmutableGeoCoordinate(lat,lng));
 
         latIds.add(idCoordinate);
-        lonIds.add(idCoordinate);
+        lngIds.add(idCoordinate);
     }
 
     public void sort() {
         Collections.sort(latIds,
                 (o1, o2) -> Double.compare(o1.getCoordinate().getLatitude(), o2.getCoordinate().getLatitude()));
-        Collections.sort(lonIds,
+        Collections.sort(lngIds,
                 (o1, o2) -> Double.compare(o1.getCoordinate().getLongitude(), o2.getCoordinate().getLongitude()));
         latValues = new DoubleArrayList(
                 latIds.stream().map(c -> c.getCoordinate().getLatitude()).collect(Collectors.toList()));
-        lonValues = new DoubleArrayList(
-                lonIds.stream().map(c -> c.getCoordinate().getLongitude()).collect(Collectors.toList()));
+        lngValues = new DoubleArrayList(
+                lngIds.stream().map(c -> c.getCoordinate().getLongitude()).collect(Collectors.toList()));
     }
 
     /**
