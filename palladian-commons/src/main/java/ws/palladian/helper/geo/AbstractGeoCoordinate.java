@@ -111,13 +111,12 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     @Override
     public double[] getBoundingBox(double distance) {
         Validate.isTrue(distance >= 0, "distance must be equal/greater zero");
-        // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/
-        // https://www.wikiwand.com/en/Latitude
+        // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/ and https://www.wikiwand.com/en/Latitude
         double lat1 = getLatitude() - distance / 111.2;
         double lat2 = getLatitude() + distance / 111.2;
-        double long1 = getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
-        double long2 = getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
-        return new double[] {lat1, long1, lat2, long2};
+        double lng1 = getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
+        double lng2 = getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
+        return new double[] {lat1, lng1, lat2, lng2};
     }
 
     @Override
