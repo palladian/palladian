@@ -80,7 +80,7 @@ public class Spatial2dIdMap {
 
         ImmutableGeoCoordinate sourceCoordinate = new ImmutableGeoCoordinate(lat, lng);
 
-        double[] boundingBox = sourceCoordinate.getBoundingBox(distanceMeters / 1000);
+        double[] boundingBox = sourceCoordinate.getBoundingBox(distanceMeters / 1000.);
         List<IdCoordinate> inBox = new ArrayList<>(findInBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[2]));
 
         // now sort them by distance to given coordinate
