@@ -50,9 +50,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     public String toDmsString() {
         Double lat = getLatitude();
         Double lng = getLongitude();
-        if (lat == null || lng == null) {
-            return StringUtils.EMPTY;
-        }
+
         int[] latParts = getParts(lat);
         int[] lngParts = getParts(lng);
         String latSuffix = StringUtils.EMPTY;
