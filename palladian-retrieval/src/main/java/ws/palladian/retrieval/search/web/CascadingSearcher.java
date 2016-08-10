@@ -87,7 +87,7 @@ public class CascadingSearcher extends AbstractSearcher<WebContent> {
         // searchers.add(new BingSearcher(ConfigHolder.getInstance().getConfig())); // 4.4s
         // searchers.add(new ScroogleSearcher()); // 6.5s
         // searchers.add(new BlekkoSearcher(ConfigHolder.getInstance().getConfig())); // 11.2s
-        searchers.add(new GoogleSearcher()); // 2.7s
+        // searchers.add(new GoogleSearcher()); // 2.7s
 
         StopWatch stopWatch = new StopWatch();
         CascadingSearcher cs = new CascadingSearcher(searchers);

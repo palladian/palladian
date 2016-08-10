@@ -217,6 +217,20 @@ public final class MathHelper {
         double numberFactor = Math.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;
     }
+    public static double ceil(double number, int digits) {
+        if (Double.isNaN(number)) {
+            return Double.NaN;
+        }
+        double numberFactor = Math.pow(10.0, digits);
+        return Math.ceil(numberFactor * number) / numberFactor;
+    }
+    public static double floor(double number, int digits) {
+        if (Double.isNaN(number)) {
+            return Double.NaN;
+        }
+        double numberFactor = Math.pow(10.0, digits);
+        return Math.floor(numberFactor * number) / numberFactor;
+    }
 
     /**
      * <p>

@@ -79,9 +79,9 @@ public class PalladianContentExtractorTest {
         image = palladianContentExtractor.getDominantImage();
         collector.checkThat(image.getImageUrl(), containsString("bilder-96dpi-max-200-breit/120300.jpg"));
 
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://themeforest.net/item/techwise-drag-drop-magazine-w-comparisons/11149718"));
-        image = palladianContentExtractor.getDominantImage();
-        collector.checkThat(image.getImageUrl(), containsString("130306592/01.__large_preview.jpg"));
+//        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://themeforest.net/item/techwise-drag-drop-magazine-w-comparisons/11149718"));
+//        image = palladianContentExtractor.getDominantImage();
+//        collector.checkThat(image.getImageUrl(), containsString("130306592/01.__large_preview.jpg"));
 
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://realhousemoms.com/root-beer-chicken-wings/"));
         image = palladianContentExtractor.getDominantImage();

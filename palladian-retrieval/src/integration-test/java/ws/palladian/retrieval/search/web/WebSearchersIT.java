@@ -59,14 +59,9 @@ public class WebSearchersIT {
         // web page searchers
         searchers.add(new Object[] {new BingSearcher(configuration)});
         // searchers.add(new Object[] {new DuckDuckGoSearcher()});
-        searchers.add(new Object[] {new GoogleSearcher()});
-        // searchers.add(new Object[] {new GoogleImageSearcher()});
-        // searchers.add(new Object[] {new GoogleBlogsSearcher()});
-        // searchers.add(new Object[] {new GoogleNewsSearcher()});
         // searchers.add(new Object[] {new GooglePlusSearcher(configuration)});
         // searchers.add(new Object[] {new GoogleCustomSearcher(configuration)});
         searchers.add(new Object[] {new GoogleScraperSearcher()});
-        searchers.add(new Object[] {new TopsySearcher(configuration)});
         // searchers.add(new Object[] {new TopsyUrlSearcher(configuration)});
         searchers.add(new Object[] {new WebKnoxSearcher(configuration)});
         searchers.add(new Object[] {new WikipediaSearcher()});

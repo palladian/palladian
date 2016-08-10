@@ -61,7 +61,7 @@ public class PalladianSpellChecker {
     /**
      * Do not correct words that contain any of these characters.
      */
-    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+'") + "]");
+    private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+'&") + "]");
 
     private Trie<Integer> words = new Trie<>();
 
@@ -323,6 +323,9 @@ public class PalladianSpellChecker {
         }
 
         // correct words don't need to be corrected
+        if (word.isEmpty()) {
+            return word;
+        }
         if (words.get(word) != null) {
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(word);
