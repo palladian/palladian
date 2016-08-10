@@ -23,31 +23,28 @@ public class Spatial2dIdMap {
     private DoubleArrayList lonValues = new DoubleArrayList();
     private List<IdCoordinate> lonIds = new ObjectArrayList<>();
 
-    /** For simplification we approsimate 1° of latitude to be 111.111km */
-    private static final int APPROXIMATED_DEGREE_LENGTH = 111111;
+    public Set<IdCoordinate> findInBox(double lat1, double lng1, double lat2, double lng2) {
 
-    public Set<IdCoordinate> findInBox(double lat1, double lon1, double lat2, double lon2) {
-
-        StopWatch stopWatch = new StopWatch();
+//        StopWatch stopWatch = new StopWatch();
 
         Set<IdCoordinate> latitudeMatches;
         int i1 = CollectionHelper.findIndexBefore(lat1, latValues);
         int i2 = CollectionHelper.findIndexBefore(lat2, latValues);
 
-        System.out.println("latitude matches in " + stopWatch.getElapsedTimeStringAndIncrement());
+//        System.out.println("latitude matches in " + stopWatch.getElapsedTimeStringAndIncrement());
         List<IdCoordinate> subList = latIds.subList(i1, i2);
-        System.out.println("sublist in " + stopWatch.getElapsedTimeStringAndIncrement());
+//        System.out.println("sublist in " + stopWatch.getElapsedTimeStringAndIncrement());
         latitudeMatches = new HashSet<>(subList);
-        System.out.println("to set in " + stopWatch.getElapsedTimeStringAndIncrement());
+//        System.out.println("to set in " + stopWatch.getElapsedTimeStringAndIncrement());
 
         Set<IdCoordinate> longitudeMatches;
-        i1 = CollectionHelper.findIndexBefore(lon1, lonValues);
-        i2 = CollectionHelper.findIndexBefore(lon2, lonValues);
-        System.out.println("longitude matches in " + stopWatch.getElapsedTimeStringAndIncrement());
+        i1 = CollectionHelper.findIndexBefore(lng1, lonValues);
+        i2 = CollectionHelper.findIndexBefore(lng2, lonValues);
+//        System.out.println("longitude matches in " + stopWatch.getElapsedTimeStringAndIncrement());
 
         subList = lonIds.subList(i1, i2);
         longitudeMatches = subList.stream().filter(latitudeMatches::contains).collect(Collectors.toSet());
-        System.out.println("longitude matches stream in " + stopWatch.getElapsedTimeStringAndIncrement());
+//        System.out.println("longitude matches stream in " + stopWatch.getElapsedTimeStringAndIncrement());
 
         return longitudeMatches;
     }
@@ -83,16 +80,8 @@ public class Spatial2dIdMap {
 
         ImmutableGeoCoordinate sourceCoordinate = new ImmutableGeoCoordinate(lat, lng);
 
-        double latOffset = (double)distanceMeters / APPROXIMATED_DEGREE_LENGTH;
-        double lngOffset = Math.cos(lat) * APPROXIMATED_DEGREE_LENGTH;
-
-        // get the box in which to search for candidates -half the distance north and west and +half the distance south
-        // and east
-        double lat1 = lat - latOffset / 2;
-        double lat2 = lat + latOffset / 2;
-        double lng1 = lng - lngOffset / 2;
-        double lng2 = lng + lngOffset / 2;
-        List<IdCoordinate> inBox = new ArrayList<>(findInBox(lat1, lng1, lat2, lng2));
+        double[] boundingBox = sourceCoordinate.getBoundingBox(distanceMeters / 1000);
+        List<IdCoordinate> inBox = new ArrayList<>(findInBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[2]));
 
         // now sort them by distance to given coordinate
         Collections.sort(inBox,
