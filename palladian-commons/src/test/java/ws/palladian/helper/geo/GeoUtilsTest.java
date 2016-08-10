@@ -1,21 +1,25 @@
 package ws.palladian.helper.geo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 
 import ws.palladian.helper.StopWatch;
 
 public class GeoUtilsTest {
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
 
     private static Collection<GeoCoordinate> coordinates1;
     private static Collection<GeoCoordinate> coordinates2;
@@ -108,6 +112,12 @@ public class GeoUtilsTest {
     }
 
     @Test
+    public void testComputeDistance() {
+        collector.checkThat(GeoUtils.computeDistance(52.52437, 13.41053, 51.50853, -0.12574), Matchers.closeTo(931.75,0.05));
+        System.out.println(GeoUtils.approximateDistance(52.52437, 13.41053, 51.50853, -0.12574));
+    }
+
+    @Test
     public void testApproximateDistance() {
         GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
         GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
@@ -129,6 +139,9 @@ public class GeoUtilsTest {
         approximate = GeoUtils.approximateDistance(c2, c4);
         assertTrue(exact < approximate);
         assertTrue(approximate < exact * 1.1);
+
+        collector.checkThat(GeoUtils.approximateDistance(c1, c2), Matchers.is(GeoUtils.approximateDistance(c1.getLatitude(), c1.getLongitude(), c2.getLatitude(), c2.getLongitude())));
+
     }
 
     @Test

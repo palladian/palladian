@@ -36,14 +36,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     @Override
     public double distance(GeoCoordinate other) {
         Validate.notNull(other, "other must not be null");
-        double lat1 = toRadians(getLatitude());
-        double lon1 = toRadians(getLongitude());
-        double lat2 = toRadians(other.getLatitude());
-        double lon2 = toRadians(other.getLongitude());
-        double dLat = (lat2 - lat1) / 2;
-        double dLon = (lon2 - lon1) / 2;
-        double a = sin(dLat) * sin(dLat) + cos(lat1) * cos(lat2) * sin(dLon) * sin(dLon);
-        return 2 * EARTH_RADIUS_KM * atan2(sqrt(a), sqrt(1 - a));
+        return GeoUtils.computeDistance(getLatitude(), getLongitude(), other.getLatitude(), other.getLongitude());
     }
 
     @Override

@@ -1,7 +1,5 @@
 package ws.palladian.helper.geo;
 
-import static java.lang.Math.toRadians;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,6 +12,9 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Distance;
+
+import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
 
 /**
  * <p>
@@ -214,19 +215,20 @@ public final class GeoUtils {
      * @return The approximate distance between the two coordinates.
      */
     public static double approximateDistance(double lat1, double lng1, double lat2, double lng2) {
-        double x = (lng2 - lng1) * Math.cos((lat1 + lat2) / 2);
-        double y = (lat2 - lat1);
+        double rlat1 = toRadians(lat1);
+        double rlat2 = toRadians(lat2);
+        double rlng1 = toRadians(lng1);
+        double rlng2 = toRadians(lng2);
+
+        double x = (rlng2 - rlng1) * Math.cos((rlat1 + rlat2) / 2);
+        double y = (rlat2 - rlat1);
         return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
     }
 
     public static double approximateDistance(GeoCoordinate c1, GeoCoordinate c2) {
         Validate.notNull(c1, "c1 must not be null");
         Validate.notNull(c2, "c2 must not be null");
-        double lat1 = toRadians(c1.getLatitude());
-        double lat2 = toRadians(c2.getLatitude());
-        double lng1 = toRadians(c1.getLongitude());
-        double lng2 = toRadians(c2.getLongitude());
-        return approximateDistance(lat1, lng1, lat2, lng2);
+        return approximateDistance(c1.getLatitude(), c1.getLongitude(), c2.getLatitude(), c2.getLongitude());
     }
 
     /**
@@ -238,22 +240,14 @@ public final class GeoUtils {
      * @return The distance between the two points in kilometers.
      */
     public static double computeDistance(double lat1, double lng1, double lat2, double lng2) {
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lng2 - lng1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
-                * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return EARTH_RADIUS_KM * c;
-    }
-
-    public static double computeDistance(GeoCoordinate c1, GeoCoordinate c2) {
-        Validate.notNull(c1, "c1 must not be null");
-        Validate.notNull(c2, "c2 must not be null");
-        double lat1 = toRadians(c1.getLatitude());
-        double lat2 = toRadians(c2.getLatitude());
-        double lng1 = toRadians(c1.getLongitude());
-        double lng2 = toRadians(c2.getLongitude());
-        return computeDistance(lat1, lng1, lat2, lng2);
+        double rlat1 = toRadians(lat1);
+        double rlng1 = toRadians(lng1);
+        double rlat2 = toRadians(lat2);
+        double rlng2 = toRadians(lng2);
+        double dLat = (rlat2 - rlat1) / 2;
+        double dLon = (rlng2 - rlng1) / 2;
+        double a = sin(dLat) * sin(dLat) + cos(rlat1) * cos(rlat2) * sin(dLon) * sin(dLon);
+        return 2 * EARTH_RADIUS_KM * atan2(sqrt(a), sqrt(1 - a));
     }
 
     /**
