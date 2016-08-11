@@ -41,8 +41,8 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
 
     @Override
     public String toDmsString() {
-        Double lat = getLatitude();
-        Double lng = getLongitude();
+        double lat = getLatitude();
+        double lng = getLongitude();
 
         int[] latParts = getParts(lat);
         int[] lngParts = getParts(lng);
