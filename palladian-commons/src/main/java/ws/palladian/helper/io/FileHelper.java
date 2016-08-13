@@ -172,7 +172,7 @@ public final class FileHelper {
         if (lastSeparator == 0) {
             lastSeparator = path.lastIndexOf("\\") + 1;
         }
-        if (lastDot > -1) {
+        if (lastDot > -1 && lastSeparator < lastDot) {
             fileName = path.substring(lastSeparator, lastDot);
         } else {
             fileName = path.substring(lastSeparator);
@@ -245,6 +245,11 @@ public final class FileHelper {
         lastQM = fileType.indexOf("?");
         if (lastQM > -1) {
             fileType = fileType.substring(0, lastQM);
+        }
+
+        // there must be no slashes in file types
+        if (fileType.contains("/")) {
+            fileType = "";
         }
 
         return fileType;
