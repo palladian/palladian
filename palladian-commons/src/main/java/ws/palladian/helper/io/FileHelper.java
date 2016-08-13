@@ -160,7 +160,7 @@ public final class FileHelper {
     }
 
     /**
-     * Gets the file name.
+     * Gets the file name without the file type.
      * 
      * @param path The path to the file.
      * @return The file name part of the path.
