@@ -10,9 +10,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import org.w3c.dom.Document;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.functional.Consumer;
 
 /**
  * <p>
@@ -229,10 +227,13 @@ public final class ProgressMonitor extends AbstractProgressReporter {
             }
             if (output > 0) { // do not give any time estimates at the beginning or end
 
-                if (isEnhancedStats()) {
+                if (totalSteps > 0 && isEnhancedStats()) {
                     statistics.add(itemFormat.format(totalSteps - currentSteps) + " items left");
                 }
                 statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms", ""));
+//                if (lastIterationTimes == null) {
+//                	lastIterationTimes = new ArrayList<>();
+//                }
                 long iterationTime = elapsedTime - lastPrintTime;
                 lastIterationTimes.add(0, iterationTime);
                 if (isEnhancedStats()) {
