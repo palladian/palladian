@@ -80,7 +80,7 @@ public final class InstanceBuilder {
     public InstanceBuilder set(String name, String value) {
         Validate.notEmpty(name, "name must not be empty");
         Validate.notNull(value, "value must not be null");
-        valueMap.put(name, new ImmutableStringValue(value));
+        valueMap.put(name, ImmutableStringValue.valueOf(value));
         return this;
     }
 
