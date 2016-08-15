@@ -153,7 +153,7 @@ public final class ClassificationUtils {
         }
     }
 
-    private static int writeLine(Instance instance, Writer writer, boolean writeHeader) throws IOException {
+    public static int writeLine(Instance instance, Writer writer, boolean writeHeader) throws IOException {
         if (writeHeader) {
             for (VectorEntry<String, Value> feature : instance.getVector()) {
                 writer.write(feature.key());
