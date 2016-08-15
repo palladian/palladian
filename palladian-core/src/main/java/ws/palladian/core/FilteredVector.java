@@ -1,7 +1,5 @@
 package ws.palladian.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
@@ -45,15 +43,6 @@ public class FilteredVector extends AbstractFeatureVector {
 	@Override
 	public Set<String> keys() {
 		return Collections.unmodifiableSet(filteredNames);
-	}
-
-	@Override
-	public Collection<Value> values() {
-		Collection<Value> values = new ArrayList<>();
-		for (VectorEntry<String, Value> entry : this) {
-			values.add(entry.value());
-		}
-		return Collections.unmodifiableCollection(values);
 	}
 
 	@Override
