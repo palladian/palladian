@@ -43,20 +43,7 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 			protected FeatureInformationEntry getNext() throws Finished {
 				if (it.hasNext()) {
 					final Entry<String, Class<? extends Value>> current = it.next();
-					return new FeatureInformationEntry() {
-						@Override
-						public Class<? extends Value> getType() {
-							return current.getValue();
-						}
-						@Override
-						public String getName() {
-							return current.getKey();
-						}
-						@Override
-						public String toString() {
-							return getName() + ":" + getType().getSimpleName();
-						}
-					};
+					return new ImmutableFeatureInformationEntry(current.getKey(), current.getValue());
 				}
 				throw FINISHED;
 			}
