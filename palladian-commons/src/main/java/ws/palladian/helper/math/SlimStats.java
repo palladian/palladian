@@ -66,7 +66,25 @@ public class SlimStats extends AbstractStats {
         }
     }
 
-    @Override
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param stats
+	 *            The stats to copy, not <code>null</code>.
+	 */
+	public SlimStats(SlimStats stats) {
+		Validate.notNull(stats, "stats must not be null");
+		this.count = stats.count;
+		this.mean = stats.mean;
+		this.min = stats.min;
+		this.max = stats.max;
+		this.sum = stats.sum;
+		this.m = stats.m;
+		this.s = stats.s;
+		this.mse = stats.mse;
+	}
+
+	@Override
     public SlimStats add(Number value) {
         Validate.notNull(value, "value must not be null");
         double doubleValue = value.doubleValue();
