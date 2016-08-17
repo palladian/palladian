@@ -22,6 +22,8 @@ public interface FeatureInformation extends Iterable<FeatureInformation.FeatureI
 	
 	Set<String> getFeatureNamesOfType(Class<? extends Value> valueType);
 	
+	FeatureInformationEntry getFeatureInformation(String name);
+	
 	int count();
 
 }

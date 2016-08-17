@@ -67,6 +67,16 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 	public int count() {
 		return nameValues.size();
 	}
+	
+	@Override
+	public FeatureInformationEntry getFeatureInformation(String name) {
+		for (FeatureInformationEntry entry : this) {
+			if (entry.getName().equals(name)) {
+				return entry;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public String toString() {
