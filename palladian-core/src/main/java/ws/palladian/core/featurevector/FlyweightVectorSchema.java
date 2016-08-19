@@ -46,6 +46,7 @@ public class FlyweightVectorSchema {
 		if (index == null) {
 			throw new IllegalArgumentException("Schema contains no key with name \"" + name + "\".");
 		}
+		// TODO : this should also perform type checking!
 		values[index] = value;
 	}
 

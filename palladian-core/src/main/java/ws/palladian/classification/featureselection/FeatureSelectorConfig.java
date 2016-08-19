@@ -17,7 +17,7 @@ import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
-public final class BackwardFeatureEliminationConfig {
+public class FeatureSelectorConfig {
 	static final class EvaluationMeasure<M extends Model, R> {
 		private final Factory<? extends Learner<M>> learnerFactory;
 		private final Factory<? extends Classifier<M>> classifierFactory;
@@ -33,12 +33,13 @@ public final class BackwardFeatureEliminationConfig {
 			return mapper.compute(evaluator.evaluate(learnerFactory.create(), classifierFactory.create(), trainData, testData));
 		}
 	}
-	public static final class Builder<M extends Model> implements Factory<BackwardFeatureElimination>{
+	public static final class Builder<M extends Model> implements Factory<FeatureSelector>{
 		private final Factory<? extends Learner<M>> learnerFactory;
 		private final Factory<? extends Classifier<M>> classifierFactory;
 		private EvaluationMeasure<M, ?> evaluator;
 		private int numThreads = 1;
 		private Collection<Filter<? super String>> featureGroups = new HashSet<>();
+		private boolean backward = true;
 		private Builder(Learner<M> learner, Classifier<M> classifier) {
 			this(Factories.constant(learner), Factories.constant(classifier));
 		}
@@ -46,7 +47,7 @@ public final class BackwardFeatureEliminationConfig {
 		private Builder(Factory<? extends Learner<M>> learnerFactory, Factory<? extends Classifier<M>> classifierFactory) {
 			this.learnerFactory = learnerFactory;
 			this.classifierFactory = classifierFactory;
-			this.evaluator = new EvaluationMeasure<>(learnerFactory, classifierFactory, new ConfusionMatrixEvaluator(), BackwardFeatureElimination.ACCURACY_SCORER);
+			this.evaluator = new EvaluationMeasure<>(learnerFactory, classifierFactory, new ConfusionMatrixEvaluator(), FeatureSelector.ACCURACY_SCORER);
 		}
 //		public Builder<M> learner(Learner<M> learner) {
 //			Validate.notNull(learner, "learner must not be null");
@@ -76,12 +77,12 @@ public final class BackwardFeatureEliminationConfig {
 		}
 		@SuppressWarnings("deprecation")
 		public Builder<M> scoreAccuracy() {
-			scorer(BackwardFeatureElimination.ACCURACY_SCORER);
+			scorer(FeatureSelector.ACCURACY_SCORER);
 			return this;
 		}
 		@SuppressWarnings("deprecation")
 		public Builder<M> scoreF1(String className) {
-			scorer(new BackwardFeatureElimination.FMeasureScorer(className));
+			scorer(new FeatureSelector.FMeasureScorer(className));
 			return this;
 		}
 		public <R> Builder<M> evaluator(ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
@@ -103,18 +104,39 @@ public final class BackwardFeatureEliminationConfig {
 			this.featureGroups.add(featureGroup);
 			return this;
 		}
-		@Override
-		public BackwardFeatureElimination create() {
-			return new BackwardFeatureElimination(createConfig());
+		/**
+		 * Perform a forward feature construction, i.e. start with zero features
+		 * and add the best performing feature in each iteration.
+		 * 
+		 * @return The builder.
+		 */
+		public Builder<M> forward() {
+			this.backward = false;
+			return this;
 		}
-		BackwardFeatureEliminationConfig createConfig() {
+		/**
+		 * Perform a backward feature elimination, i.e. start with all features
+		 * and remove the feature, which has the smallest impact on the
+		 * classification quality.
+		 * 
+		 * @return The builder.
+		 */
+		public Builder<M> backward() {
+			this.backward = true;
+			return this;
+		}
+		@Override
+		public FeatureSelector create() {
+			return new FeatureSelector(createConfig());
+		}
+		public FeatureSelectorConfig createConfig() {
 			if (learnerFactory == null) {
 				throw new IllegalArgumentException("no learner specified");
 			}
 			if (classifierFactory == null) {
 				throw new IllegalArgumentException("no classifier specified");
 			}
-			return new BackwardFeatureEliminationConfig(this);
+			return new FeatureSelectorConfig(this);
 		}
 	}
 	public static <M extends Model> Builder<M> with(Learner<M> learner, Classifier<M> classifier) {
@@ -128,12 +150,14 @@ public final class BackwardFeatureEliminationConfig {
 	private final EvaluationMeasure<?, ?> evaluator;
 	private final int numThreads;
 	private final Collection<? extends Filter<? super String>> featureGroups;
-	private BackwardFeatureEliminationConfig(Builder<?> builder) {
+	private final boolean backward;
+	protected FeatureSelectorConfig(Builder<?> builder) {
 //		learnerFactory = builder.learnerFactory;
 //		classifierFactory = builder.classifierFactory;
 		evaluator = builder.evaluator;
 		numThreads = builder.numThreads;
 		featureGroups = builder.featureGroups;
+		backward = builder.backward;
 	}
 //	public Learner<M> createLearner() {
 //		return learnerFactory.create();
@@ -149,5 +173,8 @@ public final class BackwardFeatureEliminationConfig {
 	}
 	public Collection<? extends Filter<? super String>> featureGroups() {
 		return featureGroups;
+	}
+	public boolean isBackward() {
+		return backward;
 	}
 }
