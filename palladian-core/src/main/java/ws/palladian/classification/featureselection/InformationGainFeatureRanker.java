@@ -1,6 +1,5 @@
 package ws.palladian.classification.featureselection;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -9,12 +8,15 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.classification.discretization.DatasetStatistics;
 import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Instance;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.statistics.DatasetStatistics;
+import ws.palladian.core.dataset.statistics.NominalValueStatistics;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.ProgressReporter;
 
@@ -60,7 +62,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
 
     // TODO why does this require a collection? the implementation seems to be streamable?
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
+    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
         Map<String, Double> informationGainValues = new HashMap<>();
 
@@ -69,9 +71,10 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         Discretization discretization = new Discretization(dataset, progress.createSubProgress(0.5));
         Iterable<Instance> preparedData = discretization.discretize(dataset);
 
-        CategoryEntries categoryCounts = ClassificationUtils.getCategoryCounts(dataset);
+        NominalValueStatistics categoryStatistics = new DatasetStatistics(dataset).getCategoryStatistics();
+        CategoryEntries categoryCounts = new CategoryEntriesBuilder(categoryStatistics.getMap()).create();
         double entropy = ClassificationUtils.entropy(categoryCounts);
-        Set<String> featureNames = new DatasetStatistics(preparedData).getFeatureNames();
+        Set<String> featureNames = dataset.getFeatureInformation().getFeatureNames();
 
         ProgressReporter informationGainProgress = progress.createSubProgress(0.5);
         LOGGER.debug("Calculating gain");

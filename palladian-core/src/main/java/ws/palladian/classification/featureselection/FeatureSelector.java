@@ -6,7 +6,6 @@ import static ws.palladian.helper.functional.Filters.or;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,13 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -103,13 +102,13 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 
     private final class TestRun implements Callable<TestRunResult> {
 
-        private final Iterable<? extends Instance> trainData;
-        private final Iterable<? extends Instance> testData;
+        private final Dataset trainData;
+        private final Dataset testData;
         private final Filter<? super String> features;
         private final Filter<? super String> evaluatedFeature;
         private final ProgressReporter progress;
 
-        public TestRun(Iterable<? extends Instance> trainData, Iterable<? extends Instance> testData,
+        public TestRun(Dataset trainData, Dataset testData,
 				Filter<? super String> features, Filter<? super String> evaluatedFeature, ProgressReporter progress) {
         	this.trainData = trainData;
         	this.testData = testData;
@@ -122,8 +121,8 @@ public final class FeatureSelector extends AbstractFeatureRanker {
         public TestRunResult call() throws Exception {
             LOGGER.debug("Starting evaluation for {}", features);
 
-            Iterable<Instance> eliminatedTrainData = ClassificationUtils.filterFeaturesIterable(trainData, features);
-            Iterable<Instance> eliminatedTestData = ClassificationUtils.filterFeaturesIterable(testData, features);
+            Dataset eliminatedTrainData = trainData.filterFeatures(features);
+            Dataset eliminatedTestData = testData.filterFeatures(features);
 
             Double score = config.evaluator().score(eliminatedTrainData, eliminatedTestData);
 
@@ -203,12 +202,19 @@ public final class FeatureSelector extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
-        List<Instance> instances = new ArrayList<>(dataset);
+    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
+        List<Instance> instances = CollectionHelper.newArrayList(dataset);
         Collections.shuffle(instances);
         List<Instance> trainData = instances.subList(0, instances.size() / 2);
         List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
         return rankFeatures(trainData, testData, progress);
+    }
+    
+    /** @deprecated Use {@link #rankFeatures(Dataset, Dataset, ProgressReporter)} instead. */
+    @Deprecated
+    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
+            Iterable<? extends Instance> validationSet, ProgressReporter progress) {
+    	return rankFeatures(new DefaultDataset(trainSet), new DefaultDataset(validationSet), progress);
     }
 
     /**
@@ -221,12 +227,10 @@ public final class FeatureSelector extends AbstractFeatureRanker {
      * @param progress A progress instance.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
-            Iterable<? extends Instance> validationSet, ProgressReporter progress) {
+    public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progress) {
         Map<String, Integer> ranks = new HashMap<>();
 
-        Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
-        final Set<Filter<? super String>> allFeatureFilters = constructFeatureFilters(trainingVectors);
+        final Set<Filter<? super String>> allFeatureFilters = constructFeatureFilters(trainSet);
         final List<Filter<? super String>> selectedFeatures = new ArrayList<>();
         final int iterations = allFeatureFilters.size() * (allFeatureFilters.size() + 1) / 2;
         progress.startTask("Feature selection", iterations);
@@ -298,10 +302,10 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 	 *            The dataset.
 	 * @return A set of filters for every feature within the dataset.
 	 */
-	private Set<Filter<? super String>> constructFeatureFilters(Iterable<FeatureVector> data) {
+	private Set<Filter<? super String>> constructFeatureFilters(Dataset dataset) {
 		// XXX check, whether the filters are disjunct?
 		Set<Filter<? super String>> filters = new HashSet<>(config.featureGroups());
-		Set<String> allFeatures = ClassificationUtils.getFeatureNames(data);
+		Set<String> allFeatures = dataset.getFeatureInformation().getFeatureNames();
 		Iterable<String> unmatchedFeatures = CollectionHelper.filter(allFeatures, not(or(config.featureGroups())));
 		for (String unmatchedFeature : unmatchedFeatures) {
 			filters.add(equal(unmatchedFeature));
@@ -310,8 +314,8 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 	}
 
 	public static void main(String[] args) {
-		List<Instance> trainSet = CsvDatasetReaderConfig.filePath(new File("/path/to/training.csv")).create().readAll();
-		List<Instance> validationSet = CsvDatasetReaderConfig.filePath(new File("/path/to/validation.csv")).create().readAll();
+		Dataset trainSet = CsvDatasetReaderConfig.filePath(new File("/path/to/training.csv")).create();
+		Dataset validationSet = CsvDatasetReaderConfig.filePath(new File("/path/to/validation.csv")).create();
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread

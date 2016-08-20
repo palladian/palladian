@@ -1,5 +1,7 @@
 package ws.palladian.core.dataset.statistics;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.core.value.NominalValue;
@@ -52,6 +54,10 @@ public class NominalValueStatistics implements DatasetStatistics.ValueStatistics
 
 	public int getCount(String value) {
 		return stats.count(value);
+	}
+	
+	public Map<String, Integer> getMap() {
+		return Collections.unmodifiableMap(stats.toMap());
 	}
 
 	@Override

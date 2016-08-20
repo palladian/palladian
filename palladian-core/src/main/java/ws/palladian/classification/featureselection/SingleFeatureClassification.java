@@ -1,8 +1,6 @@
 package ws.palladian.classification.featureselection;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -16,14 +14,13 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
-import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -31,6 +28,7 @@ import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.functional.Function;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
 /**
  * <p>
@@ -68,12 +66,18 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
     }
     
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
-        List<Instance> instances = new ArrayList<Instance>(dataset);
+    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
+        List<Instance> instances = CollectionHelper.newArrayList(dataset);
         Collections.shuffle(instances);
         List<Instance> trainData = instances.subList(0, instances.size() / 2);
         List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
         return rankFeatures(trainData, testData);
+    }
+    
+    /** @deprecated Use {@link #rankFeatures(Dataset, Dataset)} instead. */
+    @Deprecated
+    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
+    	return rankFeatures(new DefaultDataset(trainSet), new DefaultDataset(validationSet));
     }
 
     /**
@@ -81,22 +85,20 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
+    public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet) {
         Map<String, Double> scores = new HashMap<>();
 
-        Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
-        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
+        final Set<String> allFeatures = trainSet.getFeatureInformation().getFeatureNames();
         final ProgressReporter progressMonitor = new ProgressMonitor();
         progressMonitor.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
             Filter<String> filter = Filters.equal(feature);
-            List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainSet, filter);
-            List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(validationSet, filter);
+            Dataset eliminatedTrainData = trainSet.filterFeatures(filter);
+            Dataset eliminatedTestData = validationSet.filterFeatures(filter);
 
             M model = learner.train(eliminatedTrainData);
-            @SuppressWarnings("unchecked")
-            ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, eliminatedTestData, model);
+            ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(classifier, model, eliminatedTestData);
             Double score = scorer.compute(confusionMatrix);
             LOGGER.info("Finished testing with {}: {}", feature, score);
             progressMonitor.increment();
@@ -106,8 +108,8 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
     }
 
     public static void main(String[] args) {
-        Iterable<Instance> trainSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv"));
-        CsvDatasetReader validationSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv"));
+        Dataset trainSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv"));
+        Dataset validationSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv"));
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
