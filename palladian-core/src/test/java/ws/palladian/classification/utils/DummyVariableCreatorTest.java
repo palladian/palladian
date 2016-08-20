@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.value.BooleanValue;
+import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.helper.io.FileHelper;
 
@@ -37,7 +39,24 @@ public class DummyVariableCreatorTest {
         assertEquals(1., ((NumericValue)converted.get("f2")).getDouble(), 0);
         instance = new InstanceBuilder().set("f1", "beta").set("f2", true).set("f3", false).create();
         converted = dummyVariableCreator.convert(instance);
-        assertEquals(5, converted.size());
+        
+        // changed behavior, unknown values should not be dropped
+        // assertEquals(5, converted.size());
+        assertEquals(6, converted.size());
+        assertEquals(false, ((BooleanValue)converted.get("f3")).getBoolean());
+    }
+    
+    @Test
+    public void testNullValueHandling() {
+        List<FeatureVector> dataset = makeDataset();
+        DummyVariableCreator dummyVariableCreator = new DummyVariableCreator(dataset);
+
+    	FeatureVector instance = new InstanceBuilder().set("f1", NullValue.NULL).create();
+    	FeatureVector converted = dummyVariableCreator.convert(instance);
+        assertEquals(0., ((NumericValue)converted.get("f1:alpha")).getDouble(), 0);
+        assertEquals(0., ((NumericValue)converted.get("f1:beta")).getDouble(), 0);
+        assertEquals(0., ((NumericValue)converted.get("f1:gamma")).getDouble(), 0);
+        assertEquals(0., ((NumericValue)converted.get("f1:delta")).getDouble(), 0);
     }
 
     private List<FeatureVector> makeDataset() {

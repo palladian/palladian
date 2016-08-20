@@ -201,7 +201,7 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
 		FeatureInformationBuilder resultBuilder = new FeatureInformationBuilder();
 		for (FeatureInformationEntry infoEntry : featureInformation) {
 			Collection<String> featureDomain = domain.get(infoEntry.getName());
-			if (featureDomain == null) {
+			if (featureDomain.isEmpty()) {
 				resultBuilder.set(infoEntry.getName(), infoEntry.getType());
 			} else if (featureDomain.size() < 3) {
 				resultBuilder.set(infoEntry.getName(), ImmutableDoubleValue.class);
@@ -233,17 +233,29 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
         for (VectorEntry<String, Value> entry : featureVector) {
             String featureName = entry.key();
             Value featureValue = entry.value();
-            if (featureValue instanceof NominalValue) {
+            if (featureValue instanceof NullValue) {
+                Collection<String> featureDomain = domain.get(featureName);
+                if (featureDomain.isEmpty()) {
+                	builder.setNull(featureName);
+                } else if (featureDomain.size() < 3) {
+                    builder.set(featureName, 0);
+                } else {
+                    for (String domainValue : featureDomain) {
+                        String newFeatureName = stringPool.get(featureName + ":" + domainValue);
+                        builder.set(newFeatureName, 0);
+                    }
+                }
+            } else if (featureValue instanceof NominalValue) {
                 String nominalValue = ((NominalValue)featureValue).getString();
                 Collection<String> featureDomain = domain.get(featureName);
                 if (featureDomain.isEmpty()) {
-                    LOGGER.trace("Unknown feature {} will be dropped", featureName);
+                    builder.set(featureName, featureValue);
                 } else if (featureDomain.size() < 3) {
                     double numericValue = nominalValue.equals(CollectionHelper.getFirst(featureDomain)) ? 1 : 0;
                     builder.set(featureName, numericValue);
                 } else {
                     for (String domainValue : featureDomain) {
-                        double numericValue = nominalValue.equals(domainValue) ? 1 : 0;
+                        int numericValue = nominalValue.equals(domainValue) ? 1 : 0;
                         String newFeatureName = stringPool.get(featureName + ":" + domainValue);
                         builder.set(newFeatureName, numericValue);
                     }
