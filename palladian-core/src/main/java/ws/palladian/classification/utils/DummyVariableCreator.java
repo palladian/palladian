@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -91,56 +90,6 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
         return domain;
 	}
 
-    /**
-     * <p>
-     * Convert the nominal values for the given {@link Iterable} dataset.
-     * </p>
-     * 
-     * @param data The dataset, not <code>null</code>.
-     * @return Dataset with converted features.
-     * @deprecated Use {@link #convert(Dataset)} instead.
-     */
-    @Deprecated
-    public Iterable<FeatureVector> convert(final Iterable<? extends FeatureVector> data) {
-        Validate.notNull(data, "data must not be null");
-
-        return new Iterable<FeatureVector>() {
-
-            @Override
-            public Iterator<FeatureVector> iterator() {
-                return new Iterator<FeatureVector>() {
-
-                    Iterator<? extends FeatureVector> wrapped = data.iterator();
-
-                    @Override
-                    public boolean hasNext() {
-                        return wrapped.hasNext();
-                    }
-
-                    @Override
-                    public FeatureVector next() {
-                        return convert(wrapped.next());
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException("Modifications are not allowed.");
-                    }
-                };
-            }
-        };
-
-    }
-    
-    /**
-     * @deprecated Use {@link Dataset#transform(DatasetTransformer)} instead.
-     */
-    @Deprecated
-    public Dataset convert(final Dataset dataset) {
-    	Validate.notNull(dataset, "data must not be null");
-    	return dataset.transform(this);
-    }
-    
 	@Override
 	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
 		FeatureInformationBuilder resultBuilder = new FeatureInformationBuilder();
