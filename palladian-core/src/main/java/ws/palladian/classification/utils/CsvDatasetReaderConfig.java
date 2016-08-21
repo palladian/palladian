@@ -29,7 +29,7 @@ public class CsvDatasetReaderConfig {
 		private String nullValue = DEFAULT_NULL_VALUE;
 		private boolean gzip = false;
 		private List<Filter<? super String>> skipColumns = new ArrayList<>();
-		private long limit;
+		private long limit = Long.MAX_VALUE;
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
