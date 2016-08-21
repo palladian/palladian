@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.Dataset;
@@ -161,8 +160,21 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
 	}
     
 	@Override
-	public Instance compute(Instance input) {
-		return new ImmutableInstance(convert(input.getVector()), input.getCategory());
+	public Instance compute(final Instance input) {
+		return new Instance() {
+			@Override
+			public int getWeight() {
+				return input.getWeight();
+			}
+			@Override
+			public FeatureVector getVector() {
+				return convert(input.getVector()); // calculate lazily
+			}
+			@Override
+			public String getCategory() {
+				return input.getCategory();
+			}
+		};
 	}
 
     /**
