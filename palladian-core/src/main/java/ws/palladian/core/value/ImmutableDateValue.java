@@ -14,28 +14,41 @@ public final class ImmutableDateValue extends AbstractValue implements DateValue
 	public static final class ValueParser extends AbstractValueParser {
 
 		private final SimpleDateFormat format;
+		private String pattern;
 
-		public ValueParser(String format) {
+		public ValueParser(String pattern) {
 			super(ImmutableDateValue.class);
-			this.format = new SimpleDateFormat(format);
+			this.format = new SimpleDateFormat(pattern);
+			this.pattern = pattern;
 		}
 
 		@Override
 		public Value parse(String input) throws ValueParserException {
 			try {
-				return new ImmutableDateValue(format.parse(input));
+				return new ImmutableDateValue(format.parse(input), pattern);
 			} catch (ParseException e) {
 				throw new ValueParserException(e);
 			}
 		}
 
 	}
+	
+	private static final String ISO_8601 = "yyyy-MM-dd'T'HH:mm'Z'";
 
 	private final Date date;
+	
+	/** The pattern which was originally used for parsing the date. */
+	private final String pattern;
 
 	public ImmutableDateValue(Date date) {
 		Validate.notNull(date, "date must not be null");
 		this.date = date;
+		this.pattern = ISO_8601;
+	}
+
+	ImmutableDateValue(Date date, String pattern) {
+		this.date = date;
+		this.pattern = pattern;
 	}
 
 	@Override
@@ -56,7 +69,7 @@ public final class ImmutableDateValue extends AbstractValue implements DateValue
 
 	@Override
 	public String toString() {
-		return date.toString();
+		return new SimpleDateFormat(pattern).format(getDate());
 	}
 
 }
