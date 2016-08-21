@@ -74,7 +74,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         ProgressReporter cooccurrenceProgress = progress.createSubProgress(0.5);
         cooccurrenceProgress.startTask("Counting cooccurrences.", N);
         CountMatrix<String> termCategoryCorrelations = CountMatrix.create();
-        Bag<String> categoryCounts = Bag.create();
+        Bag<String> categoryCounts = new Bag<>();
 
         Discretization discretization = new Discretization(dataset, NoProgress.INSTANCE);
         Iterable<Instance> discretizedDataset = discretization.discretize(dataset);

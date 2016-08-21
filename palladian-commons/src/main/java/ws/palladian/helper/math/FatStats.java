@@ -285,7 +285,7 @@ public class FatStats extends AbstractStats {
 	public double getMode() {
 		double mode = Double.NaN;
 		int maxCount = 0;
-		Bag<Double> counts = Bag.create();
+		Bag<Double> counts = new Bag<>();
 		for (Double value : values) {
 			int newCount = counts.add(value, 1);
 			if (newCount > maxCount) {

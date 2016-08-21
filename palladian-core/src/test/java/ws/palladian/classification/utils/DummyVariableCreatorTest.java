@@ -10,7 +10,10 @@ import java.util.List;
 import org.junit.Test;
 
 import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.core.value.BooleanValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
@@ -20,7 +23,7 @@ public class DummyVariableCreatorTest {
 
     @Test
     public void testDummyVariableCreator() {
-        List<FeatureVector> dataset = makeDataset();
+        Dataset dataset = makeDataset();
         DummyVariableCreator dummyVariableCreator = new DummyVariableCreator(dataset);
         assertEquals(2, dummyVariableCreator.getNominalFeatureCount());
         assertEquals(5, dummyVariableCreator.getCreatedNumericFeatureCount());
@@ -48,7 +51,7 @@ public class DummyVariableCreatorTest {
     
     @Test
     public void testNullValueHandling() {
-        List<FeatureVector> dataset = makeDataset();
+        Dataset dataset = makeDataset();
         DummyVariableCreator dummyVariableCreator = new DummyVariableCreator(dataset);
 
     	FeatureVector instance = new InstanceBuilder().set("f1", NullValue.NULL).create();
@@ -59,15 +62,15 @@ public class DummyVariableCreatorTest {
         assertEquals(0., ((NumericValue)converted.get("f1:delta")).getDouble(), 0);
     }
 
-    private List<FeatureVector> makeDataset() {
-        List<FeatureVector> dataset = new ArrayList<>();
-        dataset.add(new InstanceBuilder().set("f1", "alpha").set("f2", true).create());
-        dataset.add(new InstanceBuilder().set("f1", "beta").set("f2", false).create());
-        dataset.add(new InstanceBuilder().set("f1", "gamma").set("f2", true).create());
-        dataset.add(new InstanceBuilder().set("f1", "delta").set("f2", true).create());
-        dataset.add(new InstanceBuilder().set("f1", "alpha").set("f2", false).create());
-        dataset.add(new InstanceBuilder().set("f1", "alpha").set("f2", true).create());
-        return dataset;
+    private Dataset makeDataset() {
+        List<Instance> dataset = new ArrayList<>();
+        dataset.add(new InstanceBuilder().set("f1", "alpha").set("f2", true).create(false));
+        dataset.add(new InstanceBuilder().set("f1", "beta").set("f2", false).create(false));
+        dataset.add(new InstanceBuilder().set("f1", "gamma").set("f2", true).create(false));
+        dataset.add(new InstanceBuilder().set("f1", "delta").set("f2", true).create(false));
+        dataset.add(new InstanceBuilder().set("f1", "alpha").set("f2", false).create(false));
+        dataset.add(new InstanceBuilder().set("f1", "alpha").set("f2", true).create(false));
+        return new DefaultDataset(dataset);
     }
 
     @Test

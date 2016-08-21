@@ -12,7 +12,7 @@ public class NominalValueStatistics implements DatasetStatistics.ValueStatistics
 
 	public static class NominalValueStatisticsBuilder
 			extends AbstractValueStatisticsBuilder<NominalValue, NominalValueStatistics> {
-		private final Bag<String> stats = Bag.create();
+		private final Bag<String> stats = new Bag<>();
 
 		public NominalValueStatisticsBuilder() {
 			super(NominalValue.class);

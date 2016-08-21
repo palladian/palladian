@@ -31,7 +31,7 @@ public final class NaiveBayesLearner extends AbstractLearner<NaiveBayesModel> {
     public NaiveBayesModel train(Dataset dataset) {
 
         // store the counts of different categories
-        Bag<String> categories = Bag.create();
+        Bag<String> categories = new Bag<>();
         // store the counts of nominal features (name, value, category)
         LazyMatrix<String, Bag<String>> nominalCounts = LazyMatrix.create(new Bag.BagFactory<String>());
         // store mean and standard deviation for numeric features (name, category)

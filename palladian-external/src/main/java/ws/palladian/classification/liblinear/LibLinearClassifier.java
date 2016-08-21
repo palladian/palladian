@@ -7,13 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.bwaldvogel.liblinear.Linear;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.AbstractClassifier;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.core.FilteredVector;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
 
@@ -61,15 +59,14 @@ public final class LibLinearClassifier extends AbstractClassifier<LibLinearModel
     /**
      * Remove those features, which we have not trained.
      */
-    private FeatureVector removeUntrainedFeatures(FeatureVector classifiable, LibLinearModel model) {
-        int oldSize = classifiable.size();
-        Filter<String> nameFilter = Filters.equal(model.getFeatureLabels());
-        classifiable = ClassificationUtils.filterFeatures(classifiable, nameFilter);
-        int numIgnored = oldSize - classifiable.size();
+    private FeatureVector removeUntrainedFeatures(FeatureVector featureVector, LibLinearModel model) {
+        int oldSize = featureVector.size();
+        featureVector = new FilteredVector(featureVector, model.getFeatureLabels());
+        int numIgnored = oldSize - featureVector.size();
         if (numIgnored > 0 && LOGGER.isTraceEnabled()) {
             LOGGER.trace("Ignoring {} unknown features", numIgnored);
         }
-        return classifiable;
+        return featureVector;
     }
 
 }

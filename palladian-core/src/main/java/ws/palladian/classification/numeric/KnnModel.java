@@ -4,18 +4,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import ws.palladian.classification.discretization.DatasetStatistics;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.statistics.DatasetStatistics;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * <p>
@@ -52,27 +53,13 @@ public final class KnnModel implements Model {
      * 
      * @param trainingInstances The {@link Instance}s this model is based on.
      */
-    KnnModel(Iterable<? extends Instance> trainingInstances, Normalization normalization) {
-    	this.labels = getLabels(trainingInstances);
-    	this.categories = getCategories(trainingInstances);
+    KnnModel(Dataset trainingInstances, Normalization normalization) {
+    	DatasetStatistics statistics = new DatasetStatistics(trainingInstances);
+    	this.labels = new ArrayList<>(trainingInstances.getFeatureInformation().getFeatureNamesOfType(NumericValue.class));
+		this.categories = new HashSet<>(statistics.getCategoryStatistics().getValues());
         this.trainingExamples = initTrainingInstances(trainingInstances, normalization, labels);
         this.normalization = normalization;
     }
-
-    private static Set<String> getCategories(Iterable<? extends Instance> trainingInstances) {
-    	return new DatasetStatistics(trainingInstances).getCategoryPriors().getNames();
-	}
-
-	private static List<String> getLabels(Iterable<? extends Instance> trainingInstances) {
-    	Instance firstInstance = trainingInstances.iterator().next();
-    	List<String> lables = new ArrayList<>();
-    	for (VectorEntry<String, Value> entry : firstInstance.getVector()) {
-			if (entry.value() instanceof NumericValue) {
-				lables.add(entry.key());
-			}
-		}
-    	return lables;
-	}
 
 	private static List<TrainingExample> initTrainingInstances(Iterable<? extends Instance> instances,
             Normalization normalization, List<String> labels) {

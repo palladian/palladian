@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
-import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
@@ -108,8 +108,8 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
     }
 
     public static void main(String[] args) {
-        Dataset trainSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv"));
-        Dataset validationSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv"));
+        Dataset trainSet = CsvDatasetReaderConfig.filePath(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv")).create();
+        Dataset validationSet = CsvDatasetReaderConfig.filePath(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv")).create();
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread

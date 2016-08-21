@@ -1,6 +1,8 @@
 package ws.palladian.core;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
@@ -21,11 +23,11 @@ public class FilteredVector extends AbstractFeatureVector {
 
 	private final Set<String> filteredNames;
 
-	public FilteredVector(FeatureVector original, Set<String> filteredFeatures) {
+	public FilteredVector(FeatureVector original, Collection<String> filteredFeatures) {
 		Objects.requireNonNull(original, "original must not be null");
 		Objects.requireNonNull(filteredFeatures, "filteredFeatures must not be null");
 		this.original = original;
-		this.filteredNames = filteredFeatures;
+		this.filteredNames = new HashSet<>(filteredFeatures);
 	}
 
 	public FilteredVector(FeatureVector original, Filter<? super String> filteredFeatures) {
