@@ -10,6 +10,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.date.DateHelper;
 
 /**
@@ -73,7 +74,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * Keep track of the last 3 iterations
      */
-    private List<Long> lastIterationTimes;
+//    private List<Long> lastIterationTimes;
+    private FixedSizeQueue<Long> lastIterationTimes;
     private final static int LAST_ITERATION_WINDOW = 3;
 
     /**
@@ -176,7 +178,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         this.totalSteps = totalSteps;
         this.startTime = System.currentTimeMillis();
         this.lastPrintTime = 0;
-        lastIterationTimes = new ArrayList<>();
+        lastIterationTimes = FixedSizeQueue.create(LAST_ITERATION_WINDOW);
     }
 
     @Override
@@ -267,11 +269,14 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     private double getAverageIterationTime() {
         double time = 0.;
-        int count = Math.min(LAST_ITERATION_WINDOW, lastIterationTimes.size());
-        for (int i = 0; i < count; i++) {
-            time += lastIterationTimes.get(i);
+        int count = lastIterationTimes.size();
+//        for (int i = 0; i < count; i++) {
+//            time += lastIterationTimes.get(i);
+//        }
+//        lastIterationTimes = lastIterationTimes.subList(0, count);
+        for (Long lastIterationTime : lastIterationTimes) {
+        	time += lastIterationTime;
         }
-        lastIterationTimes = lastIterationTimes.subList(0, count);
         return time / count;
     }
 
