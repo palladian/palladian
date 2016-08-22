@@ -32,14 +32,14 @@ public class DummyVariableCreatorTest {
         FeatureVector instance = new InstanceBuilder().set("f1", "beta").set("f2", false).create();
         FeatureVector converted = dummyVariableCreator.convert(instance);
         assertEquals(5, converted.size());
-        assertEquals(0., ((NumericValue)converted.get("f1:alpha")).getDouble(), 0);
-        assertEquals(1., ((NumericValue)converted.get("f1:beta")).getDouble(), 0);
-        assertEquals(0., ((NumericValue)converted.get("f1:gamma")).getDouble(), 0);
-        assertEquals(0., ((NumericValue)converted.get("f1:delta")).getDouble(), 0);
-        assertEquals(0., ((NumericValue)converted.get("f2")).getDouble(), 0);
+        assertEquals(0, ((NumericValue)converted.get("f1:alpha")).getInt());
+        assertEquals(1, ((NumericValue)converted.get("f1:beta")).getInt());
+        assertEquals(0, ((NumericValue)converted.get("f1:gamma")).getInt());
+        assertEquals(0, ((NumericValue)converted.get("f1:delta")).getInt());
+        assertEquals(0, ((NumericValue)converted.get("f2")).getInt());
         instance = new InstanceBuilder().set("f1", "beta").set("f2", true).create();
         converted = dummyVariableCreator.convert(instance);
-        assertEquals(1., ((NumericValue)converted.get("f2")).getDouble(), 0);
+        assertEquals(1., ((NumericValue)converted.get("f2")).getInt(), 0);
         instance = new InstanceBuilder().set("f1", "beta").set("f2", true).set("f3", false).create();
         converted = dummyVariableCreator.convert(instance);
         
@@ -56,10 +56,10 @@ public class DummyVariableCreatorTest {
 
     	FeatureVector instance = new InstanceBuilder().set("f1", NullValue.NULL).create();
     	FeatureVector converted = dummyVariableCreator.convert(instance);
-        assertEquals(0., ((NumericValue)converted.get("f1:alpha")).getDouble(), 0);
-        assertEquals(0., ((NumericValue)converted.get("f1:beta")).getDouble(), 0);
-        assertEquals(0., ((NumericValue)converted.get("f1:gamma")).getDouble(), 0);
-        assertEquals(0., ((NumericValue)converted.get("f1:delta")).getDouble(), 0);
+        assertEquals(0, ((NumericValue)converted.get("f1:alpha")).getInt());
+        assertEquals(0, ((NumericValue)converted.get("f1:beta")).getInt());
+        assertEquals(0, ((NumericValue)converted.get("f1:gamma")).getInt());
+        assertEquals(0, ((NumericValue)converted.get("f1:delta")).getInt());
     }
 
     private Dataset makeDataset() {

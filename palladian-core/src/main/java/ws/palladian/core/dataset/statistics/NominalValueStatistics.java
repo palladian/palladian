@@ -47,6 +47,10 @@ public class NominalValueStatistics implements DatasetStatistics.ValueStatistics
 	public int getNumUniqueValues() {
 		return getValues().size();
 	}
+	
+	public int getNumUniqueValuesIncludingNull() {
+		return getNumUniqueValues() + (getNumNullValues() > 0 ? 1 : 0);
+	}
 
 	public Set<String> getValues() {
 		return stats.uniqueItems();
