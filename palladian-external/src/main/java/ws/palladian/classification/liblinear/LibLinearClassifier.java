@@ -1,6 +1,7 @@
 package ws.palladian.classification.liblinear;
 
 import java.io.PrintStream;
+import java.util.HashSet;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public final class LibLinearClassifier extends AbstractClassifier<LibLinearModel
      */
     private FeatureVector removeUntrainedFeatures(FeatureVector featureVector, LibLinearModel model) {
         int oldSize = featureVector.size();
-        featureVector = new FilteredVector(featureVector, model.getFeatureLabels());
+        featureVector = new FilteredVector(featureVector, new HashSet<>(model.getFeatureLabels()));
         int numIgnored = oldSize - featureVector.size();
         if (numIgnored > 0 && LOGGER.isTraceEnabled()) {
             LOGGER.trace("Ignoring {} unknown features", numIgnored);
