@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 
 public abstract class AbstractFeatureVector implements FeatureVector {
@@ -33,6 +34,16 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 			values.add(entry.value());
 		}
 		return Collections.unmodifiableCollection(values);
+	}
+	
+	@Override
+	public Value get(String k) {
+		for (VectorEntry<String, Value> entry : this) {
+			if (entry.key().equals(k)) {
+				return entry.value();
+			}
+		}
+		return NullValue.NULL;
 	}
 	
 	// to string
