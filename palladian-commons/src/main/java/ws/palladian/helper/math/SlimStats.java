@@ -113,7 +113,8 @@ public class SlimStats extends AbstractStats {
         if (count == 1) {
             return 0.;
         }
-        return Math.sqrt(s / (getCount() - 1));
+        // subtract one from the count, when we have a sample
+        return Math.sqrt(s / (getCount() - (isSample() ? 1 : 0)));
     }
 
     @Override
@@ -160,6 +161,11 @@ public class SlimStats extends AbstractStats {
     @Override
     public double getMode() {
     	throw new UnsupportedOperationException("Calculating the mode is not supported by this stats.");
+    }
+    
+    @Override
+    public boolean isSample() {
+    	return true;
     }
 
     @Override

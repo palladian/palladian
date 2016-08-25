@@ -171,7 +171,8 @@ public class FatStats extends AbstractStats {
             s += (value - tmpM) * (value - m);
             k++;
         }
-        return Math.sqrt(s / (getCount() - 1));
+        // subtract one from the count, when we have a sample
+		return Math.sqrt(s / (getCount() - (isSample() ? 1 : 0)));
     }
     
     @Override
@@ -294,6 +295,11 @@ public class FatStats extends AbstractStats {
 			}
 		}
 		return mode;
+	}
+	
+	@Override
+	public boolean isSample() {
+		return true;
 	}
 	
 	@Override
