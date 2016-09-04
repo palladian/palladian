@@ -1124,5 +1124,26 @@ public final class CollectionHelper {
     public static <T> T getRandom(Collection<T> collection) {
         return new ArrayList<T>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
     }
+    
+	/**
+	 * Create a map with running index as values for the given list. This avoids
+	 * calling the costly {@link List#indexOf(Object)} to get occurrence
+	 * indices. In case the given list contains any duplicates, the
+	 * <em>first</em> occurrence index is added to the result.
+	 * 
+	 * @param list The list, not <code>null</code>.
+	 * @return Map with keys from the list, and associated index as values.
+	 */
+	public static <T> Map<T, Integer> createIndexMap(List<T> list) {
+		Validate.notNull(list, "list must not be null");
+		Map<T, Integer> map = new HashMap<>();
+		for (int index = 0; index < list.size(); index++) {
+			T item = list.get(index);
+			if (!map.containsKey(item)) {
+				map.put(item, index);
+			}
+		}
+		return map;
+	}
 
 }

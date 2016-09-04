@@ -277,5 +277,15 @@ public class CollectionHelperTest {
         assertEquals(3, intersection.size());
         assertTrue(intersection.containsAll(Arrays.asList(3, 4, 5)));
     }
+    
+    @Test
+    public void testCreateIndexMap() {
+    	List<String> list = Arrays.asList("zero", "seven", "one", "one");
+    	Map<String, Integer> indexMap = CollectionHelper.createIndexMap(list);
+    	assertEquals(3, indexMap.size());
+    	assertEquals((Integer) 0, indexMap.get("zero"));
+    	assertEquals((Integer) 1, indexMap.get("seven"));
+    	assertEquals((Integer) 2, indexMap.get("one"));
+    }
 
 }
