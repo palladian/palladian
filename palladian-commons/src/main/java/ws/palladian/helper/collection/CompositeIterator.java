@@ -16,9 +16,9 @@ import org.apache.commons.lang3.Validate;
  * @author Philipp Katz
  * @param <T>
  */
-public final class CompositeIterator<T> implements Iterator<T> {
+public class CompositeIterator<T> implements Iterator<T> {
 
-    private final List<Iterator<T>> iterators;
+    private final List<? extends Iterator<T>> iterators;
 
     @SafeVarargs
     public CompositeIterator(Iterator<T>... iterators) {
@@ -26,7 +26,7 @@ public final class CompositeIterator<T> implements Iterator<T> {
         this.iterators = Arrays.asList(iterators);
     }
 
-    public CompositeIterator(List<Iterator<T>> iterators) {
+    public CompositeIterator(List<? extends Iterator<T>> iterators) {
         Validate.notNull(iterators, "iterators must not be null");
         this.iterators = iterators;
     }
