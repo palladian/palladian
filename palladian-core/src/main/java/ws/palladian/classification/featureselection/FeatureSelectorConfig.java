@@ -6,9 +6,9 @@ import java.util.HashSet;
 import org.apache.commons.lang.Validate;
 
 import ws.palladian.core.Classifier;
-import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
@@ -18,25 +18,25 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
 public class FeatureSelectorConfig {
-	static final class EvaluationMeasure<M extends Model, R> {
+	static final class EvaluationConfig<M extends Model, R> {
 		private final Factory<? extends Learner<M>> learnerFactory;
 		private final Factory<? extends Classifier<M>> classifierFactory;
 		private final ClassificationEvaluator<R> evaluator;
 		private final Function<R, Double> mapper;
-		private EvaluationMeasure(Factory<? extends Learner<M>> learnerFactory, Factory<? extends Classifier<M>> classifierFactory, ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
+		private EvaluationConfig(Factory<? extends Learner<M>> learnerFactory, Factory<? extends Classifier<M>> classifierFactory, ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
 			this.learnerFactory = learnerFactory;
 			this.classifierFactory = classifierFactory;
 			this.evaluator = evaluator;
 			this.mapper = mapper;
 		}
-		public double score(Iterable<? extends Instance> trainData, Iterable<? extends Instance> testData) {
+		public double score(Dataset trainData, Dataset testData) {
 			return mapper.compute(evaluator.evaluate(learnerFactory.create(), classifierFactory.create(), trainData, testData));
 		}
 	}
 	public static final class Builder<M extends Model> implements Factory<FeatureSelector>{
 		private final Factory<? extends Learner<M>> learnerFactory;
 		private final Factory<? extends Classifier<M>> classifierFactory;
-		private EvaluationMeasure<M, ?> evaluator;
+		private EvaluationConfig<M, ?> evaluator;
 		private int numThreads = 1;
 		private Collection<Filter<? super String>> featureGroups = new HashSet<>();
 		private boolean backward = true;
@@ -47,7 +47,7 @@ public class FeatureSelectorConfig {
 		private Builder(Factory<? extends Learner<M>> learnerFactory, Factory<? extends Classifier<M>> classifierFactory) {
 			this.learnerFactory = learnerFactory;
 			this.classifierFactory = classifierFactory;
-			this.evaluator = new EvaluationMeasure<>(learnerFactory, classifierFactory, new ConfusionMatrixEvaluator(), FeatureSelector.ACCURACY_SCORER);
+			this.evaluator = new EvaluationConfig<>(learnerFactory, classifierFactory, new ConfusionMatrixEvaluator(), FeatureSelector.ACCURACY_SCORER);
 		}
 //		public Builder<M> learner(Learner<M> learner) {
 //			Validate.notNull(learner, "learner must not be null");
@@ -86,7 +86,7 @@ public class FeatureSelectorConfig {
 			return this;
 		}
 		public <R> Builder<M> evaluator(ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
-			this.evaluator = new EvaluationMeasure<M, R>(learnerFactory, classifierFactory, evaluator, mapper);
+			this.evaluator = new EvaluationConfig<M, R>(learnerFactory, classifierFactory, evaluator, mapper);
 			return this;
 		}
 		public Builder<M> numThreads(int numThreads) {
@@ -147,7 +147,7 @@ public class FeatureSelectorConfig {
 	}
 //	private final Factory<? extends Learner<M>> learnerFactory;
 //	private final Factory<? extends Classifier<M>> classifierFactory;
-	private final EvaluationMeasure<?, ?> evaluator;
+	private final EvaluationConfig<?, ?> evaluator;
 	private final int numThreads;
 	private final Collection<? extends Filter<? super String>> featureGroups;
 	private final boolean backward;
@@ -165,7 +165,7 @@ public class FeatureSelectorConfig {
 //	public Classifier<M> createClassifier() {
 //		return classifierFactory.create();
 //	}
-	public EvaluationMeasure<?, ?> evaluator() {
+	public EvaluationConfig<?, ?> evaluator() {
 		return evaluator;
 	}
 	public int numThreads() {
