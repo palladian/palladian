@@ -87,10 +87,6 @@ public final class FeatureRanking {
     @Override
     public String toString() {
         sort();
-        StringBuilder builder = new StringBuilder();
-        builder.append("FeatureRanking [rankedFeatures=");
-        builder.append(rankedFeatures);
-        builder.append("]");
-        return builder.toString();
+        return "FeatureRanking " + rankedFeatures;
     }
 }
