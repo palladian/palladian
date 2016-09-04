@@ -152,7 +152,7 @@ public class CsvDatasetReader extends AbstractDataset {
 				builder.set(name, parsedValue);
 			}
             String targetClass = config.readClassFromLastColumn() ? stringPool.get(splitLine[splitLine.length - 1]) : "dummy";
-            if (lineNumber % 1000 == 0) {
+            if (lineNumber % LOG_EVERY_N_LINES == 0) {
                 LOGGER.debug("Read {} lines in {}", lineNumber, stopWatch);
             }
             splitLine = null;
@@ -176,6 +176,9 @@ public class CsvDatasetReader extends AbstractDataset {
     
 	private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableBooleanValue.PARSER,
 			ImmutableDoubleValue.PARSER, ImmutableStringValue.PARSER };
+	
+	/** Interval for the debug logging output when reading lines. */
+	private static final int LOG_EVERY_N_LINES = 100000;
 
 	private final CsvDatasetReaderConfig config;
 	
