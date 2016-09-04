@@ -24,6 +24,7 @@ import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.dataset.FeatureInformationBuilder;
 import ws.palladian.core.dataset.statistics.DatasetStatistics;
 import ws.palladian.core.dataset.statistics.NominalValueStatistics;
+import ws.palladian.core.value.ImmutableIntegerValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
@@ -78,7 +79,7 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
 			this.mapping = mapping;
 		}
 		public FeatureInformation getFeatureInformation() {
-			return new FeatureInformationBuilder().set(mapping.values(), NumericValue.class).create();
+			return new FeatureInformationBuilder().set(mapping.values(), ImmutableIntegerValue.class).create();
 		}
 		public void setValues(Value value, InstanceBuilder builder) {
 			String nominalValue = null;
