@@ -21,5 +21,10 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public abstract String toString();
+    
+    @Override
+    public final boolean isNull() {
+    	return this == NullValue.NULL;
+    }
 
 }
