@@ -19,7 +19,7 @@ public final class AverageMergingStrategy implements SelectedFeatureMergingStrat
 
     @Override
     public FeatureRanking merge(NumericMatrix<String> chiSquareMatrix) {
-        Map<String, Double> scores = LazyMap.create(Factories.constant(0.));
+        Map<String, Double> scores = new LazyMap<>(Factories.constant(0.));
         for (NumericMatrixVector<String> scoredValue : chiSquareMatrix.rows()) {
             String featureIdentifier = scoredValue.key().split("###")[0];
             double averageScore = scoredValue.sum() / scoredValue.size();

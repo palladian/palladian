@@ -12,6 +12,7 @@ public class FatStatsTest {
     @Test
     public void testStats() {
         Stats stats = new FatStats().add(2., 1., 6., 10., 23., 7.);
+        assertEquals(true, stats.isSample());
         assertEquals(6, stats.getCount());
         assertEquals(8.167, stats.getMean(), 0.001);
         assertEquals(6.5, stats.getMedian(), 0);
@@ -24,6 +25,10 @@ public class FatStatsTest {
         assertEquals(22, stats.getRange(), 0);
         assertEquals(0.9778, stats.getRelativeStandardDeviation(), 0.001);
         assertEquals(63.76667, stats.getVariance(), 0.001);
+        assertEquals(442.5926, stats.getMomentAboutMean(3), 0.001);
+        assertEquals(8755.2477, stats.getMomentAboutMean(4), 0.001);
+        assertEquals(1.5645, stats.getSkewness(), 0.001);
+        assertEquals(2.7934, stats.getKurtosis(), 0.001);
         // System.out.println(stats);
     }
 

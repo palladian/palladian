@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ws.palladian.core.ImmutableFeatureVectorEntry;
 import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.AbstractIterator;
@@ -45,6 +46,7 @@ public class FlyweightVectorSchema {
 		if (index == null) {
 			throw new IllegalArgumentException("Schema contains no key with name \"" + name + "\".");
 		}
+		// TODO : this should also perform type checking!
 		values[index] = value;
 	}
 
@@ -64,17 +66,7 @@ public class FlyweightVectorSchema {
 			protected VectorEntry<String, Value> getNext() throws Finished {
 				if (keyIterator.hasNext()) {
 					final Entry<String, Integer> current = keyIterator.next();
-					return new VectorEntry<String, Value>() {
-						@Override
-						public String key() {
-							return current.getKey();
-						}
-
-						@Override
-						public Value value() {
-							return values[current.getValue()];
-						}
-					};
+					return new ImmutableFeatureVectorEntry(current.getKey(), values[current.getValue()]);
 				}
 				throw FINISHED;
 			}

@@ -1,6 +1,5 @@
 package ws.palladian.classification.featureselection;
 
-import java.util.Collection;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
+import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
@@ -74,7 +74,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         ProgressReporter cooccurrenceProgress = progress.createSubProgress(0.5);
         cooccurrenceProgress.startTask("Counting cooccurrences.", N);
         CountMatrix<String> termCategoryCorrelations = CountMatrix.create();
-        Bag<String> categoryCounts = Bag.create();
+        Bag<String> categoryCounts = new Bag<>();
 
         Discretization discretization = new Discretization(dataset, NoProgress.INSTANCE);
         Iterable<Instance> discretizedDataset = discretization.discretize(dataset);
@@ -117,7 +117,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
     }
 
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
+    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
         NumericMatrix<String> chiSquareMatrix = calculateChiSquareValues(dataset, progress);
         return mergingStrategy.merge(chiSquareMatrix);

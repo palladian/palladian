@@ -34,6 +34,21 @@ public class FeatureInformationBuilder implements Factory<FeatureInformation> {
 		nameValues.put(name, valueType);
 		return this;
 	}
+	
+	public FeatureInformationBuilder set(Iterable<String> names, Class<? extends Value> valueType) {
+		Objects.requireNonNull(names, "names must not be null");
+		Objects.requireNonNull(valueType, "valueType must not be null");
+		for (String name : names) {
+			set(name, valueType);
+		}
+		return this;
+	}
+	
+	public FeatureInformationBuilder set(FeatureInformationEntry infoEntry) {
+		Objects.requireNonNull(infoEntry, "infoEntry must not be null");
+		set(infoEntry.getName(), infoEntry.getType());
+		return this;
+	}
 
 	public FeatureInformationBuilder add(FeatureInformation other) {
 		Objects.requireNonNull(other, "other must not be null");

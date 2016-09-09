@@ -29,6 +29,7 @@ public class CsvDatasetReaderConfig {
 		private String nullValue = DEFAULT_NULL_VALUE;
 		private boolean gzip = false;
 		private List<Filter<? super String>> skipColumns = new ArrayList<>();
+		private long limit = Long.MAX_VALUE;
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -146,6 +147,19 @@ public class CsvDatasetReaderConfig {
 			this.skipColumns.add(name);
 			return this;
 		}
+		
+		/**
+		 * Only read the number of specified lines.
+		 * 
+		 * @param lines
+		 *            The number of lines to read.
+		 * @return The builder.
+		 */
+		public Builder limit(long lines) {
+			Validate.isTrue(lines > 0, "lines must be greater zero");
+			this.limit = lines;
+			return this;
+		}
 
 		@Override
 		public CsvDatasetReader create() {
@@ -194,6 +208,7 @@ public class CsvDatasetReaderConfig {
 	private final String nullValue;
 	private final boolean gzip;
 	private final List<Filter<? super String>> skipColumns;
+	private final long limit;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -204,6 +219,7 @@ public class CsvDatasetReaderConfig {
 		this.nullValue = builder.nullValue;
 		this.gzip = builder.gzip;
 		this.skipColumns = new ArrayList<>(builder.skipColumns);
+		this.limit = builder.limit;
 	}
 
 	File filePath() {
@@ -259,5 +275,9 @@ public class CsvDatasetReaderConfig {
 			}
 		}
 		return false;
+	}
+	
+	long getLimit() {
+		return limit;
 	}
 }

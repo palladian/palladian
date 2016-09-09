@@ -1,8 +1,6 @@
 package ws.palladian.classification.featureselection;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,22 +13,22 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
-import ws.palladian.classification.nb.NaiveBayesModel;
-import ws.palladian.classification.utils.ClassificationUtils;
-import ws.palladian.classification.utils.ClassifierEvaluation;
-import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.functional.Function;
+import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
+import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
 /**
  * <p>
@@ -41,39 +39,71 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * @author Philipp Katz
  * @param <M> Type of the model.
  */
-public final class SingleFeatureClassification<M extends Model> extends AbstractFeatureRanker {
+public final class SingleFeatureClassification extends AbstractFeatureRanker {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleFeatureClassification.class);
+    
+    private static final class EvaluatorAndMapper<R, M extends Model> {
+    	private final Learner<M> learner;
+    	private final Classifier<M> classifier;
+    	private final ClassificationEvaluator<R> evaluator;
+    	private final Function<R, Double> mapper;
+		EvaluatorAndMapper(Learner<M> learner, Classifier<M> classifier, ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
+			this.learner = learner;
+			this.classifier = classifier;
+			this.evaluator = evaluator;
+			this.mapper = mapper;
+		}
+		Double evaluate(Dataset trainingData, Dataset testingData) {
+            M model = learner.train(trainingData);
+			R evaluationResult = evaluator.evaluate(classifier, model, testingData);
+			return mapper.compute(evaluationResult);
+		}
+    }
 
-    private final Learner<M> learner;
-
-    private final Classifier<M> classifier;
-
-    private final Function<ConfusionMatrix, Double> scorer;
+	private final EvaluatorAndMapper<?, ?> evaluatorAndMapper;
 
     /**
      * @param learner The learner, not <code>null</code>.
      * @param classifier The classifier, not <code>null</code>.
-     * @param scorer The function for determining the score, not <code>null</code>.
+     * @param evaluator The evaluation logic.
+     * @param mapper Mapping from the evaluation output to a ranking value. 
      */
-    public SingleFeatureClassification(Learner<M> learner, Classifier<M> classifier,
+    public <R, M extends Model> SingleFeatureClassification(Learner<M> learner, Classifier<M> classifier,
+    		ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {
+    	Validate.notNull(learner, "learner must not be null");
+    	Validate.notNull(classifier, "classifier must not be null");
+    	Validate.notNull(evaluator, "evaluator must not be null");
+    	Validate.notNull(mapper, "mapper must not be null");
+    	this.evaluatorAndMapper = new EvaluatorAndMapper<>(learner, classifier, evaluator, mapper);
+    }
+    
+    /**
+     * @param learner The learner, not <code>null</code>.
+     * @param classifier The classifier, not <code>null</code>.
+     * @param scorer The function for determining the score, not <code>null</code>.
+     * @deprecated Use {@link #SingleFeatureClassification(Learner, Classifier, ClassificationEvaluator, Function)} instead.
+     */
+    @Deprecated
+    public <M extends Model> SingleFeatureClassification(Learner<M> learner, Classifier<M> classifier,
             Function<ConfusionMatrix, Double> scorer) {
-        Validate.notNull(learner, "learner must not be null");
-        Validate.notNull(classifier, "classifier must not be null");
-        Validate.notNull(scorer, "scorer must not be null");
-        this.learner = learner;
-        this.classifier = classifier;
-        this.scorer = scorer;
+    	this(learner, classifier, new ConfusionMatrixEvaluator(), scorer);
     }
     
     @Override
-    public FeatureRanking rankFeatures(Collection<? extends Instance> dataset, ProgressReporter progress) {
-        List<Instance> instances = new ArrayList<Instance>(dataset);
+    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
+        List<Instance> instances = CollectionHelper.newArrayList(dataset);
         Collections.shuffle(instances);
         List<Instance> trainData = instances.subList(0, instances.size() / 2);
         List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
         return rankFeatures(trainData, testData);
+    }
+    
+    /** @deprecated Use {@link #rankFeatures(Dataset, Dataset)} instead. */
+    @Deprecated
+    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
+    	return rankFeatures(new DefaultDataset(trainSet), new DefaultDataset(validationSet));
     }
 
     /**
@@ -81,23 +111,19 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
+    public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet) {
         Map<String, Double> scores = new HashMap<>();
 
-        Iterable<FeatureVector> trainingVectors = ClassificationUtils.unwrapInstances(trainSet);
-        final Set<String> allFeatures = ClassificationUtils.getFeatureNames(trainingVectors);
+        final Set<String> allFeatures = trainSet.getFeatureInformation().getFeatureNames();
         final ProgressReporter progressMonitor = new ProgressMonitor();
         progressMonitor.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
             Filter<String> filter = Filters.equal(feature);
-            List<Instance> eliminatedTrainData = ClassificationUtils.filterFeatures(trainSet, filter);
-            List<Instance> eliminatedTestData = ClassificationUtils.filterFeatures(validationSet, filter);
+            Dataset eliminatedTrainData = trainSet.filterFeatures(filter);
+            Dataset eliminatedTestData = validationSet.filterFeatures(filter);
 
-            M model = learner.train(eliminatedTrainData);
-            @SuppressWarnings("unchecked")
-            ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(classifier, eliminatedTestData, model);
-            Double score = scorer.compute(confusionMatrix);
+            Double score = evaluatorAndMapper.evaluate(eliminatedTrainData, eliminatedTestData);
             LOGGER.info("Finished testing with {}: {}", feature, score);
             progressMonitor.increment();
             scores.put(feature, score);
@@ -106,8 +132,8 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
     }
 
     public static void main(String[] args) {
-        Iterable<Instance> trainSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv"));
-        CsvDatasetReader validationSet = new CsvDatasetReader(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv"));
+        Dataset trainSet = CsvDatasetReaderConfig.filePath(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_train.csv")).create();
+        Dataset validationSet = CsvDatasetReaderConfig.filePath(new File("/Users/pk/Dropbox/LocationExtraction/BFE/fd_merged_validation.csv")).create();
 
         // the classifier/predictor to use; when using threading, they have to be created through the factory, as we
         // require them for each thread
@@ -125,8 +151,7 @@ public final class SingleFeatureClassification<M extends Model> extends Abstract
             }
         };
 
-        SingleFeatureClassification<NaiveBayesModel> elimination = new SingleFeatureClassification<NaiveBayesModel>(
-                learner, classifier, scorer);
+		SingleFeatureClassification elimination = new SingleFeatureClassification(learner, classifier, scorer);
         FeatureRanking featureRanking = elimination.rankFeatures(trainSet, validationSet);
         CollectionHelper.print(featureRanking.getAll());
     }

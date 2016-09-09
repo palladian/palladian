@@ -38,7 +38,7 @@ abstract class AbstractStatsNormalizer implements Normalizer {
     public final Normalization calculate(Iterable<? extends FeatureVector> featureVectors) {
         Validate.notNull(featureVectors, "featureVectors must not be null");
 
-        Map<String, Stats> statsMap = LazyMap.create(SlimStats.FACTORY);
+        Map<String, Stats> statsMap = new LazyMap<>(SlimStats.FACTORY);
 
         for (FeatureVector vector : featureVectors) {
             for (VectorEntry<String, Value> vectorEntry : vector) {

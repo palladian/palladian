@@ -8,7 +8,8 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
 
-// TODO move to ws.palladian.core.dataset
+/** @deprecated Use {@link ws.palladian.core.dataset.statistics.DatasetStatistics} instead. */
+@Deprecated
 public class DatasetStatistics {
 
     private CategoryEntries categoryPriors;

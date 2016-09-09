@@ -98,7 +98,7 @@ public class QuickMlModel implements Model {
 	 *            The visitor.
 	 * @return  The supplied visitor.
 	 */
-	public TreeVisitor traverseModel(TreeVisitor visitor) {
+	public <TV extends TreeVisitor> TV traverseModel(TV visitor) {
 		Objects.requireNonNull(visitor, "visitor must not be null");
 		if (classifier instanceof RandomDecisionForest) {
 			RandomDecisionForest forest = (RandomDecisionForest) classifier;

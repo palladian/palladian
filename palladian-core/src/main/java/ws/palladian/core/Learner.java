@@ -33,5 +33,21 @@ public interface Learner<M extends Model> {
 	 * @return The model.
 	 */
 	M train(Dataset dataset);
+	
+	/**
+	 * Train a model from the given training data and use a separately supplied
+	 * dataset for validation during the training process, e.g. for early
+	 * stopping. Learner implementations which do not support this, simply
+	 * ignore the validation data.
+	 * 
+	 * @param training
+	 *            The dataset for building the model.
+	 * @param validation
+	 *            The dataset for validating, <code>null</code> in case there is
+	 *            no dedicated validation set (functionally equivalent to
+	 *            calling {@link #train(Dataset)}).
+	 * @return The model.
+	 */
+	M train(Dataset training, Dataset validation);
 
 }

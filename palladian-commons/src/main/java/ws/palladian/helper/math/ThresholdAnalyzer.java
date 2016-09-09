@@ -118,8 +118,8 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
             throw new IllegalArgumentException("numBins must be least two, was " + numBins);
         }
         this.numBins = numBins;
-        retrievedItems = Bag.create();
-        relevantItems = Bag.create();
+        retrievedItems = new Bag<>();
+        relevantItems = new Bag<>();
 //        this.relevantItems = 0;
     }
 

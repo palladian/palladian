@@ -31,11 +31,11 @@ public final class NaiveBayesLearner extends AbstractLearner<NaiveBayesModel> {
     public NaiveBayesModel train(Dataset dataset) {
 
         // store the counts of different categories
-        Bag<String> categories = Bag.create();
+        Bag<String> categories = new Bag<>();
         // store the counts of nominal features (name, value, category)
-        LazyMatrix<String, Bag<String>> nominalCounts = LazyMatrix.create(new Bag.BagFactory<String>());
+        LazyMatrix<String, Bag<String>> nominalCounts = new LazyMatrix<>(new Bag.BagFactory<String>());
         // store mean and standard deviation for numeric features (name, category)
-        Matrix<String, Stats> stats = LazyMatrix.create(SlimStats.FACTORY);
+        Matrix<String, Stats> stats = new LazyMatrix<>(SlimStats.FACTORY);
 
         for (Instance instance : dataset) {
             String category = instance.getCategory();
@@ -55,8 +55,8 @@ public final class NaiveBayesLearner extends AbstractLearner<NaiveBayesModel> {
             }
         }
 
-        Matrix<String, Double> sampleMeans = MapMatrix.create();
-        Matrix<String, Double> standardDeviations = MapMatrix.create();
+        Matrix<String, Double> sampleMeans = new MapMatrix<>();
+        Matrix<String, Double> standardDeviations = new MapMatrix<>();
 
         for (MatrixVector<String, Stats> row : stats.rows()) {
             String category = row.key();

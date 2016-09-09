@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.Dataset;
@@ -22,16 +22,16 @@ import ws.palladian.core.dataset.DatasetTransformer;
 import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.dataset.FeatureInformationBuilder;
-import ws.palladian.core.value.ImmutableDoubleValue;
+import ws.palladian.core.dataset.statistics.DatasetStatistics;
+import ws.palladian.core.dataset.statistics.NominalValueStatistics;
+import ws.palladian.core.value.ImmutableIntegerValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.DefaultMultiMap;
-import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.nlp.StringPool;
+import ws.palladian.helper.functional.Filters;
 
 /**
  * <p>
@@ -51,26 +51,53 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DummyVariableCreator.class);
+    
+	private static final class Mapper {
+		final Map<String, String> mapping;
+		Mapper(String featureName, NominalValueStatistics stats) {
+			mapping = new HashMap<>();
+			if (stats.getNumUniqueValuesIncludingNull() <= 2) {
+				// in case, we have two values and no null values we can map to
+				// only one column which denotes presence of one of the values,
+				// e.g. true
+				String value = stats.getValues().iterator().next();
+				String mappedValue = featureName + ":" + value;
+				// if we have true/false, we take the "true" column without
+				// suffix
+				if (stats.getValues().containsAll(Arrays.asList("true", "false"))) {
+					value = "true";
+					mappedValue = featureName;
+				}
+				mapping.put(value, mappedValue);
+			} else {
+				for (String value : stats.getValues()) {
+					mapping.put(value, featureName + ":" + value);
+				}
+			}
+		}
+		Mapper(Map<String, String> mapping) {
+			this.mapping = mapping;
+		}
+		public FeatureInformation getFeatureInformation() {
+			return new FeatureInformationBuilder().set(mapping.values(), ImmutableIntegerValue.class).create();
+		}
+		public void setValues(Value value, InstanceBuilder builder) {
+			String nominalValue = null;
+			if (value != NullValue.NULL) {
+				nominalValue = ((NominalValue) value).getString();
+			}
+			for (Entry<String, String> currentMapping : mapping.entrySet()) {
+				int numericValue = currentMapping.getKey().equals(nominalValue) ? 1 : 0;
+				builder.set(currentMapping.getValue(), numericValue);
+			}
+		}
+		@Override
+		public String toString() {
+			return mapping.toString();
+		}
+	}
 
-    // TODO for a nominal feature with k values, k-1 numeric features are enough
-
-    private transient MultiMap<String, String> domain;
-
-    private transient StringPool stringPool = new StringPool();
-
-    /**
-     * <p>
-     * Create a new {@link DummyVariableCreator} for the given dataset.
-     * </p>
-     * 
-     * @param trainingSet The dataset, not <code>null</code>.
-     * @deprecated Use {@link #DummyVariableCreator(Dataset)} instead.
-     */
-    @Deprecated
-    public DummyVariableCreator(Iterable<? extends FeatureVector> dataSet) {
-        Validate.notNull(dataSet, "dataSet must not be null");
-        this.domain = determineDomains(dataSet);
-    }
+    private transient Map<String, Mapper> mappers;
 
     /**
      * Create a new {@link DummyVariableCreator} for the given dataset.
@@ -78,145 +105,60 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
      */
     public DummyVariableCreator(Dataset dataset) {
     	Validate.notNull(dataset, "dataset must not be null");
-    	this.domain = datermineDomains(dataset);
-    }
-
-	private static MultiMap<String, String> determineDomains(Iterable<? extends FeatureVector> dataset) {
-        LOGGER.debug("Determine domain for dataset ...");
-        StopWatch stopWatch = new StopWatch();
-        MultiMap<String, String> domain = DefaultMultiMap.createWithList();
-        Set<String> nominalFeatureNames = null;
-        for (FeatureVector featureVector : dataset) {
-            if (nominalFeatureNames == null) {
-                nominalFeatureNames = getNominalFeatureNames(featureVector);
-                if (nominalFeatureNames.isEmpty()) {
-                    LOGGER.debug("No nominal features in dataset.");
-                    break;
-                }
-            }
-            for (String featureName : nominalFeatureNames) {
-                Value value = featureVector.get(featureName);
-                if (value == NullValue.NULL) {
-                    continue;
-                }
-                NominalValue nominalValue = (NominalValue)value;
-                String featureValue = nominalValue.getString();
-                if (!domain.get(featureName).contains(featureValue)) {
-                    domain.add(featureName, featureValue);
-                }
-            }
-        }
-        LOGGER.debug("... finished determining domain in {}", stopWatch);
-        return domain;
+    	this.mappers = buildMappers(dataset);
     }
 	
-    private static MultiMap<String, String> datermineDomains(Dataset dataset) {
-        MultiMap<String, String> domain = DefaultMultiMap.createWithList();
+    private static Map<String, Mapper> buildMappers(Dataset dataset) {
+        Map<String, Mapper> mappers = new HashMap<>();
         Set<String> nominalFeatureNames = dataset.getFeatureInformation().getFeatureNamesOfType(NominalValue.class);
         if (nominalFeatureNames.isEmpty()) {
         	LOGGER.debug("No nominal features in dataset.");
         } else {
+        	
         	LOGGER.debug("Determine domain for dataset ...");
         	StopWatch stopWatch = new StopWatch();
-	        for (Instance instance : dataset) {
-	            for (String featureName : nominalFeatureNames) {
-	                Value value = instance.getVector().get(featureName);
-	                if (value == NullValue.NULL) {
-	                    continue;
-	                }
-	                NominalValue nominalValue = (NominalValue)value;
-	                String featureValue = nominalValue.getString();
-	                if (!domain.get(featureName).contains(featureValue)) {
-	                    domain.add(featureName, featureValue);
-	                }
-	            }
-	        }
+
+			Dataset filteredDataset = dataset.filterFeatures(Filters.equal(nominalFeatureNames));
+			DatasetStatistics statistics = new DatasetStatistics(filteredDataset);
+			for (String featureName : nominalFeatureNames) {
+				NominalValueStatistics valueStats = (NominalValueStatistics) statistics.getValueStatistics(featureName);
+				mappers.put(featureName, new Mapper(featureName, valueStats));
+			}
 	        LOGGER.debug("... finished determining domain in {}", stopWatch);
         }
-        return domain;
+        return mappers;
 	}
 
-    private static Set<String> getNominalFeatureNames(FeatureVector featureVector) {
-        Set<String> nominalFeatureNames = new HashSet<>();
-        for (VectorEntry<String, Value> entry : featureVector) {
-            if (entry.value() instanceof NominalValue) {
-                nominalFeatureNames.add(entry.key());
-            }
-        }
-        return nominalFeatureNames;
-    }
-
-    /**
-     * <p>
-     * Convert the nominal values for the given {@link Iterable} dataset.
-     * </p>
-     * 
-     * @param data The dataset, not <code>null</code>.
-     * @return Dataset with converted features.
-     * @deprecated Use {@link #convert(Dataset)} instead.
-     */
-    @Deprecated
-    public Iterable<FeatureVector> convert(final Iterable<? extends FeatureVector> data) {
-        Validate.notNull(data, "data must not be null");
-
-        return new Iterable<FeatureVector>() {
-
-            @Override
-            public Iterator<FeatureVector> iterator() {
-                return new Iterator<FeatureVector>() {
-
-                    Iterator<? extends FeatureVector> wrapped = data.iterator();
-
-                    @Override
-                    public boolean hasNext() {
-                        return wrapped.hasNext();
-                    }
-
-                    @Override
-                    public FeatureVector next() {
-                        return convert(wrapped.next());
-                    }
-
-                    @Override
-                    public void remove() {
-                        throw new UnsupportedOperationException("Modifications are not allowed.");
-                    }
-                };
-            }
-        };
-
-    }
-    
-    /**
-     * @deprecated Use {@link Dataset#transform(DatasetTransformer)} instead.
-     */
-    @Deprecated
-    public Dataset convert(final Dataset dataset) {
-    	Validate.notNull(dataset, "data must not be null");
-    	return dataset.transform(this);
-    }
-    
 	@Override
 	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
 		FeatureInformationBuilder resultBuilder = new FeatureInformationBuilder();
 		for (FeatureInformationEntry infoEntry : featureInformation) {
-			Collection<String> featureDomain = domain.get(infoEntry.getName());
-			if (featureDomain == null) {
-				resultBuilder.set(infoEntry.getName(), infoEntry.getType());
-			} else if (featureDomain.size() < 3) {
-				resultBuilder.set(infoEntry.getName(), ImmutableDoubleValue.class);
+			Mapper mapper = mappers.get(infoEntry.getName());
+			if (mapper != null) {
+				resultBuilder.add(mapper.getFeatureInformation());
 			} else {
-				for (String domainValue : featureDomain) {
-					resultBuilder.set(infoEntry.getName() + ":" + domainValue, ImmutableDoubleValue.class);
-				}
+				resultBuilder.set(infoEntry);
 			}
 		}
 		return resultBuilder.create();
 	}
     
 	@Override
-	public Instance compute(Instance input) {
-		return new ImmutableInstance(convert(input.getVector()), input.getCategory());
+	public Instance compute(final Instance input) {
+		return new Instance() {
+			@Override
+			public int getWeight() {
+				return input.getWeight();
+			}
+			@Override
+			public FeatureVector getVector() {
+				return convert(input.getVector()); // calculate lazily
+			}
+			@Override
+			public String getCategory() {
+				return input.getCategory();
+			}
+		};
 	}
 
     /**
@@ -233,23 +175,11 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
         for (VectorEntry<String, Value> entry : featureVector) {
             String featureName = entry.key();
             Value featureValue = entry.value();
-            if (featureValue instanceof NominalValue) {
-                String nominalValue = ((NominalValue)featureValue).getString();
-                Collection<String> featureDomain = domain.get(featureName);
-                if (featureDomain.isEmpty()) {
-                    LOGGER.trace("Unknown feature {} will be dropped", featureName);
-                } else if (featureDomain.size() < 3) {
-                    double numericValue = nominalValue.equals(CollectionHelper.getFirst(featureDomain)) ? 1 : 0;
-                    builder.set(featureName, numericValue);
-                } else {
-                    for (String domainValue : featureDomain) {
-                        double numericValue = nominalValue.equals(domainValue) ? 1 : 0;
-                        String newFeatureName = stringPool.get(featureName + ":" + domainValue);
-                        builder.set(newFeatureName, numericValue);
-                    }
-                }
+            Mapper mapper = mappers.get(featureName);
+            if (mapper != null) {
+            	mapper.setValues(featureValue, builder);
             } else {
-                builder.set(featureName, featureValue);
+            	builder.set(featureName, featureValue);
             }
         }
         return builder.create();
@@ -259,8 +189,8 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
     public String toString() {
         StringBuilder toStringBuilder = new StringBuilder();
         toStringBuilder.append("NumericFeatureMapper\n");
-        for (String entry : domain.keySet()) {
-            toStringBuilder.append(entry).append(":").append(domain.get(entry)).append('\n');
+        for (Entry<String, Mapper> entry : mappers.entrySet()) {
+            toStringBuilder.append(entry.getKey()).append(":").append(entry.getValue()).append('\n');
         }
         toStringBuilder.append('\n');
         toStringBuilder.append("# nominal features: ").append(getNominalFeatureCount()).append('\n');
@@ -270,14 +200,14 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
 
     /** Package-private for testing purposes. */
     int getNominalFeatureCount() {
-        return domain.keySet().size();
+        return mappers.size();
     }
 
     /** Package-private for testing purposes. */
     int getCreatedNumericFeatureCount() {
         int numCreatedNumericFeatures = 0;
-        for (Collection<?> value : domain.values()) {
-            numCreatedNumericFeatures += value.size() < 3 ? 1 : value.size();
+        for (Mapper mapper : mappers.values()) {
+            numCreatedNumericFeatures += mapper.getFeatureInformation().count();
         }
         return numCreatedNumericFeatures;
     }
@@ -286,27 +216,30 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
     
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeInt(getNominalFeatureCount()); // number of entries
-        for (String featureName : domain.keySet()) {
+        for (String featureName : mappers.keySet()) {
             out.writeObject(featureName); // name of the current feature
-            Collection<String> values = domain.get(featureName);
+            Map<String, String> values = mappers.get(featureName).mapping;
             out.writeInt(values.size()); // number of following entries
-            for (String value : values) {
-                out.writeObject(value);
+            for (Entry<String, String> entry : values.entrySet()) {
+                out.writeObject(entry.getKey());
+                out.writeObject(entry.getValue());
             }
         }
     }
     
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        domain = DefaultMultiMap.createWithList();
-        stringPool = new StringPool(); // just create a new one
+        mappers = new HashMap<>();
         int featureCount = in.readInt();
         for (int i = 0; i < featureCount; i++) {
             String featureName = (String)in.readObject();
+            Map<String, String> mapping = new HashMap<>();
             int entryCount = in.readInt();
             for (int j = 0; j < entryCount; j++) {
+                String key = (String)in.readObject();
                 String value = (String)in.readObject();
-                domain.add(featureName, value);
+                mapping.put(key, value);
             }
+            mappers.put(featureName, new Mapper(mapping));
         }
     }
 

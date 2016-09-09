@@ -12,7 +12,6 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ws.palladian.classification.featureselection.BackwardFeatureEliminationConfig.Builder;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
@@ -25,7 +24,7 @@ import ws.palladian.helper.io.ResourceHelper;
 /**
  * @author Philipp Katz
  */
-public class BackwardFeatureEliminationTest {
+public class FeatureSelectorTest {
 
 	private static List<Instance> instances;
 
@@ -37,10 +36,11 @@ public class BackwardFeatureEliminationTest {
 	
     @Test
     public void testElimination() throws FileNotFoundException {
-    	Builder<NaiveBayesModel> builder = BackwardFeatureEliminationConfig.with(
+    	FeatureSelectorConfig.Builder<NaiveBayesModel> builder = FeatureSelectorConfig.with(
     			new NaiveBayesLearner(), new NaiveBayesClassifier());
-    	BackwardFeatureElimination elimination = builder.create();
-        FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
+    	builder.backward();
+    	FeatureSelector selector = builder.create();
+        FeatureRanking ranking = selector.rankFeatures(instances, NoProgress.INSTANCE);
         String bestFeatureValue = ranking.getAll().get(0).getName();
 
         // this is not really a good test, as the BackwardFeatureElimination shuffles the dataset; the top ranked
@@ -49,13 +49,28 @@ public class BackwardFeatureEliminationTest {
     }
     
     @Test
-    public void testElimination_FeatureGroups() throws FileNotFoundException {
-    	Builder<NaiveBayesModel> builder = BackwardFeatureEliminationConfig.with(
+    public void testConstruction() throws FileNotFoundException {
+    	FeatureSelectorConfig.Builder<NaiveBayesModel> builder = FeatureSelectorConfig.with(
     			new NaiveBayesLearner(), new NaiveBayesClassifier());
+    	builder.forward();
+    	FeatureSelector selector = builder.create();
+    	FeatureRanking ranking = selector.rankFeatures(instances, NoProgress.INSTANCE);
+    	String bestFeatureValue = ranking.getAll().get(0).getName();
+    	
+    	// this is not really a good test, as the BackwardFeatureElimination shuffles the dataset; the top ranked
+    	// features are as below, but I cannot exclude the case, the in one of 349834983 cases this might fail.
+    	assertTrue(Arrays.asList("plasma", "bmi", "bloodPressure", "triceps", "pedigree").contains(bestFeatureValue));
+    }
+    
+    @Test
+    public void testElimination_FeatureGroups() throws FileNotFoundException {
+    	FeatureSelectorConfig.Builder<NaiveBayesModel> builder = FeatureSelectorConfig.with(
+    			new NaiveBayesLearner(), new NaiveBayesClassifier());
+    	builder.backward();
     	builder.addFeatureGroup(regex("plasma|bmi|pedigree"));
-    	BackwardFeatureElimination elimination = builder.create();
-    	FeatureRanking ranking = elimination.rankFeatures(instances, NoProgress.INSTANCE);
-    	CollectionHelper.print(ranking.getAll());
+    	FeatureSelector selector = builder.create();
+    	FeatureRanking ranking = selector.rankFeatures(instances, NoProgress.INSTANCE);
+    	// CollectionHelper.print(ranking.getAll());
     	String bestFeatureValue = ranking.getAll().get(0).getName();
     	assertEquals("plasma|bmi|pedigree", bestFeatureValue);
     }
