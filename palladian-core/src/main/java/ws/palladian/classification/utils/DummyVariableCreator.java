@@ -58,14 +58,16 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 				// in case, we have two values and no null values we can map to
 				// only one column which denotes presence of one of the values,
 				// e.g. true
-				String value = stats.getValues().iterator().next();
+				Set<String> values = stats.getValues();
+				String value;
+				if (values.containsAll(Arrays.asList("true", "false"))) {
+					value = "true";
+				} else {
+					value = values.iterator().next();
+				}
 				String mappedValue = featureName + ":" + value;
 				// if we have true/false, we take the "true" column without
 				// suffix
-				if (stats.getValues().containsAll(Arrays.asList("true", "false"))) {
-					value = "true";
-					mappedValue = featureName;
-				}
 				mapping.put(value, mappedValue);
 			} else {
 				for (String value : stats.getValues()) {
@@ -97,13 +99,29 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 
     private transient Map<String, Mapper> mappers;
 
+	private final boolean keepOriginalFeature;
+
     /**
      * Create a new {@link DummyVariableCreator} for the given dataset.
      * @param dataset The dataset, not <code>null</code>.
      */
     public DummyVariableCreator(Dataset dataset) {
-    	Validate.notNull(dataset, "dataset must not be null");
-    	this.mappers = buildMappers(dataset);
+    	this(dataset, false);
+    }
+
+	/**
+	 * Create a new {@link DummyVariableCreator} for the given dataset.
+	 * 
+	 * @param dataset
+	 *            The dataset, not <code>null</code>.
+	 * @param keepOriginalFeature
+	 *            <code>true</code> in order to keep the original nominal
+	 *            feature, <code>false</code> to remove it (default setting).
+	 */
+	public DummyVariableCreator(Dataset dataset, boolean keepOriginalFeature) {
+		Validate.notNull(dataset, "dataset must not be null");
+		this.mappers = buildMappers(dataset);
+		this.keepOriginalFeature = keepOriginalFeature;
     }
 	
     private static Map<String, Mapper> buildMappers(Dataset dataset) {
@@ -132,10 +150,11 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 		FeatureInformationBuilder resultBuilder = new FeatureInformationBuilder();
 		for (FeatureInformationEntry infoEntry : featureInformation) {
 			Mapper mapper = mappers.get(infoEntry.getName());
+			if (mapper == null || keepOriginalFeature) {
+				resultBuilder.set(infoEntry);
+			}
 			if (mapper != null) {
 				resultBuilder.add(mapper.getFeatureInformation());
-			} else {
-				resultBuilder.set(infoEntry);
 			}
 		}
 		return resultBuilder.create();
@@ -161,10 +180,11 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
             String featureName = entry.key();
             Value featureValue = entry.value();
             Mapper mapper = mappers.get(featureName);
+            if (mapper == null || keepOriginalFeature) {
+            	builder.set(featureName, featureValue);
+            }
             if (mapper != null) {
             	mapper.setValues(featureValue, builder);
-            } else {
-            	builder.set(featureName, featureValue);
             }
         }
         return builder.create();

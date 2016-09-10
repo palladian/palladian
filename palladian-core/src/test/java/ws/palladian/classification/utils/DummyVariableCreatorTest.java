@@ -1,6 +1,6 @@
 package ws.palladian.classification.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,14 +32,16 @@ public class DummyVariableCreatorTest {
         FeatureVector instance = new InstanceBuilder().set("f1", "beta").set("f2", false).create();
         FeatureVector converted = dummyVariableCreator.convert(instance);
         assertEquals(5, converted.size());
+        assertTrue(converted.get("f1").isNull());
+        assertTrue(converted.get("f2").isNull());
         assertEquals(0, ((NumericValue)converted.get("f1:alpha")).getInt());
         assertEquals(1, ((NumericValue)converted.get("f1:beta")).getInt());
         assertEquals(0, ((NumericValue)converted.get("f1:gamma")).getInt());
         assertEquals(0, ((NumericValue)converted.get("f1:delta")).getInt());
-        assertEquals(0, ((NumericValue)converted.get("f2")).getInt());
+        assertEquals(0, ((NumericValue)converted.get("f2:true")).getInt());
         instance = new InstanceBuilder().set("f1", "beta").set("f2", true).create();
         converted = dummyVariableCreator.convert(instance);
-        assertEquals(1., ((NumericValue)converted.get("f2")).getInt(), 0);
+        assertEquals(1., ((NumericValue)converted.get("f2:true")).getInt(), 0);
         instance = new InstanceBuilder().set("f1", "beta").set("f2", true).set("f3", false).create();
         converted = dummyVariableCreator.convert(instance);
         
@@ -47,6 +49,17 @@ public class DummyVariableCreatorTest {
         // assertEquals(5, converted.size());
         assertEquals(6, converted.size());
         assertEquals(false, ((BooleanValue)converted.get("f3")).getBoolean());
+    }
+    
+    @Test
+    public void testDummyVariableCreatorKeepOriginalValues() {
+        Dataset dataset = makeDataset();
+        DummyVariableCreator dummyVariableCreator = new DummyVariableCreator(dataset, true);
+        FeatureVector instance = new InstanceBuilder().set("f1", "beta").set("f2", false).create();
+        FeatureVector converted = dummyVariableCreator.compute(instance);
+        assertEquals(7, converted.size());
+        assertFalse(converted.get("f1").isNull());
+        assertFalse(converted.get("f2").isNull());
     }
     
     @Test
