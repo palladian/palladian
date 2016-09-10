@@ -1,9 +1,7 @@
 package ws.palladian.classification.featureselection;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +18,7 @@ import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
+import ws.palladian.core.dataset.split.RandomSplit;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -93,11 +92,8 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
     
     @Override
     public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
-        List<Instance> instances = CollectionHelper.newArrayList(dataset);
-        Collections.shuffle(instances);
-        List<Instance> trainData = instances.subList(0, instances.size() / 2);
-        List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
-        return rankFeatures(trainData, testData);
+    	RandomSplit split = new RandomSplit(dataset, 0.5);
+        return rankFeatures(split.getTrain(), split.getTest());
     }
     
     /** @deprecated Use {@link #rankFeatures(Dataset, Dataset)} instead. */
