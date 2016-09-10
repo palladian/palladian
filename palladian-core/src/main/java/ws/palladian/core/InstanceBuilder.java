@@ -9,6 +9,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.value.ImmutableBooleanValue;
 import ws.palladian.core.value.ImmutableDoubleValue;
+import ws.palladian.core.value.ImmutableFloatValue;
 import ws.palladian.core.value.ImmutableIntegerValue;
 import ws.palladian.core.value.ImmutableLongValue;
 import ws.palladian.core.value.ImmutableStringValue;
@@ -39,6 +40,19 @@ public final class InstanceBuilder {
         Validate.notEmpty(name, "name must not be empty");
         valueMap.put(name, new ImmutableDoubleValue(value));
         return this;
+    }
+    
+    /**
+     * Set a float value (overwrite an existing value with the same name, in case it exists).
+     * 
+     * @param name Name of the value to set, not <code>null</code> or empty.
+     * @param value Value to set.
+     * @return The builder instance for method chaining.
+     */
+    public InstanceBuilder set(String name, float value) {
+    	Validate.notEmpty(name, "name must not be empty");
+    	valueMap.put(name, new ImmutableFloatValue(value));
+    	return this;
     }
     
     /**
