@@ -1,5 +1,7 @@
 package ws.palladian.core;
 
+import static ws.palladian.helper.math.MathHelper.log2;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -94,6 +96,18 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
 			names.add(category.getName());
 		}
     	return names;
+    }
+    
+    @Override
+    public double getEntropy() {
+        double entropy = 0;
+        for (Category category : this) {
+            double probability = category.getProbability();
+            if (probability > 0) {
+                entropy -= probability * log2(probability);
+            }
+        }
+        return entropy;
     }
 
     @Override

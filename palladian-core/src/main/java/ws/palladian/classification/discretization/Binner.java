@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.value.AbstractValue;
@@ -135,7 +134,7 @@ public final class Binner implements Iterable<Binner.Interval> {
         	categoryEntriesBuilder.add(valueCategory.category, 1);
         }
         CategoryEntries categoryPriors = categoryEntriesBuilder.create();
-        double entS = ClassificationUtils.entropy(categoryPriors);
+        double entS = categoryPriors.getEntropy();
         int k = categoryPriors.size();
         int n = data.size();
 
@@ -157,8 +156,8 @@ public final class Binner implements Iterable<Binner.Interval> {
             CategoryEntries c2 = b2.subtract(previousCategory, 1).create();
 
             if (previousValue < currentValue) {
-                double entS1 = ClassificationUtils.entropy(c1);
-                double entS2 = ClassificationUtils.entropy(c2);
+                double entS1 = c1.getEntropy();
+                double entS2 = c2.getEntropy();
                 double ent = (double)i / n * entS1 + (double)(n - i) / n * entS2;
                 double gain = entS - ent;
                 double delta = log2(pow(3, k) - 2) - (k * entS - c1.size() * entS1 - c2.size() * entS2);
