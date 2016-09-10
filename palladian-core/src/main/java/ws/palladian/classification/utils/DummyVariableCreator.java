@@ -15,10 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.AbstractDatasetFeatureVectorTransformer;
 import ws.palladian.core.dataset.Dataset;
-import ws.palladian.core.dataset.DatasetTransformer;
 import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.dataset.FeatureInformationBuilder;
@@ -27,7 +26,6 @@ import ws.palladian.core.dataset.statistics.NominalValueStatistics;
 import ws.palladian.core.value.ImmutableIntegerValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
-import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -45,7 +43,7 @@ import ws.palladian.helper.functional.Filters;
  * @see <a href="http://de.slideshare.net/jtneill/multiple-linear-regression/15">Dummy variables</a>
  * @see <a href="http://en.wikiversity.org/wiki/Dummy_variable_(statistics)">Dummy variable (statistics)</a>
  */
-public class DummyVariableCreator implements Serializable, DatasetTransformer {
+public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransformer implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -142,23 +140,10 @@ public class DummyVariableCreator implements Serializable, DatasetTransformer {
 		}
 		return resultBuilder.create();
 	}
-    
+	
 	@Override
-	public Instance compute(final Instance input) {
-		return new Instance() {
-			@Override
-			public int getWeight() {
-				return input.getWeight();
-			}
-			@Override
-			public FeatureVector getVector() {
-				return convert(input.getVector()); // calculate lazily
-			}
-			@Override
-			public String getCategory() {
-				return input.getCategory();
-			}
-		};
+	protected FeatureVector compute(FeatureVector featureVector) {
+		return convert(featureVector);
 	}
 
     /**
