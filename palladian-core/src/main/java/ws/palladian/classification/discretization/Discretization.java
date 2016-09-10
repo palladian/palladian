@@ -1,8 +1,6 @@
 package ws.palladian.classification.discretization;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +12,8 @@ import ws.palladian.classification.discretization.Binner.Interval;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.NoProgress;
@@ -29,42 +29,33 @@ public final class Discretization {
 
     private final Map<String, Binner> binners = new HashMap<>();
 
+    /** @deprecated Use {@link #Discretization(Dataset)}. */
+    @Deprecated
     public Discretization(Iterable<? extends Instance> dataset) {
         this(dataset, NoProgress.INSTANCE);
     }
     
+    /** @deprecated Use {@link #Discretization(Dataset, ProgressReporter)}. */
+    @Deprecated
     public Discretization(Iterable<? extends Instance> dataset, ProgressReporter progress) {
-        Validate.notNull(dataset, "dataset must not be null");
-        Collection<Instance> datasetCopy = CollectionHelper.newArrayList(dataset);
-        Set<String> numericFeatureNames = getNumericFeatureNames(datasetCopy);
-        progress.startTask("Discretizing", numericFeatureNames.size());
-        for (String featureName : numericFeatureNames) {
-            LOGGER.debug("Discretizing {}", featureName);
-            binners.put(featureName, new Binner(datasetCopy, featureName));
-            progress.increment();
-        }
-        progress.finishTask();
+    	this(new DefaultDataset(dataset), progress);
     }
 
-    /**
-     * Get the names of all {@link NumericValue}s in the given dataset.
-     * 
-     * @param dataset The dataset.
-     * @return Names of {@link NumericValue}s.
-     * @deprecated Move this logic to the {@link DatasetStatistics} class.
-     */
-    @Deprecated
-    private static Set<String> getNumericFeatureNames(Iterable<? extends Instance> dataset) {
-        Set<String> numericFeatureNames = new HashSet<>();
-        for (Instance instance : dataset) {
-            FeatureVector featureVector = instance.getVector();
-            for (VectorEntry<String, Value> vectorEntry : featureVector) {
-                if (vectorEntry.value() instanceof NumericValue) {
-                    numericFeatureNames.add(vectorEntry.key());
-                }
-            }
-        }
-        return numericFeatureNames;
+    public Discretization(Dataset dataset) {
+    	this(dataset, NoProgress.INSTANCE);
+    }
+    
+    public Discretization(Dataset dataset, ProgressReporter progress) {
+    	Validate.notNull(dataset, "dataset must not be null");
+    	Validate.notNull(progress, "progress must not be null");
+    	Set<String> numericFeatureNames = dataset.getFeatureInformation().getFeatureNamesOfType(NumericValue.class);
+    	progress.startTask("Discretizing", numericFeatureNames.size());
+    	for (String featureName : numericFeatureNames) {
+    		LOGGER.debug("Discretizing {}", featureName);
+    		binners.put(featureName, new Binner(dataset, featureName));
+    		progress.increment();
+    	}
+    	progress.finishTask();
     }
 
     public FeatureVector discretize(FeatureVector featureVector) {
