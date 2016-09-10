@@ -65,6 +65,36 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 		return string.toString();
 	}
 	
-	// TODO hashCode + equals
+	// hashCode + equals
+	
+	@Override
+	public int hashCode() {
+		int hashCode = 1;
+		for (VectorEntry<String, Value> entry : this) {
+			hashCode = 31 * hashCode + (entry.key().hashCode() ^ entry.value().hashCode());
+		}
+		return hashCode;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		AbstractFeatureVector other = (AbstractFeatureVector) obj;
+		if (size() != other.size()) {
+			return false;
+		}
+		for (VectorEntry<String, Value> entry : this) {
+			Value otherValue = other.get(entry.key());
+			if (!otherValue.equals(entry.value())) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }
