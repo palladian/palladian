@@ -19,7 +19,6 @@ import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.core.dataset.split.RandomSplit;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
@@ -75,7 +74,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
     	Validate.notNull(classifier, "classifier must not be null");
     	Validate.notNull(evaluator, "evaluator must not be null");
     	Validate.notNull(mapper, "mapper must not be null");
-    	this.evaluatorAndMapper = new EvaluatorAndMapper<>(learner, classifier, evaluator, mapper);
+    	evaluatorAndMapper = new EvaluatorAndMapper<>(learner, classifier, evaluator, mapper);
     }
     
     /**
@@ -107,12 +106,12 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet) {
+    @Override
+	public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progressReporter) {
         Map<String, Double> scores = new HashMap<>();
 
         final Set<String> allFeatures = trainSet.getFeatureInformation().getFeatureNames();
-        final ProgressReporter progressMonitor = new ProgressMonitor();
-        progressMonitor.startTask("Single feature classification", allFeatures.size());
+        progressReporter.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
             Filter<String> filter = Filters.equal(feature);
@@ -121,7 +120,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
 
             Double score = evaluatorAndMapper.evaluate(eliminatedTrainData, eliminatedTestData);
             LOGGER.info("Finished testing with {}: {}", feature, score);
-            progressMonitor.increment();
+            progressReporter.increment();
             scores.put(feature, score);
         }
         return new FeatureRanking(scores);

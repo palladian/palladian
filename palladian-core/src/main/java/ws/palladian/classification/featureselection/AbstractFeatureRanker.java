@@ -24,5 +24,15 @@ public abstract class AbstractFeatureRanker implements FeatureRanker {
 	public FeatureRanking rankFeatures(Dataset dataset) {
 		return rankFeatures(dataset, NoProgress.INSTANCE);
 	}
+	
+	@Override
+	public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet) {
+		return rankFeatures(trainSet, validationSet, NoProgress.INSTANCE);
+	}
+	
+	@Override
+	public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progress) {
+		return rankFeatures(trainSet, progress);
+	}
 
 }

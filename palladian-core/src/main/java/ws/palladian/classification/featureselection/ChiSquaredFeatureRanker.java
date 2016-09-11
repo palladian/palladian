@@ -60,8 +60,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * @param progress A {@link ProgressReporter}, or <code>null</code> in case no progress should be reported.
      * @return Matrix with the chi squared values. Each row in the matrix represents a feature, each column a class.
      */
-    public static NumericMatrix<String> calculateChiSquareValues(Iterable<? extends Instance> dataset,
-            ProgressReporter progress) {
+    public static NumericMatrix<String> calculateChiSquareValues(Dataset dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
 
         if (progress == null) {

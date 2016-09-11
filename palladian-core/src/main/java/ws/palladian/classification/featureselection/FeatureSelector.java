@@ -196,7 +196,8 @@ public final class FeatureSelector extends AbstractFeatureRanker {
      * @param numThreads Use the specified number of threads to parallelize training/testing. Must be greater/equal one.
      * @deprecated Use the {@link FeatureSelectorConfig.Builder} instead.
      */
-    public <M extends Model> FeatureSelector(Factory<? extends Learner<M>> learnerFactory,
+    @Deprecated
+	public <M extends Model> FeatureSelector(Factory<? extends Learner<M>> learnerFactory,
             Factory<? extends Classifier<M>> classifierFactory, Function<ConfusionMatrix, Double> scorer, int numThreads) {
     	this(FeatureSelectorConfig.with(learnerFactory, classifierFactory).scorer(scorer).numThreads(numThreads).createConfig());
     }
@@ -227,7 +228,8 @@ public final class FeatureSelector extends AbstractFeatureRanker {
      * @param progress A progress instance.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progress) {
+    @Override
+	public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progress) {
         Map<String, Integer> ranks = new HashMap<>();
 
         final Set<Filter<? super String>> allFeatureFilters = constructFeatureFilters(trainSet);
