@@ -67,7 +67,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         progress.startTask("Information Gain", -1);
         LOGGER.debug("Calculating discretization");
         Discretization discretization = new Discretization(dataset, progress.createSubProgress(0.5));
-        Iterable<Instance> preparedData = discretization.discretize(dataset);
+        Dataset preparedData = dataset.transform(discretization);
 
         NominalValueStatistics categoryStatistics = new DatasetStatistics(dataset).getCategoryStatistics();
         CategoryEntries categoryCounts = new CategoryEntriesBuilder(categoryStatistics.getMap()).create();

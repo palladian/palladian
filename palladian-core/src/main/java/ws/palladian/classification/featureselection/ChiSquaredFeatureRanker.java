@@ -76,7 +76,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
         Bag<String> categoryCounts = new Bag<>();
 
         Discretization discretization = new Discretization(dataset, NoProgress.INSTANCE);
-        Iterable<Instance> discretizedDataset = discretization.discretize(dataset);
+        Dataset discretizedDataset = dataset.transform(discretization);
 
         for (Instance instance : discretizedDataset) {
             FeatureVector featureVector = instance.getVector();
