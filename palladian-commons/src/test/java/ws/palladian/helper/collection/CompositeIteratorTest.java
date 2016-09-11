@@ -36,5 +36,11 @@ public class CompositeIteratorTest {
         }
 
     }
+    
+    @Test
+    public void testEmptyCompositeIterator() {
+    	CompositeIterator<Object> iterator = new CompositeIterator<>();
+    	assertFalse(iterator.hasNext());
+    }
 
 }
