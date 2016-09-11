@@ -1,6 +1,8 @@
 package ws.palladian.classification.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import ws.palladian.core.value.BooleanValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 public class DummyVariableCreatorTest {
 
@@ -26,14 +29,14 @@ public class DummyVariableCreatorTest {
         Dataset dataset = makeDataset();
         DummyVariableCreator dummyVariableCreator = new DummyVariableCreator(dataset);
         assertEquals(2, dummyVariableCreator.getNominalFeatureCount());
-        assertEquals(5, dummyVariableCreator.getCreatedNumericFeatureCount());
+        assertEquals(5, dummyVariableCreator.getCreatedNumericFeatures().size());
         // System.out.println(dummyVariableCreator);
 
         FeatureVector instance = new InstanceBuilder().set("f1", "beta").set("f2", false).create();
         FeatureVector converted = dummyVariableCreator.convert(instance);
         assertEquals(5, converted.size());
-        assertTrue(converted.get("f1").isNull());
-        assertTrue(converted.get("f2").isNull());
+        assertNull(converted.get("f1"));
+        assertNull(converted.get("f2"));
         assertEquals(0, ((NumericValue)converted.get("f1:alpha")).getInt());
         assertEquals(1, ((NumericValue)converted.get("f1:beta")).getInt());
         assertEquals(0, ((NumericValue)converted.get("f1:gamma")).getInt());
@@ -92,10 +95,20 @@ public class DummyVariableCreatorTest {
         File tempFile = new File(FileHelper.getTempDir(), "dummyVariableCreator.ser");
         FileHelper.serialize(dummyVariableCreator, tempFile.getPath());
 
-        dummyVariableCreator = FileHelper.deserialize(tempFile.getPath());
-        assertEquals(2, dummyVariableCreator.getNominalFeatureCount());
-        assertEquals(5, dummyVariableCreator.getCreatedNumericFeatureCount());
+        DummyVariableCreator deserializedDummyVariableCreator = FileHelper.deserialize(tempFile.getPath());
+        assertEquals(2, deserializedDummyVariableCreator.getNominalFeatureCount());
+        assertEquals(5, deserializedDummyVariableCreator.getCreatedNumericFeatures().size());
+        
+        assertEquals(dummyVariableCreator.getCreatedNumericFeatures(), deserializedDummyVariableCreator.getCreatedNumericFeatures());
+        
         tempFile.delete();
+    }
+    
+    @Test
+    public void testSerialization_existingFile() throws IOException {
+    	DummyVariableCreator deserializedDummyVariableCreator = FileHelper.deserialize(ResourceHelper.getResourcePath("/model/dummyVariableCreator_v1.ser"));
+    	assertEquals(2, deserializedDummyVariableCreator.getNominalFeatureCount());
+    	assertEquals(5, deserializedDummyVariableCreator.getCreatedNumericFeatures().size());
     }
 
 }
