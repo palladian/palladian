@@ -19,7 +19,7 @@ import org.apache.commons.lang3.Validate;
  * @author Philipp Katz
  * @param <T>
  */
-public class CompositeIterator<T> extends AbstractIterator<T> implements Iterator<T> {
+public class CompositeIterator<T> extends AbstractIterator2<T> implements Iterator<T> {
 
 	private final Iterator<? extends Iterator<T>> iteratorsIterator;
 
@@ -50,7 +50,7 @@ public class CompositeIterator<T> extends AbstractIterator<T> implements Iterato
 	}
 
 	@Override
-	protected T getNext() throws Finished {
+	protected T getNext() {
 		if (current.hasNext()) {
 			return current.next();
 		}
@@ -60,7 +60,7 @@ public class CompositeIterator<T> extends AbstractIterator<T> implements Iterato
 				return current.next();
 			}
 		}
-		throw FINISHED;
+		return finished();
 	}
 
 }
