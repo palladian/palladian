@@ -32,18 +32,20 @@ import java.util.NoSuchElementException;
 public abstract class AbstractIterator2<E> implements Iterator<E> {
 
 	private E next;
+	private boolean ready;
 	private boolean finished;
 
 	@Override
 	public boolean hasNext() {
 		if (finished) {
-			return true;
+			return false;
 		}
-		if (next == null) {
+		if (!ready) {
 			next = getNext();
 			if (finished) {
 				return false;
 			}
+			ready = true;
 		}
 		return true;
 
@@ -54,15 +56,14 @@ public abstract class AbstractIterator2<E> implements Iterator<E> {
 		if (finished) {
 			throw new NoSuchElementException("No (more) elements");
 		}
-		if (next == null) {
+		if (!ready) {
 			next = getNext();
 			if (finished) {
 				throw new NoSuchElementException("No (more) elements");
 			}
 		}
-		E result = next;
-		next = null;
-		return result;
+		ready = false;
+		return next;
 	}
 
 	@Override
