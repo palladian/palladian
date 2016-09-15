@@ -18,7 +18,6 @@ import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
-import ws.palladian.core.dataset.split.RandomSplit;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
@@ -87,12 +86,6 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
     public <M extends Model> SingleFeatureClassification(Learner<M> learner, Classifier<M> classifier,
             Function<ConfusionMatrix, Double> scorer) {
     	this(learner, classifier, new ConfusionMatrixEvaluator(), scorer);
-    }
-    
-    @Override
-    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
-    	RandomSplit split = new RandomSplit(dataset, 0.5);
-        return rankFeatures(split.getTrain(), split.getTest());
     }
     
     /** @deprecated Use {@link #rankFeatures(Dataset, Dataset)} instead. */

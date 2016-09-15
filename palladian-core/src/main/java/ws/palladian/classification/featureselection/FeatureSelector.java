@@ -6,7 +6,6 @@ import static ws.palladian.helper.functional.Filters.or;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -202,15 +201,6 @@ public final class FeatureSelector extends AbstractFeatureRanker {
     	this(FeatureSelectorConfig.with(learnerFactory, classifierFactory).scorer(scorer).numThreads(numThreads).createConfig());
     }
 
-    @Override
-    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
-        List<Instance> instances = CollectionHelper.newArrayList(dataset);
-        Collections.shuffle(instances);
-        List<Instance> trainData = instances.subList(0, instances.size() / 2);
-        List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
-        return rankFeatures(trainData, testData, progress);
-    }
-    
     /** @deprecated Use {@link #rankFeatures(Dataset, Dataset, ProgressReporter)} instead. */
     @Deprecated
     public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet,
