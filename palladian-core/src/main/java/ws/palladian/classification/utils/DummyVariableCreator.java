@@ -142,6 +142,8 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 	public DummyVariableCreator(Dataset dataset, boolean keepOriginalFeature) {
 		Validate.notNull(dataset, "dataset must not be null");
 		mappers = buildMappers(dataset);
+		LOGGER.info("# nominal features which will be mapped: {}", getNominalFeatureCount());
+		LOGGER.info("# created features: {}", getCreatedNumericFeatures().size());
 		this.keepOriginalFeature = keepOriginalFeature;
 	}
 
