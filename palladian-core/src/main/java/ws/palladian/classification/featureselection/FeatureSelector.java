@@ -118,7 +118,7 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 
 		@Override
         public TestRunResult call() throws Exception {
-            LOGGER.debug("Starting evaluation for {}", features);
+            LOGGER.trace("Starting evaluation for {}", features);
 
             Dataset eliminatedTrainData = trainData.filterFeatures(features);
             Dataset eliminatedTestData = testData.filterFeatures(features);
