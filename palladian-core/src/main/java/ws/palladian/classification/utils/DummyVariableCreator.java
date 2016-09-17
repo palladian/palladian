@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.AppendedVector;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.FilteredVector;
+import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.AbstractDatasetFeatureVectorTransformer;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.FeatureInformation;
@@ -70,15 +71,18 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 		final Map<String, FeatureVector> mapping = new HashMap<>();
 		final FeatureVector missing;
 		final FeatureInformation featureInformation;
-		Mapper(String featureName, NominalValueStatistics stats) {
-			this(prepare(featureName, stats));
+		Mapper(String featureName, NominalValueStatistics stats, boolean dense) {
+			this(prepare(featureName, stats), dense);
 		}
-		Mapper(Map<String, String> mapping) {
-			FlyweightVectorSchema schema = new FlyweightVectorSchema(mapping.values().toArray(new String[0]));
-			for (Entry<String, String> entry : mapping.entrySet()) {
-				this.mapping.put(entry.getKey(), createDummyVector(schema, entry.getValue(), mapping.values()));
+		Mapper(Map<String, String> mapping, boolean dense) {
+			FlyweightVectorSchema schema = null;
+			if (dense) {
+				schema = new FlyweightVectorSchema(mapping.values().toArray(new String[0]));
 			}
-			missing = createDummyVector(schema, null, mapping.values());
+			for (Entry<String, String> entry : mapping.entrySet()) {
+				this.mapping.put(entry.getKey(), createDummyVector(schema, entry.getValue(), mapping.values(), dense));
+			}
+			missing = createDummyVector(schema, null, mapping.values(), dense);
 			featureInformation = new FeatureInformationBuilder().set(mapping.values(), ImmutableIntegerValue.class)
 					.create();
 		}
@@ -101,13 +105,26 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 			return prefixedValues;
 		}
 		private static FeatureVector createDummyVector(FlyweightVectorSchema schema, String value,
-				Collection<String> allValues) {
-			FlyweightVectorBuilder builder = schema.builder();
-			for (String currentValue : allValues) {
-				int mappedValue = currentValue.equals(value) ? 1 : 0;
-				builder.set(currentValue, ImmutableIntegerValue.valueOf(mappedValue));
+				Collection<String> allValues, boolean dense) {
+			if (dense) {
+				FlyweightVectorBuilder builder = schema.builder();
+				for (String currentValue : allValues) {
+					int mappedValue = currentValue.equals(value) ? 1 : 0;
+					if (mappedValue == 1 || dense) {
+						builder.set(currentValue, ImmutableIntegerValue.valueOf(mappedValue));
+					}
+				}
+				return builder.create();
+			} else /* sparse */ {
+				InstanceBuilder builder = new InstanceBuilder();
+				for (String currentValue : allValues) {
+					int mappedValue = currentValue.equals(value) ? 1 : 0;
+					if (mappedValue == 1) {
+						builder.set(currentValue, mappedValue);
+					}
+				}
+				return builder.create();
 			}
-			return builder.create();
 		}
 		public FeatureInformation getFeatureInformation() {
 			return featureInformation;
@@ -124,14 +141,32 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 
     private transient Map<String, Mapper> mappers;
 
-	private transient boolean keepOriginalFeature;
+	private transient boolean keepOriginalFeature = false;
+
+	private transient boolean dense = true;
 
     /**
      * Create a new {@link DummyVariableCreator} for the given dataset.
      * @param dataset The dataset, not <code>null</code>.
+	 * @deprecated Prefer using the
+	 *             {@link #DummyVariableCreator(Dataset, boolean, boolean)}
+	 *             constructor and set <code>dense</code> to <code>false</code>
+	 *             for better performance and memory-efficiency.
      */
+	@Deprecated
     public DummyVariableCreator(Dataset dataset) {
     	this(dataset, false);
+    }
+    
+	/**
+	 * @deprecated Prefer using the
+	 *             {@link #DummyVariableCreator(Dataset, boolean, boolean)}
+	 *             constructor and set <code>dense</code> to <code>false</code>
+	 *             for better performance and memory-efficiency.
+	 */
+    @Deprecated
+    public DummyVariableCreator(Dataset dataset, boolean keepOriginalFeature) {
+    	this(dataset, keepOriginalFeature, true);
     }
 
 	/**
@@ -142,16 +177,23 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 	 * @param keepOriginalFeature
 	 *            <code>true</code> in order to keep the original nominal
 	 *            feature, <code>false</code> to remove it (default setting).
+	 * @param dense
+	 *            <code>true</code> to create zero-values explicitly,
+	 *            <code>false</code> in order to simply keep them unset, which
+	 *            is fine in most cases and saves time and memory.
 	 */
-	public DummyVariableCreator(Dataset dataset, boolean keepOriginalFeature) {
+	public DummyVariableCreator(Dataset dataset, boolean keepOriginalFeature, boolean dense) {
 		Validate.notNull(dataset, "dataset must not be null");
-		mappers = buildMappers(dataset);
-		LOGGER.info("# nominal features which will be mapped: {}", getNominalFeatureCount());
-		LOGGER.info("# created features: {}", getCreatedNumericFeatures().size());
+		mappers = buildMappers(dataset, dense);
+		if (getNominalFeatureCount() > 0) {
+			LOGGER.info("# nominal features which will be mapped: {}", getNominalFeatureCount());
+			LOGGER.info("# created features: {}", getCreatedNumericFeatures().size());
+		}
 		this.keepOriginalFeature = keepOriginalFeature;
+		this.dense = dense;
 	}
 
-	private static Map<String, Mapper> buildMappers(Dataset dataset) {
+	private static Map<String, Mapper> buildMappers(Dataset dataset, boolean dense) {
 		Map<String, Mapper> mappers = new HashMap<>();
 		Set<String> nominalFeatureNames = dataset.getFeatureInformation().getFeatureNamesOfType(NominalValue.class);
 		if (nominalFeatureNames.isEmpty()) {
@@ -165,7 +207,7 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 			DatasetStatistics statistics = new DatasetStatistics(filteredDataset);
 			for (String featureName : nominalFeatureNames) {
 				NominalValueStatistics valueStats = (NominalValueStatistics) statistics.getValueStatistics(featureName);
-				mappers.put(featureName, new Mapper(featureName, valueStats));
+				mappers.put(featureName, new Mapper(featureName, valueStats, dense));
 			}
 			LOGGER.debug("... finished determining domain in {}", stopWatch);
 		}
@@ -203,7 +245,13 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
     public FeatureVector convert(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
         
-        List<FeatureVector > appendedVectors = new ArrayList<>(Collections.singleton(featureVector));
+        List<FeatureVector> appendedVectors = new ArrayList<>();
+
+        if (keepOriginalFeature) {
+        	appendedVectors.add(featureVector);
+        } else {
+        	appendedVectors.add(new FilteredVector(featureVector, not(equal(mappers.keySet()))));
+        }
         
         for (VectorEntry<String, Value> entry : featureVector) {
             String featureName = entry.key();
@@ -214,13 +262,7 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
             }
         }
         
-		FeatureVector result = new AppendedVector(appendedVectors);
-        
-        if (!keepOriginalFeature) {
-        	result = new FilteredVector(result, not(equal(mappers.keySet())));
-        }
-        
-        return result;
+		return new AppendedVector(appendedVectors);
     }
 
     @Override
@@ -237,7 +279,7 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
     }
 
     /** Package-private for testing purposes. */
-    int getNominalFeatureCount() {
+    final int getNominalFeatureCount() {
         return mappers.size();
     }
 
@@ -269,10 +311,11 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
             }
         }
         out.writeBoolean(keepOriginalFeature);
+        out.writeBoolean(dense);
     }
     
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        mappers = new HashMap<>();
+        Map<String, Map<String, String>> temp = new HashMap<>();
         int featureCount = in.readInt();
         for (int i = 0; i < featureCount; i++) {
             String featureName = (String)in.readObject();
@@ -283,14 +326,17 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
                 String value = (String)in.readObject(); // mapped feature name, e.g. featureX:A
                 mapping.put(key, value);
             }
-            mappers.put(featureName, new Mapper(mapping));
+            temp.put(featureName, mapping);
         }
         try {
 			keepOriginalFeature = in.readBoolean();
-		} catch (EOFException e) {
-			// ignore
-			keepOriginalFeature = false;
+			dense = in.readBoolean();
+		} catch (EOFException ignore) {
 		}
+        mappers = new HashMap<>();
+        for (Entry<String, Map<String, String>> entry : temp.entrySet()) {
+        	mappers.put(entry.getKey(), new Mapper(entry.getValue(), dense));
+        }
     }
     
 
