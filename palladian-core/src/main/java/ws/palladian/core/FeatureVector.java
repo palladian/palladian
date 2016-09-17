@@ -1,5 +1,6 @@
 package ws.palladian.core;
 
+import ws.palladian.core.value.BooleanValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
@@ -20,6 +21,7 @@ public interface FeatureVector extends Vector<String, Value> {
 
 	/**
 	 * Get a numeric value.
+	 * 
 	 * @param key
 	 *            The key of the value to get.
 	 * @return The numeric value, never <code>null</code>.
@@ -27,5 +29,16 @@ public interface FeatureVector extends Vector<String, Value> {
 	 *             in case the value is not nominal
 	 */
 	NumericValue getNumeric(String key);
+
+	/**
+	 * Get a boolean value.
+	 * 
+	 * @param key
+	 *            The key of the value to get.
+	 * @return The numeric value, never <code>null</code>.
+	 * @throws ClassCastException
+	 *             in case the value is not boolean
+	 */
+	BooleanValue getBoolean(String key);
 
 }

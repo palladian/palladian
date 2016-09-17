@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import ws.palladian.core.value.BooleanValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
@@ -56,6 +57,11 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 	@Override
 	public NumericValue getNumeric(String key) {
 		return get(NumericValue.class, key);
+	}
+	
+	@Override
+	public BooleanValue getBoolean(String key) {
+		return get(BooleanValue.class, key);
 	}
 	
 	private <V> V get(Class<V> valueType, String key) {
