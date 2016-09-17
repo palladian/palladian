@@ -50,7 +50,7 @@ public class MinMaxNormalizer extends AbstractStatsNormalizer {
             Double min = minValues.get(name);
             Double max = maxValues.get(name);
             if (min == null || max == null) {
-                LOGGER.debug("No normalization information for \"{}\".", name);
+                LOGGER.trace("No normalization information for \"{}\".", name);
                 return value;
             }
 
