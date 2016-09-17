@@ -140,6 +140,16 @@ public final class Filters {
         Validate.notNull(pattern, "pattern must not be null");
         return new RegexFilter(pattern);
     }
+    
+	public static Filter<String> contains(final String substring) {
+		Validate.notNull(substring, "substring must not be null");
+		return new Filter<String>() {
+			@Override
+			public boolean accept(String item) {
+				return item.contains(substring);
+			}
+		};
+	}
 
     /**
      * A {@link Filter} for {@link String}s using Regex.
