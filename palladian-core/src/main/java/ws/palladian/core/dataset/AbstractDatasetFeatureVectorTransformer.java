@@ -35,6 +35,7 @@ public abstract class AbstractDatasetFeatureVectorTransformer implements Dataset
 		};
 	}
 
+	// TODO refactor this to compute(FeatureInformation, FeatureVector)
 	protected abstract FeatureVector compute(FeatureVector featureVector);
 
 }
