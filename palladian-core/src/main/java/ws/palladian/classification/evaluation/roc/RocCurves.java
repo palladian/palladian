@@ -18,6 +18,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.evaluation.AbstractClassificationEvaluator;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
@@ -25,7 +26,6 @@ import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.math.AbstractClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**

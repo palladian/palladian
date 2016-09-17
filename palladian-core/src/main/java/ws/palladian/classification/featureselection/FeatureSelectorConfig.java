@@ -5,6 +5,8 @@ import java.util.HashSet;
 
 import org.apache.commons.lang.Validate;
 
+import ws.palladian.classification.evaluation.ClassificationEvaluator;
+import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
 import ws.palladian.classification.evaluation.roc.RocCurves;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Learner;
@@ -14,9 +16,7 @@ import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
 public class FeatureSelectorConfig {
 	static final class EvaluationConfig<M extends Model, R> {

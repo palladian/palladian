@@ -9,6 +9,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.evaluation.ClassificationEvaluator;
+import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
@@ -23,9 +25,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
 /**
  * <p>

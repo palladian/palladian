@@ -1,4 +1,4 @@
-package ws.palladian.helper.math;
+package ws.palladian.classification.evaluation;
 
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
