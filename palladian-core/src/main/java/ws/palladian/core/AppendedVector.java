@@ -1,5 +1,6 @@
 package ws.palladian.core;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,6 +12,10 @@ public class AppendedVector extends AbstractFeatureVector {
 
 	private final List<FeatureVector> vectors;
 
+	public AppendedVector(FeatureVector... vectors) {
+		this.vectors = Arrays.asList(vectors);
+	}
+	
 	public AppendedVector(List<FeatureVector> vectors) {
 		this.vectors = vectors;
 	}
