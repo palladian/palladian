@@ -28,6 +28,8 @@ public class AppendedVector extends AbstractFeatureVector {
 				return value;
 			}
 		}
+		// XXX returning null in this case would make more sense? see also:
+		// ws.palladian.core.FilteredVector
 		return NullValue.NULL;
 	}
 
