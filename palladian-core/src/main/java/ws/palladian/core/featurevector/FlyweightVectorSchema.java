@@ -1,5 +1,6 @@
 package ws.palladian.core.featurevector;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -9,8 +10,9 @@ import java.util.Set;
 
 import ws.palladian.core.ImmutableFeatureVectorEntry;
 import ws.palladian.core.dataset.FeatureInformation;
+import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
@@ -36,9 +38,17 @@ public class FlyweightVectorSchema {
 		this(featureInformation.getFeatureNames().toArray(new String[0]));
 	}
 
+	public FlyweightVectorSchema(Collection<String> keys) {
+		this(keys.toArray(new String[0]));
+	}
+
 	public Value get(String name, Value[] values) {
 		Integer index = keys.get(name);
-		return index != null ? values[index] : null;
+		if (index == null) { // there is no such key
+			return null;
+		}
+		Value value = values[index];
+		return value != null ? value : NullValue.NULL;
 	}
 
 	public void set(String name, Value value, Value[] values) {
@@ -59,16 +69,20 @@ public class FlyweightVectorSchema {
 	}
 
 	public Iterator<VectorEntry<String, Value>> iterator(final Value[] values) {
-		return new AbstractIterator<VectorEntry<String, Value>>() {
+		return new AbstractIterator2<VectorEntry<String, Value>>() {
 			final Iterator<Entry<String, Integer>> keyIterator = keys.entrySet().iterator();
 
 			@Override
-			protected VectorEntry<String, Value> getNext() throws Finished {
+			protected VectorEntry<String, Value> getNext() {
 				if (keyIterator.hasNext()) {
 					final Entry<String, Integer> current = keyIterator.next();
-					return new ImmutableFeatureVectorEntry(current.getKey(), values[current.getValue()]);
+					Value value = values[current.getValue()];
+					if (value == null) {
+						value = NullValue.NULL;
+					}
+					return new ImmutableFeatureVectorEntry(current.getKey(), value);
 				}
-				throw FINISHED;
+				return finished();
 			}
 		};
 	}
