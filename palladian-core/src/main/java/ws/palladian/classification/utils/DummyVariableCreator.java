@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.AppendedVector;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.FilteredVector;
-import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.AbstractDatasetFeatureVectorTransformer;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.FeatureInformation;
@@ -34,6 +33,8 @@ import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.dataset.FeatureInformationBuilder;
 import ws.palladian.core.dataset.statistics.DatasetStatistics;
 import ws.palladian.core.dataset.statistics.NominalValueStatistics;
+import ws.palladian.core.featurevector.FlyweightVectorBuilder;
+import ws.palladian.core.featurevector.FlyweightVectorSchema;
 import ws.palladian.core.value.ImmutableIntegerValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.Value;
@@ -73,10 +74,11 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 			this(prepare(featureName, stats));
 		}
 		Mapper(Map<String, String> mapping) {
+			FlyweightVectorSchema schema = new FlyweightVectorSchema(mapping.values().toArray(new String[0]));
 			for (Entry<String, String> entry : mapping.entrySet()) {
-				this.mapping.put(entry.getKey(), createDummyVector(entry.getValue(), mapping.values()));
+				this.mapping.put(entry.getKey(), createDummyVector(schema, entry.getValue(), mapping.values()));
 			}
-			missing = createDummyVector(null, mapping.values());
+			missing = createDummyVector(schema, null, mapping.values());
 			featureInformation = new FeatureInformationBuilder().set(mapping.values(), ImmutableIntegerValue.class)
 					.create();
 		}
@@ -98,10 +100,12 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 			}
 			return prefixedValues;
 		}
-		private static FeatureVector createDummyVector(String value, Collection<String> allValues) {
-			InstanceBuilder builder = new InstanceBuilder();
+		private static FeatureVector createDummyVector(FlyweightVectorSchema schema, String value,
+				Collection<String> allValues) {
+			FlyweightVectorBuilder builder = schema.builder();
 			for (String currentValue : allValues) {
-				builder.set(currentValue, currentValue.equals(value) ? 1 : 0);
+				int mappedValue = currentValue.equals(value) ? 1 : 0;
+				builder.set(currentValue, ImmutableIntegerValue.valueOf(mappedValue));
 			}
 			return builder.create();
 		}
