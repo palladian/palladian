@@ -18,6 +18,7 @@ import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.csv.CsvDatasetWriter;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -104,7 +105,9 @@ public final class ClassificationUtils {
      * 
      * @param data The instances to write, not <code>null</code>.
      * @param filePath The path specifying the CSV file, not <code>null</code>.
+     * @deprecated Use the {@link CsvDatasetWriter} instead.
      */
+    @Deprecated
     public static void writeCsv(Iterable<? extends Instance> data, File outputFile) {
         Validate.notNull(data, "data must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
@@ -130,7 +133,7 @@ public final class ClassificationUtils {
         }
     }
 
-    public static int writeLine(Instance instance, Writer writer, boolean writeHeader) throws IOException {
+    private static int writeLine(Instance instance, Writer writer, boolean writeHeader) throws IOException {
         if (writeHeader) {
             for (VectorEntry<String, Value> feature : instance.getVector()) {
                 writer.write(feature.key());
