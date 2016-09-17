@@ -68,8 +68,12 @@ public final class KnnModel implements Model {
             FeatureVector normalizedFeatureVector = normalization.normalize(instance.getVector());
             double[] vector = new double[labels.size()];
             for (int idx = 0; idx < labels.size(); idx++) {
-				NumericValue value = (NumericValue) normalizedFeatureVector.get(labels.get(idx));
-				vector[idx] = value.getDouble();
+				Value value = normalizedFeatureVector.get(labels.get(idx));
+				if (value.isNull()) {
+					throw new IllegalArgumentException("NullValues are not supported");
+				}
+				NumericValue numericValue = (NumericValue) value;
+				vector[idx] = numericValue.getDouble();
 			}
             ret.add(new TrainingExample(vector, instance.getCategory()));
         }
@@ -101,6 +105,9 @@ public final class KnnModel implements Model {
 		double[] numericVector = new double[labels.size()];
 		for (int idx = 0; idx < labels.size(); idx++) {
 			Value value = vector.get(labels.get(idx));
+			if (value.isNull()) {
+				throw new IllegalArgumentException("NullValues are not supported");
+			}
 			if (value instanceof NumericValue) {
 				NumericValue numericValue = (NumericValue) value;
 				double normalizedValue = normalization.normalize(labels.get(idx), numericValue.getDouble());
