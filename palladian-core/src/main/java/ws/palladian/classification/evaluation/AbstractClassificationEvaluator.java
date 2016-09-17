@@ -11,6 +11,7 @@ public abstract class AbstractClassificationEvaluator<R> implements Classificati
 	@Override
 	public <M extends Model> R evaluate(Learner<M> learner, Classifier<M> classifier,
 			Iterable<? extends Instance> trainData, Iterable<? extends Instance> testData) {
+		@SuppressWarnings("deprecation")
 		M model = learner.train(trainData);
 		return evaluate(classifier, model, testData);
 	}
