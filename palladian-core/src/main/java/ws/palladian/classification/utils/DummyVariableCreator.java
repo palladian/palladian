@@ -110,18 +110,13 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 				FlyweightVectorBuilder builder = schema.builder();
 				for (String currentValue : allValues) {
 					int mappedValue = currentValue.equals(value) ? 1 : 0;
-					if (mappedValue == 1 || dense) {
-						builder.set(currentValue, ImmutableIntegerValue.valueOf(mappedValue));
-					}
+					builder.set(currentValue, ImmutableIntegerValue.valueOf(mappedValue));
 				}
 				return builder.create();
 			} else /* sparse */ {
 				InstanceBuilder builder = new InstanceBuilder();
-				for (String currentValue : allValues) {
-					int mappedValue = currentValue.equals(value) ? 1 : 0;
-					if (mappedValue == 1) {
-						builder.set(currentValue, mappedValue);
-					}
+				if (value != null) {
+					builder.set(value, 1);
 				}
 				return builder.create();
 			}
