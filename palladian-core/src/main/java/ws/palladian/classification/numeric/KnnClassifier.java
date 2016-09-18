@@ -1,9 +1,5 @@
 package ws.palladian.classification.numeric;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -14,6 +10,7 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.collection.EntryValueComparator;
+import ws.palladian.helper.collection.FixedSizePriorityQueue;
 
 /**
  * <p>
@@ -67,31 +64,20 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder().set(model.getCategories(), 0);
         
         double[] numericVector = model.getNormalizedVectorForClassification(featureVector);
-
+        
         // find k nearest neighbors, compare instance to every known instance
-        List<Pair<String, Double>> neighbors = new ArrayList<>();
+        FixedSizePriorityQueue<Pair<String, Double>> neighbors = new FixedSizePriorityQueue<>(k, new EntryValueComparator<Double>(Order.DESCENDING));
+
         for (TrainingExample example : model.getTrainingExamples()) {
             double distance = example.distance(numericVector);
             neighbors.add(Pair.of(example.category, distance));
         }
 
-        // sort near neighbor map by distance
-        Collections.sort(neighbors, new EntryValueComparator<Double>(Order.ASCENDING));
-
-        // if there are several instances at the same distance we take all of them into the voting, k might get bigger
-        // in those cases
-        double lastDistance = -1;
-        int ck = 0;
-        for (Pair<String, Double> neighbor : neighbors) {
+        for (Pair<String, Double> neighbor : neighbors.asList()) {
             double distance = neighbor.getValue();
-			if (ck >= k && distance != lastDistance) {
-                break;
-            }
             double weight = 1.0 / (distance + 0.000000001);
             String targetClass = neighbor.getKey();
             builder.add(targetClass, weight);
-            lastDistance = distance;
-            ck++;
         }
 
         return builder.create();
