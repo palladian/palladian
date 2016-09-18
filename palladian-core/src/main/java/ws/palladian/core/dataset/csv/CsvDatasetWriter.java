@@ -21,6 +21,8 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
 public class CsvDatasetWriter extends AbstractDatasetWriter {
+	
+	// TODO support writing to GZ files (as also supported by CsvDatasetReader)
 
 	private final File outputCsv;
 
