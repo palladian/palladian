@@ -40,5 +40,8 @@ public interface FeatureVector extends Vector<String, Value> {
 	 *             in case the value is not boolean
 	 */
 	BooleanValue getBoolean(String key);
+	
+	// TODO add this in the future?
+	// Iterator<VectorEntry<String, Value>> iteratorNonNull();
 
 }
