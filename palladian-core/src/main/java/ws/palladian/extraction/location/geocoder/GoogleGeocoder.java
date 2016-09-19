@@ -34,8 +34,11 @@ public final class GoogleGeocoder implements Geocoder {
 
 	private static final String API_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false";
 
-	/** Assure, that we do not hit the API too often. */
-	private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, SECONDS, 10);
+	/**
+	 * Assure, that we do not hit the API too often; the API docs say, it's 10
+	 * requests/second, but in this case, the OVER_QUERY_LIMIT is hit often.
+	 */
+	private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, SECONDS, 5);
 	
 	@Override
 	public GeoCoordinate geoCode(String addressValue) throws GeocoderException {
@@ -77,6 +80,14 @@ public final class GoogleGeocoder implements Geocoder {
 		} catch (JsonException e) {
 			throw new GeocoderException("Error while parsing JSON result ("
 					+ httpResult.getStringContent() + ").", e);
+		}
+	}
+	
+	public static void main(String[] args) throws GeocoderException {
+		String address = "1 Infinite Loop Cupertino, CA 95014";
+		for (int i = 0; i < 200; i++) {
+			System.out.println(i);
+			new GoogleGeocoder().geoCode(address);
 		}
 	}
 
