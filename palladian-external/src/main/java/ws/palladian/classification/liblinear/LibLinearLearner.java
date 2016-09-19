@@ -117,7 +117,7 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
         Validate.notNull(dataset, "dataset must not be null");
         
         Normalization normalization = normalizer.calculate(dataset);
-        DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset);
+        DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset, false, false);
         
         Dataset convertedDataset = dataset.transform(dummyCoder);
         List<String> featureLabels = new ArrayList<>(convertedDataset.getFeatureInformation().getFeatureNames());

@@ -18,6 +18,11 @@ public final class NoNormalizer implements Normalizer {
         private static final long serialVersionUID = 1L;
 
         @Override
+		public FeatureVector normalize(FeatureVector featureVector) {
+        	return featureVector;
+		}
+
+		@Override
         public double normalize(String name, double value) {
             return value;
         }

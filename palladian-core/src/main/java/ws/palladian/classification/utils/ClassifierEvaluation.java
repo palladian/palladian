@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.evaluation.ClassificationEvaluator;
+import ws.palladian.classification.evaluation.ThresholdAnalysisEvaluator;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
@@ -15,10 +17,8 @@ import ws.palladian.core.Model;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.math.ThresholdAnalysisEvaluator;
 import ws.palladian.helper.math.ThresholdAnalyzer;
 
 /**

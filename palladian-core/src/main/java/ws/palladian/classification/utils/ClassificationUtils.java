@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -18,6 +17,7 @@ import ws.palladian.core.Classifier;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
+import ws.palladian.core.dataset.csv.CsvDatasetWriter;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
@@ -58,43 +58,43 @@ public final class ClassificationUtils {
 //        return readCsv(filePath, true, DEFAULT_SEPARATOR);
 //    }
 
-    /**
-     * <p>
-     * Create instances from a file. The instances must be given in a CSV file in the following format:
-     * <code>feature1;..;featureN;NominalClass</code>. Each line is one training instance.
-     * </p>
-     * 
-     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
-     *            path.
-     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
-     *            (column names are generated automatically).
-     * @deprecated Use dedicated {@link CsvDatasetReader}.
-     */
-    @Deprecated
-    public static List<Instance> readCsv(String filePath, boolean readHeader) {
-        return readCsv(filePath, readHeader, DEFAULT_SEPARATOR);
-    }
+//    /**
+//     * <p>
+//     * Create instances from a file. The instances must be given in a CSV file in the following format:
+//     * <code>feature1;..;featureN;NominalClass</code>. Each line is one training instance.
+//     * </p>
+//     * 
+//     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+//     *            path.
+//     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
+//     *            (column names are generated automatically).
+//     * @deprecated Use dedicated {@link CsvDatasetReader}.
+//     */
+//    @Deprecated
+//    public static List<Instance> readCsv(String filePath, boolean readHeader) {
+//        return readCsv(filePath, readHeader, DEFAULT_SEPARATOR);
+//    }
 
-    /**
-     * <p>
-     * Create instances from a file. The instances must be given in a CSV file in the following format:
-     * <code>feature1 .. featureN NominalClass</code>. Each line is one training instance.
-     * </p>
-     * <p>
-     * Each field must be separated by {@code fieldSeparator} and each line must end with a line break.
-     * </p>
-     * 
-     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
-     *            path.
-     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
-     *            (column names are generated automatically).
-     * @param fieldSeparator The separator {@code String} for individual fields.
-     * @deprecated Use dedicated {@link CsvDatasetReader}.
-     */
-    @Deprecated
-    public static List<Instance> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
-        return new CsvDatasetReader(new File(filePath),readHeader,fieldSeparator).readAll();
-    }
+//    /**
+//     * <p>
+//     * Create instances from a file. The instances must be given in a CSV file in the following format:
+//     * <code>feature1 .. featureN NominalClass</code>. Each line is one training instance.
+//     * </p>
+//     * <p>
+//     * Each field must be separated by {@code fieldSeparator} and each line must end with a line break.
+//     * </p>
+//     * 
+//     * @param filePath The path to the CSV file to load either specified as path on the file system or as Java resource
+//     *            path.
+//     * @param readHeader <code>true</code> to treat the first line as column headers, <code>false</code> otherwise
+//     *            (column names are generated automatically).
+//     * @param fieldSeparator The separator {@code String} for individual fields.
+//     * @deprecated Use dedicated {@link CsvDatasetReader}.
+//     */
+//    @Deprecated
+//    public static List<Instance> readCsv(String filePath, final boolean readHeader, final String fieldSeparator) {
+//        return new CsvDatasetReader(new File(filePath),readHeader,fieldSeparator).readAll();
+//    }
 
     /**
      * <p>
@@ -104,7 +104,9 @@ public final class ClassificationUtils {
      * 
      * @param data The instances to write, not <code>null</code>.
      * @param filePath The path specifying the CSV file, not <code>null</code>.
+     * @deprecated Use the {@link CsvDatasetWriter} instead.
      */
+    @Deprecated
     public static void writeCsv(Iterable<? extends Instance> data, File outputFile) {
         Validate.notNull(data, "data must not be null");
         Validate.notNull(outputFile, "outputFile must not be null");
@@ -130,7 +132,7 @@ public final class ClassificationUtils {
         }
     }
 
-    public static int writeLine(Instance instance, Writer writer, boolean writeHeader) throws IOException {
+    private static int writeLine(Instance instance, Writer writer, boolean writeHeader) throws IOException {
         if (writeHeader) {
             for (VectorEntry<String, Value> feature : instance.getVector()) {
                 writer.write(feature.key());

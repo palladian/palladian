@@ -1,4 +1,4 @@
-package ws.palladian.helper.math;
+package ws.palladian.classification.evaluation;
 
 import org.apache.commons.lang3.Validate;
 
@@ -7,6 +7,7 @@ import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
+import ws.palladian.helper.math.ThresholdAnalyzer;
 
 public class ThresholdAnalysisEvaluator extends AbstractClassificationEvaluator<ThresholdAnalyzer> {
 	private final String correctClass;

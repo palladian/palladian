@@ -6,7 +6,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import ws.palladian.core.value.BooleanValue;
+import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 
 public abstract class AbstractFeatureVector implements FeatureVector {
@@ -44,6 +47,29 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 			}
 		}
 		return NullValue.NULL;
+	}
+	
+	@Override
+	public NominalValue getNominal(String key) {
+		return get(NominalValue.class, key);
+	}
+	
+	@Override
+	public NumericValue getNumeric(String key) {
+		return get(NumericValue.class, key);
+	}
+	
+	@Override
+	public BooleanValue getBoolean(String key) {
+		return get(BooleanValue.class, key);
+	}
+	
+	private <V> V get(Class<V> valueType, String key) {
+		Value value = get(key);
+		if (valueType.isInstance(value)) {
+			return valueType.cast(value);
+		}
+		throw new ClassCastException(key + " is not of type " + valueType + ", but " + value.getClass());
 	}
 	
 	// to string

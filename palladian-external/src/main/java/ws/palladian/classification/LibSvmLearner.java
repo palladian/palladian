@@ -86,7 +86,7 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
         Validate.notNull(dataset, "dataset must not be null");
         
         Normalization normalization = NORMALIZER.calculate(dataset);
-        DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset);
+        DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset, false, false);
 
         // determine feature and class names
         List<String> featureNames = new ArrayList<>();
