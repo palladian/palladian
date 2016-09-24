@@ -69,7 +69,7 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 		if (valueType.isInstance(value)) {
 			return valueType.cast(value);
 		}
-		throw new ClassCastException(key + " is not of type " + valueType + ", but " + value.getClass());
+		throw new ClassCastException(key + " is not of type " + valueType.getName() + ", but " + value.getClass().getName());
 	}
 	
 	// to string
