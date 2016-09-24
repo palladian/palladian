@@ -1,12 +1,13 @@
 package ws.palladian.core.dataset.split;
 
+import static ws.palladian.helper.functional.Filters.not;
+
 import java.util.Objects;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
 
 /**
  * Template for {@link TrainTestSplit} based on a {@link Filter}. The filter
@@ -25,7 +26,12 @@ public abstract class AbstractFilterSplit implements TrainTestSplit {
 
 	@Override
 	public final Dataset getTrain() {
-		return dataset.subset(createFilter());
+		return dataset.subset(new Factory<Filter<? super Instance>>() {
+			@Override
+			public Filter<? super Instance> create() {
+				return createFilter();
+			}
+		});
 	}
 
 	@Override
@@ -33,7 +39,7 @@ public abstract class AbstractFilterSplit implements TrainTestSplit {
 		return dataset.subset(new Factory<Filter<? super Instance>>() {
 			@Override
 			public Filter<? super Instance> create() {
-				return Filters.not(createFilter());
+				return not(createFilter());
 			}
 		});
 	}
