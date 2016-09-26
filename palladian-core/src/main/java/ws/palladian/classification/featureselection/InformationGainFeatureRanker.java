@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Instance;
@@ -60,7 +59,6 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(InformationGainFeatureRanker.class);
 
-    // TODO why does this require a collection? the implementation seems to be streamable?
     @Override
     public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
         Validate.notNull(dataset, "dataset must not be null");
@@ -69,11 +67,11 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
         progress.startTask("Information Gain", -1);
         LOGGER.debug("Calculating discretization");
         Discretization discretization = new Discretization(dataset, progress.createSubProgress(0.5));
-        Iterable<Instance> preparedData = discretization.discretize(dataset);
+        Dataset preparedData = dataset.transform(discretization);
 
         NominalValueStatistics categoryStatistics = new DatasetStatistics(dataset).getCategoryStatistics();
         CategoryEntries categoryCounts = new CategoryEntriesBuilder(categoryStatistics.getMap()).create();
-        double entropy = ClassificationUtils.entropy(categoryCounts);
+        double entropy = categoryCounts.getEntropy();
         Set<String> featureNames = dataset.getFeatureInformation().getFeatureNames();
 
         ProgressReporter informationGainProgress = progress.createSubProgress(0.5);
@@ -98,7 +96,7 @@ public final class InformationGainFeatureRanker extends AbstractFeatureRanker {
     private static double conditionalEntropy(String featureName, Iterable<? extends Instance> dataset) {
         CategoryEntries jointOccurrences = countJointOccurrences(dataset, featureName);
         CategoryEntries featureOccurrences = countFeatureOccurrences(dataset, featureName);
-        return ClassificationUtils.entropy(jointOccurrences) - ClassificationUtils.entropy(featureOccurrences);
+        return jointOccurrences.getEntropy() - featureOccurrences.getEntropy();
     }
 
     /**

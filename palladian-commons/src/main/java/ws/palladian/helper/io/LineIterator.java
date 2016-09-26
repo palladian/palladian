@@ -10,9 +10,9 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
-public final class LineIterator extends AbstractIterator<String> implements CloseableIterator<String> {
+public final class LineIterator extends AbstractIterator2<String> implements CloseableIterator<String> {
 
     private final BufferedReader reader;
     private boolean closed;
@@ -32,15 +32,15 @@ public final class LineIterator extends AbstractIterator<String> implements Clos
     }
 
     @Override
-    protected String getNext() throws Finished {
+    protected String getNext() {
         if (closed) {
-            throw FINISHED;
+            return finished();
         }
         try {
             String line = reader.readLine();
             if (line == null) {
                 close();
-                throw FINISHED;
+                return finished();
             }
             return line;
         } catch (IOException e) {

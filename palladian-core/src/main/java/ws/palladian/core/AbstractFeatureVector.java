@@ -6,7 +6,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import ws.palladian.core.value.BooleanValue;
+import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 
 public abstract class AbstractFeatureVector implements FeatureVector {
@@ -46,6 +49,29 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 		return NullValue.NULL;
 	}
 	
+	@Override
+	public NominalValue getNominal(String key) {
+		return get(NominalValue.class, key);
+	}
+	
+	@Override
+	public NumericValue getNumeric(String key) {
+		return get(NumericValue.class, key);
+	}
+	
+	@Override
+	public BooleanValue getBoolean(String key) {
+		return get(BooleanValue.class, key);
+	}
+	
+	private <V> V get(Class<V> valueType, String key) {
+		Value value = get(key);
+		if (valueType.isInstance(value)) {
+			return valueType.cast(value);
+		}
+		throw new ClassCastException(key + " is not of type " + valueType.getName() + ", but " + value.getClass().getName());
+	}
+	
 	// to string
 	
 	@Override
@@ -65,6 +91,36 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 		return string.toString();
 	}
 	
-	// TODO hashCode + equals
+	// hashCode + equals
+	
+	@Override
+	public int hashCode() {
+		int hashCode = 1;
+		for (VectorEntry<String, Value> entry : this) {
+			hashCode = 31 * hashCode + (entry.key().hashCode() ^ entry.value().hashCode());
+		}
+		return hashCode;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		AbstractFeatureVector other = (AbstractFeatureVector) obj;
+		if (size() != other.size()) {
+			return false;
+		}
+		for (VectorEntry<String, Value> entry : this) {
+			Value otherValue = other.get(entry.key());
+			if (!otherValue.equals(entry.value())) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

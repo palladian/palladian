@@ -2,18 +2,18 @@ package ws.palladian.classification.numeric;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
-import ws.palladian.classification.utils.ClassifierEvaluation;
-import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
+import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
@@ -21,6 +21,8 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.split.RandomSplit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
@@ -68,7 +70,7 @@ public class KnnClassifierTest {
     public void testKnnClassifierSerialization() throws Exception {
         // create the KNN classifier and add the training instances
         KnnLearner knnLearner = new KnnLearner();
-        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/wineData.csv")).readAll();
+        Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/wineData.csv")).create();
         KnnModel model = knnLearner.train(instances);
         File tempDir = FileHelper.getTempDir();
         String tempFile = new File(tempDir, "/testKNN.gz").getPath();
@@ -83,32 +85,40 @@ public class KnnClassifierTest {
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
-        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/adultData.txt"), false).readAll();
+    	Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt")).readHeader(false).create();
+    	RandomSplit split = new RandomSplit(instances, 0.5, new Random(123));
         KnnLearner learner = new KnnLearner(new NoNormalizer());
-        ConfusionMatrix confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.68);
+        ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(),split.getTest());
+        // System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.7);
 
         learner = new KnnLearner(new MinMaxNormalizer());
-        confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.69);
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(),split.getTest());
+        // System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.75);
 
         learner = new KnnLearner(new ZScoreNormalizer());
-        confusionMatrix = ClassifierEvaluation.evaluate(learner, new KnnClassifier(3), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.70);
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(),split.getTest());
+        // System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.76);
     }
 
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
-        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
-                .readAll();
-        ConfusionMatrix confusionMatrix = evaluate(new KnnLearner(new NoNormalizer()), new KnnClassifier(3), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.77);
+    	Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/diabetesData.txt")).readHeader(false).create();
+    	RandomSplit split = new RandomSplit(instances, 0.5, new Random(123));
+    	
+    	ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new NoNormalizer()), new KnnClassifier(3), split.getTrain(),split.getTest());
+    	// System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.72);
 
-        confusionMatrix = evaluate(new KnnLearner(new MinMaxNormalizer()), new KnnClassifier(3), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.74);
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new MinMaxNormalizer()), new KnnClassifier(3), split.getTrain(),split.getTest());
+        // System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.72);
 
-        confusionMatrix = evaluate(new KnnLearner(new ZScoreNormalizer()), new KnnClassifier(3), instances);
-        assertTrue(confusionMatrix.getAccuracy() > 0.73);
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new ZScoreNormalizer()), new KnnClassifier(3), split.getTrain(),split.getTest());
+        // System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.72);
     }
 
     private FeatureVector createTestInstance() {

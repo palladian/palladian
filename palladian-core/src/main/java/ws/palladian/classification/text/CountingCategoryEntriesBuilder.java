@@ -48,7 +48,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
 
     public CountingCategoryEntriesBuilder add(String categoryName, int count) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
-        Validate.isTrue(count >= 0, "count must be greater/equal zero");
+        Validate.isTrue(count >= 0, "count must be greater/equal zero, but was " + count);
         MutableInt value = entryMap.get(categoryName);
         if (value == null) {
             entryMap.put(categoryName, new MutableInt(count));

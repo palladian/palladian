@@ -131,6 +131,9 @@ public class DatasetStatistics {
 
 	@Override
 	public String toString() {
+		if (categoryStats == null) {
+			calculateStatistics(true);
+		}
 		StringBuilder builder = new StringBuilder();
 		List<String> featureNames = new ArrayList<>(dataset.getFeatureInformation().getFeatureNames());
 		Collections.sort(featureNames);

@@ -28,5 +28,8 @@ public interface FeatureRanker {
     
     FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress);
     
+    FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progress);
+    
+    FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet);
 
 }

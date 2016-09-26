@@ -1,9 +1,10 @@
-package ws.palladian.helper.math;
+package ws.palladian.classification.evaluation;
 
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
+import ws.palladian.helper.math.ConfusionMatrix;
 
 public class ConfusionMatrixEvaluator extends AbstractClassificationEvaluator<ConfusionMatrix> {
 

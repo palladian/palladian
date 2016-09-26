@@ -1,9 +1,7 @@
 package ws.palladian.classification.featureselection;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +9,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.evaluation.ClassificationEvaluator;
+import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
@@ -20,15 +20,12 @@ import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
 /**
  * <p>
@@ -76,7 +73,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
     	Validate.notNull(classifier, "classifier must not be null");
     	Validate.notNull(evaluator, "evaluator must not be null");
     	Validate.notNull(mapper, "mapper must not be null");
-    	this.evaluatorAndMapper = new EvaluatorAndMapper<>(learner, classifier, evaluator, mapper);
+    	evaluatorAndMapper = new EvaluatorAndMapper<>(learner, classifier, evaluator, mapper);
     }
     
     /**
@@ -91,15 +88,6 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
     	this(learner, classifier, new ConfusionMatrixEvaluator(), scorer);
     }
     
-    @Override
-    public FeatureRanking rankFeatures(Dataset dataset, ProgressReporter progress) {
-        List<Instance> instances = CollectionHelper.newArrayList(dataset);
-        Collections.shuffle(instances);
-        List<Instance> trainData = instances.subList(0, instances.size() / 2);
-        List<Instance> testData = instances.subList(instances.size() / 2, instances.size());
-        return rankFeatures(trainData, testData);
-    }
-    
     /** @deprecated Use {@link #rankFeatures(Dataset, Dataset)} instead. */
     @Deprecated
     public FeatureRanking rankFeatures(Iterable<? extends Instance> trainSet, Iterable<? extends Instance> validationSet) {
@@ -111,12 +99,12 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
      * @param validationSet The validation/testing set, not <code>null</code>.
      * @return A {@link FeatureRanking} containing the features in the order in which they were eliminated.
      */
-    public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet) {
+    @Override
+	public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progressReporter) {
         Map<String, Double> scores = new HashMap<>();
 
         final Set<String> allFeatures = trainSet.getFeatureInformation().getFeatureNames();
-        final ProgressReporter progressMonitor = new ProgressMonitor();
-        progressMonitor.startTask("Single feature classification", allFeatures.size());
+        progressReporter.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
             Filter<String> filter = Filters.equal(feature);
@@ -125,7 +113,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
 
             Double score = evaluatorAndMapper.evaluate(eliminatedTrainData, eliminatedTestData);
             LOGGER.info("Finished testing with {}: {}", feature, score);
-            progressMonitor.increment();
+            progressReporter.increment();
             scores.put(feature, score);
         }
         return new FeatureRanking(scores);

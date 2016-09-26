@@ -6,7 +6,6 @@ import static ws.palladian.helper.math.MathHelper.log2;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -16,16 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.value.AbstractValue;
 import ws.palladian.core.value.NominalValue;
-import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * @author Klemens Muthmann
@@ -38,7 +34,7 @@ public final class Binner implements Iterable<Binner.Interval> {
 
     public static final class Interval extends AbstractValue implements NominalValue {
 
-        private final double lowererBound;
+        private final double lowerBound;
         private final double upperBound;
 
         /**
@@ -47,7 +43,7 @@ public final class Binner implements Iterable<Binner.Interval> {
          */
         public Interval(double lowererBound, double upperBound) {
             Validate.isTrue(lowererBound <= upperBound, "lowerBound must be smaller/equal to upperBound");
-            this.lowererBound = lowererBound;
+            this.lowerBound = lowererBound;
             this.upperBound = upperBound;
         }
 
@@ -55,7 +51,7 @@ public final class Binner implements Iterable<Binner.Interval> {
         public String getString() {
             NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append('(').append(format.format(lowererBound));
+            stringBuilder.append('(').append(format.format(lowerBound));
             stringBuilder.append(',');
             stringBuilder.append(format.format(upperBound)).append(']');
             return stringBuilder.toString();
@@ -69,13 +65,7 @@ public final class Binner implements Iterable<Binner.Interval> {
         @Override
         protected boolean equalsValue(Value value) {
             Interval other = (Interval)value;
-            if (lowererBound != other.lowererBound) {
-                return false;
-            }
-            if (upperBound != other.upperBound) {
-                return false;
-            }
-            return true;
+            return lowerBound == other.lowerBound && upperBound == other.upperBound;
         }
 
         @Override
@@ -84,35 +74,18 @@ public final class Binner implements Iterable<Binner.Interval> {
         }
 
     }
-
-    /**
-     * Comparator to sort {@link Instance}s based on a {@link NumericValue}.
-     * 
-     * @author Philipp Katz
-     */
-    private static final class ValueComparator implements Comparator<Instance> {
-        private final String featureName;
-
-        private ValueComparator(String featureName) {
-            this.featureName = featureName;
-        }
-
-        @Override
-        public int compare(Instance i1, Instance i2) {
-            Value value1 = i1.getVector().get(featureName);
-            Value value2 = i2.getVector().get(featureName);
-            // push NullValues to the end
-            if (!(value1 instanceof NumericValue)) {
-                return !(value2 instanceof NumericValue) ? 0 : 1;
-            }
-            if (!(value2 instanceof NumericValue)) {
-                return -1;
-            }
-            double double1 = ((NumericValue)value1).getDouble();
-            double double2 = ((NumericValue)value2).getDouble();
-            return Double.compare(double1, double2);
-        }
-
+    
+    private static final class ValueCategory implements Comparable<ValueCategory> {
+    	private final double value;
+    	private final String category;
+		ValueCategory(double value, String category) {
+			this.value = value;
+			this.category = category;
+		}
+		@Override
+		public int compareTo(ValueCategory o) {
+			return Double.compare(value, o.value);
+		}
     }
 
     private final List<Double> boundaries;
@@ -132,17 +105,17 @@ public final class Binner implements Iterable<Binner.Interval> {
     public Binner(Iterable<? extends Instance> dataset, String featureName) {
         Validate.notNull(dataset, "dataset must not be null");
         Validate.notEmpty(featureName, "featureName must not be empty");
-        List<Instance> sortedData = CollectionHelper.newArrayList(dataset);
-        Collections.sort(sortedData, new ValueComparator(featureName));
-        // exclude NullValues from boundary search
-        int idx = 0;
-        for (Instance instance : sortedData) {
-            if (instance.getVector().get(featureName) == NullValue.NULL) {
-                break;
-            }
-            idx++;
+        List<ValueCategory> sortedData = new ArrayList<>();
+        
+        for (Instance instance : dataset) {
+        	Value value = instance.getVector().get(featureName);
+        	if (!value.isNull()) {
+        		double doubleValue = ((NumericValue) value).getDouble();
+        		sortedData.add(new ValueCategory(doubleValue, instance.getCategory()));
+        	}
         }
-        sortedData = sortedData.subList(0, idx);
+        
+        Collections.sort(sortedData);
         this.boundaries = findBoundaries(sortedData, featureName);
         this.featureName = featureName;
     }
@@ -154,12 +127,16 @@ public final class Binner implements Iterable<Binner.Interval> {
      * @return The values of the boundary points, each value denotes the beginning of a new bin, empty list in case no
      *         boundary points were found.
      */
-    private static List<Double> findBoundaries(List<Instance> dataset, String featureName) {
+    private static List<Double> findBoundaries(List<ValueCategory> data, String featureName) {
 
-        CategoryEntries categoryPriors = ClassificationUtils.getCategoryCounts(dataset);
-        double entS = ClassificationUtils.entropy(categoryPriors);
+    	CountingCategoryEntriesBuilder categoryEntriesBuilder = new CountingCategoryEntriesBuilder();
+        for (ValueCategory valueCategory : data) {
+        	categoryEntriesBuilder.add(valueCategory.category, 1);
+        }
+        CategoryEntries categoryPriors = categoryEntriesBuilder.create();
+        double entS = categoryPriors.getEntropy();
         int k = categoryPriors.size();
-        int n = dataset.size();
+        int n = data.size();
 
         double maxGain = 0;
         double currentBoundary = 0;
@@ -170,17 +147,17 @@ public final class Binner implements Iterable<Binner.Interval> {
         CountingCategoryEntriesBuilder b2 = new CountingCategoryEntriesBuilder().add(categoryPriors);
 
         for (int i = 1; i < n; i++) {
-            Instance previousInstance = dataset.get(i - 1);
-            String previousCategory = previousInstance.getCategory();
-            double previousValue = ((NumericValue)previousInstance.getVector().get(featureName)).getDouble();
-            double currentValue = ((NumericValue)dataset.get(i).getVector().get(featureName)).getDouble();
+            ValueCategory previousInstance = data.get(i - 1);
+            String previousCategory = previousInstance.category;
+            double previousValue = previousInstance.value;
+            double currentValue = data.get(i).value;
 
             CategoryEntries c1 = b1.add(previousCategory, 1).create();
             CategoryEntries c2 = b2.subtract(previousCategory, 1).create();
 
             if (previousValue < currentValue) {
-                double entS1 = ClassificationUtils.entropy(c1);
-                double entS2 = ClassificationUtils.entropy(c2);
+                double entS1 = c1.getEntropy();
+                double entS2 = c2.getEntropy();
                 double ent = (double)i / n * entS1 + (double)(n - i) / n * entS2;
                 double gain = entS - ent;
                 double delta = log2(pow(3, k) - 2) - (k * entS - c1.size() * entS1 - c2.size() * entS2);
@@ -202,9 +179,9 @@ public final class Binner implements Iterable<Binner.Interval> {
 
         // search boundaries recursive; result: find[leftSplit], currentBoundary, find[rightSplit]
         List<Double> boundaries = new ArrayList<>();
-        boundaries.addAll(findBoundaries(dataset.subList(0, boundaryIdx), featureName));
+        boundaries.addAll(findBoundaries(data.subList(0, boundaryIdx), featureName));
         boundaries.add(currentBoundary);
-        boundaries.addAll(findBoundaries(dataset.subList(boundaryIdx, n), featureName));
+        boundaries.addAll(findBoundaries(data.subList(boundaryIdx, n), featureName));
         return boundaries;
     }
 

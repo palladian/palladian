@@ -1706,15 +1706,17 @@ public final class FileHelper {
         return concatenated;
     }
 
-    /**
-     * <p>
-     * Close all given closeables, check for <code>null</code>, catch potential {@link IOException}s.
-     * </p>
-     * 
-     * @param closeables All objects which are closeable.
-     * @deprecated With Java 7, make use of the <i>try-with-resources</i> construct.
-     */
-    @Deprecated
+	/**
+	 * <p>
+	 * Close all given closeables, check for <code>null</code>, catch potential
+	 * {@link IOException}s. Note: With Java 7, make use of the
+	 * <i>try-with-resources</i> construct, if possible.
+	 * </p>
+	 * 
+	 * @param closeables
+	 *            All objects which are closeable, <code>null</code> values will
+	 *            be ignored.
+	 */
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {

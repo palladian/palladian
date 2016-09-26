@@ -8,7 +8,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
-import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.LazyMap;
@@ -62,13 +61,26 @@ abstract class AbstractStatsNormalizer implements Normalizer {
     	if (numericFeatures.size() > 0) {
 	    	for (Instance instance : dataset) {
 	    		FeatureVector featureVector = instance.getVector();
-	    		for (String numericFeature : numericFeatures) {
-	    			Value value = featureVector.get(numericFeature);
-	    			if (value instanceof NullValue) {
+//	    		for (String numericFeature : numericFeatures) {
+//	    			Value value = featureVector.get(numericFeature);
+//	    			if (value instanceof NullValue) {
+//	    				continue;
+//	    			}
+//	    			double doubleValue = ((NumericValue) value).getDouble();
+//	    			statsMap.get(numericFeature).add(doubleValue);
+//	    		}
+	    		// much faster this way when using e.g. a sparse dataset,
+	    		// for FeatureVector.get(String), some implementations
+	    		// potentially need to loop through all values
+	    		for (VectorEntry<String, Value> entry : featureVector) {
+	    			if (!numericFeatures.contains(entry.key())) {
 	    				continue;
 	    			}
-	    			double doubleValue = ((NumericValue) value).getDouble();
-	    			statsMap.get(numericFeature).add(doubleValue);
+	    			if (entry.value().isNull()) {
+	    				continue;
+	    			}
+	    			double doubleValue = ((NumericValue) entry.value()).getDouble();
+	    			statsMap.get(entry.key()).add(doubleValue);
 	    		}
 	    	}
     	}

@@ -90,5 +90,10 @@ public interface CategoryEntries extends Iterable<Category> {
      * @return The names of all categories.
      */
     Set<String> getNames();
+    
+    /**
+     * @return The entropy based on the category probabilities. 
+     */
+    double getEntropy();
 
 }

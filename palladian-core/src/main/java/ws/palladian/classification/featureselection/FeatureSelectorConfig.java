@@ -5,6 +5,9 @@ import java.util.HashSet;
 
 import org.apache.commons.lang.Validate;
 
+import ws.palladian.classification.evaluation.ClassificationEvaluator;
+import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
+import ws.palladian.classification.evaluation.roc.RocCurves;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
@@ -13,9 +16,7 @@ import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.helper.math.ClassificationEvaluator;
 import ws.palladian.helper.math.ConfusionMatrix;
-import ws.palladian.helper.math.ConfusionMatrixEvaluator;
 
 public class FeatureSelectorConfig {
 	static final class EvaluationConfig<M extends Model, R> {
@@ -83,6 +84,16 @@ public class FeatureSelectorConfig {
 		@SuppressWarnings("deprecation")
 		public Builder<M> scoreF1(String className) {
 			scorer(new FeatureSelector.FMeasureScorer(className));
+			return this;
+		}
+		public Builder<M> scoreAuc(String className) {
+			Validate.notNull(className, "className must not be null");
+			evaluator(new RocCurves.RocCurvesEvaluator(className), new Function<RocCurves, Double>() {
+				@Override
+				public Double compute(RocCurves input) {
+					return input.getAreaUnderCurve();
+				}
+			});
 			return this;
 		}
 		public <R> Builder<M> evaluator(ClassificationEvaluator<R> evaluator, Function<R, Double> mapper) {

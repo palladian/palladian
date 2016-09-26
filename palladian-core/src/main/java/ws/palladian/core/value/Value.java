@@ -65,4 +65,9 @@ package ws.palladian.core.value;
  */
 public interface Value {
 
+	/**
+	 * @return <code>true</code> in case this value is a {@link NullValue}.
+	 */
+	boolean isNull();
+	
 }

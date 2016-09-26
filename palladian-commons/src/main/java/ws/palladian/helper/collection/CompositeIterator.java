@@ -1,59 +1,66 @@
 package ws.palladian.helper.collection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
- * The CompositeIterator allows to concatenate multiple Iterators and to iterate them in one go. Modifications via
- * {@link #remove()} are not allowed, and an {@link UnsupportedOperationException} is thrown.
+ * The CompositeIterator allows to concatenate multiple Iterators and to iterate
+ * them in one go. Modifications via {@link #remove()} are not allowed, and an
+ * {@link UnsupportedOperationException} is thrown.
  * </p>
  * 
  * @author Philipp Katz
  * @param <T>
  */
-public class CompositeIterator<T> implements Iterator<T> {
+public class CompositeIterator<T> extends AbstractIterator2<T> implements Iterator<T> {
 
-    private final List<? extends Iterator<T>> iterators;
+	private final Iterator<? extends Iterator<T>> iteratorsIterator;
 
-    @SafeVarargs
-    public CompositeIterator(Iterator<T>... iterators) {
-        Validate.notNull(iterators, "iterators must not be null");
-        this.iterators = Arrays.asList(iterators);
-    }
+	private Iterator<T> current;
 
-    public CompositeIterator(List<? extends Iterator<T>> iterators) {
-        Validate.notNull(iterators, "iterators must not be null");
-        this.iterators = iterators;
-    }
+	@SafeVarargs
+	public CompositeIterator(Iterator<T>... iterators) {
+		this(Arrays.asList(iterators));
+	}
 
-    @Override
-    public boolean hasNext() {
-        for (Iterator<T> iterator : iterators) {
-            if (iterator.hasNext()) {
-                return true;
-            }
-        }
-        return false;
-    }
+	public CompositeIterator(Collection<? extends Iterator<T>> iterators) {
+		Validate.notNull(iterators, "iterators must not be null");
+		this.iteratorsIterator = iterators.iterator();
+		if (this.iteratorsIterator.hasNext()) {
+			this.current = this.iteratorsIterator.next();
+		} else {
+			this.current = Collections.emptyIterator();
+		}
+	}
 
-    @Override
-    public T next() {
-        for (Iterator<T> iterator : iterators) {
-            if (iterator.hasNext()) {
-                return iterator.next();
-            }
-        }
-        throw new NoSuchElementException();
-    }
+	public static <T> CompositeIterator<T> fromIterable(Collection<? extends Iterable<T>> iterables) {
+		Validate.notNull(iterables, "iterables must not be null");
+		List<Iterator<T>> iterators = new ArrayList<>();
+		for (Iterable<T> iterable : iterables) {
+			iterators.add(iterable.iterator());
+		}
+		return new CompositeIterator<>(iterators);
+	}
 
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
-    }
+	@Override
+	protected T getNext() {
+		if (current.hasNext()) {
+			return current.next();
+		}
+		while (!current.hasNext() && iteratorsIterator.hasNext()) {
+			current = iteratorsIterator.next();
+			if (current.hasNext()) {
+				return current.next();
+			}
+		}
+		return finished();
+	}
 
 }
