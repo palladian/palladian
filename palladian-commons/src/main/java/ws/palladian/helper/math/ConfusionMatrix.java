@@ -539,6 +539,10 @@ public class ConfusionMatrix {
 		int tn = getConfusions(negative, negative);
 		int fp = getConfusions(negative, positive);
 		int fn = getConfusions(positive, negative);
+		return calculateMatthewsCorrelationCoefficient(tp, tn, fp, fn);
+	}
+
+	public static double calculateMatthewsCorrelationCoefficient(int tp, int tn, int fp, int fn) {
 		double denominator = sqrt(tp + fp) * sqrt(tp + fn) * sqrt(tn + fp) * sqrt(tn + fn);
 		return denominator != 0 ? (tp * tn - fp * fn) / denominator : 0;
 	}
