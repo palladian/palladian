@@ -15,14 +15,79 @@ import java.util.Objects;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.AbstractDatasetWriter;
 import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DatasetAppender;
+import ws.palladian.core.dataset.FeatureInformation;
+import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.collection.Vector.VectorEntry;
 
 public class CsvDatasetWriter extends AbstractDatasetWriter {
 	
 	// TODO support writing to GZ files (as also supported by CsvDatasetReader)
+	
+	private static final class CsvDatasetAppender implements DatasetAppender {
+		private final Writer writer;
+		private final FeatureInformation featureInformation;
+		private final boolean writeCategory;
+
+		CsvDatasetAppender(Writer writer, FeatureInformation featureInformation, boolean writeCategory) {
+			this.writer = writer;
+			this.featureInformation = featureInformation;
+			this.writeCategory = writeCategory;
+		}
+
+		@Override
+		public void close() throws IOException {
+			writer.close();
+		}
+
+		@Override
+		public void append(Instance instance) {
+			StringBuilder line = new StringBuilder();
+			int featureCount = 0;
+			for (FeatureInformationEntry infoEntry : featureInformation) {
+				if (featureCount++ > 0) {
+					line.append(DEFAULT_SEPARATOR);
+				}
+				Value value = instance.getVector().get(infoEntry.getName());
+				if (value != NullValue.NULL) {
+					line.append(value.toString());
+				}
+
+			}
+			if (writeCategory) {
+				line.append(DEFAULT_SEPARATOR).append(instance.getCategory());
+			}
+			line.append(NEWLINE_CHARACTER);
+			write(line.toString());
+		}
+
+		void writeHeader() {
+			StringBuilder line = new StringBuilder();
+			int headerCount = 0;
+			for (FeatureInformationEntry infoEntry : featureInformation) {
+				if (headerCount++ > 0) {
+					line.append(DEFAULT_SEPARATOR);
+				}
+				line.append(infoEntry.getName());
+			}
+			if (writeCategory) {
+				line.append(DEFAULT_SEPARATOR).append("targetClass");
+			}
+			line.append(NEWLINE_CHARACTER);
+			write(line.toString());
+		}
+
+		void write(String string) {
+			try {
+				writer.write(string);
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
+			}
+		}
+
+	}
 
 	private final File outputCsv;
 
@@ -68,47 +133,31 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 
 	@Override
 	public void write(Dataset dataset, ProgressReporter progress) {
-		try (Writer writer = new BufferedWriter(
-							 new OutputStreamWriter(
-						     new FileOutputStream(outputCsv), DEFAULT_ENCODING))) {
-			
+		try (DatasetAppender appender = write(dataset.getFeatureInformation())) {
 			progress.startTask("Writing CSV", dataset.size());
-			boolean writeHeader = true;
 			for (Instance instance : dataset) {
-				StringBuilder line = new StringBuilder();
-				if (writeHeader) {
-					int headerCount = 0;
-					for (VectorEntry<String, Value> feature : instance.getVector()) {
-						if (headerCount++ > 0) {
-							line.append(DEFAULT_SEPARATOR);
-						}
-						line.append(feature.key());
-					}
-					if (writeCategory) {
-						line.append(DEFAULT_SEPARATOR).append("targetClass");
-					}
-					line.append(NEWLINE_CHARACTER);
-				}
-				int featureCount = 0;
-				for (VectorEntry<String, Value> vectorEntry : instance.getVector()) {
-					if (featureCount++ > 0) {
-						line.append(DEFAULT_SEPARATOR);
-					}
-					Value value = vectorEntry.value();
-					if (value != NullValue.NULL) {
-						line.append(value.toString());
-					}
-				}
-				if (writeCategory) {
-					line.append(DEFAULT_SEPARATOR).append(instance.getCategory());
-				}
-				line.append(NEWLINE_CHARACTER);
-				writer.write(line.toString());
-				writeHeader = false;
+				appender.append(instance);
 				progress.increment();
 			}
 		} catch (IOException e) {
-			throw new IllegalStateException();
+			throw new IllegalStateException(e);
+		}
+	}
+
+	@Override
+	public DatasetAppender write(FeatureInformation featureInformation) {
+		try {
+			
+			Writer writer = new BufferedWriter(
+					 new OutputStreamWriter(
+				     new FileOutputStream(outputCsv), DEFAULT_ENCODING));
+
+			CsvDatasetAppender appender = new CsvDatasetAppender(writer, featureInformation, writeCategory);
+			appender.writeHeader();
+			return appender;
+
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
