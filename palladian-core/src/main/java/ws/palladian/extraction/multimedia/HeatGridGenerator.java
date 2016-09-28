@@ -124,7 +124,7 @@ public final class HeatGridGenerator {
      * @param data The data matrix with intensity values in the range [0,1], not <code>null</code>.
      * @param imagePath The path where the image should be saved to, not <code>null</code> or empty.
      */
-    public void generateHeatGrid(NumericMatrix<String> data, String imagePath) {
+    public <T> void generateHeatGrid(NumericMatrix<T> data, String imagePath) {
         Validate.notNull(data, "data must not be null");
         Validate.notEmpty(imagePath, "imagePath must not be empty");
 
@@ -139,10 +139,10 @@ public final class HeatGridGenerator {
         g2.setPaint(Color.RED);
 
         int rowNumber = 0;
-        Set<String> columnKeys = data.getColumnKeys();
-        for (NumericMatrixVector<String> row : data.rows()) {
+        Set<T> columnKeys = data.getColumnKeys();
+        for (NumericMatrixVector<T> row : data.rows()) {
             int columnNumber = 0;
-            for (String columnKey : columnKeys) {
+            for (T columnKey : columnKeys) {
                 double value = row.get(columnKey);
                 if (value < 0 || value > 1) {
                     throw new IllegalArgumentException("The values must be in range [0,1].");
@@ -160,7 +160,7 @@ public final class HeatGridGenerator {
 
     public static void main(String[] args) {
 
-        NumericMatrix<String> data = new NumericMatrix<String>();
+        NumericMatrix<Integer> data = new NumericMatrix<>();
         // data.set("0", "0", 0.1);
         // data.set("1", "0", 0.3);
         // data.set("0", "1", 0.5);
@@ -171,7 +171,7 @@ public final class HeatGridGenerator {
         // generate random heat grid data
         for (int x = 0; x < 200; x++) {
             for (int y = 0; y < 100; y++) {
-                data.set(x + "", y + "", Math.random());
+                data.set(x, y, Math.random());
             }
         }
 
