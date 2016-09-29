@@ -3,7 +3,7 @@ package ws.palladian.core.dataset;
 import java.io.IOException;
 
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
@@ -11,7 +11,7 @@ import ws.palladian.helper.io.CloseableIterator;
 
 class SubDataset extends AbstractDataset {
 
-	private static final class SubDatasetIterator extends AbstractIterator<Instance> implements CloseableIterator<Instance> {
+	private static final class SubDatasetIterator extends AbstractIterator2<Instance> implements CloseableIterator<Instance> {
 
 		private final CloseableIterator<Instance> iterator;
 		private final Filter<? super Instance> instanceFilter;
@@ -22,14 +22,14 @@ class SubDataset extends AbstractDataset {
 		}
 
 		@Override
-		protected Instance getNext() throws Finished {
+		protected Instance getNext() {
 			while (iterator.hasNext()) {
 				Instance next = iterator.next();
 				if (instanceFilter.accept(next)) {
 					return next;
 				}
 			}
-			throw FINISHED;
+			return finished();
 		}
 
 		@Override
