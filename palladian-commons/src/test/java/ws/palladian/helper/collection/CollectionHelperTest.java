@@ -287,5 +287,11 @@ public class CollectionHelperTest {
     	assertEquals((Integer) 1, indexMap.get("seven"));
     	assertEquals((Integer) 2, indexMap.get("one"));
     }
+    
+    @Test
+    public void testGetLast() {
+    	LinkedHashSet<String> iterable = new LinkedHashSet<>(Arrays.asList("1","2","3","4","5"));
+    	assertEquals("5", CollectionHelper.getLast(iterable));
+    }
 
 }

@@ -710,6 +710,23 @@ public final class CollectionHelper {
         Validate.notNull(list, "list must not be null");
         return list.isEmpty() ? null : list.get(list.size() - 1);
     }
+    
+	/**
+	 * Get the last element in an {@link Iterable}.
+	 * 
+	 * @param iterable
+	 *            The iterable from which to get the element, not
+	 *            <code>null</code>.
+	 * @return The last element, or <code>null</code> if the iterable was empty.
+	 */
+	public static <T> T getLast(Iterable<T> iterable) {
+		Validate.notNull(iterable, "iterable must not be null");
+		T last = null;
+		for (T item : iterable) {
+			last = item;
+		}
+		return last;
+	}
 
     /**
      * <p>
