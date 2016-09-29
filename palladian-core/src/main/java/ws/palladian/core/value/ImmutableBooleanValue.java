@@ -10,9 +10,9 @@ public final class ImmutableBooleanValue extends AbstractValue implements Boolea
 
 		@Override
 		public Value parse(String input) throws ValueParserException {
-			if ("true".equals(input)) {
+			if ("true".equalsIgnoreCase(input)) {
 				return TRUE;
-			} else if ("false".equals(input)) {
+			} else if ("false".equalsIgnoreCase(input)) {
 				return FALSE;
 			}
 			throw new ValueParserException();

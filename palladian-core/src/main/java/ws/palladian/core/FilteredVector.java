@@ -1,14 +1,12 @@
 package ws.palladian.core;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 
@@ -48,27 +46,18 @@ public class FilteredVector extends AbstractFeatureVector {
 	}
 
 	@Override
-	public Collection<Value> values() {
-		Collection<Value> values = new ArrayList<>();
-		for (VectorEntry<String, Value> entry : this) {
-			values.add(entry.value());
-		}
-		return Collections.unmodifiableCollection(values);
-	}
-
-	@Override
 	public Iterator<VectorEntry<String, Value>> iterator() {
-		return new AbstractIterator<VectorEntry<String, Value>>() {
+		return new AbstractIterator2<VectorEntry<String, Value>>() {
 			final Iterator<VectorEntry<String, Value>> iterator = original.iterator();
 			@Override
-			protected VectorEntry<String, Value> getNext() throws Finished {
+			protected VectorEntry<String, Value> getNext() {
 				while (iterator.hasNext()) {
 					VectorEntry<String, Value> current = iterator.next();
 					if (filteredNames.contains(current.key())) {
 						return current;
 					}
 				}
-				throw FINISHED;
+				return finished();
 			}
 		};
 	}

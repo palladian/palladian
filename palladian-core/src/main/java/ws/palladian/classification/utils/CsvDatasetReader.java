@@ -92,6 +92,10 @@ public class CsvDatasetReader extends AbstractDataset {
                 	lineNumber++;
                 	return hasNext();
                 }
+                if (lineNumber == config.getLimit() + 1) {
+                	LOGGER.debug("Limit of {} reached, stopping", config.getLimit());
+                	return false;
+                }
                 if (line == null) {
                 	splitLine = null;
                     close();
@@ -148,7 +152,7 @@ public class CsvDatasetReader extends AbstractDataset {
 				builder.set(name, parsedValue);
 			}
             String targetClass = config.readClassFromLastColumn() ? stringPool.get(splitLine[splitLine.length - 1]) : "dummy";
-            if (lineNumber % 1000 == 0) {
+            if (lineNumber % LOG_EVERY_N_LINES == 0) {
                 LOGGER.debug("Read {} lines in {}", lineNumber, stopWatch);
             }
             splitLine = null;
@@ -172,6 +176,9 @@ public class CsvDatasetReader extends AbstractDataset {
     
 	private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableBooleanValue.PARSER,
 			ImmutableDoubleValue.PARSER, ImmutableStringValue.PARSER };
+	
+	/** Interval for the debug logging output when reading lines. */
+	private static final int LOG_EVERY_N_LINES = 100000;
 
 	private final CsvDatasetReaderConfig config;
 	
@@ -371,7 +378,7 @@ public class CsvDatasetReader extends AbstractDataset {
 		if (size == -1) {
 			try (InputStream inputStream = config.openInputStream()) {
 				int lineNumber = FileHelper.getNumberOfLines(inputStream);
-				size = config.readHeader() ? lineNumber - 1 : lineNumber;
+				size = Math.min(config.readHeader() ? lineNumber - 1 : lineNumber, config.getLimit());
 			} catch (IOException e) {
 				throw new IllegalStateException("IOException for" + config.filePath());
 			}

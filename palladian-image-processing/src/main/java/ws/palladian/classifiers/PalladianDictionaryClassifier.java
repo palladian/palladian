@@ -55,6 +55,12 @@ public class PalladianDictionaryClassifier implements Learner<DictionaryModel>, 
         throw new UnsupportedOperationException("not yet implemented");
     }
 
+    @Override
+    public DictionaryModel train(Dataset training, Dataset validation) {
+        // FIXME
+        throw new UnsupportedOperationException("not yet implemented");
+    }
+
     private Iterable<Instance> convertToTextInstances(Iterable<? extends Instance> instances) {
         return CollectionHelper.convert(instances, input -> {
             String text = convertToTextFeatureVector(input.getVector());

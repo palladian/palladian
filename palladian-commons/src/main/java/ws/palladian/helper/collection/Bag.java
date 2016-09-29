@@ -76,7 +76,9 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * </p>
      * 
      * @return The Bag.
+     * @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds.
      */
+    @Deprecated
     public static <T> Bag<T> create() {
         return new Bag<>(new HashMap<T, Integer>());
     }
@@ -88,7 +90,9 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * 
      * @param iterable The iterable from which to add items, not <code>null</code>.
      * @return The Bag containing all items from the given collection.
+     * @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds.
      */
+    @Deprecated
     public static <T> Bag<T> create(Iterable<? extends T> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
         Bag<T> bag = create();
@@ -99,21 +103,54 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     /**
-     * <p>
      * Create a new Bag and add all counts from the given {@link Map}.
-     * </p>
      * 
      * @param map the map from which to add items, not <code>null</code>.
      * @return The Bag containing all items from the given map.
+     * @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds.
      */
+    @Deprecated
     public static <T> Bag<T> create(Map<? extends T, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
         return new Bag<>(new HashMap<>(map));
     }
+    
+    /**
+     * Creates an empty Bag.
+     */
+    public Bag() {
+    	this(new HashMap<T, Integer>());
+    }
 
-    /** Private constructor, instances are created through the static methods. */
-    private Bag(Map<T, Integer> map) {
-        this.map = map;
+    /**
+     * Create a new Bag and add all counts from the given {@link Map}.
+     * 
+     * @param map the map from which to add items, not <code>null</code>.
+     */
+    public Bag(Map<? extends T, ? extends Integer> map) {
+    	Validate.notNull(map, "map must not be null");
+        this.map = new HashMap<>(map);
+    }
+    
+	/**
+	 * Internal constructor, which does not copy the map. Only by
+	 * {@link #createSorted(Order)}.
+	 */
+	private Bag(Map<T, Integer> map, boolean ignored) {
+		this.map = map;
+	}
+
+    /**
+     * Create a new Bag and add all items from the given {@link Iterable}.
+     * 
+     * @param iterable The iterable from which to add items, not <code>null</code>.
+     */
+    public Bag(Iterable<? extends T> iterable) {
+    	this();
+        Validate.notNull(iterable, "iterable must not be null");
+        for (T item : iterable) {
+            add(item);
+        }
     }
 
     // java.util.AbstractCollection overrides
@@ -285,7 +322,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<>(sorted);
+        return new Bag<>(sorted, true);
     }
 
     /**

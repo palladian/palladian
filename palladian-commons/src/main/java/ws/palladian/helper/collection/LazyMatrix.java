@@ -20,16 +20,26 @@ public class LazyMatrix<K, V> extends MatrixDecorator<K, V> {
 
     private final Factory<V> factory;
 
-    private LazyMatrix(Matrix<K, V> matrix, Factory<V> factory) {
+    public LazyMatrix(Matrix<K, V> matrix, Factory<V> factory) {
         super(matrix);
+        Validate.notNull(matrix, "matrix must not be null");
+        Validate.notNull(factory, "factory must not be null");
         this.factory = factory;
     }
+    
+    public LazyMatrix(Factory<V> factory) {
+    	this(new MapMatrix<K, V>(), factory);
+    }
 
+    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
+    @Deprecated
     public static <K, V> LazyMatrix<K, V> create(Factory<V> factory) {
         Validate.notNull(factory, "factory must not be null");
         return create(new MapMatrix<K, V>(), factory);
     }
 
+    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
+    @Deprecated
     public static <K, V> LazyMatrix<K, V> create(Matrix<K, V> matrix, Factory<V> factory) {
         Validate.notNull(matrix, "matrix must not be null");
         Validate.notNull(factory, "factory must not be null");

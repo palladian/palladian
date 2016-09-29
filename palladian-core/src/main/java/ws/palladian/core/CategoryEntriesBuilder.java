@@ -23,6 +23,14 @@ import ws.palladian.helper.functional.Factory;
  * @author Philipp Katz
  */
 public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
+	
+	/** A factory for producing {@link CategoryEntriesBuilder}s. */
+	public static final Factory<CategoryEntriesBuilder> FACTORY = new Factory<CategoryEntriesBuilder>() {
+		@Override
+		public CategoryEntriesBuilder create() {
+			return new CategoryEntriesBuilder();
+		}
+	};
 
     private final Map<String, MutableDouble> entryMap;
 

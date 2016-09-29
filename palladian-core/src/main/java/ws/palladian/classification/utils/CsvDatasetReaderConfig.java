@@ -1,15 +1,15 @@
 package ws.palladian.classification.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.core.dataset.io.Compression;
+import ws.palladian.core.dataset.io.Compressions;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.helper.functional.Factory;
@@ -27,8 +27,9 @@ public class CsvDatasetReaderConfig {
 		private boolean readClassFromLastColumn = true;
 		private List<TargetValueParser> parsers = new ArrayList<>();
 		private String nullValue = DEFAULT_NULL_VALUE;
-		private boolean gzip = false;
+		private Compression compression = Compressions.NONE;
 		private List<Filter<? super String>> skipColumns = new ArrayList<>();
+		private long limit = Long.MAX_VALUE;
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -36,7 +37,7 @@ public class CsvDatasetReaderConfig {
 				throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
 			}
 			this.filePath = filePath;
-			this.gzip = filePath.getName().toLowerCase().endsWith(".gz");
+			this.compression = Compressions.get(filePath); 
 		}
 
 		/**
@@ -125,9 +126,27 @@ public class CsvDatasetReaderConfig {
 		 *            <code>true</code> in case the input file is gzip
 		 *            compressed.
 		 * @return The builder.
+		 * @deprecated Use {@link #compression(Compression)} instead.
 		 */
+		@Deprecated
 		public Builder gzip(boolean gzip) {
-			this.gzip = gzip;
+			return compression(gzip ? Compressions.GZIP : Compressions.NONE);
+		}
+
+		/**
+		 * In case the CSV data is to be read from a compressed file, this
+		 * allows to specify the compression format. Note: Usually the
+		 * compression is auto-detected based on the file name, so this method
+		 * does not need to be called explicitly.
+		 * 
+		 * @param compression
+		 *            The compression to use, or <code>null</code> in case an
+		 *            uncompressed serves as input.
+		 * @return The builder.
+		 * @see Compressions
+		 */
+		public Builder compression(Compression compression) {
+			this.compression = compression != null ? compression : Compressions.NONE;
 			return this;
 		}
 		
@@ -144,6 +163,19 @@ public class CsvDatasetReaderConfig {
 		public Builder skipColumns(Filter<? super String> name) {
 			Validate.notNull(name, "name must not be null");
 			this.skipColumns.add(name);
+			return this;
+		}
+		
+		/**
+		 * Only read the number of specified lines.
+		 * 
+		 * @param lines
+		 *            The number of lines to read.
+		 * @return The builder.
+		 */
+		public Builder limit(long lines) {
+			Validate.isTrue(lines > 0, "lines must be greater zero");
+			this.limit = lines;
 			return this;
 		}
 
@@ -185,6 +217,11 @@ public class CsvDatasetReaderConfig {
 	public static Builder filePath(File filePath) {
 		return new Builder(filePath);
 	}
+	
+	public static Builder filePath(String filePath) {
+		Validate.notEmpty(filePath, "filePath must not be empty or null");
+		return new Builder(new File(filePath));
+	}
 
 	private final File filePath;
 	private final boolean readHeader;
@@ -192,8 +229,9 @@ public class CsvDatasetReaderConfig {
 	private final boolean readClassFromLastColumn;
 	private final List<TargetValueParser> parsers;
 	private final String nullValue;
-	private final boolean gzip;
+	private final Compression compression;
 	private final List<Filter<? super String>> skipColumns;
+	private final long limit;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -202,8 +240,9 @@ public class CsvDatasetReaderConfig {
 		this.readClassFromLastColumn = builder.readClassFromLastColumn;
 		this.parsers = new ArrayList<>(builder.parsers);
 		this.nullValue = builder.nullValue;
-		this.gzip = builder.gzip;
+		this.compression = builder.compression;
 		this.skipColumns = new ArrayList<>(builder.skipColumns);
+		this.limit = builder.limit;
 	}
 
 	File filePath() {
@@ -240,16 +279,8 @@ public class CsvDatasetReaderConfig {
 		return nullValue;
 	}
 	
-	public boolean gzip() {
-		return gzip;
-	}
-	
 	public InputStream openInputStream() throws IOException {
-		InputStream inputStream = new FileInputStream(filePath());
-        if (gzip()) {
-        	inputStream = new GZIPInputStream(inputStream);
-        }
-        return inputStream;
+		return compression.getInputStream(filePath());
 	}
 	
 	public boolean isSkippedColumn(String name) {
@@ -259,5 +290,9 @@ public class CsvDatasetReaderConfig {
 			}
 		}
 		return false;
+	}
+	
+	long getLimit() {
+		return limit;
 	}
 }

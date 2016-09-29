@@ -7,7 +7,7 @@ import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.io.CloseableIterator;
 
 /**
@@ -20,7 +20,7 @@ import ws.palladian.helper.io.CloseableIterator;
  */
 public class DatasetWithFeatureAsCategory extends AbstractDataset {
 
-	private final class DatasetWithFeatureAsCategoryIterator extends AbstractIterator<Instance>
+	private final class DatasetWithFeatureAsCategoryIterator extends AbstractIterator2<Instance>
 			implements CloseableIterator<Instance> {
 
 		private final CloseableIterator<Instance> iterator;
@@ -30,7 +30,7 @@ public class DatasetWithFeatureAsCategory extends AbstractDataset {
 		}
 
 		@Override
-		protected Instance getNext() throws AbstractIterator.Finished {
+		protected Instance getNext() {
 			if (iterator.hasNext()) {
 				Instance next = iterator.next();
 				FilteredVector filteredVector = new FilteredVector(next.getVector(), featureInformation.getFeatureNames());
@@ -44,7 +44,7 @@ public class DatasetWithFeatureAsCategory extends AbstractDataset {
 				return new ImmutableInstance(filteredVector, category.toString());
 
 			}
-			throw FINISHED;
+			return finished();
 		}
 
 		@Override

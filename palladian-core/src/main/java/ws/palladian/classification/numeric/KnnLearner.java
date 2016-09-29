@@ -2,13 +2,11 @@ package ws.palladian.classification.numeric;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.MinMaxNormalizer;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
 import ws.palladian.core.AbstractLearner;
-import ws.palladian.core.FeatureVector;
 import ws.palladian.core.dataset.Dataset;
 
 /**
@@ -49,8 +47,7 @@ public final class KnnLearner extends AbstractLearner<KnnModel> {
 
     @Override
     public KnnModel train(Dataset dataset) {
-        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(dataset);
-        Normalization normalization = normalizer.calculate(featureVectors);
+        Normalization normalization = normalizer.calculate(dataset);
         return new KnnModel(dataset, normalization);
     }
     

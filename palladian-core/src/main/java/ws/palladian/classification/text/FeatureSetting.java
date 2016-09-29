@@ -85,7 +85,7 @@ public class FeatureSetting implements Serializable {
     
     static final boolean DEFAULT_CREATE_SKIP_GRAMS = false;
 
-    public static enum TextFeatureType {
+    public enum TextFeatureType {
         /** Use n-Grams on a character level. */
         CHAR_NGRAMS,
         /** Use n-Grams on a word level. */

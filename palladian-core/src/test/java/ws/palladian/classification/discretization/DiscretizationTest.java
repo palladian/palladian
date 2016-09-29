@@ -17,6 +17,8 @@ import ws.palladian.classification.discretization.Binner.Interval;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DefaultDataset;
 
 public class DiscretizationTest {
 
@@ -35,7 +37,7 @@ public class DiscretizationTest {
         dataset.add(new InstanceBuilder().set("f", 8).create("C"));
         dataset.add(new InstanceBuilder().set("f", 9).create("D"));
         dataset.add(new InstanceBuilder().set("f", 10).create("D"));
-        Discretization discretization = new Discretization(dataset);
+        Discretization discretization = new Discretization(new DefaultDataset(dataset));
         assertFuzzyEquals(asList(4.5, 6.5, 8.5), discretization.getBinner("f").getBoundaries(), DELTA);
         assertEquals(new Interval(NEGATIVE_INFINITY, 4.5), discretization.getBinner("f").getBin(0));
         assertEquals(new Interval(NEGATIVE_INFINITY, 4.5), discretization.getBinner("f").getBin(4.5));
@@ -46,7 +48,7 @@ public class DiscretizationTest {
 
     @Test
     public void testBinner_wineData() throws FileNotFoundException {
-        Iterable<Instance> dataset = new CsvDatasetReader(getResourceFile("/classifier/wineData.csv"), true);
+        Dataset dataset = new CsvDatasetReader(getResourceFile("/classifier/wineData.csv"), true);
         Discretization discretization = new Discretization(dataset);
         assertFuzzyEquals(asList(12.185, 12.78), discretization.getBinner("alcohol").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(1.42, 2.235), discretization.getBinner("malicAcid").getBoundaries(), DELTA);

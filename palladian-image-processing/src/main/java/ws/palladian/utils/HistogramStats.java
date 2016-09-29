@@ -224,6 +224,11 @@ public class HistogramStats extends AbstractStats {
 		return momentAboutMean(4) / Math.pow(variance, 2) - 3;
 	}
 
+	@Override
+	public boolean isSample() {
+		return false;
+	}
+
 	private double momentAboutMean(int k) {
 		if (count == 0) {
 			return Double.NaN;

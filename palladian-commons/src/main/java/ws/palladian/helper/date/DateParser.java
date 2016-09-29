@@ -38,7 +38,7 @@ public final class DateParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateParser.class);
 
     // XXX for performance optimizations to check speed of each regex, remove later. See issue #162
-    private static final Map<DateFormat, Long> HALL_OF_SHAME = LazyMap.create(Factories.constant(0l));
+    private static final Map<DateFormat, Long> HALL_OF_SHAME = new LazyMap<>(Factories.constant(0l));
 
     private DateParser() {
         // utility class, no instances.

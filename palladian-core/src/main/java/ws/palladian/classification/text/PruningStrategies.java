@@ -1,6 +1,5 @@
 package ws.palladian.classification.text;
 
-import static ws.palladian.classification.utils.ClassificationUtils.entropy;
 import static ws.palladian.helper.math.MathHelper.log2;
 
 import org.apache.commons.lang3.Validate;
@@ -95,7 +94,7 @@ public final class PruningStrategies {
             Validate.notNull(model, "model must not be null");
             Validate.isTrue(threshold >= 0, "threshold must be greater/equal zero");
             this.threshold = threshold;
-            this.categoryEntropy = entropy(model.getDocumentCounts());
+            this.categoryEntropy = model.getDocumentCounts().getEntropy();
             this.documentCounts = model.getDocumentCounts();
             this.numDocuments = model.getNumDocuments();
         }

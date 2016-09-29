@@ -14,6 +14,10 @@ import ws.palladian.core.value.Value;
  * @see ImmutableLongValue#PARSER
  */
 public interface ValueParser {
+	
+	// TODO rename this to ValueDefinition, as this can serve as a general meta
+	// information about values, where additional functionality can be added in
+	// the future
 
 	/**
 	 * Parse the given input value.

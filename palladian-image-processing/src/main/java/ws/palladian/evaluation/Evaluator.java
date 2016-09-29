@@ -175,12 +175,12 @@ public class Evaluator {
             csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
             Iterable<Instance> testingInstances = csvConfigBuilder.create();
 
-            Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
-            List<Filter<String>> smallList = asList(blockCodeFeatures);
-            experimenter.addClassifier(
-                    new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(
-                            BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
-                    smallList);
+//            Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
+//            List<Filter<String>> smallList = asList(blockCodeFeatures);
+//            experimenter.addClassifier(
+//                    new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(
+//                            BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+//                    smallList);
         }
 
     }
@@ -257,22 +257,22 @@ public class Evaluator {
                             csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
                             Iterable<Instance> testingInstances = csvConfigBuilder.create();
 
-                            Experimenter experimenter = new Experimenter(trainingInstances, testingInstances,
-                                    resultDirectory);
-                            List<Filter<String>> smallList = asList(blockCodeFeatures);
-                            // experimenter.addClassifier(
-                            // new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
-                            experimenter.addClassifier(
-                                    new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(),
-                                            new BayesScorer(BayesScorer.Options.FREQUENCIES,
-                                                    BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
-                                    smallList);
-
-                            experimenter.setDescription("Number of colors: " + numberOfColor + ", pixelation size: "
-                                    + pixelationSize + ", block size: " + blockSize + ", image sections: "
-                                    + imageSection + ", include#colors: " + includeNumberOfColor);
-
-                            experimenter.run();
+//                            Experimenter experimenter = new Experimenter(trainingInstances, testingInstances,
+//                                    resultDirectory);
+//                            List<Filter<String>> smallList = asList(blockCodeFeatures);
+//                            // experimenter.addClassifier(
+//                            // new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()), smallList);
+//                            experimenter.addClassifier(
+//                                    new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(),
+//                                            new BayesScorer(BayesScorer.Options.FREQUENCIES,
+//                                                    BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+//                                    smallList);
+//
+//                            experimenter.setDescription("Number of colors: " + numberOfColor + ", pixelation size: "
+//                                    + pixelationSize + ", block size: " + blockSize + ", image sections: "
+//                                    + imageSection + ", include#colors: " + includeNumberOfColor);
+//
+//                            experimenter.run();
                             c++;
                         }
                     }
@@ -339,7 +339,7 @@ public class Evaluator {
         Iterable<Instance> testingInstances = csvConfigBuilder.create();
 
         File resultDirectory = new File(imageDataset.getBasePath() + "results-" + DateHelper.getCurrentDatetime());
-        Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
+//        Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
 
         Filter<String> surfFeatures = regex("SURF.*");
         Filter<String> siftFeatures = regex("SIFT.*");
@@ -383,10 +383,10 @@ public class Evaluator {
         // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
         // smallList);
         /////////////////////////////////////////////
-        experimenter.addClassifier(
-                new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(
-                        BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
-                smallList);
+//        experimenter.addClassifier(
+//                new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create(), new BayesScorer(
+//                        BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
+//                smallList);
         /////////////////////////////////////////////
         // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 4).create(), new
         // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
@@ -405,6 +405,6 @@ public class Evaluator {
         // experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), allCombinations);
 //         experimenter.addClassifier(QuickMlLearner.tree(), new QuickMlClassifier(), allCombinations);
 
-        experimenter.run();
+//        experimenter.run();
     }
 }

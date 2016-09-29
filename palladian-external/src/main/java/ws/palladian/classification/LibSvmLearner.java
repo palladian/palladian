@@ -7,18 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_print_interface;
 import libsvm.svm_problem;
-
-import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.classification.utils.ClassificationUtils;
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
@@ -86,10 +84,9 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
     @Override
     public LibSvmModel train(Dataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-
-        Iterable<FeatureVector> featureVectors = ClassificationUtils.unwrapInstances(dataset);
-        Normalization normalization = NORMALIZER.calculate(featureVectors);
-        DummyVariableCreator dummyCoder = new DummyVariableCreator(featureVectors);
+        
+        Normalization normalization = NORMALIZER.calculate(dataset);
+        DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset, false, false);
 
         // determine feature and class names
         List<String> featureNames = new ArrayList<>();

@@ -17,7 +17,7 @@ public final class ZeroRLearner extends AbstractLearner<ZeroRModel> {
 
     @Override
     public ZeroRModel train(Dataset dataset) {
-        Bag<String> categoryCounts = Bag.create();
+        Bag<String> categoryCounts = new Bag<>();
         for (Instance trainingInstance : dataset) {
             categoryCounts.add(trainingInstance.getCategory());
         }

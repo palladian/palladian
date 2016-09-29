@@ -96,9 +96,8 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
 
             // write table head
             if (!headWritten) {
-                builder.append(separator);
                 for (K xKey : getColumnKeys()) {
-                    builder.append(xKey).append(separator);
+                    builder.append(separator).append(xKey);
                 }
                 builder.append('\n');
                 headWritten = true;

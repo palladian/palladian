@@ -1,42 +1,41 @@
-package ws.palladian.utils;
+package ws.palladian.classification.evaluation.roc;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+//import java.nio.file.Files;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+//import java.util.stream.Collectors;
+//import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
+
+import ws.palladian.classification.evaluation.AbstractClassificationEvaluator;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
 import ws.palladian.core.Model;
-import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.math.AbstractClassificationEvaluator;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.helper.collection.AbstractIterator2;
+import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.math.ConfusionMatrix;
-
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.*;
-import java.util.List;
 
 /**
  * Evaluation of a classifier via
  * <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">ROC
  * curve</a>. Use the {@link RocCurvesEvaluator} to run the evaluation. The ROC
- * curves can either be plotted to screen or file, or the individual data points
- * can be iterated through {@link #iterator()}. To get a summary measure of the
- * ROC curve, use {@link #getAreaUnderCurve()}.
+ * curves can either be plotted to screen or file (using the
+ * {@link RocCurvesPainter}), or the individual data points can be iterated
+ * through {@link #iterator()}. To get a summary measure of the ROC curve, use
+ * {@link #getAreaUnderCurve()}.
  * 
  * @author pk
  */
@@ -44,40 +43,51 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 	
 	public static final class RocCurvesEvaluator extends AbstractClassificationEvaluator<RocCurves> {
 		
-		private final String correctCategory;
+		private final String trueCategory;
 		
 		/**
-		 * @param correctCategory
+		 * @param trueCategory
 		 *            The category name which is to be treated as the "correct"
 		 *            class, e.g. "true".
 		 */
-		public RocCurvesEvaluator(String correctCategory) {
-			this.correctCategory = correctCategory;
+		public RocCurvesEvaluator(String trueCategory) {
+			this.trueCategory = trueCategory;
 		}
 
 		@Override
-		public <M extends Model> RocCurves evaluate(Classifier<M> classifier, M model, Iterable<? extends Instance> data) {
+		public <M extends Model> RocCurves evaluate(Classifier<M> classifier, M model, Dataset data) {
 			Validate.isTrue(model.getCategories().size() == 2, "binary model required");
-			if (!model.getCategories().contains(correctCategory)) {
-				throw new IllegalStateException("Model has not category \"" + correctCategory + "\".");
+			if (!model.getCategories().contains(trueCategory)) {
+				throw new IllegalStateException("Model has no category \"" + trueCategory + "\".");
 			}
 			List<ResultEntry> results = new ArrayList<>();
 			for (Instance instance : data) {
 				CategoryEntries categoryEntries = classifier.classify(instance.getVector(), model);
-				boolean correct = instance.getCategory().equals(correctCategory);
-				double confidence = categoryEntries.getProbability(correctCategory);
+				boolean correct = instance.getCategory().equals(trueCategory);
+				double confidence = categoryEntries.getProbability(trueCategory);
 				results.add(new ResultEntry(correct, confidence));
 			}
 			return new RocCurves(results);
 		}
 	}
 	
+	public static class RocCurvesBuilder implements Factory<RocCurves> {
+		private final List<ResultEntry> results = new ArrayList<>();
+		public void add(boolean correct, double confidence) {
+			results.add(new ResultEntry(correct, confidence));
+		}
+		@Override
+		public RocCurves create() {
+			return new RocCurves(results);
+		}
+	}
+	
 	static final class ResultEntry implements Comparable<ResultEntry> {
-		final boolean correct;
+		final boolean trueCategory;
 		final double confidence;
 
-		ResultEntry(boolean correct, double confidence) {
-			this.correct = correct;
+		ResultEntry(boolean trueCategory, double confidence) {
+			this.trueCategory = trueCategory;
 			this.confidence = confidence;
 		}
 
@@ -126,7 +136,7 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 		int positives = 0;
 		int negatives = 0;
 		for (ResultEntry result : this.results) {
-			if (result.correct) {
+			if (result.trueCategory) {
 				positives++;
 			} else {
 				negatives++;
@@ -135,6 +145,30 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 		this.positives = positives;
 		this.negatives = negatives;
 	}
+	
+//	/**
+//	 * Read results from a CSV file; first column is a boolean, whether the
+//	 * entry is of relevant class, second column is a double with the
+//	 * classification confidence.
+//	 * 
+//	 * @param csvFile
+//	 *            The CSV file, not <code>null</code>.
+//	 * @return The parsed ROC curves.
+//	 * @throws IOException
+//	 *             In case reading the CSV file fails.
+//	 */
+//	static RocCurves parse(File csvFile) throws IOException {
+//		Objects.requireNonNull(csvFile, "csvFile");
+//		try (Stream<String> lines = Files.lines(csvFile.toPath())) {
+//			List<ResultEntry> results = lines.map(line -> {
+//				String[] split = line.split(";");
+//				boolean correct = Boolean.parseBoolean(split[0]);
+//				double confidence = Double.parseDouble(split[1]);
+//				return new ResultEntry(correct, confidence);
+//			}).collect(Collectors.toList());
+//			return new RocCurves(results);
+//		}
+//	}
 	
 	/**
 	 * Get the confusion matrix for the given threshold.
@@ -146,22 +180,22 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 	public ConfusionMatrix getConfusionMatrix(double threshold) {
 		ConfusionMatrix matrix = new ConfusionMatrix();
 		for (ResultEntry result : results) {
-			matrix.add(Boolean.toString(result.correct), Boolean.toString(result.confidence >= threshold));
+			matrix.add(Boolean.toString(result.trueCategory), Boolean.toString(result.confidence >= threshold));
 		}
 		return matrix;
 	}
 
 	@Override
 	public Iterator<EvaluationPoint> iterator() {
-		return new AbstractIterator<EvaluationPoint>() {
+		return new AbstractIterator2<EvaluationPoint>() {
 			Iterator<ResultEntry> iterator = results.iterator();
 			int truePositives = 0;
 			int trueNegatives = negatives;
 			@Override
-			protected EvaluationPoint getNext() throws Finished {
+			protected EvaluationPoint getNext() {
 				if (iterator.hasNext()) {
 					ResultEntry current = iterator.next();
-					if (current.correct) {
+					if (current.trueCategory) {
 						truePositives++;
 					} else {
 						trueNegatives--;
@@ -170,7 +204,7 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 					double specificity = (double) trueNegatives / negatives;
 					return new EvaluationPoint(sensitivity, specificity, current.confidence);
 				} else {
-					throw FINISHED;
+					return finished();
 				}
 			}
 		};
@@ -194,70 +228,35 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 		return areaUnderCurve / 2;
 	}
 	
-	private JFreeChart createChart() {
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		
-		XYSeries random = new XYSeries("Random");
-		random.add(0, 0);
-		random.add(1, 1);
-		dataset.addSeries(random);
-		
-		XYSeries series = new XYSeries("ROC [AUC = " + format(getAreaUnderCurve()) + "]");
-		for (EvaluationPoint current : this) {
-			series.add(1 - current.specificity, current.sensitivity);
-		}
-		dataset.addSeries(series);
-		
-        JFreeChart chart = ChartFactory.createXYLineChart(
-            "ROC Curves",
-            "False Positive Rate (1 – Specificity)",
-            "True Positive Rate (Sensitivity)",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, 
-            true, 
-            false 
-        );
-        chart.setBackgroundPaint(Color.white);
-        
-        XYPlot plot = chart.getXYPlot();
-        plot.setBackgroundPaint(Color.white);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setRangeGridlinePaint(Color.white);
-        
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-        renderer.setSeriesLinesVisible(0, true);
-        renderer.setSeriesShapesVisible(0, false);
-        renderer.setSeriesLinesVisible(1, true);
-        renderer.setSeriesShapesVisible(1, false);
-        renderer.setSeriesPaint(0, Color.darkGray);
-        renderer.setSeriesPaint(1, Color.red);
-        plot.setRenderer(renderer);
-        
-		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setRange(0, 1);
-		rangeAxis.setTickUnit(new NumberTickUnit(0.1));
-		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		domainAxis.setRange(0, 1);
-		domainAxis.setTickUnit(new NumberTickUnit(0.1));
-		return chart;
-	}
-	
 	public void showCurves() {
-		ChartPanel chartPanel = new ChartPanel(createChart());
-        chartPanel.setPreferredSize(new Dimension(800, 600));
-        ApplicationFrame frame = new ApplicationFrame("ROC");
-        frame.setContentPane(chartPanel);
-        frame.pack();
-        RefineryUtilities.centerFrameOnScreen(frame);
-        frame.setVisible(true);
+		new RocCurvesPainter().add(this, "ROC").showCurves();
 	}
-	
+
 	public void saveCurves(File file) throws IOException {
-        ChartUtilities.saveChartAsPNG(file, createChart(), 800, 600);
+		new RocCurvesPainter().add(this, "ROC").saveCurves(file);
 	}
 	
-	private static final String format(double v) {
+	/**
+	 * Write the data points to a CSV file. First entry is a boolean indicating
+	 * whether the item is of relevant class, second entry the classifier
+	 * confidence. Result is ordered by confidence. directly.
+	 * 
+	 * @param stream
+	 *            The destination stream, not <code>null</code>.
+	 * @param separator
+	 *            The separator between the two entries, e.g. <tt>;</tt>.
+	 */
+	public void writeEntries(PrintStream stream, char separator) {
+		Objects.requireNonNull(stream, "stream must not be null");
+		for (ResultEntry result : this.results) {
+			List<String> line = new ArrayList<>();
+			line.add(String.valueOf(result.trueCategory));
+			line.add(String.valueOf(result.confidence));
+			stream.println(StringUtils.join(line, separator));
+		}
+	}
+	
+	static final String format(double v) {
 		return new DecimalFormat("#.####", DecimalFormatSymbols.getInstance(Locale.ENGLISH)).format(v);
 	}
 

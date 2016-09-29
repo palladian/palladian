@@ -1,8 +1,6 @@
 package ws.palladian.classification.discretization;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,62 +10,56 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.discretization.Binner.Interval;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.AbstractDatasetFeatureVectorTransformer;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.FeatureInformation;
+import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
+import ws.palladian.core.dataset.FeatureInformationBuilder;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.functional.Function;
 
-public final class Discretization {
+public final class Discretization extends AbstractDatasetFeatureVectorTransformer {
     
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Discretization.class);
 
     private final Map<String, Binner> binners = new HashMap<>();
 
-    public Discretization(Iterable<? extends Instance> dataset) {
-        this(dataset, NoProgress.INSTANCE);
+//    /** @deprecated Use {@link #Discretization(Dataset)}. */
+//    @Deprecated
+//    public Discretization(Iterable<? extends Instance> dataset) {
+//        this(dataset, NoProgress.INSTANCE);
+//    }
+    
+//    /** @deprecated Use {@link #Discretization(Dataset, ProgressReporter)}. */
+//    @Deprecated
+//    public Discretization(Iterable<? extends Instance> dataset, ProgressReporter progress) {
+//    	this(new DefaultDataset(dataset), progress);
+//    }
+
+    public Discretization(Dataset dataset) {
+    	this(dataset, NoProgress.INSTANCE);
     }
     
-    public Discretization(Iterable<? extends Instance> dataset, ProgressReporter progress) {
-        Validate.notNull(dataset, "dataset must not be null");
-        Collection<Instance> datasetCopy = CollectionHelper.newArrayList(dataset);
-        Set<String> numericFeatureNames = getNumericFeatureNames(datasetCopy);
-        progress.startTask("Discretizing", numericFeatureNames.size());
-        for (String featureName : numericFeatureNames) {
-            LOGGER.debug("Discretizing {}", featureName);
-            binners.put(featureName, new Binner(datasetCopy, featureName));
-            progress.increment();
-        }
-        progress.finishTask();
+    public Discretization(Dataset dataset, ProgressReporter progress) {
+    	Validate.notNull(dataset, "dataset must not be null");
+    	Validate.notNull(progress, "progress must not be null");
+    	Set<String> numericFeatureNames = dataset.getFeatureInformation().getFeatureNamesOfType(NumericValue.class);
+    	progress.startTask("Discretizing", numericFeatureNames.size());
+    	for (String featureName : numericFeatureNames) {
+    		LOGGER.debug("Discretizing {}", featureName);
+    		binners.put(featureName, new Binner(dataset, featureName));
+    		progress.increment();
+    	}
+    	progress.finishTask();
     }
 
-    /**
-     * Get the names of all {@link NumericValue}s in the given dataset.
-     * 
-     * @param dataset The dataset.
-     * @return Names of {@link NumericValue}s.
-     * @deprecated Move this logic to the {@link DatasetStatistics} class.
-     */
-    @Deprecated
-    private static Set<String> getNumericFeatureNames(Iterable<? extends Instance> dataset) {
-        Set<String> numericFeatureNames = new HashSet<>();
-        for (Instance instance : dataset) {
-            FeatureVector featureVector = instance.getVector();
-            for (VectorEntry<String, Value> vectorEntry : featureVector) {
-                if (vectorEntry.value() instanceof NumericValue) {
-                    numericFeatureNames.add(vectorEntry.key());
-                }
-            }
-        }
-        return numericFeatureNames;
-    }
-
-    public FeatureVector discretize(FeatureVector featureVector) {
+    @Override
+	protected FeatureVector compute(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
         InstanceBuilder instanceBuilder = new InstanceBuilder();
         for (VectorEntry<String, Value> vectorEntry : featureVector) {
@@ -85,16 +77,18 @@ public final class Discretization {
         return instanceBuilder.create();
     }
 
-    public Iterable<Instance> discretize(Iterable<? extends Instance> dataset) {
-        Validate.notNull(dataset, "dataset must not be null");
-        return CollectionHelper.convert(dataset, new Function<Instance, Instance>() {
-            @Override
-            public Instance compute(Instance input) {
-                FeatureVector features = discretize(input.getVector());
-                return new InstanceBuilder().add(features).create(input.getCategory());
-            }
-        });
-    }
+//    /** @deprecated Use {@link Dataset#transform(ws.palladian.core.dataset.DatasetTransformer)} instead. */
+//    @Deprecated
+//    public Iterable<Instance> discretize(Iterable<? extends Instance> dataset) {
+//        Validate.notNull(dataset, "dataset must not be null");
+//        return CollectionHelper.convert(dataset, new Function<Instance, Instance>() {
+//            @Override
+//            public Instance compute(Instance input) {
+//                FeatureVector features = discretize(input.getVector());
+//                return new InstanceBuilder().add(features).create(input.getCategory());
+//            }
+//        });
+//    }
 
     public Binner getBinner(String featureName) {
         Validate.notEmpty(featureName, "featureName must not be empty");
@@ -109,5 +103,18 @@ public final class Discretization {
         }
         return builder.toString();
     }
+
+	@Override
+	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+		FeatureInformationBuilder builder = new FeatureInformationBuilder();
+		for (FeatureInformationEntry infoEntry : featureInformation) {
+			if (infoEntry.isCompatible(NumericValue.class)) {
+				builder.set(infoEntry.getName(), Interval.class);
+			} else {
+				builder.set(infoEntry);
+			}
+		}
+		return builder.create();
+	}
 
 }

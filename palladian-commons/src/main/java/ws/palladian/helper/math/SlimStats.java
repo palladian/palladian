@@ -66,7 +66,25 @@ public class SlimStats extends AbstractStats {
         }
     }
 
-    @Override
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param stats
+	 *            The stats to copy, not <code>null</code>.
+	 */
+	public SlimStats(SlimStats stats) {
+		Validate.notNull(stats, "stats must not be null");
+		this.count = stats.count;
+		this.mean = stats.mean;
+		this.min = stats.min;
+		this.max = stats.max;
+		this.sum = stats.sum;
+		this.m = stats.m;
+		this.s = stats.s;
+		this.mse = stats.mse;
+	}
+
+	@Override
     public SlimStats add(Number value) {
         Validate.notNull(value, "value must not be null");
         double doubleValue = value.doubleValue();
@@ -95,7 +113,8 @@ public class SlimStats extends AbstractStats {
         if (count == 1) {
             return 0.;
         }
-        return Math.sqrt(s / (getCount() - 1));
+        // subtract one from the count, when we have a sample
+        return Math.sqrt(s / (getCount() - (isSample() ? 1 : 0)));
     }
 
     @Override
@@ -142,6 +161,11 @@ public class SlimStats extends AbstractStats {
     @Override
     public double getMode() {
     	throw new UnsupportedOperationException("Calculating the mode is not supported by this stats.");
+    }
+    
+    @Override
+    public boolean isSample() {
+    	return true;
     }
 
     @Override

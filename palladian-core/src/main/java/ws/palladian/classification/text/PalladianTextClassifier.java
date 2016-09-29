@@ -208,7 +208,7 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         TextValue textValue = (TextValue)featureVector.get(VECTOR_TEXT_IDENTIFIER);
         Iterator<String> iterator = preprocessor.compute(textValue.getText());
-        Bag<String> termCounts = Bag.create();
+        Bag<String> termCounts = new Bag<>();
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());
         }

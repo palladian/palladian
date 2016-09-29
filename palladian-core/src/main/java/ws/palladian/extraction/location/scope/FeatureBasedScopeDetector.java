@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.classification.featureselection.BackwardFeatureElimination;
-import ws.palladian.classification.featureselection.BackwardFeatureElimination.FMeasureScorer;
+import ws.palladian.classification.featureselection.FeatureSelector;
+import ws.palladian.classification.featureselection.FeatureSelector.FMeasureScorer;
 import ws.palladian.classification.featureselection.FeatureRanking;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
@@ -243,7 +243,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
         List<Instance> validationSet = new CsvDatasetReader(validationCsv).readAll();
 
         FMeasureScorer scorer = new FMeasureScorer("true");
-        BackwardFeatureElimination featureElimination = new BackwardFeatureElimination(learner, predictor, scorer);
+        FeatureSelector featureElimination = new FeatureSelector(learner, predictor, scorer);
         FeatureRanking featureRanking = featureElimination.rankFeatures(trainSet, validationSet, NoProgress.INSTANCE);
         CollectionHelper.print(featureRanking.getAll());
     }

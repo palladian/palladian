@@ -7,7 +7,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.Bag;
 
 /**
@@ -118,8 +118,8 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
             throw new IllegalArgumentException("numBins must be least two, was " + numBins);
         }
         this.numBins = numBins;
-        retrievedItems = Bag.create();
-        relevantItems = Bag.create();
+        retrievedItems = new Bag<>();
+        relevantItems = new Bag<>();
 //        this.relevantItems = 0;
     }
 
@@ -169,20 +169,20 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
 
     @Override
     public Iterator<ThresholdEntry> iterator() {
-        return new AbstractIterator<ThresholdEntry>() {
+        return new AbstractIterator2<ThresholdEntry>() {
             // start in the bin, where we actually have entries (everything below gives same values as here).
             int bin = Collections.min(retrievedItems.uniqueItems());
             // first bin which provides no more entries
             final int end = Collections.max(retrievedItems.uniqueItems()) + 1;
 
             @Override
-            protected ThresholdEntry getNext() throws Finished {
+            protected ThresholdEntry getNext() {
             	if (bin > end) {
-            		throw FINISHED;
+            		return finished();
             	}
                 double threshold = (double)bin++ / numBins;
                 if (threshold > 1) {
-                    throw FINISHED;
+                	return finished();
                 }
                 return getEntry(threshold);
             }

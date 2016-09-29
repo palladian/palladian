@@ -21,7 +21,7 @@ public final class RoundRobinMergingStrategy implements SelectedFeatureMergingSt
 
     @Override
     public FeatureRanking merge(NumericMatrix<String> chiSquareMatrix) {
-        Map<String, FeatureRanking> rankingsPerTargetClass = LazyMap.create(new Factory<FeatureRanking>() {
+        Map<String, FeatureRanking> rankingsPerTargetClass = new LazyMap<>(new Factory<FeatureRanking>() {
             @Override
             public FeatureRanking create() {
                 return new FeatureRanking();

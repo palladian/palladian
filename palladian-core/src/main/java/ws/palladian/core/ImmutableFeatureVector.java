@@ -12,7 +12,7 @@ import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryConverter;
 
-final class ImmutableFeatureVector implements FeatureVector {
+final class ImmutableFeatureVector extends AbstractFeatureVector {
 
     private static final EntryConverter<String, Value> CONVERTER = new EntryConverter<>();
 
@@ -48,23 +48,6 @@ final class ImmutableFeatureVector implements FeatureVector {
     @Override
     public Collection<Value> values() {
         return valueMap.values();
-    }
-
-    @Override
-    public int hashCode() {
-        return valueMap.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        ImmutableFeatureVector other = (ImmutableFeatureVector)obj;
-        return valueMap.equals(other.valueMap);
     }
 
     @Override

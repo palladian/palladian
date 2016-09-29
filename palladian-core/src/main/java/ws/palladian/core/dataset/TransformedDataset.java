@@ -3,12 +3,12 @@ package ws.palladian.core.dataset;
 import java.io.IOException;
 
 import ws.palladian.core.Instance;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.io.CloseableIterator;
 
 class TransformedDataset extends AbstractDataset implements Dataset {
 
-	private static final class TransformedDatasetIterator extends AbstractIterator<Instance>
+	private static final class TransformedDatasetIterator extends AbstractIterator2<Instance>
 			implements CloseableIterator<Instance> {
 
 		private final CloseableIterator<Instance> iterator;
@@ -25,11 +25,11 @@ class TransformedDataset extends AbstractDataset implements Dataset {
 		}
 
 		@Override
-		protected Instance getNext() throws Finished {
+		protected Instance getNext() {
 			if (iterator.hasNext()) {
 				return transformer.compute(iterator.next());
 			}
-			throw FINISHED;
+			return finished();
 		}
 
 	}

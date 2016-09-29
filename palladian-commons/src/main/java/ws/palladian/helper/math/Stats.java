@@ -1,12 +1,9 @@
 package ws.palladian.helper.math;
 
 /**
- * <p>
  * Mathematical statistics about a series of numbers.
- * </p>
  * 
  * @author Philipp Katz
- * 
  */
 public interface Stats extends Iterable<Double> {
 
@@ -118,5 +115,42 @@ public interface Stats extends Iterable<Double> {
 	 * @return The mode (in case, there are multiple modes, it will return one of them).
 	 */
     double getMode();
+    
+	/**
+	 * Get the <a href="https://en.wikipedia.org/wiki/Skewness">skewness</a> of
+	 * the data. In case, the data is skewed to the left (i.e. the left tail is
+	 * longer), the result is negative; in case the data is skewed to the right,
+	 * the result is positive; in case the data is symmetric, the result is
+	 * zero.
+	 * 
+	 * @return The skewness.
+	 * @see <a href="http://brownmath.com/stat/shape.htm#Skewness">Measures of
+	 *      Shape: Skewness and Kurtosis</a>
+	 */
+	double getSkewness();
+	
+	/**
+	 * Get the excess
+	 * <a href="https://en.wikipedia.org/wiki/Kurtosis">kurtosis</a> of the
+	 * data. The kurtosis measures the peak's height and sharpness relative to
+	 * the rest of the data. Higher values indicate a higher and sharper peak.
+	 * This method calculates the <i>excess</i> kurtosis; the excess kurtosis of
+	 * a normal distribution is zero.
+	 * 
+	 * @return The excess kurtosis.
+	 * @see <a href="http://brownmath.com/stat/shape.htm#Kurtosis">Measures of
+	 *      Shape: Skewness and Kurtosis</a>
+	 */
+	double getKurtosis();
+	
+	double getMomentAboutMean(int k);
+	
+	/**
+	 * Indicates, whether these stats are for a sample or the whole population.
+	 * 
+	 * @return <code>true</code> if statistics represent a sample,
+	 *         <code>false</code> if they represent the whole population.
+	 */
+	boolean isSample();
 
 }

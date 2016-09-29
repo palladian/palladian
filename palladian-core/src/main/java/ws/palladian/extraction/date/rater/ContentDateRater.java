@@ -1,5 +1,6 @@
 package ws.palladian.extraction.date.rater;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -10,14 +11,13 @@ import java.util.zip.GZIPInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.classification.utils.ClassificationUtils;
+import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -110,8 +110,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      * @throws IOException 
      */
     private static void buildModel(String inputCsv, String outputPath) throws IOException {
-        List<Instance> instances = ClassificationUtils.readCsv(inputCsv, true);
-        QuickDtLearner learner = new QuickDtLearner(new RandomForestBuilder().numTrees(10));
+    	CsvDatasetReader instances = CsvDatasetReaderConfig.filePath(new File(inputCsv)).readHeader(true).create();
+        QuickDtLearner learner = QuickDtLearner.randomForest(10);
         QuickDtModel model = learner.train(instances);
         FileHelper.serialize(model, outputPath);
     }

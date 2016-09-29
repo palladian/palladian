@@ -11,7 +11,9 @@ import java.util.NoSuchElementException;
  * @author Philipp Katz
  * 
  * @param <E>
+ * @deprecated Use {@link AbstractIterator2} from now on.
  */
+@Deprecated
 public abstract class AbstractIterator<E> implements Iterator<E> {
 
     /** Constant, for the exception thrown, when iteration has no more elements. */

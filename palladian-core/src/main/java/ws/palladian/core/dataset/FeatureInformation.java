@@ -16,11 +16,14 @@ public interface FeatureInformation extends Iterable<FeatureInformation.FeatureI
 	public interface FeatureInformationEntry {
 		String getName();
 		Class<? extends Value> getType();
+		boolean isCompatible(Class<? extends Value> type);
 	}
 	
 	Set<String> getFeatureNames();
 	
 	Set<String> getFeatureNamesOfType(Class<? extends Value> valueType);
+	
+	FeatureInformationEntry getFeatureInformation(String name);
 	
 	int count();
 

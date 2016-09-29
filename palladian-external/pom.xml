@@ -46,21 +46,26 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>de.l3s.boilerpipe</groupId>
 			<artifactId>boilerpipe</artifactId>
 			<version>1.2.0</version>
+		</dependency>-->
+		<dependency>
+		    <groupId>com.syncthemall</groupId>
+		    <artifactId>boilerpipe</artifactId>
+		    <version>1.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
 			<version>1.9.17</version>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>me.champeau.jlangdetect</groupId>
 			<artifactId>jlangdetect-extra</artifactId>
 			<version>0.4</version>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>de.bwaldvogel</groupId>
 			<artifactId>liblinear</artifactId>
@@ -100,20 +105,20 @@
 		</dependency>
 	</dependencies>
 	<repositories>
-		<repository>
+		<!--<repository>
 			<id>jlangdetect-googlecode</id>
 			<name>JLangDetect Maven repository</name>
 			<url>https://jlangdetect.googlecode.com/svn/repo</url>
-		</repository>
+		</repository>-->
 		<repository>
 			<id>CogcompSoftware</id>
 			<name>CogcompSoftware</name>
 			<url>http://cogcomp.cs.illinois.edu/m2repo/</url>
 		</repository>
-		<repository>
+		<!-- <repository>
 			<id>boilerpipe</id>
 			<url>http://boilerpipe.googlecode.com/svn/repo/</url>
-		</repository>
+		</repository> -->
 		<repository>
 			<id>aksw</id>
 			<url>http://maven.aksw.org/archiva/repository/internal</url>

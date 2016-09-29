@@ -5,7 +5,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
 /**
  * Adapter between a producer which uses a {@link Consumer} callback and an {@link Iterator}.
@@ -91,13 +91,13 @@ public abstract class ConsumerIteratorAdapter<T> {
         public Iterator<T> iterator() {
             final BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_SIZE);
             new ProducerThread(queue).start();;
-            return new AbstractIterator<T>() {
+            return new AbstractIterator2<T>() {
                 @Override
-                protected T getNext() throws Finished {
+                protected T getNext() {
                     try {
                         T element = queue.take();
                         if (element == POISON) {
-                            throw FINISHED;
+                        	return finished();
                         }
                         return element;
                     } catch (InterruptedException e) {

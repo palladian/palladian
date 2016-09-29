@@ -11,14 +11,14 @@ import org.junit.Test;
 
 import ws.palladian.classification.utils.CsvDatasetReaderConfig.Builder;
 import ws.palladian.core.Instance;
-import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
-import ws.palladian.core.value.NullValue;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.CloseableIterator;
 
 public class CsvDatasetReaderTest {
+
+	private static final double DELTA = 0.1;
 
 	@Test
 	public void testCsvReading() throws IOException {
@@ -32,8 +32,8 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(14, instance.getVector().size());
 			assertEquals(14, reader.getFeatureInformation().count());
-			assertEquals(new ImmutableDoubleValue(25), instance.getVector().get("0"));
-			assertEquals(new ImmutableStringValue("Private"), instance.getVector().get("1"));
+			assertEquals(25, instance.getVector().getNumeric("0").getDouble(), DELTA);
+			assertEquals("Private", instance.getVector().getNominal("1").getString());
 			assertEquals("<=50K", instance.getCategory());
 			assertEquals(1000, CollectionHelper.count(reader.iterator()));
 		}
@@ -50,7 +50,7 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(15, instance.getVector().size());
 			assertEquals(15, reader.getFeatureInformation().count());
-			assertEquals(new ImmutableStringValue("<=50K"), instance.getVector().get("14"));
+			assertEquals("<=50K", instance.getVector().getNominal("14").getString());
 			assertEquals(1000, CollectionHelper.count(reader.iterator()));
 		}
 	}
@@ -82,13 +82,13 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(7, instance.getVector().size());
 			assertEquals(7, reader.getFeatureInformation().count());
-			assertEquals(new ImmutableDoubleValue(1.23), instance.getVector().get("double"));
-			assertEquals(new ImmutableDoubleValue(123), instance.getVector().get("long"));
-			assertEquals(new ImmutableStringValue("test"), instance.getVector().get("string"));
-			assertEquals(new ImmutableDoubleValue(Double.NaN), instance.getVector().get("NaN"));
-			assertEquals(new ImmutableDoubleValue(Double.POSITIVE_INFINITY), instance.getVector().get("positiveInfinity"));
-			assertEquals(new ImmutableDoubleValue(Double.NEGATIVE_INFINITY), instance.getVector().get("negativeInfinity"));
-			assertEquals(NullValue.NULL, instance.getVector().get("null"));
+			assertEquals(1.23, instance.getVector().getNumeric("double").getDouble(), DELTA);
+			assertEquals(123l, instance.getVector().getNumeric("long").getLong());
+			assertEquals("test", instance.getVector().getNominal("string").getString());
+			assertEquals(Double.NaN, instance.getVector().getNumeric("NaN").getDouble(), DELTA);
+			assertEquals(Double.POSITIVE_INFINITY, instance.getVector().getNumeric("positiveInfinity").getDouble(), DELTA);
+			assertEquals(Double.NEGATIVE_INFINITY, instance.getVector().getNumeric("negativeInfinity").getDouble(), DELTA);
+			assertTrue(instance.getVector().get("null").isNull());
 		}
 	}
 	
@@ -104,13 +104,13 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(7, instance.getVector().size());
 			assertEquals(7, reader.getFeatureInformation().count());
-			assertEquals(new ImmutableStringValue("1.23"), instance.getVector().get("double"));
-			assertEquals(new ImmutableStringValue("123"), instance.getVector().get("long"));
-			assertEquals(new ImmutableStringValue("test"), instance.getVector().get("string"));
-			assertEquals(new ImmutableStringValue("NaN"), instance.getVector().get("NaN"));
-			assertEquals(new ImmutableStringValue("Infinity"), instance.getVector().get("positiveInfinity"));
-			assertEquals(new ImmutableStringValue("-Infinity"), instance.getVector().get("negativeInfinity"));
-			assertEquals(NullValue.NULL, instance.getVector().get("null"));
+			assertEquals("1.23", instance.getVector().getNominal("double").getString());
+			assertEquals("123", instance.getVector().getNominal("long").getString());
+			assertEquals("test", instance.getVector().getNominal("string").getString());
+			assertEquals("NaN", instance.getVector().getNominal("NaN").getString());
+			assertEquals("Infinity", instance.getVector().getNominal("positiveInfinity").getString());
+			assertEquals("-Infinity", instance.getVector().getNominal("negativeInfinity").getString());
+			assertTrue(instance.getVector().get("null").isNull());
 		}
 	}
 	
@@ -126,10 +126,10 @@ public class CsvDatasetReaderTest {
 			Instance instance = iterator.next();
 			assertEquals(4, instance.getVector().size());
 			assertEquals(4, reader.getFeatureInformation().count());
-			assertEquals(new ImmutableDoubleValue(1.23), instance.getVector().get("double"));
-			assertEquals(new ImmutableDoubleValue(123), instance.getVector().get("long"));
-			assertEquals(new ImmutableStringValue("test"), instance.getVector().get("string"));
-			assertEquals(NullValue.NULL, instance.getVector().get("null"));
+			assertEquals(1.23, instance.getVector().getNumeric("double").getDouble(), DELTA);
+			assertEquals(123, instance.getVector().getNumeric("long").getLong(), DELTA);
+			assertEquals("test", instance.getVector().getNominal("string").getString());
+			assertTrue(instance.getVector().get("null").isNull());
 		}
 	}
 	

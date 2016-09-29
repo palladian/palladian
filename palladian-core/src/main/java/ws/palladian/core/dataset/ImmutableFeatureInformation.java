@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
 final class ImmutableFeatureInformation implements FeatureInformation {
 
@@ -37,28 +37,15 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 
 	@Override
 	public Iterator<FeatureInformationEntry> iterator() {
-		return new AbstractIterator<FeatureInformationEntry>() {
+		return new AbstractIterator2<FeatureInformationEntry>() {
 			final Iterator<Entry<String, Class<? extends Value>>> it = nameValues.entrySet().iterator();
 			@Override
-			protected FeatureInformationEntry getNext() throws Finished {
+			protected FeatureInformationEntry getNext(){
 				if (it.hasNext()) {
 					final Entry<String, Class<? extends Value>> current = it.next();
-					return new FeatureInformationEntry() {
-						@Override
-						public Class<? extends Value> getType() {
-							return current.getValue();
-						}
-						@Override
-						public String getName() {
-							return current.getKey();
-						}
-						@Override
-						public String toString() {
-							return getName() + ":" + getType().getSimpleName();
-						}
-					};
+					return new ImmutableFeatureInformationEntry(current.getKey(), current.getValue());
 				}
-				throw FINISHED;
+				return finished();
 			}
 		};
 	}
@@ -66,6 +53,16 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 	@Override
 	public int count() {
 		return nameValues.size();
+	}
+	
+	@Override
+	public FeatureInformationEntry getFeatureInformation(String name) {
+		for (FeatureInformationEntry entry : this) {
+			if (entry.getName().equals(name)) {
+				return entry;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -83,5 +80,25 @@ final class ImmutableFeatureInformation implements FeatureInformation {
 		}
 		return builder.toString();
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((nameValues == null) ? 0 : nameValues.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		ImmutableFeatureInformation other = (ImmutableFeatureInformation) obj;
+		return nameValues.equals(other.nameValues);
+	}	
 
 }

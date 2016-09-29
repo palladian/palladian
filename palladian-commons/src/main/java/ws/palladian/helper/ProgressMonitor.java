@@ -10,9 +10,8 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import org.w3c.dom.Document;
+import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.functional.Consumer;
 
 /**
  * <p>
@@ -75,7 +74,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * Keep track of the last 3 iterations
      */
-    private List<Long> lastIterationTimes;
+//    private List<Long> lastIterationTimes;
+    private FixedSizeQueue<Long> lastIterationTimes;
     private final static int LAST_ITERATION_WINDOW = 3;
 
     /**
@@ -178,7 +178,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         this.totalSteps = totalSteps;
         this.startTime = System.currentTimeMillis();
         this.lastPrintTime = 0;
-        lastIterationTimes = new ArrayList<>();
+        lastIterationTimes = FixedSizeQueue.create(LAST_ITERATION_WINDOW);
     }
 
     @Override
@@ -229,10 +229,13 @@ public final class ProgressMonitor extends AbstractProgressReporter {
             }
             if (output > 0) { // do not give any time estimates at the beginning or end
 
-                if (isEnhancedStats()) {
+                if (totalSteps > 0 && isEnhancedStats()) {
                     statistics.add(itemFormat.format(totalSteps - currentSteps) + " items left");
                 }
                 statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms", ""));
+//                if (lastIterationTimes == null) {
+//                	lastIterationTimes = new ArrayList<>();
+//                }
                 long iterationTime = elapsedTime - lastPrintTime;
                 lastIterationTimes.add(0, iterationTime);
                 if (isEnhancedStats()) {
@@ -266,11 +269,14 @@ public final class ProgressMonitor extends AbstractProgressReporter {
 
     private double getAverageIterationTime() {
         double time = 0.;
-        int count = Math.min(LAST_ITERATION_WINDOW, lastIterationTimes.size());
-        for (int i = 0; i < count; i++) {
-            time += lastIterationTimes.get(i);
+        int count = lastIterationTimes.size();
+//        for (int i = 0; i < count; i++) {
+//            time += lastIterationTimes.get(i);
+//        }
+//        lastIterationTimes = lastIterationTimes.subList(0, count);
+        for (Long lastIterationTime : lastIterationTimes) {
+        	time += lastIterationTime;
         }
-        lastIterationTimes = lastIterationTimes.subList(0, count);
         return time / count;
     }
 

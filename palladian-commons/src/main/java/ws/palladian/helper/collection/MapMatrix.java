@@ -34,6 +34,8 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     /** All keys for the y-axis used in the matrix. */
     private final Set<K> keysY = new LinkedHashSet<>();
 
+    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
+    @Deprecated
     public static <K, V> MapMatrix<K, V> create() {
         return new MapMatrix<>();
     }

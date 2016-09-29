@@ -29,7 +29,7 @@ public class BagTest {
 
     @Before
     public void setupTest() {
-        bag1 = Bag.create();
+        bag1 = new Bag<>();
         bag1.add(ELEMENT1);
         bag1.add(ELEMENT1);
         bag1.add(ELEMENT1);
@@ -40,7 +40,7 @@ public class BagTest {
         bag1.add(ELEMENT2);
         bag1.add(ELEMENT3);
         bag1.add(ELEMENT3);
-        bag2 = Bag.create();
+        bag2 = new Bag<>();
         bag2.add(ELEMENT1, 5);
         bag2.add(ELEMENT2, 3);
         bag2.add(ELEMENT3, 1);
@@ -161,7 +161,7 @@ public class BagTest {
 
     @Test
     public void testCopy() {
-        Bag<String> copy = Bag.create(bag1);
+        Bag<String> copy = new Bag<>(bag1);
         assertTrue(copy.equals(bag1));
     }
     
