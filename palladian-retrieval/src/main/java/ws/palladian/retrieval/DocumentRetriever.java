@@ -151,9 +151,12 @@ public class DocumentRetriever {
             while (!urlQueue.isEmpty()) {
 
                 final String url = urlQueue.poll();
+
                 Thread ct = new Thread("Retrieving: " + url) {
                     @Override
                     public void run() {
+                        Thread.currentThread().setName("Retrieving: " + url);
+
                         requestThrottle.hold();
                         Document document = getWebDocument(url);
                         if (document != null) {
@@ -199,12 +202,9 @@ public class DocumentRetriever {
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<>();
-        getWebDocuments(urls, new Consumer<Document>() {
-            @Override
-            public void process(Document document) {
-                synchronized (result) {
-                    result.add(document);
-                }
+        getWebDocuments(urls, document -> {
+            synchronized (result) {
+                result.add(document);
             }
         });
         return result;
@@ -386,12 +386,9 @@ public class DocumentRetriever {
      */
     public Set<String> getTexts(Collection<String> urls) {
         final Set<String> result = new HashSet<>();
-        getTexts(urls, new Consumer<String>() {
-            @Override
-            public void process(String text) {
-                synchronized (result) {
-                    result.add(text);
-                }
+        getTexts(urls, text -> {
+            synchronized (result) {
+                result.add(text);
             }
         });
         return result;
@@ -592,6 +589,16 @@ public class DocumentRetriever {
     public static void main(String[] args) throws Exception {
         DocumentRetriever retriever = new DocumentRetriever();
 
+        Set<String> urls1 = new HashSet<>();
+        urls1.add("http://cinefreaks.com");
+        urls1.add("http://webknox.com");
+        Consumer<Document> crawlerCallback1 = document -> {
+            // do something with the page
+            System.out.println(document.getDocumentURI());
+            LOGGER.info(document.getDocumentURI());
+        };
+        retriever.getWebDocuments(urls1, crawlerCallback1);
+
         // // speed test download and parse documents vs. text only retrieval, result: almost no difference, about 10ms
         // per
         // document for parsing
@@ -621,12 +628,9 @@ public class DocumentRetriever {
         // true);
 
         // create a retriever that is triggered for every retrieved page
-        Consumer<Document> crawlerCallback = new Consumer<Document>() {
-            @Override
-            public void process(Document document) {
-                // do something with the page
-                LOGGER.info(document.getDocumentURI());
-            }
+        Consumer<Document> crawlerCallback = document -> {
+            // do something with the page
+            LOGGER.info(document.getDocumentURI());
         };
         retriever.addRetrieverCallback(crawlerCallback);
 
