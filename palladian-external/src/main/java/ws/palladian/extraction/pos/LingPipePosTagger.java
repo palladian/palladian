@@ -100,7 +100,7 @@ public final class LingPipePosTagger extends AbstractPosTagger {
 
     @Override
     protected List<String> getTags(List<String> tokens) {
-        FastCache<String, double[]> cache = new FastCache<String, double[]>(100);
+        FastCache<String, double[]> cache = new FastCache<>(100);
         HmmDecoder posTagger = new HmmDecoder(model, null, cache);
         return posTagger.tag(tokens).tags();
     }
@@ -115,7 +115,7 @@ public final class LingPipePosTagger extends AbstractPosTagger {
         int correct = 0;
         int total = 0;
 
-        FastCache<String, double[]> cache = new FastCache<String, double[]>(100);
+        FastCache<String, double[]> cache = new FastCache<>(100);
 
         // construct chunker
         HmmDecoder posTagger = new HmmDecoder(model, null, cache);

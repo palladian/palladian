@@ -91,8 +91,8 @@ public class TweetNlpPosTagger extends AbstractPosTagger {
 
     public static void main(String[] args) {
         TweetNlpPosTagger posTagger = TweetNlpPosTagger.DEFAULT;
-        List<Annotation> tags = posTagger
-                .getAnnotations("I predict I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh");
+        List<Annotation> tags = posTagger.getAnnotations(
+                "I predict I won't win a single game I bet on. Got Cliff Lee today, so if he loses its on me RT @e_one: Texas (cont) http://tl.gd/6meogh");
         for (Annotation tagAnnotation : tags) {
             System.out.println(tagAnnotation);
         }

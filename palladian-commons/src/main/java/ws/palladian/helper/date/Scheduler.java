@@ -26,7 +26,7 @@ public class Scheduler {
     private Set<Pair<Runnable, Schedule>> tasks;
 
     private Scheduler() {
-        tasks = Collections.synchronizedSet(new HashSet<Pair<Runnable, Schedule>>());
+        tasks = Collections.synchronizedSet(new HashSet<>());
         runPeriodicTimeCheck();
     }
 

@@ -38,7 +38,7 @@ public final class OpenNlpPosTagger extends AbstractPosTagger {
         this.tagger = loadModel(modelFile);
     }
 
-    private final POSTagger loadModel(File modelFile) {
+    private POSTagger loadModel(File modelFile) {
         String modelPath = modelFile.getAbsolutePath();
         POSTagger model = (POSTagger)Cache.getInstance().getDataObject(modelPath);
         if (model == null) {
