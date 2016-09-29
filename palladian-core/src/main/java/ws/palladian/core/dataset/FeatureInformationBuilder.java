@@ -3,8 +3,8 @@ package ws.palladian.core.dataset;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
@@ -27,13 +27,31 @@ public class FeatureInformationBuilder implements Factory<FeatureInformation> {
 	private FeatureInformationBuilder(Map<String, Class<? extends Value>> nameValues) {
 		this.nameValues = nameValues;
 	}
+	
+	// TODO add commented methods in the future, and deprecate those methods
+	// which take a Class<? extends Value> argument
 
+//	public FeatureInformationBuilder set(String name, ValueParser valueDefinition) {
+//		Objects.requireNonNull(name, "name must not be null");
+//		Objects.requireNonNull(valueDefinition, "valueType must not be null");
+//		return set(name, valueDefinition.getType());
+//	}
+	
 	public FeatureInformationBuilder set(String name, Class<? extends Value> valueType) {
 		Objects.requireNonNull(name, "name must not be null");
 		Objects.requireNonNull(valueType, "valueType must not be null");
 		nameValues.put(name, valueType);
 		return this;
 	}
+	
+//	public FeatureInformationBuilder set(Iterable<String> names, ValueParser valueDefinition) {
+//		Objects.requireNonNull(names, "names must not be null");
+//		Objects.requireNonNull(valueDefinition, "valueType must not be null");
+//		for (String name : names) {
+//			set(name, valueDefinition);
+//		}
+//		return this;
+//	}
 	
 	public FeatureInformationBuilder set(Iterable<String> names, Class<? extends Value> valueType) {
 		Objects.requireNonNull(names, "names must not be null");
