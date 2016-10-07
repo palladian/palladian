@@ -19,9 +19,9 @@ import java.util.Set;
 public class Scheduler {
 
     /**
-     * Check scheduled tasks every 60 seconds.
+     * Check scheduled tasks every 20 seconds.
      */
-    private final int checkInterval = 60000;
+    private final int checkInterval = 20000;
 
     private Set<Pair<Runnable, Schedule>> tasks;
 
