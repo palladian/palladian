@@ -123,7 +123,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // MAIN_NODE_HINTS.add("post-content");
         // MAIN_NODE_HINTS.add("post-body");
         // MAIN_NODE_HINTS.add("articleContent");
-        // MAIN_NODE_HINTS.add("articleBody");
         // MAIN_NODE_HINTS.add("article-content");
         // MAIN_NODE_HINTS.add("main-content");
         // MAIN_NODE_HINTS.add("contentBody");
@@ -286,7 +285,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         if (!useMainNodeText) {
             // shorter paths with the same counts should be favored to not miss any content
             for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
-                if (mapEntry.getKey().length() < shortestMatchingXPath.length() && mapEntry.getValue() == highestCount) {
+                if (mapEntry.getKey().length() < shortestMatchingXPath.length()
+                        && mapEntry.getValue() == highestCount) {
                     shortestMatchingXPath = mapEntry.getKey();
                 }
             }
@@ -389,10 +389,18 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // remove comments
         removeCommentNodes();
 
+        // remove header, footer, and sidebars
+        List<Node> removeNodes = new ArrayList<>();
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//header//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[@id='header']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//footer//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[@id='footer']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[@id='sidebar']//*"));
+
         // remove scripts / style / iframes etc.
-        List<Node> divs = XPathHelper.getXhtmlNodes(document,
-                "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]");
-        for (Node node : divs) {
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document,
+                "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]"));
+        for (Node node : removeNodes) {
             if (node == null) {
                 continue;
             }
@@ -407,10 +415,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private void removeCommentNodes() {
 
-        List<Node> divs = XPathHelper
-                .getXhtmlNodes(
-                        document,
-                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section) or (self::xhtml:ol) or (self::xhtml:ul) or (self::xhtml:li)][@class='comment' or contains(@class,'comment ') or contains(@class,' comment') or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
+        List<Node> divs = XPathHelper.getXhtmlNodes(document,
+                "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section) or (self::xhtml:ol) or (self::xhtml:ul) or (self::xhtml:li)][@class='comment' or contains(@class,'comment ') or contains(@class,' comment') or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
 
         for (Node node : divs) {
             comments.add(HtmlHelper.documentToReadableText(node));
@@ -426,8 +432,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         for (String hint : MAIN_NODE_HINTS) {
             List<Node> mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
                     "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
-                            + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint
-                            + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
+                            + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint + "') or @itemprop='"
+                            + hint + "' or @id='" + hint + "']");
 
             if (!mainNodes.isEmpty()) {
                 mainNode = mainNodes.get(0);
@@ -503,13 +509,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     public List<WebImage> getImages() {
         if (outerResultNode != null) {
-            return getImages(outerResultNode, getDocument(), new HashSet<Node>());
+            return getImages(outerResultNode, getDocument(), new HashSet<>());
         }
-        return getImages(resultNode, getDocument(), new HashSet<Node>());
+        return getImages(resultNode, getDocument(), new HashSet<>());
     }
 
     public List<WebImage> getImages(Node imageParentNode) {
-        return getImages(imageParentNode, document, new HashSet<Node>());
+        return getImages(imageParentNode, document, new HashSet<>());
     }
 
     public List<WebImage> getImages(Node imageParentNode, Document webDocument, Collection<Node> excludeNodes) {
@@ -541,6 +547,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
             imageParentNode = imageParentNode.getParentNode();
         }
+
+        // remove images from header and footer
+        List<Node> removeNodes = XPathHelper.getXhtmlNodes(webDocument, "//header//img");
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(webDocument, "//div[@id='header']//img"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(webDocument, "//footer//img"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(webDocument, "//div[@id='footer']//img"));
+        imageNodes.removeAll(removeNodes);
 
         for (Node node : imageNodes) {
             try {
@@ -803,19 +816,16 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         // look for itemprop image
-        xhtmlNode = XPathHelper
-                .getXhtmlNode(getDocument(),
-                        "//*[(@itemprop='image' or @itemprop='photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
+                "//*[(@itemprop='image' or @itemprop='photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
         if (xhtmlNode != null) {
             String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
             return new BasicWebImage.Builder().setImageUrl(url).create();
         }
 
         // look for "main image"
-        xhtmlNode = XPathHelper
-                .getXhtmlNode(
-                        getDocument(),
-                        "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]//@src");
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
+                "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]//@src");
         if (xhtmlNode != null) {
             String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
             return new BasicWebImage.Builder().setImageUrl(url).create();
@@ -837,9 +847,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
             for (String includeXPath : contentIncludeXPath) {
                 mainContentNode = XPathHelper.getXhtmlNode(getDocument(), includeXPath);
-                images.addAll(getImages(
-                        mainContentNode,
-                        getDocument(),
+                images.addAll(getImages(mainContentNode, getDocument(),
                         ".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]",
                         excludeImageNodes));
             }
@@ -847,9 +855,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         } else {
             // get images that are not in header or footer or that link to the index (which are usually logos and
             // banners)
-            images.addAll(getImages(
-                    mainContentNode,
-                    getDocument(),
+            images.addAll(getImages(mainContentNode, getDocument(),
                     ".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]",
                     excludeImageNodes));
         }
@@ -878,8 +884,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public static void main(String[] args) throws PageContentExtractorException {
 
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://janeshealthykitchen.com/instant-red-sauce/"));
         Language language = palladianContentExtractor.detectLanguage();
+        List<WebImage> images = palladianContentExtractor.getImages();
+        CollectionHelper.print(images);
 
         System.out.println(language);
         System.exit(0);
@@ -966,7 +974,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\652.html");
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\640.html");
         // pe.setDocument("http://www.upi.com/Top_News/US/2013/12/31/Man-faces-kidnapping-other-charges-in-trip-to-Las-Vegas-to-marry/UPI-67931388527587/");
-        pe.setDocument("http://www.voanews.com/content/russia-urges-nations-to-take-active-role-in-the-middle-east-93610219/169955.html");
+        pe.setDocument(
+                "http://www.voanews.com/content/russia-urges-nations-to-take-active-role-in-the-middle-east-93610219/169955.html");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title: " + pe.getResultTitle());
