@@ -6,11 +6,9 @@ import static ws.palladian.helper.io.FileHelper.NEWLINE_CHARACTER;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Objects;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.AbstractDatasetWriter;
@@ -23,8 +21,6 @@ import ws.palladian.core.value.Value;
 import ws.palladian.helper.ProgressReporter;
 
 public class CsvDatasetWriter extends AbstractDatasetWriter {
-	
-	// TODO support writing to GZ files (as also supported by CsvDatasetReader)
 	
 	private static final class CsvDatasetAppender implements DatasetAppender {
 		private final Writer writer;
@@ -89,9 +85,7 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 
 	}
 
-	private final File outputCsv;
-
-	private final boolean writeCategory;
+	private final CsvDatasetWriterConfig config;
 
 	/**
 	 * Create a new {@link CsvDatasetWriter} with the given destination file.
@@ -117,18 +111,20 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 	 *            <code>false</code> to skip.
 	 */
 	public CsvDatasetWriter(File outputCsv, boolean overwrite, boolean writeCategory) {
-		Objects.requireNonNull(outputCsv, "outputCsv must not be null");
-		if (outputCsv.exists()) {
-			if (overwrite) {
-				if (!outputCsv.delete()) {
-					throw new IllegalStateException(outputCsv + " already exists and cannot be deleted");
+		this(CsvDatasetWriterConfig.filePath(outputCsv).overwrite(overwrite).writeCategory(writeCategory).createConfig());
+	}
+	
+	public CsvDatasetWriter(CsvDatasetWriterConfig config) {
+		if (config.getOutputCsv().exists()) {
+			if (config.isOverwrite()) {
+				if (!config.getOutputCsv().delete()) {
+					throw new IllegalStateException(config.getOutputCsv() + " already exists and cannot be deleted");
 				}
 			} else {
-				throw new IllegalArgumentException(outputCsv + " already exists");
+				throw new IllegalArgumentException(config.getOutputCsv() + " already exists");
 			}
 		}
-		this.outputCsv = outputCsv;
-		this.writeCategory = writeCategory;
+		this.config = config;
 	}
 
 	@Override
@@ -150,9 +146,9 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 			
 			Writer writer = new BufferedWriter(
 					 new OutputStreamWriter(
-				     new FileOutputStream(outputCsv), DEFAULT_ENCODING));
+				     config.getOutputStream(), DEFAULT_ENCODING));
 
-			CsvDatasetAppender appender = new CsvDatasetAppender(writer, featureInformation, writeCategory);
+			CsvDatasetAppender appender = new CsvDatasetAppender(writer, featureInformation, config.isWriteCategory());
 			appender.writeHeader();
 			return appender;
 

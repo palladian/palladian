@@ -2,11 +2,15 @@ package ws.palladian.core.dataset.io;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Different compression formats, which can be used directly for CSV data import
@@ -20,6 +24,11 @@ public enum Compressions implements Compression {
 		@Override
 		public InputStream getInputStream(File file) throws IOException {
 			return new FileInputStream(file);
+		}
+
+		@Override
+		public OutputStream getOutputStream(File file) throws IOException {
+			return new FileOutputStream(file);
 		}
 
 		@Override
@@ -45,6 +54,14 @@ public enum Compressions implements Compression {
 		}
 
 		@Override
+		public OutputStream getOutputStream(File file) throws IOException {
+			OutputStream outputStream = new FileOutputStream(file);
+			ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
+			zipOutputStream.putNextEntry(new ZipEntry("file.csv"));
+			return zipOutputStream;
+		}
+
+		@Override
 		public boolean fileExtensionSupported(File file) {
 			return file.getName().toLowerCase().endsWith(".zip");
 		}
@@ -55,6 +72,12 @@ public enum Compressions implements Compression {
 		public InputStream getInputStream(File file) throws IOException {
 			InputStream inputStream = new FileInputStream(file);
 			return new GZIPInputStream(inputStream);
+		}
+
+		@Override
+		public OutputStream getOutputStream(File file) throws IOException {
+			OutputStream outputStream = new FileOutputStream(file);
+			return new GZIPOutputStream(outputStream);
 		}
 
 		@Override

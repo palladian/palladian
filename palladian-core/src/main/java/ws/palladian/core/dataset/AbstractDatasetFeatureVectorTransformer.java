@@ -1,5 +1,6 @@
 package ws.palladian.core.dataset;
 
+import ws.palladian.core.AbstractInstance;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 
@@ -17,7 +18,7 @@ public abstract class AbstractDatasetFeatureVectorTransformer implements Dataset
 
 	@Override
 	public final Instance compute(final Instance input) {
-		return new Instance() {
+		return new AbstractInstance() {
 			@Override
 			public int getWeight() {
 				return input.getWeight();
