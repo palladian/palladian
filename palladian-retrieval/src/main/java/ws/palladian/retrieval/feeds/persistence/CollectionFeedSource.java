@@ -41,7 +41,7 @@ public class CollectionFeedSource implements FeedStore {
      * Creates a new feed source initialized with an empty collection.
      */
     public CollectionFeedSource() {
-        this(new ArrayList<Feed>());
+        this(new ArrayList<>());
     }
 
     @Override
@@ -60,7 +60,7 @@ public class CollectionFeedSource implements FeedStore {
 
     @Override
     public List<Feed> getFeeds() {
-        return new ArrayList<Feed>(feeds);
+        return new ArrayList<>(feeds);
     }
 
     @Override

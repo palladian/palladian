@@ -38,19 +38,19 @@ public class Feed {
     private String feedUrl = null;
 
     /** The items of this feed. */
-    private List<FeedItem> items = new ArrayList<FeedItem>();
+    private List<FeedItem> items = new ArrayList<>();
 
     /**
      * A backup of the items' hashes and timestamps from the most recent window that is not deleted when
      * {@link #freeMemory()} is called. It can be used as a cache and read to update the checkInterval in case we did a
      * conditional get request and the feed has not been changed since the last request.
      */
-    private Map<String, Date> itemCache = new HashMap<String, Date>();
+    private Map<String, Date> itemCache = new HashMap<>();
 
     /**
      * The items that were new in the most recent poll.
      */
-    private List<FeedItem> newItems = new ArrayList<FeedItem>();
+    private List<FeedItem> newItems = new ArrayList<>();
 
     /**
      * The total number of unique items downloaded so far. This value may differ from {@link #items}.size() since
@@ -117,7 +117,7 @@ public class Feed {
      * Number of item that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
      * post could have appeared.
      */
-    private Map<Integer, int[]> meticulousPostDistribution = new HashMap<Integer, int[]>();
+    private Map<Integer, int[]> meticulousPostDistribution = new HashMap<>();
 
     /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
     private FeedActivityPattern activityPattern = FeedActivityPattern.CLASS_UNKNOWN;
@@ -206,8 +206,8 @@ public class Feed {
      */
     public void setItems(List<FeedItem> items) {
 
-        ArrayList<FeedItem> newItemsTemp = new ArrayList<FeedItem>();
-        Map<String, Date> itemCacheTemp = new HashMap<String, Date>();
+        ArrayList<FeedItem> newItemsTemp = new ArrayList<>();
+        Map<String, Date> itemCacheTemp = new HashMap<>();
         recalculateDates = true;
 
         for (FeedItem feedItem : items) {
@@ -241,7 +241,7 @@ public class Feed {
 
     public void addItem(FeedItem item) {
         if (items == null) {
-            items = new ArrayList<FeedItem>();
+            items = new ArrayList<>();
         }
         recalculateDates = true;
         items.add(item);
@@ -292,8 +292,8 @@ public class Feed {
         StringBuilder warnings = new StringBuilder();
 
         // get poll timestamp, if not present, use current time as estimation.
-        long pollTime = 0;
-        String timestampUsed = "";
+        long pollTime;
+        String timestampUsed;
         if (lastPollTimeFeed != null) {
             pollTime = lastPollTimeFeed.getTime();
             timestampUsed = ". Setting poll timestamp instead.";
@@ -304,7 +304,7 @@ public class Feed {
 
         // Is the pubDate provided by feed? Check for 'illegal' date in future.
         // Future publish dates are allowed in RSS 2.0 but are useless for predicting updates.
-        Date pubDate = null;
+        Date pubDate;
         if (entryPublishDate != null) {
             pubDate = new Date(entryPublishDate.getTime());
 
@@ -440,8 +440,8 @@ public class Feed {
      * and won't let the garbage collector take care of it.
      */
     public void freeMemory() {
-        this.items = new ArrayList<FeedItem>();
-        this.newItems = new ArrayList<FeedItem>();
+        this.items = new ArrayList<>();
+        this.newItems = new ArrayList<>();
     }
 
     public void setChecks(int checks) {
@@ -955,7 +955,7 @@ public class Feed {
      * @param variableWindowSize Set to <code>true</code> if the feed has a variable window size.
      */
     public void setVariableWindowSize(Boolean variableWindowSize) {
-        if (variableWindowSize != null && (hasVariableWindowSize() == null || variableWindowSize == true)) {
+        if (variableWindowSize != null && (hasVariableWindowSize() == null || variableWindowSize)) {
             this.variableWindowSize = variableWindowSize;
         }
     }
@@ -1004,7 +1004,7 @@ public class Feed {
      */
     public Map<String, Object> getAdditionalData() {
         if (additionalData == null) {
-            additionalData = new HashMap<String, Object>();
+            additionalData = new HashMap<>();
         }
         return additionalData;
     }
