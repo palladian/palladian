@@ -202,4 +202,9 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
         }
     }
 
+    @Override
+    public String toString() {
+    	return create().toString();
+    }
+
 }
