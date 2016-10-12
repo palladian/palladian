@@ -4,12 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.dataset.io.Compression;
 import ws.palladian.core.dataset.io.Compressions;
+import ws.palladian.core.value.ImmutableBooleanValue;
+import ws.palladian.core.value.ImmutableDoubleValue;
+import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.helper.functional.Factory;
@@ -21,6 +25,9 @@ public class CsvDatasetReaderConfig {
 		
 		public static final String DEFAULT_NULL_VALUE = "?";
 
+		private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableBooleanValue.PARSER,
+				ImmutableDoubleValue.PARSER, ImmutableStringValue.PARSER };
+
 		private final File filePath;
 		private boolean readHeader = true;
 		private String fieldSeparator = ";";
@@ -30,6 +37,7 @@ public class CsvDatasetReaderConfig {
 		private Compression compression = Compressions.NONE;
 		private List<Filter<? super String>> skipColumns = new ArrayList<>();
 		private long limit = Long.MAX_VALUE;
+		private List<ValueParser> defaultParsers = Arrays.asList(DEFAULT_PARSERS);
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -37,7 +45,7 @@ public class CsvDatasetReaderConfig {
 				throw new IllegalArgumentException("Cannot find or read file \"" + filePath + "\"");
 			}
 			this.filePath = filePath;
-			this.compression = Compressions.get(filePath); 
+			this.compression = Compressions.get(filePath);
 		}
 
 		/**
@@ -178,6 +186,20 @@ public class CsvDatasetReaderConfig {
 			this.limit = lines;
 			return this;
 		}
+		
+		/**
+		 * Define the default parsers to try, if not explicitly defined via
+		 * {@link #parser(Filter, ValueParser)}.
+		 * 
+		 * @param parsers
+		 *            The default parsers.
+		 * @return The builder.
+		 */
+		public Builder defaultParsers(ValueParser... parsers) {
+			Validate.notNull(parsers, "parsers must not be null");
+			this.defaultParsers = Arrays.asList(parsers);
+			return this;
+		}
 
 		@Override
 		public CsvDatasetReader create() {
@@ -232,6 +254,7 @@ public class CsvDatasetReaderConfig {
 	private final Compression compression;
 	private final List<Filter<? super String>> skipColumns;
 	private final long limit;
+	private final List<ValueParser> defaultParsers;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -243,6 +266,7 @@ public class CsvDatasetReaderConfig {
 		this.compression = builder.compression;
 		this.skipColumns = new ArrayList<>(builder.skipColumns);
 		this.limit = builder.limit;
+		this.defaultParsers = new ArrayList<>(builder.defaultParsers);
 	}
 
 	File filePath() {
@@ -294,5 +318,9 @@ public class CsvDatasetReaderConfig {
 	
 	long getLimit() {
 		return limit;
+	}
+
+	List<ValueParser> getDefaultParsers() {
+		return defaultParsers;
 	}
 }
