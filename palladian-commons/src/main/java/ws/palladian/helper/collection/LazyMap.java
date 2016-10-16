@@ -27,19 +27,19 @@ public final class LazyMap<K, V> extends MapDecorator<K, V> {
     }
     
     public LazyMap(Factory<? extends V> factory) {
-    	this(new HashMap<K, V>(), factory);
+    	this(new HashMap<>(), factory);
     }
 
     /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
     @Deprecated
     public static <K, V> LazyMap<K, V> create(Factory<? extends V> factory) {
-        return new LazyMap<K, V>(new HashMap<K, V>(), factory);
+        return new LazyMap<>(new HashMap<>(), factory);
     }
     
     /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
     @Deprecated
     public static <K, V> LazyMap<K, V> create(Map<K,V> map, Factory<? extends V> factory) {
-        return new LazyMap<K, V>(map, factory);
+        return new LazyMap<>(map, factory);
     }
 
     @Override

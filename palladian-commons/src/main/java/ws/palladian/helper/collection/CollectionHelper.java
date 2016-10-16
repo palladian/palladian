@@ -98,7 +98,7 @@ public final class CollectionHelper {
         Validate.notNull(map, "map must not be null");
         Validate.notNull(order, "order must not be null");
         List<Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        Collections.sort(list, new EntryValueComparator<V>(order));
+        Collections.sort(list, new EntryValueComparator<>(order));
 
         Map<K, V> result = new LinkedHashMap<>();
         for (Entry<K, V> entry : list) {
@@ -137,18 +137,15 @@ public final class CollectionHelper {
     @Deprecated
     public static <V extends Comparable<V>> Map<String, V> sortByStringKeyLength(Map<String, V> map, final Order order) {
 
-        LinkedList<Entry<String, V>> list = new LinkedList<Entry<String, V>>(map.entrySet());
+        LinkedList<Entry<String, V>> list = new LinkedList<>(map.entrySet());
 
-        Comparator<Entry<String, V>> comparator = new Comparator<Entry<String, V>>() {
-            @Override
-            public int compare(Entry<String, V> o1, Entry<String, V> o2) {
-                int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
-                return order == Order.ASCENDING ? ret : -ret;
-            }
+        Comparator<Entry<String, V>> comparator = (o1, o2) -> {
+            int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
+            return order == Order.ASCENDING ? ret : -ret;
         };
         Collections.sort(list, comparator);
 
-        Map<String, V> result = new LinkedHashMap<String, V>();
+        Map<String, V> result = new LinkedHashMap<>();
         for (Entry<String, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
@@ -211,62 +208,6 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
-     * <code>Map&lt;String, Integer&gt; map = new HashMap<>();</code>.
-     * </p>
-     * 
-     * @return A new {@link HashMap}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <K, V> HashMap<K, V> newHashMap() {
-        return new HashMap<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link TreeMap}. This method allows omitting the type parameter when creating the TreeMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newTreeMap();</code>.
-     * </p>
-     * 
-     * @return A new {@link TreeMap}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <K, V> TreeMap<K, V> newTreeMap() {
-        return new TreeMap<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link LinkedHashMap}. This method allows omitting the type parameter when creating the
-     * LinkedHashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newLinkedHashMap();</code>.
-     * </p>
-     * 
-     * @return A new {@link LinkedHashMap}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
-        return new LinkedHashMap<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
-     * <code>List&lt;String&gt; list = new ArrayList<>();</code>.
-     * </p>
-     * 
-     * @return A new {@link ArrayList}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <E> ArrayList<E> newArrayList() {
-        return new ArrayList<>();
-    }
-
-    /**
-     * <p>
      * Create a new {@link ArrayList} and fill it with the contents of the given {@link Iterable}.
      * </p>
      * 
@@ -309,20 +250,6 @@ public final class CollectionHelper {
     public static <E> ArrayList<E> newArrayList(E... elements) {
         Validate.notNull(elements, "elements must not be null");
         return new ArrayList<E>(Arrays.asList(elements));
-    }
-
-    /**
-     * <p>
-     * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
-     * </p>
-     * 
-     * @return A new {@link LinkedList}.
-     * @deprecated since Java 7
-     */
-    @Deprecated
-    public static <E> LinkedList<E> newLinkedList() {
-        return new LinkedList<>();
     }
 
     /**
@@ -381,34 +308,6 @@ public final class CollectionHelper {
             set.add(elements.next());
         }
         return set;
-    }
-
-    /**
-     * <p>
-     * Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the TreeSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
-     * </p>
-     * 
-     * @return A new {@link TreeSet}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <E> TreeSet<E> newTreeSet() {
-        return new TreeSet<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
-     * LinkedHashSet: <code>Set&lt;String&gt; set = new LinkedHashSet<>();</code>.
-     * </p>
-     * 
-     * @return A new {@link LinkedHashSet}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <E> LinkedHashSet<E> newLinkedHashSet() {
-        return new LinkedHashSet<>();
     }
 
     /**
@@ -646,6 +545,10 @@ public final class CollectionHelper {
         return list.subList(o, o + n);
     }
 
+    public static <T> T getEntry(LinkedHashSet<T> set, int num) {
+        return getFirst(getSubset(set, num, 1));
+    }
+
     /**
      * <p>
      * Get a sub set of elements of an ordered {@link LinkedHashSet}.
@@ -805,7 +708,7 @@ public final class CollectionHelper {
     public static <I, O> List<O> convertList(Iterable<I> iterable, Function<? super I, O> function) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
-        return convert(iterable, function, new ArrayList<O>());
+        return convert(iterable, function, new ArrayList<>());
     }
 
     /**
