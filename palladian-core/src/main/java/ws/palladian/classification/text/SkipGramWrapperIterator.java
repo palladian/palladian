@@ -3,24 +3,32 @@ package ws.palladian.classification.text;
 import java.util.Iterator;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
-public class SkipGramWrapperIterator extends AbstractIterator<Token> {
+public class SkipGramWrapperIterator extends AbstractIterator2<Token> {
 
-	private static final String SEPARATOR = " ";
+	private static final String DEFAULT_SEPARATOR = " ";
 	// private static final String SEPARATOR = " §skip§ ";
 	
 	private final Iterator<Token> tokenIterator;
+	private final String separator;
 	private Token currentToken;
 
-	public SkipGramWrapperIterator(Iterator<Token> tokenIterator) {
+	public SkipGramWrapperIterator(Iterator<Token> tokenIterator, String separator) {
 		this.tokenIterator = Objects.requireNonNull(tokenIterator, "tokenIterator was null");
+		this.separator = Objects.requireNonNull(separator, "separator was null");
+	}
+	
+	public SkipGramWrapperIterator(Iterator<Token> tokenIterator) {
+		this(tokenIterator, DEFAULT_SEPARATOR);
 	}
 
 	@Override
-	protected Token getNext() throws Finished {
+	protected Token getNext() {
 		if (currentToken != null) {
 			Token result = createSkipGram(currentToken);
 			currentToken = null;
@@ -32,14 +40,15 @@ public class SkipGramWrapperIterator extends AbstractIterator<Token> {
 			currentToken = tokenIterator.next();
 			return currentToken;
 		}
-		throw FINISHED;
+		return finished();
 	}
 
-	private static Token createSkipGram(Token token) {
+	private Token createSkipGram(Token token) {
 		String tokenValue = token.getValue();
 		String[] split = tokenValue.split("\\s");
 		if (split.length > 2) {
-			return new ImmutableToken(token.getStartPosition(), split[0] + SEPARATOR + split[split.length - 1]);
+			return new ImmutableToken(token.getStartPosition(), split[0] + separator + split[split.length - 1]);
+//			return new ImmutableToken(token.getStartPosition(), split[0] + StringUtils.repeat(separator, split.length - 2) + split[split.length - 1]);
 		}
 		return null;
 	}

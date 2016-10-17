@@ -1,6 +1,8 @@
 package ws.palladian.core.dataset;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,6 +49,10 @@ public class CollectionDataset extends AbstractDataset {
 	@Override
 	public Dataset buffer() {
 		return this; // already buffered
+	}
+	
+	public void sort(Comparator<? super Instance> comparator) {
+		Collections.sort(instances, comparator);
 	}
 
 }
