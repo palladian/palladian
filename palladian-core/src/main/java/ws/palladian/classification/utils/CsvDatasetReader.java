@@ -20,9 +20,6 @@ import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.dataset.FeatureInformationBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorBuilder;
 import ws.palladian.core.featurevector.FlyweightVectorSchema;
-import ws.palladian.core.value.ImmutableBooleanValue;
-import ws.palladian.core.value.ImmutableDoubleValue;
-import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.core.value.io.ValueParser;
@@ -173,9 +170,6 @@ public class CsvDatasetReader extends AbstractDataset {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvDatasetReader.class);
-    
-	private static final ValueParser[] DEFAULT_PARSERS = new ValueParser[] { ImmutableBooleanValue.PARSER,
-			ImmutableDoubleValue.PARSER, ImmutableStringValue.PARSER };
 	
 	/** Interval for the debug logging output when reading lines. */
 	private static final int LOG_EVERY_N_LINES = 100000;
@@ -343,7 +337,7 @@ public class CsvDatasetReader extends AbstractDataset {
 			// (2) if not, auto-detect applicable parser
 			if (parser == null) {
 				String input = parts[i];
-				for (ValueParser currentParser : DEFAULT_PARSERS) {
+				for (ValueParser currentParser : config.getDefaultParsers()) {
 					if (currentParser.canParse(input)) {
 						parser = currentParser;
 						break;
