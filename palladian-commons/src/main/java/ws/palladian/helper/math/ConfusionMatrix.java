@@ -544,13 +544,14 @@ public class ConfusionMatrix {
 
 	public static double calculateMatthewsCorrelationCoefficient(int tp, int tn, int fp, int fn) {
 		double denominator = sqrt(tp + fp) * sqrt(tp + fn) * sqrt(tn + fp) * sqrt(tn + fn);
-		return denominator != 0 ? (tp * tn - fp * fn) / denominator : 0;
+		long numerator = (long) tp * tn - (long) fp * fn;
+		return denominator != 0 ? numerator / denominator : 0;
 	}
 
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder("Confusion Matrix:\n\n");
-        List<String> possibleClasses = new ArrayList<String>(getCategories());
+        List<String> possibleClasses = new ArrayList<>(getCategories());
         StringBuilder headerBuilder = new StringBuilder();
         int  maxClassNameLength = 0;
         for (String clazz : possibleClasses) {
