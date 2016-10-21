@@ -138,5 +138,10 @@ public class RandomCrossValidator implements CrossValidator {
 	public Iterator<Fold> iterator() {
 		return new FoldIterator();
 	}
+	
+	@Override
+	public int getNumFolds() {
+		return numFolds;
+	}
 
 }
