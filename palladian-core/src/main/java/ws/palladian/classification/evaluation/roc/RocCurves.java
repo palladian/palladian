@@ -76,6 +76,18 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 		public void add(boolean correct, double confidence) {
 			results.add(new ResultEntry(correct, confidence));
 		}
+		/**
+		 * Add a given {@link RocCurves} instance. The is useful when e.g.
+		 * performing cross-validation and results from individual folds should
+		 * be combined.
+		 * 
+		 * @param rocCurves
+		 *            The curves to add.
+		 */
+		public void add(RocCurves rocCurves) {
+			Objects.requireNonNull(rocCurves, "rocCurves was null");
+			results.addAll(rocCurves.results);
+		}
 		@Override
 		public RocCurves create() {
 			return new RocCurves(results);
