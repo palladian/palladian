@@ -1,14 +1,7 @@
 package ws.palladian.semantics;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +10,6 @@ import ws.palladian.core.Annotation;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.pos.AbstractPosTagger;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
@@ -90,7 +82,7 @@ public class WordTransformer {
                 String singular = parts[1].toLowerCase();
                 String plural = parts[3].toLowerCase();
                 GERMAN_SINGULAR_PLURAL.put(singular, plural);
-                GERMAN_PLURAL_SINGULAR.put(plural,singular);
+                GERMAN_PLURAL_SINGULAR.put(plural, singular);
             }
 
         } finally {
@@ -199,7 +191,7 @@ public class WordTransformer {
      * </p>
      *
      * @param pluralForm The plural form of the word.
-     * @param language   The language (either "en" for English or "de" for German)
+     * @param language The language (either "en" for English or "de" for German)
      * @return The singular form of the word.
      */
     public static String wordToSingular(String pluralForm, Language language) {
@@ -317,7 +309,6 @@ public class WordTransformer {
         return lowerCasePluralForm;
     }
 
-
     /**
      * <p>
      * Split german compound words, e.g. "Goldkette" becomes (Gold, Kette).
@@ -342,7 +333,7 @@ public class WordTransformer {
             int word2Length = word2.length();
 
             if ((word2Length > 3 && (word2.length() <= wordLength || !words.isEmpty())) && lcSingular.endsWith(word2)) {
-                words.add(0,word2);
+                words.add(0, word2);
                 lcSingular = lcSingular.replace(word2, "");
                 if (lcSingular.isEmpty()) {
                     break;
@@ -353,10 +344,10 @@ public class WordTransformer {
         }
 
         // if we could not completely split the word we leave it
-//        if (!lcSingular.isEmpty()) {
-//            words.clear();
-//            words.add(word);
-//        }
+        // if (!lcSingular.isEmpty()) {
+        // words.clear();
+        // words.add(word);
+        // }
         if (!lcSingular.isEmpty()) {
             words.add(0, lcSingular);
         }
@@ -532,6 +523,9 @@ public class WordTransformer {
                 stemmedString.append(stemGermanWord(split[i]));
             } else if (language == Language.ENGLISH) {
                 stemmedString.append(stemEnglishWord(split[i]));
+            } else {
+                stemmedString.append(stemWord(split[i], language));
+
             }
             stemmedString.append(" ");
         }
@@ -540,12 +534,13 @@ public class WordTransformer {
     }
 
     public static String stemWord(String word, Language language) {
-            if (language == Language.GERMAN) {
-                return stemGermanWord(word);
-            } else if (language == Language.ENGLISH) {
-                return stemEnglishWord(word);
-            }
-        return word;
+        if (language == Language.GERMAN) {
+            return stemGermanWord(word);
+        } else if (language == Language.ENGLISH) {
+            return stemEnglishWord(word);
+        } else {
+            return new Stemmer(language).stem(word);
+        }
     }
 
     public static String stemGermanWord(String word) {
