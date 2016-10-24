@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -58,6 +59,9 @@ public class PalladianSpellChecker {
     private Map<String, String> manualWordMappings = new HashMap<>();
     private Map<String, String> manualPhraseMappings = new HashMap<>();
 
+    /** Keep track of the context around words and use it to improve decision when correcting words. */
+    private Bag<String> contextCounter = new Bag<>();
+
     /**
      * Do not correct words that contain any of these characters.
      */
@@ -83,6 +87,7 @@ public class PalladianSpellChecker {
             @Override
             public void performAction(String line, int lineNumber) {
                 Matcher m = p.matcher(line.toLowerCase());
+                String lastMatch = null;
                 while (m.find()) {
                     String match = m.group();
                     Integer count = words.get(match);
@@ -91,6 +96,10 @@ public class PalladianSpellChecker {
                     }
                     words.put(match, count + 1);
                     uniqueWords.add(match);
+                    if (lastMatch != null) {
+                        contextCounter.add(lastMatch + "_" + match);
+                    }
+                    lastMatch = match;
                 }
 
                 progressMonitor.incrementAndPrintProgress();
@@ -232,7 +241,17 @@ public class PalladianSpellChecker {
         }
 
         String[] textWords = SPLIT.split(text);
-        for (String word : textWords) {
+        for (int i = 0; i < textWords.length; i++) {
+            String word = textWords[i];
+            String leftContext = null;
+            String rightContext = null;
+            if (i > 0) {
+                leftContext = textWords[i - 1];
+            }
+            if (i < textWords.length - 1) {
+                rightContext = textWords[i + 1];
+            }
+
             int length = word.length();
             if (length < minWordLength || length > maxWordLength
                     || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
@@ -247,9 +266,9 @@ public class PalladianSpellChecker {
                 correctedText.append(startOfWord);
             }
             if (caseSensitive) {
-                correctedText.append(correctWordCaseSensitive(word));
+                correctedText.append(correctWordCaseSensitive(word, leftContext, rightContext));
             } else {
-                correctedText.append(correctWord(word));
+                correctedText.append(correctWord(word, leftContext, rightContext));
             }
             type = Character.getType(endOfWord);
             if (type == Character.OTHER_PUNCTUATION) {
@@ -273,8 +292,8 @@ public class PalladianSpellChecker {
      * @param word The word to check for errors.
      * @return The auto-corrected word.
      */
-    public String correctWordCaseSensitive(String word) {
-        return correctWord(word, true);
+    public String correctWordCaseSensitive(String word, String leftContext, String rightContext) {
+        return correctWord(word, true, leftContext, rightContext);
     }
 
     /**
@@ -285,11 +304,11 @@ public class PalladianSpellChecker {
      * @param word The word to check for errors.
      * @return The auto-corrected word.
      */
-    public String correctWord(String word) {
-        return correctWord(word, false);
+    public String correctWord(String word, String leftContext, String rightContext) {
+        return correctWord(word, false, leftContext, rightContext);
     }
 
-    public String correctWord(String word, boolean caseSensitive) {
+    public String correctWord(String word, boolean caseSensitive, String leftContext, String rightContext) {
 
         if (word.length() > maxWordLength) {
             return word;
@@ -337,6 +356,13 @@ public class PalladianSpellChecker {
             }
             Integer count = words.get(s);
             if (count != null) {
+                // look at the context
+                if (leftContext != null) {
+                    count += 100 * contextCounter.count(leftContext + "_" + s);
+                }
+                if (rightContext != null) {
+                    count += 100 * contextCounter.count(s + "_" + rightContext);
+                }
                 candidates.put(count, s);
             }
         }
