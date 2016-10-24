@@ -172,5 +172,15 @@ public class ConfusionMatrixTest {
 		confusionMatrix.add("true", "false", 87);
 		assertEquals(confusionMatrix.getMatthewsCorrelationCoefficient(), 0.2087, 0.0001);
 	}
+	
+	@Test
+	public void testCalculateMcc() {
+		int tp = 5363;
+		int tn = 1176868;
+		int fp = 0;
+		int fn = 1516;
+		double mcc = ConfusionMatrix.calculateMatthewsCorrelationCoefficient(tp, tn, fp, fn);
+		assertEquals(0.8823922851, mcc, DELTA);
+	}
 
 }
