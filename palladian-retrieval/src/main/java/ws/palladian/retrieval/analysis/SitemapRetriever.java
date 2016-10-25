@@ -27,7 +27,7 @@ public class SitemapRetriever {
     public Set<String> getUrls(String sitemapIndexUrl) {
         LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
 
-        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
 
         String sitemapIndex;
@@ -131,7 +131,8 @@ public class SitemapRetriever {
         List<String> pageUrls = new ArrayList<>();
 
         // read
-        String sitemapText = new DocumentRetriever().getText(sitemapUrl);
+        HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
+        String sitemapText = new DocumentRetriever(httpRetriever).getText(sitemapUrl);
         List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
 
         // clean

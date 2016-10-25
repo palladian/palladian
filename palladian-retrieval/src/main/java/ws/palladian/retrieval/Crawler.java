@@ -1,5 +1,17 @@
 package ws.palladian.retrieval;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import ws.palladian.helper.Callback;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
+import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.functional.Consumer;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.retrieval.helper.NoThrottle;
+import ws.palladian.retrieval.helper.RequestThrottle;
+
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -8,20 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-
-import ws.palladian.helper.Callback;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.ThreadHelper;
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.functional.Consumer;
-import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
-import ws.palladian.retrieval.helper.NoThrottle;
-import ws.palladian.retrieval.helper.RequestThrottle;
 
 /**
  * <p>
@@ -41,6 +39,9 @@ public class Crawler {
 
     /** Maximum number of threads used during crawling. */
     private int maxThreads = 10;
+
+    /** Silent Stop Time */
+    private int silentStopTime = 10;
 
     /** Number of active threads. */
     private AtomicInteger threadCount = new AtomicInteger(0);
@@ -130,6 +131,10 @@ public class Crawler {
 
     }
 
+    public void setSilentStopTime(int stopTimeInMinutes){
+        silentStopTime = stopTimeInMinutes;
+    }
+
     /**
      * <p>
      * Stop the crawler.
@@ -146,9 +151,9 @@ public class Crawler {
 
         // crawl
         final AtomicLong lastCrawlTime = new AtomicLong(System.currentTimeMillis());
-        long silentStopTime = TimeUnit.MINUTES.toMillis(10);
+        long silentStopTimeMillis = TimeUnit.MINUTES.toMillis(silentStopTime);
         while ((stopCount == -1 || visitedUrls.size() < stopCount)
-                && ((System.currentTimeMillis() - lastCrawlTime.get()) < silentStopTime)) {
+                && ((System.currentTimeMillis() - lastCrawlTime.get()) < silentStopTimeMillis)) {
 
             try {
                 final String url = getUrlFromStack();
