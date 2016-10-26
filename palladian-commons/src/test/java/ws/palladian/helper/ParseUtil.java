@@ -24,7 +24,7 @@ import ws.palladian.helper.io.ResourceHelper;
  */
 public final class ParseUtil {
 
-    public static final Document parseXhtml(File file) throws ParserConfigurationException, SAXException, IOException {
+    public static Document parseXhtml(File file) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
