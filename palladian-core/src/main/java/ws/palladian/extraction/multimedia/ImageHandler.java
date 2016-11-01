@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.*;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
@@ -32,6 +33,7 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
@@ -156,7 +158,16 @@ public class ImageHandler {
      * @return The buffered image.
      */
     public static BufferedImage load(String url) {
+        return load(url, new HashSet<>());
+    }
+    public static BufferedImage load(String url, Set<String> detectedContentTypes) {
         BufferedImage bufferedImage = null;
+
+        // get file extension from URL if possible
+        String fileExtension = FileHelper.getFileType(url);
+        if (!fileExtension.isEmpty()) {
+            detectedContentTypes.add(fileExtension);
+        }
 
         try {
             url = url.trim();
@@ -165,6 +176,19 @@ public class ImageHandler {
                 url = url.replace(" ", "%20");
                 HttpResult httpResult = retriever.httpGet(url);
                 try {
+                    // let's try to guess the actual content type from the stream, if we find something, this must be more accurate than the file extension
+                    String detectedContentType = Optional.ofNullable(URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(httpResult.getContent()))).orElse("");
+                    detectedContentType = StringHelper.getSubstringBetween(detectedContentType, "/", null);
+                    detectedContentType = detectedContentType.replace("jpeg","jpg");
+                    if (!detectedContentType.isEmpty()) {
+                        detectedContentTypes.clear();
+                        detectedContentTypes.add(detectedContentType);
+                    }
+                } catch (Exception e) {
+                    // ccl
+                }
+                try {
+
                     bufferedImage = ImageIO.read(new ByteArrayInputStream(httpResult.getContent()));
                 } catch (Exception e) {
                     bufferedImage = JAI
@@ -246,7 +270,8 @@ public class ImageHandler {
             duplicateImages.clear();
 
             // order images by ranking and collect urls
-            Collections.sort(normalizedImages, (image1, image2) -> Double.compare(image2.getRanking(), image1.getRanking()));
+            Collections.sort(normalizedImages,
+                    (image1, image2) -> Double.compare(image2.getRanking(), image1.getRanking()));
             // CollectionHelper.print(normalizedImages);
 
             int matchingImages = Math.min(normalizedImages.size(), matchingNumber);
@@ -541,22 +566,20 @@ public class ImageHandler {
         return bufferedImage;
     }
 
-    public static boolean downloadAndSave(String url, String savePath) {
-        return downloadAndSave(url, savePath, "png");
-    }
-
-    public static boolean downloadAndSave(String url, String savePath, String fileType) {
-
-        boolean success = false;
+    /**
+     * Download and save a picture from a URL. The image extension will automatically be added to the save path depending on the the image format.
+     * @param url The URL of the image.
+     * @param savePath The path to which the image should be saved.
+     * @return The path (including the detected file type) where the image was saved or null if there was an error.
+     */
+    public static String downloadAndSave(String url, String savePath) {
 
         try {
-            BufferedImage bi = load(url);
 
-            // get file extension
-            String fileExtension = FileHelper.getFileType(url);
-            if (fileExtension.length() == 0) {
-                fileExtension = fileType;
-            }
+            Set<String> detectedContentTypes = new HashSet<>();
+            BufferedImage bi = load(url, detectedContentTypes);
+
+            String fileExtension = CollectionHelper.getFirst(detectedContentTypes);
 
             if (!savePath.toLowerCase().endsWith(fileExtension.toLowerCase())) {
                 savePath += "." + fileExtension;
@@ -567,12 +590,12 @@ public class ImageHandler {
             FileHelper.createDirectoriesAndFile(savePath);
             ImageIO.write(bi, fileExtension, new File(savePath));
 
-            success = true;
         } catch (IOException | NullPointerException | IllegalArgumentException e) {
             LOGGER.error(url, e);
+            return null;
         }
 
-        return success;
+        return savePath;
     }
 
     private static BufferedImage substractImages(BufferedImage image1, BufferedImage image2) {
@@ -997,12 +1020,7 @@ public class ImageHandler {
             }
         }
 
-        Collections.sort(clusters, new Comparator<ColorCluster>() {
-            @Override
-            public int compare(ColorCluster o1, ColorCluster o2) {
-                return o2.population - o1.population;
-            }
-        });
+        Collections.sort(clusters, (o1, o2) -> o2.population - o1.population);
 
         // for (ColorCluster cluster : clusters) {
         // if (cluster.population > 50) {
@@ -1112,7 +1130,7 @@ public class ImageHandler {
 
     public static LinkedHashMap<Color, Integer> getColorFrequencies(BufferedImage image) {
 
-        Bag<Color> colorCounter = Bag.create();
+        Bag<Color> colorCounter = new Bag<>();
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 int rgb = image.getRGB(x, y);
