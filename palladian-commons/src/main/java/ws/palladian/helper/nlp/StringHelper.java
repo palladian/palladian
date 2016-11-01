@@ -873,23 +873,6 @@ public final class StringHelper {
         return PATTERN_UPPERCASE.matcher(string).replaceAll("").length();
     }
 
-    /**
-     * Capitalized word count.
-     *
-     * @param string the string
-     * @return the int
-     */
-    public static int capitalizedWordCount(String string) {
-        StringTokenizer st = new StringTokenizer(string);
-        int capitalizedWordCount = 0;
-        while (st.hasMoreTokens()) {
-            String token = (String)st.nextElement();
-            if (StringHelper.isCompletelyUppercase(token)) {
-                capitalizedWordCount++;
-            }
-        }
-        return capitalizedWordCount;
-    }
 
     /**
      * <p>
