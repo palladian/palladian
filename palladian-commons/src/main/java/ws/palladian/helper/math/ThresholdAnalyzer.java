@@ -173,7 +173,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
             // start in the bin, where we actually have entries (everything below gives same values as here).
             int bin = Collections.min(retrievedItems.uniqueItems());
             // first bin which provides no more entries
-            final int end = Collections.max(retrievedItems.uniqueItems()) + 1;
+            final int end = Collections.max(retrievedItems.uniqueItems());
 
             @Override
             protected ThresholdEntry getNext() {
