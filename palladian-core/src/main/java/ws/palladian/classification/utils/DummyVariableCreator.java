@@ -94,7 +94,7 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 				// e.g. true
 				if (values.containsAll(Arrays.asList("true", "false"))) {
 					values = Collections.singleton("true");
-				} else {
+				} else if (values.size() > 0) {
 					values = Collections.singleton(values.iterator().next());
 				}
 			}
