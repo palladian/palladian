@@ -591,7 +591,7 @@ public class ImageHandler {
             ImageIO.write(bi, fileExtension, new File(savePath));
 
         } catch (IOException | NullPointerException | IllegalArgumentException e) {
-            LOGGER.error(url, e);
+            LOGGER.error("problem with URL:" + url + ", " + e.getMessage());
             return null;
         }
 
