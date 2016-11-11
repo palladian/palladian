@@ -378,8 +378,7 @@ public final class PageAnalyzer {
 
                 String nodeValue = child.getNodeValue();
                 if (child.getTextContent().contains(keyword)
-                        || (nodeValue != null && child.getNodeType() != 8 && nodeValue.toLowerCase().indexOf(
-                                keyword.toLowerCase()) > -1)) {
+                        || (nodeValue != null && child.getNodeType() != 8 && nodeValue.toLowerCase().contains(keyword.toLowerCase()))) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch && nodeValue != null) {
