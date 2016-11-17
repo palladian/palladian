@@ -2,6 +2,7 @@ package ws.palladian.classification.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.core.value.ValueDefinitions.stringValue;
 import static ws.palladian.helper.functional.Filters.regex;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
@@ -25,7 +26,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt"));
 		config.readHeader(false);
 		config.readClassFromLastColumn(true);
-		config.fieldSeparator(";");
+		config.fieldSeparator(';');
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			assertTrue(iterator.hasNext());
@@ -44,7 +45,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt"));
 		config.readHeader(false);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(";");
+		config.fieldSeparator(';');
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
@@ -60,7 +61,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/diabetes2.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(true);
-		config.fieldSeparator(";");
+		config.fieldSeparator(';');
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
@@ -76,7 +77,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(";");
+		config.fieldSeparator(';');
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
@@ -97,7 +98,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(";");
+		config.fieldSeparator(';');
 		config.parser(Filters.ALL, ImmutableStringValue.PARSER);
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
@@ -119,7 +120,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(";");
+		config.fieldSeparator(';');
 		config.skipColumns(regex("NaN|positiveInfinity|negativeInfinity"));
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
@@ -138,9 +139,48 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt"));
 		config.readHeader(false);
 		config.readClassFromLastColumn(true);
-		config.fieldSeparator(";");
+		config.fieldSeparator(';');
 		CsvDatasetReader reader = config.create();
 		assertEquals(1000, reader.size());
+	}
+	
+	@Test
+	public void testCsvReading_quotedEntries() throws IOException {
+		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetQuotedValues.csv"));
+		config.readHeader(true);
+		config.readClassFromLastColumn(false);
+		config.fieldSeparator(';');
+		config.quoteCharacter('"');
+		CsvDatasetReader reader = config.create();
+		try (CloseableIterator<Instance> iterator = reader.iterator()) {
+			Instance instance = iterator.next();
+			// System.out.println(instance);
+			assertEquals(2, instance.getVector().size());
+			assertEquals(2, reader.getFeatureInformation().count());
+			assertEquals("value 1", instance.getVector().getNominal("header 1").getString());
+			assertEquals("value 2; with one; two; three semicolons", instance.getVector().getNominal("header 2; with semicolon").getString());
+		}
+	}
+	
+	@Test
+	public void testCsvReading_whitespaceEntries() throws IOException {
+		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetWhitespaceValues.csv"));
+		config.readHeader(true);
+		config.readClassFromLastColumn(true);
+		config.fieldSeparator(';');
+		config.trim(true);
+		config.defaultParsers(stringValue());
+		CsvDatasetReader reader = config.create();
+		try (CloseableIterator<Instance> iterator = reader.iterator()) {
+			Instance instance = iterator.next();
+			System.out.println(instance);
+			assertEquals(3, instance.getVector().size());
+			assertEquals(3, reader.getFeatureInformation().count());
+			assertEquals("1", instance.getVector().getNominal("value1").getString());
+			assertEquals("2", instance.getVector().getNominal("value2").getString());
+			assertEquals("3", instance.getVector().getNominal("value3").getString());
+			assertEquals("1", instance.getCategory());
+		}
 	}
 
 }
