@@ -5,7 +5,9 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,6 +49,8 @@ public class TokenizerTest {
 
         collector.checkThat(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8, 1000).size(), is(64));
         collector.checkThat(Tokenizer.computeSplits("This is a 3,5 test with,another comma.", 1, 4, 1000).size(), is(56));
+        Set<List<String>> lists = Tokenizer.computeSplits("American Flatbread Handmade Thin & Crispy Pizza Vegan Harvest", 1, 7, 2000);
+        collector.checkThat(lists, hasItem(Arrays.asList("American Flatbread", "Handmade Thin & Crispy", "Pizza", "Vegan", "Harvest")));
     }
 
     @Test
