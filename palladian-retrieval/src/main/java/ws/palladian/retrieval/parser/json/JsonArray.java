@@ -21,6 +21,7 @@ package ws.palladian.retrieval.parser.json;
  */
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
@@ -70,7 +71,7 @@ import java.util.List;
  * @author Philipp Katz
  * @version 2013-04-18
  */
-public class JsonArray extends AbstractList<Object> implements Json {
+public class JsonArray extends AbstractList<Object> implements Json, Serializable {
 
     /** The arrayList where the JsonArray's properties are kept. */
     private final List<Object> list;
