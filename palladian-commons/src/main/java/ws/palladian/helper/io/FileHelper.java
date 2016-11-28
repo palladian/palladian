@@ -336,7 +336,7 @@ public final class FileHelper {
             }
 
         } finally {
-            close(stream,reader);
+            close(stream, reader);
         }
 
         return contents.toString();
@@ -1137,6 +1137,7 @@ public final class FileHelper {
     public static boolean delete(String filename) {
         return delete(filename, true);
     }
+
     public static boolean delete(File file) {
         return delete(file.getAbsolutePath(), false);
     }
@@ -1195,6 +1196,7 @@ public final class FileHelper {
     public static File[] getFilesRecursive(String folderPath) {
         return getFilesRecursive(folderPath, "");
     }
+
     public static File[] getFilesRecursive(String folderPath, String substring) {
         return getFiles(folderPath, substring, true);
     }
@@ -1357,7 +1359,6 @@ public final class FileHelper {
         zout.closeEntry();
         fin.close();
     }
-
 
     /**
      * <p>
@@ -1707,17 +1708,17 @@ public final class FileHelper {
         return concatenated;
     }
 
-	/**
-	 * <p>
-	 * Close all given closeables, check for <code>null</code>, catch potential
-	 * {@link IOException}s. Note: With Java 7, make use of the
-	 * <i>try-with-resources</i> construct, if possible.
-	 * </p>
-	 * 
-	 * @param closeables
-	 *            All objects which are closeable, <code>null</code> values will
-	 *            be ignored.
-	 */
+    /**
+     * <p>
+     * Close all given closeables, check for <code>null</code>, catch potential
+     * {@link IOException}s. Note: With Java 7, make use of the
+     * <i>try-with-resources</i> construct, if possible.
+     * </p>
+     * 
+     * @param closeables
+     *            All objects which are closeable, <code>null</code> values will
+     *            be ignored.
+     */
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {
@@ -1963,7 +1964,8 @@ public final class FileHelper {
      * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
      * @return A list with matched files, or an empty list, never <code>null</code>.
      */
-    public static List<File> getFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter) {
+    public static List<File> getFiles(File path, Filter<? super File> fileFilter,
+            Filter<? super File> directoryFilter) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
@@ -1986,7 +1988,6 @@ public final class FileHelper {
 
     /*
      * The main method.
-     * 
      * @param a The arguments.
      */
     public static void main(String[] a) {
@@ -2031,7 +2032,7 @@ public final class FileHelper {
         // sb.append(" * use this file except in compliance with the License. You may obtain a copy of\n");
         // sb.append(" * the License at\n");
         // sb.append(" *\n");
-        // sb.append(" *     http://www.apache.org/licenses/LICENSE-2.0\n");
+        // sb.append(" * http://www.apache.org/licenses/LICENSE-2.0\n");
         // sb.append(" *\n");
         // sb.append(" * Unless required by applicable law or agreed to in writing, software\n");
         // sb.append(" * distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n");
@@ -2100,8 +2101,8 @@ public final class FileHelper {
         isFileName("ab.ai");
         isFileName("  abasdf.mpeg2 ");
 
-        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"),
-                "sampleTextForTagging_tagged"));
+        System.out.println(
+                getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
 
