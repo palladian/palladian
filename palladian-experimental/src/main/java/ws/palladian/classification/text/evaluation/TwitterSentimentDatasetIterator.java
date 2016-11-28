@@ -12,7 +12,7 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.helper.io.CsvHelper;
+import ws.palladian.helper.io.DelimitedStringHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineIterator;
 import ws.palladian.helper.nlp.StringHelper;
@@ -59,7 +59,7 @@ public final class TwitterSentimentDatasetIterator implements Iterable<Instance>
         Function<String, Instance> converter = new Function<String, Instance>() {
             @Override
             public Instance compute(String input) {
-                List<String> split = CsvHelper.splitCsvLine(input, ',');
+                List<String> split = DelimitedStringHelper.splitLine(input, ',', '"');
                 if (split.size() != 6) {
                     throw new IllegalStateException("Expected six columns, got " + split.size() + " in '" + input + "'");
                 }

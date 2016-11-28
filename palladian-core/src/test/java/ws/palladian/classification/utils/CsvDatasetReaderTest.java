@@ -2,6 +2,7 @@ package ws.palladian.classification.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static ws.palladian.core.value.ValueDefinitions.stringValue;
 import static ws.palladian.helper.functional.Filters.regex;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
@@ -141,6 +142,45 @@ public class CsvDatasetReaderTest {
 		config.setFieldSeparator(";");
 		CsvDatasetReader reader = config.create();
 		assertEquals(1000, reader.size());
+	}
+	
+	@Test
+	public void testCsvReading_quotedEntries() throws IOException {
+		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetQuotedValues.csv"));
+		config.readHeader(true);
+		config.readClassFromLastColumn(false);
+		config.setFieldSeparator(';');
+		config.quoteCharacter('"');
+		CsvDatasetReader reader = config.create();
+		try (CloseableIterator<Instance> iterator = reader.iterator()) {
+			Instance instance = iterator.next();
+			// System.out.println(instance);
+			assertEquals(2, instance.getVector().size());
+			assertEquals(2, reader.getFeatureInformation().count());
+			assertEquals("value 1", instance.getVector().getNominal("header 1").getString());
+			assertEquals("value 2; with one; two; three semicolons", instance.getVector().getNominal("header 2; with semicolon").getString());
+		}
+	}
+	
+	@Test
+	public void testCsvReading_whitespaceEntries() throws IOException {
+		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetWhitespaceValues.csv"));
+		config.readHeader(true);
+		config.readClassFromLastColumn(true);
+		config.setFieldSeparator(';');
+		config.trim(true);
+		config.defaultParsers(stringValue());
+		CsvDatasetReader reader = config.create();
+		try (CloseableIterator<Instance> iterator = reader.iterator()) {
+			Instance instance = iterator.next();
+			System.out.println(instance);
+			assertEquals(3, instance.getVector().size());
+			assertEquals(3, reader.getFeatureInformation().count());
+			assertEquals("1", instance.getVector().getNominal("value1").getString());
+			assertEquals("2", instance.getVector().getNominal("value2").getString());
+			assertEquals("3", instance.getVector().getNominal("value3").getString());
+			assertEquals("1", instance.getCategory());
+		}
 	}
 
 }

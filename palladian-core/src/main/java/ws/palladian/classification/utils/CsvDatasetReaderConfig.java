@@ -1,5 +1,7 @@
 package ws.palladian.classification.utils;
 
+import static ws.palladian.helper.functional.Filters.equal;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,14 +32,16 @@ public class CsvDatasetReaderConfig {
 
 		private final File filePath;
 		private boolean readHeader = true;
-		private String fieldSeparator = ";";
+		private char fieldSeparator = ';';
 		private boolean readClassFromLastColumn = true;
 		private List<TargetValueParser> parsers = new ArrayList<>();
-		private String nullValue = DEFAULT_NULL_VALUE;
+		private Filter<? super String> nullValues = equal(DEFAULT_NULL_VALUE);
 		private Compression compression = Compressions.NONE;
 		private List<Filter<? super String>> skipColumns = new ArrayList<>();
 		private long limit = Long.MAX_VALUE;
 		private List<ValueParser> defaultParsers = Arrays.asList(DEFAULT_PARSERS);
+		private char quoteCharacter = '\u0000';
+		private boolean trim = false;
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -63,9 +67,28 @@ public class CsvDatasetReaderConfig {
 		 * @param fieldSeparator
 		 *            The separator between entries, usually colon or semicolon.
 		 * @return The builder.
+		 * @deprecated Use {@link #fieldSeparator(char)} instead. We changed the
+		 *             implementation for efficiency reasons to only accept
+		 *             single character separators from now on. In case a string
+		 *             with more than one character is given, this method will
+		 *             now throw an exception.
 		 */
+		@Deprecated
 		public Builder setFieldSeparator(String fieldSeparator) {
-			Validate.notEmpty(fieldSeparator, "setFieldSeparator must not be empty");
+			Validate.notEmpty(fieldSeparator, "fieldSeparator must not be empty");
+			if (fieldSeparator.length() != 1) {
+				throw new IllegalArgumentException("fieldSeparators with a length != 1 are not supported.");
+			}
+			this.fieldSeparator = fieldSeparator.charAt(0);
+			return this;
+		}
+		
+		/**
+		 * @param fieldSeparator
+		 *            The separator between entries, usually colon or semicolon.
+		 * @return The builder.
+		 */
+		public Builder setFieldSeparator(char fieldSeparator) {
 			this.fieldSeparator = fieldSeparator;
 			return this;
 		}
@@ -125,7 +148,20 @@ public class CsvDatasetReaderConfig {
 		 */
 		public Builder treatAsNullValue(String nullValue) {
 			Validate.notNull(nullValue, "nullValue must not be null");
-			this.nullValue = nullValue;
+			this.nullValues = Filters.equal(nullValue);
+			return this;
+		}
+
+		/**
+		 * @param nullValues
+		 *            A filter which determines which values to treat as
+		 *            {@link NullValue}. Default configuration treats
+		 *            {@value #DEFAULT_NULL_VALUE} as NullValue.
+		 * @return The builder.
+		 */
+		public Builder treatAsNullValue(Filter<? super String> nullValues) {
+			Validate.notNull(nullValues, "nullValues must not be null");
+			this.nullValues = nullValues;
 			return this;
 		}
 		
@@ -200,6 +236,32 @@ public class CsvDatasetReaderConfig {
 			this.defaultParsers = Arrays.asList(parsers);
 			return this;
 		}
+		
+		/**
+		 * Set the character used for quoting individual entries (thus allowing
+		 * {@link #fieldSeparator(String)} to occur within a value and not being
+		 * split).
+		 * 
+		 * @param quote
+		 *            The quote character.
+		 * @return The builder.
+		 */
+		public Builder quoteCharacter(char quote) {
+			this.quoteCharacter = quote;
+			return this;
+		}
+		
+		/**
+		 * Enables trimming of whitespace of individual entries.
+		 * 
+		 * @param trim
+		 *            <code>true</code> to trim whitespace.
+		 * @return The builder.
+		 */
+		public Builder trim(boolean trim) {
+			this.trim = trim;
+			return this;
+		}
 
 		@Override
 		public CsvDatasetReader create() {
@@ -247,14 +309,16 @@ public class CsvDatasetReaderConfig {
 
 	private final File filePath;
 	private final boolean readHeader;
-	private final String fieldSeparator;
+	private final char fieldSeparator;
 	private final boolean readClassFromLastColumn;
 	private final List<TargetValueParser> parsers;
-	private final String nullValue;
+	private final Filter<? super String> nullValues;
 	private final Compression compression;
 	private final List<Filter<? super String>> skipColumns;
 	private final long limit;
 	private final List<ValueParser> defaultParsers;
+	private final char quoteCharacter;
+	private final boolean trim;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -262,11 +326,13 @@ public class CsvDatasetReaderConfig {
 		this.fieldSeparator = builder.fieldSeparator;
 		this.readClassFromLastColumn = builder.readClassFromLastColumn;
 		this.parsers = new ArrayList<>(builder.parsers);
-		this.nullValue = builder.nullValue;
+		this.nullValues = builder.nullValues;
 		this.compression = builder.compression;
 		this.skipColumns = new ArrayList<>(builder.skipColumns);
 		this.limit = builder.limit;
 		this.defaultParsers = new ArrayList<>(builder.defaultParsers);
+		this.quoteCharacter = builder.quoteCharacter;
+		this.trim = builder.trim;
 	}
 
 	File filePath() {
@@ -277,7 +343,7 @@ public class CsvDatasetReaderConfig {
 		return readHeader;
 	}
 
-	String fieldSeparator() {
+	char fieldSeparator() {
 		return fieldSeparator;
 	}
 
@@ -298,9 +364,9 @@ public class CsvDatasetReaderConfig {
 		}
 		return null;
 	}
-	
-	public String nullValue() {
-		return nullValue;
+
+	boolean isNullValue(String value) {
+		return nullValues.accept(value);
 	}
 	
 	public InputStream openInputStream() throws IOException {
@@ -322,5 +388,13 @@ public class CsvDatasetReaderConfig {
 
 	List<ValueParser> getDefaultParsers() {
 		return defaultParsers;
+	}
+	
+	char quoteCharacter() {
+		return quoteCharacter;
+	}
+	
+	boolean isTrim() {
+		return trim;
 	}
 }
