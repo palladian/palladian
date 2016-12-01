@@ -310,10 +310,6 @@ public class PalladianSpellChecker {
 
     public String correctWord(String word, boolean caseSensitive, String leftContext, String rightContext) {
 
-        if (word.length() > maxWordLength) {
-            return word;
-        }
-
         boolean uppercase = false;
         int uppercaseCount = 0;
         if (!caseSensitive) {
@@ -330,6 +326,10 @@ public class PalladianSpellChecker {
                 return StringHelper.upperCaseFirstLetter(s1);
             }
             return s1;
+        }
+
+        if (word.length() > maxWordLength) {
+            return word;
         }
 
         // don't correct words with uppercase letters in the middle
