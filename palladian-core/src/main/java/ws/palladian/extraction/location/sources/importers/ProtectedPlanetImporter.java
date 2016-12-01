@@ -20,7 +20,7 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
-import ws.palladian.helper.io.CsvHelper;
+import ws.palladian.helper.io.DelimitedStringHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -68,7 +68,7 @@ public final class ProtectedPlanetImporter {
 
             @Override
             public void performAction(String line, int lineNumber) {
-                List<String> parts = CsvHelper.splitCsvLine(line, ',');
+                List<String> parts = DelimitedStringHelper.splitLine(line, ',', '"');
                 if (lineNumber == 0 || parts.size() != 26) {
                     LOGGER.debug("Skipping line {}: {}", lineNumber, line);
                     return;

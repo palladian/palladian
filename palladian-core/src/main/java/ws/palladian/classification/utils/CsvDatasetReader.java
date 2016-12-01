@@ -1,5 +1,7 @@
 package ws.palladian.classification.utils;
 
+import static ws.palladian.helper.io.DelimitedStringHelper.splitLine;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,7 +55,7 @@ import ws.palladian.helper.nlp.StringPool;
 public class CsvDatasetReader extends AbstractDataset {
 
     private final class CsvDatasetIterator implements CloseableIterator<Instance> {
-		String[] splitLine;
+		List<String> splitLine;
         BufferedReader reader;
         int lineNumber;
         boolean closed;
@@ -104,14 +106,14 @@ public class CsvDatasetReader extends AbstractDataset {
                 	splitLine = null;
                 	return hasNext();
                 }
-                splitLine = line.split(config.fieldSeparator(), -1);
-                if (splitLine.length < 2) {
+                splitLine = splitLine(line, config.fieldSeparator(), config.quoteCharacter());
+                if (splitLine.size() < 2) {
                     throw new IllegalStateException("Separator '" + config.fieldSeparator()
                             + "' was not found, lines cannot be split ('" + line + "').");
                 }
-                if (expectedColumns != splitLine.length) {
-                    throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + "("
-                            + splitLine.length + ", but should be " + expectedColumns + ")");
+                if (expectedColumns != splitLine.size()) {
+                    throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + " ("
+                            + splitLine.size() + ", but should be " + expectedColumns + ")");
                 }
                 lineNumber++;
                 return true;
@@ -129,14 +131,17 @@ public class CsvDatasetReader extends AbstractDataset {
                 read();
             }
             FlyweightVectorBuilder builder = vectorSchema.builder();
-			for (int f = 0; f < splitLine.length - (config.readClassFromLastColumn() ? 1 : 0); f++) {
+			for (int f = 0; f < splitLine.size() - (config.readClassFromLastColumn() ? 1 : 0); f++) {
 				String name = headNames[f];
 				if (name == null) {
 					continue;
 				}
-				String value = splitLine[f];
+				String value = splitLine.get(f);
+				if (config.isTrim()) {
+					value = value.trim();
+				}
 				Value parsedValue;
-				if (value.equals(config.nullValue())) {
+				if (config.isNullValue(value)) {
 					parsedValue = NullValue.NULL;
 				} else {
 					try {
@@ -148,7 +153,16 @@ public class CsvDatasetReader extends AbstractDataset {
 				}
 				builder.set(name, parsedValue);
 			}
-            String targetClass = config.readClassFromLastColumn() ? stringPool.get(splitLine[splitLine.length - 1]) : NO_CATEGORY_DUMMY;
+            String targetClass;
+            if (config.readClassFromLastColumn()) {
+            	String value = splitLine.get(splitLine.size() - 1);
+            	if (config.isTrim()) {
+            		value = value.trim();
+            	}
+				targetClass = stringPool.get(value);
+            } else {
+            	targetClass = NO_CATEGORY_DUMMY;
+            }
             if (lineNumber % LOG_EVERY_N_LINES == 0) {
                 LOGGER.debug("Read {} lines in {}", lineNumber, stopWatch);
             }
@@ -261,17 +275,20 @@ public class CsvDatasetReader extends AbstractDataset {
 				if (line.isEmpty()) {
 					continue;
 				}
-				String[] splitLine = line.split(config.fieldSeparator(), -1);
-				expectedColumns = splitLine.length;
-				int numValues = config.readClassFromLastColumn() ? splitLine.length - 1 : splitLine.length;
+				List<String> splitLine = splitLine(line, config.fieldSeparator(), config.quoteCharacter());
+				expectedColumns = splitLine.size();
+				int numValues = config.readClassFromLastColumn() ? splitLine.size() - 1 : splitLine.size();
 				headNames = new String[numValues];
 				if (config.readHeader()) {
 					List<String> usedHeadNames = new ArrayList<>();
 					for (int c = 0; c < numValues; c++) {
-						String columnName = splitLine[c];
+						String columnName = splitLine.get(c);
 						if (config.isSkippedColumn(columnName)) {
 							LOGGER.debug("Skipping column {}", columnName);
 							continue;
+						}
+						if (config.isTrim()) {
+							columnName = columnName.trim();
 						}
 						headNames[c] = columnName;
 						usedHeadNames.add(columnName);
@@ -279,7 +296,7 @@ public class CsvDatasetReader extends AbstractDataset {
 					vectorSchema = new FlyweightVectorSchema(usedHeadNames.toArray(new String[0]));
 					// XXX consider case, that multiple blank lines might follow
 					line = reader.readLine();
-					splitLine = line.split(config.fieldSeparator(), -1);
+					splitLine = splitLine(line, config.fieldSeparator(), config.quoteCharacter());
 				} else { // generate default header names
 					for (int c = 0; c < numValues; c++) {
 						headNames[c] = String.valueOf(c);
@@ -324,8 +341,8 @@ public class CsvDatasetReader extends AbstractDataset {
 	 *            The split line.
 	 * @return The parsers.
 	 */
-	private final ValueParser[] detectParsers(String[] parts) {
-		int numValues = config.readClassFromLastColumn() ? parts.length - 1 : parts.length;
+	private final ValueParser[] detectParsers(List<String> parts) {
+		int numValues = config.readClassFromLastColumn() ? parts.size() - 1 : parts.size();
 		ValueParser[] parsers = new ValueParser[numValues];
 		for (int i = 0; i < numValues; i++) {
 			// (1) try to use parser defined via configuration
@@ -336,7 +353,7 @@ public class CsvDatasetReader extends AbstractDataset {
 			ValueParser parser = config.getParser(columnName);
 			// (2) if not, auto-detect applicable parser
 			if (parser == null) {
-				String input = parts[i];
+				String input = parts.get(i);
 				for (ValueParser currentParser : config.getDefaultParsers()) {
 					if (currentParser.canParse(input)) {
 						parser = currentParser;
