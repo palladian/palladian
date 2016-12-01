@@ -81,7 +81,7 @@ public class PalladianSpellChecker {
 
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<>();
-        final Pattern p = Pattern.compile("[\\wöäüß-]+");
+        final Pattern p = Pattern.compile("[\\wöäüß-éèáàíìúùóò]+");
         LineAction lineAction = new LineAction() {
 
             @Override
