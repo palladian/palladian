@@ -5,6 +5,7 @@ import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector;
+import ws.palladian.helper.functional.Filter;
 
 public interface FeatureVector extends Vector<String, Value> {
 
@@ -43,5 +44,15 @@ public interface FeatureVector extends Vector<String, Value> {
 	
 	// TODO add this in the future?
 	// Iterator<VectorEntry<String, Value>> iteratorNonNull();
+	
+	/**
+	 * Get a filtered vector which only contains the values accepted by the
+	 * filter.
+	 * 
+	 * @param nameFilter
+	 *            The filter, not <code>null</code>.
+	 * @return A filtered version of this vector.
+	 */
+	FeatureVector filter(Filter<? super String> nameFilter);
 
 }
