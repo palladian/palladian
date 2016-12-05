@@ -189,11 +189,11 @@ public final class InstanceBuilder {
     /**
      * Create an instance.
      * 
-     * @param category The category for the instance, not <code>null</code> or empty.
+     * @param category The category for the instance, not <code>null</code>.
      * @return A new (immutable) instance.
      */
     public Instance create(String category) {
-        Validate.notEmpty(category, "category must not be empty");
+        Validate.notNull(category, "category must not be null");
         return new ImmutableInstance(create(), category, weight);
     }
 

@@ -161,7 +161,7 @@ public class CsvDatasetReader extends AbstractDataset {
             	}
 				targetClass = stringPool.get(value);
             } else {
-            	targetClass = NO_CATEGORY_DUMMY;
+            	targetClass = Instance.NO_CATEGORY_DUMMY;
             }
             if (lineNumber % LOG_EVERY_N_LINES == 0) {
                 LOGGER.debug("Read {} lines in {}", lineNumber, stopWatch);
@@ -188,9 +188,6 @@ public class CsvDatasetReader extends AbstractDataset {
 	/** Interval for the debug logging output when reading lines. */
 	private static final int LOG_EVERY_N_LINES = 100000;
 	
-	/** Dummy string to use for {@link Instance#getCategory()} when not reading category columns. */
-	private static final String NO_CATEGORY_DUMMY = "";
-
 	private final CsvDatasetReaderConfig config;
 	
 	/** Names of the headers, in case a value is <code>null</code> it will be skipped during parsing. */
