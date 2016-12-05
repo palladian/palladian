@@ -81,7 +81,7 @@ public class PalladianSpellChecker {
 
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<>();
-        final Pattern p = Pattern.compile("[\\wöäüß-]+");
+        final Pattern p = Pattern.compile("[\\wöäüß-éèáàíìúùóò]+");
         LineAction lineAction = new LineAction() {
 
             @Override
@@ -310,10 +310,6 @@ public class PalladianSpellChecker {
 
     public String correctWord(String word, boolean caseSensitive, String leftContext, String rightContext) {
 
-        if (word.length() > maxWordLength) {
-            return word;
-        }
-
         boolean uppercase = false;
         int uppercaseCount = 0;
         if (!caseSensitive) {
@@ -330,6 +326,10 @@ public class PalladianSpellChecker {
                 return StringHelper.upperCaseFirstLetter(s1);
             }
             return s1;
+        }
+
+        if (word.length() > maxWordLength) {
+            return word;
         }
 
         // don't correct words with uppercase letters in the middle
