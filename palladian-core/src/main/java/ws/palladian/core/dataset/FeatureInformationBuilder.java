@@ -12,6 +12,7 @@ import ws.palladian.core.value.ImmutableDoubleValue;
 import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
+import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Filter;
@@ -28,14 +29,13 @@ public class FeatureInformationBuilder implements Factory<FeatureInformation> {
 		this.nameValues = nameValues;
 	}
 	
-	// TODO add commented methods in the future, and deprecate those methods
-	// which take a Class<? extends Value> argument
+	// TODO deprecate those methods which take a Class<? extends Value> argument
 
-//	public FeatureInformationBuilder set(String name, ValueParser valueDefinition) {
-//		Objects.requireNonNull(name, "name must not be null");
-//		Objects.requireNonNull(valueDefinition, "valueType must not be null");
-//		return set(name, valueDefinition.getType());
-//	}
+	public FeatureInformationBuilder set(String name, ValueParser valueDefinition) {
+		Objects.requireNonNull(name, "name must not be null");
+		Objects.requireNonNull(valueDefinition, "valueType must not be null");
+		return set(name, valueDefinition.getType());
+	}
 	
 	public FeatureInformationBuilder set(String name, Class<? extends Value> valueType) {
 		Objects.requireNonNull(name, "name must not be null");
@@ -44,14 +44,14 @@ public class FeatureInformationBuilder implements Factory<FeatureInformation> {
 		return this;
 	}
 	
-//	public FeatureInformationBuilder set(Iterable<String> names, ValueParser valueDefinition) {
-//		Objects.requireNonNull(names, "names must not be null");
-//		Objects.requireNonNull(valueDefinition, "valueType must not be null");
-//		for (String name : names) {
-//			set(name, valueDefinition);
-//		}
-//		return this;
-//	}
+	public FeatureInformationBuilder set(Iterable<String> names, ValueParser valueDefinition) {
+		Objects.requireNonNull(names, "names must not be null");
+		Objects.requireNonNull(valueDefinition, "valueType must not be null");
+		for (String name : names) {
+			set(name, valueDefinition);
+		}
+		return this;
+	}
 	
 	public FeatureInformationBuilder set(Iterable<String> names, Class<? extends Value> valueType) {
 		Objects.requireNonNull(names, "names must not be null");
