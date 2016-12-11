@@ -12,12 +12,11 @@ import ws.palladian.core.dataset.RandomDataset;
 import ws.palladian.core.dataset.split.TrainTestSplit;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public class RandomCrossValidatorTest {
-
+public class IdBasedCrossValidatorTest {
 	@Test
 	public void testCrossValidator() {
 		Dataset data = new RandomDataset(100);
-		RandomCrossValidator crossValidator = new RandomCrossValidator(data, 10);
+		IdBasedCrossValidator crossValidator = new IdBasedCrossValidator(data, 10, "index");
 		for (TrainTestSplit fold : crossValidator) {
 			int trainSize = CollectionHelper.count(fold.getTrain().iterator());
 			int testSize = CollectionHelper.count(fold.getTest().iterator());
@@ -33,5 +32,4 @@ public class RandomCrossValidatorTest {
 			assertEquals(10, testSet.size());
 		}
 	}
-
 }
