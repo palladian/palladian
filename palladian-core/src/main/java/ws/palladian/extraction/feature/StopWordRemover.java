@@ -63,10 +63,12 @@ public class StopWordRemover implements Filter<String> {
         Validate.notNull(language, "language must not be null");
         switch (language) {
             case ENGLISH:
-                stopwords = loadStopwordsResource("/stopwords_en.txt");
-                break;
             case GERMAN:
-                stopwords = loadStopwordsResource("/stopwords_de.txt");
+            case SPANISH:
+            case DUTCH:
+            case ITALIAN:
+            case FRENCH:
+                stopwords = loadStopwordsResource("/stopwords_"+language.getIso6391()+".txt");
                 break;
             default:
                 stopwords = Collections.emptySet();
