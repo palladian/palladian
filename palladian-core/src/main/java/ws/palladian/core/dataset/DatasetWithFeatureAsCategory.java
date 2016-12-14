@@ -5,7 +5,6 @@ import java.io.IOException;
 import ws.palladian.core.FilteredVector;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
-import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.io.CloseableIterator;
@@ -34,14 +33,13 @@ public class DatasetWithFeatureAsCategory extends AbstractDataset {
 			if (iterator.hasNext()) {
 				Instance next = iterator.next();
 				FilteredVector filteredVector = new FilteredVector(next.getVector(), featureInformation.getFeatureNames());
-				Value category = next.getVector().get(featureName);
-				if (category == null) {
+				
+				Value value = next.getVector().get(featureName);
+				if (value == null) {
 					throw new IllegalArgumentException("No feature with name \"" + featureName + "\".");
 				}
-				if (category == NullValue.NULL) {
-					throw new IllegalArgumentException("Feature is NULL");
-				}
-				return new ImmutableInstance(filteredVector, category.toString());
+				String category = value.isNull() ? Instance.NO_CATEGORY_DUMMY : value.toString();
+				return new ImmutableInstance(filteredVector, category);
 
 			}
 			return finished();

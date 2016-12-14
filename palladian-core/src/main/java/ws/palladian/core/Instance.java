@@ -14,7 +14,10 @@ package ws.palladian.core;
  */
 public interface Instance {
 
-    /**
+    /** Dummy string to use for {@link Instance#getCategory()} when not reading category columns. */
+	String NO_CATEGORY_DUMMY = "";
+
+	/**
      * @return The feature vector, not <code>null</code>.
      */
     FeatureVector getVector();

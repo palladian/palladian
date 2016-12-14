@@ -21,6 +21,9 @@ public class FilteredVector extends AbstractFeatureVector {
 
 	private final Set<String> filteredNames;
 
+	/**
+	 * @deprecated Use {@link FeatureVector#filter(Filter)} for direct access.
+	 */
 	public FilteredVector(FeatureVector original, Set<String> filteredFeatures) {
 		Objects.requireNonNull(original, "original must not be null");
 		Objects.requireNonNull(filteredFeatures, "filteredFeatures must not be null");
@@ -28,6 +31,9 @@ public class FilteredVector extends AbstractFeatureVector {
 		this.filteredNames = filteredFeatures;
 	}
 
+	/**
+	 * @deprecated Use {@link FeatureVector#filter(Filter)} for direct access.
+	 */
 	public FilteredVector(FeatureVector original, Filter<? super String> filteredFeatures) {
 		this(original, CollectionHelper.filterSet(original.keys(), filteredFeatures));
 	}
