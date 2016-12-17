@@ -572,6 +572,10 @@ public class WordTransformer {
      */
     public static String getThirdPersonSingular(String verb) {
 
+        if (verb.isEmpty()) {
+            return verb;
+        }
+
         verb = verb.toLowerCase();
 
         // exceptions
@@ -631,6 +635,11 @@ public class WordTransformer {
     }
 
     public static String getSimplePresent(String verb) {
+
+        if (verb.isEmpty()) {
+            return verb;
+        }
+
         String stemmedWord = stemEnglishWord(verb);
         EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
 
@@ -646,6 +655,11 @@ public class WordTransformer {
     }
 
     public static String getSimplePast(String verb) {
+
+        if (verb.isEmpty()) {
+            return verb;
+        }
+
         String stemmedWord = stemEnglishWord(verb);
         EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
 
@@ -657,6 +671,7 @@ public class WordTransformer {
     }
 
     private static String getRegularVerbPast(String verb) {
+
         if (verb.isEmpty()) {
             return verb;
         }
@@ -684,6 +699,10 @@ public class WordTransformer {
 
     public static String getPastParticiple(String verb) {
 
+        if (verb.isEmpty()) {
+            return verb;
+        }
+
         String stemmedWord = stemEnglishWord(verb);
         EnglishVerb englishVerb = IRREGULAR_VERBS.get(stemmedWord);
 
@@ -707,6 +726,10 @@ public class WordTransformer {
     }
 
     public static EnglishTense getTense(String string, List<Annotation> annotations) {
+
+        if (string.isEmpty()) {
+            return EnglishTense.SIMPLE_PRESENT;
+        }
 
         string = string.toLowerCase();
 
