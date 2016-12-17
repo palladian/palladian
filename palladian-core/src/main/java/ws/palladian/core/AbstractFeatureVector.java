@@ -11,6 +11,7 @@ import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
+import ws.palladian.helper.functional.Filter;
 
 public abstract class AbstractFeatureVector implements FeatureVector {
 
@@ -70,6 +71,12 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 			return valueType.cast(value);
 		}
 		throw new ClassCastException(key + " is not of type " + valueType.getName() + ", but " + value.getClass().getName());
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Override
+	public FeatureVector filter(Filter<? super String> nameFilter) {
+		return new FilteredVector(this, nameFilter);
 	}
 	
 	// to string
