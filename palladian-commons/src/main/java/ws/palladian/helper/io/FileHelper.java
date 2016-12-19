@@ -572,13 +572,18 @@ public final class FileHelper {
         Validate.notNull(lineAction, "lineAction must not be null");
 
         int lineNumber = -1;
-        FileInputStream inputStream = null;
+        InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(filePath);
+            
+            if (getFileType(filePath).equalsIgnoreCase("gz")) {
+            	inputStream = new GZIPInputStream(inputStream);
+            }
+            
             lineNumber = performActionOnEveryLine(inputStream, lineAction);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("Encountered FileNotFoundException for \"" + filePath + "\": " + e.getMessage(), e);
-        } finally {
+        } catch (IOException e) {
+        	LOGGER.error("Encountered IOException for \"" + filePath + "\": " + e.getMessage(), e);
+		} finally {
             close(inputStream);
         }
         return lineNumber;
