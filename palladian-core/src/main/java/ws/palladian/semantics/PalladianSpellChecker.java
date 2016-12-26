@@ -69,8 +69,7 @@ public class PalladianSpellChecker {
 
     private Trie<Integer> words = new Trie<>();
 
-    public PalladianSpellChecker() {
-    }
+    public PalladianSpellChecker() {}
 
     public PalladianSpellChecker(String file) {
 
@@ -81,7 +80,7 @@ public class PalladianSpellChecker {
 
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<>();
-        final Pattern p = Pattern.compile("[\\wöäüß-éèáàíìúùóò]+");
+        final Pattern p = Pattern.compile("[\\w\\p{L}-]+");
         LineAction lineAction = new LineAction() {
 
             @Override
@@ -180,8 +179,7 @@ public class PalladianSpellChecker {
 
         // transpositions, n-1
         for (int i = 0; i < n - 1; ++i) {
-            result.add(zeroToNSubstrings.get(i) + word.substring(i + 1, i + 2) + word.substring(i, i + 1)
-                    + word.substring(i + 2));
+            result.add(zeroToNSubstrings.get(i) + word.substring(i + 1, i + 2) + word.substring(i, i + 1) + word.substring(i + 2));
         }
 
         // alternations, 29n
@@ -257,8 +255,7 @@ public class PalladianSpellChecker {
             }
 
             int length = word.length();
-            if (length < minWordLength || length > maxWordLength
-                    || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
+            if (length < minWordLength || length > maxWordLength || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
                 correctedText.append(word).append(" ");
                 continue;
             }

@@ -27,7 +27,8 @@ public final class MathHelper {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
 
-    public static final Random RANDOM = new Random();
+    /** Public, non-final, so that it can be assigned with a custom seed. */
+    public static Random RANDOM = new Random();
 
     private static final Map<Double, String> FRACTION_MAP;
 
