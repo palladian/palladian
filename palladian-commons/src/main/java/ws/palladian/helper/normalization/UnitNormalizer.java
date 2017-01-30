@@ -500,6 +500,9 @@ public class UnitNormalizer {
             if (isPowerUnit(word)) {
                 unitType = UnitType.POWER;
             }
+            if (isVoltageUnit(word)) {
+                unitType = UnitType.VOLTAGE;
+            }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit
             }

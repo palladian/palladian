@@ -21,7 +21,7 @@ public enum TemperatureUnit {
 
     private Set<String> names = new HashSet<>();
 
-    private TemperatureUnit(String... names) {
+    TemperatureUnit(String... names) {
         this.names.addAll(Arrays.asList(names));
     }
 
