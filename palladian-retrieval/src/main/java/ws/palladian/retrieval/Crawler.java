@@ -172,7 +172,6 @@ public class Crawler {
                     }
                 }
 
-                ThreadHelper.deepSleep(1000);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
