@@ -208,6 +208,12 @@ public class StringHelperTest {
     @Test
     public void testTrim() {
         // System.out.println(StringHelper.trim("'80GB'))"));
+        assertEquals("a++", StringHelper.trim("a++","+"));
+        assertEquals("++a++", StringHelper.trim("++a++","+"));
+        assertEquals("a", StringHelper.trim("++a++"));
+        assertEquals("a++", StringHelper.trimLeft("++a++"));
+        assertEquals("++a", StringHelper.trimRight("++a++"));
+
         assertEquals("", StringHelper.trim(","));
         assertEquals("", StringHelper.trim(""));
         assertEquals("", StringHelper.trim(". ,"));
