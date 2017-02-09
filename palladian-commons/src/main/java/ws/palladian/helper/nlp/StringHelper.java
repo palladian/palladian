@@ -970,7 +970,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™"};
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™","○"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
