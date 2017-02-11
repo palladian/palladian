@@ -50,7 +50,7 @@ public abstract class AbstractRankingService implements RankingService {
 
         try {
             ranking = getRanking(url);
-        } catch (RankingServiceException e) {
+        } catch (Exception e) {
             LOGGER.warn("Encountered exception while getting ranking via {}: {}", getClass().getSimpleName(), e);
         }
 
