@@ -2,7 +2,6 @@ package ws.palladian.core.dataset.csv;
 
 import static ws.palladian.classification.utils.ClassificationUtils.DEFAULT_SEPARATOR;
 import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
-import static ws.palladian.helper.io.FileHelper.NEWLINE_CHARACTER;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,30 +11,22 @@ import java.io.Writer;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.AbstractDatasetWriter;
-import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DatasetAppender;
 import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.ProgressReporter;
 
 public class CsvDatasetWriter extends AbstractDatasetWriter {
 	
-	private static final class CsvDatasetAppender implements DatasetAppender {
-		private final Writer writer;
+	private static final class CsvDatasetAppender extends AbstractDatasetAppender {
 		private final FeatureInformation featureInformation;
 		private final boolean writeCategory;
 
 		CsvDatasetAppender(Writer writer, FeatureInformation featureInformation, boolean writeCategory) {
-			this.writer = writer;
+			super(writer);
 			this.featureInformation = featureInformation;
 			this.writeCategory = writeCategory;
-		}
-
-		@Override
-		public void close() throws IOException {
-			writer.close();
 		}
 
 		@Override
@@ -55,8 +46,7 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 			if (writeCategory) {
 				line.append(DEFAULT_SEPARATOR).append(instance.getCategory());
 			}
-			line.append(NEWLINE_CHARACTER);
-			write(line.toString());
+			writeLine(line);
 		}
 
 		void writeHeader() {
@@ -71,16 +61,7 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 			if (writeCategory) {
 				line.append(DEFAULT_SEPARATOR).append("targetClass");
 			}
-			line.append(NEWLINE_CHARACTER);
-			write(line.toString());
-		}
-
-		void write(String string) {
-			try {
-				writer.write(string);
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
+			writeLine(line);
 		}
 
 	}
@@ -125,19 +106,6 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 			}
 		}
 		this.config = config;
-	}
-
-	@Override
-	public void write(Dataset dataset, ProgressReporter progress) {
-		try (DatasetAppender appender = write(dataset.getFeatureInformation())) {
-			progress.startTask("Writing CSV", dataset.size());
-			for (Instance instance : dataset) {
-				appender.append(instance);
-				progress.increment();
-			}
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
 	}
 
 	@Override

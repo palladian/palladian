@@ -906,6 +906,19 @@ public final class StringHelper {
         return Arrays.asList('A', 'E', 'I', 'O', 'U').contains(Character.toUpperCase(character));
     }
 
+    public static String trimLeft(String string) {
+        return trimLeft(string, "");
+    }
+    public static String trimLeft(String string, String keepCharacters) {
+        return trim(string, true, false, keepCharacters);
+    }
+    public static String trimRight(String string) {
+        return trimRight(string, "");
+    }
+    public static String trimRight(String string, String keepCharacters) {
+        return trim(string, false, true, keepCharacters);
+    }
+
     /**
      * Remove unwanted characters from beginning and end of string.
      *
@@ -924,6 +937,9 @@ public final class StringHelper {
      * @return the string or null if inputString was null.
      */
     public static String trim(String inputString, String keepCharacters) {
+        return trim(inputString, true, true, keepCharacters);
+    }
+    public static String trim(String inputString, boolean trimLeft, boolean trimRight, String keepCharacters) {
 
         if (inputString == null) {
             return null;
@@ -937,7 +953,7 @@ public final class StringHelper {
         string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™"};
+                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™","○"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
@@ -950,7 +966,7 @@ public final class StringHelper {
 
         boolean deleteFirst = true;
         boolean deleteLast = true;
-        while ((deleteFirst || deleteLast) && !string.isEmpty()) {
+        while (((deleteFirst && trimLeft) || (deleteLast && trimRight)) && !string.isEmpty()) {
             deleteFirst = false;
             deleteLast = false;
             Character first = string.charAt(0);
@@ -979,11 +995,11 @@ public final class StringHelper {
 
             }
 
-            if (deleteFirst) {
+            if (deleteFirst && trimLeft) {
                 string = string.substring(1);
             }
 
-            if (deleteLast && string.length() > 0) {
+            if (deleteLast && trimRight && string.length() > 0) {
                 string = string.substring(0, string.length() - 1);
             }
 

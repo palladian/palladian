@@ -497,6 +497,12 @@ public class UnitNormalizer {
             if (isBandwidthUnit(word)) {
                 unitType = UnitType.BANDWIDTH;
             }
+            if (isPowerUnit(word)) {
+                unitType = UnitType.POWER;
+            }
+            if (isVoltageUnit(word)) {
+                unitType = UnitType.VOLTAGE;
+            }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit
             }

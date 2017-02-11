@@ -561,6 +561,19 @@ public class WordTransformer {
         return new Stemmer(Language.ENGLISH).stem(word);
     }
 
+    public static void addStemmingException(String original, String stemmed, Language language) {
+        switch (language) {
+            case GERMAN:
+                GERMAN_STEMMING_EXCEPTIONS.put(original.toLowerCase(), stemmed.toLowerCase());
+                break;
+            case ENGLISH:
+                ENGLISH_STEMMING_EXCEPTIONS.put(original.toLowerCase(), stemmed.toLowerCase());
+                break;
+            default:
+                throw new IllegalArgumentException("Language must be 'en' or 'de'.");
+        }
+    }
+
     /**
      * <p>
      * Get the third person singular of an English verb. Use rules from <a
