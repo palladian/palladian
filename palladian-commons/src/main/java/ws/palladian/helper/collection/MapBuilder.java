@@ -34,7 +34,7 @@ public final class MapBuilder<K, V> implements Factory<Map<K, V>> {
      * @return The builder. Use {@link #put(Object, Object)} to add further entries.
      */
     public static <K, V> MapBuilder<K, V> createWith(Map<K, V> map) {
-        return new MapBuilder<K, V>(map);
+        return new MapBuilder<>(map);
     }
 
     /**
@@ -45,7 +45,7 @@ public final class MapBuilder<K, V> implements Factory<Map<K, V>> {
      * @return The builder. Use {@link #put(Object, Object)} to add further entries.
      */
     public static <K, V> MapBuilder<K, V> createEmpty() {
-        return new MapBuilder<K, V>();
+        return new MapBuilder<>();
     }
 
     /**
@@ -62,11 +62,11 @@ public final class MapBuilder<K, V> implements Factory<Map<K, V>> {
     }
 
     private MapBuilder() {
-        this.map = new HashMap<K, V>();
+        this.map = new HashMap<>();
     }
 
     private MapBuilder(Map<K, V> map) {
-        this.map = new HashMap<K, V>(map);
+        this.map = new HashMap<>(map);
     }
 
     /**
@@ -74,8 +74,8 @@ public final class MapBuilder<K, V> implements Factory<Map<K, V>> {
      * Put a new key/value pair to the map, return {@link MapBuilder} to allow method chaining.
      * </p>
      * 
-     * @param key
-     * @param value
+     * @param key Key.
+     * @param value Value.
      * @return
      */
     public MapBuilder<K, V> put(K key, V value) {
