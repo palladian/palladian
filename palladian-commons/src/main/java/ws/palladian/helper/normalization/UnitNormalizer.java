@@ -8,10 +8,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.UnitType;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -107,7 +109,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
-            if (Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|-|\\s)").matcher(text).find()) {
+            if (PatternHelper.compileOrGet("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|-|\\s)").matcher(text).find()) {
                 return unit;
             }
         }
@@ -117,7 +119,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text, UnitType unitType) {
         for (String unit : unitType.getUnitNames()) {
-            if (Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|\\s)").matcher(text).find()) {
+            if (PatternHelper.compileOrGet("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|\\s)").matcher(text).find()) {
                 return unit;
             }
         }
@@ -669,6 +671,17 @@ public class UnitNormalizer {
      * @param args
      */
     public static void main(String[] args) {
+
+        StopWatch stopWatch = new StopWatch();
+
+        // 4.736s / 4.665s / 5.373s / 4.956s
+        // 3.638s / 3.996s / 3.197s / 2.967s
+        for (int i = 0; i < 10000; i++) {
+            String s = UnitNormalizer.detectUnit("3 meters bla blub did doooob");
+        }
+
+        System.out.println(stopWatch.getElapsedTimeString());
+        System.exit(0);
 
         System.out.println(getNormalizedNumber(6, "ft 1.5 in 187 cm"));
 
