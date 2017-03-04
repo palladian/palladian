@@ -3,39 +3,22 @@ package ws.palladian.retrieval;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.Header;
-import org.apache.http.HttpConnection;
-import org.apache.http.HttpConnectionMetrics;
+import org.apache.http.*;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.ClientConnectionManager;
@@ -45,11 +28,7 @@ import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.params.SyncBasicHttpParams;
+import org.apache.http.params.*;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -89,7 +68,7 @@ public class HttpRetriever {
     // ///////////// constants with default configuration ////////
 
     /** The user agent string that is used by the crawler. */
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36";
 
     /** The user agent used when resolving redirects. */
     private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
@@ -399,8 +378,13 @@ public class HttpRetriever {
             }
 
             int statusCode = response.getStatusLine().getStatusCode();
-            long receivedBytes = metrics.getReceivedBytesCount();
-            metrics.reset();
+            long receivedBytes = 0;
+
+            if (metrics != null) {
+                receivedBytes = metrics.getReceivedBytesCount();
+                metrics.reset();
+            }
+
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
 
@@ -414,10 +398,7 @@ public class HttpRetriever {
                 proxyProvider.promoteProxy(proxyUsed);
             }
 
-        } catch (IllegalStateException e) {
-            proxyProvider.removeProxy(proxyUsed, e);
-            throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (IllegalStateException | IOException e) {
             proxyProvider.removeProxy(proxyUsed, e);
             throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
         } finally {
