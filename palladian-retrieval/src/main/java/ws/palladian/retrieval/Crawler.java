@@ -252,6 +252,10 @@ public class Crawler {
         this.stopCount = number;
     }
 
+    public int getStopCount() {
+        return this.stopCount;
+    }
+
     public void addWhiteListRegexp(String regexp) {
         whiteListUrlRegexps.add(Pattern.compile(regexp));
     }
