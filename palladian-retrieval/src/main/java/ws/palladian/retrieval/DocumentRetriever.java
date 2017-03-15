@@ -135,6 +135,9 @@ public class DocumentRetriever {
      * @param callback the callback to be called for each finished download.
      */
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
+        getWebDocuments(urls, callback, null);
+    }
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
 
         final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever");
 
@@ -155,9 +158,23 @@ public class DocumentRetriever {
                     @Override
                     public void run() {
                         requestThrottle.hold();
-                        Document document = getWebDocument(url);
-                        if (document != null) {
-                            callback.process(document);
+
+                        // react file fileTypeConsumer?
+                        boolean consumerFound = false;
+                        if (fileTypeConsumers != null) {
+                            String fileType = FileHelper.getFileType(url);
+                            Consumer<String> stringConsumer = fileTypeConsumers.get(fileType);
+                            if (stringConsumer != null) {
+                                stringConsumer.process(url);
+                                consumerFound = true;
+                            }
+                        }
+
+                        if (!consumerFound) {
+                            Document document = getWebDocument(url);
+                            if (document != null) {
+                                callback.process(document);
+                            }
                         }
                         progressMonitor.incrementAndPrintProgress();
                     }
