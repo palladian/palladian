@@ -17,6 +17,7 @@ import ws.palladian.helper.date.DateHelper;
  * <p>
  * The ProgressMonitor eases the progress visualization needed in many long-running processes. Usage example:
  * <p>
+ * 
  * <pre>
  * ProgressMonitor pm = new ProgressMonitor();
  * pm.startTask(&quot;fancy calculation&quot;, 10);
@@ -74,7 +75,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * Keep track of the last 3 iterations
      */
-//    private List<Long> lastIterationTimes;
+    // private List<Long> lastIterationTimes;
     private FixedSizeQueue<Long> lastIterationTimes;
     private final static int LAST_ITERATION_WINDOW = 3;
 
@@ -86,8 +87,12 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     /**
      * A callback instance that is called when progress is written
      */
-    private Callback callback;
+    private ProgressCallback callback;
 
+    /**
+     * A callback that is called when the progress is incremented.
+     */
+    private ProgressCallback incrementCallback;
 
     /**
      * <p>
@@ -130,7 +135,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Create a new {@link ProgressMonitor}.
      * </p>
      *
-     * @param totalSteps       The total iterations to perform, greater/equal zero.
+     * @param totalSteps The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      */
     public ProgressMonitor(long totalSteps, double showEveryPercent) {
@@ -142,9 +147,9 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Create a new {@link ProgressMonitor}.
      * </p>
      *
-     * @param totalSteps       The total iterations to perform, greater/equal zero.
+     * @param totalSteps The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
-     * @param processName      The name of the process, for identification purposes when outputting the bar.
+     * @param processName The name of the process, for identification purposes when outputting the bar.
      */
     public ProgressMonitor(long totalSteps, double showEveryPercent, String processName) {
         this(showEveryPercent);
@@ -185,8 +190,13 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     public void increment(long steps) {
         synchronized (this) {
             currentSteps += steps;
-            currentProgress = totalSteps > 0 ? (double) currentSteps / totalSteps : -1;
+            currentProgress = totalSteps > 0 ? (double)currentSteps / totalSteps : -1;
             printProgress();
+
+            // call the callback if it is set
+            if (incrementCallback != null) {
+                incrementCallback.callback(this);
+            }
         }
     }
 
@@ -218,7 +228,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * </p>
      */
     private void printProgress() {
-        int output = (int) Math.floor(currentProgress * (100 / showEveryPercent));
+        int output = (int)Math.floor(currentProgress * (100 / showEveryPercent));
         if (showEveryPercent == 0 || output != lastOutput) {
             long elapsedTime = System.currentTimeMillis() - startTime;
             double percentLeft = 1.0 - currentProgress;
@@ -233,19 +243,17 @@ public final class ProgressMonitor extends AbstractProgressReporter {
                     statistics.add(itemFormat.format(totalSteps - currentSteps) + " items left");
                 }
                 statistics.add("elapsed: " + DateHelper.formatDuration(0, elapsedTime, true).replaceAll(":\\d+ms", ""));
-//                if (lastIterationTimes == null) {
-//                	lastIterationTimes = new ArrayList<>();
-//                }
+                // if (lastIterationTimes == null) {
+                // lastIterationTimes = new ArrayList<>();
+                // }
                 long iterationTime = elapsedTime - lastPrintTime;
                 lastIterationTimes.add(0, iterationTime);
                 if (isEnhancedStats()) {
-                    statistics.add("iteration: "
-                            + DateHelper.formatDuration(0, iterationTime, true).replaceAll(":\\d+ms", ""));
+                    statistics.add("iteration: " + DateHelper.formatDuration(0, iterationTime, true).replaceAll(":\\d+ms", ""));
                 }
                 if (currentProgress >= 0 && iterationsLeft > 0) {
                     double remainingTime = getAverageIterationTime() * iterationsLeft;
-                    statistics.add("~remaining: "
-                            + DateHelper.formatDuration(0, (long) remainingTime, true).replaceAll(":\\d+ms", ""));
+                    statistics.add("~remaining: " + DateHelper.formatDuration(0, (long)remainingTime, true).replaceAll(":\\d+ms", ""));
                 }
             }
             StringBuilder progressString = new StringBuilder();
@@ -261,8 +269,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
             lastPrintTime = elapsedTime;
 
             // call the callback if it is set
-            if(callback != null) {
-                callback.callback();
+            if (callback != null) {
+                callback.callback(this);
             }
         }
     }
@@ -270,16 +278,15 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     private double getAverageIterationTime() {
         double time = 0.;
         int count = lastIterationTimes.size();
-//        for (int i = 0; i < count; i++) {
-//            time += lastIterationTimes.get(i);
-//        }
-//        lastIterationTimes = lastIterationTimes.subList(0, count);
+        // for (int i = 0; i < count; i++) {
+        // time += lastIterationTimes.get(i);
+        // }
+        // lastIterationTimes = lastIterationTimes.subList(0, count);
         for (Long lastIterationTime : lastIterationTimes) {
-        	time += lastIterationTime;
+            time += lastIterationTime;
         }
         return time / count;
     }
-
 
     /**
      * <p>
@@ -292,7 +299,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     private static String createProgressBar(double progress) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
-        int scaledPercent = progress >= 0 ? (int) Math.round(progress * PROGRESS_BAR_LENGTH) : 0;
+        int scaledPercent = progress >= 0 ? (int)Math.round(progress * PROGRESS_BAR_LENGTH) : 0;
         stringBuilder.append(StringUtils.repeat(PROGRESS_CHAR, scaledPercent));
         stringBuilder.append(StringUtils.repeat(' ', Math.max(PROGRESS_BAR_LENGTH - scaledPercent, 0)));
         stringBuilder.append(']');
@@ -307,17 +314,20 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         this.enhancedStats = enhancedStats;
     }
 
-    public void setCallback(Callback callback) {
+    public void setCallback(ProgressCallback callback) {
         this.callback = callback;
+    }
+    public void setIncrementCallback(ProgressCallback callback) {
+        this.incrementCallback = callback;
     }
 
     public static void main(String[] args) {
-//        int totalSteps = 1700335346;
-//        ProgressMonitor pm = new ProgressMonitor(0.1);
-//        pm.startTask("My Progress", totalSteps);
-//        for (int i = 1; i < totalSteps; i++) {
-//            pm.increment();
-//        }
+        // int totalSteps = 1700335346;
+        // ProgressMonitor pm = new ProgressMonitor(0.1);
+        // pm.startTask("My Progress", totalSteps);
+        // for (int i = 1; i < totalSteps; i++) {
+        // pm.increment();
+        // }
 
         int totalSteps = 10;
         ProgressMonitor pm = new ProgressMonitor(0.1);

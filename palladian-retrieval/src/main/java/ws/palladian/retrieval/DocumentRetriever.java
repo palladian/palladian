@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.ProgressMonitor;
@@ -134,10 +133,10 @@ public class DocumentRetriever {
      * @param urls the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
-        getWebDocuments(urls, callback, null);
+    public ProgressMonitor getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
+        return getWebDocuments(urls, callback, null);
     }
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
+    public ProgressMonitor getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
 
         final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever");
 
@@ -202,6 +201,7 @@ public class DocumentRetriever {
 
         }
 
+        return progressMonitor;
     }
 
     /**
