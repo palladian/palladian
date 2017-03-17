@@ -32,11 +32,17 @@ public class UnitNormalizer {
 
     private final static List<String> ALL_UNITS = new ArrayList<>();
 
+    private final static Map<String, Pattern> PATTERNS = new HashMap<>();
+
     static {
         for (UnitType unitType : UnitType.values()) {
             ALL_UNITS.addAll(unitType.getUnitNames());
         }
         Collections.sort(ALL_UNITS, StringLengthComparator.INSTANCE);
+
+        for (String unit : ALL_UNITS) {
+            PATTERNS.put(unit, Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|-|\\s)"));
+        }
     }
 
     private static boolean isBandwidthUnit(String unit) {
@@ -109,7 +115,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
-            if (PatternHelper.compileOrGet("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|-|\\s)").matcher(text).find()) {
+            if (PATTERNS.get(unit).matcher(text).find()) {
                 return unit;
             }
         }
@@ -119,7 +125,7 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text, UnitType unitType) {
         for (String unit : unitType.getUnitNames()) {
-            if (PatternHelper.compileOrGet("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|\\s)").matcher(text).find()) {
+            if (PATTERNS.get(unit).matcher(text).find()) {
                 return unit;
             }
         }
@@ -595,9 +601,8 @@ public class UnitNormalizer {
             if (multiplier != -1.0) {
                 // when a subsequent unit is searched is has to be smaller than the previous one
                 // e.g. 1 hour 23 minutes (minutes < hour) otherwise 2GB 80GB causes problems
-                if (combinedSearch
-                        && !(unitsSameType(combinedSearchPreviousUnit, wordSequence) && isBigger(
-                                combinedSearchPreviousUnit, wordSequence))) {
+                if (combinedSearch && !(unitsSameType(combinedSearchPreviousUnit, wordSequence)
+                        && isBigger(combinedSearchPreviousUnit, wordSequence))) {
                     return 0.0;
                 }
                 break;

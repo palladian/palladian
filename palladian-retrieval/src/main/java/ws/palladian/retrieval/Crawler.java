@@ -9,6 +9,7 @@ import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
 
@@ -86,6 +87,9 @@ public class Crawler {
     /** The callback that is called after the crawler finished crawling. */
     private Callback crawlerCallbackOnFinish = null;
 
+    /** A map of consumers with <filetype, consumer> to react to certain file types. */
+    private Map<String, Consumer<String>> fileTypeConsumers = null;
+
     public Crawler() {
         documentRetriever = new DocumentRetriever();
     }
@@ -112,6 +116,16 @@ public class Crawler {
         LOGGER.info("catch from stack: {}", currentUrl);
 
         requestThrottle.hold();
+
+        // file type consumers?
+        if (getFileTypeConsumers() != null) {
+            String fileType = FileHelper.getFileType(currentUrl);
+            Consumer<String> stringConsumer = getFileTypeConsumers().get(fileType);
+            if (stringConsumer != null) {
+                stringConsumer.process(currentUrl);
+                return;
+            }
+        }
 
         Document document = documentRetriever.getWebDocument(currentUrl);
 
@@ -252,6 +266,10 @@ public class Crawler {
         this.stopCount = number;
     }
 
+    public int getStopCount() {
+        return this.stopCount;
+    }
+
     public void addWhiteListRegexp(String regexp) {
         whiteListUrlRegexps.add(Pattern.compile(regexp));
     }
@@ -362,6 +380,14 @@ public class Crawler {
 
     public void addCrawlerCallback(Consumer<Document> crawlerCallback) {
         documentRetriever.addRetrieverCallback(crawlerCallback);
+    }
+
+    public Map<String, Consumer<String>> getFileTypeConsumers() {
+        return fileTypeConsumers;
+    }
+
+    public void setFileTypeConsumers(Map<String, Consumer<String>> fileTypeConsumers) {
+        this.fileTypeConsumers = fileTypeConsumers;
     }
 
     public DocumentRetriever getDocumentRetriever() {
