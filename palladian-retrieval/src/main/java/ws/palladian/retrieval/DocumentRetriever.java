@@ -133,12 +133,13 @@ public class DocumentRetriever {
      * @param urls the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
-    public ProgressMonitor getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
-        return getWebDocuments(urls, callback, null);
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
+        getWebDocuments(urls, callback, null);
     }
-    public ProgressMonitor getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
-
-        final ProgressMonitor progressMonitor = new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever");
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
+        getWebDocuments(urls, callback, fileTypeConsumers, new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever"));
+    }
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers, final ProgressMonitor progressMonitor) {
 
         List<String> urlsList = new ArrayList<>(urls);
         List<String> sublist;
@@ -201,7 +202,6 @@ public class DocumentRetriever {
 
         }
 
-        return progressMonitor;
     }
 
     /**
@@ -502,8 +502,7 @@ public class DocumentRetriever {
 
     /**
      * <p>
-     * Set the maximum number of simultaneous threads for downloading, when using {@link #getWebDocuments(Collection)}
-     * and {@link #getWebDocuments(Collection, RetrieverCallback)}.
+     * Set the maximum number of simultaneous threads for downloading.
      * </p>
      *
      * @param numThreads the number of threads to use.
