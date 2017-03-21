@@ -17,6 +17,7 @@ import org.junit.rules.ErrorCollector;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.resources.WebImage;
 
 public class PalladianContentExtractorTest {
@@ -42,24 +43,63 @@ public class PalladianContentExtractorTest {
     @Test
     public void testLanguageExtraction() throws PageContentExtractorException, FileNotFoundException {
 
+        // make sure all http retrievers globally trust self-signed certificates
+        HttpRetrieverFactory.setFactory(new HttpRetrieverFactory(true));
+
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
 
+        // German
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.GERMAN));
-
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
-        language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.PORTUGUESE));
 
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.spiegel.de/"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.GERMAN));
 
+        // Portuguese
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.PORTUGUESE));
+
+        // English
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://spoonacular.com"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.ENGLISH));
+
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.theolivepress.es/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.ENGLISH));
+
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.dutchnews.nl/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.ENGLISH));
+
+        // Dutch
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.telegraaf.nl/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.DUTCH));
+
+        // French
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.lemonde.fr/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.FRENCH));
+
+        // Spanish
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://elpais.com/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.SPANISH));
+
+        // Italian
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.corriere.it/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.ITALIAN));
+
+        // Russian
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://tass.ru/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.RUSSIAN));
 
     }
 
