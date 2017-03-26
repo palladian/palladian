@@ -1,5 +1,7 @@
 package ws.palladian.classification.text.evaluation;
 
+import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,7 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.AbstractDataset;
+import ws.palladian.core.dataset.FeatureInformation;
+import ws.palladian.core.dataset.FeatureInformationBuilder;
+import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.io.CloseableIterator;
+import ws.palladian.helper.io.CloseableIteratorAdapter;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -19,7 +27,7 @@ import ws.palladian.helper.io.FileHelper;
  * 
  * @author Philipp Katz
  */
-public class TextDatasetIterator implements Iterable<Instance> {
+public class TextDatasetIterator extends AbstractDataset {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(TextDatasetIterator.class);
@@ -48,15 +56,15 @@ public class TextDatasetIterator implements Iterable<Instance> {
         this.datasetRootPath = FileHelper.getFilePath(filePath);
         this.name = FileHelper.getFileName(datasetRootPath);
     }
-
-    @Override
-    public Iterator<Instance> iterator() {
+    
+	@Override
+	public CloseableIterator<Instance> iterator() {
         final Iterator<String> lineIterator = fileLines.iterator();
         final int totalLines = fileLines.size();
         final ProgressMonitor progressMonitor = new ProgressMonitor();
         progressMonitor.startTask("Dataset: " + name, totalLines);
 
-        return new Iterator<Instance>() {
+        Iterator<Instance> iterator = new Iterator<Instance>() {
 
             @Override
             public boolean hasNext() {
@@ -94,6 +102,18 @@ public class TextDatasetIterator implements Iterable<Instance> {
                 throw new UnsupportedOperationException("Modifications are not allowed.");
             }
         };
-    }
+        return new CloseableIteratorAdapter<>(iterator);
+	}
+
+	@Override
+	public FeatureInformation getFeatureInformation() {
+		return new FeatureInformationBuilder().set(VECTOR_TEXT_IDENTIFIER, TextValue.class).create();
+	}
+
+	@Override
+	public long size() {
+		return fileLines.size();
+	}
+
 
 }
