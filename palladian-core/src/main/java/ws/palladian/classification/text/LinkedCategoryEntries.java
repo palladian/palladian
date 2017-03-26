@@ -5,7 +5,7 @@ import java.util.Iterator;
 import ws.palladian.core.AbstractCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.ImmutableCategory;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.math.MathHelper;
 
@@ -24,13 +24,13 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
 
     @Override
     public Iterator<Category> iterator() {
-        return new AbstractIterator<Category>() {
+        return new AbstractIterator2<Category>() {
             LinkedCategoryCount next = firstCategory;
 
             @Override
-            protected Category getNext() throws Finished {
+            protected Category getNext() {
                 if (next == null) {
-                    throw FINISHED;
+                	return finished();
                 }
                 String categoryName = next.categoryName;
                 double probability = (double)next.count / totalCount;
