@@ -22,7 +22,9 @@ public final class DelimitedStringHelper {
 	 *            The quote character (inside parts surrounded by this
 	 *            character, no split is performed). The quotes surrounding a
 	 *            part are automatically removed.
-	 * @return A list with entries.
+	 * @return A list with entries. <code>null</code> in case the input line is
+	 *         not well-formed, i.e. a quote is not closed (happens in case of a
+	 *         line break within quotes).
 	 */
 	public static List<String> splitLine(String line, char splitCharacter, char quoteCharacter) {
 		Objects.requireNonNull(line, "line must not be null");
@@ -37,6 +39,9 @@ public final class DelimitedStringHelper {
 			} else if (c == quoteCharacter) {
 				inQuotes = !inQuotes;
 			}
+		}
+		if (inQuotes) {
+			return null;
 		}
 		split.add(trimQuotes(line.substring(previousIdx), quoteCharacter));
 		return split;
