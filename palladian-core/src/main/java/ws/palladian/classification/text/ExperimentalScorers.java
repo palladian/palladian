@@ -100,7 +100,9 @@ public final class ExperimentalScorers {
 
         @Override
         public double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched) {
-            return -summedTermScore;
+			// return -summedTermScore;
+        	// value becomes negative in some cases?
+			return Math.max(0, -summedTermScore);
         }
 
         @Override

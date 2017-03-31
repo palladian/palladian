@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.functional.Filter;
@@ -250,16 +250,16 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
 
     @Override
     public Iterator<DictionaryEntry> iterator() {
-        return new AbstractIterator<DictionaryEntry>() {
+        return new AbstractIterator2<DictionaryEntry>() {
             final Iterator<Entry<String, LinkedCategoryEntries>> trieIterator = entryTrie.iterator();
 
             @Override
-            protected DictionaryEntry getNext() throws Finished {
+            protected DictionaryEntry getNext() {
                 if (trieIterator.hasNext()) {
                     Entry<String, LinkedCategoryEntries> nextNode = trieIterator.next();
                     return new ImmutableDictionaryEntry(nextNode.getKey(), nextNode.getValue());
                 }
-                throw FINISHED;
+                return finished();
             }
         };
     }
