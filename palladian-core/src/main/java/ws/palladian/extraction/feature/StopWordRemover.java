@@ -89,7 +89,7 @@ public class StopWordRemover implements Filter<String> {
     }
     
     private Set<String> loadStopwords(InputStream fileInputStream) {
-        final Set<String> result = new HashSet<String>();
+        final Set<String> result = new HashSet<>();
         FileHelper.performActionOnEveryLine(fileInputStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
