@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author David Urbansky
+ * @see https://www.sitemaps.org/protocol.html
  */
 public class SitemapRetriever {
 
@@ -146,8 +147,23 @@ public class SitemapRetriever {
         return pageUrls;
     }
 
+    /**
+     * Normalize a URL by taking care of CDATA text and HTML entity escaping.
+     * 
+     * @param url A sitemap conform URL.
+     * @see https://www.sitemaps.org/protocol.html#escaping
+     * @return The normalized URL.
+     */
     protected String normalizeUrl(String url) {
-        return url.replace("<![CDATA[", "").replace("]]>", "").trim();
+        url = url.replace("<![CDATA[", "").replace("]]>", "").trim();
+
+        url = url.replace("&amp;", "&");
+        url = url.replace("&apos;", "'");
+        url = url.replace("&quot;", "\"");
+        url = url.replace("&gt;", ">");
+        url = url.replace("&lt;", "<");
+
+        return url;
     }
 
 }
