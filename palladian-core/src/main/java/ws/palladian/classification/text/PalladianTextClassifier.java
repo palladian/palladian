@@ -99,6 +99,10 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
      * @author Philipp Katz
      */
     public static class DefaultScorer implements Scorer {
+    	/** @deprecated Use the {@link PalladianTextClassifier#DEFAULT_SCORER} instead. */
+    	public DefaultScorer() {
+    		// no op.
+		}
         @Override
         public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
                 int categorySum, int numUniqTerms, int numDocs, int numTerms) {
@@ -128,6 +132,8 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
     }
 
     public static final String VECTOR_TEXT_IDENTIFIER = "text";
+    
+    public static final Scorer DEFAULT_SCORER = new DefaultScorer();
 
     private final DictionaryBuilder dictionaryBuilder;
 

@@ -3,14 +3,8 @@ package ws.palladian.retrieval;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Base64;
@@ -40,10 +34,7 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DecompressingHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.*;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -402,6 +393,17 @@ public class HttpRetriever {
             long receivedBytes = metrics.getReceivedBytesCount();
             metrics.reset();
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+
+            // did we get redirected?
+            try {
+                Object attribute = context.getAttribute("http.request");
+                if (attribute != null && ((RequestWrapper) attribute).getOriginal() != null) {
+                    headers.put("Location", Arrays.asList(((RequestWrapper) attribute).getOriginal().getRequestLine().getUri()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
 
             addDownload(receivedBytes);

@@ -69,6 +69,16 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 			}
 			return new RocCurves(results);
 		}
+
+		@Override
+		public String getCsvHeader(RocCurves result) {
+			return "AUC";
+		}
+
+		@Override
+		public String getCsvLine(RocCurves result) {
+			return String.valueOf(result.getAreaUnderCurve());
+		}
 	}
 	
 	public static class RocCurvesBuilder implements Factory<RocCurves> {

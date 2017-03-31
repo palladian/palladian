@@ -1,13 +1,9 @@
 package ws.palladian.classification.utils;
 
-import static ws.palladian.helper.io.DelimitedStringHelper.splitLine;
-
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +23,10 @@ import ws.palladian.core.value.Value;
 import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.core.value.io.ValueParserException;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.CloseableIterator;
+import ws.palladian.helper.io.CsvReader;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringPool;
 
@@ -54,83 +52,64 @@ import ws.palladian.helper.nlp.StringPool;
  */
 public class CsvDatasetReader extends AbstractDataset {
 
-    private final class CsvDatasetIterator implements CloseableIterator<Instance> {
-		List<String> splitLine;
-        BufferedReader reader;
-        int lineNumber;
-        boolean closed;
+    private final class CsvDatasetIterator extends AbstractIterator2<Instance> implements CloseableIterator<Instance> {
+    	final CsvReader csvReader;
+        int instanceCounter;
+        boolean didReadHeader = false;
         final StopWatch stopWatch = new StopWatch();
 
         CsvDatasetIterator() {
             try {
-            	InputStream inputStream = config.openInputStream();
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+            	csvReader = new CsvReader(config.openInputStream(), config.fieldSeparator(), config.quoteCharacter());
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException(config.filePath() + " not found.");
             } catch (IOException e) {
             	throw new IllegalStateException("IOException for" + config.filePath());
 			}
-            closed = false;
         }
-
-        @Override
-        public boolean hasNext() {
-            if (closed) {
-                return false;
-            }
-            if (splitLine != null) {
-                return true;
-            }
-            return read();
-        }
-
-        private boolean read() {
-            try {
-                final String line = reader.readLine();
-                if (lineNumber == 0 && config.readHeader()) {
-                	lineNumber++;
-                	return hasNext();
-                }
-                if (lineNumber == config.getLimit() + 1) {
-                	LOGGER.debug("Limit of {} reached, stopping", config.getLimit());
-                	return false;
-                }
-                if (line == null) {
-                	splitLine = null;
-                    close();
-                    LOGGER.debug("Finished reading {} lines", config.readHeader() ? lineNumber - 1 : lineNumber);
-                    return false;
-                }
-                if (line.isEmpty()) { // skip empty lines
-                	lineNumber++;
-                	splitLine = null;
-                	return hasNext();
-                }
-                splitLine = splitLine(line, config.fieldSeparator(), config.quoteCharacter());
-                if (splitLine.size() < 2) {
-                    throw new IllegalStateException("Separator '" + config.fieldSeparator()
-                            + "' was not found, lines cannot be split ('" + line + "').");
-                }
-                if (expectedColumns != splitLine.size()) {
-                    throw new IllegalStateException("Unexpected number of entries in line " + lineNumber + " ("
-                            + splitLine.size() + ", but should be " + expectedColumns + ")");
-                }
-                lineNumber++;
-                return true;
-            } catch (IOException e) {
-                throw new IllegalStateException("I/O exception while trying to read from file", e);
-            }
-        }
-
+        
+        
 		@Override
-        public Instance next() {
-            if (closed) {
-                throw new IllegalStateException("Already closed.");
-            }
-            if (splitLine == null) {
-                read();
-            }
-            FlyweightVectorBuilder builder = vectorSchema.builder();
+		protected Instance getNext() {
+
+			if (instanceCounter == config.getLimit() + 1) {
+				LOGGER.debug("Limit of {} reached, stopping", config.getLimit());
+				return finished();
+			}
+
+			if (!csvReader.hasNext()) {
+				LOGGER.debug("Finished reading {} instances", instanceCounter);
+				return finished();
+			}
+
+			List<String> splitLine = csvReader.next();
+
+			if (!didReadHeader && config.readHeader()) {
+				didReadHeader = true;
+				return next();
+			}
+
+			if (splitLine.size() < 2) {
+				throw new IllegalStateException("Separator '" + config.fieldSeparator()
+						+ "' was not found, lines cannot be split ('" + csvReader.getLineNumber() + "').");
+			}
+			if (expectedColumns != splitLine.size()) {
+				throw new IllegalStateException("Unexpected number of entries in line " + csvReader.getLineNumber()
+						+ " (" + splitLine.size() + ", but should be " + expectedColumns + ")");
+			}
+
+			instanceCounter++;
+
+			Instance instance = parseInstance(splitLine);
+			if (instanceCounter % LOG_EVERY_N_LINES == 0) {
+				LOGGER.debug("Read {} lines in {}", instanceCounter, stopWatch);
+			}
+			return instance;
+
+		}
+
+		private Instance parseInstance(List<String> splitLine) {
+			FlyweightVectorBuilder builder = vectorSchema.builder();
 			for (int f = 0; f < splitLine.size() - (config.readClassFromLastColumn() ? 1 : 0); f++) {
 				String name = headNames[f];
 				if (name == null) {
@@ -147,8 +126,10 @@ public class CsvDatasetReader extends AbstractDataset {
 					try {
 						parsedValue = parsers[f].parse(value);
 					} catch (ValueParserException e) {
-						throw new IllegalStateException("Could not parse value \"" + value + "\" in column \"" + name
-								+ "\", row " + lineNumber + " using " + parsers[f].getClass().getName() + ".", e);
+						throw new IllegalStateException(
+								"Could not parse value \"" + value + "\" in column \"" + name + "\", row "
+										+ csvReader.getLineNumber() + " using " + parsers[f].getClass().getName() + ".",
+								e);
 					}
 				}
 				builder.set(name, parsedValue);
@@ -160,25 +141,15 @@ public class CsvDatasetReader extends AbstractDataset {
             		value = value.trim();
             	}
 				targetClass = stringPool.get(value);
-            } else {
-            	targetClass = Instance.NO_CATEGORY_DUMMY;
-            }
-            if (lineNumber % LOG_EVERY_N_LINES == 0) {
-                LOGGER.debug("Read {} lines in {}", lineNumber, stopWatch);
-            }
-            splitLine = null;
-            return new ImmutableInstance(builder.create(), targetClass);
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Modifications are not supported.");
-        }
+			} else {
+				targetClass = Instance.NO_CATEGORY_DUMMY;
+			}
+			return new ImmutableInstance(builder.create(), targetClass);
+		}
 
         @Override
         public void close() throws IOException {
-            FileHelper.close(reader);
-            closed = true;
+        	csvReader.close();
         }
     }
 
@@ -262,17 +233,15 @@ public class CsvDatasetReader extends AbstractDataset {
     public CsvDatasetReader(CsvDatasetReaderConfig config) {
     	Validate.notNull(config, "config must not be null");
     	this.config = config;
-		try (InputStream inputStream = config.openInputStream()) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-			String line = reader.readLine();
+		try (CsvReader csvReader = new CsvReader(config.openInputStream(), config.fieldSeparator(), config.quoteCharacter())) {
 			for (;;) {
-				if (line == null) {
+				if (!csvReader.hasNext()) {
 					throw new IllegalStateException("No lines in file.");
 				}
-				if (line.isEmpty()) {
+				List<String> splitLine = csvReader.next();
+				if (splitLine.isEmpty()) {
 					continue;
 				}
-				List<String> splitLine = splitLine(line, config.fieldSeparator(), config.quoteCharacter());
 				expectedColumns = splitLine.size();
 				int numValues = config.readClassFromLastColumn() ? splitLine.size() - 1 : splitLine.size();
 				headNames = new String[numValues];
@@ -292,8 +261,7 @@ public class CsvDatasetReader extends AbstractDataset {
 					}
 					vectorSchema = new FlyweightVectorSchema(usedHeadNames.toArray(new String[0]));
 					// XXX consider case, that multiple blank lines might follow
-					line = reader.readLine();
-					splitLine = splitLine(line, config.fieldSeparator(), config.quoteCharacter());
+					splitLine = csvReader.next();
 				} else { // generate default header names
 					for (int c = 0; c < numValues; c++) {
 						headNames[c] = String.valueOf(c);
