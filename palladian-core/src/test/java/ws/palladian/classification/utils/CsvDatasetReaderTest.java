@@ -173,7 +173,7 @@ public class CsvDatasetReaderTest {
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
-			System.out.println(instance);
+			// System.out.println(instance);
 			assertEquals(3, instance.getVector().size());
 			assertEquals(3, reader.getFeatureInformation().count());
 			assertEquals("1", instance.getVector().getNominal("value1").getString());
@@ -181,6 +181,25 @@ public class CsvDatasetReaderTest {
 			assertEquals("3", instance.getVector().getNominal("value3").getString());
 			assertEquals("1", instance.getCategory());
 		}
+	}
+	
+	@Test
+	public void testCsvReading_textWithLinebreaks() throws IOException {
+		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetTextWithLinebreaks.csv"));
+		config.readHeader(true);
+		config.readClassFromLastColumn(false);
+		config.fieldSeparator(';');
+		config.quoteCharacter('"');
+		config.defaultParsers(stringValue());
+		CsvDatasetReader reader = config.create();
+		try (CloseableIterator<Instance> iterator = reader.iterator()) {
+			Instance instance = iterator.next();
+			// System.out.println(instance);
+			assertEquals(2, instance.getVector().size());
+			assertEquals(2, reader.getFeatureInformation().count());
+			assertEquals("a", instance.getVector().getNominal("value1").getString());
+			assertEquals("b,\nc", instance.getVector().getNominal("value2").getString());
+		}		
 	}
 
 }

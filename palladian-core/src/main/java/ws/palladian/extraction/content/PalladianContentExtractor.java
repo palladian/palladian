@@ -754,24 +754,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public Language detectLanguage() {
 
-        // use TLDs first
-        String uri = getDocument().getDocumentURI();
-
-        String domain = UrlHelper.getDomain(uri);
-        if (domain.endsWith(".de")) {
-            return Language.GERMAN;
-        } else if (domain.endsWith(".fr")) {
-            return Language.FRENCH;
-        } else if (domain.endsWith(".es")) {
-            return Language.SPANISH;
-        } else if (domain.endsWith(".it")) {
-            return Language.ITALIAN;
-        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie")) {
-            return Language.ENGLISH;
-        } else if (domain.endsWith(".pt")) {
-            return Language.PORTUGUESE;
-        }
-
         // look in HTML lang attribute <html lang="de">
         String innerXml = HtmlHelper.getInnerXml(getDocument());
         innerXml = innerXml.toLowerCase();
@@ -793,6 +775,28 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             // remove country, e.g. en-US
             String[] parts = substringBetween.split("[-:]");
             return Language.getByIso6391(parts[0]);
+        }
+
+        // use TLDs
+        String uri = getDocument().getDocumentURI();
+
+        String domain = UrlHelper.getDomain(uri);
+        if (domain.endsWith(".de")) {
+            return Language.GERMAN;
+        } else if (domain.endsWith(".fr")) {
+            return Language.FRENCH;
+        } else if (domain.endsWith(".es")) {
+            return Language.SPANISH;
+        } else if (domain.endsWith(".it")) {
+            return Language.ITALIAN;
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie")) {
+            return Language.ENGLISH;
+        } else if (domain.endsWith(".pt")) {
+            return Language.PORTUGUESE;
+        } else if (domain.endsWith(".nl")) {
+            return Language.DUTCH;
+        } else if (domain.endsWith(".ru")) {
+            return Language.RUSSIAN;
         }
 
         return null;

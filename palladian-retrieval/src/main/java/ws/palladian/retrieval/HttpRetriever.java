@@ -23,10 +23,7 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DecompressingHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.*;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.*;
 import org.apache.http.protocol.BasicHttpContext;
@@ -386,6 +383,17 @@ public class HttpRetriever {
             }
 
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+
+            // did we get redirected?
+            try {
+                Object attribute = context.getAttribute("http.request");
+                if (attribute != null && ((RequestWrapper) attribute).getOriginal() != null) {
+                    headers.put("Location", Arrays.asList(((RequestWrapper) attribute).getOriginal().getRequestLine().getUri()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
 
             addDownload(receivedBytes);
