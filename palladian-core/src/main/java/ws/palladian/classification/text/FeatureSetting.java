@@ -294,7 +294,7 @@ public class FeatureSetting implements Serializable {
         if (isRemoveStopwords()) {
             builder.append(", removeStopwords");
         }
-        if (getLanguage() != null) {
+        if (getLanguage() != null && textFeatureType == TextFeatureType.WORD_NGRAMS) {
             builder.append(", language=").append(language);
         }
         if (isCreateSkipGrams()) {
