@@ -188,7 +188,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetTextWithLinebreaks.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(';');
 		config.quoteCharacter('"');
 		config.defaultParsers(stringValue());
 		CsvDatasetReader reader = config.create();
