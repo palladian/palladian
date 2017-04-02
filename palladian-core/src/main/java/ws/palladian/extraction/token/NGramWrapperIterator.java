@@ -8,9 +8,9 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
-public final class NGramWrapperIterator extends AbstractIterator<Token> {
+public final class NGramWrapperIterator extends AbstractIterator2<Token> {
 
     private static final char SPACE = ' ';
 
@@ -33,7 +33,7 @@ public final class NGramWrapperIterator extends AbstractIterator<Token> {
     }
 
     @Override
-    protected Token getNext() throws Finished {
+    protected Token getNext() {
         while (tokenQueue.size() < maxLength && wrapped.hasNext()) {
             tokenQueue.add(wrapped.next());
         }
@@ -49,7 +49,7 @@ public final class NGramWrapperIterator extends AbstractIterator<Token> {
                 return createNGram();
             }
         }
-        throw FINISHED;
+        return finished();
     }
 
     private Token createNGram() {

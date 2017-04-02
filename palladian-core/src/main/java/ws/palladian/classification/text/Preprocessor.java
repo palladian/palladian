@@ -1,6 +1,5 @@
 package ws.palladian.classification.text;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
@@ -15,7 +14,6 @@ import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.helper.nlp.StringHelper;
 
 public class Preprocessor implements Function<String, Iterator<String>> {
 

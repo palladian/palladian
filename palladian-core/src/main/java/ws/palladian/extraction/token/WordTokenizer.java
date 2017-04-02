@@ -12,7 +12,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
 public final class WordTokenizer implements TextTokenizer {
 
@@ -22,13 +22,13 @@ public final class WordTokenizer implements TextTokenizer {
     public Iterator<Token> iterateTokens(String text) {
         Validate.notNull(text, "text must not be null");
         final Matcher matcher = PATTERN.matcher(text);
-        return new AbstractIterator<Token>() {
+        return new AbstractIterator2<Token>() {
             @Override
-            protected Token getNext() throws Finished {
+            protected Token getNext() {
                 if (matcher.find()) {
                     return new ImmutableToken(matcher.start(), matcher.group());
                 }
-                throw FINISHED;
+                return finished();
             }
         };
     }

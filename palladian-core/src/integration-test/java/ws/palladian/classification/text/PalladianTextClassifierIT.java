@@ -11,10 +11,10 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
 import ws.palladian.classification.text.PalladianTextClassifier.DefaultScorer;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
-import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -49,7 +49,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.jrc.test");
         ITHelper.assumeFile("JRC", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.99, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.99, PalladianTextClassifier.DEFAULT_SCORER);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.wikipedia.test");
         ITHelper.assumeFile("Wikipedia", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.99, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.99, PalladianTextClassifier.DEFAULT_SCORER);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.89, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.90, PalladianTextClassifier.DEFAULT_SCORER);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.20newsgroups.split2");
         ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(10).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.81, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.80, PalladianTextClassifier.DEFAULT_SCORER);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class PalladianTextClassifierIT {
     	String testFile = config.getString("dataset.20newsgroups.split2");
     	ITHelper.assumeFile("20 Newsgroups", testFile, trainFile);
     	FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 3).createSkipGrams().create();
-    	assertAccuracy(trainFile, testFile, featureSetting, 0.91, new DefaultScorer());
+    	assertAccuracy(trainFile, testFile, featureSetting, 0.91, PalladianTextClassifier.DEFAULT_SCORER);
     	// without skip grams: 0.9052599666515082
     	// skip grams: 0.9104138244656662
     }
@@ -115,7 +115,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.spamassassin.test");
         ITHelper.assumeFile("SpamAssassin", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.chars(6).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.87, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.87, PalladianTextClassifier.DEFAULT_SCORER);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class PalladianTextClassifierIT {
         String testFile = config.getString("dataset.imdb.test");
         ITHelper.assumeFile("IMDB", trainFile, testFile);
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).maxTerms(1000).create();
-        assertAccuracy(trainFile, testFile, featureSetting, 0.74, new DefaultScorer());
+        assertAccuracy(trainFile, testFile, featureSetting, 0.74, PalladianTextClassifier.DEFAULT_SCORER);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class PalladianTextClassifierIT {
         TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
         DictionaryModel model = classifier.train(trainIterator);
         TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
+        ConfusionMatrix evaluation = new ConfusionMatrixEvaluator().evaluate(classifier, model, testIterator);
         System.out.println("accuracy with " + featureSetting + " and " + scorer + " on " + testFile + " : "
                 + evaluation.getAccuracy());
         assertTrue("expected accuracy: " + minAccuracy + ", actual accuracy: " + evaluation.getAccuracy(),
