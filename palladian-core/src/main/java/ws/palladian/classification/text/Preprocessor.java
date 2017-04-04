@@ -59,13 +59,13 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             });
         }
         // XXX looks a bit "magic" to me, does that really improve results in general?
-        tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
+        /* tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
             @Override
             public boolean accept(Token item) {
                 String value = item.getValue();
                 return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
             }
-        });
+        }); */
         Iterator<String> tokenStringIterator = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
         if (featureSetting.isRemoveStopwords()) {
             tokenStringIterator = CollectionHelper.filter(tokenStringIterator,
