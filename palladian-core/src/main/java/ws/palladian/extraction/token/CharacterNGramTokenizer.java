@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
 public final class CharacterNGramTokenizer implements TextTokenizer {
 
@@ -35,15 +35,15 @@ public final class CharacterNGramTokenizer implements TextTokenizer {
     public Iterator<Token> iterateTokens(String text) {
         Validate.notNull(text, "text must not be null");
         final String textForTokenization = padding ? createPadding(text) : text;
-        return new AbstractIterator<Token>() {
+        return new AbstractIterator2<Token>() {
             private int offset = 0;
             private int length = minLength;
 
             @Override
-            protected Token getNext() throws Finished {
+            protected Token getNext() {
                 for (;;) {
                     if (offset + minLength > textForTokenization.length()) {
-                        throw FINISHED;
+                        return finished();
                     }
                     String nGram = textForTokenization.substring(offset, offset + length);
                     if (offset + length == textForTokenization.length() || length == maxLength) {

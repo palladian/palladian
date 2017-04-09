@@ -1,6 +1,5 @@
 package ws.palladian.classification.text;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
@@ -15,7 +14,6 @@ import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Function;
-import ws.palladian.helper.nlp.StringHelper;
 
 public class Preprocessor implements Function<String, Iterator<String>> {
 
@@ -59,13 +57,13 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             });
         }
         // XXX looks a bit "magic" to me, does that really improve results in general?
-        tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
+        /* tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
             @Override
             public boolean accept(Token item) {
                 String value = item.getValue();
                 return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
             }
-        });
+        }); */
         Iterator<String> tokenStringIterator = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
         if (featureSetting.isRemoveStopwords()) {
             tokenStringIterator = CollectionHelper.filter(tokenStringIterator,

@@ -360,7 +360,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         } catch (JsonException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-        list.add(element);
+        list.add(index, element);
     }
 
     @Override

@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -22,6 +24,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * </p>
  */
 public class StopWordRemover implements Filter<String> {
+	private static final Map<String, Set<String>> CACHE = new HashMap<>();
 
     private final Set<String> stopwords;
 
@@ -68,7 +71,7 @@ public class StopWordRemover implements Filter<String> {
             case DUTCH:
             case ITALIAN:
             case FRENCH:
-                stopwords = loadStopwordsResource("/stopwords_"+language.getIso6391()+".txt");
+                stopwords = loadStopwordsResourceCached("/stopwords_"+language.getIso6391()+".txt");
                 break;
             default:
                 stopwords = Collections.emptySet();
@@ -76,7 +79,22 @@ public class StopWordRemover implements Filter<String> {
         }
     }
     
-    private Set<String> loadStopwordsResource(String resourcePath) {
+	private static final Set<String> loadStopwordsResourceCached(String resourcePath) {
+		Set<String> stopwords = CACHE.get(resourcePath);
+		if (stopwords != null) {
+			return stopwords;
+		}
+		synchronized (CACHE) {
+			stopwords = CACHE.get(resourcePath);
+			if (stopwords == null) {
+				stopwords = loadStopwordsResource(resourcePath);
+				CACHE.put(resourcePath, stopwords);
+			}
+		}
+		return stopwords;
+	}    
+    
+    private static Set<String> loadStopwordsResource(String resourcePath) {
         InputStream inputStream = StopWordRemover.class.getResourceAsStream(resourcePath);
         if (inputStream == null) {
             throw new IllegalStateException("Resource \"" + resourcePath + "\" not found.");
@@ -88,7 +106,7 @@ public class StopWordRemover implements Filter<String> {
         }
     }
     
-    private Set<String> loadStopwords(InputStream fileInputStream) {
+    private static Set<String> loadStopwords(InputStream fileInputStream) {
         final Set<String> result = new HashSet<>();
         FileHelper.performActionOnEveryLine(fileInputStream, new LineAction() {
             @Override

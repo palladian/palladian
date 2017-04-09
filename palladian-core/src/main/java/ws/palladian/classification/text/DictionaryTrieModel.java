@@ -145,6 +145,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 String term = addEntry.getTerm();
                 LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
                 for (Category addCategory : addEntry.getCategoryEntries()) {
+                	// TODO really "append" (see JavaDoc), shouldn't this be "add"???
                     entries.append(addCategory);
                 }
                 numTerms++;
