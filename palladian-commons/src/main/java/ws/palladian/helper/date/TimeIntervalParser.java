@@ -57,6 +57,25 @@ public class TimeIntervalParser {
         if (parsed) {
             seconds += 86400 * days + 3600 * hours + 60 * minutes;
         } else {
+
+            String hoursString = StringHelper.getRegexpMatch("\\d+(?=[hH])", string);
+            String minutesString = StringHelper.getRegexpMatch("\\d+(?=([mM])|( Mins| minutes))", string);
+            String secondsString = StringHelper.getRegexpMatch("\\d+(?=([sS])|( Seconds))", string);
+
+            if (hoursString != null && !hoursString.isEmpty()) {
+                seconds = 3600 * Integer.valueOf(hoursString);
+            }
+            if (minutesString != null && !minutesString.isEmpty()) {
+                seconds += 60 * Integer.valueOf(minutesString);
+            }
+            if (secondsString != null && !secondsString.isEmpty()) {
+                seconds += Integer.valueOf(secondsString);
+            }
+
+            if (seconds > 0) {
+                return seconds;
+            }
+
             return null;
         }
 
