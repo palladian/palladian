@@ -33,7 +33,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @author Philipp Katz
  * @see <a href="https://code.google.com/p/socialmention-api/wiki/APIDocumentation">API Documentation</a>
+ * @deprecated API is no longer working.
  */
+@Deprecated
 public final class SocialMentionSearcher extends AbstractMultifacetSearcher<WebContent> {
 
     /** The logger for this class. */

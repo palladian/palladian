@@ -30,7 +30,9 @@ import ws.palladian.retrieval.search.SearcherException;
  * 
  * @see <a href="https://webknox.com/">WebKnox</a>
  * @author David Urbansky
+ * @deprecated API is longer working?!
  */
+@Deprecated
 public final class WebKnoxSearcher extends AbstractMultifacetSearcher<WebContent> {
 
     /** The logger for this class. */
