@@ -16,7 +16,9 @@ import ws.palladian.retrieval.search.BaseBingSearcher;
  * </p>
  * 
  * @author Philipp Katz
+ * @deprecated API is defunct, this is no longer working.
  */
+@Deprecated
 public final class BingNewsSearcher extends BaseBingSearcher<WebContent> {
 
     /**
