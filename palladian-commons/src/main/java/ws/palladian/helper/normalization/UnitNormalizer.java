@@ -310,7 +310,7 @@ public class UnitNormalizer {
      */
     public static double unitLookup(String unit) {
 
-        unit = unit.toLowerCase().trim();
+        unit = unit.trim();
         if (unit.endsWith(".")) {
             unit = unit.substring(0, unit.length() - 1);
         }
@@ -333,6 +333,27 @@ public class UnitNormalizer {
                 }
             }
 
+        }
+
+        // nothing found? try case insensive
+        if (multiplier < 0) {
+            unit = unit.toLowerCase();
+            ol:
+            for (UnitType unitType : UnitType.values()) {
+                for (Pair<List<String>, Double> pair : unitType.getUnits()) {
+                    for (String unitTypeUnit : pair.getLeft()) {
+                        if (unit.equals(unitTypeUnit)) {
+                            if (pair.getRight() == null) {
+                                multiplier = -1.0;
+                            } else {
+                                multiplier = pair.getRight();
+                            }
+                            break ol;
+                        }
+                    }
+                }
+
+            }
         }
 
         return multiplier;

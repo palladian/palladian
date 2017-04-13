@@ -127,7 +127,7 @@ public enum UnitType {
         unitList.add("mega watt");
         unitList.add("megawatts");
         unitList.add("megawatt");
-        unitList.add("mw");
+        unitList.add("MW");
         UnitType.POWER.units.add(Pair.of(unitList, 1000000.0));
 
         unitList = new ArrayList<>();
@@ -150,6 +150,7 @@ public enum UnitType {
         unitList.add("milliwatts");
         unitList.add("milliwatt");
         unitList.add("mw");
+        unitList.add("mW");
         UnitType.POWER.units.add(Pair.of(unitList, 0.001));
 
         unitList = new ArrayList<>();
