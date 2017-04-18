@@ -698,7 +698,7 @@ public enum UnitType {
         unitList.add("Tbsps");
         unitList.add("tbsps");
         unitList.add("tbsp");
-        unitList.add("T");
+//        unitList.add("T");
         UnitType.VOLUME.units.add(Pair.of(unitList, 14.7868));
 
         unitList = new ArrayList<>();
@@ -712,7 +712,7 @@ public enum UnitType {
         unitList.add("teaspoon");
         unitList.add("tsps");
         unitList.add("tsp");
-        unitList.add("t");
+//        unitList.add("t");
         UnitType.VOLUME.units.add(Pair.of(unitList, 4.92892));
 
         unitList = new ArrayList<>();
