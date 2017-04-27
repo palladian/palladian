@@ -127,7 +127,7 @@ public enum UnitType {
         unitList.add("mega watt");
         unitList.add("megawatts");
         unitList.add("megawatt");
-        unitList.add("mw");
+        unitList.add("MW");
         UnitType.POWER.units.add(Pair.of(unitList, 1000000.0));
 
         unitList = new ArrayList<>();
@@ -150,6 +150,7 @@ public enum UnitType {
         unitList.add("milliwatts");
         unitList.add("milliwatt");
         unitList.add("mw");
+        unitList.add("mW");
         UnitType.POWER.units.add(Pair.of(unitList, 0.001));
 
         unitList = new ArrayList<>();
@@ -697,7 +698,7 @@ public enum UnitType {
         unitList.add("Tbsps");
         unitList.add("tbsps");
         unitList.add("tbsp");
-        unitList.add("T");
+//        unitList.add("T");
         UnitType.VOLUME.units.add(Pair.of(unitList, 14.7868));
 
         unitList = new ArrayList<>();
@@ -711,7 +712,7 @@ public enum UnitType {
         unitList.add("teaspoon");
         unitList.add("tsps");
         unitList.add("tsp");
-        unitList.add("t");
+//        unitList.add("t");
         UnitType.VOLUME.units.add(Pair.of(unitList, 4.92892));
 
         unitList = new ArrayList<>();

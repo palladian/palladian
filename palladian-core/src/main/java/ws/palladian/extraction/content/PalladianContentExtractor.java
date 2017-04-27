@@ -789,7 +789,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.SPANISH;
         } else if (domain.endsWith(".it")) {
             return Language.ITALIAN;
-        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie")) {
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".au")) {
             return Language.ENGLISH;
         } else if (domain.endsWith(".pt")) {
             return Language.PORTUGUESE;

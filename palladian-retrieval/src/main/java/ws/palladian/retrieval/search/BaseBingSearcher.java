@@ -33,7 +33,9 @@ import ws.palladian.retrieval.resources.WebContent;
  * 
  * @see <a href="https://datamarket.azure.com/dataset/bing/search">Bing Search API on Windows Azure Marketplace</a>
  * @author Philipp Katz
+ * @deprecated API is defunct, this is no longer working.
  */
+@Deprecated
 public abstract class BaseBingSearcher<R extends WebContent> extends AbstractMultifacetSearcher<R> {
 
     /** The logger for this class. */
