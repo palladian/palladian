@@ -29,8 +29,7 @@ public class ConcurrentMapMatrix<K, V> implements Serializable {
 
      public Map<K, V> getRow(K y) {
          // return Optional.ofNullable(matrix.get(y)).orElse(new HashMap<K, V>());
-    	 Map<K, V> row = matrix.get(y);
-    	 return row != null ? row : new HashMap<>();
+    	 return matrix.get(y);
     }
 
     public void set(K x, K y, V value) {
@@ -60,6 +59,7 @@ public class ConcurrentMapMatrix<K, V> implements Serializable {
     }
 
     public V get(K x, K y) {
-        return getRow(y).get(x);
+        Map<K, V> row = getRow(y);
+        return row != null ? row.get(x) : null;
     }
 }
