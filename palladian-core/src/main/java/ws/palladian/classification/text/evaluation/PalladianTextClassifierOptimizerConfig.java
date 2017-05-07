@@ -10,6 +10,8 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.evaluation.ClassificationEvaluator;
 import ws.palladian.classification.evaluation.roc.RocCurves;
+import ws.palladian.classification.text.DictionaryBuilder;
+import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
@@ -46,6 +48,8 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 		private Collection<? extends Filter<? super CategoryEntries>> pruningStrategies = DEFAULT_PRUNING_STRATEGIES;
 
 		private Collection<? extends Scorer> scorers = DEFAULT_SCORERS;
+		
+		private DictionaryBuilder dictionaryBuilder = new DictionaryTrieModel.Builder();
 
 		private Builder(ClassificationEvaluator<R> evaluator) {
 			this.evaluator = evaluator;
@@ -117,6 +121,19 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 		public Builder<R> setScorers(Scorer... scorers) {
 			return setScorers(Arrays.asList(scorers));
 		}
+		
+		/**
+		 * Specify the {@link DictionaryBuilder} to use.
+		 * 
+		 * @param builder
+		 *            The builder, not <code>null</code>.
+		 * @return this instance.
+		 */
+		public Builder<R> setDictionaryBuilder(DictionaryBuilder builder) {
+			Validate.notNull(builder, "builder must not be null");
+			this.dictionaryBuilder = builder;
+			return this;
+		}
 
 		@Override
 		public PalladianTextClassifierOptimizer<R> create() {
@@ -137,11 +154,14 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 
 	private final Collection<? extends Scorer> scorers;
 
+	private final DictionaryBuilder dictionaryBuilder;
+
 	public PalladianTextClassifierOptimizerConfig(Builder<R> builder) {
 		this.evaluator = builder.evaluator;
 		this.featureSettings = new ArrayList<>(builder.featureSettings);
 		this.pruningStrategies = new ArrayList<>(builder.pruningStrategies);
 		this.scorers = new ArrayList<>(builder.scorers);
+		this.dictionaryBuilder = builder.dictionaryBuilder;
 	}
 
 	Collection<FeatureSetting> getFeatureSettings() {
@@ -158,6 +178,10 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 
 	ClassificationEvaluator<R> getEvaluator() {
 		return evaluator;
+	}
+	
+	DictionaryBuilder getDictionaryBuilder() {
+		return dictionaryBuilder;
 	}
 
 }
