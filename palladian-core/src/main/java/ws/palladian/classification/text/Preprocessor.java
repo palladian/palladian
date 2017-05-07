@@ -45,7 +45,7 @@ public class Preprocessor implements Function<String, Iterator<String>> {
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
-        if (featureSetting.isWordUnigrams()) {
+        if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
             tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
                 int minTermLength = featureSetting.getMinimumTermLength();
                 int maxTermLength = featureSetting.getMaximumTermLength();
