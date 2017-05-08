@@ -579,14 +579,14 @@ public final class StringHelper {
                 leftBorder = true;
             } else {
                 char prevChar = searchStringLc.charAt(index - 1);
-                leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
+                leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar) || Character.getType(prevChar) == Character.DASH_PUNCTUATION);
             }
             boolean rightBorder;
             if (index + word.length() == searchStringLc.length()) {
                 rightBorder = true;
             } else {
                 char nextChar = searchStringLc.charAt(index + word.length());
-                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar));
+                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION);
             }
 
             // if word exists, cut it out and replace with replacement
@@ -1801,7 +1801,7 @@ public final class StringHelper {
      * "a", digits to "0", and special chars to "-".<br>
      * Examples:<br>
      * <p>
-     * 
+     *
      * <pre>
      * "Hello" => "Aa"
      * "this is nice" => "a a a"
