@@ -183,16 +183,18 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         return this;
     }
 
-    /**
-     * <p>
-     * Set the minimum and maximum length of terms to extract. This is only effective in case of word-1-grams (in case
-     * it is not, it will be set to one automatically, when invoking this method).
-     * </p>
-     * 
-     * @param min The minimum term length, must be greater zero.
-     * @param max The maximum term length, must be greater/equal min.
-     * @return The builder, to allow method chaining.
-     */
+	/**
+	 * <p>
+	 * Set the minimum and maximum length of entire terms to extract. This is
+	 * only effective in case of word-n-grams.
+	 * </p>
+	 * 
+	 * @param min
+	 *            The minimum term length, must be greater zero.
+	 * @param max
+	 *            The maximum term length, must be greater/equal min.
+	 * @return The builder, to allow method chaining.
+	 */
     public FeatureSettingBuilder termLength(int min, int max) {
         if (featureType != TextFeatureType.WORD_NGRAMS) {
             throw new UnsupportedOperationException("This is only supported for " + TextFeatureType.WORD_NGRAMS
@@ -202,7 +204,6 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         Validate.isTrue(max >= min, "max must be greater/equal min");
         this.minTermLength = min;
         this.maxTermLength = max;
-        nGramLength(1);
         return this;
     }
 

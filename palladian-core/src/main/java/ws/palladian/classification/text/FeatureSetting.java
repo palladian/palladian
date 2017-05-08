@@ -273,7 +273,7 @@ public class FeatureSetting implements Serializable {
             builder.append('-').append(maxNGramLength);
         }
         builder.append('-').append(textFeatureType);
-        if (isWordUnigrams()) {
+        if (textFeatureType == TextFeatureType.WORD_NGRAMS) {
             if (minimumTermLength != DEFAULT_MIN_TERM_LENGTH || maximumTermLength != DEFAULT_MAX_TERM_LENGTH) {
                 builder.append(", termLength=").append(minimumTermLength);
                 builder.append('-').append(maximumTermLength);

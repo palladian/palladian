@@ -56,7 +56,7 @@ public final class PalladianTextClassifierOptimizer<R> {
         boolean headerWritten = false;
         progressReporter.startTask("Evaluating feature settings", config.getFeatureSettings().size() * config.getScorers().size());
         for (FeatureSetting featureSetting : config.getFeatureSettings()) {
-            DictionaryModel model = new PalladianTextClassifier(featureSetting).train(training);
+            DictionaryModel model = new PalladianTextClassifier(featureSetting, config.getDictionaryBuilder()).train(training);
             for (Filter<? super CategoryEntries> pruningStrategy : config.getPruningStrategies()) {
                 model = new PruningSimulatedDictionaryModel(model, pruningStrategy);
                 for (Scorer scorer : config.getScorers()) {

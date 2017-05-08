@@ -135,6 +135,7 @@ public class StringHelperTest {
         assertEquals("a (test) b", StringHelper.replaceWord("test", "(test)", "a test b"));
         assertEquals("a  b", StringHelper.replaceWord("test", "", "a test b"));
         assertEquals("a test b", StringHelper.replaceWord("", "", "a test b"));
+        assertEquals("plug-in", StringHelper.replaceWord("in", "", "plug-in"));
     }
 
     @Test
