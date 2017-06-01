@@ -138,6 +138,11 @@
 			<version>${nd4j.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>com.clarifai.clarifai-api2</groupId>
+			<artifactId>core</artifactId>
+			<version>2.2.6</version>
+		</dependency>
+		<dependency>
 			<artifactId>canova-api</artifactId>
 			<groupId>org.nd4j</groupId>
 			<version>${canova.version}</version>
