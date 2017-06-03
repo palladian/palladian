@@ -1,6 +1,6 @@
 package ws.palladian.features;
 
-import edu.emory.mathcs.jtransforms.dct.DoubleDCT_2D;
+//import edu.emory.mathcs.jtransforms.dct.DoubleDCT_2D;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.multimedia.ImageHandler;
@@ -43,8 +43,9 @@ public enum FrequencyFeatureExtractor implements FeatureExtractor {
             array[i] = (double) (rgb1[i] & 0xFF);
         }
 
-        DoubleDCT_2D tr = new DoubleDCT_2D(w, h);
-        tr.forward(array, true);
+        // FIXME requires spark dependency?
+//        DoubleDCT_2D tr = new DoubleDCT_2D(w, h);
+//        tr.forward(array, true);
 
         SlimStats stat = new SlimStats();
         for (int i = 0; i < w * h; i++) {
