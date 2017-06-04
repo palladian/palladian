@@ -13,13 +13,13 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * Google Cloud Vision API for label detection (using large generic model).
+ * 
  * @see https://cloud.google.com/vision/docs/
  * @author David Urbansky
  */
@@ -39,10 +39,13 @@ public class GoogleCloudVision {
 
         List<String> labels = new ArrayList<>();
 
+        if (maxNumberOfLabels < 1) {
+            maxNumberOfLabels = 1;
+        }
+
         HttpClient httpClient = new HttpClient();
 
-        String body = "{\"requests\":[{\"image\":{\"content\":\"XXX\"},\"features\":[{"
-                + "\"type\":\"LABEL_DETECTION\",\"maxResults\":"+maxNumberOfLabels+ "}]}]}";
+        String body = "{\"requests\":[{\"image\":{\"content\":\"XXX\"},\"features\":[{" + "\"type\":\"LABEL_DETECTION\",\"maxResults\":" + maxNumberOfLabels + "}]}]}";
 
         FileInputStream fileInputStreamReader = new FileInputStream(image);
         byte[] bytes = new byte[(int)image.length()];
@@ -50,14 +53,14 @@ public class GoogleCloudVision {
         String encodedFile = Base64.getEncoder().encodeToString(bytes);
         body = body.replace("XXX", encodedFile);
 
-        PostMethod post = new PostMethod("https://vision.googleapis.com/v1/images:annotate?key="+apiKey);
+        PostMethod post = new PostMethod("https://vision.googleapis.com/v1/images:annotate?key=" + apiKey);
         post.setRequestEntity(new StringRequestEntity(body.toString()));
 
         try {
             httpClient.executeMethod(post);
             String methodResult = IOUtils.toString(post.getResponseBodyAsStream());
 
-//            System.out.println(methodResult);
+            // System.out.println(methodResult);
 
             JsonObject responseJson = new JsonObject(methodResult);
             JsonArray responses = responseJson.tryGetJsonArray("responses");
@@ -77,6 +80,7 @@ public class GoogleCloudVision {
     }
 
     public static void main(String... args) throws Exception {
-        new GoogleCloudVision("TODO").classify(new File("test.jpg"),10);
+        List<String> labels = new GoogleCloudVision("apiKey").classify(new File("dog.jpg"), 10);
+        CollectionHelper.print(labels);
     }
 }
