@@ -66,7 +66,7 @@ public class ImageClassifier {
         this(null, null, ImageNetLabels.getLabels());
     }
 
-    private ImageClassifier(String h5Path, String jsonPath, List<String> labels) {
+    public ImageClassifier(String h5Path, String jsonPath, List<String> labels) {
         TrainedModelHelper helper = new TrainedModelHelper(TrainedModels.VGG16);
         if (h5Path != null && jsonPath != null) {
             helper.setPathToH5(h5Path);
@@ -80,7 +80,7 @@ public class ImageClassifier {
         }
     }
 
-    private ImageClassifier(String modelZipPath, List<String> labels) {
+    public ImageClassifier(String modelZipPath, List<String> labels) {
 
         File locationToSave = new File(modelZipPath);
         try {

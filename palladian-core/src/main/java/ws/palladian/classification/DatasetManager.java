@@ -3,14 +3,8 @@ package ws.palladian.classification;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +39,7 @@ public final class DatasetManager {
      * Read the image files in a folder and create an index file.
      * This method assumes that the filenames contain the target class name and a running counter, e.g. categoryA1.jpg, categoryB131.png etc.
      */
-    public void createIndex(String folderPath, String targetFilePath) {
+    public void createIndexFromMixedFolder(String folderPath, String targetFilePath) {
 
         String targetFileFolderPath = new File(targetFilePath).getParent() + File.separator;
         String relativePath = folderPath.replace(targetFileFolderPath, "");
@@ -705,14 +699,14 @@ public final class DatasetManager {
      */
     public static void main(String[] args) throws IOException {
 
-        new DatasetManager().folderize("F:\\PalladianData\\Datasets\\recipes50\\pictures","F:\\PalladianData\\Datasets\\recipes50\\foldered");
+        new DatasetManager().folderize("F:\\PalladianData\\Datasets\\recipes50\\pictures", "F:\\PalladianData\\Datasets\\recipes50\\foldered");
 
         // Dataset dataset = new Dataset();
         // dataset.setPath("data/temp/trainCollection.csv");
         // dataset.setSeparationString("<###>");
         // splitForCrossValidation(dataset, 3, 10);
 
-//        createBalancedIndex("H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt", " ");
+        // createBalancedIndex("H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt", " ");
 
         System.exit(0);
 
