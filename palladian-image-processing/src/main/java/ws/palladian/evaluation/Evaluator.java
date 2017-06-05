@@ -25,11 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.DatasetManager;
-import ws.palladian.classification.quickml.QuickMlClassifier;
-import ws.palladian.classification.quickml.QuickMlLearner;
-import ws.palladian.classification.text.BayesScorer;
-import ws.palladian.classification.text.FeatureSettingBuilder;
-import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
