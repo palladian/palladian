@@ -1,27 +1,6 @@
 package ws.palladian.helper.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,8 +63,7 @@ public final class FileHelper {
     public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif", "svg");
 
     /** Constant for video file extensions. */
-    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov",
-            "xvid", "wmv");
+    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid", "wmv");
 
     /** Constant for audio file extensions. */
     public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
@@ -580,15 +558,15 @@ public final class FileHelper {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(filePath);
-            
+
             if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            	inputStream = new GZIPInputStream(inputStream);
+                inputStream = new GZIPInputStream(inputStream);
             }
-            
+
             lineNumber = performActionOnEveryLine(inputStream, lineAction);
         } catch (IOException e) {
-        	LOGGER.error("Encountered IOException for \"" + filePath + "\": " + e.getMessage(), e);
-		} finally {
+            LOGGER.error("Encountered IOException for \"" + filePath + "\": " + e.getMessage(), e);
+        } finally {
             close(inputStream);
         }
         return lineNumber;
@@ -1271,7 +1249,7 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(String fileName) {
-        return performActionOnEveryLine(fileName, NOP_LINE_ACTION);
+        return getNumberOfLines(new File(fileName));
     }
 
     /**
@@ -1283,7 +1261,28 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(File file) {
-        return getNumberOfLines(file.getPath());
+        InputStream is = null;
+        try {
+            is = new BufferedInputStream(new FileInputStream(file));
+            byte[] c = new byte[1024];
+            int count = 0;
+            int readChars;
+            boolean empty = true;
+            while ((readChars = is.read(c)) != -1) {
+                empty = false;
+                for (int i = 0; i < readChars; ++i) {
+                    if (c[i] == '\n') {
+                        ++count;
+                    }
+                }
+            }
+            return (count == 0 && !empty) ? 1 : count;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(is);
+        }
+        return -1;
     }
 
     private static void addDirectorToZip(ZipOutputStream zout, File dir, String relativePath) {
@@ -1873,8 +1872,7 @@ public final class FileHelper {
                     String directoryName = "palladian-" + System.currentTimeMillis();
                     File newTempDirectory = new File(baseDirectory, directoryName);
                     if (!newTempDirectory.mkdir()) {
-                        throw new IllegalStateException("Could not create the temporary directory " + directoryName
-                                + " in " + baseDirectory.getPath());
+                        throw new IllegalStateException("Could not create the temporary directory " + directoryName + " in " + baseDirectory.getPath());
                     }
                     tempDirectory = newTempDirectory;
 
@@ -1924,8 +1922,7 @@ public final class FileHelper {
      * @param consumer A consumer to process the matching items, not <code>null</code>.
      * @return The number of processed files.
      */
-    public static int traverseFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter,
-            Consumer<? super File> consumer) {
+    public static int traverseFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter, Consumer<? super File> consumer) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
@@ -1969,8 +1966,7 @@ public final class FileHelper {
      * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
      * @return A list with matched files, or an empty list, never <code>null</code>.
      */
-    public static List<File> getFiles(File path, Filter<? super File> fileFilter,
-            Filter<? super File> directoryFilter) {
+    public static List<File> getFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
@@ -2106,8 +2102,7 @@ public final class FileHelper {
         isFileName("ab.ai");
         isFileName("  abasdf.mpeg2 ");
 
-        System.out.println(
-                getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
+        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
 
