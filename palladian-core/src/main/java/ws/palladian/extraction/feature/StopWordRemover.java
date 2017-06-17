@@ -70,6 +70,18 @@ public class StopWordRemover implements Filter<String> {
             case SPANISH:
             case DUTCH:
             case ITALIAN:
+            case PORTUGUESE:
+            case RUSSIAN:
+            case DANISH:
+            case FINNISH:
+            case HUNGARIAN:
+            case NORWEGIAN:
+            case ROMANIAN:
+            case SWEDISH:
+            case TURKISH:
+            case CHINESE:
+            case JAPANESE:
+            case VIETNAMESE:
             case FRENCH:
                 stopwords = loadStopwordsResourceCached("/stopwords_"+language.getIso6391()+".txt");
                 break;
