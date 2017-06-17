@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
@@ -157,7 +158,7 @@ public final class DatasetManager {
         final FileWriter indexFile = new FileWriter(indexFilename);
 
         // number of instances for each class
-        final Bag<String> cm = Bag.create();
+        final Bag<String> cm = new Bag<>();
 
         LineAction la = new LineAction() {
 
@@ -591,7 +592,7 @@ public final class DatasetManager {
 
     public static Bag<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
 
-        final Bag<String> classCounts = Bag.create();
+        final Bag<String> classCounts = new Bag<>();
         LineAction la = new LineAction() {
 
             @Override
@@ -610,7 +611,7 @@ public final class DatasetManager {
 
         if (csvPath != null) {
             StringBuilder csv = new StringBuilder();
-            for (String entry : classCounts) {
+            for (String entry : classCounts.createSorted(CollectionHelper.Order.DESCENDING).uniqueItems()) {
                 csv.append(entry).append(";").append(classCounts.count(entry)).append("\n");
             }
             FileHelper.writeToFile(csvPath, csv);
