@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -15,6 +17,10 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.ImmutableCategory;
+import ws.palladian.core.ImmutableCategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -35,17 +41,10 @@ public class MicrosoftComputerVision {
         this.apiKey = apiKey;
     }
 
-    public List<String> classify(File image) throws IOException {
-        return classify(image, 10);
-    }
+    public CategoryEntries classify(File image) throws IOException {
 
-    public List<String> classify(File image, int maxNumberOfLabels) throws IOException {
-
-        List<String> labels = new ArrayList<>();
-
-        if (maxNumberOfLabels < 1) {
-            maxNumberOfLabels = 1;
-        }
+        Map<String, Category> entryMap = new LinkedHashMap<>();
+        Category mostLikely = new ImmutableCategory("unknown", 0.);
 
         HttpClient httpclient = new DefaultHttpClient();
 
@@ -74,18 +73,28 @@ public class MicrosoftComputerVision {
                 JsonArray tags = responseJson.tryGetJsonArray("tags");
 
                 for (int i = 0; i < tags.size(); i++) {
-                    labels.add(tags.tryGetJsonObject(i).tryGetString("name"));
+
+                    String tagName = tags.tryGetJsonObject(i).tryGetString("name");
+                    Double score = tags.tryGetJsonObject(i).tryGetDouble("confidence");
+
+                    ImmutableCategory category = new ImmutableCategory(tagName, score);
+                    entryMap.put(tagName, category);
+
+                    if (score > mostLikely.getProbability()) {
+                        mostLikely = category;
+                    }
+
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return CollectionHelper.getSublist(labels, 0, maxNumberOfLabels);
+        return new ImmutableCategoryEntries(entryMap, mostLikely);
     }
 
     public static void main(String... args) throws Exception {
-        List<String> labels = new MicrosoftComputerVision("endpoint", "apiKey").classify(new File("dog.jpg"), 10);
+        CategoryEntries labels = new MicrosoftComputerVision("endpoint", "apiKey").classify(new File("dog.jpg"));
         CollectionHelper.print(labels);
     }
 }
