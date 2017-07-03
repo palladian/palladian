@@ -16,6 +16,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <nd4j.version>0.4-rc3.8</nd4j.version>
         <dl4j.version>0.8.0</dl4j.version>
+        <dl4j.spark.version>0.8.0_spark_2</dl4j.spark.version>
         <canova.version>0.0.0.14</canova.version>
         <aws.version>1.11.140</aws.version>
     </properties>
@@ -120,7 +121,12 @@
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <version>2.1.1</version>
+            <!--<scope>provided</scope>-->
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>org.apache.spark</groupId>-->
         <!--<artifactId>spark-core_2.10</artifactId>-->
@@ -147,6 +153,11 @@
             <version>${dl4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>dl4j-spark_2.11</artifactId>
+            <version>${dl4j.spark.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
             <version>0.8.0</version>
@@ -170,6 +181,11 @@
             <groupId>com.clarifai.clarifai-api2</groupId>
             <artifactId>core</artifactId>
             <version>2.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.watson.developer_cloud</groupId>
+            <artifactId>java-sdk</artifactId>
+            <version>3.8.0</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
