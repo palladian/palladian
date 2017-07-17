@@ -81,7 +81,7 @@ public final class FileHelper {
     public static final String NEWLINE_CHARACTER = "\n";
 
     /** Constant for image file extensions. */
-    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif", "svg");
+    public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif", "svg", "psd", "ai", "indd");
 
     /** Constant for video file extensions. */
     public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov",
