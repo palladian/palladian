@@ -47,17 +47,6 @@ public class Scheduler {
         tasks.add(pair);
     }
 
-    public void removeTask(Runnable runnable, Schedule schedule) {
-        Pair<Runnable, Schedule> pair = new ImmutablePair<>(runnable, schedule);
-        for (Pair<Runnable, Schedule> task : tasks) {
-            int hashCode = task.hashCode();
-            int hashCodeMyPair = pair.hashCode();
-            if(hashCode==hashCodeMyPair){
-                System.out.println("bla");
-            }
-        }
-    }
-
     private void runPeriodicTimeCheck() {
 
         (new Thread() {

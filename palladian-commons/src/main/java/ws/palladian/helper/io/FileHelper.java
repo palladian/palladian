@@ -104,6 +104,7 @@ public final class FileHelper {
         binaryFileExtensions.add("xls");
         binaryFileExtensions.add("zip");
         binaryFileExtensions.add("7z");
+        binaryFileExtensions.add("jar");
         binaryFileExtensions.add("rar");
         binaryFileExtensions.add("tar");
         binaryFileExtensions.add("gz");
