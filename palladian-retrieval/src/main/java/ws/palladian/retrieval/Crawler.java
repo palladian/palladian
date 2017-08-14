@@ -63,10 +63,10 @@ public class Crawler {
     private boolean outDomain = true;
 
     /** Only follow domains that have one or more of these regexps in their URL. */
-    private final Set<Pattern> whiteListUrlRegexps = new HashSet<>();
+    protected final Set<Pattern> whiteListUrlRegexps = new HashSet<>();
 
     /** Regexps that must not be contained in the URLs or they won't be followed. */
-    private final Set<Pattern> blackListUrlRegexps = new HashSet<>();
+    protected final Set<Pattern> blackListUrlRegexps = new HashSet<>();
 
     /** Remove those parts from every retrieved URL. */
     private final LinkedHashSet<Pattern> urlModificationRegexps = new LinkedHashSet<>();

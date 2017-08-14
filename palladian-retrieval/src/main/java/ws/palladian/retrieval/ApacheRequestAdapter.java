@@ -21,7 +21,10 @@ final class ApacheRequestAdapter extends HttpEntityEnclosingRequestBase implemen
         HttpEntity entity = adapted.getEntity();
         if (entity != null) {
             // setEntity(new InputStreamEntity(entity.getInputStream(), entity.length()));
-            ContentType contentType = ContentType.create(entity.getContentType());
+            ContentType contentType = null;
+            if (entity.getContentType() != null) {
+                contentType = ContentType.parse(entity.getContentType());
+            }
             setEntity(new InputStreamEntity(entity.getInputStream(), entity.length(), contentType));
         }
     }

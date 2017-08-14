@@ -392,10 +392,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // remove header, footer, and sidebars
         List<Node> removeNodes = new ArrayList<>();
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//header//*"));
-        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[@id='header']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//nav//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'head']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'header']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//footer//*"));
-        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[@id='footer']//*"));
-        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[@id='sidebar']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'foot']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'footer']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'sidebar']//*"));
 
         // remove scripts / style / iframes etc.
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document,
@@ -648,10 +651,24 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     @Override
     public String getResultTitle() {
+        return getResultTitle(new HashSet<String>());
+    }
+    public String getResultTitle(Collection<String> excludeNodes) {
+
         // try to get it from the biggest headline, take last one as we assume this to be the most specific
         List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(),
                 "//h1[not(ancestor::header) and not(ancestor::footer)]");
-        Node h1Node = CollectionHelper.getLast(xhtmlNodes);
+
+        for (String excludeNodeXPath : excludeNodes) {
+            xhtmlNodes.removeAll(XPathHelper.getXhtmlNodes(getDocument(), excludeNodeXPath+"//h1"));
+        }
+
+        Node h1Node;
+        if (excludeNodes.isEmpty()) {
+            h1Node = CollectionHelper.getLast(xhtmlNodes);
+        } else {
+            h1Node = CollectionHelper.getFirst(xhtmlNodes);
+        }
 
         String resultTitle = "";
         if (h1Node != null) {
