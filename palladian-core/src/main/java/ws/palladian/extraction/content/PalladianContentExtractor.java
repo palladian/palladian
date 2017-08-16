@@ -486,7 +486,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return filteredImages;
     }
 
-    public void filter(List<WebImage> images, String... imageFormats) {
+    public void filterByFileType(List<WebImage> images, String... imageFormats) {
         List<WebImage> filteredImages = new ArrayList<>();
 
         for (WebImage webImage : getImages()) {
@@ -495,6 +495,20 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     filteredImages.add(webImage);
                 }
             }
+        }
+
+        images.clear();
+        images.addAll(filteredImages);
+    }
+
+    public void filterByName(List<WebImage> images, String mustNotContain) {
+        List<WebImage> filteredImages = new ArrayList<>();
+
+        for (WebImage webImage : getImages()) {
+            if (mustNotContain != null && !mustNotContain.isEmpty() && webImage.getImageUrl().contains(mustNotContain)) {
+                continue;
+            }
+            filteredImages.add(webImage);
         }
 
         images.clear();
@@ -823,7 +837,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // look for itemprop image
         xhtmlNode = XPathHelper
                 .getXhtmlNode(getDocument(),
-                        "//*[(@itemprop='image' or @itemprop='photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
+                        "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
         if (xhtmlNode != null) {
             String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
             return new BasicWebImage.Builder().setImageUrl(url).create();
@@ -872,11 +886,15 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     excludeImageNodes));
         }
 
-        filter(images, "jpeg", "png", "jpg");
+        filterByFileType(images, "jpeg", "png", "jpg");
         if (!images.isEmpty()) {
             // only sort by size if the first one is below a certain size
             image = CollectionHelper.getFirst(images);
             if (image != null && image.getSize() < 10000) {
+                // filter out icons
+                if (images.size() > 1) {
+                    filterByName(images, "icon");
+                }
                 Collections.sort(images, new ImageSizeComparator());
                 image = CollectionHelper.getFirst(images);
             }
