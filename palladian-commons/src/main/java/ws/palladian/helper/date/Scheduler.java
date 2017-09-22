@@ -43,6 +43,10 @@ public class Scheduler {
         tasks.add(pair);
     }
 
+    public void addTask(Pair<Runnable, Schedule> pair) {
+        tasks.add(pair);
+    }
+
     private void runPeriodicTimeCheck() {
 
         (new Thread() {

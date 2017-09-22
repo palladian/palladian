@@ -21,7 +21,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * <p>
  * Spell checks and auto-corrects text using the Palladian spell checker which is based on Peter Norvigs implementation.
  * </p>
- * <p/>
+ *
  * <p>
  * Training data can be found on Palladian server under Datasets/SpellingCorrection
  * </p>
@@ -138,6 +138,14 @@ public class PalladianSpellChecker {
             }
         }
 
+    }
+    
+    public void addManualMapping(String source, String target) {
+         if (source.contains(" ")) {
+            manualPhraseMappings.put(source.toLowerCase(), target);
+         } else {
+            manualWordMappings.put(source.toLowerCase(), target);
+         }
     }
 
     /**

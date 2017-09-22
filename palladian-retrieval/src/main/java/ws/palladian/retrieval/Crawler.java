@@ -73,8 +73,8 @@ public class Crawler {
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
-    private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
-    private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> urlStack = Collections.synchronizedSet(new HashSet<>());
+    private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<>());
 
     private Set<String> urlRules = new HashSet<>();
 

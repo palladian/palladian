@@ -23,10 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -743,11 +740,11 @@ public final class HtmlHelper {
     }
 
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
-        return getLinks(document, inDomain, outDomain, prefix, false);
+        return getLinks(document, inDomain, outDomain, prefix, false, false);
     }
 
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix,
-            boolean respectNoFollow) {
+            boolean respectNoFollow, boolean includeSubdomains) {
 
         Set<String> pageLinks = new HashSet<>();
 
@@ -755,10 +752,14 @@ public final class HtmlHelper {
             return pageLinks;
         }
 
+        if (prefix == null) {
+            prefix = "";
+        }
+
         // remove anchors from url
         String url = document.getDocumentURI();
         url = UrlHelper.removeAnchors(url);
-        String domain = UrlHelper.getDomain(url, false).toLowerCase();
+        String domain = UrlHelper.getDomain(url, false, !includeSubdomains).toLowerCase();
 
         // get value of base element, if present
         Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
@@ -769,8 +770,14 @@ public final class HtmlHelper {
 
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
-        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a/@href");
+        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a[@href]");
         for (Node linkNode : linkNodes) {
+
+            Node hrefNode = linkNode.getAttributes().getNamedItem("href");
+
+            if (hrefNode == null) {
+                continue;
+            }
 
             if (respectNoFollow) {
                 Node rel = linkNode.getAttributes().getNamedItem("rel");
@@ -782,7 +789,7 @@ public final class HtmlHelper {
                 }
             }
 
-            String currentLink = linkNode.getTextContent();
+            String currentLink = hrefNode.getTextContent();
             currentLink = currentLink.trim();
 
             // remove anchors from link

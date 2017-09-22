@@ -78,6 +78,7 @@ public final class FileHelper {
         List<String> binaryFileExtensions = new ArrayList<>();
         binaryFileExtensions.add("pdf");
         binaryFileExtensions.add("doc");
+        binaryFileExtensions.add("docx");
         binaryFileExtensions.add("ppt");
         binaryFileExtensions.add("xls");
         binaryFileExtensions.add("zip");
