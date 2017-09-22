@@ -62,6 +62,9 @@ public class Crawler {
     /** Whether to crawl outside of current domain. */
     private boolean outDomain = true;
 
+    /** Whether to crawl sub domains of current domain. */
+    private boolean subDomain = false;
+
     /** Only follow domains that have one or more of these regexps in their URL. */
     protected final Set<Pattern> whiteListUrlRegexps = new HashSet<>();
 
@@ -81,7 +84,7 @@ public class Crawler {
     /** If true, all query params in the URL ?= will be stripped. */
     private boolean stripQueryParams = true;
 
-    /** If false, rel="nofollow" links will indeed not be followed. */
+    /** If true, rel="nofollow" links will indeed not be followed. */
     private boolean respectNoFollow = false;
 
     /** The callback that is called after the crawler finished crawling. */
@@ -130,7 +133,7 @@ public class Crawler {
         Document document = documentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
-            Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain);
+            Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain, "", respectNoFollow, subDomain);
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
                 LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
@@ -228,26 +231,29 @@ public class Crawler {
      * @param inDomain Follow links that point to other pages within the given domain.
      * @param outDomain Follow outbound links.
      */
-    public void startCrawl(Set<String> urlStack, boolean inDomain, boolean outDomain) {
+    public void startCrawl(Set<String> urlStack, boolean inDomain, boolean outDomain, boolean subDomain) {
         this.urlStack.clear();
         this.urlStack.addAll(urlStack);
         this.inDomain = inDomain;
         this.outDomain = outDomain;
+        this.subDomain = subDomain;
         startCrawl();
     }
 
+
     /**
      * Start the crawling process.
-     * 
+     *
      * @param startURL The URL where the crawler should start.
      * @param inDomain Follow links that point to other pages within the given domain.
      * @param outDomain Follow outbound links.
      */
-    public void startCrawl(String startURL, boolean inDomain, boolean outDomain) {
+    public void startCrawl(String startURL, boolean inDomain, boolean outDomain, boolean subDomain) {
         urlStack.clear();
         urlStack.add(startURL);
         this.inDomain = inDomain;
         this.outDomain = outDomain;
+        this.subDomain = subDomain;
         startCrawl();
     }
 
@@ -464,7 +470,7 @@ public class Crawler {
 
         // start the crawling process from a certain page, true = follow links
         // within the start domain, true = follow outgoing links
-        crawler.startCrawl("http://www.dmoz.org/", true, true);
+        crawler.startCrawl("http://www.dmoz.org/", true, true, true);
         // //////////////////////////////////////////////////
     }
 
