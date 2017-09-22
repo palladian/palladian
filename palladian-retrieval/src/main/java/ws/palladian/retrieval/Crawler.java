@@ -328,7 +328,7 @@ public class Crawler {
         return url;
     }
 
-    private synchronized void addUrlToStack(String url) {
+    protected synchronized void addUrlToStack(String url) {
 
         url = cleanUrl(url);
 
