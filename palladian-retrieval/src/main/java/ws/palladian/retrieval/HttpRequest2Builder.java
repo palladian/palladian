@@ -32,6 +32,10 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
     public HttpRequest2Builder(HttpMethod method, String url) {
         Validate.notNull(method, "method must not be null");
         Validate.notEmpty(url, "url must not be empty");
+
+        // unencoded spaces are illegal characters in URLs
+        url = url.replace(" ", "%20");
+
         this.method = method;
         this.baseUrl = UrlHelper.parseBaseUrl(url);
         this.urlParams = UrlHelper.parseParams(url);
