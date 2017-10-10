@@ -3,12 +3,14 @@ package ws.palladian.retrieval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -328,7 +330,7 @@ public class Crawler {
         return url;
     }
 
-    private synchronized void addUrlToStack(String url) {
+    protected synchronized void addUrlToStack(String url) {
 
         url = cleanUrl(url);
 
