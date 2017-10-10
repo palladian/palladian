@@ -1495,8 +1495,6 @@ public final class FileHelper {
                 content.append(s);
                 content.append("\n");
             }
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
@@ -1547,49 +1545,79 @@ public final class FileHelper {
     }
 
     /**
-     * Unzip a file.
+     * Extracts a zip file specified by the zipFilePath to the current working directory.
      * 
-     * @param filename the file to unzip.
-     * @return <tt>True</tt> if zipping and saving was successfully, <tt>false</tt> otherwise.
+     * @param zipFilePath The path to the zipped file.
+     * @throws IOException
      */
-    public static boolean unzipFile(String filename) {
-
-        int bufferSize = 1024;
-
-        ZipInputStream zis = null;
-        FileInputStream fis = null;
-        BufferedOutputStream dest = null;
-        FileOutputStream fos = null;
-
+    public static void unzip(String zipFilePath) throws IOException {
+        unzip(zipFilePath, null);
+    }
+    public static boolean tryUnzip(String zipFilePath) {
         try {
-
-            fis = new FileInputStream(filename);
-            zis = new ZipInputStream(new BufferedInputStream(fis));
-            ZipEntry entry;
-
-            while ((entry = zis.getNextEntry()) != null) {
-
-                LOGGER.debug("extracting: " + entry);
-                int count;
-                byte data[] = new byte[bufferSize];
-
-                // write the files to the disk
-                fos = new FileOutputStream(getFilePath(filename) + entry.getName());
-                dest = new BufferedOutputStream(fos, bufferSize);
-                while ((count = zis.read(data, 0, bufferSize)) != -1) {
-                    dest.write(data, 0, count);
-                }
-                dest.close();
-            }
-
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            unzip(zipFilePath, null);
+        } catch (IOException e) {
+            e.printStackTrace();
             return false;
-        } finally {
-            close(dest, fis, zis, fos);
         }
 
         return true;
+    }
+
+    /**
+     * Extracts a zip file specified by the zipFilePath to a directory specified by
+     * destDirectory (will be created if does not exists).
+     * 
+     * @param zipFilePath The path to the zipped file.
+     * @param destDirectory The target directory (if null, current working dirctory)
+     * @throws IOException
+     */
+    public static void unzip(String zipFilePath, String destDirectory) throws IOException {
+        if (destDirectory != null) {
+            File destDir = new File(destDirectory);
+            if (!destDir.exists()) {
+                destDir.mkdir();
+            }
+        }
+
+        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+        ZipEntry entry = zipIn.getNextEntry();
+        // iterates over entries in the zip file
+        while (entry != null) {
+            String filePath = entry.getName();
+            if (destDirectory != null) {
+                filePath = destDirectory + File.separator + filePath;
+            }
+
+            if (!entry.isDirectory()) {
+                // if the entry is a file, extracts it
+                extractFile(zipIn, filePath);
+            } else {
+                // if the entry is a directory, make the directory
+                File dir = new File(filePath);
+                dir.mkdir();
+            }
+
+            zipIn.closeEntry();
+            entry = zipIn.getNextEntry();
+        }
+        zipIn.close();
+    }
+
+    /**
+     * Extracts a zip entry (file entry)
+     * @param zipIn
+     * @param filePath
+     * @throws IOException
+     */
+    private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+        byte[] bytesIn = new byte[4096];
+        int read;
+        while ((read = zipIn.read(bytesIn)) != -1) {
+            bos.write(bytesIn, 0, read);
+        }
+        bos.close();
     }
 
     /**
@@ -1668,10 +1696,7 @@ public final class FileHelper {
                         LOGGER.error("could not create the directories " + filePath);
                         success = false;
                     }
-                } catch (IOException e) {
-                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                    success = false;
-                } catch (SecurityException e) {
+                } catch (IOException | SecurityException e) {
                     LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
                     success = false;
                 }
