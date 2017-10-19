@@ -433,10 +433,16 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         Node mainNode = null;
 
         for (String hint : MAIN_NODE_HINTS) {
-            List<Node> mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
-                    "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
-                            + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint + "') or @itemprop='"
-                            + hint + "' or @id='" + hint + "']");
+            List<Node> mainNodes = new ArrayList<Node>();
+
+            try {
+                mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
+                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
+                                + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint + "') or @itemprop='"
+                                + hint + "' or @id='" + hint + "']");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             if (!mainNodes.isEmpty()) {
                 mainNode = mainNodes.get(0);
