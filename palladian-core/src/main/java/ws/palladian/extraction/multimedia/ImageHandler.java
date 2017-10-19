@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.*;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.List;
@@ -114,8 +115,7 @@ public class ImageHandler {
         int population;
 
         public Color getCenterColor() {
-            return new Color((int)((double)totalRed / population), (int)((double)totalGreen / population),
-                    (int)((double)totalBlue / population));
+            return new Color((int)((double)totalRed / population), (int)((double)totalGreen / population), (int)((double)totalBlue / population));
         }
     }
 
@@ -160,6 +160,7 @@ public class ImageHandler {
     public static BufferedImage load(String url) {
         return load(url, new HashSet<>());
     }
+
     public static BufferedImage load(String url, Set<String> detectedContentTypes) {
         BufferedImage bufferedImage = null;
 
@@ -179,7 +180,7 @@ public class ImageHandler {
                     // let's try to guess the actual content type from the stream, if we find something, this must be more accurate than the file extension
                     String detectedContentType = Optional.ofNullable(URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(httpResult.getContent()))).orElse("");
                     detectedContentType = StringHelper.getSubstringBetween(detectedContentType, "/", null);
-                    detectedContentType = detectedContentType.replace("jpeg","jpg");
+                    detectedContentType = detectedContentType.replace("jpeg", "jpg");
                     if (!detectedContentType.isEmpty()) {
                         detectedContentTypes.clear();
                         detectedContentTypes.add(detectedContentType);
@@ -188,21 +189,20 @@ public class ImageHandler {
                     // ccl
                 }
                 try {
-
                     bufferedImage = ImageIO.read(new ByteArrayInputStream(httpResult.getContent()));
+
+                    if (bufferedImage == null) {
+                        bufferedImage = ImageIO.read(new URL(url));
+                    }
+
                 } catch (Exception e) {
-                    bufferedImage = JAI
-                            .create("stream", SeekableStream
-                                    .wrapInputStream(new ByteArrayInputStream(httpResult.getContent()), true))
-                            .getAsBufferedImage();
+                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new ByteArrayInputStream(httpResult.getContent()), true)).getAsBufferedImage();
                 }
             } else {
                 try {
                     bufferedImage = ImageIO.read(new File(url));
                 } catch (Exception e) {
-                    bufferedImage = JAI
-                            .create("stream", SeekableStream.wrapInputStream(new FileInputStream(new File(url)), true))
-                            .getAsBufferedImage();
+                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new FileInputStream(new File(url)), true)).getAsBufferedImage();
                 }
             }
         } catch (Exception e) {
@@ -253,8 +253,7 @@ public class ImageHandler {
                             continue;
                         }
 
-                        if (!MathHelper.isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(),
-                                0.05)) {
+                        if (!MathHelper.isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
                             continue;
                         }
                         if (isDuplicate(image1.imageContent, image2.imageContent)) {
@@ -270,8 +269,7 @@ public class ImageHandler {
             duplicateImages.clear();
 
             // order images by ranking and collect urls
-            Collections.sort(normalizedImages,
-                    (image1, image2) -> Double.compare(image2.getRanking(), image1.getRanking()));
+            Collections.sort(normalizedImages, (image1, image2) -> Double.compare(image2.getRanking(), image1.getRanking()));
             // CollectionHelper.print(normalizedImages);
 
             int matchingImages = Math.min(normalizedImages.size(), matchingNumber);
@@ -340,8 +338,7 @@ public class ImageHandler {
         Validate.notNull(image);
 
         // scale to fill the target box completely
-        double scale = Math.max((double)boxWidth / (double)image.getWidth(),
-                (double)boxHeight / (double)image.getHeight());
+        double scale = Math.max((double)boxWidth / (double)image.getWidth(), (double)boxHeight / (double)image.getHeight());
 
         int targetWidth = Math.max((int)(image.getWidth() * scale), boxWidth);
         int targetHeight = Math.max((int)(image.getHeight() * scale), boxHeight);
@@ -376,8 +373,7 @@ public class ImageHandler {
      * @param fit Whether images should be fit to the box or cropped to match the imageWidth and imageHeight.
      * @throws IOException
      */
-    public static void rescaleAllImages(String imageFolder, int imageWidth, int imageHeight, boolean fit)
-            throws IOException {
+    public static void rescaleAllImages(String imageFolder, int imageWidth, int imageHeight, boolean fit) throws IOException {
 
         File[] imageFiles = FileHelper.getFiles(imageFolder);
         for (File file : imageFiles) {
@@ -437,8 +433,7 @@ public class ImageHandler {
         pb.add(new InterpolationBicubic(4));
         pb.add(bufferedImage);
 
-        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
+        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         // results in exactly the same as above (tested only for downscaling)
         // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
@@ -479,8 +474,7 @@ public class ImageHandler {
         pb.add(new InterpolationBicubic(4));
         pb.add(bufferedImage);
 
-        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_QUALITY);
+        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         // results in exactly the same as above (tested only for downscaling)
         // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
@@ -568,6 +562,7 @@ public class ImageHandler {
 
     /**
      * Download and save a picture from a URL. The image extension will automatically be added to the save path depending on the the image format.
+     * 
      * @param url The URL of the image.
      * @param savePath The path to which the image should be saved.
      * @return The path (including the detected file type) where the image was saved or null if there was an error.
@@ -971,8 +966,7 @@ public class ImageHandler {
         if (colorStr.startsWith("#")) {
             colorStr = colorStr.substring(1);
         }
-        return new Color(Integer.valueOf(colorStr.substring(0, 2), 16), Integer.valueOf(colorStr.substring(2, 4), 16),
-                Integer.valueOf(colorStr.substring(4, 6), 16));
+        return new Color(Integer.valueOf(colorStr.substring(0, 2), 16), Integer.valueOf(colorStr.substring(2, 4), 16), Integer.valueOf(colorStr.substring(4, 6), 16));
     }
 
     public static String rgbToHex(Color color) {
@@ -1043,8 +1037,7 @@ public class ImageHandler {
                 Color color = hexToRgb(currentColor.getHexCode());
                 double distance = colorDistance(imageColor, color);
                 if (bestMatch == null || distance < bestMatch.getValue0()) {
-                    bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex,
-                            currentColor.getSpecificColorName(), currentColor.getMainColorName()));
+                    bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, currentColor.getSpecificColorName(), currentColor.getMainColorName()));
                 }
 
             }
@@ -1085,8 +1078,7 @@ public class ImageHandler {
 
         // NOTE: 256 seems to be a good number for OCTTREE as upper bound, default would be 65536, this parameter is
         // ColorQuantizerType dependent!
-        final RenderedOp cqImage = ColorQuantizerDescriptor.create(image, ColorQuantizerDescriptor.OCTTREE,
-                numberOfColors, 256, null, null, null, null);
+        final RenderedOp cqImage = ColorQuantizerDescriptor.create(image, ColorQuantizerDescriptor.OCTTREE, numberOfColors, 256, null, null, null, null);
 
         return cqImage.getAsBufferedImage();
     }
@@ -1147,8 +1139,7 @@ public class ImageHandler {
     }
 
     public static Color getRandomColor() {
-        return new Color(MathHelper.getRandomIntBetween(0, 255), MathHelper.getRandomIntBetween(0, 255),
-                MathHelper.getRandomIntBetween(0, 255));
+        return new Color(MathHelper.getRandomIntBetween(0, 255), MathHelper.getRandomIntBetween(0, 255), MathHelper.getRandomIntBetween(0, 255));
     }
 
     /**
@@ -1162,8 +1153,7 @@ public class ImageHandler {
      * @param replacementColor The replacement color.
      * @param pixels A collection of pixels that were changed.
      */
-    public static void floodFill(BufferedImage image, int x, int y, Color followColor, Color replacementColor,
-            Collection<Point> pixels) {
+    public static void floodFill(BufferedImage image, int x, int y, Color followColor, Color replacementColor, Collection<Point> pixels) {
         if (image.getRGB(x, y) != followColor.getRGB()) {
             return;
         }
@@ -1238,8 +1228,7 @@ public class ImageHandler {
         RenderedOp erodeOp = ErodeDescriptor.create(image, new KernelJAI(5, 5, floats), null);
         BufferedImage erodedImage = erodeOp.getAsBufferedImage();
 
-        PlanarImage temp = GradientMagnitudeDescriptor.create(erodedImage, KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL,
-                KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL, null).createInstance();
+        PlanarImage temp = GradientMagnitudeDescriptor.create(erodedImage, KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL, KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL, null).createInstance();
 
         return temp.getAsBufferedImage();
     }
@@ -1349,11 +1338,9 @@ public class ImageHandler {
         palette.add(new Color(36, 143, 181));
         int pixelSize = 10;
         String iName = "264505";
-        BufferedImage pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"),
-                10);
+        BufferedImage pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"), 10);
         ImageHandler.saveImage(pixelated, "data/temp/pics/pixelated-nopalette.jpg");
-        pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"), pixelSize,
-                palette);
+        pixelated = ImageHandler.pixelate(ImageHandler.load("D:\\yelp\\train_photos\\" + iName + ".jpg"), pixelSize, palette);
         ImageHandler.saveImage(pixelated, "data/temp/pics/pixelated-palette.jpg");
         System.exit(0);
 
@@ -1365,13 +1352,11 @@ public class ImageHandler {
         CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load("https://res.svh24.de/images2/720/1/271/1011038627_1.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
-        testImg = ImageHandler
-                .load("http://cdn1-www.webecoist.momtastic.com/assets/uploads/2008/12/8-green-camera.jpg");
+        testImg = ImageHandler.load("http://cdn1-www.webecoist.momtastic.com/assets/uploads/2008/12/8-green-camera.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load("http://www.fotokoch.de/bilddaten/bildklein/samsung-wb50f-rot_60185.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
-        testImg = ImageHandler.load(
-                "http://cdn.itechnews.net/wp-content/uploads/2012/09/HTC-8X-Windows-Phone-8-Smartphone-flaming-red.jpg");
+        testImg = ImageHandler.load("http://cdn.itechnews.net/wp-content/uploads/2012/09/HTC-8X-Windows-Phone-8-Smartphone-flaming-red.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
         testImg = ImageHandler.load("http://image01.bonprix.de/bonprixbilder/460x644/1427714799/15023250-ujoMmNo0.jpg");
         CollectionHelper.print(ImageHandler.detectColors(testImg));
@@ -1411,11 +1396,9 @@ public class ImageHandler {
         // i1 = ImageHandler.rescaleImageOptimal(i0, 500, 500);
         // ImageHandler.saveImage(i1, "jpg", "testRescaleOptimal.jpg");
 
-        BufferedImage duplicate1 = ImageHandler
-                .load("http://static0.cinefreaks.com/application/frontend/images/movies/Brautalarm_2.jpg");
+        BufferedImage duplicate1 = ImageHandler.load("http://static0.cinefreaks.com/application/frontend/images/movies/Brautalarm_2.jpg");
 
-        BufferedImage duplicate2 = ImageHandler
-                .load("http://static0.cinefreaks.com/application/frontend/images/movies/Brautalarm_5.jpg");
+        BufferedImage duplicate2 = ImageHandler.load("http://static0.cinefreaks.com/application/frontend/images/movies/Brautalarm_5.jpg");
 
         System.out.println(ImageHandler.isDuplicate(duplicate1, duplicate2));
 
