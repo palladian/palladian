@@ -47,6 +47,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
     private static final Pattern PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
     private static final Pattern PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
+    private static final Pattern PATTERN_NON_ASCII_SPACE = Pattern.compile(" ");
     private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
     private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
@@ -636,6 +637,7 @@ public final class StringHelper {
      * @see http://forums.sun.com/thread.jspa?threadID=5370865
      */
     public static String removeNonAsciiCharacters(String string) {
+        string = PATTERN_NON_ASCII_SPACE.matcher(string).replaceAll(" ");
         return PATTERN_NON_ASCII.matcher(string).replaceAll("");
     }
 
