@@ -1,12 +1,18 @@
 package ws.palladian.extraction.token;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
 
+import org.junit.rules.ErrorCollector;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -18,6 +24,18 @@ import ws.palladian.helper.constants.Language;
  * @author Philipp Katz
  */
 public class TokenizerTest {
+
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
+
+    @Test
+    public void testCalculateCharEdgeNGrams() {
+        collector.checkThat(Tokenizer.calculateCharEdgeNGrams("allthelilacsinohio", 3, false), hasItems("all", "hio"));
+        collector.checkThat(Tokenizer.calculateCharEdgeNGrams("allthelilacsinohio", 3, false).size(), is(2));
+
+        collector.checkThat(Tokenizer.calculateAllCharEdgeNGrams("allthelilacsinohio", 1, 4), hasItems("all", "ohio", "io", "al"));
+        collector.checkThat(Tokenizer.calculateAllCharEdgeNGrams("allthelilacsinohio", 1, 4).size(), is(8));
+    }
 
     @Test
     public void testCalculateCharNGrams() {
