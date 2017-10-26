@@ -62,6 +62,64 @@ public final class Tokenizer {
         return CollectionHelper.newHashSet(CollectionHelper.convert(nGramIterator, Token.VALUE_CONVERTER));
     }
 
+    public static Set<String> calculateAllCharEdgeNGrams(String string, int n1, int n2) {
+        return calculateAllCharEdgeNGrams(string, n1, n2, false);
+    }
+    public static Set<String> calculateAllCharEdgeNGrams(String string, int n1, int n2, boolean mustHitLeftEdge) {
+        Set<String> nGrams = new HashSet<>();
+        String[] parts = string.split(" ");
+        for (String part : parts) {
+            for (int n = n1; n <= n2; n++) {
+                nGrams.addAll(calculateCharEdgeNGrams(part, n, mustHitLeftEdge));
+            }
+        }
+
+        return nGrams;
+    }
+
+    /**
+     * <p>
+     * Calculate n-grams for a given string on a character level. The size of the set can be calculated as: Size =
+     * stringLength - n + 1.
+     * </p>
+     * <p>
+     * Skip 1-4-grams in the middle of the word. E.g. "pROTector" should not be fround with "rot" and "Sleeve" should
+     * not be found for "ee"
+     * </p>
+     *
+     * @param string The string that the n-grams should be calculated for.
+     * @param n      The number of characters for a gram.
+     * @return A set of n-grams.
+     */
+    public static Set<String> calculateCharEdgeNGrams(String string, int n, boolean mustHitLeftEdge) {
+        Set<String> nGrams = new HashSet<>();
+
+        int length = string.length();
+        if (length < n) {
+            return nGrams;
+        }
+
+        for (int i = 0; i <= length - n; i++) {
+
+            // only allow edge ngrams
+            if ((i > 0 && i != length - n) || (n == 1 && i > 0 && i != length - n)) {
+                continue;
+            }
+
+            StringBuilder nGram = new StringBuilder();
+            for (int j = i; j < i + n; j++) {
+                nGram.append(string.charAt(j));
+            }
+            nGrams.add(nGram.toString());
+
+            if (i == 0 && mustHitLeftEdge) {
+                break;
+            }
+        }
+
+        return nGrams;
+    }
+
     /**
      * <p>
      * Calculate n-grams for a given string on a word level. The size of the set can be calculated as: Size =

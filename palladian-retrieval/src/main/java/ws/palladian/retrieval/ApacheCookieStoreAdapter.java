@@ -20,7 +20,12 @@ final class ApacheCookieStoreAdapter implements CookieStore {
 
     @Override
     public void addCookie(Cookie cookie) {
-        adapted.addCookie(new ImmutableCookie(cookie.getName(), cookie.getValue(), cookie.getDomain(), cookie.getPath()));
+        try {
+            adapted.addCookie(new ImmutableCookie(cookie.getName(), cookie.getValue(), cookie.getDomain(), cookie.getPath()));
+        } catch (Exception e) {
+            // come on, broken cookies must not hold us back, we can eat cake instead
+            e.printStackTrace();
+        }
     }
 
     @Override

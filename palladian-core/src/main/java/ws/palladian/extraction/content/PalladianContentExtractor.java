@@ -34,9 +34,8 @@ import ws.palladian.retrieval.resources.WebImage;
 
 /**
  * <p>
- * The PalladianContentExtractor extracts clean sentences from (English) texts. That is, short phrases are not included
- * in the output. Consider the {@link ReadabilityContentExtractor} for general content. The main difference is that this
- * class also finds sentences in comment sections of web pages.
+ * The PalladianContentExtractor extracts clean sentences from (English) texts. That is, short phrases are not included in the output. Consider the
+ * {@link ReadabilityContentExtractor} for general content. The main difference is that this class also finds sentences in comment sections of web pages.
  * </p>
  * <p/>
  * <p>
@@ -97,9 +96,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     /**
      * <p>
-     * Extracted images will have a width and height. If the webmaster decides to specify these values in percentages we
-     * take the following value as a guess of the container size in which the image is located in. Finding the real
-     * width and height of the container would require too much effort and possibly CSS parsing.
+     * Extracted images will have a width and height. If the webmaster decides to specify these values in percentages we take the following value as a guess of the container size
+     * in which the image is located in. Finding the real width and height of the container would require too much effort and possibly CSS parsing.
      * </p>
      */
     private static final int DEFAULT_IMAGE_CONTAINER_SIZE = 500;
@@ -285,8 +283,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         if (!useMainNodeText) {
             // shorter paths with the same counts should be favored to not miss any content
             for (Entry<String, Integer> mapEntry : xpmap.entrySet()) {
-                if (mapEntry.getKey().length() < shortestMatchingXPath.length()
-                        && mapEntry.getValue() == highestCount) {
+                if (mapEntry.getKey().length() < shortestMatchingXPath.length() && mapEntry.getValue() == highestCount) {
                     shortestMatchingXPath = mapEntry.getKey();
                 }
             }
@@ -394,16 +391,18 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//header//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//nav//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'head']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pageheader']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'header']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//footer//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'foot']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'footer']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pagefooter']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'sidebar']//*"));
-
         // remove scripts / style / iframes etc.
-        removeNodes.addAll(XPathHelper.getXhtmlNodes(document,
-                "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]"));
+
         for (Node node : removeNodes) {
+
             if (node == null) {
                 continue;
             }
@@ -433,13 +432,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         Node mainNode = null;
 
         for (String hint : MAIN_NODE_HINTS) {
-            List<Node> mainNodes = new ArrayList<Node>();
+            List<Node> mainNodes = new ArrayList<>();
 
             try {
-                mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
-                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
-                                + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint + "') or @itemprop='"
-                                + hint + "' or @id='" + hint + "']");
+                mainNodes = XPathHelper.getXhtmlNodes(getDocument(), "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint + "' or contains(@class,'"
+                        + hint + " ') or contains(@class,' " + hint + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -477,10 +474,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             if (lastPart.contains("xhtml")) {
                 xhtmlNs = "xhtml:";
             }
-            String newLastPart = "*[(self::" + lastPart + ") or (self::" + xhtmlNs + "h1) or (self::" + xhtmlNs
-                    + "h2) or (self::" + xhtmlNs + "h3) or (self::" + xhtmlNs + "h4) or (self::" + xhtmlNs
-                    + "h5) or (self::" + xhtmlNs + "h6) or (self::" + xhtmlNs + "span) or (self::" + xhtmlNs
-                    + "ul) or (self::" + xhtmlNs + "ol) or (self::" + xhtmlNs + "blockquote)]";
+            String newLastPart = "*[(self::" + lastPart + ") or (self::" + xhtmlNs + "h1) or (self::" + xhtmlNs + "h2) or (self::" + xhtmlNs + "h3) or (self::" + xhtmlNs
+                    + "h4) or (self::" + xhtmlNs + "h5) or (self::" + xhtmlNs + "h6) or (self::" + xhtmlNs + "span) or (self::" + xhtmlNs + "ul) or (self::" + xhtmlNs
+                    + "ol) or (self::" + xhtmlNs + "blockquote)]";
             xPath = xPath.replaceAll(lastPart + "$", newLastPart);
         } catch (Exception e) {
         }
@@ -548,8 +544,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return getImages(imageParentNode, webDocument, imgXPath, excludeNodes);
     }
 
-    public List<WebImage> getImages(Node imageParentNode, Document webDocument, String imgXPath,
-            Collection<Node> excludeNodes) {
+    public List<WebImage> getImages(Node imageParentNode, Document webDocument, String imgXPath, Collection<Node> excludeNodes) {
 
         if (imageUrls != null) {
             return imageUrls;
@@ -673,14 +668,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public String getResultTitle() {
         return getResultTitle(new HashSet<String>());
     }
+
     public String getResultTitle(Collection<String> excludeNodes) {
 
         // try to get it from the biggest headline, take last one as we assume this to be the most specific
-        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(),
-                "//h1[not(ancestor::header) and not(ancestor::footer)]");
+        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1[not(ancestor::header) and not(ancestor::footer)]");
 
         for (String excludeNodeXPath : excludeNodes) {
-            xhtmlNodes.removeAll(XPathHelper.getXhtmlNodes(getDocument(), excludeNodeXPath+"//h1"));
+            xhtmlNodes.removeAll(XPathHelper.getXhtmlNodes(getDocument(), excludeNodeXPath + "//h1"));
         }
 
         Node h1Node;
@@ -717,9 +712,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     /**
      * <p>
-     * Try to find the correct image dimensions of all extracted images. Do that only for images that had no "width" and
-     * "height" attributes in the image tag. Note that other images might have different real dimensions and might have
-     * been scaled using the HTML attributes.
+     * Try to find the correct image dimensions of all extracted images. Do that only for images that had no "width" and "height" attributes in the image tag. Note that other
+     * images might have different real dimensions and might have been scaled using the HTML attributes.
      * </p>
      */
     public void analyzeImages() {
@@ -757,8 +751,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public String getAuthorName(String apiKey) {
         String author = "";
-        String url = "http://webknox.com/api/webpage/author?url=" + getDocument().getDocumentURI()
-                + "&language=en&apiKey=" + apiKey;
+        String url = "http://webknox.com/api/webpage/author?url=" + getDocument().getDocumentURI() + "&language=en&apiKey=" + apiKey;
         DocumentRetriever retriever = new DocumentRetriever();
         // changed to palladian JSON, but untested. Philipp, 2013-09-22
         String authorsJson = retriever.getText(url);
@@ -802,8 +795,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             substringBetween = StringHelper.getSubstringBetween(innerXml, " xmlu00003alang=\"", "\"");
         }
         if (substringBetween.isEmpty()) {
-            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"content-language\" content=\"",
-                    "\"");
+            substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"content-language\" content=\"", "\"");
         }
         if (substringBetween.isEmpty()) {
             substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"language\" content=\"", "\"");
@@ -826,14 +818,31 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.SPANISH;
         } else if (domain.endsWith(".it")) {
             return Language.ITALIAN;
-        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".au")) {
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".au")
+                || domain.endsWith(".ca")) {
             return Language.ENGLISH;
+        } else if (domain.endsWith(".pl")) {
+            return Language.POLISH;
+        } else if (domain.endsWith(".co.jp")) {
+            return Language.JAPANESE;
         } else if (domain.endsWith(".pt")) {
             return Language.PORTUGUESE;
         } else if (domain.endsWith(".nl")) {
             return Language.DUTCH;
         } else if (domain.endsWith(".ru")) {
             return Language.RUSSIAN;
+        } else if (domain.endsWith(".no")) {
+            return Language.NORWEGIAN;
+        } else if (domain.endsWith(".sk")) {
+            return Language.SLOVAK;
+        } else if (domain.endsWith(".fi")) {
+            return Language.FINNISH;
+        } else if (domain.endsWith(".gr")) {
+            return Language.GREEK;
+        } else if (domain.endsWith(".co.il")) {
+            return Language.HEBREW;
+        } else if (domain.endsWith(".vn")) {
+            return Language.VIETNAMESE;
         }
 
         return null;
@@ -857,9 +866,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         // look for itemprop image
-        xhtmlNode = XPathHelper
-                .getXhtmlNode(getDocument(),
-                        "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
+                "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
 
         if (xhtmlNode != null) {
             String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
@@ -891,16 +899,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             for (String includeXPath : contentIncludeXPath) {
                 mainContentNode = XPathHelper.getXhtmlNode(getDocument(), includeXPath);
                 images.addAll(getImages(mainContentNode, getDocument(),
-                        ".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]",
-                        excludeImageNodes));
+                        ".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]", excludeImageNodes));
             }
 
         } else {
             // get images that are not in header or footer or that link to the index (which are usually logos and
             // banners)
             images.addAll(getImages(mainContentNode, getDocument(),
-                    ".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]",
-                    excludeImageNodes));
+                    ".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]", excludeImageNodes));
         }
 
         filterByFileType(images, "jpeg", "png", "jpg");
@@ -1021,8 +1027,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\652.html");
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\640.html");
         // pe.setDocument("http://www.upi.com/Top_News/US/2013/12/31/Man-faces-kidnapping-other-charges-in-trip-to-Las-Vegas-to-marry/UPI-67931388527587/");
-        pe.setDocument(
-                "http://www.voanews.com/content/russia-urges-nations-to-take-active-role-in-the-middle-east-93610219/169955.html");
+        pe.setDocument("http://www.voanews.com/content/russia-urges-nations-to-take-active-role-in-the-middle-east-93610219/169955.html");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title: " + pe.getResultTitle());

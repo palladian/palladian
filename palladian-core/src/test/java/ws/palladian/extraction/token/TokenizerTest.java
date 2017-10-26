@@ -1,7 +1,8 @@
 package ws.palladian.extraction.token;
 
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -11,9 +12,8 @@ import java.util.Set;
 
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.junit.rules.ErrorCollector;
-import ws.palladian.helper.collection.CollectionHelper;
+
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -31,7 +31,7 @@ public class TokenizerTest {
 
     @Test
     public void testComputeStartingWordNGrams() {
-//        CollectionHelper.print(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8,500));
+        // CollectionHelper.print(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8,500));
 
         collector.checkThat(Tokenizer.computeStartingWordNGrams("This is a test.", 1, 3), hasItem("This"));
         collector.checkThat(Tokenizer.computeStartingWordNGrams("This is a test.", 1, 3), hasItem("This is"));
@@ -39,18 +39,26 @@ public class TokenizerTest {
         collector.checkThat(Tokenizer.computeStartingWordNGrams("This is a test.", 1, 3).size(), is(3));
 
         collector.checkThat(Tokenizer.computeStartingWordNGrams("my broccoli rabe “spaghetti,” tomato & chicken", 1, 3).size(), is(3));
-
     }
+
     @Test
     public void testComputeSplits() {
-//        CollectionHelper.print(Tokenizer.computeSplits("This is a test.", 1, 8,500));
-//        CollectionHelper.print(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8,500));
-//        CollectionHelper.print(Tokenizer.computeSplits("This is a 3,5 test with,another comma.", 1, 8,500));
+        // CollectionHelper.print(Tokenizer.computeSplits("This is a test.", 1, 8,500));
+        // CollectionHelper.print(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8,500));
+        // CollectionHelper.print(Tokenizer.computeSplits("This is a 3,5 test with,another comma.", 1, 8,500));
 
         collector.checkThat(Tokenizer.computeSplits("my broccoli rabe “spaghetti,” tomato & chicken", 1, 8, 1000).size(), is(64));
         collector.checkThat(Tokenizer.computeSplits("This is a 3,5 test with,another comma.", 1, 4, 1000).size(), is(56));
         Set<List<String>> lists = Tokenizer.computeSplits("American Flatbread Handmade Thin & Crispy Pizza Vegan Harvest", 1, 7, 2000);
         collector.checkThat(lists, hasItem(Arrays.asList("American Flatbread", "Handmade Thin & Crispy", "Pizza", "Vegan", "Harvest")));
+    }
+
+    public void testCalculateCharEdgeNGrams() {
+        collector.checkThat(Tokenizer.calculateCharEdgeNGrams("allthelilacsinohio", 3, false), hasItems("all", "hio"));
+        collector.checkThat(Tokenizer.calculateCharEdgeNGrams("allthelilacsinohio", 3, false).size(), is(2));
+
+        collector.checkThat(Tokenizer.calculateAllCharEdgeNGrams("allthelilacsinohio", 1, 4), hasItems("all", "ohio", "io", "al"));
+        collector.checkThat(Tokenizer.calculateAllCharEdgeNGrams("allthelilacsinohio", 1, 4).size(), is(8));
     }
 
     @Test
@@ -114,30 +122,23 @@ public class TokenizerTest {
     @Test
     public void testGetSentence() {
 
-        assertEquals(Tokenizer.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"),
-                "Although, many of them (30.2%) are good.");
-        assertEquals(Tokenizer.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"),
-                "Although, many of them (30.2%) are good");
-        //        assertEquals(Tokenizer.getSentence(
-        //                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
-        //                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
-        //        assertEquals(Tokenizer.getSentence(
-        //                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
+        assertEquals(Tokenizer.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"), "Although, many of them (30.2%) are good.");
+        assertEquals(Tokenizer.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"), "Although, many of them (30.2%) are good");
+        // assertEquals(Tokenizer.getSentence(
+        // "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
         // "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
-        assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10),
-                "Although, many of them (30.2%) are good.");
-        assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 40),
-                "Although, many of them (30.2%) are good.");
+        // assertEquals(Tokenizer.getSentence(
+        // "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
+        // "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
+        assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10), "Although, many of them (30.2%) are good.");
+        assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 40), "Although, many of them (30.2%) are good.");
         // assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good.As long as", 40),
         // "Although, many of them (30.2%) are good.");
-        assertEquals(
-                Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population. Yahoo! Answers,", 12),
+        assertEquals(Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population. Yahoo! Answers,", 12),
                 "What is the largest city in usa, (30.2%) in population.");
-        assertEquals(
-                Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,", 12),
+        assertEquals(Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,", 12),
                 "What is the largest city in usa, (30.2%) in population?");
-        assertEquals(Tokenizer.getSentence(
-                "...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10),
+        assertEquals(Tokenizer.getSentence("...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10),
                 "Although, has 234,423,234 sq.miles area many of them (30.2%) are good.");
     }
 
@@ -150,52 +151,52 @@ public class TokenizerTest {
         List<String> sentences;
 
         inputText = "Inkl. Wettervorhersage (Thermometer, Hygrometer) und Wetterindikator.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Das Leben ist wie eine Schachtel Pralinen - man weiß nie was man kriegt. Bei uns ist jedoch der Satz am B abgeschnitten.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals("Bei uns ist jedoch der Satz am B abgeschnitten.", sentences.get(1));
 
         inputText = "Die originale Druckpatrone Nr. 920XL (CD975AE) von HP liefert professionelle Texte und Grafiken in Laserqualität.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Die originale Druckpatrone Nr. 920XL (CD975AE) von HP liefert professionelle Texte und Grafiken in Laserqualität.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Die SFX Power 2 Serie bietet die perfekte Kombination aus Qualität, Funktionalität, Effizienz und dem für be quiet! bekannten zuverlässigen, leisen Betrieb für kompakte Systeme mit überdurchschnittlicher Leistung.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Kräftige Kontraste und das große ----spektrum sorgen für eine natürliche Lebendigkeit v.a. bei Fotos und Videos.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Die integrierte GPU läuft mit 350 Mhz (max. 1100 mit Turbo) und teilt sich den gemeinsamen, 3 MB großen L3-Cache mit der CPU.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Schlüsselfunktionen des E2500 sind u. a. einen passwortgeschützten Gastzugang mit separatem Netzwerk zu erstellen, die Zugangszeit zu begrenzen und Webseiten zu sperren (Kinderschutz durch die Eltern).";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Außerdem bietet die HyperX SSD Hochgeschwindigkeitsübertragung mit SATA Rev. 3.0 (6 Gbit/s) für eine größere Band-----e, die Anwender für leistungshungrige Spiele, Multitasking und schnelle Multimedia-Nutzung benötigen.";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
         inputText = "Tintenpatrone T1576 Vivid Light Magenta Ultra Chrome K3 Vivid Magenta - Artikel-Nr.: C13T15764010";
-        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN );
+        sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
 
@@ -212,8 +213,7 @@ public class TokenizerTest {
         inputText = "The induction of immediate-early (IE) response genes, such as egr-1, c-fos, and c-jun, occurs rapidly after the activation of T lymphocytes. The process of activation involves calcium mobilization, activation of protein kinase C (PKC), and phosphorylation of tyrosine kinases. p21(ras), a guanine nucleotide binding factor, mediates T-cell signal transduction through PKC-dependent and PKC-independent pathways. The involvement of p21(ras) in the regulation of calcium-dependent signals has been suggested through analysis of its role in the activation of NF-AT. We have investigated the inductions of the IE genes in response to calcium signals in Jurkat cells (in the presence of activated p21(ras)) and their correlated consequences!";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(5, sentences.size());
-        assertEquals(
-                "The induction of immediate-early (IE) response genes, such as egr-1, c-fos, and c-jun, occurs rapidly after the activation of T lymphocytes.",
+        assertEquals("The induction of immediate-early (IE) response genes, such as egr-1, c-fos, and c-jun, occurs rapidly after the activation of T lymphocytes.",
                 sentences.get(0));
         assertEquals(
                 "We have investigated the inductions of the IE genes in response to calcium signals in Jurkat cells (in the presence of activated p21(ras)) and their correlated consequences!",
@@ -247,14 +247,12 @@ public class TokenizerTest {
         inputText = "The largest in the U.S. is New York City, with a population of several million.";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
-        assertEquals("The largest in the U.S. is New York City, with a population of several million.",
-                sentences.get(0));
+        assertEquals("The largest in the U.S. is New York City, with a population of several million.", sentences.get(0));
 
         inputText = "Some, ca. 200 pilots of the US A.F. think they would win vs. others said Mr. X on Tuesday.";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
-        assertEquals("Some, ca. 200 pilots of the US A.F. think they would win vs. others said Mr. X on Tuesday.",
-                sentences.get(0));
+        assertEquals("Some, ca. 200 pilots of the US A.F. think they would win vs. others said Mr. X on Tuesday.", sentences.get(0));
 
         // those patterns were causing an Exception which is fixed now : java.lang.StringIndexOutOfBoundsException
         // at tud.iir.helper.StringHelper.getSubstringBetween(StringHelper.java:984)
@@ -300,9 +298,7 @@ public class TokenizerTest {
         inputText = "Ok I donated man million dollars in cash http://images.icanhascheezburger.com/completestore/2008/12/22/128744482782438694.jpg";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
-        assertEquals(
-                "Ok I donated man million dollars in cash http://images.icanhascheezburger.com/completestore/2008/12/22/128744482782438694.jpg",
-                sentences.get(0));
+        assertEquals("Ok I donated man million dollars in cash http://images.icanhascheezburger.com/completestore/2008/12/22/128744482782438694.jpg", sentences.get(0));
 
         inputText = "MAIDUGURI, Nigeria, Apr. 30, 2012 (Reuters) -- Nigerian Islamist 2. January 2009, sect 15.06.2004 Boko Haram killed four people.";
         sentences = Tokenizer.getSentences(inputText);
@@ -374,7 +370,7 @@ public class TokenizerTest {
         sentences = Tokenizer.getSentences(inputText, Language.GERMAN);
         // CollectionHelper.print(sentences);
         assertEquals(1, sentences.size());
-        
+
         // XXX
         // inputText = "Former National Security Agency chief Michael V. Hayden learned a lesson about eavesdropping";
         // sentences = Tokenizer.getSentences(inputText);
