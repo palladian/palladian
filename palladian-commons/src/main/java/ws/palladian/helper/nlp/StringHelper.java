@@ -376,6 +376,18 @@ public final class StringHelper {
         return containedWords;
     }
 
+    public static Set<String> containsWhichWordsCaseSensitive(Collection<String> words, String searchString) {
+        Set<String> containedWords = new HashSet<>();
+
+        for (String word : words) {
+            if (containsWordCaseSensitive(word, searchString)) {
+                containedWords.add(word);
+            }
+        }
+
+        return containedWords;
+    }
+
     /**
      * <p>
      * Check whether a string contains a word given as a regular expression. The word can be surrounded by whitespaces
