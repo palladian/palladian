@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
+import java.security.Security;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -45,9 +46,25 @@ public class PalladianContentExtractorTest {
 
         // make sure all http retrievers globally trust self-signed certificates
         HttpRetrieverFactory.setFactory(new HttpRetrieverFactory(true));
+        Security.setProperty("jdk.tls.disabledAlgorithms", "SSLv3, DHE, RC4, MD5withRSA, DH keySize < 768, EC keySize < 224");
 
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
+
+        // Norwegian
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.visma.no/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.NORWEGIAN));
+
+        // Slovak
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.nbs.sk/sk/titulna-stranka"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.SLOVAK));
+
+        // Hebrew
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://ashdod.metropolinet.co.il/he-il/אתר-העיר/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.HEBREW));
 
         // German
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
@@ -87,7 +104,7 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.FRENCH));
 
         // Spanish
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://elpais.com/"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://elpais.com/"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.SPANISH));
 

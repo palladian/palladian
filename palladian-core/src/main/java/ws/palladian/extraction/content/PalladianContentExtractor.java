@@ -823,6 +823,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.ENGLISH;
         } else if (domain.endsWith(".pl")) {
             return Language.POLISH;
+        } else if (domain.endsWith(".dk")) {
+            return Language.DANISH;
         } else if (domain.endsWith(".co.jp")) {
             return Language.JAPANESE;
         } else if (domain.endsWith(".pt")) {
@@ -843,6 +845,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.HEBREW;
         } else if (domain.endsWith(".vn")) {
             return Language.VIETNAMESE;
+        } else if (domain.endsWith(".se")) {
+            return Language.SWEDISH;
         }
 
         return null;
