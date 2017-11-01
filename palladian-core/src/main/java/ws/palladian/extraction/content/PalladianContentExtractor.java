@@ -786,7 +786,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         String uri = getDocument().getDocumentURI();
 
         String domain = UrlHelper.getDomain(uri);
-        if (domain.endsWith(".de")) {
+        if (domain.endsWith(".de") || domain.endsWith(".at")) {
             return Language.GERMAN;
         } else if (domain.endsWith(".fr")) {
             return Language.FRENCH;
