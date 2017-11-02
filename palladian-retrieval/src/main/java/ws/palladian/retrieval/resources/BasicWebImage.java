@@ -28,8 +28,8 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
 
         protected String imageUrl;
         protected String thumbnailUrl;
-        protected int width = 1;
-        protected int height = 1;
+        protected int width = -1;
+        protected int height = -1;
         protected License license = License.UNKNOWN;
         protected String licenseLink;
         protected ImageType imageType = ImageType.UNKNOWN;
@@ -148,7 +148,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
 
     @Override
     public int getSize() {
-        return width * height;
+        return Math.abs(width) * Math.abs(height);
     }
 
     @Override
