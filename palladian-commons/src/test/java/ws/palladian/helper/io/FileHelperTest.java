@@ -19,6 +19,7 @@ public class FileHelperTest {
 
     @Test
     public void testGetFileName() {
+        assertEquals("ConvocationProgram2017_WEB", FileHelper.getFileName("http://www.excelsior.edu/documents/1384577/8431827/ConvocationProgram2017_WEB.pdf/dcd4f1dd-cec4-5b11-2210-cd6cd4828c2e"));
         assertEquals("abc", FileHelper.getFileName("data/temp/abc.jpg"));
         assertEquals("abc", FileHelper.getFileName("abc.jpg"));
         assertEquals("abc", FileHelper.getFileName("abc"));

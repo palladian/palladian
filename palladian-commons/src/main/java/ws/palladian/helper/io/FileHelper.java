@@ -148,7 +148,12 @@ public final class FileHelper {
     public static String getFileName(String path) {
         String fileName;
         int lastDot = path.lastIndexOf(".");
-        int lastSeparator = path.lastIndexOf("/") + 1;
+        int lastSeparator;
+        if (lastDot > -1) {
+            lastSeparator = path.substring(0,lastDot).lastIndexOf("/") + 1;
+        } else {
+            lastSeparator = path.lastIndexOf("/") + 1;
+        }
         if (lastSeparator == 0) {
             lastSeparator = path.lastIndexOf("\\") + 1;
         }

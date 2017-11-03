@@ -497,6 +497,20 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return filteredImages;
     }
 
+    public void filterBySize(List<WebImage> images, int minWidth, int minHeight) {
+        List<WebImage> filteredImages = new ArrayList<>();
+
+        for (WebImage webImage : getImages()) {
+           if ((webImage.getWidth() > 0 && webImage.getWidth() < minWidth && webImage.getHeight() > 0 && webImage.getHeight() > minHeight) ||
+                   (webImage.getWidth() < 0 && webImage.getHeight() < 0)) {
+               filteredImages.add(webImage);
+           }
+        }
+
+        images.clear();
+        images.addAll(filteredImages);
+    }
+
     public void filterByFileType(List<WebImage> images, String... imageFormats) {
         List<WebImage> filteredImages = new ArrayList<>();
 
@@ -810,7 +824,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         String uri = getDocument().getDocumentURI();
 
         String domain = UrlHelper.getDomain(uri);
-        if (domain.endsWith(".de")) {
+        if (domain.endsWith(".de") || domain.endsWith(".at")) {
             return Language.GERMAN;
         } else if (domain.endsWith(".fr")) {
             return Language.FRENCH;
@@ -922,6 +936,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 if (images.size() > 1) {
                     filterByName(images, "icon");
                 }
+                // filter out images that are too small (that we know of)
+                filterBySize(images, 50, 50);
                 Collections.sort(images, new ImageSizeComparator());
                 image = CollectionHelper.getFirst(images);
             }
