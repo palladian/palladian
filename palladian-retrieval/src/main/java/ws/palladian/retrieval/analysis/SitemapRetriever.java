@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 public class SitemapRetriever {
 
-    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=<loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=<loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     public Set<String> getUrls(String sitemapIndexUrl) {
         LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
