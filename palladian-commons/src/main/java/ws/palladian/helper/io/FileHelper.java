@@ -112,6 +112,7 @@ public final class FileHelper {
         binaryFileExtensions.add("exe");
         binaryFileExtensions.add("msi");
         binaryFileExtensions.add("swf");
+        binaryFileExtensions.add("dll");
         binaryFileExtensions.addAll(VIDEO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
