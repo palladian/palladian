@@ -249,8 +249,12 @@ public final class FileHelper {
             fileType = path.substring(lastDot + 1, path.length());
         }
 
-        // throw away everything after "?"
+        // throw away everything after "?" and "&"
         lastQM = fileType.indexOf("?");
+        if (lastQM > -1) {
+            fileType = fileType.substring(0, lastQM);
+        }
+        lastQM = fileType.indexOf("&");
         if (lastQM > -1) {
             fileType = fileType.substring(0, lastQM);
         }
