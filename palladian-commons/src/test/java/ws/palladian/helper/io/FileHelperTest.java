@@ -34,6 +34,7 @@ public class FileHelperTest {
 
     @Test
     public void testGetFileType() {
+        assertEquals("xlsx", FileHelper.getFileType("https://debitoor.de/funktionen/musterrechnung/de_debitoor_invoice_template.xlsx&usg=AOvVaw1LlUFdLNIi5JIvwjoMqldf"));
         assertEquals("jpg", FileHelper.getFileType("data/temp/abc.jpg"));
         assertEquals("jpg", FileHelper.getFileType("abc.jpg"));
         assertEquals("jpg", FileHelper.getFileType("http://www.test.com/abc.jpg"));

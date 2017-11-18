@@ -61,6 +61,11 @@ public class PalladianContentExtractorTest {
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.SLOVAK));
 
+        // Polish
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.boomrent.pl/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.POLISH));
+
         // Hebrew
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://ashdod.metropolinet.co.il/he-il/אתר-העיר/"));
         language = palladianContentExtractor.detectLanguage();

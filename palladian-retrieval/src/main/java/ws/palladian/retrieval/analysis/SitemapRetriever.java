@@ -2,6 +2,7 @@ package ws.palladian.retrieval.analysis;
 
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class SitemapRetriever {
 
-    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=<loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE);
+    private final static Pattern LOC_PATTERN = Pattern.compile("(?<=<loc>).*?(?=</loc)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     public Set<String> getUrls(String sitemapIndexUrl) {
         LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
@@ -79,6 +80,8 @@ public class SitemapRetriever {
 
             // read
             String sitemapText = FileHelper.tryReadFileToString(unzippedPath);
+            sitemapText = PatternHelper.compileOrGet("\\n</loc>", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("</loc>");
+            sitemapText = PatternHelper.compileOrGet("<loc>\\n", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("<loc>");
             if (sitemapText == null) {
                 continue;
             }
