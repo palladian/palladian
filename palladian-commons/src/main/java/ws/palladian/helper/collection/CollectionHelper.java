@@ -3,6 +3,8 @@ package ws.palladian.helper.collection;
 import java.util.*;
 import java.util.Map.Entry;
 
+import it.unimi.dsi.fastutil.ints.AbstractIntSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -906,6 +908,31 @@ public final class CollectionHelper {
         }
         Set<T> intersection = new HashSet<>();
         for (T element : smallerSet) {
+            if (largerSet.contains(element)) {
+                intersection.add(element);
+            }
+        }
+        return intersection;
+    }
+
+    public static AbstractIntSet intersect(AbstractIntSet setA, AbstractIntSet setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+        // the most common variant to calculate an intersection is something like this:
+        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
+        // however, if both sets have considerably different sizes, this can be optimized,
+        // by iterating over the smaller set and checking whether the current element
+        // occurs in the larger set:
+        AbstractIntSet smallerSet = setA;
+        AbstractIntSet largerSet = setB;
+
+        // swap smaller/larger set if necessary
+        if (smallerSet.size() > largerSet.size()) {
+            smallerSet = setB;
+            largerSet = setA;
+        }
+        AbstractIntSet intersection = new IntOpenHashSet();
+        for (int element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
             }

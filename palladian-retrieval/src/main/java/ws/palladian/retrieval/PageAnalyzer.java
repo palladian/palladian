@@ -147,7 +147,7 @@ public final class PageAnalyzer {
 
     public static Set<String> constructAllXPaths(Document document, String keyword, boolean deleteAllIndices,
             boolean wordMatch) {
-        Set<String> xpaths = new LinkedHashSet<String>();
+        Set<String> xpaths = new LinkedHashSet<>();
 
         if (document == null) {
             LOGGER.warn("document was null when constructing xpaths");
