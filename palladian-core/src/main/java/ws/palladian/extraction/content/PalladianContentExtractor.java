@@ -809,7 +809,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         } else if (domain.endsWith(".it")) {
             return Language.ITALIAN;
         } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ac.za") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".au")
-                || domain.endsWith(".ca")) {
+                || domain.endsWith(".ca") || domain.endsWith(".us")) {
             return Language.ENGLISH;
         } else if (domain.endsWith(".pl")) {
             return Language.POLISH;
