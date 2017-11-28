@@ -179,8 +179,12 @@ public class Crawler {
                     Thread ct = new Thread("CrawlThread-" + url) {
                         @Override
                         public void run() {
-                            crawl(url);
-                            lastCrawlTime.set(System.currentTimeMillis());
+                            try {
+                                crawl(url);
+                                lastCrawlTime.set(System.currentTimeMillis());
+                            } catch (Throwable t) {
+                                // whatever
+                            }
                         }
                     };
 
