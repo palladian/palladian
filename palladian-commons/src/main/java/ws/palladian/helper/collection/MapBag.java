@@ -1,11 +1,7 @@
 package ws.palladian.helper.collection;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
 
 /**
  * <p>
@@ -63,6 +59,10 @@ public class MapBag {
         return mapKeys.get(bagId);
     }
 
+    public Collection<String> getBagKeys() {
+        return mapKeys.values();
+    }
+
     /**
      * <p>
      * Get another random entry from the bag which is not equal to the given one.
@@ -96,6 +96,7 @@ public class MapBag {
         if (bagId == null) {
             // create a new bag
             bagId = map.values().size();
+            mapKeys.put(bagId, bagKey);
         }
 
         map.put(bagKey, bagId);
