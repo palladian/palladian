@@ -832,8 +832,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.SPANISH;
         } else if (domain.endsWith(".it")) {
             return Language.ITALIAN;
-        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ac.za") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".au")
-                || domain.endsWith(".ca")) {
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ac.za") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".co.za") || domain.endsWith(".au")
+                || domain.endsWith(".ca") || domain.endsWith(".us")) {
             return Language.ENGLISH;
         } else if (domain.endsWith(".pl")) {
             return Language.POLISH;

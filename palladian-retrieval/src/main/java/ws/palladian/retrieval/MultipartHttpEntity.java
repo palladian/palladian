@@ -30,13 +30,13 @@ public final class MultipartHttpEntity implements HttpEntity {
 	/** Double hyphen used to signal start and end of boundary parts. */
 	private static final String DOUBLE_DASH = "--";
 
-	private static final class HttpEntityPart {
+	/* package */ static final class HttpEntityPart {
 
 		private final HttpEntity entity;
 		private final String name;
 		private final String fileName;
 
-		private HttpEntityPart(HttpEntity entity, String name, String fileName) {
+		/* package */ HttpEntityPart(HttpEntity entity, String name, String fileName) {
 			this.entity = entity;
 			this.name = name;
 			this.fileName = fileName;
@@ -44,7 +44,7 @@ public final class MultipartHttpEntity implements HttpEntity {
 
 		private byte[] buildSectionHeader(String boundary) {
 			StringBuilder headerBuilder = new StringBuilder();
-			headerBuilder.append(DOUBLE_DASH).append(boundary).append(LINE_FEED);
+			headerBuilder.append(LINE_FEED).append(DOUBLE_DASH).append(boundary).append(LINE_FEED);
 			headerBuilder.append("Content-Disposition: form-data");
 			if (name != null) {
 				headerBuilder.append("; name=\"").append(name).append("\"");
@@ -60,12 +60,12 @@ public final class MultipartHttpEntity implements HttpEntity {
 			return headerBuilder.toString().getBytes(StandardCharsets.UTF_8);
 		}
 
-		private InputStream getInputStream(String boundary) {
+		/* package */ InputStream getInputStream(String boundary) {
 			return new SequenceInputStream(new ByteArrayInputStream(buildSectionHeader(boundary)),
 					entity.getInputStream());
 		}
 
-		private long length(String boundary) {
+		/* package */ long length(String boundary) {
 			return buildSectionHeader(boundary).length + entity.length();
 		}
 

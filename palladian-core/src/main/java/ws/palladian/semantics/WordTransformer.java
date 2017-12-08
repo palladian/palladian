@@ -299,7 +299,7 @@ public class WordTransformer {
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
             // "Gold" "Ketten" -> "Kette" => "Goldkette"
             for (String word2 : GERMAN_NOUNS) {
-                if (word2.length() < lowerCasePluralForm.length() && lowerCasePluralForm.endsWith(word2)) {
+                if (word2.length() < lowerCasePluralForm.length() - 1 && lowerCasePluralForm.endsWith(word2)) {
                     String singular2 = wordToSingularGermanCaseSensitive(word2);
                     return lowerCasePluralForm.replace(word2, singular2);
                 }
