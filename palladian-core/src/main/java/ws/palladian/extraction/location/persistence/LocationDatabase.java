@@ -248,6 +248,9 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
     @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         Collection<Collection<Location>> result = getLocationsInternal(null, null, coordinate, distance).values();
+        if (result.isEmpty()) {
+            return new ArrayList<>();
+        }
         return new ArrayList<>(CollectionHelper.getFirst(result));
     }
 
