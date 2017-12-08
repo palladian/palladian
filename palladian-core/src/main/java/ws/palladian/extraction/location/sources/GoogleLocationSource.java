@@ -40,6 +40,9 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleLocationSource.class);
 
+    /** Using an API key allows for more requests and management. */
+    private String apiKey = null;
+
     private static final Map<String, LocationType> TYPE_MAPPING = new HashMap<>();
 
     private final HttpRetriever httpRetriever;
@@ -81,14 +84,23 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
         TYPE_MAPPING.put("bus_station", LocationType.POI);
     }
 
-    public GoogleLocationSource() {
+    public GoogleLocationSource(String apiKey) {
+        this.apiKey = apiKey;
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+    }
+    public GoogleLocationSource() {
+        this(null);
     }
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
         String url = String.format("http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false",
                 UrlHelper.encodeParameter(locationName));
+
+        if (apiKey != null) {
+            url += "&key=" + apiKey;
+        }
+
         List<Location> locations;
         String resultString = null;
         try {
@@ -155,8 +167,13 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
 
     @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
-        String url = String.format("http://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&sensor=true",
+        String url = String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&sensor=true",
                 coordinate.getLatitude(), coordinate.getLongitude());
+
+        if (apiKey != null) {
+            url += "&key=" + apiKey;
+        }
+
         HttpResult httpResult = null;
         try {
             httpResult = httpRetriever.httpGet(url);
