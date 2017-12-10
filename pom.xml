@@ -3,9 +3,16 @@
 	<groupId>ws.palladian</groupId>
 	<artifactId>palladian</artifactId>
 	<packaging>pom</packaging>
-	<name>Palladian: TUD Information Retrieval Toolkit</name>
+	<name>Palladian: Information Retrieval Toolkit</name>
 	<version>0.6.0-SNAPSHOT</version>
-	<description>Palladian is the Internet Information Retrieval (IIR) Toolkit currently developed and maintained by David Urbansky, Philipp Katz and Klemens Muthmann.</description>
+	<description>Palladian is a Java-based toolkit which provides functionality to perform internet information retrieval, classification, and information extraction tasks.</description>
+	<url>http://palladian.ws</url>
+	<licenses>
+		<license>
+			<name>Palladian Free Software License Version 2.1</name>
+			<url>https://files.knime.com/sites/default/files/inline-images/palladian.txt</url>
+		</license>
+	</licenses>
 	<developers>
 		<developer>
 			<name>David Urbansky</name>
@@ -18,9 +25,13 @@
 		<developer>
 			<name>Klemens Muthmann</name>
 			<email>klemens.muthmann at gmail.com</email>
-			<url>http://klemensmuthmann.de</url>
 		</developer>
 	</developers>
+	<scm>
+		<connection>scm:git:https://bitbucket.org/palladian/palladian.git</connection>
+		<developerConnection>scm:git:https://bitbucket.org/palladian/palladian.git</developerConnection>
+		<url>https://bitbucket.org/palladian/palladian</url>
+	</scm>
 	<modules>
 		<module>palladian-commons</module>
 		<module>palladian-core</module>
