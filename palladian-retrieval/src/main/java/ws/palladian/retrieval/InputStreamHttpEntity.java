@@ -1,5 +1,6 @@
 package ws.palladian.retrieval;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,6 +26,10 @@ public final class InputStreamHttpEntity implements HttpEntity {
     public InputStreamHttpEntity(File file, String contentType) throws FileNotFoundException {
     	this(new FileInputStream(file), file.length(), contentType);
     }
+    
+	public InputStreamHttpEntity(byte[] buffer, String contentType) {
+		this(new ByteArrayInputStream(buffer), buffer.length, contentType);
+	}
 
     @Override
     public InputStream getInputStream() {
