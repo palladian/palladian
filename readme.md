@@ -1,6 +1,8 @@
 Palladian Toolkit
 =================
 
+[![Run Status](https://api.shippable.com/projects/5507af415ab6cc1352a2391e/badge?branch=master)](https://app.shippable.com/bitbucket/palladian/palladian)
+
 What is it?
 -----------
 
