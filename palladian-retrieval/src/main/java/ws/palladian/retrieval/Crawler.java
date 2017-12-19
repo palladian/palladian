@@ -133,7 +133,7 @@ public class Crawler {
         Document document = documentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
-            Set<String> links = HtmlHelper.getLinks(document, inDomain, outDomain, "", respectNoFollow, subDomain);
+            Set<String> links = HtmlHelper.getLinks(document, currentUrl, inDomain, outDomain, "", respectNoFollow, subDomain);
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
                 LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
