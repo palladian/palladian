@@ -15,6 +15,7 @@ public class CsvReader extends AbstractIterator2<List<String>> implements Closea
 	private final BufferedReader reader;
 	private final char splitCharacter;
 	private final char quoteCharacter;
+	private final boolean unescapeDoubleQuotes;
 
 	private StringBuilder buffer;
 	private int lineNumber;
@@ -24,10 +25,19 @@ public class CsvReader extends AbstractIterator2<List<String>> implements Closea
 		this(new BufferedReader(new InputStreamReader(Objects.requireNonNull(stream))), splitCharacter, quoteCharacter);
 	}
 
+	public CsvReader(InputStream stream, char splitCharacter, char quoteCharacter, boolean unescapeDoubleQuotes) {
+		this(new BufferedReader(new InputStreamReader(Objects.requireNonNull(stream))), splitCharacter, quoteCharacter, unescapeDoubleQuotes);
+	}
+	
 	public CsvReader(BufferedReader reader, char splitCharacter, char quoteCharacter) {
+		this(reader, splitCharacter, quoteCharacter, false);
+	}
+
+	public CsvReader(BufferedReader reader, char splitCharacter, char quoteCharacter, boolean unescapeDoubleQuotes) {
 		this.reader = Objects.requireNonNull(reader);
 		this.splitCharacter = splitCharacter;
 		this.quoteCharacter = quoteCharacter;
+		this.unescapeDoubleQuotes = unescapeDoubleQuotes;
 		this.buffer = new StringBuilder();
 		this.lineNumber = 0;
 	}
@@ -54,7 +64,7 @@ public class CsvReader extends AbstractIterator2<List<String>> implements Closea
 			lineNumber++;
 			buffer.append(line);
 
-			List<String> splitLine = DelimitedStringHelper.splitLine(buffer.toString(), splitCharacter, quoteCharacter);
+			List<String> splitLine = DelimitedStringHelper.splitLine(buffer.toString(), splitCharacter, quoteCharacter, unescapeDoubleQuotes);
 			if (splitLine != null) {
 				buffer = new StringBuilder();
 				return splitLine;

@@ -60,7 +60,7 @@ public class CsvDatasetReader extends AbstractDataset {
 
         CsvDatasetIterator() {
             try {
-            	csvReader = new CsvReader(config.openInputStream(), config.fieldSeparator(), config.quoteCharacter());
+            	csvReader = new CsvReader(config.openInputStream(), config.fieldSeparator(), config.quoteCharacter(), config.isUnescapeDoubleQuotes());
             } catch (FileNotFoundException e) {
                 throw new IllegalStateException(config.filePath() + " not found.");
             } catch (IOException e) {

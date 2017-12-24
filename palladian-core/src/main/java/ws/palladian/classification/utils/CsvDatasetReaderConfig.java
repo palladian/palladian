@@ -42,6 +42,7 @@ public class CsvDatasetReaderConfig {
 		private List<ValueParser> defaultParsers = Arrays.asList(DEFAULT_PARSERS);
 		private char quoteCharacter = '\u0000';
 		private boolean trim = false;
+		private boolean unescapeDoubleQuotes = false;
 
 		private Builder(File filePath) {
 			Validate.notNull(filePath, "filePath must not be null");
@@ -262,6 +263,19 @@ public class CsvDatasetReaderConfig {
 			this.trim = trim;
 			return this;
 		}
+		
+		/**
+		 * Enables unescaping of two consecutive quotes (as specified with
+		 * {@link #quoteCharacter(char)}).
+		 * 
+		 * @param unescapeDoubleQuotes
+		 *            <code>true</code> to unescape.
+		 * @return The builder.
+		 */
+		public Builder unescapeDoubleQuotes(boolean unescapeDoubleQuotes) {
+			this.unescapeDoubleQuotes = unescapeDoubleQuotes;
+			return this;
+		}
 
 		@Override
 		public CsvDatasetReader create() {
@@ -319,6 +333,7 @@ public class CsvDatasetReaderConfig {
 	private final List<ValueParser> defaultParsers;
 	private final char quoteCharacter;
 	private final boolean trim;
+	private final boolean unescapeDoubleQuotes;
 
 	private CsvDatasetReaderConfig(Builder builder) {
 		this.filePath = builder.filePath;
@@ -333,6 +348,7 @@ public class CsvDatasetReaderConfig {
 		this.defaultParsers = new ArrayList<>(builder.defaultParsers);
 		this.quoteCharacter = builder.quoteCharacter;
 		this.trim = builder.trim;
+		this.unescapeDoubleQuotes = builder.unescapeDoubleQuotes;
 	}
 
 	File filePath() {
@@ -396,5 +412,9 @@ public class CsvDatasetReaderConfig {
 	
 	boolean isTrim() {
 		return trim;
+	}
+	
+	boolean isUnescapeDoubleQuotes() {
+		return unescapeDoubleQuotes;
 	}
 }

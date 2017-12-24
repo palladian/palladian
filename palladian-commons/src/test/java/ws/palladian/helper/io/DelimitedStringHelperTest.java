@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class DelimitedStringHelperTest {
@@ -32,11 +31,10 @@ public class DelimitedStringHelperTest {
 		assertNull(split);
 	}
 
-	@Ignore
 	@Test
 	public void testSplitDoubleEscaped() {
 		String line = "'test ''in quotes''','test'";
-		List<String> split = DelimitedStringHelper.splitLine(line, ',', '\'');
+		List<String> split = DelimitedStringHelper.splitLine(line, ',', '\'', true);
 		assertEquals(Arrays.asList("test 'in quotes'", "test"), split);
 	}
 
