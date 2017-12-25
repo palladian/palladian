@@ -60,6 +60,10 @@ public class NominalValueStatistics implements DatasetStatistics.ValueStatistics
 		return stats.count(value);
 	}
 	
+	public double getProbability(String value) {
+		return (double) getCount(value) / stats.size();
+	}
+	
 	public Map<String, Integer> getMap() {
 		return Collections.unmodifiableMap(stats.toMap());
 	}
