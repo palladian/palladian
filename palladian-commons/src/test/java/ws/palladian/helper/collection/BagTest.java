@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -170,5 +171,14 @@ public class BagTest {
     	assertEquals(4, bag1.add(ELEMENT1, 1));
     	assertEquals(10, bag1.add(ELEMENT1, 6));
     }
+    
+	@Test
+	public void test_setCountOnInit() {
+		Map<String, Integer> counts = new HashMap<>();
+		counts.put("one", 1);
+		counts.put("two", 2);
+		Bag<String> bag = new Bag<>(counts);
+		assertEquals(3, bag.size());
+	}
 
 }

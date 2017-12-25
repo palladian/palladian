@@ -129,15 +129,19 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      */
     public Bag(Map<? extends T, ? extends Integer> map) {
     	Validate.notNull(map, "map must not be null");
-        this.map = new HashMap<>(map);
+        this.map = new HashMap<>();
+        for (Entry<? extends T, ? extends Integer> item : map.entrySet()) {
+        		add(item.getKey(), item.getValue());
+        }
     }
     
 	/**
 	 * Internal constructor, which does not copy the map. Only by
 	 * {@link #createSorted(Order)}.
 	 */
-	private Bag(Map<T, Integer> map, boolean ignored) {
+	private Bag(Map<T, Integer> map, int size) {
 		this.map = map;
+		this.size = size;
 	}
 
     /**
@@ -322,7 +326,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<>(sorted, true);
+        return new Bag<>(sorted, size);
     }
 
     /**
