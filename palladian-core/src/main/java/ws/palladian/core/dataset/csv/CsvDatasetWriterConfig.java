@@ -16,6 +16,7 @@ public class CsvDatasetWriterConfig {
 		private boolean overwrite = false;
 		private boolean writeCategory = true;
 		private Compression compression = Compressions.NONE;
+		private char fieldSeparator = ';';
 
 		private Builder(File outputCsv) {
 			this.outputCsv = outputCsv;
@@ -33,6 +34,11 @@ public class CsvDatasetWriterConfig {
 
 		public Builder compression(Compression compression) {
 			this.compression = compression;
+			return this;
+		}
+
+		public Builder fieldSeparator(char fieldSeparator) {
+			this.fieldSeparator = fieldSeparator;
 			return this;
 		}
 
@@ -61,12 +67,14 @@ public class CsvDatasetWriterConfig {
 	private final boolean overwrite;
 	private final boolean writeCategory;
 	private final Compression compression;
+	private final char fieldSeparator;
 
 	public CsvDatasetWriterConfig(Builder builder) {
 		this.outputCsv = builder.outputCsv;
 		this.overwrite = builder.overwrite;
 		this.writeCategory = builder.writeCategory;
 		this.compression = builder.compression;
+		this.fieldSeparator = builder.fieldSeparator;
 	}
 
 	File getOutputCsv() {
@@ -83,5 +91,9 @@ public class CsvDatasetWriterConfig {
 
 	OutputStream getOutputStream() throws IOException {
 		return compression.getOutputStream(outputCsv);
+	}
+	
+	char getFieldSeparator() {
+		return fieldSeparator;
 	}
 }

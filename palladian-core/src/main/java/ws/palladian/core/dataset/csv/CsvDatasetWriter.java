@@ -1,6 +1,5 @@
 package ws.palladian.core.dataset.csv;
 
-import static ws.palladian.classification.utils.ClassificationUtils.DEFAULT_SEPARATOR;
 import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
 
 import java.io.BufferedWriter;
@@ -22,11 +21,13 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 	private static final class CsvDatasetAppender extends AbstractDatasetAppender {
 		private final FeatureInformation featureInformation;
 		private final boolean writeCategory;
+		private final char fieldSeparator;
 
-		CsvDatasetAppender(Writer writer, FeatureInformation featureInformation, boolean writeCategory) {
+		CsvDatasetAppender(Writer writer, FeatureInformation featureInformation, boolean writeCategory, char fieldSeparator) {
 			super(writer);
 			this.featureInformation = featureInformation;
 			this.writeCategory = writeCategory;
+			this.fieldSeparator = fieldSeparator;
 		}
 
 		@Override
@@ -35,7 +36,7 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 			int featureCount = 0;
 			for (FeatureInformationEntry infoEntry : featureInformation) {
 				if (featureCount++ > 0) {
-					line.append(DEFAULT_SEPARATOR);
+					line.append(fieldSeparator);
 				}
 				Value value = instance.getVector().get(infoEntry.getName());
 				if (value != NullValue.NULL) {
@@ -44,7 +45,7 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 
 			}
 			if (writeCategory) {
-				line.append(DEFAULT_SEPARATOR).append(instance.getCategory());
+				line.append(fieldSeparator).append(instance.getCategory());
 			}
 			writeLine(line);
 		}
@@ -54,12 +55,12 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 			int headerCount = 0;
 			for (FeatureInformationEntry infoEntry : featureInformation) {
 				if (headerCount++ > 0) {
-					line.append(DEFAULT_SEPARATOR);
+					line.append(fieldSeparator);
 				}
 				line.append(infoEntry.getName());
 			}
 			if (writeCategory) {
-				line.append(DEFAULT_SEPARATOR).append("targetClass");
+				line.append(fieldSeparator).append("targetClass");
 			}
 			writeLine(line);
 		}
@@ -116,7 +117,7 @@ public class CsvDatasetWriter extends AbstractDatasetWriter {
 					 new OutputStreamWriter(
 				     config.getOutputStream(), DEFAULT_ENCODING));
 
-			CsvDatasetAppender appender = new CsvDatasetAppender(writer, featureInformation, config.isWriteCategory());
+			CsvDatasetAppender appender = new CsvDatasetAppender(writer, featureInformation, config.isWriteCategory(), config.getFieldSeparator());
 			appender.writeHeader();
 			return appender;
 
