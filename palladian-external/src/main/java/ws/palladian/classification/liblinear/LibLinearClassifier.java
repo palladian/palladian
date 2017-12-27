@@ -11,7 +11,6 @@ import ws.palladian.core.AbstractClassifier;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.FeatureVector;
-import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
 
@@ -38,7 +37,6 @@ public final class LibLinearClassifier extends AbstractClassifier<LibLinearModel
         Validate.notNull(model, "model must not be null");
         featureVector = model.getNormalization().normalize(featureVector);
         featureVector = model.getDummyCoder().convert(featureVector);
-        featureVector = removeUntrainedFeatures(featureVector, model);
         de.bwaldvogel.liblinear.Feature[] instance = LibLinearLearner.makeInstance(model.getFeatureLabelIndices(),
                 featureVector, model.getLLModel().getBias());
         CategoryEntriesBuilder categoryEntriesBuilder = new CategoryEntriesBuilder();
@@ -54,19 +52,6 @@ public final class LibLinearClassifier extends AbstractClassifier<LibLinearModel
             categoryEntriesBuilder.add(model.getCategoryForIndex(classIdx), 1.);
         }
         return categoryEntriesBuilder.create();
-    }
-
-    /**
-     * Remove those features, which we have not trained.
-     */
-    private static FeatureVector removeUntrainedFeatures(FeatureVector featureVector, LibLinearModel model) {
-        int oldSize = featureVector.size();
-        featureVector = featureVector.filter(Filters.equal(model.getFeatureLabelIndices().keySet()));
-        int numIgnored = oldSize - featureVector.size();
-        if (numIgnored > 0 && LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Ignoring {} unknown features", numIgnored);
-        }
-        return featureVector;
     }
 
 }
