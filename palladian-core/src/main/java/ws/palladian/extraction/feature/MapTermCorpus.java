@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -206,5 +207,10 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         sb.append(" numTerms=").append(terms.size());
         return sb.toString();
     }
+
+	@Override
+	public Iterator<String> iterator() {
+		return terms.uniqueItems().iterator();
+	}
 
 }

@@ -1,6 +1,6 @@
 package ws.palladian.extraction.feature;
 
-public interface TermCorpus {
+public interface TermCorpus extends Iterable<String> {
 
     /**
      * <p>

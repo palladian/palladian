@@ -1,5 +1,7 @@
 package ws.palladian.extraction.feature;
 
+import java.util.Iterator;
+
 public abstract class AbstractTermCorpus implements TermCorpus {
 
     @Override
@@ -11,6 +13,11 @@ public abstract class AbstractTermCorpus implements TermCorpus {
     @Override
     public double getProbability(String term) {
         return (double)getCount(term) / getNumDocs();
+    }
+    
+    @Override
+    public Iterator<String> iterator() {
+    		throw new UnsupportedOperationException();
     }
 
 }
