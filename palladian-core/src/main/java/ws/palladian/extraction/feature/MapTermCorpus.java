@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -197,6 +198,29 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         }
         return new MapTermCorpus(resultTerms, numDocs);
     }
+    
+	/**
+	 * Get a reduced version of the term corpus with the specified maximum size
+	 * (i.e. number of unique terms), by taking the highest frequency items.
+	 * 
+	 * @param maxSize
+	 *            The size of the reduced corpus.
+	 * @return The reduced corpus.
+	 */
+	public MapTermCorpus getReducedCorpus(int maxSize) {
+		Validate.isTrue(maxSize > 0, "maxSize must be greater zero.");
+		Bag<String> resultTerms = new Bag<>();
+		Bag<String> sorted = terms.createSorted(Order.DESCENDING);
+		int size = 0;
+		for (String term : sorted.uniqueItems()) {
+			if (++size > maxSize) {
+				break;
+			}
+			int count = terms.count(term);
+			resultTerms.add(term, count);
+		}
+		return new MapTermCorpus(resultTerms, numDocs);
+	}
 
     @Override
     public String toString() {
