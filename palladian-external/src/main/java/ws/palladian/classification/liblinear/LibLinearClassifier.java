@@ -39,7 +39,7 @@ public final class LibLinearClassifier extends AbstractClassifier<LibLinearModel
         featureVector = model.getNormalization().normalize(featureVector);
         featureVector = model.getDummyCoder().convert(featureVector);
         featureVector = removeUntrainedFeatures(featureVector, model);
-        de.bwaldvogel.liblinear.Feature[] instance = LibLinearLearner.makeInstance(model.getFeatureLabels(),
+        de.bwaldvogel.liblinear.Feature[] instance = LibLinearLearner.makeInstance(model.getFeatureLabelIndices(),
                 featureVector, model.getLLModel().getBias());
         CategoryEntriesBuilder categoryEntriesBuilder = new CategoryEntriesBuilder();
         if (model.getLLModel().isProbabilityModel()) {
@@ -59,9 +59,9 @@ public final class LibLinearClassifier extends AbstractClassifier<LibLinearModel
     /**
      * Remove those features, which we have not trained.
      */
-    private FeatureVector removeUntrainedFeatures(FeatureVector featureVector, LibLinearModel model) {
+    private static FeatureVector removeUntrainedFeatures(FeatureVector featureVector, LibLinearModel model) {
         int oldSize = featureVector.size();
-        featureVector = featureVector.filter(Filters.equal(model.getFeatureLabels()));
+        featureVector = featureVector.filter(Filters.equal(model.getFeatureLabelIndices().keySet()));
         int numIgnored = oldSize - featureVector.size();
         if (numIgnored > 0 && LOGGER.isTraceEnabled()) {
             LOGGER.trace("Ignoring {} unknown features", numIgnored);

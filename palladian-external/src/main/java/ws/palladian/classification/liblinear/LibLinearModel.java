@@ -1,7 +1,9 @@
 package ws.palladian.classification.liblinear;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -18,11 +20,11 @@ import ws.palladian.core.Model;
  */
 public class LibLinearModel implements Model {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private final de.bwaldvogel.liblinear.Model model;
 
-    private final List<String> featureLabels;
+    private final Map<String, Integer> featureLabelIndices;
 
     private final List<String> classIndices;
 
@@ -31,21 +33,21 @@ public class LibLinearModel implements Model {
     private final DummyVariableCreator dummyCoder;
 
     /** Instances are created package-internally. */
-    LibLinearModel(de.bwaldvogel.liblinear.Model model, List<String> featureLabels, List<String> classIndices,
+    LibLinearModel(de.bwaldvogel.liblinear.Model model, Map<String, Integer> featureLabelIndices, List<String> classIndices,
             Normalization normalization, DummyVariableCreator dummyCoder) {
         this.model = model;
-        this.featureLabels = featureLabels;
+        this.featureLabelIndices = featureLabelIndices;
         this.classIndices = classIndices;
         this.normalization = normalization;
         this.dummyCoder = dummyCoder;
     }
 
-    de.bwaldvogel.liblinear.Model getLLModel() {
+	de.bwaldvogel.liblinear.Model getLLModel() {
         return model;
     }
 
-    List<String> getFeatureLabels() {
-        return Collections.unmodifiableList(featureLabels);
+    Map<String, Integer> getFeatureLabelIndices() {
+        return Collections.unmodifiableMap(featureLabelIndices);
     }
 
     @Override
@@ -88,8 +90,9 @@ public class LibLinearModel implements Model {
         }
         int nrWeights = model.getNrFeature() + (model.getBias() >= 0 ? 1 : 0);
         int nrColumns = model.getNrClass() > 2 ? model.getNrClass() : 1;
+        List<String> featureLabels = new ArrayList<>(featureLabelIndices.keySet());
         for (int i = 0; i < nrWeights; i++) {
-            String weightLabel = i < featureLabels.size() ? featureLabels.get(i) : "bias";
+            String weightLabel = i < featureLabelIndices.size() ? featureLabels.get(i) : "bias";
             builder.append(weightLabel);
             for (int j = 0; j < nrColumns; j++) {
                 double weight = model.getFeatureWeights()[i * nrColumns + j];

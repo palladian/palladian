@@ -2,12 +2,22 @@ package ws.palladian.classification.liblinear;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.bwaldvogel.liblinear.Feature;
+import de.bwaldvogel.liblinear.FeatureNode;
+import de.bwaldvogel.liblinear.Linear;
+import de.bwaldvogel.liblinear.Model;
+import de.bwaldvogel.liblinear.Parameter;
+import de.bwaldvogel.liblinear.Problem;
+import de.bwaldvogel.liblinear.SolverType;
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.Normalization;
@@ -19,14 +29,10 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.io.Slf4JOutputStream;
 import ws.palladian.helper.io.Slf4JOutputStream.Level;
-import de.bwaldvogel.liblinear.FeatureNode;
-import de.bwaldvogel.liblinear.Linear;
-import de.bwaldvogel.liblinear.Model;
-import de.bwaldvogel.liblinear.Parameter;
-import de.bwaldvogel.liblinear.Problem;
-import de.bwaldvogel.liblinear.SolverType;
 
 /**
  * <p>
@@ -121,6 +127,7 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
         
         Dataset convertedDataset = dataset.transform(dummyCoder);
         List<String> featureLabels = new ArrayList<>(convertedDataset.getFeatureInformation().getFeatureNames());
+        Map<String, Integer> featureLabelIndices = CollectionHelper.createIndexMap(featureLabels);
         
         Problem problem = new Problem();
         LOGGER.debug("Features = {}", featureLabels);
@@ -137,7 +144,7 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
 			problem.l++;
 			FeatureVector featureVector = normalization.normalize(instance.getVector());
 			featureVector = dummyCoder.convert(featureVector);
-			features.add(makeInstance(featureLabels, featureVector, bias));
+			features.add(makeInstance(featureLabelIndices, featureVector, bias));
 			if (!categoryToIndex.contains(instance.getCategory())) {
 				categoryToIndex.add(instance.getCategory());
 			}
@@ -150,34 +157,33 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
 		}
         LOGGER.debug("n={}, l={}", problem.n, problem.l);
         Model model = Linear.train(problem, parameter);
-        return new LibLinearModel(model, featureLabels, categoryToIndex, normalization, dummyCoder);
+        return new LibLinearModel(model, featureLabelIndices, categoryToIndex, normalization, dummyCoder);
     }
 
-    static de.bwaldvogel.liblinear.Feature[] makeInstance(List<String> labels, FeatureVector featureVector, double bias) {
-        List<de.bwaldvogel.liblinear.Feature> features = new ArrayList<>();
-        int index = 0; // 1-indexed
-        for (String label : labels) {
-            index++;
-            Value value = featureVector.get(label);
-            if (!(value instanceof NumericValue)) {
-                LOGGER.trace("NumericValue {}@{} not present", label, index);
-                continue;
-            }
-            double numericValue = ((NumericValue)value).getDouble();
-            if (numericValue == 0) {
-                continue;
-            }
-            features.add(new FeatureNode(index, numericValue));
-        }
-        if (bias >= 0) {
-            features.add(new FeatureNode(index + 1, bias)); // bias term
-        }
-        return features.toArray(new de.bwaldvogel.liblinear.Feature[features.size()]);
-    }
-    
-    @Override
-    public String toString() {
-    	return getClass().getSimpleName(); // TODO better description for all parameters
-    }
+	static de.bwaldvogel.liblinear.Feature[] makeInstance(Map<String, Integer> featureLabelIndices,
+			FeatureVector featureVector, double bias) {
+		List<de.bwaldvogel.liblinear.Feature> features = new ArrayList<>();
+		for (VectorEntry<String, Value> vectorEntry : featureVector) {
+			Value value = vectorEntry.value();
+			Integer featureIndex = featureLabelIndices.get(vectorEntry.key());
+			if (featureIndex != null && !value.isNull() && value instanceof NumericValue) {
+				double floatValue = ((NumericValue) value).getDouble();
+				if (Math.abs(floatValue) < 2 * Float.MIN_VALUE) {
+					continue;
+				}
+				features.add(new FeatureNode(featureIndex + 1 /* 1-indexed */, floatValue));
+			}
+		}
+		if (bias >= 0) {
+			features.add(new FeatureNode(featureLabelIndices.size() + 1, bias)); // bias term
+		}
+		Collections.sort(features, new Comparator<de.bwaldvogel.liblinear.Feature>() {
+			@Override
+			public int compare(Feature o1, Feature o2) {
+				return Integer.compare(o1.getIndex(), o2.getIndex());
+			}
+		});
+		return features.toArray(new de.bwaldvogel.liblinear.Feature[features.size()]);
+	}
 
 }
