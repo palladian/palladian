@@ -17,4 +17,9 @@ public abstract class AbstractLearner<M extends Model> implements Learner<M> {
 		return train(training);
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
+
 }
