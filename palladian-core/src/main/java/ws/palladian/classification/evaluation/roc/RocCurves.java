@@ -3,14 +3,10 @@ package ws.palladian.classification.evaluation.roc;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-//import java.nio.file.Files;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 //import java.util.stream.Collectors;
 //import java.util.stream.Stream;
@@ -19,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.evaluation.AbstractClassificationEvaluator;
+import ws.palladian.classification.evaluation.AbstractGraphPainter;
+import ws.palladian.classification.evaluation.Graph;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
@@ -39,7 +37,7 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * 
  * @author pk
  */
-public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
+public class RocCurves implements Iterable<RocCurves.EvaluationPoint>, Graph {
 	
 	public static final class RocCurvesEvaluator extends AbstractClassificationEvaluator<RocCurves> {
 		
@@ -139,7 +137,7 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 		}
 		@Override
 		public String toString() {
-			return format(threshold) + ": sensitivity=" + format(sensitivity) + ", specificity=" + format(specificity);
+			return AbstractGraphPainter.format(threshold) + ": sensitivity=" + AbstractGraphPainter.format(sensitivity) + ", specificity=" + AbstractGraphPainter.format(specificity);
 		}
 	}
 
@@ -250,12 +248,26 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 		return areaUnderCurve / 2;
 	}
 	
+	/** @deprecated {@link #show()} instead. */
+	@Deprecated
 	public void showCurves() {
 		new RocCurvesPainter().add(this, "ROC").showCurves();
 	}
 
+	/** @deprecated Use {@link #save(File)} instead. */
+	@Deprecated
 	public void saveCurves(File file) throws IOException {
 		new RocCurvesPainter().add(this, "ROC").saveCurves(file);
+	}
+
+	@Override
+	public void show() {
+		showCurves();
+	}
+
+	@Override
+	public void save(File file) throws IOException {
+		saveCurves(file);
 	}
 	
 	/**
@@ -276,10 +288,6 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint> {
 			line.add(String.valueOf(result.confidence));
 			stream.println(StringUtils.join(line, separator));
 		}
-	}
-	
-	static final String format(double v) {
-		return new DecimalFormat("#.####", DecimalFormatSymbols.getInstance(Locale.ENGLISH)).format(v);
 	}
 
 }
