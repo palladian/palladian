@@ -1,24 +1,16 @@
 package ws.palladian.helper;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
-import javax.mail.Address;
-import javax.mail.Authenticator;
-import javax.mail.Message;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.*;
 import javax.mail.Message.RecipientType;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import javax.mail.internet.*;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -43,8 +35,7 @@ public class Mailer {
 
     /**
      * <p>
-     * Create a new {@link SendMail}. The {@link Properties} configuration should usually provide the following
-     * information:
+     * Create a new SendMail. The {@link Properties} configuration should usually provide the following information:
      * <ul>
      * <li>mail.smtp.host</li>
      * <li>mail.smtp.socketFactory.port</li>
@@ -68,8 +59,18 @@ public class Mailer {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
-            };
+            }
         };
+    }
+
+    public boolean sendMail(String senderAddress, String senderName, Map<RecipientType, List<String>> recipients, String subject, String content, Address replyTo) {
+        ArrayList<Address> replyToAddresses = new ArrayList<>();
+        replyToAddresses.add(replyTo);
+        return sendMail(senderAddress, senderName, recipients, subject, content, true, replyToAddresses, new ArrayList<File>());
+    }
+
+    public boolean sendMail(String senderAddress, String senderName, Map<RecipientType, List<String>> recipients, String subject, String content) {
+        return sendMail(senderAddress, senderName, recipients, subject, content, true, new ArrayList<Address>(), new ArrayList<File>());
     }
 
     /**
@@ -86,9 +87,8 @@ public class Mailer {
      * @param replyToAddresses Addresses to reply to.
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
-    public boolean sendMail(String senderAddress, String senderName, Map<RecipientType, List<String>> recipients,
-            String subject,
-            String content, boolean isHtml, Address... replyToAddresses) {
+    public boolean sendMail(String senderAddress, String senderName, Map<RecipientType, List<String>> recipients, String subject, String content, boolean isHtml,
+            List<Address> replyToAddresses, List<File> attachments) {
         Validate.notEmpty(senderAddress, "sender must not be empty");
         Validate.notEmpty(senderName, "sender must not be empty");
         Validate.notEmpty(recipients, "recipients must not be empty");
@@ -109,13 +109,43 @@ public class Mailer {
                 }
             }
             simpleMessage.setSubject(subject);
-            if (replyToAddresses.length > 0) {
-                simpleMessage.setReplyTo(replyToAddresses);
+            if (!replyToAddresses.isEmpty()) {
+                simpleMessage.setReplyTo(replyToAddresses.toArray(new Address[replyToAddresses.size()]));
             }
-            if (isHtml) {
-                simpleMessage.setContent(content, "text/html");
+
+            if (attachments.isEmpty()) {
+                if (isHtml) {
+                    simpleMessage.setContent(content, "text/html");
+                } else {
+                    simpleMessage.setText(content);
+                }
             } else {
-                simpleMessage.setText(content);
+                // create the message part
+                BodyPart messageBodyPart = new MimeBodyPart();
+
+                // Now set the actual message
+                if (isHtml) {
+                    messageBodyPart.setContent(content, "text/html");
+                } else {
+                    messageBodyPart.setText(content);
+                }
+
+                Multipart multipart = new MimeMultipart();
+
+                // set text message part
+                multipart.addBodyPart(messageBodyPart);
+
+                // add attachments
+                for (File attachment : attachments) {
+                    messageBodyPart = new MimeBodyPart();
+                    DataSource source = new FileDataSource(attachment);
+                    messageBodyPart.setDataHandler(new DataHandler(source));
+                    messageBodyPart.setFileName(attachment.getName());
+                    multipart.addBodyPart(messageBodyPart);
+                }
+
+                // set the complete message parts
+                simpleMessage.setContent(multipart);
             }
 
             Transport.send(simpleMessage);
@@ -123,11 +153,7 @@ public class Mailer {
             LOGGER.debug("Successfully sent mail to {} ", recipients);
             success = true;
 
-        } catch (AddressException e) {
-            LOGGER.error("Exception while sending: {}", e);
-        } catch (MessagingException e) {
-            LOGGER.error("Exception while sending: {}", e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             LOGGER.error("Exception while sending: {}", e);
         }
 
@@ -139,16 +165,16 @@ public class Mailer {
      * Send a new plain text mail to multiple recipients.
      * </p>
      * 
-     * @param sender The sender, not <code>null</code> or empty.
+     * @param senderEmail The sender email address, not <code>null</code> or empty.
      * @param recipients The list of recipients, not <code>null</code> or empty.
      * @param subject The subject of the mail, not <code>null</code>.
      * @param text The text content of the mail, not <code>null</code>.
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
-    public boolean sendMail(String sender, List<String> recipients, String subject, String text) {
+    public boolean sendMail(String senderEmail, List<String> recipients, String subject, String text) {
         Map<RecipientType, List<String>> recipientMap = new HashMap<>();
         recipientMap.put(RecipientType.TO, recipients);
-        return sendMail(sender, sender, recipientMap, subject, text, false);
+        return sendMail(senderEmail, senderEmail, recipientMap, subject, text, false, new ArrayList<Address>(), new ArrayList<File>());
     }
 
     /**
