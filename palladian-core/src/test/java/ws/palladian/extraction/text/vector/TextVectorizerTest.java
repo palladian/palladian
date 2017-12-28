@@ -13,7 +13,6 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
-import ws.palladian.extraction.text.vector.TextVectorizer.VectorizationStrategy;
 
 public class TextVectorizerTest {
 	private final Dataset docs;
@@ -30,7 +29,7 @@ public class TextVectorizerTest {
 
 	@Test
 	public void testTextVectorizer_binary() {
-		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs, VectorizationStrategy.BINARY, 100);
+		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs, TextVectorizer.TFStrategy.BINARY, TextVectorizer.IDFStrategy.UNARY, 100);
 		Instance vectorizedDocument = vectorizer.compute(createDoc("The sky is blue."));
 		assertEquals(5, vectorizedDocument.getVector().size());
 		assertEquals(1, vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
@@ -39,15 +38,15 @@ public class TextVectorizerTest {
 
 	@Test
 	public void testTextVectorizer_tf() {
-		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs, VectorizationStrategy.TF, 100);
+		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs, TextVectorizer.TFStrategy.TERM_FREQUENCY, TextVectorizer.IDFStrategy.UNARY, 100);
 		Instance vectorizedDocument = vectorizer.compute(createDoc("The sky is blue."));
 		assertEquals(5, vectorizedDocument.getVector().size());
 		assertEquals(1. / 5, vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
 	}
-	
+
 	@Test
 	public void testTextVectorizer_tf_idf() {
-		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs, VectorizationStrategy.TF_IDF, 100);
+		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs, TextVectorizer.TFStrategy.TERM_FREQUENCY, TextVectorizer.IDFStrategy.IDF_SMOOTH, 100);
 		Instance vectorizedDocument = vectorizer.compute(createDoc("The sky is blue."));
 		assertEquals(5, vectorizedDocument.getVector().size());
 		assertEquals(1. / 5 * Math.log(4. / 3), vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);

@@ -1,7 +1,6 @@
 package ws.palladian.classification.text.vector;
 
 import static org.junit.Assert.assertTrue;
-import static ws.palladian.extraction.text.vector.TextVectorizer.VectorizationStrategy.BINARY;
 import static ws.palladian.helper.constants.Language.ENGLISH;
 
 import org.apache.commons.configuration.Configuration;
@@ -18,6 +17,8 @@ import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.text.vector.TextVectorClassifier.TextVectorModel;
 import ws.palladian.extraction.text.vector.TextVectorizer;
+import ws.palladian.extraction.text.vector.TextVectorizer.IDFStrategy;
+import ws.palladian.extraction.text.vector.TextVectorizer.TFStrategy;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.integrationtests.ITHelper;
@@ -46,7 +47,7 @@ public class TextVectorClassifierIT {
 				.removeStopwords().create();
 
 		TextDatasetIterator trainIterator = new TextDatasetIterator(trainFile, " ", true);
-		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, trainIterator, BINARY, 10000);
+		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, trainIterator, TFStrategy.BINARY, IDFStrategy.UNARY, 10000);
 		TextVectorClassifier<LibLinearModel> classifier = TextVectorClassifier.libLinear(vectorizer);
 		TextVectorModel<LibLinearModel> model = classifier.train(trainIterator);
 		// System.out.println(model);
