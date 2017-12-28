@@ -7,7 +7,7 @@ public abstract class AbstractTermCorpus implements TermCorpus {
     @Override
     public final double getIdf(String term, boolean smoothing) {
         int s = smoothing ? 1 : 0;
-        return (double)(getNumDocs() + s) / (getCount(term) + s);
+        return Math.log((double) getNumDocs() / (getCount(term) + s));
     }
 
     @Override
