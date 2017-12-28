@@ -240,6 +240,10 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
     public FeatureVector convert(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
         
+		if (mappers.isEmpty()) {
+			return featureVector;
+		}
+        
         List<FeatureVector> appendedVectors = new ArrayList<>();
 
         if (keepOriginalFeature) {
