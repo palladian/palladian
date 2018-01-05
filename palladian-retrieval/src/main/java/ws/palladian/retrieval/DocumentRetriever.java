@@ -451,7 +451,7 @@ public class DocumentRetriever {
                     }
                     HttpRequest2 request = httpRequest2Builder.create();
                     HttpResult httpResult = httpRetriever.execute(request);
-                    document = parse(new ByteArrayInputStream(httpResult.getContent()), xml);
+                    document = parse(httpResult, xml);
                     document.setDocumentURI(cleanUrl);
                     document.setUserData(HTTP_RESULT_KEY, httpResult, null);
                 }
@@ -477,6 +477,22 @@ public class DocumentRetriever {
         return isFile;
     }
 
+    private DocumentParser getParser(boolean xml) {
+        DocumentParser parser;
+
+        if (xml) {
+            parser = ParserFactory.createXmlParser();
+        } else {
+            parser = ParserFactory.createHtmlParser();
+        }
+
+        return parser;
+    }
+
+    private Document parse(HttpResult httpResult, boolean xml) throws ParserException {
+        return getParser(xml).parse(httpResult);
+    }
+
     /**
      * <p>
      * Parses an {@link InputStream} to a {@link Document}.
@@ -487,17 +503,7 @@ public class DocumentRetriever {
      * @throws ParserException if parsing failed.
      */
     private Document parse(InputStream inputStream, boolean xml) throws ParserException {
-        Document document;
-        DocumentParser parser;
-
-        if (xml) {
-            parser = ParserFactory.createXmlParser();
-        } else {
-            parser = ParserFactory.createHtmlParser();
-        }
-
-        document = parser.parse(inputStream);
-        return document;
+        return getParser(xml).parse(inputStream);
     }
 
     /**
