@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
@@ -14,6 +15,7 @@ import ws.palladian.retrieval.search.videos.VimeoSearcher;
 
 public class VimeoSearcherTest {
 
+    @Ignore
     @Test
     public void testParseJson() throws Exception {
         String jsonString = FileHelper.readFileToString(ResourceHelper.getResourceFile("/apiresponse/vimeo.json"));
