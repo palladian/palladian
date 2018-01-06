@@ -3,7 +3,7 @@ language: java
 
 # Version number
 jdk:
-  - oraclejdk7
+  - openjdk7
 
 env:
   global:
