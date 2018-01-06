@@ -15,7 +15,7 @@ If you have any questions, comments, or problems, we are happy to hear from you:
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; 2009 - 2017.
+The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; 2009 — 2018.
 
 License
 -------
