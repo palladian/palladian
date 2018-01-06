@@ -39,6 +39,7 @@ public class FeedClassifierTest {
      * @throws ParseException
      */
     @Test
+    @Ignore
     public void testFeedClassification() throws FileNotFoundException, FeedParserException, ParseException {
 
         // http://beta.rottentomatoes.com/syndication/rss/upcoming.xml
