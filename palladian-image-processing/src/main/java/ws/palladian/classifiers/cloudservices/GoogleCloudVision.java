@@ -1,8 +1,6 @@
 package ws.palladian.classifiers.cloudservices;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -79,8 +77,48 @@ public class GoogleCloudVision {
         return labels;
     }
 
+    public String recognizeText(File image) throws IOException {
+
+        HttpClient httpClient = new HttpClient();
+
+        String body = "{\"requests\": [{\"image\":{\"content\":\"XXX\"},\"features\": [{\"type\": \"DOCUMENT_TEXT_DETECTION\"}]}]}";
+
+        FileInputStream fileInputStreamReader = new FileInputStream(image);
+        byte[] bytes = new byte[(int)image.length()];
+        fileInputStreamReader.read(bytes);
+        String encodedFile = Base64.getEncoder().encodeToString(bytes);
+        body = body.replace("XXX", encodedFile);
+
+                PostMethod post = new PostMethod("https://vision.googleapis.com/v1/images:annotate?key=" + apiKey);
+        post.setRequestEntity(new StringRequestEntity(body.toString()));
+
+        try {
+            httpClient.executeMethod(post);
+            String methodResult = IOUtils.toString(post.getResponseBodyAsStream());
+
+            // System.out.println(methodResult);
+
+            JsonObject responseJson = new JsonObject(methodResult);
+            JsonArray responses = responseJson.tryGetJsonArray("responses");
+            return responses.tryGetJsonObject(0).tryGetJsonObject("fullTextAnnotation").tryGetString("text");
+
+        } catch (JsonException e) {
+            e.printStackTrace();
+        } finally {
+            post.releaseConnection();
+        }
+
+        return "";
+    }
+
     public static void main(String... args) throws Exception {
-        List<String> labels = new GoogleCloudVision("apiKey").classify(new File("dog.jpg"), 10);
+        GoogleCloudVision cv = new GoogleCloudVision("apiKey");
+
+        // clasification
+        List<String> labels = cv.classify(new File("dog.jpg"), 10);
         CollectionHelper.print(labels);
+
+        // ocr
+        System.out.println(cv.recognizeText(new File("data/temp/menu.jpg")));
     }
 }
