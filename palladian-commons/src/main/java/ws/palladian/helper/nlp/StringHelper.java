@@ -54,7 +54,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
-    private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF]");
+    private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
     private StringHelper() {
         // utility class.
