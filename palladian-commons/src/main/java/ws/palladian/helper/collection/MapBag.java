@@ -27,7 +27,7 @@ public class MapBag {
     private Map<Integer, String> mapKeys;
 
     public MapBag() {
-        map = new HashMap<>();
+        map = new LinkedHashMap<>();
         mapKeys = new HashMap<>();
     }
 
@@ -46,7 +46,7 @@ public class MapBag {
 
         Set<String> bagEntries = new HashSet<>();
         for (Entry<String, Integer> entry : map.entrySet()) {
-            if (entry.getValue() == bagId) {
+            if (Objects.equals(entry.getValue(), bagId)) {
                 bagEntries.add(entry.getKey());
             }
         }
