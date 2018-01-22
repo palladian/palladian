@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.helper.io.ResourceHelper;
@@ -39,6 +40,7 @@ public class FeedClassifierTest {
      * @throws ParseException
      */
     @Test
+    @Ignore
     public void testFeedClassification() throws FileNotFoundException, FeedParserException, ParseException {
 
         // http://beta.rottentomatoes.com/syndication/rss/upcoming.xml

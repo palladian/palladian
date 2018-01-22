@@ -1,6 +1,8 @@
 Palladian Toolkit
 =================
 
+[![Run Status](https://api.shippable.com/projects/5507af415ab6cc1352a2391e/badge?branch=master)](https://app.shippable.com/bitbucket/palladian/palladian)
+
 What is it?
 -----------
 
@@ -13,7 +15,7 @@ If you have any questions, comments, or problems, we are happy to hear from you:
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; 2009 - 2016.
+The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; 2009 — 2018.
 
 License
 -------

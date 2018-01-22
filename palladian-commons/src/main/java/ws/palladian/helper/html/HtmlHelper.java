@@ -736,6 +736,14 @@ public final class HtmlHelper {
     }
 
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow, boolean includeSubdomains) {
+        return getLinks(document, document.getDocumentURI(), inDomain, outDomain, prefix, respectNoFollow, includeSubdomains);
+    }
+
+    /***
+     * NOTE: we need to pass the original document URL, otherwise we might get redirected from www.abc.com to www.def.com and the inDomain links of www.def.com do not make sense in the www.abc.com context.
+     * @return A collection of URLs.
+     */
+    public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow, boolean includeSubdomains) {
 
         Set<String> pageLinks = new HashSet<>();
 
@@ -748,7 +756,7 @@ public final class HtmlHelper {
         }
 
         // remove anchors from url
-        String url = document.getDocumentURI();
+        String url = originalDocumentUrl;
         url = UrlHelper.removeAnchors(url);
         String domain = UrlHelper.getDomain(url, false, !includeSubdomains).toLowerCase();
 

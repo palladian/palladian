@@ -501,8 +501,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<WebImage> filteredImages = new ArrayList<>();
 
         for (WebImage webImage : getImages()) {
-           if ((webImage.getWidth() > 0 && webImage.getWidth() < minWidth && webImage.getHeight() > 0 && webImage.getHeight() > minHeight) ||
-                   (webImage.getWidth() < 0 && webImage.getHeight() < 0)) {
+            // if no dimensions known we allow the image or if the dimensions match our criteria
+            if (webImage.getWidth() < 0 || webImage.getHeight() < 0 || (webImage.getWidth() > 0 && webImage.getWidth() < minWidth && webImage.getHeight() > 0 && webImage.getHeight() > minHeight)) {
                filteredImages.add(webImage);
            }
         }
