@@ -66,11 +66,11 @@ public class Mailer {
     public boolean sendMail(String senderAddress, String senderName, Map<RecipientType, List<String>> recipients, String subject, String content, Address replyTo) {
         ArrayList<Address> replyToAddresses = new ArrayList<>();
         replyToAddresses.add(replyTo);
-        return sendMail(senderAddress, senderName, recipients, subject, content, true, replyToAddresses, new ArrayList<File>());
+        return sendMail(senderAddress, senderName, recipients, subject, content, true, replyToAddresses, new ArrayList<>());
     }
 
     public boolean sendMail(String senderAddress, String senderName, Map<RecipientType, List<String>> recipients, String subject, String content) {
-        return sendMail(senderAddress, senderName, recipients, subject, content, true, new ArrayList<Address>(), new ArrayList<File>());
+        return sendMail(senderAddress, senderName, recipients, subject, content, true, new ArrayList<>(), new ArrayList<>());
     }
 
     /**
