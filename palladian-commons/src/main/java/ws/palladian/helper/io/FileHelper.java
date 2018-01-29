@@ -1548,8 +1548,6 @@ public final class FileHelper {
             dest.close();
 
             success = true;
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
