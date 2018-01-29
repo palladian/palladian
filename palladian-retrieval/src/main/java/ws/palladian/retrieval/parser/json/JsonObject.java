@@ -20,6 +20,8 @@ package ws.palladian.retrieval.parser.json;
  * SOFTWARE.
  */
 
+import com.jayway.jsonpath.JsonPath;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -468,6 +470,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } else {
             throw new JsonException("No value/item for query.");
         }
+    }
+
+    public Object queryJsonPath(String jPath) {
+        net.minidev.json.JSONArray jsa = JsonPath.read(this, jPath);
+        if (jsa == null || jsa.isEmpty()) {
+            return null;
+        }
+        return jsa.get(0);
     }
 
     @Override
