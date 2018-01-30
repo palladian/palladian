@@ -53,7 +53,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
     /** Pattern for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
     /** The time zone used within the dates. Vimeo uses eastern time, see https://vimeo.com/forums/topic:45607 */
-    private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("US/Eastern");
+    private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("EST");
 
     /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
     public static final String CONFIG_CONSUMER_KEY = "api.vimeo.consumerKey";
