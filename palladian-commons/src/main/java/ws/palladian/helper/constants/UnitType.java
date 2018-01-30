@@ -23,6 +23,7 @@ public enum UnitType {
     FREQUENCY("Hz"), //
     LENGTH("cm"), //
     AREA("m²"), //
+    AREA_DENSITY("g/m²"), //
     VOLUME("cm³"), //
     POWER_RATIO("dB"), //
     WEIGHT("g"), //
@@ -636,6 +637,18 @@ public enum UnitType {
         unitList.add("m²");
         unitList.add("m2");
         UnitType.AREA.units.add(Pair.of(unitList, 1.));
+
+        // AREA_DENSITY units are normalized to g/m2
+        unitList = new ArrayList<>();
+        unitList.add("g/m2");
+        unitList.add("g/m²");
+        unitList.add("gsm");
+        UnitType.AREA_DENSITY.units.add(Pair.of(unitList, 1.));
+
+        unitList = new ArrayList<>();
+        unitList.add("ounce per square yard");
+        unitList.add("oz/yard²");
+        UnitType.AREA_DENSITY.units.add(Pair.of(unitList, 33.9));
 
         // VOLUME units are normalized to milliliter
         unitList = new ArrayList<>();
