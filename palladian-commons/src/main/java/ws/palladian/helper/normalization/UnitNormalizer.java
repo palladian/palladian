@@ -73,6 +73,10 @@ public class UnitNormalizer {
         return UnitType.AREA.contains(unit);
     }
 
+    private static boolean isAreaDensityUnit(String unit) {
+        return UnitType.AREA_DENSITY.contains(unit);
+    }
+
     private static boolean isVolumeUnit(String unit) {
         return UnitType.VOLUME.contains(unit);
     }
@@ -134,8 +138,7 @@ public class UnitNormalizer {
 
     /**
      * <p>
-     * Return a collection of units that are of the same type, e.g. if "cm" is given, all other length units are
-     * returned.
+     * Return a collection of units that are of the same type, e.g. if "cm" is given, all other length units are returned.
      * </p>
      *
      * @param unit The input unit.
@@ -163,6 +166,9 @@ public class UnitNormalizer {
         }
         if (isAreaUnit(unit)) {
             return UnitType.AREA.getUnitNames();
+        }
+        if (isAreaDensityUnit(unit)) {
+            return UnitType.AREA_DENSITY.getUnitNames();
         }
         if (isVolumeUnit(unit)) {
             return UnitType.VOLUME.getUnitNames();
@@ -207,8 +213,7 @@ public class UnitNormalizer {
 
     /**
      * <p>
-     * Returns true if units are the same unit type (time,distance etc.). e.g. MB and GB are digital size, hours and
-     * minutes are time units.
+     * Returns true if units are the same unit type (time,distance etc.). e.g. MB and GB are digital size, hours and minutes are time units.
      * </p>
      *
      * @param unit1 The first unit.
@@ -252,6 +257,11 @@ public class UnitNormalizer {
 
         // area
         if (isAreaUnit(unit1) && isAreaUnit(unit2)) {
+            return true;
+        }
+
+        // area density
+        if (isAreaDensityUnit(unit1) && isAreaDensityUnit(unit2)) {
             return true;
         }
 
@@ -301,8 +311,7 @@ public class UnitNormalizer {
 
     /**
      * <p>
-     * Find the multiplier to normalize values with the given unit. For example, "kg" gets a multiplier of 1,000 as we
-     * normalize to grams.
+     * Find the multiplier to normalize values with the given unit. For example, "kg" gets a multiplier of 1,000 as we normalize to grams.
      * </p>
      *
      * @param unit The unit string, e.g. "kg".
@@ -338,8 +347,7 @@ public class UnitNormalizer {
         // nothing found? try case insensive
         if (multiplier < 0) {
             unit = unit.toLowerCase();
-            ol:
-            for (UnitType unitType : UnitType.values()) {
+            ol: for (UnitType unitType : UnitType.values()) {
                 for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                     for (String unitTypeUnit : pair.getLeft()) {
                         if (unit.equals(unitTypeUnit)) {
@@ -436,8 +444,7 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
-                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 1).trim())
-                        * unitLookup("in"); // inches to centimeters
+                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 1).trim()) * unitLookup("in"); // inches to centimeters
                 return MathHelper.round(combinedValue, decimals);
             }
 
@@ -446,8 +453,7 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
-                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 2).trim())
-                        * unitLookup("in"); // inches to centimeters
+                combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 2).trim()) * unitLookup("in"); // inches to centimeters
                 return MathHelper.round(combinedValue, decimals);
             }
 
@@ -566,8 +572,7 @@ public class UnitNormalizer {
         return getNormalizedNumber(number, unitText, 3, combinedSearchPreviousUnit);
     }
 
-    public static double getNormalizedNumber(double number, String unitText, int decimals,
-            String combinedSearchPreviousUnit) {
+    public static double getNormalizedNumber(double number, String unitText, int decimals, String combinedSearchPreviousUnit) {
 
         boolean combinedSearch = false;
         if (combinedSearchPreviousUnit.length() > 0) {
@@ -622,8 +627,7 @@ public class UnitNormalizer {
             if (multiplier != -1.0) {
                 // when a subsequent unit is searched is has to be smaller than the previous one
                 // e.g. 1 hour 23 minutes (minutes < hour) otherwise 2GB 80GB causes problems
-                if (combinedSearch && !(unitsSameType(combinedSearchPreviousUnit, wordSequence)
-                        && isBigger(combinedSearchPreviousUnit, wordSequence))) {
+                if (combinedSearch && !(unitsSameType(combinedSearchPreviousUnit, wordSequence) && isBigger(combinedSearchPreviousUnit, wordSequence))) {
                     return 0.0;
                 }
                 break;
@@ -654,8 +658,7 @@ public class UnitNormalizer {
 
         try {
             if (m.find()) {
-                number += getNormalizedNumber(Double.parseDouble(StringNormalizer.normalizeNumber(m.group())),
-                        restWordSequence.substring(m.end()), wordSequence);
+                number += getNormalizedNumber(Double.parseDouble(StringNormalizer.normalizeNumber(m.group())), restWordSequence.substring(m.end()), wordSequence);
             }
         } catch (NumberFormatException e) {
             LOGGER.error(m.group(), e);
@@ -666,8 +669,7 @@ public class UnitNormalizer {
 
     /**
      * <p>
-     * Transforms a given <b>normalized</b> value and transforms it to the most readable unit for its unit type. E.g.
-     * "0.5" with LENGTH will become "5mm".
+     * Transforms a given <b>normalized</b> value and transforms it to the most readable unit for its unit type. E.g. "0.5" with LENGTH will become "5mm".
      * </p>
      *
      * @param normalizedValue The value, normalized to its base value in its unit type.
@@ -681,8 +683,7 @@ public class UnitNormalizer {
         for (Pair<List<String>, Double> entry : unitType.getUnits()) {
 
             double transformed = normalizedValue / entry.getRight();
-            if ((transformed < smallestReadableValue && transformed > 1)
-                    || (transformed > smallestReadableValue && smallestReadableValue < 1)
+            if ((transformed < smallestReadableValue && transformed > 1) || (transformed > smallestReadableValue && smallestReadableValue < 1)
                     || bestMatchingTransformation == null) {
                 bestMatchingTransformation = entry;
                 smallestReadableValue = transformed;
