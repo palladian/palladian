@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author David Urbansky
- * @see https://www.sitemaps.org/protocol.html
+ * @link https://www.sitemaps.org/protocol.html
  */
 public class SitemapRetriever {
 
@@ -80,6 +80,9 @@ public class SitemapRetriever {
 
             // read
             String sitemapText = FileHelper.tryReadFileToString(unzippedPath);
+            if (sitemapText == null) {
+                continue;
+            }
             sitemapText = PatternHelper.compileOrGet("\\n</loc>", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("</loc>");
             sitemapText = PatternHelper.compileOrGet("<loc>\\n", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("<loc>");
             if (sitemapText == null) {
@@ -154,7 +157,7 @@ public class SitemapRetriever {
      * Normalize a URL by taking care of CDATA text and HTML entity escaping.
      * 
      * @param url A sitemap conform URL.
-     * @see https://www.sitemaps.org/protocol.html#escaping
+     * @link https://www.sitemaps.org/protocol.html#escaping
      * @return The normalized URL.
      */
     protected String normalizeUrl(String url) {
