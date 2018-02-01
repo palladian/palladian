@@ -29,7 +29,7 @@ public class LogLossEvaluator extends AbstractClassificationEvaluator<Double> {
 		return sum / n;
 	}
 
-	static double logLoss(boolean actual, double predicted) {
+	public static double logLoss(boolean actual, double predicted) {
 		double y = actual ? 1 : 0;
 		double p_binned = Math.max(Math.min(predicted, 1 - EPSILON), EPSILON);
 		return -y * Math.log(p_binned);
