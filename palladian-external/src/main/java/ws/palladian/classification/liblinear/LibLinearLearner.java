@@ -130,7 +130,7 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
         Map<String, Integer> featureLabelIndices = CollectionHelper.createIndexMap(featureLabels);
         
         Problem problem = new Problem();
-        LOGGER.debug("Features = {}", featureLabels);
+        LOGGER.debug("# Features = {}", featureLabels.size());
         problem.n = featureLabels.size();
         if (bias >= 0) {
             LOGGER.debug("Add bias correction {}", bias);
@@ -142,6 +142,9 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
         List<Integer> assignedClassIndices = new ArrayList<>();
 		for (Instance instance : dataset) {
 			problem.l++;
+			if (problem.l % 1000 == 0) {
+				LOGGER.debug("Created {} training instances", problem.l);
+			}
 			FeatureVector featureVector = normalization.normalize(instance.getVector());
 			featureVector = dummyCoder.convert(featureVector);
 			features.add(makeInstance(featureLabelIndices, featureVector, bias));
