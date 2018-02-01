@@ -100,6 +100,7 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
 
 
 	private final String inputFeatureName;
+	private final FeatureSetting featureSetting;
 	private final Preprocessor preprocessor;
 	private final TermCorpus termCorpus;
 	private final TFStrategy tfStrategy;
@@ -114,6 +115,7 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
 	public TextVectorizer(String inputFeatureName, FeatureSetting featureSetting, Dataset dataset,
 			TFStrategy tfStrategy, IDFStrategy idfStrategy, int vectorSize, int alpha) {
 		this.inputFeatureName = inputFeatureName;
+		this.featureSetting = featureSetting;
 		preprocessor = new Preprocessor(featureSetting);
 
 		MapTermCorpus termCorpus = new MapTermCorpus();
@@ -130,6 +132,17 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
 				LOGGER.debug("Reduced term corpus from {} to {}", sizeBeforeReduction, sizeAfterReduction);
 			}
 		}
+		this.tfStrategy = tfStrategy;
+		this.idfStrategy = idfStrategy;
+		this.alpha = alpha;
+	}
+
+	private TextVectorizer(String inputFeatureName, FeatureSetting featureSetting, TermCorpus termCorpus,
+			TFStrategy tfStrategy, IDFStrategy idfStrategy, int alpha) {
+		this.inputFeatureName = inputFeatureName;
+		this.featureSetting = featureSetting;
+		this.preprocessor = new Preprocessor(featureSetting);
+		this.termCorpus = termCorpus;
 		this.tfStrategy = tfStrategy;
 		this.idfStrategy = idfStrategy;
 		this.alpha = alpha;
@@ -173,6 +186,28 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
 			return ((TextValue) value).getText();
 		}
 		throw new IllegalArgumentException("Invalid type: " + value.getClass().getName());
+	}
+
+	/**
+	 * Create a copy with the same corpus and feature setting but different scoring
+	 * strategies.
+	 * 
+	 * @param tfStrategy
+	 *            The new {@link TFStrategy} to use.
+	 * @param idfStrategy
+	 *            The new {@link IDFStrategy} to use.
+	 * @param alpha
+	 *            The new alpha value to use.
+	 * @return A new TextVectorizer with changed settings.
+	 */
+	public TextVectorizer copyWithDifferentStrategy(TFStrategy tfStrategy, IDFStrategy idfStrategy, int alpha) {
+		return new TextVectorizer(inputFeatureName, featureSetting, termCorpus, tfStrategy, idfStrategy, alpha);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%s [%s, %s, alpha=%s, %s]", this.getClass().getSimpleName(), tfStrategy, idfStrategy,
+				alpha, featureSetting);
 	}
 
 }

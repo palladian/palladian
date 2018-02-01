@@ -65,5 +65,10 @@ public class TextVectorClassifier<M extends Model> extends AbstractLearner<TextV
 		FeatureVector vectorizedVector = vectorizer.compute(featureVector);
 		return classifier.classify(vectorizedVector, model.model);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s [learner=%s, vectorizer=%s]", this.getClass().getSimpleName(), learner, vectorizer);
+	}
 
 }
