@@ -12,6 +12,10 @@ import ws.palladian.core.Instance;
  * when needed, thus making iteration over the dataset much faster, when the
  * feature vector is not requested.
  * 
+ * In case the set of features is modified (feature added, feature removed, type
+ * changed), override {@link #getFeatureInformation(FeatureInformation)} and
+ * return the updated meta information.
+ * 
  * @author pk
  */
 public abstract class AbstractDatasetFeatureVectorTransformer implements DatasetTransformer {
@@ -38,5 +42,11 @@ public abstract class AbstractDatasetFeatureVectorTransformer implements Dataset
 
 	// TODO refactor this to compute(FeatureInformation, FeatureVector)
 	public abstract FeatureVector compute(FeatureVector featureVector);
+	
+	@Override
+	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+		// per default, assume that only feature values are updated
+		return featureInformation;
+	}
 
 }
