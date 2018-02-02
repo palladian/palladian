@@ -44,7 +44,7 @@ public abstract class AbstractNormalization extends AbstractDatasetFeatureVector
     }
     
     @Override
-    protected FeatureVector compute(FeatureVector featureVector) {
+    public FeatureVector compute(FeatureVector featureVector) {
     	return normalize(featureVector);
     }
     

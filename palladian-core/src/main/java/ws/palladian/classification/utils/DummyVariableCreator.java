@@ -225,7 +225,7 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 	}
 	
 	@Override
-	protected FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector compute(FeatureVector featureVector) {
 		return convert(featureVector);
 	}
 

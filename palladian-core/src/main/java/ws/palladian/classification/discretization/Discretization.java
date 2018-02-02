@@ -59,7 +59,7 @@ public final class Discretization extends AbstractDatasetFeatureVectorTransforme
     }
 
     @Override
-	protected FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector compute(FeatureVector featureVector) {
         Validate.notNull(featureVector, "featureVector must not be null");
         InstanceBuilder instanceBuilder = new InstanceBuilder();
         for (VectorEntry<String, Value> vectorEntry : featureVector) {
