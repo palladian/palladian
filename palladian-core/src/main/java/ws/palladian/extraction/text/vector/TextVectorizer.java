@@ -3,6 +3,9 @@ package ws.palladian.extraction.text.vector;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.core.FeatureVector;
@@ -23,6 +26,9 @@ import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 
 public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
+	
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextVectorizer.class);
 
 	public static enum TFStrategy {
 		BINARY {
@@ -98,9 +104,15 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
 	private final TermCorpus termCorpus;
 	private final TFStrategy tfStrategy;
 	private final IDFStrategy idfStrategy;
+	private final int alpha;
 
 	public TextVectorizer(String inputFeatureName, FeatureSetting featureSetting, Dataset dataset,
 			TFStrategy tfStrategy, IDFStrategy idfStrategy, int vectorSize) {
+		this(inputFeatureName, featureSetting, dataset, tfStrategy, idfStrategy, vectorSize, 0);
+	}
+
+	public TextVectorizer(String inputFeatureName, FeatureSetting featureSetting, Dataset dataset,
+			TFStrategy tfStrategy, IDFStrategy idfStrategy, int vectorSize, int alpha) {
 		this.inputFeatureName = inputFeatureName;
 		preprocessor = new Preprocessor(featureSetting);
 
@@ -111,8 +123,16 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
 			termCorpus.addTermsFromDocument(CollectionHelper.newHashSet(tokenIterator));
 		}
 		this.termCorpus = termCorpus.getReducedCorpus(vectorSize);
+		{
+			int sizeBeforeReduction = termCorpus.getNumUniqueTerms();
+			int sizeAfterReduction = this.termCorpus.getNumUniqueTerms();
+			if (sizeAfterReduction < sizeBeforeReduction) {
+				LOGGER.debug("Reduced term corpus from {} to {}", sizeBeforeReduction, sizeAfterReduction);
+			}
+		}
 		this.tfStrategy = tfStrategy;
 		this.idfStrategy = idfStrategy;
+		this.alpha = alpha;
 	}
 
 	@Override
@@ -129,9 +149,14 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
 		InstanceBuilder instanceBuilder = new InstanceBuilder();
 		Entry<String, Integer> maxTokenEntry = tokens.getMax();
 		Integer maxTokenCount = maxTokenEntry != null ? maxTokenEntry.getValue() : 0;
+		
+		// in case alpha is zero, only the document's tokens need to be iterated;
+		// and zero values can simply be skipped. Else we need to iterate over the 
+		// entire corpus (smoothing)
+		TermCorpus vocabulary = alpha == 0 ? new MapTermCorpus(tokens, 1) : termCorpus;
 
-		for (String token : tokens.uniqueItems()) {
-			Integer count = tokens.count(token);
+		for (String token : vocabulary) {
+			Integer count = tokens.count(token) + alpha;
 			float tf = tfStrategy.calc(count, tokens.size(), maxTokenCount);
 			float idf = idfStrategy.calc(termCorpus.getCount(token), termCorpus.getNumDocs(), maxTokenCount);
 			float value = tf * idf;
