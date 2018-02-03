@@ -142,7 +142,7 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
         List<Integer> assignedClassIndices = new ArrayList<>();
 		for (Instance instance : dataset) {
 			problem.l++;
-			if (problem.l % 1000 == 0) {
+			if (problem.l % 10000 == 0) {
 				LOGGER.debug("Created {} training instances", problem.l);
 			}
 			FeatureVector featureVector = normalization.normalize(instance.getVector());
