@@ -5,11 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.NumberFormat;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator2;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.functional.Filter;
 
@@ -163,12 +159,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
      */
     private static final long serialVersionUID = 4L;
 
-    /**
-     * Version number which is written/checked when serializing/deserializing, if you make incompatible changes, update
-     * this constant and provide backwards compatibility, so that existing models do not break.
-     */
-    private static final int VERSION = 1;
-
     /** Trie with term-category combinations with their counts. */
     private transient Trie<LinkedCategoryEntries> entryTrie;
 
@@ -294,47 +284,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     // of existing models still works (we keep a serialized form of each version from now on for the tests).
 
     private void writeObject(ObjectOutputStream out) throws IOException {
-        // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
-        List<Category> sortedCategories = CollectionHelper.newArrayList(getDocumentCounts());
-        Collections.sort(sortedCategories, new Comparator<Category>() {
-            @Override
-            public int compare(Category c1, Category c2) {
-                return c1.getName().compareTo(c2.getName());
-            }
-        });
-        Map<String, Integer> categoryIndices = new HashMap<>();
-        int idx = 0;
-        for (Category category : sortedCategories) {
-            categoryIndices.put(category.getName(), idx++);
-        }
-        // version (for being able to provide backwards compatibility from now on)
-        out.writeInt(VERSION);
-        // header; number of categories; [ (categoryName, count) , ...]
-        out.writeInt(sortedCategories.size());
-        for (Category category : sortedCategories) {
-            out.writeObject(category.getName());
-            out.writeInt(category.getCount());
-        }
-        // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
-        out.writeInt(numTerms);
-//        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
-//        ProgressMonitor monitor = new ProgressMonitor();
-//        monitor.startTask("Writing " + dictName, numTerms);
-        for (DictionaryEntry termEntry : this) {
-            out.writeObject(termEntry.getTerm());
-            CategoryEntries categoryEntries = termEntry.getCategoryEntries();
-            out.writeInt(categoryEntries.size());
-            for (Category category : categoryEntries) {
-                int categoryIdx = categoryIndices.get(category.getName());
-                out.writeInt(categoryIdx);
-                out.writeInt(category.getCount());
-            }
-//            monitor.increment();
-        }
-        // feature setting
-        out.writeObject(featureSetting);
-        // name
-        out.writeObject(name);
+    		writeObject_(out);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

@@ -1,9 +1,14 @@
 package ws.palladian.classification.text;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -18,6 +23,12 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     private static final long serialVersionUID = 1L;
 
     private static final char CSV_SEPARATOR = ';';
+
+    /**
+     * Version number which is written/checked when serializing/deserializing, if you make incompatible changes, update
+     * this constant and provide backwards compatibility, so that existing models do not break.
+     */
+    protected static final int VERSION = 1;
 
     @Override
     public Set<String> getCategories() {
@@ -150,6 +161,56 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
             }
         }
         return true;
+    }
+    
+    // serialization code
+
+    // Implementation note: in case you make any incompatible changes to the serialization protocol, provide backwards
+    // compatibility by using the #VERSION constant. Add a test case for the new version and make sure, deserialization
+    // of existing models still works (we keep a serialized form of each version from now on for the tests).
+
+    protected void writeObject_(ObjectOutputStream out) throws IOException {
+        // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
+        List<Category> sortedCategories = CollectionHelper.newArrayList(getDocumentCounts());
+        Collections.sort(sortedCategories, new Comparator<Category>() {
+            @Override
+            public int compare(Category c1, Category c2) {
+                return c1.getName().compareTo(c2.getName());
+            }
+        });
+        Map<String, Integer> categoryIndices = new HashMap<>();
+        int idx = 0;
+        for (Category category : sortedCategories) {
+            categoryIndices.put(category.getName(), idx++);
+        }
+        // version (for being able to provide backwards compatibility from now on)
+        out.writeInt(VERSION);
+        // header; number of categories; [ (categoryName, count) , ...]
+        out.writeInt(sortedCategories.size());
+        for (Category category : sortedCategories) {
+            out.writeObject(category.getName());
+            out.writeInt(category.getCount());
+        }
+        // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
+        out.writeInt(getNumUniqTerms());
+//        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
+//        ProgressMonitor monitor = new ProgressMonitor();
+//        monitor.startTask("Writing " + dictName, numTerms);
+        for (DictionaryEntry termEntry : this) {
+            out.writeObject(termEntry.getTerm());
+            CategoryEntries categoryEntries = termEntry.getCategoryEntries();
+            out.writeInt(categoryEntries.size());
+            for (Category category : categoryEntries) {
+                int categoryIdx = categoryIndices.get(category.getName());
+                out.writeInt(categoryIdx);
+                out.writeInt(category.getCount());
+            }
+//            monitor.increment();
+        }
+        // feature setting
+        out.writeObject(getFeatureSetting());
+        // name
+        out.writeObject(getName());
     }
 
 }
