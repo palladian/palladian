@@ -193,9 +193,6 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         }
         // number of terms; list of terms: [ ( term, numProbabilityEntries, [ (categoryIdx, count), ... ] ), ... ]
         out.writeInt(getNumUniqTerms());
-//        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
-//        ProgressMonitor monitor = new ProgressMonitor();
-//        monitor.startTask("Writing " + dictName, numTerms);
         for (DictionaryEntry termEntry : this) {
             out.writeObject(termEntry.getTerm());
             CategoryEntries categoryEntries = termEntry.getCategoryEntries();
@@ -205,7 +202,6 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
                 out.writeInt(categoryIdx);
                 out.writeInt(category.getCount());
             }
-//            monitor.increment();
         }
         // feature setting
         out.writeObject(getFeatureSetting());

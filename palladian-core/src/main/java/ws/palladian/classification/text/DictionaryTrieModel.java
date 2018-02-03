@@ -177,22 +177,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     /** The optional name of the model. */
     private transient String name;
 
-//    /**
-//     * Create a new {@link DictionaryTrieModel}.
-//     * 
-//     * @param featureSetting The feature setting which was used for creating this model, may be <code>null</code>.
-//     * @deprecated Use a {@link Builder} instead.
-//     */
-//    @Deprecated
-//    public DictionaryTrieModel(FeatureSetting featureSetting) {
-//        this.entryTrie = new Trie<LinkedCategoryEntries>();
-//        this.numTerms = 0;
-//        this.featureSetting = featureSetting;
-//        this.name = NO_NAME;
-//        this.documentCounts = ImmutableCategoryEntries.EMPTY;
-//        this.termCounts = ImmutableCategoryEntries.EMPTY;
-//    }
-
     /** Constructor invoked from the builder only. */
     private DictionaryTrieModel(Builder builder) {
         this.entryTrie = builder.entryTrie;
@@ -212,20 +196,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     public FeatureSetting getFeatureSetting() {
         return featureSetting;
     }
-
-//    /**
-//     * @deprecated Use {@link #addDocument(Collection, String)} instead.
-//     */
-//    @Deprecated
-//    public void updateTerm(String term, String category) {
-//        Validate.notNull(term, "term must not be null");
-//        Validate.notNull(category, "category must not be null");
-//        LinkedCategoryEntries categoryEntries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
-//        if (categoryEntries.getTotalCount() == 0) { // term was not present before
-//            numTerms++;
-//        }
-//        categoryEntries.increment(category, 1);
-//    }
 
     @Override
     public CategoryEntries getCategoryEntries(String term) {
@@ -290,7 +260,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         // version
         int version = in.readInt();
-//    System.out.println("version="+version);
         if (version != VERSION) {
             throw new IOException("Unsupported version: " + version);
         }
@@ -298,7 +267,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         entryTrie = new Trie<LinkedCategoryEntries>();
         // header
         int numCategories = in.readInt();
-//    System.out.println("numCategories="+numCategories);
         CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String)in.readObject();
@@ -309,14 +277,9 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         documentCounts = documentCountBuilder.create();
         // terms
         numTerms = in.readInt();
-//    System.out.println("numTerms="+numTerms);
-//        String dictName = name == null || name.equals(NO_NAME) ? DictionaryTrieModel.class.getSimpleName() : name;
-//        ProgressMonitor monitor = new ProgressMonitor();
-//        monitor.startTask("Reading " + dictName, numTerms);
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String)in.readObject();
-//    System.out.println("term="+term);
             LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
             int numProbabilityEntries = in.readInt();
             for (int j = 0; j < numProbabilityEntries; j++) {
@@ -326,7 +289,6 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 entries.append(categoryName, categoryCount);
                 termCountBuilder.add(categoryName, categoryCount);
             }
-//            monitor.increment();
         }
         termCounts = termCountBuilder.create();
         // feature setting
