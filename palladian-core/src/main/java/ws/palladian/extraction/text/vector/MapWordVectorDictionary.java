@@ -66,7 +66,7 @@ public class MapWordVectorDictionary implements WordVectorDictionary {
 	private final boolean caseSensitive;
 	private final File vecFile;
 
-	private MapWordVectorDictionary(Map<String, float[]> entries, int vectorSize, boolean caseSensitive, File vecFile) {
+	MapWordVectorDictionary(Map<String, float[]> entries, int vectorSize, boolean caseSensitive, File vecFile) {
 		this.entries = entries;
 		this.vectorSize = vectorSize;
 		this.caseSensitive = caseSensitive;
