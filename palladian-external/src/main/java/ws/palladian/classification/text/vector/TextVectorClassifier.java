@@ -14,7 +14,7 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
-import ws.palladian.extraction.text.vector.TextVectorizer;
+import ws.palladian.extraction.text.vector.ITextVectorizer;
 import ws.palladian.helper.functional.Filters;
 
 public class TextVectorClassifier<M extends Model> extends AbstractLearner<TextVectorClassifier.TextVectorModel<M>> implements Classifier<TextVectorClassifier.TextVectorModel<M>> {
@@ -34,21 +34,21 @@ public class TextVectorClassifier<M extends Model> extends AbstractLearner<TextV
 		
 	}
 
-	private final TextVectorizer vectorizer;
+	private final ITextVectorizer vectorizer;
 	private final Learner<M> learner;
 	private final Classifier<M> classifier;
 
-	public static TextVectorClassifier<LibLinearModel> libLinear(TextVectorizer vectorizer) {
+	public static TextVectorClassifier<LibLinearModel> libLinear(ITextVectorizer vectorizer) {
 		return new TextVectorClassifier<>(vectorizer, new LibLinearLearner(new NoNormalizer()),
 				new LibLinearClassifier());
 	}
 
-	public static TextVectorClassifier<LibLinearModel> libLinear(TextVectorizer vectorizer, Parameter parameter) {
+	public static TextVectorClassifier<LibLinearModel> libLinear(ITextVectorizer vectorizer, Parameter parameter) {
 		return new TextVectorClassifier<>(vectorizer, new LibLinearLearner(parameter, 1, new NoNormalizer()),
 				new LibLinearClassifier());
 	}
 
-	public TextVectorClassifier(TextVectorizer vectorizer, Learner<M> learner, Classifier<M> classifier) {
+	public TextVectorClassifier(ITextVectorizer vectorizer, Learner<M> learner, Classifier<M> classifier) {
 		this.vectorizer = vectorizer;
 		this.learner = learner;
 		this.classifier = classifier;

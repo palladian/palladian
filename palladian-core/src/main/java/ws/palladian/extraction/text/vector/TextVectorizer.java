@@ -25,7 +25,7 @@ import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 
-public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer {
+public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer implements ITextVectorizer {
 	
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(TextVectorizer.class);
