@@ -22,6 +22,7 @@ public class MapWordVectorDictionary implements WordVectorDictionary {
 	public static MapWordVectorDictionary readFromVecFile(File vecFile, final int lineLimit) {
 		final Map<String, float[]> entries = new HashMap<>();
 		final int[] vectorSize = { -1 };
+		final boolean[] caseSensitive = { false };
 		FileHelper.performActionOnEveryLine(vecFile, new LineAction() {
 			@Override
 			public void performAction(String line, int lineNumber) {
@@ -34,6 +35,12 @@ public class MapWordVectorDictionary implements WordVectorDictionary {
 				}
 				int firstSpace = line.indexOf(' ');
 				String token = line.substring(0, firstSpace);
+				
+				// automatically detect if the dictionary is case-sensitive
+				if (!token.equals(token.toLowerCase())) {
+					caseSensitive[0] = true;
+				}
+				
 				String vectorEntries = line.substring(firstSpace + 1);
 				String[] vectorSplit = vectorEntries.split(" ");
 				if (vectorSize[0] == -1) {
@@ -50,16 +57,19 @@ public class MapWordVectorDictionary implements WordVectorDictionary {
 				}
 			}
 		});
-		return new MapWordVectorDictionary(entries, vectorSize[0], vecFile);
+		LOGGER.debug("Dictionary is case sensitive? {}", caseSensitive[0]);
+		return new MapWordVectorDictionary(entries, vectorSize[0], caseSensitive[0], vecFile);
 	}
 
 	private final Map<String, float[]> entries;
 	private final int vectorSize;
+	private final boolean caseSensitive;
 	private final File vecFile;
 
-	private MapWordVectorDictionary(Map<String, float[]> entries, int vectorSize, File vecFile) {
+	private MapWordVectorDictionary(Map<String, float[]> entries, int vectorSize, boolean caseSensitive, File vecFile) {
 		this.entries = entries;
 		this.vectorSize = vectorSize;
+		this.caseSensitive = caseSensitive;
 		this.vecFile = vecFile;
 	}
 
@@ -76,6 +86,11 @@ public class MapWordVectorDictionary implements WordVectorDictionary {
 	@Override
 	public int vectorSize() {
 		return vectorSize;
+	}
+	
+	@Override
+	public boolean isCaseSensitive() {
+		return caseSensitive;
 	}
 
 	@Override

@@ -37,7 +37,9 @@ public class EmbeddingTextVectorizer extends AbstractDatasetFeatureVectorTransfo
 	public FeatureVector compute(FeatureVector featureVector) {
 
 		String textValue = getTextValue(featureVector);
-		// TODO some models are case-sensitive!
+		if (!dictionary.isCaseSensitive()) {
+			textValue = textValue.toLowerCase();
+		}
 		List<String> words = Tokenizer.tokenize(textValue.toLowerCase());
 
 		float[] documentVector = new float[dictionary.vectorSize()];
@@ -49,6 +51,7 @@ public class EmbeddingTextVectorizer extends AbstractDatasetFeatureVectorTransfo
 		}
 		if (words.size() > 0) {
 			documentVector = FloatVectorUtil.scalar(documentVector, 1f / words.size());
+			// documentVector = FloatVectorUtil.normalize(documentVector);
 		}
 
 		InstanceBuilder vectorBuilder = new InstanceBuilder();
