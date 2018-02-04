@@ -189,4 +189,10 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
 		return features.toArray(new de.bwaldvogel.liblinear.Feature[features.size()]);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s [SolverType=%s, C=%s, eps=%s, bias=%s]", getClass().getSimpleName(),
+				parameter.getSolverType(), parameter.getC(), parameter.getEps(), bias);
+	}
+
 }
