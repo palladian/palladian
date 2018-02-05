@@ -95,6 +95,8 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * <td>0.9159</td>
  * </tr>
  * </table>
+ * 
+ * See <a href="doc-files/evaluation_result.csv">here</a> for all details.
  *
  * @author Philipp Katz
  */
