@@ -45,7 +45,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * </p>
      */
     public MapTermCorpus() {
-        this(Bag.<String>create(), 0);
+        this(new Bag<String>(), 0);
     }
 
     /**
@@ -124,7 +124,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
     public static MapTermCorpus load(InputStream inputStream) {
         Validate.notNull(inputStream, "inputStream must not be null");
         final int[] numDocs = new int[1];
-        final Bag<String> counts = Bag.create();
+        final Bag<String> counts = new Bag<>();
         StopWatch stopWatch = new StopWatch();
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
@@ -189,7 +189,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * @return The filtered {@link TermCorpus}.
      */
     public MapTermCorpus getFilteredCorpus(int minOccurrenceCount) {
-        Bag<String> resultTerms = Bag.create();
+        Bag<String> resultTerms = new Bag<>();
         for (String term : terms.uniqueItems()) {
             int count = terms.count(term);
             if (count >= minOccurrenceCount) {
