@@ -516,6 +516,9 @@ public class DocumentRetriever {
     public void setNumThreads(int numThreads) {
         this.numThreads = numThreads;
     }
+    public int getNumThreads() {
+        return this.numThreads;
+    }
 
     public void setDownloadFilter(Filter<String> downloadFilter) {
         this.downloadFilter = downloadFilter;
@@ -600,6 +603,10 @@ public class DocumentRetriever {
         int index = (int)(Math.random() * userAgents.size());
         String s = userAgents.get(index);
         httpRetriever.setUserAgent(s);
+    }
+
+    public HttpRetriever getHttpRetriever() {
+        return httpRetriever;
     }
 
     // ////////////////////////////////////////////////////////////////

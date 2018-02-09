@@ -39,7 +39,7 @@ public abstract class BaseDocumentParser implements DocumentParser {
         }
         InputSource inputSource = new InputSource(new ByteArrayInputStream(content));
 
-        // detect the encoding in advance, this avoids wrongly interpreted documents
+        // detect the encoding in advance, this prevents us from interpreting documents incorrectly
         String charset = httpResult.getCharset();
         boolean supportedCharset = isSupportedCharset(charset);
         if (supportedCharset) {
