@@ -1035,6 +1035,9 @@ public final class StringHelper {
         // replace line breaks encoded in utf-8
         string = string.replace("\u2028", "\n");
 
+        // replace line breaks encoded in html entities
+        string = string.replace("&#10", "\n");
+
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
             if (string.charAt(i) < 33) {

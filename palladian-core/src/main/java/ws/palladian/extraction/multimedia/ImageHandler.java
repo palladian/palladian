@@ -568,6 +568,9 @@ public class ImageHandler {
      * @return The path (including the detected file type) where the image was saved or null if there was an error.
      */
     public static String downloadAndSave(String url, String savePath) {
+        return downloadAndSave(url, savePath, 1.f);
+    }
+    public static String downloadAndSave(String url, String savePath, float quality) {
 
         try {
 
@@ -583,9 +586,11 @@ public class ImageHandler {
             // save image
             LOGGER.debug("write " + savePath + " with " + fileExtension);
             FileHelper.createDirectoriesAndFile(savePath);
-            ImageIO.write(bi, fileExtension, new File(savePath));
 
-        } catch (IOException | NullPointerException | IllegalArgumentException e) {
+            saveImage(bi, fileExtension, savePath, quality);
+//            ImageIO.write(newBufferedImage, fileExtension, new File(savePath));
+
+        } catch (NullPointerException | IllegalArgumentException e) {
             LOGGER.error("problem with URL:" + url + ", " + e.getMessage());
             return null;
         }
@@ -836,6 +841,7 @@ public class ImageHandler {
     }
 
     public static boolean saveImage(BufferedImage image, String fileType, String filePath, float quality) {
+
         try {
             Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(fileType.toUpperCase());
             if (iter.hasNext()) {
