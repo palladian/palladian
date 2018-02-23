@@ -71,15 +71,13 @@ public class Crawler {
     /** Regexps that must not be contained in the URLs or they won't be followed. */
     protected final Set<Pattern> blackListUrlRegexps = new HashSet<>();
 
-    /** Remove those parts from every retrieved URL. */
-    private final LinkedHashSet<Pattern> urlModificationRegexps = new LinkedHashSet<>();
+    /** Replace certain patterns in each retrieved URL. */
+    private final LinkedHashMap<Pattern, String> urlModificationRegexps = new LinkedHashMap<>();
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
     private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
     private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
-
-    private Set<String> urlRules = new HashSet<>();
 
     /** If true, all query params in the URL ?= will be stripped. */
     private boolean stripQueryParams = true;
@@ -184,6 +182,7 @@ public class Crawler {
                                 lastCrawlTime.set(System.currentTimeMillis());
                             } catch (Throwable t) {
                                 // whatever
+                                t.printStackTrace();
                             }
                         }
                     };
@@ -300,18 +299,12 @@ public class Crawler {
         }
     }
 
-    public Set<Pattern> getUrlModificationRegexps() {
+    public Map<Pattern, String> getUrlModificationRegexps() {
         return urlModificationRegexps;
     }
 
-    public void addUrlModificationRegexps(LinkedHashSet<String> urlModificationRegexps) {
-        for (String string : urlModificationRegexps) {
-            this.urlModificationRegexps.add(Pattern.compile(string));
-        }
-    }
-
-    public void addUrlRule(String rule) {
-        urlRules.add(rule);
+    public void addUrlModificationRegexps(LinkedHashMap<Pattern, String> urlModificationRegexps) {
+        this.urlModificationRegexps.putAll(urlModificationRegexps);
     }
 
     private synchronized void addUrlsToStack(Set<String> urls) {
@@ -326,8 +319,12 @@ public class Crawler {
         if (isStripQueryParams()) {
             url = url.replaceAll("\\?.*", "");
         }
-        for (Pattern pattern : urlModificationRegexps) {
-            url = pattern.matcher(url).replaceAll("");
+        for (Map.Entry<Pattern, String> entry : urlModificationRegexps.entrySet()) {
+            try {
+                url = entry.getKey().matcher(url).replaceAll(entry.getValue());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return url;
     }
