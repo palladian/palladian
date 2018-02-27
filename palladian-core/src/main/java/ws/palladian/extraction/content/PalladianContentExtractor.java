@@ -880,35 +880,41 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return new BasicWebImage.Builder().setImageUrl(xhtmlNode.getTextContent().trim()).create();
         }
 
+        List<Node> excludeImageNodes = new ArrayList<>();
+        if (contentExcludeXPath != null && !contentExcludeXPath.isEmpty()) {
+            for (String xpath : contentExcludeXPath) {
+                excludeImageNodes.addAll(XPathHelper.getXhtmlNodes(getDocument(), xpath + "//img"));
+            }
+        }
+
         // look for itemprop image
         xhtmlNode = XPathHelper
                 .getXhtmlNode(
                         getDocument(),
-                        "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
-        if (xhtmlNode != null) {
-            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
-            return new BasicWebImage.Builder().setImageUrl(url).create();
+                        "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]");
+        if (xhtmlNode != null && !excludeImageNodes.contains(xhtmlNode)) {
+            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode,".//@src");
+            if (xhtmlNode1 != null) {
+                String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode1.getTextContent().trim());
+                return new BasicWebImage.Builder().setImageUrl(url).create();
+            }
         }
 
         // look for "main image"
         xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
-                "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]//@src");
-        if (xhtmlNode != null) {
-            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
-            return new BasicWebImage.Builder().setImageUrl(url).create();
+                "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]");
+        if (xhtmlNode != null && !excludeImageNodes.contains(xhtmlNode)) {
+            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode,".//@src");
+            if (xhtmlNode1 != null) {
+                String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode1.getTextContent().trim());
+                return new BasicWebImage.Builder().setImageUrl(url).create();
+            }
         }
 
         // try something else
         WebImage image = null;
         List<WebImage> images = new ArrayList<>();
         Node mainContentNode = getDocument();
-
-        List<Node> excludeImageNodes = new ArrayList<>();
-        if (contentExcludeXPath != null && !contentExcludeXPath.isEmpty()) {
-            for (String xpath : contentExcludeXPath) {
-                excludeImageNodes.addAll(XPathHelper.getXhtmlNodes(mainContentNode, xpath + "//img"));
-            }
-        }
 
         if (contentIncludeXPath != null && !contentIncludeXPath.isEmpty()) {
 
