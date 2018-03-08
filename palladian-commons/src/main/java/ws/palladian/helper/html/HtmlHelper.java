@@ -770,6 +770,9 @@ public final class HtmlHelper {
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a[@href]");
+        // FIMXE added this in order to index all sites of www.dsgv.de
+        linkNodes.addAll(XPathHelper.getXhtmlNodes(document, "//area[@href]"));
+
         for (Node linkNode : linkNodes) {
 
             Node hrefNode = linkNode.getAttributes().getNamedItem("href");
