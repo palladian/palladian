@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
@@ -132,6 +131,18 @@ public class Crawler {
 
         if (document != null) {
             Set<String> links = HtmlHelper.getLinks(document, currentUrl, inDomain, outDomain, "", respectNoFollow, subDomain);
+            // check if we can get more links out of it
+
+            Document webDocument = new DocumentRetriever().getWebDocument(currentUrl);
+            // FIXME HARD
+            // try again to download document with a plain DocumentRetriever, normal one got only 4300 links, plain got 7500 WTF? user-agent ?
+            // http://sitemap-kb.act.com
+
+            Set<String> moreLinks = HtmlHelper.getLinks(webDocument, currentUrl, inDomain, outDomain, "", respectNoFollow, subDomain);
+
+            if(moreLinks.size() > links.size()){
+                links = moreLinks;
+            }
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
                 LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
@@ -172,7 +183,6 @@ public class Crawler {
 
             try {
                 final String url = getUrlFromStack();
-
                 if (url != null) {
                     Thread ct = new Thread("CrawlThread-" + url) {
                         @Override
