@@ -758,7 +758,9 @@ public final class HtmlHelper {
         // remove anchors from url
         String url = originalDocumentUrl;
         url = UrlHelper.removeAnchors(url);
-        String domain = UrlHelper.getDomain(url, false, !includeSubdomains).toLowerCase();
+        // FIXME logic for includeSubdomains was inverted
+        //         String domain = UrlHelper.getDomain(url, false, !includeSubdomains).toLowerCase();
+        String domain = UrlHelper.getDomain(url, false, includeSubdomains).toLowerCase();
 
         // get value of base element, if present
         Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
