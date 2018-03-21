@@ -1,15 +1,5 @@
 package ws.palladian.helper;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Rule;
@@ -18,8 +8,15 @@ import org.junit.rules.ErrorCollector;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import ws.palladian.helper.io.ResourceHelper;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 
 /** @formatter:off */
 public class UrlHelperTest {
@@ -43,6 +40,11 @@ public class UrlHelperTest {
         collector.checkThat(UrlHelper.getDomain("http://www.amazon.co.uk", false, false), is("amazon.co.uk"));
         collector.checkThat(UrlHelper.getDomain("http://amazon.co.uk", false, false), is("amazon.co.uk"));
         collector.checkThat(UrlHelper.getDomain("http://test.com", false, false), is("test.com"));
+
+        collector.checkThat(UrlHelper.getDomain("http://bb.rentokil.com", false, false), is("rentokil.com"));
+        collector.checkThat(UrlHelper.getDomain("http://bb.rentokil.com", false, true), is("bb.rentokil.com"));
+
+
         collector.checkThat(UrlHelper.getDomain("http://sub.domain.with.points.test.ac.uk", false, false), is("test.ac.uk"));
         collector.checkThat(UrlHelper.getDomain("http://www.companies-reviews.com/review/3168408/Sales-Promotion-Agency-Expression/", false, false), is("companies-reviews.com"));
 

@@ -130,19 +130,8 @@ public class Crawler {
         Document document = documentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
-            Set<String> links = HtmlHelper.getLinks(document, currentUrl, inDomain, outDomain, "", respectNoFollow, subDomain);
+            Set<String> links = HtmlHelper.getLinks(document, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain);
             // check if we can get more links out of it
-
-            Document webDocument = new DocumentRetriever().getWebDocument(currentUrl);
-            // FIXME HARD
-            // try again to download document with a plain DocumentRetriever, normal one got only 4300 links, plain got 7500 WTF? user-agent ?
-            // http://sitemap-kb.act.com
-
-            Set<String> moreLinks = HtmlHelper.getLinks(webDocument, currentUrl, inDomain, outDomain, "", respectNoFollow, subDomain);
-
-            if(moreLinks.size() > links.size()){
-                links = moreLinks;
-            }
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
                 LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
