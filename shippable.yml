@@ -18,5 +18,5 @@ build:
     - if [ "$BRANCH" == "master" ] && [ "$IS_PULL_REQUEST" == false ]; then MAVEN_PROFILE="-P release"; fi
 
     - mvn -V -B -s settings.xml clean deploy $MAVEN_PROFILE
-    # - cp -r target/surefire-reports shippable/testresults
+    - cp */target/surefire-reports/* shippable/testresults
     # - cp -r target/site/jacoco shippable/codecoverage
