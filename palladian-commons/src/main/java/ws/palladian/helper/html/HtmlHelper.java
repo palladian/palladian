@@ -758,9 +758,7 @@ public final class HtmlHelper {
         // remove anchors from url
         String url = originalDocumentUrl;
         url = UrlHelper.removeAnchors(url);
-        // FIXME logic for includeSubdomains was inverted
-        //         String domain = UrlHelper.getDomain(url, false, !includeSubdomains).toLowerCase();
-        String domain = UrlHelper.getDomain(url, false, includeSubdomains).toLowerCase();
+        String domain = UrlHelper.getDomain(url, false, !includeSubdomains).toLowerCase();
 
         // get value of base element, if present
         Node baseNode = XPathHelper.getXhtmlNode(document, "//head/base/@href");
@@ -772,7 +770,6 @@ public final class HtmlHelper {
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a[@href]");
-        // FIMXE added this in order to index all sites of www.dsgv.de
         linkNodes.addAll(XPathHelper.getXhtmlNodes(document, "//area[@href]"));
 
         for (Node linkNode : linkNodes) {
@@ -807,9 +804,13 @@ public final class HtmlHelper {
                 continue;
             }
 
-            String currentDomain = UrlHelper.getDomain(currentLink, false);
+            String currentDomain = UrlHelper.getDomain(currentLink, false).toLowerCase();
 
-            boolean inDomainLink = currentDomain.toLowerCase().endsWith(domain);
+            boolean inDomainLink = currentDomain.endsWith(domain);
+
+            if (inDomainLink && !includeSubdomains && currentDomain.length() != domain.length()) {
+                continue;
+            }
 
             if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
                 pageLinks.add(currentLink);
