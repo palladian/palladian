@@ -54,7 +54,7 @@ public class MultipartHttpEntityTest {
 
 	// TODO this accesses the network -- move this into "integration testing" phase in the future
 	@Test
-	public void test_createMultipartHttpEntity() throws HttpException, FileNotFoundException, JsonException {
+	public void test_createMultipartHttpEntity() throws HttpException, JsonException {
 
 		MultipartHttpEntity.Builder entityBuilder = new MultipartHttpEntity.Builder();
 		entityBuilder.addPart(new StringHttpEntity("{\"foo\": \"bar\"}", "application/json"), "json", null);
