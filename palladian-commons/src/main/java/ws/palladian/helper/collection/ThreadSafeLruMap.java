@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
  * @param <V> value type.
  * @author David Urbansky
  */
-public class ThreadSafeLruMap<K, V> extends MapDecorator<K,V> {
+public class ThreadSafeLruMap<K, V> extends MapDecorator<K, V> {
 
     /**
      * <p>
@@ -43,10 +43,11 @@ public class ThreadSafeLruMap<K, V> extends MapDecorator<K,V> {
             private static final long serialVersionUID = 12345L;
 
             @Override
-            protected boolean removeEldestEntry(Entry<K, V> eldest) {
+            protected boolean removeEldestEntry(java.util.Map.Entry<K, V> eldest) {
                 return size() > maxEntries;
             }
         }));
         Validate.isTrue(maxEntries > 0);
     }
+
 }

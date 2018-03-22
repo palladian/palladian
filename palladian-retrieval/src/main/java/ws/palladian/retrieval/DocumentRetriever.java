@@ -515,6 +515,9 @@ public class DocumentRetriever implements WebDocumentRetriever {
     public void setNumThreads(int numThreads) {
         this.numThreads = numThreads;
     }
+    public int getNumThreads() {
+        return this.numThreads;
+    }
 
     public void setDownloadFilter(Filter<String> downloadFilter) {
         this.downloadFilter = downloadFilter;
@@ -597,6 +600,9 @@ public class DocumentRetriever implements WebDocumentRetriever {
 
     public void setAgent(String s) {
         httpRetriever.setUserAgent(s);
+    }
+    public HttpRetriever getHttpRetriever() {
+        return httpRetriever;
     }
 
     // ////////////////////////////////////////////////////////////////

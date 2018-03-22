@@ -22,6 +22,7 @@ import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.ImageSizeComparator;
@@ -500,11 +501,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public void filterBySize(List<WebImage> images, int minWidth, int minHeight) {
         List<WebImage> filteredImages = new ArrayList<>();
 
-        for (WebImage webImage : getImages()) {
+        for (WebImage webImage : images) {
             // if no dimensions known we allow the image or if the dimensions match our criteria
-            if (webImage.getWidth() < 0 || webImage.getHeight() < 0 || (webImage.getWidth() > 0 && webImage.getWidth() < minWidth && webImage.getHeight() > 0 && webImage.getHeight() > minHeight)) {
-               filteredImages.add(webImage);
-           }
+            if (webImage.getWidth() < 0 || webImage.getHeight() < 0
+                    || (webImage.getWidth() > 0 && webImage.getWidth() > minWidth && webImage.getHeight() > 0 && webImage.getHeight() > minHeight)) {
+                filteredImages.add(webImage);
+            }
         }
 
         images.clear();
@@ -514,7 +516,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public void filterByFileType(List<WebImage> images, String... imageFormats) {
         List<WebImage> filteredImages = new ArrayList<>();
 
-        for (WebImage webImage : getImages()) {
+        for (WebImage webImage : images) {
             for (String imageFormat : imageFormats) {
                 if (webImage.getFileType().equalsIgnoreCase(imageFormat)) {
                     filteredImages.add(webImage);
@@ -529,7 +531,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public void filterByName(List<WebImage> images, String mustNotContain) {
         List<WebImage> filteredImages = new ArrayList<>();
 
-        for (WebImage webImage : getImages()) {
+        for (WebImage webImage : images) {
             if (mustNotContain != null && !mustNotContain.isEmpty() && webImage.getImageUrl().contains(mustNotContain)) {
                 continue;
             }
@@ -614,13 +616,33 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 if (nnm.getNamedItem("title") != null) {
                     builder.setTitle(nnm.getNamedItem("title").getTextContent());
                 }
+
+                boolean widthOrHeightFound = false;
                 if (nnm.getNamedItem("width") != null) {
                     String w = nnm.getNamedItem("width").getTextContent();
                     builder.setWidth(getImageSize(w));
+                    widthOrHeightFound = true;
                 }
                 if (nnm.getNamedItem("height") != null) {
                     String h = nnm.getNamedItem("height").getTextContent();
                     builder.setHeight(getImageSize(h));
+                    widthOrHeightFound = true;
+                }
+
+                // maybe there is some inline css about width and height?
+                if (!widthOrHeightFound) {
+                    Node style = nnm.getNamedItem("style");
+                    if (style != null) {
+                        String styleText = style.getTextContent();
+                        String widthText = StringHelper.getSubstringBetween(styleText, "width:", "px").trim();
+                        String heightText = StringHelper.getSubstringBetween(styleText, "height:", "px").trim();
+                        if (!widthText.isEmpty()) {
+                            builder.setWidth((int)MathHelper.parseStringNumber(widthText));
+                        }
+                        if (!heightText.isEmpty()) {
+                            builder.setHeight((int)MathHelper.parseStringNumber(heightText));
+                        }
+                    }
                 }
 
                 imageUrls.add(builder.create());
@@ -832,8 +854,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.SPANISH;
         } else if (domain.endsWith(".it")) {
             return Language.ITALIAN;
-        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ac.za") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".co.za") || domain.endsWith(".au")
-                || domain.endsWith(".ca") || domain.endsWith(".us")) {
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ac.za") || domain.endsWith(".ie") || domain.endsWith(".co.nz")
+                || domain.endsWith(".co.za") || domain.endsWith(".au") || domain.endsWith(".ca") || domain.endsWith(".us")) {
             return Language.ENGLISH;
         } else if (domain.endsWith(".pl")) {
             return Language.POLISH;
@@ -883,34 +905,39 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return new BasicWebImage.Builder().setImageUrl(xhtmlNode.getTextContent().trim()).create();
         }
 
+        List<Node> excludeImageNodes = new ArrayList<>();
+        if (contentExcludeXPath != null && !contentExcludeXPath.isEmpty()) {
+            for (String xpath : contentExcludeXPath) {
+                excludeImageNodes.addAll(XPathHelper.getXhtmlNodes(getDocument(), xpath + "//img"));
+            }
+        }
+
         // look for itemprop image
         xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
-                "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]//@src");
-
-        if (xhtmlNode != null) {
-            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
-            return new BasicWebImage.Builder().setImageUrl(url).create();
+                "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]");
+        if (xhtmlNode != null && !excludeImageNodes.contains(xhtmlNode)) {
+            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode, ".//@src");
+            if (xhtmlNode1 != null) {
+                String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode1.getTextContent().trim());
+                return new BasicWebImage.Builder().setImageUrl(url).create();
+            }
         }
 
         // look for "main image"
         xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
-                "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]//@src");
-        if (xhtmlNode != null) {
-            String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode.getTextContent().trim());
-            return new BasicWebImage.Builder().setImageUrl(url).create();
+                "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]");
+        if (xhtmlNode != null && !excludeImageNodes.contains(xhtmlNode)) {
+            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode, ".//@src");
+            if (xhtmlNode1 != null) {
+                String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode1.getTextContent().trim());
+                return new BasicWebImage.Builder().setImageUrl(url).create();
+            }
         }
 
         // try something else
         WebImage image = null;
         List<WebImage> images = new ArrayList<>();
         Node mainContentNode = getDocument();
-
-        List<Node> excludeImageNodes = new ArrayList<>();
-        if (contentExcludeXPath != null && !contentExcludeXPath.isEmpty()) {
-            for (String xpath : contentExcludeXPath) {
-                excludeImageNodes.addAll(XPathHelper.getXhtmlNodes(mainContentNode, xpath + "//img"));
-            }
-        }
 
         if (contentIncludeXPath != null && !contentIncludeXPath.isEmpty()) {
 
@@ -929,13 +956,20 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         filterByFileType(images, "jpeg", "png", "jpg");
         if (!images.isEmpty()) {
+            // remove duplicate images (likely to be icons)
+            Map<String, WebImage> deduplicationMap = new HashMap<>();
+            for (WebImage webImage : images) {
+                deduplicationMap.put(webImage.getImageUrl(), webImage);
+            }
+            images = new ArrayList<>(deduplicationMap.values());
+
             // only sort by size if the first one is below a certain size
             image = CollectionHelper.getFirst(images);
             if (image != null && image.getSize() < 10000) {
                 // filter out icons
-                if (images.size() > 1) {
-                    filterByName(images, "icon");
-                }
+                // if (images.size() > 1) {
+                filterByName(images, "icon");
+                // }
                 // filter out images that are too small (that we know of)
                 filterBySize(images, 50, 50);
                 Collections.sort(images, new ImageSizeComparator());

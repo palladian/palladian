@@ -4,6 +4,7 @@ import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.UnitType;
 
 public class UnitNormalizerTest {
@@ -49,5 +50,12 @@ public class UnitNormalizerTest {
         input = "filter_groess # filter_groess # gross # 39";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.nullValue());
 
+    }
+
+    @Test
+    public void testTranslationNormalized() {
+        collector.checkThat(UnitNormalizer.getNormalizedNumber(5, UnitTranslator.translate("cm", Language.GERMAN)), Matchers.is(5.));
+        collector.checkThat(UnitNormalizer.getNormalizedNumber(5, UnitTranslator.translate("Zoll", Language.GERMAN)), Matchers.is(12.7));
+        collector.checkThat(UnitNormalizer.getNormalizedNumber(1, UnitTranslator.translate("kilowattstunde", Language.GERMAN)), Matchers.is(3600000.));
     }
 }

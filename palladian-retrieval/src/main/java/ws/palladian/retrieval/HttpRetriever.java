@@ -578,7 +578,7 @@ public class HttpRetriever {
             HttpResult httpResult = execute(new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(requestHeaders)
                     .create());
             if (httpResult.getStatusCode() != 200) {
-                throw new HttpException("status code != 200 for " + url);
+                throw new HttpException("status code != 200 (code: "+httpResult.getStatusCode()+") for " + url);
             }
             result = HttpHelper.saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {

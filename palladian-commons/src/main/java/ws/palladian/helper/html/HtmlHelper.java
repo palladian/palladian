@@ -770,6 +770,8 @@ public final class HtmlHelper {
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a[@href]");
+        linkNodes.addAll(XPathHelper.getXhtmlNodes(document, "//area[@href]"));
+
         for (Node linkNode : linkNodes) {
 
             Node hrefNode = linkNode.getAttributes().getNamedItem("href");
@@ -802,9 +804,13 @@ public final class HtmlHelper {
                 continue;
             }
 
-            String currentDomain = UrlHelper.getDomain(currentLink, false);
+            String currentDomain = UrlHelper.getDomain(currentLink, false).toLowerCase();
 
-            boolean inDomainLink = currentDomain.toLowerCase().endsWith(domain);
+            boolean inDomainLink = currentDomain.endsWith(domain);
+
+            if (inDomainLink && !includeSubdomains && currentDomain.length() != domain.length() && !domain.isEmpty()) {
+                continue;
+            }
 
             if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
                 pageLinks.add(currentLink);

@@ -3,10 +3,12 @@ package ws.palladian.retrieval;
 import java.net.URI;
 import java.util.Map.Entry;
 
+import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.message.BasicNameValuePair;
 
 final class ApacheRequestAdapter extends HttpEntityEnclosingRequestBase implements HttpUriRequest {
 
@@ -20,11 +22,23 @@ final class ApacheRequestAdapter extends HttpEntityEnclosingRequestBase implemen
         }
         HttpEntity entity = adapted.getEntity();
         if (entity != null) {
-            // setEntity(new InputStreamEntity(entity.getInputStream(), entity.length()));
             ContentType contentType = null;
-            if (entity.getContentType() != null) {
-                contentType = ContentType.parse(entity.getContentType());
+            String cleanContentType = entity.getContentType();
+            if (cleanContentType != null) {
+                String[] split = cleanContentType.split(";");
+                cleanContentType = split[0];
+                if (split.length > 1) {
+                    NameValuePair[] params = new NameValuePair[split.length - 1];
+                    for (int i = 1; i < split.length; i++) {
+                        String[] kv = split[i].split("=");
+                        params[i - 1] = new BasicNameValuePair(kv[0], kv[1]);
+                    }
+                    contentType = ContentType.create(cleanContentType, params);
+                } else {
+                    contentType = ContentType.create(cleanContentType);
+                }
             }
+
             setEntity(new InputStreamEntity(entity.getInputStream(), entity.length(), contentType));
         }
     }
