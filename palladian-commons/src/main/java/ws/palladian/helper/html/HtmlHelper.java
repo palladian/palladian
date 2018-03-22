@@ -808,7 +808,7 @@ public final class HtmlHelper {
 
             boolean inDomainLink = currentDomain.endsWith(domain);
 
-            if (inDomainLink && !includeSubdomains && currentDomain.length() != domain.length()) {
+            if (inDomainLink && !includeSubdomains && currentDomain.length() != domain.length() && !domain.isEmpty()) {
                 continue;
             }
 
