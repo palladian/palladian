@@ -76,6 +76,9 @@ public class UnitNormalizer {
     private static boolean isAreaDensityUnit(String unit) {
         return UnitType.AREA_DENSITY.contains(unit);
     }
+    private static boolean isDensityUnit(String unit) {
+        return UnitType.DENSITY.contains(unit);
+    }
 
     private static boolean isVolumeUnit(String unit) {
         return UnitType.VOLUME.contains(unit);
@@ -169,6 +172,9 @@ public class UnitNormalizer {
         }
         if (isAreaDensityUnit(unit)) {
             return UnitType.AREA_DENSITY.getUnitNames();
+        }
+        if (isDensityUnit(unit)) {
+            return UnitType.DENSITY.getUnitNames();
         }
         if (isVolumeUnit(unit)) {
             return UnitType.VOLUME.getUnitNames();
@@ -516,6 +522,12 @@ public class UnitNormalizer {
             }
             if (isVolumeUnit(word)) {
                 unitType = UnitType.VOLUME;
+            }
+            if (isAreaDensityUnit(word)) {
+                unitType = UnitType.AREA_DENSITY;
+            }
+            if (isDensityUnit(word)) {
+                unitType = UnitType.DENSITY;
             }
             if (isTemperatureUnit(word)) {
                 unitType = UnitType.TEMPERATURE;
