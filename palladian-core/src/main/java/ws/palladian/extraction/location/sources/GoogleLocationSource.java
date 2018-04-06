@@ -94,7 +94,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        String url = String.format("http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false",
+        String url = String.format("https://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false",
                 UrlHelper.encodeParameter(locationName));
 
         if (apiKey != null) {
