@@ -54,7 +54,7 @@
 		<dependency>
 			<groupId>nu.validator</groupId>
 			<artifactId>htmlparser</artifactId>
-			<version>1.4.8</version>
+			<version>1.4.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
