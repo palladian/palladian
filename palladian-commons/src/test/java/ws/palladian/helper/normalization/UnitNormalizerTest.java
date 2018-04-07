@@ -17,6 +17,9 @@ public class UnitNormalizerTest {
 
         String input;
 
+        input = "120 g/cm³";
+        collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.DENSITY));
+
         input = "120 gr.";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.WEIGHT));
 

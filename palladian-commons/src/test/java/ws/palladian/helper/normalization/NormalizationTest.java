@@ -63,6 +63,7 @@ public class NormalizationTest {
     @Test
     public void testDetectUnit() {
 
+        assertEquals("kg/m³", UnitNormalizer.detectUnit("8 kg/m³"));
         assertEquals("ghz", UnitNormalizer.detectUnit("8 in ghz"));
         assertEquals("hz", UnitNormalizer.detectUnit("8 hz"));
         assertEquals("mhz", UnitNormalizer.detectUnit("mhz"));
@@ -79,6 +80,7 @@ public class NormalizationTest {
     @Test
     public void testGetNormalizedNumber() {
 
+        assertEquals(8766000, UnitNormalizer.getNormalizedNumber("8766 cgs"), 0.1);
         assertEquals(2.5, UnitNormalizer.getNormalizedNumber("2500mAh"), 0.1);
 
         assertEquals(25000, UnitNormalizer.getNormalizedNumber("25kbps"), 0.1);
