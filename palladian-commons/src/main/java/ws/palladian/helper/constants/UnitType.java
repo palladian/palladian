@@ -21,6 +21,7 @@ public enum UnitType {
     TIME("s"), //
     DIGITAL("byte"), //
     FREQUENCY("Hz"), //
+    ROTATION_SPEED("rpm"), //
     LENGTH("cm"), //
     AREA("m²"), //
     AREA_DENSITY("g/m²"), //
@@ -412,7 +413,7 @@ public enum UnitType {
         unitList.add("bits");
         UnitType.DIGITAL.units.add(Pair.of(unitList, 1. / 8));
 
-        // FREQUENCY units are normalized to 1
+        // FREQUENCY units are normalized to 1 Hz
         unitList = new ArrayList<>();
         unitList.add("terra hertz");
         unitList.add("terrahertz");
@@ -441,6 +442,16 @@ public enum UnitType {
         unitList.add("hertz");
         unitList.add("hz");
         UnitType.FREQUENCY.units.add(Pair.of(unitList, 1.0));
+
+        // ROTATION_SPEED in 1 round per minute
+        unitList = new ArrayList<>();
+        unitList.add("rpm");
+        unitList.add("bpm");
+        unitList.add("r/min");
+        unitList.add("rounds/minute");
+        unitList.add("rounds per minute");
+        unitList.add("beats per minute");
+        UnitType.ROTATION_SPEED.units.add(Pair.of(unitList, 1.0));
 
         // PRESSURE units are normalized to pascal
         unitList = new ArrayList<>();
