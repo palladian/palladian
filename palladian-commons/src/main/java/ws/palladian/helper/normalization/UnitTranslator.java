@@ -92,6 +92,11 @@ public class UnitTranslator {
         germanTranslationMap.put("wattstunden", "watt hours");
         germanTranslationMap.put("watt stunden", "calories");
 
+        // ROTATION_SPEED
+        germanTranslationMap.put("U/minute", "rpm");
+        germanTranslationMap.put("Umdrehungen pro Minute", "rpm");
+        germanTranslationMap.put("U/min", "rpm");
+
         // ELECTRIC_CHARGE
         germanTranslationMap.put("kilowattstunde", "kwh");
         germanTranslationMap.put("kilowattstunden", "kwh");
