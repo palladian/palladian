@@ -1,8 +1,9 @@
 package ws.palladian.helper.normalization;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import org.apache.commons.codec.language.bm.Lang;
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.UnitType;
 
@@ -12,9 +13,10 @@ import ws.palladian.helper.constants.UnitType;
 public class UnitTranslator {
 
     private static Map<Language, Map<String, String>> unitTranslations = new HashMap<>();
-
+    private static Map<Language, List<String>> lengthSortedLanguageKeys = new HashMap<>();
     static {
         Map<String, String> germanTranslationMap = new HashMap<>();
+
 
         // OTHER
         germanTranslationMap.put("prozent", "percent");
@@ -106,6 +108,16 @@ public class UnitTranslator {
         germanTranslationMap.put("ampere-stunden", "Ah");
         germanTranslationMap.put("milliamperestunde", "mAh");
         germanTranslationMap.put("milliamperestunden", "mAh");
+
+
+        // create the length sorted keymap
+        for (Map.Entry<Language, Map<String, String>> languageMapEntry : unitTranslations.entrySet()) {
+            Language language = languageMapEntry.getKey();
+            Map<String, String> languageMappings = languageMapEntry.getValue();
+            List<String> keySet = new ArrayList<>(languageMappings.keySet());
+            Collections.sort(keySet, StringLengthComparator.INSTANCE);
+            lengthSortedLanguageKeys.put(language, keySet);
+        }
     }
 
     public static String translate(String unitString, Language language) {
@@ -121,5 +133,22 @@ public class UnitTranslator {
 
         // if we could not find a translation we leave it as it is
         return unitString;
+    }
+
+    /**
+     * for a given input string all occurences of langauge dependant units are translated to english and replaced by the english version
+     * @param inputString
+     * @param language
+     * @return
+     */
+    public static String translateUnitsOfInput(String inputString, Language language) {
+        List<String> keys = lengthSortedLanguageKeys.get(language);
+        for (String key : keys) {
+            if(inputString.contains(key)) {
+                inputString = inputString.replace(key, unitTranslations.get(language).get(key));
+                break;
+            }
+        }
+        return inputString;
     }
 }

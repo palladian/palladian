@@ -60,5 +60,9 @@ public class UnitNormalizerTest {
         collector.checkThat(UnitNormalizer.getNormalizedNumber(5, UnitTranslator.translate("cm", Language.GERMAN)), Matchers.is(5.));
         collector.checkThat(UnitNormalizer.getNormalizedNumber(5, UnitTranslator.translate("Zoll", Language.GERMAN)), Matchers.is(12.7));
         collector.checkThat(UnitNormalizer.getNormalizedNumber(1, UnitTranslator.translate("kilowattstunde", Language.GERMAN)), Matchers.is(3600000.));
+
+        collector.checkThat(UnitTranslator.translateUnitsOfInput("schleuderdrehzahl 7 U/min", Language.GERMAN), Matchers.is("schleuderdrehzahl 7 rpm"));
+        collector.checkThat(UnitTranslator.translateUnitsOfInput("nach einer Fahrzeit von 7 stunden", Language.GERMAN), Matchers.is("nach einer Fahrzeit von 7 hours"));
+        collector.checkThat(UnitTranslator.translateUnitsOfInput("mit 12 kilokalorien sehr gesund", Language.GERMAN), Matchers.is("mit 12 kilocalories sehr gesund"));
     }
 }
