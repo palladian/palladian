@@ -38,12 +38,15 @@ public class UnitTranslator {
         // TIME
         germanTranslationMap.put("jahr", "year");
         germanTranslationMap.put("jahre", "years");
+        germanTranslationMap.put("jahren", "years");
         germanTranslationMap.put("monat", "month");
         germanTranslationMap.put("monate", "months");
+        germanTranslationMap.put("monaten", "months");
         germanTranslationMap.put("woche", "week");
         germanTranslationMap.put("wochen", "weeks");
         germanTranslationMap.put("tag", "day");
         germanTranslationMap.put("tage", "days");
+        germanTranslationMap.put("tagen", "days");
         germanTranslationMap.put("std.", "hour");
         germanTranslationMap.put("stunde", "hour");
         germanTranslationMap.put("stunden", "hours");

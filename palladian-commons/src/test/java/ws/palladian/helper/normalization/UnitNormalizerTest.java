@@ -63,6 +63,7 @@ public class UnitNormalizerTest {
 
         collector.checkThat(UnitTranslator.translateUnitsOfInput("schleuderdrehzahl 7 U/min", Language.GERMAN), Matchers.is("schleuderdrehzahl 7 rpm"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("nach einer Fahrzeit von 7 stunden", Language.GERMAN), Matchers.is("nach einer Fahrzeit von 7 hours"));
+        collector.checkThat(UnitTranslator.translateUnitsOfInput("Altersempfehlung ab 9 jahren", Language.GERMAN), Matchers.is("Altersempfehlung ab 9 years"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("mit 12 kilokalorien sehr gesund", Language.GERMAN), Matchers.is("mit 12 kilocalories sehr gesund"));
     }
 }
