@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.geocoder;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +11,6 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.helper.RequestThrottle;
-import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -21,9 +18,8 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 /**
  * {@link Geocoder} using the
  * <a href="https://developers.google.com/maps/documentation/geocoding/intro">
- * Google Maps Geocoding API</a>. The free service allows 2,500 requests/day,
- * maximum 10 requests/second (the latter is enforced by a class-internal
- * throttling).
+ * Google Maps Geocoding API</a>. Usage of an API key is <a href=
+ * "https://developers.google.com/maps/documentation/javascript/get-api-key">required</a>.
  * 
  * @author Philipp Katz
  */
@@ -32,21 +28,40 @@ public final class GoogleGeocoder implements Geocoder {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleGeocoder.class);
 
-	private static final String API_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false";
+	private static final String API_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false&key=%s";
 
+	private final String apiKey;
+	
 	/**
-	 * Assure, that we do not hit the API too often; the API docs say, it's 10
-	 * requests/second, but in this case, the OVER_QUERY_LIMIT is hit often.
+	 * @deprecated The Google API requires an API now. Using this constructor will
+	 *             throw an exception from now on.
+	 * 
+	 * @throws IllegalStateException
+	 *             when being invoked.
 	 */
-	private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, SECONDS, 5);
+	 // TODO remove with next version bump
+	@Deprecated
+	public GoogleGeocoder() {
+		throw new IllegalStateException("Google API requires to use an API key. Please use the other constructor.");
+	}
+	
+	/**
+	 * Create a new Google geocoder with the given API key.
+	 * 
+	 * @param apiKey
+	 *            The API key to use.
+	 */
+	public GoogleGeocoder(String apiKey) {
+		Validate.notEmpty(apiKey, "An apiKey must be given.");
+		this.apiKey = apiKey;
+	}
 	
 	@Override
 	public GeoCoordinate geoCode(String addressValue) throws GeocoderException {
 		String url = String.format(API_URL,
-				UrlHelper.encodeParameter(addressValue));
+				UrlHelper.encodeParameter(addressValue), apiKey);
 		LOGGER.debug("Request URL = " + url);
 		HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-		THROTTLE.hold();
 		HttpResult httpResult;
 		try {
 			httpResult = httpRetriever.httpGet(url);
@@ -80,14 +95,6 @@ public final class GoogleGeocoder implements Geocoder {
 		} catch (JsonException e) {
 			throw new GeocoderException("Error while parsing JSON result ("
 					+ httpResult.getStringContent() + ").", e);
-		}
-	}
-	
-	public static void main(String[] args) throws GeocoderException {
-		String address = "1 Infinite Loop Cupertino, CA 95014";
-		for (int i = 0; i < 200; i++) {
-			System.out.println(i);
-			new GoogleGeocoder().geoCode(address);
 		}
 	}
 
