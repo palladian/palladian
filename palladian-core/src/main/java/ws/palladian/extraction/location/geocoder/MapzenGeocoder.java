@@ -28,7 +28,10 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * a throttle), and a maximum of 30,000 requests/day.
  * 
  * @author Philipp Katz
+ * @deprecated Mapzen <a href="https://mapzen.com/blog/shutdown/">went out of service</a> -- this class is no longer working.
  */
+// TODO remove with next version bump
+@Deprecated
 public final class MapzenGeocoder implements Geocoder, ReverseGeocoder {
 
 	/** The logger for this class. */
