@@ -25,7 +25,11 @@ public class ThreadHelper {
             public void run() {
                 while (true) {
                     ThreadHelper.deepSleep(intervalMillis);
-                    action.performPeriodicAction();
+                    try {
+                        action.performPeriodicAction();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
