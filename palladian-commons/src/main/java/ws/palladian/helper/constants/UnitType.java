@@ -806,6 +806,12 @@ public enum UnitType {
         unitList.add("dollars");
         unitList.add("dollar");
         unitList.add("$");
+        unitList.add("pound sterling");
+        unitList.add("£");
+        unitList.add("yen");
+        unitList.add("¥");
+        unitList.add("chf");
+        unitList.add("swiss francs");
         UnitType.CURRENCY.units.add(Pair.of(unitList, 1.));
 
         // OTHER units are normalized to different values
