@@ -38,7 +38,10 @@ import ws.palladian.retrieval.search.SearcherException;
  *      Resources</a>
  * @see <a href="http://developers.500px.com">500px / Developer</a>
  * @author Philipp Katz
+ * @deprecated 500px has shut down their API access as of January 2018 (resp. June 15, 2018 for existing users).
  */
+ // TODO remove with next version bump
+ @Deprecated
 public final class FivehundredPxSearcher extends AbstractMultifacetSearcher<WebImage> {
 
     /** The logger for this class. */
