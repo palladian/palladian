@@ -1,13 +1,12 @@
 package ws.palladian.helper;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +17,11 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -44,24 +47,43 @@ public final class UrlHelper {
             .compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
 
     /** List of top level domains. */
-    private static final String TOP_LEVEL_DOMAINS = "ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|as|asia|at|au|aw|ax|az|ba|bb|bd|be|"
-            + "bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|"
-            + "cz|dd|de|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|"
-            + "gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|info|int|io|iq|ir|is|it|je|jm|jo|jobs|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|"
-            + "ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mil|mk|ml|mm|mn|mo|mobi|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|"
-            + "my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|rs|"
-            + "ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|ss|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|"
-            + "travel|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|xxx|ye|yt|yu|za|zm|zw";
+    private static final String TOP_LEVEL_DOMAINS;
 
     /** List of possible domain suffixes. */
     private static final List<String> DOMAIN_SUFFIXES;
 
     static {
-        DOMAIN_SUFFIXES = new ArrayList<>(Arrays.asList(".asn.au", ".com.au", ".net.au", ".id.au", ".org.au", ".edu.au", ".gov.au",
-                ".csiro.au", ".act.au", ".nsw.au", ".nt.au", ".qld.au", ".sa.au", ".tas.au", ".vic.au", ".wa.au",
-                ".ac.za", ".gov.za", ".law.za", ".mil.za", ".nom.za", ".school.za", ".net.za", ".co.uk", ".org.uk",
-                ".me.uk", ".ltd.uk", ".plc.uk", ".net.uk", ".sch.uk", ".ac.uk", ".gov.uk", ".mod.uk", ".mil.uk",
-                ".nhs.uk", ".police.uk"));
+
+        InputStream resourceAsStream = UrlHelper.class.getResourceAsStream("/top-level-domains.txt");
+        final List<String> tlds = new ArrayList<>();
+        FileHelper.performActionOnEveryLine(resourceAsStream, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String lineString = line.trim();
+                // ignore comments and empty lines ...
+                if (!lineString.startsWith("#") && !lineString.isEmpty()) {
+                    tlds.add(lineString.substring(1));
+                }
+            }
+        });
+        Collections.sort(tlds, StringLengthComparator.INSTANCE);
+        TOP_LEVEL_DOMAINS = StringUtils.join(tlds, "|");
+
+        resourceAsStream = UrlHelper.class.getResourceAsStream("/second-level-domains.txt");
+        final List<String> slds = new ArrayList<>();
+        FileHelper.performActionOnEveryLine(resourceAsStream, new LineAction() {
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String lineString = line.trim();
+                // ignore comments and empty lines ...
+                if (!lineString.startsWith("#") && !lineString.isEmpty()) {
+                    slds.add(lineString);
+                }
+            }
+        });
+        Collections.sort(slds, StringLengthComparator.INSTANCE);
+
+        DOMAIN_SUFFIXES = slds;
         String[] split = TOP_LEVEL_DOMAINS.split("\\|");
         for (String tld : split) {
             DOMAIN_SUFFIXES.add("." + tld);
