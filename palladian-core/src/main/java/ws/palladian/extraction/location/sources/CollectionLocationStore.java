@@ -155,6 +155,10 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
             return ancestorIds;
         }
 
+        @Override
+        public Map<String, Object> getMetaData() {
+            return null;
+        }
     }
 
 }

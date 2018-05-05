@@ -131,7 +131,15 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
                 LocationType type = mapType(current.getJsonArray("types"));
                 String name = current.getString("formatted_address");
                 int id = name.hashCode(); // not available by Google
-                locations.add(new ImmutableLocation(id, name, type, coordinate, null));
+
+                Map<String, Object> metaData = null;
+                String placeId = current.tryGetString("place_id");
+                if (placeId != null) {
+                    metaData = new HashMap<>();
+                    metaData.put("place_id", placeId);
+                }
+
+                locations.add(new ImmutableLocation(id, name, type, coordinate, null, metaData));
             }
         }
         return locations;
