@@ -179,6 +179,9 @@ public class Crawler {
                         @Override
                         public void run() {
                             try {
+                                if (stopCount == 0) {
+                                    return;
+                                }
                                 crawl(url);
                                 lastCrawlTime.set(System.currentTimeMillis());
                             } catch (Throwable t) {

@@ -61,6 +61,10 @@ public class UnitNormalizer {
         return UnitType.FREQUENCY.contains(unit);
     }
 
+    private static boolean isRotationSpeedUnit(String unit) {
+        return UnitType.ROTATION_SPEED.contains(unit);
+    }
+
     private static boolean isLengthUnit(String unit) {
         return UnitType.LENGTH.contains(unit);
     }
@@ -161,6 +165,9 @@ public class UnitNormalizer {
         if (isFrequencyUnit(unit)) {
             return UnitType.FREQUENCY.getUnitNames();
         }
+        if (isRotationSpeedUnit(unit)) {
+            return UnitType.ROTATION_SPEED.getUnitNames();
+        }
         if (isLengthUnit(unit)) {
             return UnitType.LENGTH.getUnitNames();
         }
@@ -248,6 +255,11 @@ public class UnitNormalizer {
 
         // frequency units
         if (isFrequencyUnit(unit1) && isFrequencyUnit(unit2)) {
+            return true;
+        }
+
+        // rotation speed units
+        if (isRotationSpeedUnit(unit1) && isRotationSpeedUnit(unit2)) {
             return true;
         }
 
@@ -513,6 +525,9 @@ public class UnitNormalizer {
             }
             if (isFrequencyUnit(word)) {
                 unitType = UnitType.FREQUENCY;
+            }
+            if (isRotationSpeedUnit(word)) {
+                unitType = UnitType.ROTATION_SPEED;
             }
             if (isLengthUnit(word)) {
                 unitType = UnitType.LENGTH;

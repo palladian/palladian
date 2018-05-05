@@ -1,8 +1,9 @@
 package ws.palladian.helper.normalization;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import org.apache.commons.codec.language.bm.Lang;
+import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.UnitType;
 
@@ -12,9 +13,10 @@ import ws.palladian.helper.constants.UnitType;
 public class UnitTranslator {
 
     private static Map<Language, Map<String, String>> unitTranslations = new HashMap<>();
-
+    private static Map<Language, List<String>> lengthSortedLanguageKeys = new HashMap<>();
     static {
         Map<String, String> germanTranslationMap = new HashMap<>();
+
 
         // OTHER
         germanTranslationMap.put("prozent", "percent");
@@ -36,12 +38,15 @@ public class UnitTranslator {
         // TIME
         germanTranslationMap.put("jahr", "year");
         germanTranslationMap.put("jahre", "years");
+        germanTranslationMap.put("jahren", "years");
         germanTranslationMap.put("monat", "month");
         germanTranslationMap.put("monate", "months");
+        germanTranslationMap.put("monaten", "months");
         germanTranslationMap.put("woche", "week");
         germanTranslationMap.put("wochen", "weeks");
         germanTranslationMap.put("tag", "day");
         germanTranslationMap.put("tage", "days");
+        germanTranslationMap.put("tagen", "days");
         germanTranslationMap.put("std.", "hour");
         germanTranslationMap.put("stunde", "hour");
         germanTranslationMap.put("stunden", "hours");
@@ -92,6 +97,11 @@ public class UnitTranslator {
         germanTranslationMap.put("wattstunden", "watt hours");
         germanTranslationMap.put("watt stunden", "calories");
 
+        // ROTATION_SPEED
+        germanTranslationMap.put("u/minute", "rpm");
+        germanTranslationMap.put("umdrehungen pro minute", "rpm");
+        germanTranslationMap.put("u/min", "rpm");
+
         // ELECTRIC_CHARGE
         germanTranslationMap.put("kilowattstunde", "kwh");
         germanTranslationMap.put("kilowattstunden", "kwh");
@@ -101,6 +111,16 @@ public class UnitTranslator {
         germanTranslationMap.put("ampere-stunden", "Ah");
         germanTranslationMap.put("milliamperestunde", "mAh");
         germanTranslationMap.put("milliamperestunden", "mAh");
+
+
+        // create the length sorted keymap
+        for (Map.Entry<Language, Map<String, String>> languageMapEntry : unitTranslations.entrySet()) {
+            Language language = languageMapEntry.getKey();
+            Map<String, String> languageMappings = languageMapEntry.getValue();
+            List<String> keySet = new ArrayList<>(languageMappings.keySet());
+            Collections.sort(keySet, StringLengthComparator.INSTANCE);
+            lengthSortedLanguageKeys.put(language, keySet);
+        }
     }
 
     public static String translate(String unitString, Language language) {
@@ -116,5 +136,23 @@ public class UnitTranslator {
 
         // if we could not find a translation we leave it as it is
         return unitString;
+    }
+
+    /**
+     * for a given input string all occurences of langauge dependant units are translated to english and replaced by the english version
+     * @param inputString
+     * @param language
+     * @return
+     */
+    public static String translateUnitsOfInput(String inputString, Language language) {
+        List<String> keys = lengthSortedLanguageKeys.get(language);
+        inputString = inputString.toLowerCase();
+        for (String key : keys) {
+            if(inputString.contains(key.toLowerCase())) {
+                inputString = inputString.replace(key.toLowerCase(), unitTranslations.get(language).get(key));
+                break;
+            }
+        }
+        return inputString;
     }
 }

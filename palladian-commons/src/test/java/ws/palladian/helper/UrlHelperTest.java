@@ -11,6 +11,8 @@ import org.w3c.dom.NodeList;
 import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.FileNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +39,10 @@ public class UrlHelperTest {
     @Test
     public void testGetDomain() {
 
+        collector.checkThat(UrlHelper.getDomain("https://www.ashland.or.us/", false, false), is("ashland.or.us"));
+        collector.checkThat(UrlHelper.getDomain("http://ailejeunesse.ccirs.qc.ca/", false, false), is("ccirs.qc.ca"));
+        collector.checkThat(UrlHelper.getDomain("https://ashland.municipal.codes/", false, false), is("municipal.codes"));
+        collector.checkThat(UrlHelper.getDomain("https://ashland.municipal.codes/", false, true), is("ashland.municipal.codes"));
         collector.checkThat(UrlHelper.getDomain("http://www.amazon.co.uk", false, false), is("amazon.co.uk"));
         collector.checkThat(UrlHelper.getDomain("http://amazon.co.uk", false, false), is("amazon.co.uk"));
         collector.checkThat(UrlHelper.getDomain("http://test.com", false, false), is("test.com"));
