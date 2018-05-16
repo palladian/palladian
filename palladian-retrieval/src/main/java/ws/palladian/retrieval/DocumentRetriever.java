@@ -182,7 +182,10 @@ public class DocumentRetriever implements WebDocumentRetriever {
                                 callback.process(document);
                             }
                         }
-                        progressMonitor.incrementAndPrintProgress();
+
+                        if (progressMonitor != null) {
+                            progressMonitor.incrementAndPrintProgress();
+                        }
                     }
                 };
 
