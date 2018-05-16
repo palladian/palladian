@@ -176,7 +176,10 @@ public class DocumentRetriever {
                                 callback.process(document);
                             }
                         }
-                        progressMonitor.incrementAndPrintProgress();
+
+                        if (progressMonitor != null) {
+                            progressMonitor.incrementAndPrintProgress();
+                        }
                     }
                 };
 
