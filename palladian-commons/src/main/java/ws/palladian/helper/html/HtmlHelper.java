@@ -765,6 +765,9 @@ public final class HtmlHelper {
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();
+//            if (baseHref.contains(domain)) {
+//                domain = UrlHelper.getDomain(baseHref, false, !includeSubdomains).toLowerCase();
+//            }
         }
 
         // get all internal domain links
@@ -804,9 +807,10 @@ public final class HtmlHelper {
                 continue;
             }
 
+            String currentDomainNoSub = UrlHelper.getDomain(currentLink, false, false).toLowerCase();
             String currentDomain = UrlHelper.getDomain(currentLink, false).toLowerCase();
 
-            boolean inDomainLink = currentDomain.endsWith(domain);
+            boolean inDomainLink = currentDomainNoSub.equals(domain);
 
             if (inDomainLink && !includeSubdomains && currentDomain.length() != domain.length() && !domain.isEmpty()) {
                 continue;
