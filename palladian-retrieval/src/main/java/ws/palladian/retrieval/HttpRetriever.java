@@ -1,56 +1,40 @@
 package ws.palladian.retrieval;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.Header;
-import org.apache.http.HttpConnection;
-import org.apache.http.HttpConnectionMetrics;
+import org.apache.http.*;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.params.SyncBasicHttpParams;
+import org.apache.http.params.*;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.HttpHelper;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -61,40 +45,54 @@ import ws.palladian.retrieval.helper.HttpHelper;
  * <code>java.net.*</code> components. Connections are pooled by a static, shared connection pool. The corresponding
  * settings for the pooling are {@link #setNumConnections(int)} and {@link #setNumConnectionsPerRoute(int)}.
  * </p>
- * 
+ *
  * <p>
  * <b>Important:</b> For obtaining instances of this class, it is strongly recommended to make use of the
  * {@link HttpRetrieverFactory}. The factory can be customized for specific usage scenarios, e.g. when the created
  * {@link HttpRetriever} instances need to be pre-configured with specific proxy settings.
  * </p>
- * 
- * @see <a href="http://hc.apache.org/">Apache HttpComponents</a>
+ *
  * @author Philipp Katz
  * @author David Urbansky
+ * @see <a href="http://hc.apache.org/">Apache HttpComponents</a>
  */
 public class HttpRetriever {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
 
     // ///////////// constants with default configuration ////////
 
-    /** The user agent string that is used by the crawler. */
+    /**
+     * The user agent string that is used by the crawler.
+     */
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
 
-    /** The user agent used when resolving redirects. */
+    /**
+     * The user agent used when resolving redirects.
+     */
     private static final String REDIRECT_USER_AGENT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 
-    /** The default timeout for a connection to be established, in milliseconds. */
+    /**
+     * The default timeout for a connection to be established, in milliseconds.
+     */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(10);
 
-    /** The default timeout for a connection to be established when checking for redirects, in milliseconds. */
+    /**
+     * The default timeout for a connection to be established when checking for redirects, in milliseconds.
+     */
     public static final int DEFAULT_CONNECTION_TIMEOUT_REDIRECTS = (int) TimeUnit.SECONDS.toMillis(1);
 
-    /** The default timeout which specifies the maximum interval for new packets to wait, in milliseconds. */
+    /**
+     * The default timeout which specifies the maximum interval for new packets to wait, in milliseconds.
+     */
     public static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(180);
 
-    /** The maximum number of redirected URLs to check. */
+    /**
+     * The maximum number of redirected URLs to check.
+     */
     public static final int MAX_REDIRECTS = 10;
 
     /**
@@ -103,55 +101,81 @@ public class HttpRetriever {
      */
     public static final int DEFAULT_SOCKET_TIMEOUT_REDIRECTS = (int) TimeUnit.SECONDS.toMillis(1);
 
-    /** The default number of retries when downloading fails. */
+    /**
+     * The default number of retries when downloading fails.
+     */
     public static final int DEFAULT_NUM_RETRIES = 1;
 
     // ///////////// Apache HttpComponents ////////
 
-    /** Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling. */
+    /**
+     * Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling.
+     */
     private final ClientConnectionManager connectionManager;
 
-    /** Various parameters for the Apache HttpClient. */
+    /**
+     * Various parameters for the Apache HttpClient.
+     */
     private final HttpParams httpParams = new SyncBasicHttpParams();
 
-    /** Identifier for Connection Metrics; see comment in constructor. */
+    /**
+     * Identifier for Connection Metrics; see comment in constructor.
+     */
     private static final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
 
     // ///////////// Settings ////////
 
-    /** The maximum file size in bytes to download. -1 means no limit. */
+    /**
+     * The maximum file size in bytes to download. -1 means no limit.
+     */
     private long maxFileSize = -1;
 
-    /** Total number of bytes downloaded by all HttpRetriever instances. */
+    /**
+     * Total number of bytes downloaded by all HttpRetriever instances.
+     */
     private static long sessionDownloadedBytes = 0;
 
-    /** The timeout for connections when checking for redirects. */
+    /**
+     * The timeout for connections when checking for redirects.
+     */
     private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
 
-    /** The socket timeout when checking for redirects. */
+    /**
+     * The socket timeout when checking for redirects.
+     */
     private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
-    /** Number of retries for one request, if error occurs. */
+    /**
+     * Number of retries for one request, if error occurs.
+     */
     private int numRetries = DEFAULT_NUM_RETRIES;
 
     // ///////////// Misc. ////////
 
-    /** Hook for http* methods. */
+    /**
+     * Hook for http* methods.
+     */
     private ProxyProvider proxyProvider = ProxyProvider.DEFAULT;
 
-    /** Store for cookies. */
+    /**
+     * Store for cookies.
+     */
     private CookieStore cookieStore;
-    
-    /** Any of these status codes will cause a removal of the used proxy. */
+
+    /**
+     * Any of these status codes will cause a removal of the used proxy.
+     */
     private Set<Integer> proxyRemoveStatusCodes = new HashSet<>();
 
-    /** Take a look at the http result and decide what to do with the proxy that was used to retrieve it. */
+    /**
+     * Take a look at the http result and decide what to do with the proxy that was used to retrieve it.
+     */
     private ProxyRemoverCallback proxyRemoveCallback = null;
 
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
-    
+
     public HttpRetriever(ClientConnectionManager connectionManager) {
         Validate.notNull(connectionManager, "connectionManager must not be null");
         this.connectionManager = connectionManager;
@@ -171,7 +195,7 @@ public class HttpRetriever {
      * <p>
      * Performs an HTTP GET operation.
      * </p>
-     * 
+     *
      * @param url the URL for the GET, not <code>null</code> or empty.
      * @return response for the GET.
      * @throws HttpException in case the GET fails, or the supplied URL is not valid.
@@ -180,7 +204,9 @@ public class HttpRetriever {
         return execute(new HttpRequest2Builder(HttpMethod.GET, url).create());
     }
 
-    /** Replaced by {@link #execute(HttpRequest2)} */
+    /**
+     * Replaced by {@link #execute(HttpRequest2)}
+     */
     @Deprecated
     public HttpResult execute(HttpRequest request) throws HttpException {
         Validate.notNull(request, "request must not be null");
@@ -197,14 +223,14 @@ public class HttpRetriever {
                 HttpPost httpPost = new HttpPost(url);
                 HttpEntity entity;
 
-                if(request.getHttpEntity() != null){
+                if (request.getHttpEntity() != null) {
                     entity = request.getHttpEntity();
-                }else{
+                } else {
                     List<NameValuePair> postParams = new ArrayList<>();
                     for (Entry<String, String> param : request.getParameters().entrySet()) {
                         postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                     }
-                        entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+                    entity = new UrlEncodedFormEntity(postParams, request.getCharset());
                 }
 
                 httpPost.setEntity(entity);
@@ -222,14 +248,14 @@ public class HttpRetriever {
                 url = request.getUrl();
                 HttpPut httpPut = new HttpPut(url);
 
-                if(request.getHttpEntity() != null){
+                if (request.getHttpEntity() != null) {
                     entity = request.getHttpEntity();
-                }else{
+                } else {
                     List<NameValuePair> postParams = new ArrayList<>();
                     for (Entry<String, String> param : request.getParameters().entrySet()) {
                         postParams.add(new BasicNameValuePair(param.getKey(), param.getValue()));
                     }
-                    entity = new UrlEncodedFormEntity(postParams,request.getCharset());
+                    entity = new UrlEncodedFormEntity(postParams, request.getCharset());
                 }
 
                 httpPut.setEntity(entity);
@@ -245,7 +271,7 @@ public class HttpRetriever {
 
         return execute(url, httpRequest);
     }
-    
+
     public HttpResult execute(HttpRequest2 request) throws HttpException {
         Validate.notNull(request, "request must not be null");
         return execute(request.getUrl(), new ApacheRequestAdapter(request));
@@ -273,7 +299,7 @@ public class HttpRetriever {
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection)context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
                 HttpConnectionMetrics metrics = conn.getMetrics();
                 context.setAttribute(CONTEXT_METRICS_ID, metrics);
             }
@@ -320,7 +346,7 @@ public class HttpRetriever {
      * <p>
      * Converts the Header type from Apache to a more generic Map.
      * </p>
-     * 
+     *
      * @param headers
      * @return
      */
@@ -342,7 +368,7 @@ public class HttpRetriever {
      * Internal method for executing the specified request; content of the result is read and buffered completely, up to
      * the specified limit in maxFileSize.
      * </p>
-     * 
+     *
      * @param url
      * @param request
      * @return
@@ -359,9 +385,26 @@ public class HttpRetriever {
         try {
 
             HttpContext context = new BasicHttpContext();
+
+//                SSLContext sslContext = SSLContext.getInstance("SSL");
+//                sslContext.init(null, new TrustManager[]{new HttpRetrieverFactory.ShadyTrustManager()}, new SecureRandom());
+//
+//                context = new BasicHttpContext();
+//                HostnameVerifier verifier = new HostnameVerifier() {
+//                    @Override
+//                    public boolean verify(String s, SSLSession sslSession) {
+//                        return true;
+//                    }
+//                };
+////                CustomSslSocket sslSocketFactory = new CustomSslSocket(SocketConfig.DEFAULT, sslContext, verifier);
+//                CustomSslSocketFactory sslSocketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, verifier);
+//
+//                CloseableHttpClient client = HttpClientBuilder.create().setSSLHostnameVerifier(verifier).setSSLSocketFactory(sslSocketFactory).build();
             DecompressingHttpClient client = new DecompressingHttpClient(backend);
+
+
             HttpResponse response = client.execute(request, context);
-            HttpConnectionMetrics metrics = (HttpConnectionMetrics)context.getAttribute(CONTEXT_METRICS_ID);
+            HttpConnectionMetrics metrics = metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
@@ -456,13 +499,13 @@ public class HttpRetriever {
      * are collected and returned, and the last element in the list represents the final target URL (e.g.
      * <code>URL1</code> -> <code>URL2</code> -> <code>URL3</code> would return a list <code>[URL2, URL3]</code>).
      * </p>
-     * 
+     *
      * @param url The URL for which to retrieve the redirects, not <code>null</code> or empty.
      * @return A list containing the redirect chain, whereas the last element in the list represents the final target,
-     *         or an empty list if the provided URL is not redirected, never <code>null</code>.
+     * or an empty list if the provided URL is not redirected, never <code>null</code>.
      * @throws HttpException In case of general HTTP errors, when an invalid URL is supplied, when a redirect loop is
-     *             detected (e.g. <code>URL1</code> -> <code>URL2</code> -> <code>URL1</code>), or when a redirect
-     *             status is returned, but no <code>location</code> field is provided.
+     *                       detected (e.g. <code>URL1</code> -> <code>URL2</code> -> <code>URL1</code>), or when a redirect
+     *                       status is returned, but no <code>location</code> field is provided.
      */
     public List<String> getRedirectUrls(String url) throws HttpException {
         Validate.notEmpty(url, "url must not be empty");
@@ -481,7 +524,7 @@ public class HttpRetriever {
         DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
         DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
-        for (;;) {
+        for (; ; ) {
             HttpHead headRequest;
             Proxy proxy = null;
             try {
@@ -543,52 +586,52 @@ public class HttpRetriever {
      * <p>
      * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
      * </p>
-     * 
-     * @param url the URL to download from.
+     *
+     * @param url      the URL to download from.
      * @param filePath the path where the downloaded contents should be saved to.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
     public boolean downloadAndSave(String url, String filePath) {
-        return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), false);
+        return downloadAndSave(url, filePath, Collections.<String, String>emptyMap(), false);
     }
 
     /**
      * <p>
      * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
      * </p>
-     * 
-     * @param url the URL to download from.
-     * @param filePath the path where the downloaded contents should be saved to.
+     *
+     * @param url                        the URL to download from.
+     * @param filePath                   the path where the downloaded contents should be saved to.
      * @param includeHttpResponseHeaders whether to prepend the received HTTP headers for the request to the saved
-     *            content.
+     *                                   content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
     public boolean downloadAndSave(String url, String filePath, boolean includeHttpResponseHeaders) {
-        return downloadAndSave(url, filePath, Collections.<String, String> emptyMap(), includeHttpResponseHeaders);
+        return downloadAndSave(url, filePath, Collections.<String, String>emptyMap(), includeHttpResponseHeaders);
     }
 
     /**
      * <p>
      * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
      * </p>
-     * 
-     * @param url the URL to download from.
-     * @param filePath the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
-     *            is compressed automatically.
-     * @param requestHeaders The headers to include in the request.
+     *
+     * @param url                        the URL to download from.
+     * @param filePath                   the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
+     *                                   is compressed automatically.
+     * @param requestHeaders             The headers to include in the request.
      * @param includeHttpResponseHeaders whether to prepend the received HTTP headers for the request to the saved
-     *            content.
+     *                                   content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
     public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders,
-            boolean includeHttpResponseHeaders) {
+                                   boolean includeHttpResponseHeaders) {
 
         boolean result = false;
         try {
             HttpResult httpResult = execute(new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(requestHeaders)
                     .create());
             if (httpResult.getStatusCode() != 200) {
-                throw new HttpException("status code != 200 (code: "+httpResult.getStatusCode()+") for " + url);
+                throw new HttpException("status code != 200 (code: " + httpResult.getStatusCode() + ") for " + url);
             }
             result = HttpHelper.saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {
@@ -611,7 +654,7 @@ public class HttpRetriever {
      * Resets this {@link HttpRetriever}'s socket timeout time overwriting the old value. The default value for this
      * attribute after initialization is {@value #DEFAULT_SOCKET_TIMEOUT}.
      * </p>
-     * 
+     *
      * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(int socketTimeout) {
@@ -630,13 +673,13 @@ public class HttpRetriever {
      * <p>
      * Set the maximum number of bytes to download per request.
      * </p>
-     * 
+     *
      * @param maxFileSize The maximum number of bytes to download per request.
      */
     public void setMaxFileSize(long maxFileSize) {
         this.maxFileSize = maxFileSize;
     }
-    
+
     public void setCookieStore(CookieStore cookieStore) {
         this.cookieStore = cookieStore;
     }
@@ -649,7 +692,7 @@ public class HttpRetriever {
      * <p>
      * To be called after downloading data from the web.
      * </p>
-     * 
+     *
      * @param size the size in bytes that should be added to the download counters.
      */
     private synchronized void addDownload(long size) {
