@@ -4,7 +4,7 @@
 	<artifactId>palladian</artifactId>
 	<packaging>pom</packaging>
 	<name>Palladian: Information Retrieval Toolkit</name>
-	<version>0.6.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<description>Palladian is a Java-based toolkit which provides functionality to perform internet information retrieval, classification, and information extraction tasks.</description>
 	<url>http://palladian.ws</url>
 	<licenses>
@@ -217,7 +217,7 @@
 		<logback.version>1.1.2</logback.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-		<project.jdk.version>1.7</project.jdk.version>
+		<project.jdk.version>1.8</project.jdk.version>
 	</properties>
 	<profiles>
 		<profile>
