@@ -106,7 +106,7 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.DUTCH));
 
         // French
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.lemonde.fr/"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.orange.fr"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.FRENCH));
 
