@@ -40,32 +40,44 @@ import ws.palladian.helper.UrlHelper;
  */
 public final class HtmlHelper {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(HtmlHelper.class);
 
-    /** HTML block level elements. */
+    /**
+     * HTML block level elements.
+     */
     private static final List<String> BLOCK_ELEMENTS = Arrays.asList("address", "blockquote", "div", "dl", "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr",
             "noscript", "ol", "p", "pre", "table", "ul", "dd", "dt", "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map", "object", "script", "br");
 
-    /** "Junk" elements which do not contain relevant content. */
+    /**
+     * "Junk" elements which do not contain relevant content.
+     */
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
     private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("<(br|li)\\s?/?>", Pattern.CASE_INSENSITIVE);
     private static final Pattern HTML_TO_READABLE_TEXT2 = Pattern.compile("</p>", Pattern.CASE_INSENSITIVE);
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
     private static final Pattern STRIP_ALL_TAGS = Pattern
-    // .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
+            // .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
             .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<[^<]*?>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
-    /** Thread local caching of TransformerFactories which are not thread-safe, but expensive to create. */
+    /**
+     * Thread local caching of TransformerFactories which are not thread-safe, but expensive to create.
+     */
     private static final ThreadLocal<TransformerFactory> TRANSFORMER_FACTORIES = new ThreadLocal<TransformerFactory>() {
         @Override
         protected TransformerFactory initialValue() {
             return TransformerFactory.newInstance();
-        };
+        }
+
+        ;
     };
 
-    /** prevent instantiation. */
+    /**
+     * prevent instantiation.
+     */
     private HtmlHelper() {
     }
 
@@ -74,8 +86,7 @@ public final class HtmlHelper {
      * Count the tags.
      * </p>
      *
-     * @param htmlText
-     *            The html text.
+     * @param htmlText The html text.
      * @return The number of tags.
      */
     public static int countTags(String htmlText) {
@@ -87,10 +98,9 @@ public final class HtmlHelper {
      * Count the number of characters used for tags in the given string. For example, &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; => 15
      * </p>
      *
-     * @param taggedText
-     *            The text with tags.
+     * @param taggedText The text with tags.
      * @return The cumulated number of characters used for tags in the given
-     *         text.
+     * text.
      */
     public static int countTagLength(String taggedText) {
         int totalTagLength = 0;
@@ -110,10 +120,8 @@ public final class HtmlHelper {
      * Count tags.
      * </p>
      *
-     * @param htmlText
-     *            The html text.
-     * @param distinct
-     *            If true, count multiple occurrences of the same tag only once.
+     * @param htmlText The html text.
+     * @param distinct If true, count multiple occurrences of the same tag only once.
      * @return The number of tags.
      */
     public static int countTags(String htmlText, boolean distinct) {
@@ -150,7 +158,7 @@ public final class HtmlHelper {
 
     /**
      * @deprecated Prefer using varargs {@link #stripHtmlTags(String, HtmlElement...)} because it is shorter in code
-     *             (avoids creating {@link EnumSet}).
+     * (avoids creating {@link EnumSet}).
      */
     @Deprecated
     public static String stripHtmlTags(String htmlText, Set<HtmlElement> htmlElements) {
@@ -183,7 +191,7 @@ public final class HtmlHelper {
      * Remove specified parts (see {@link HtmlElement}) from HTML/XML content.
      * </p>
      *
-     * @param htmlText The markup text to strip.
+     * @param htmlText     The markup text to strip.
      * @param htmlElements The elements to remove.
      * @return The markup with the specified elements removed, or <code>null</code> in case input was <code>null</code>.
      */
@@ -207,10 +215,8 @@ public final class HtmlHelper {
      * Removes the concrete HTML tag.
      * </p>
      *
-     * @param pageContent
-     *            The html text.
-     * @param tag
-     *            The tag that should be removed.
+     * @param pageContent The html text.
+     * @param tag         The tag that should be removed.
      * @return The html text without the tag.
      */
     public static String removeConcreteHtmlTag(String pageString, String tag) {
@@ -222,12 +228,9 @@ public final class HtmlHelper {
      * Remove concrete HTML tags from a string; this version is for special-tags like <!-- -->.
      * </p>
      *
-     * @param pageContent
-     *            The html text.
-     * @param beginTag
-     *            The begin tag.
-     * @param endTag
-     *            The end tag.
+     * @param pageContent The html text.
+     * @param beginTag    The begin tag.
+     * @param endTag      The end tag.
      * @return The string without the specified html tag.
      */
     public static String removeConcreteHtmlTag(String pageContent, String beginTag, String endTag) {
@@ -245,10 +248,8 @@ public final class HtmlHelper {
      * Get a list of concrete HTML tags; begin- and endtag are not different.
      * </p>
      *
-     * @param pageContent
-     *            The html text.
-     * @param tag
-     *            The tag.
+     * @param pageContent The html text.
+     * @param tag         The tag.
      * @return A list of concrete tags.
      */
     public static List<String> getConcreteTags(String pageString, String tag) {
@@ -260,12 +261,9 @@ public final class HtmlHelper {
      * Get a list of concrete HTML tags; its possible that begin- and endtag are different like <!-- -->.
      * </p>
      *
-     * @param pageString
-     *            The html text.
-     * @param beginTag
-     *            The begin tag.
-     * @param endTag
-     *            The end tag.
+     * @param pageString The html text.
+     * @param beginTag   The begin tag.
+     * @param endTag     The end tag.
      * @return A list of concrete tag names.
      */
     public static List<String> getConcreteTags(String pageString, String beginTag, String endTag) {
@@ -299,7 +297,7 @@ public final class HtmlHelper {
      * In contrast to {@link #stripHtmlTags(String, boolean, boolean, boolean, boolean)}, which works on Strings and just strips out all tags via RegExes, this approach tries to
      * keep some structure for displaying HTML content in text mode in a readable form.
      * </p>
-     *
+     * <p>
      * FIXME: "namespace not declared" errors pop up too often
      *
      * @param node
@@ -379,12 +377,9 @@ public final class HtmlHelper {
      * Extract values e.g for: src=, href= or title=
      * </p>
      *
-     * @param pattern
-     *            the pattern
-     * @param content
-     *            the content
-     * @param removeTerm
-     *            the term which should be removed e.g. " or '
+     * @param pattern    the pattern
+     * @param content    the content
+     * @param removeTerm the term which should be removed e.g. " or '
      * @return the string
      */
     public static String extractTagElement(final String pattern, final String content, final String removeTerm) {
@@ -446,12 +441,11 @@ public final class HtmlHelper {
      * Remove unnecessary whitespace from DOM nodes.
      * </p>
      *
-     * @see http
-     *      ://stackoverflow.com/questions/978810/how-to-strip-whitespace-only
-     *      -text-nodes-from-a-dom-before- serialization
-     *
      * @param node
      * @return
+     * @see http
+     * ://stackoverflow.com/questions/978810/how-to-strip-whitespace-only
+     * -text-nodes-from-a-dom-before- serialization
      */
     public static Node removeWhitespace(Node node) {
 
@@ -461,7 +455,7 @@ public final class HtmlHelper {
             XPathFactory xpathFactory = XPathFactory.newInstance();
             // XPath to find empty text nodes.
             XPathExpression xpathExp = xpathFactory.newXPath().compile("//text()[normalize-space(.) = '']");
-            NodeList emptyTextNodes = (NodeList)xpathExp.evaluate(result, XPathConstants.NODESET);
+            NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(result, XPathConstants.NODESET);
 
             // Remove each empty text node from document.
             for (int i = 0; i < emptyTextNodes.getLength(); i++) {
@@ -535,8 +529,7 @@ public final class HtmlHelper {
      * </p>
      *
      * @param node
-     * @param nodeType
-     *            for example <code>Node.COMMENT_NODE</code>
+     * @param nodeType for example <code>Node.COMMENT_NODE</code>
      */
     public static void removeAll(Node node, short nodeType) {
         HtmlHelper.removeAll(node, nodeType, null);
@@ -548,8 +541,7 @@ public final class HtmlHelper {
      * </p>
      *
      * @param node
-     * @param nodeType
-     *            for example <code>Node.COMMENT_NODE</code>
+     * @param nodeType for example <code>Node.COMMENT_NODE</code>
      * @param name
      */
     public static void removeAll(Node node, short nodeType, String name) {
@@ -568,9 +560,9 @@ public final class HtmlHelper {
      * Creates a copy of a DOM Document.
      * </p>
      *
-     * @see <a href="http://stackoverflow.com/questions/279154/how-can-i-clone-an-entire-document-using-the-java-dom">How can I clone an entire Document using the Java DOM?</a>
      * @param document
      * @return the cloned Document or <code>null</code> if cloning failed.
+     * @see <a href="http://stackoverflow.com/questions/279154/how-can-i-clone-an-entire-document-using-the-java-dom">How can I clone an entire Document using the Java DOM?</a>
      */
     public static Document cloneDocument(Document document) {
         Document result = null;
@@ -579,7 +571,7 @@ public final class HtmlHelper {
             DOMSource source = new DOMSource(document);
             DOMResult target = new DOMResult();
             transformer.transform(source, target);
-            result = (Document)target.getNode();
+            result = (Document) target.getNode();
         } catch (TransformerConfigurationException e) {
             LOGGER.error("cloneDocument:TransformerConfigurationException " + e.getMessage());
         } catch (TransformerFactoryConfigurationError e) {
@@ -600,12 +592,10 @@ public final class HtmlHelper {
      * Get a string representation of the supplied DOM {@link Node}.
      * </p>
      *
-     * @param node
-     *            The {@link Node} (or {@link Document}) for which to get the
-     *            string value, not <code>null</code>.
-     * @param omitXmlDeclaration
-     *            <code>true</code> to exclude the XML declaration in the
-     *            generated string.
+     * @param node               The {@link Node} (or {@link Document}) for which to get the
+     *                           string value, not <code>null</code>.
+     * @param omitXmlDeclaration <code>true</code> to exclude the XML declaration in the
+     *                           generated string.
      * @return The string representation of the {@link Node}, or <code>null</code> in case of an error.
      */
     // rem: Some of the other implementations of this method returned an empty string, when an error was encountered.
@@ -641,9 +631,8 @@ public final class HtmlHelper {
      * Get a string representation of the supplied DOM {@link Node}.
      * </p>
      *
-     * @param node
-     *            The {@link Node} (or {@link Document}) for which to get the
-     *            string value.
+     * @param node The {@link Node} (or {@link Document}) for which to get the
+     *             string value.
      * @return The string representation of the {@link Node}, or <code>null</code> in case of an error.
      */
     public static String xmlToString(Node node) {
@@ -687,8 +676,7 @@ public final class HtmlHelper {
      * Get the sub tree of the document or node as text without tags. You could also use {@link documentToHTMLString} and {@link htmlToReadableText} to achieve similar results.
      * </p>
      *
-     * @param node
-     *            The node from where to start.
+     * @param node The node from where to start.
      * @return A text representation of the node and its sub nodes without tags.
      */
     public static String documentToText(Node node) {
@@ -731,6 +719,7 @@ public final class HtmlHelper {
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
         return getLinks(document, inDomain, outDomain, prefix, false, false);
     }
+
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, boolean subDomain) {
         return getLinks(document, inDomain, outDomain, "", false, subDomain);
     }
@@ -765,6 +754,9 @@ public final class HtmlHelper {
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();
+//            if (baseHref.contains(domain)) {
+//                domain = UrlHelper.getDomain(baseHref, false, !includeSubdomains).toLowerCase();
+//            }
         }
 
         // get all internal domain links
@@ -806,7 +798,7 @@ public final class HtmlHelper {
 
             String currentDomain = UrlHelper.getDomain(currentLink, false).toLowerCase();
 
-            boolean inDomainLink = currentDomain.endsWith(domain);
+            boolean inDomainLink = currentDomain.equals(domain) || currentDomain.endsWith("." + domain);
 
             if (inDomainLink && !includeSubdomains && currentDomain.length() != domain.length() && !domain.isEmpty()) {
                 continue;
@@ -823,12 +815,10 @@ public final class HtmlHelper {
     /**
      * Get a set of links from the source page.
      *
-     * @param inDomain
-     *            If true all links that point to other pages within the same
-     *            domain of the source page are added.
-     * @param outDomain
-     *            If true all links that point to other pages outside the domain
-     *            of the source page are added.
+     * @param inDomain  If true all links that point to other pages within the same
+     *                  domain of the source page are added.
+     * @param outDomain If true all links that point to other pages outside the domain
+     *                  of the source page are added.
      * @return A set of urls.
      */
     public static Set<String> getLinks(Document document, boolean inDomain, boolean outDomain) {

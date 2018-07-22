@@ -19,7 +19,10 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * IP lookup with <a href="https://freegeoip.net">freegeoip</a> API.
  * 
  * @author Philipp Katz
+ * @deprecated freegeoip has <a href="https://github.com/apilayer/freegeoip#readme">changed their API</a> -- this class will no longer be working as of July 1st, 2018 - use IpStackIpLookup
  */
+// TODO remove with next version bump
+@Deprecated
 public final class FreeGeoIpLookup implements IpLookup {
 	/** The logger for this class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(FreeGeoIpLookup.class);

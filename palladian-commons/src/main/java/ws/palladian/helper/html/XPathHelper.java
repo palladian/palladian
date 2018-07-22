@@ -30,12 +30,12 @@ import ws.palladian.helper.collection.CollectionHelper;
  * <p>
  * A helper class for handling XPath queries.
  * </p>
- * <p>
+ *
  * <p>
  * The methods {@link #getNodes(Node, String, Map)} and {@link #getNode(Node, String, Map)} allow processing of
  * Documents with namespaces. If your XPath expression contains namespace prefixes, like <code>//atom:entry</code>, you
  * must supply the corresponding mapping from prefix to URI as parameter, for example:
- * <p>
+ *
  * <pre>
  * Map&lt;String, String&gt; mapping = new HashMap&lt;String, String&gt;();
  * mapping.put(&quot;atom&quot;, &quot;http://www.w3.org/2005/Atom&quot;);
@@ -61,6 +61,8 @@ public final class XPathHelper {
      * XHTML namespace URI.
      */
     private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
+
+    private static final String XHTML_COLON = "xhtml:";
 
     private static final Pattern AND_OR = Pattern.compile("and|or");
     private static final Pattern XHTML_TAGGABLE = Pattern.compile("[a-zA-Z][\\w]*|\\*");
@@ -133,7 +135,7 @@ public final class XPathHelper {
             }
         } catch (XPathExpressionException e) {
             // TODO this exception should be thrown
-            LOGGER.error("{} for XPath \"{}\" : {}", e, xPath, e.getMessage(), e);
+            LOGGER.error("{} for XPath \"{}\" : {}", new Object[]{e, xPath, e.getMessage(), e});
         }
 
         return ret;
@@ -430,7 +432,7 @@ public final class XPathHelper {
     public static String addXhtmlNsToXPath(String xPath) {
         Validate.notEmpty(xPath, "xPath must not be empty.");
 
-        if (xPath.toLowerCase(Locale.ENGLISH).contains("xhtml:")) {
+        if (xPath.toLowerCase(Locale.ENGLISH).contains(XHTML_COLON)) {
             return xPath;
         }
         // return xPath.replaceAll("/(?=\\w)","/xhtml:");
@@ -468,12 +470,18 @@ public final class XPathHelper {
         StringBuilder result = new StringBuilder();
         for (String xPathPart : xPathParts) {
             if (XHTML_TAGGABLE.matcher(xPathPart).matches() && !AND_OR.matcher(xPathPart).matches()) {
-                result.append("xhtml:");
+                result.append(XHTML_COLON);
             }
             result.append(xPathPart);
         }
 
-        return result.toString();
+        String namespacedXPath = result.toString();
+
+        // slashed words within quotes must not get a namespace
+        namespacedXPath = namespacedXPath.replace("'/" + XHTML_COLON, "'/");
+        namespacedXPath = namespacedXPath.replace("\"/" + XHTML_COLON, "\"/");
+
+        return namespacedXPath;
     }
 
 }

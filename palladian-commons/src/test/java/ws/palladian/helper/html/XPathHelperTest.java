@@ -31,6 +31,9 @@ public class XPathHelperTest {
 
     @Test
     public void testAddNamespaceToXPath() {
+        assertEquals("//xhtml:body[//xhtml:script[contains(text(),',2308,')] and //xhtml:link[@rel='canonical' and contains(@href,'events/more')]]", XPathHelper.addXhtmlNsToXPath("//body[//script[contains(text(),',2308,')] and //link[@rel='canonical' and contains(@href,'events/more')]]"));
+        assertEquals("//xhtml:body[//xhtml:script[contains(text(),',2308,')] and //xhtml:link[@rel='canonical' and contains(@href,\"/events/\")]]", XPathHelper.addXhtmlNsToXPath("//body[//script[contains(text(),',2308,')] and //link[@rel='canonical' and contains(@href,\"/events/\")]]"));
+        assertEquals("//xhtml:body[//xhtml:script[contains(text(),',2308,')] and //xhtml:link[@rel='canonical' and contains(@href,'/events/')]]", XPathHelper.addXhtmlNsToXPath("//body[//script[contains(text(),',2308,')] and //link[@rel='canonical' and contains(@href,'/events/')]]"));
         assertEquals("//xhtml:img[not(ancestor::xhtml:header)]", XPathHelper.addXhtmlNsToXPath("//img[not(ancestor::header)]"));
         assertEquals("//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]", XPathHelper.addXhtmlNsToXPath("//TABLE/TR/TD/A[4]"));
         assertEquals("/xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]", XPathHelper.addXhtmlNsToXPath("/TABLE/TR/TD/A[4]"));

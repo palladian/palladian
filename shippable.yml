@@ -3,7 +3,7 @@ language: java
 
 # Version number
 jdk:
-  - openjdk7
+  - oraclejdk8
 
 env:
   global:
@@ -17,7 +17,7 @@ build:
     # only use -P release when (1) on master branch, (2) no pull request
     - if [ "$BRANCH" == "master" ] && [ "$IS_PULL_REQUEST" == false ]; then MAVEN_PROFILE="-P release"; fi
 
-    - mvn -V -B -s settings.xml clean deploy $MAVEN_PROFILE
+    - mvn -Dhttps.protocols=TLSv1.2 -V -B -s settings.xml clean deploy $MAVEN_PROFILE
     
   on_success:
     - cp */target/surefire-reports/* shippable/testresults
