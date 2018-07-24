@@ -25,6 +25,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.nlp.PatternHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -449,6 +451,16 @@ public final class XPathHelper {
         // for tests achieved a more accurate transformation. If you discover any inaccuracies, please try to fix the
         // existing code below and add tests. Philipp, 2012-08-08
 
+        // first we need to mask everything in quotes as this must not be analyzed for namespaces
+        List<String> toMask = StringHelper.getRegexpMatches(PatternHelper.compileOrGet("(\"[^\"]+\")|('[^']+')"), xPath);
+        int maskId = 0;
+        Map<String, String> unmaskMap = new HashMap<>();
+        for (String quoted : toMask) {
+            String mask = "_MASK_"+(maskId++);
+            xPath = xPath.replace(quoted, mask);
+            unmaskMap.put(mask, quoted);
+        }
+
         List<String> xPathParts = new ArrayList<>();
         StringBuilder buf = new StringBuilder();
         List<Character> split = Arrays.asList('/', ' ', '[', ']', '|', ')', ':');
@@ -477,9 +489,10 @@ public final class XPathHelper {
 
         String namespacedXPath = result.toString();
 
-        // slashed words within quotes must not get a namespace
-        namespacedXPath = namespacedXPath.replace("'/" + XHTML_COLON, "'/");
-        namespacedXPath = namespacedXPath.replace("\"/" + XHTML_COLON, "\"/");
+        // unmask again
+        for (Entry<String, String> entry : unmaskMap.entrySet()) {
+            namespacedXPath = namespacedXPath.replace(entry.getKey(), entry.getValue());
+        }
 
         return namespacedXPath;
     }

@@ -31,6 +31,7 @@ public class XPathHelperTest {
 
     @Test
     public void testAddNamespaceToXPath() {
+        assertEquals("//xhtml:a[contains(@class,'breadcrumb__link') and @title=\"Leistungen und Services\"]/xhtml:span", XPathHelper.addXhtmlNsToXPath("//a[contains(@class,'breadcrumb__link') and @title=\"Leistungen und Services\"]/span"));
         assertEquals("//xhtml:body[//xhtml:script[contains(text(),',2308,')] and //xhtml:link[@rel='canonical' and contains(@href,'events/more')]]", XPathHelper.addXhtmlNsToXPath("//body[//script[contains(text(),',2308,')] and //link[@rel='canonical' and contains(@href,'events/more')]]"));
         assertEquals("//xhtml:body[//xhtml:script[contains(text(),',2308,')] and //xhtml:link[@rel='canonical' and contains(@href,\"/events/\")]]", XPathHelper.addXhtmlNsToXPath("//body[//script[contains(text(),',2308,')] and //link[@rel='canonical' and contains(@href,\"/events/\")]]"));
         assertEquals("//xhtml:body[//xhtml:script[contains(text(),',2308,')] and //xhtml:link[@rel='canonical' and contains(@href,'/events/')]]", XPathHelper.addXhtmlNsToXPath("//body[//script[contains(text(),',2308,')] and //link[@rel='canonical' and contains(@href,'/events/')]]"));
