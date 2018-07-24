@@ -4,7 +4,7 @@
 	<artifactId>palladian</artifactId>
 	<packaging>pom</packaging>
 	<name>Palladian: Information Retrieval Toolkit</name>
-	<version>0.6.1-SNAPSHOT</version>
+	<version>0.6.1</version>
 	<description>Palladian is a Java-based toolkit which provides functionality to perform internet information retrieval, classification, and information extraction tasks.</description>
 	<url>http://palladian.ws</url>
 	<licenses>
