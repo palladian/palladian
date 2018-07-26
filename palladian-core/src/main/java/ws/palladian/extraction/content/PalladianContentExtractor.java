@@ -122,7 +122,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // MAIN_NODE_HINTS.add("post-content");
         // MAIN_NODE_HINTS.add("post-body");
         // MAIN_NODE_HINTS.add("articleContent");
-        // MAIN_NODE_HINTS.add("articleBody");
         // MAIN_NODE_HINTS.add("article-content");
         // MAIN_NODE_HINTS.add("main-content");
         // MAIN_NODE_HINTS.add("contentBody");
@@ -388,9 +387,23 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // remove comments
         removeCommentNodes();
 
+        // remove header, footer, and sidebars
+        List<Node> removeNodes = new ArrayList<>();
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//header//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//nav//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'head']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pageheader']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'header']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//footer//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'foot']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'footer']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pagefooter']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'sidebar']//*"));
         // remove scripts / style / iframes etc.
-        List<Node> divs = XPathHelper.getXhtmlNodes(document, "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]");
-        for (Node node : divs) {
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]"));
+
+        for (Node node : removeNodes) {
+
             if (node == null) {
                 continue;
             }
@@ -405,10 +418,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     private void removeCommentNodes() {
 
-        List<Node> divs = XPathHelper
-                .getXhtmlNodes(
-                        document,
-                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section) or (self::xhtml:ol) or (self::xhtml:ul) or (self::xhtml:li)][@class='comment' or contains(@class,'comment ') or contains(@class,' comment') or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
+        List<Node> divs = XPathHelper.getXhtmlNodes(document,
+                "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section) or (self::xhtml:ol) or (self::xhtml:ul) or (self::xhtml:li)][@class='comment' or contains(@class,'comment ') or contains(@class,' comment') or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
 
         for (Node node : divs) {
             comments.add(HtmlHelper.documentToReadableText(node));
@@ -422,8 +433,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         Node mainNode = null;
 
         for (String hint : MAIN_NODE_HINTS) {
-            List<Node> mainNodes = XPathHelper.getXhtmlNodes(getDocument(), "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint
-                    + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
+            List<Node> mainNodes = new ArrayList<>();
+
+            try {
+                mainNodes = XPathHelper.getXhtmlNodes(getDocument(), "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint + "' or contains(@class,'"
+                        + hint + " ') or contains(@class,' " + hint + "') or @itemprop='" + hint + "' or @id='" + hint + "']");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             if (!mainNodes.isEmpty()) {
                 mainNode = mainNodes.get(0);
@@ -486,9 +503,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         for (WebImage webImage : images) {
             // if no dimensions known we allow the image or if the dimensions match our criteria
-            if (webImage.getWidth() < 0 || webImage.getHeight() < 0 || (webImage.getWidth() > 0 && webImage.getWidth() > minWidth && webImage.getHeight() > 0 && webImage.getHeight() > minHeight)) {
-               filteredImages.add(webImage);
-           }
+            if (webImage.getWidth() < 0 || webImage.getHeight() < 0
+                    || (webImage.getWidth() > 0 && webImage.getWidth() > minWidth && webImage.getHeight() > 0 && webImage.getHeight() > minHeight)) {
+                filteredImages.add(webImage);
+            }
         }
 
         images.clear();
@@ -526,13 +544,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
     public List<WebImage> getImages() {
         if (outerResultNode != null) {
-            return getImages(outerResultNode, getDocument(), new HashSet<Node>());
+            return getImages(outerResultNode, getDocument(), new HashSet<>());
         }
-        return getImages(resultNode, getDocument(), new HashSet<Node>());
+        return getImages(resultNode, getDocument(), new HashSet<>());
     }
 
     public List<WebImage> getImages(Node imageParentNode) {
-        return getImages(imageParentNode, document, new HashSet<Node>());
+        return getImages(imageParentNode, document, new HashSet<>());
     }
 
     public List<WebImage> getImages(Node imageParentNode, Document webDocument, Collection<Node> excludeNodes) {
@@ -563,6 +581,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             imageNodes = XPathHelper.getXhtmlNodes(imageParentNode, imgXPath);
             imageParentNode = imageParentNode.getParentNode();
         }
+
+        // remove images from header and footer
+        List<Node> removeNodes = XPathHelper.getXhtmlNodes(webDocument, "//header//img");
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(webDocument, "//div[@id='header']//img"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(webDocument, "//footer//img"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(webDocument, "//div[@id='footer']//img"));
+        imageNodes.removeAll(removeNodes);
 
         for (Node node : imageNodes) {
             try {
@@ -609,13 +634,13 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     Node style = nnm.getNamedItem("style");
                     if (style != null) {
                         String styleText = style.getTextContent();
-                        String widthText = StringHelper.getSubstringBetween(styleText,"width:","px").trim();
-                        String heightText = StringHelper.getSubstringBetween(styleText,"height:","px").trim();
+                        String widthText = StringHelper.getSubstringBetween(styleText, "width:", "px").trim();
+                        String heightText = StringHelper.getSubstringBetween(styleText, "height:", "px").trim();
                         if (!widthText.isEmpty()) {
-                            builder.setWidth((int) MathHelper.parseStringNumber(widthText));
+                            builder.setWidth((int)MathHelper.parseStringNumber(widthText));
                         }
                         if (!heightText.isEmpty()) {
-                            builder.setHeight((int) MathHelper.parseStringNumber(heightText));
+                            builder.setHeight((int)MathHelper.parseStringNumber(heightText));
                         }
                     }
                 }
@@ -829,8 +854,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.SPANISH;
         } else if (domain.endsWith(".it")) {
             return Language.ITALIAN;
-        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ac.za") || domain.endsWith(".ie") || domain.endsWith(".co.nz") || domain.endsWith(".co.za") || domain.endsWith(".au")
-                || domain.endsWith(".ca") || domain.endsWith(".us")) {
+        } else if (domain.endsWith(".co.uk") || domain.endsWith(".ac.uk") || domain.endsWith(".ac.za") || domain.endsWith(".ie") || domain.endsWith(".co.nz")
+                || domain.endsWith(".co.za") || domain.endsWith(".au") || domain.endsWith(".ca") || domain.endsWith(".us")) {
             return Language.ENGLISH;
         } else if (domain.endsWith(".pl")) {
             return Language.POLISH;
@@ -888,12 +913,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         // look for itemprop image
-        xhtmlNode = XPathHelper
-                .getXhtmlNode(
-                        getDocument(),
-                        "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]");
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
+                "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]");
         if (xhtmlNode != null && !excludeImageNodes.contains(xhtmlNode)) {
-            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode,".//@src");
+            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode, ".//@src");
             if (xhtmlNode1 != null) {
                 String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode1.getTextContent().trim());
                 return new BasicWebImage.Builder().setImageUrl(url).create();
@@ -904,7 +927,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
                 "//img[(contains(@class,'main-photo') or contains(@class,'main-image')) and not(ancestor::header) and not(ancestor::footer)]");
         if (xhtmlNode != null && !excludeImageNodes.contains(xhtmlNode)) {
-            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode,".//@src");
+            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode, ".//@src");
             if (xhtmlNode1 != null) {
                 String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode1.getTextContent().trim());
                 return new BasicWebImage.Builder().setImageUrl(url).create();
@@ -944,9 +967,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             image = CollectionHelper.getFirst(images);
             if (image != null && image.getSize() < 10000) {
                 // filter out icons
-//                if (images.size() > 1) {
-                    filterByName(images, "icon");
-//                }
+                // if (images.size() > 1) {
+                filterByName(images, "icon");
+                // }
                 // filter out images that are too small (that we know of)
                 filterBySize(images, 50, 50);
                 Collections.sort(images, new ImageSizeComparator());
@@ -968,8 +991,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     public static void main(String[] args) throws PageContentExtractorException {
 
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
-        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://janeshealthykitchen.com/instant-red-sauce/"));
         Language language = palladianContentExtractor.detectLanguage();
+        List<WebImage> images = palladianContentExtractor.getImages();
+        CollectionHelper.print(images);
 
         System.out.println(language);
         System.exit(0);

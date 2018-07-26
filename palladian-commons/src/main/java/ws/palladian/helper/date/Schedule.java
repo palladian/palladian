@@ -2,6 +2,7 @@ package ws.palladian.helper.date;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>A simple schedule. Any null field means it does not matter for matching with the date.</p>
@@ -9,13 +10,21 @@ import java.util.Date;
  */
 public class Schedule {
 
-    Integer dayOfYear;
-    Integer dayOfMonth;
-    Integer dayOfWeek;
-    Integer hourOfDay;
-    Integer minuteOfHour;
+    private long lastRun = -1;
+
+    private Integer dayOfYear;
+    private Integer dayOfMonth;
+    private Integer dayOfWeek;
+    private Integer hourOfDay;
+    private Integer minuteOfHour;
 
     public boolean onSchedule(Date date) {
+
+        // we only resolve meticulous accuracy so the task must not have run within the last 60 seconds
+        if (date.getTime() - TimeUnit.SECONDS.toMillis(60) < lastRun) {
+            return false;
+        }
+
         boolean onSchedule = true;
 
         Calendar calendar = Calendar.getInstance();
@@ -47,6 +56,7 @@ public class Schedule {
             }
         }
 
+        lastRun = System.currentTimeMillis();
         return onSchedule;
     }
 

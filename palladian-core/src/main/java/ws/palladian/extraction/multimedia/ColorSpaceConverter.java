@@ -76,7 +76,7 @@ public class ColorSpaceConverter {
      * @param B Value (0..1)
      * @return RGB values
      */
-    public int[] hsbToRrb(double H, double S, double B) {
+    public static int[] hsbToRrb(double H, double S, double B) {
         int[] result = new int[3];
         int rgb = Color.HSBtoRGB((float) H, (float) S, (float) B);
         result[0] = (rgb >> 16) & 0xff;
@@ -85,7 +85,7 @@ public class ColorSpaceConverter {
         return result;
     }
 
-    public int[] hsbToRrb(double[] HSB) {
+    public static int[] hsbToRrb(double[] HSB) {
         return hsbToRrb(HSB[0], HSB[1], HSB[2]);
     }
 
@@ -156,10 +156,10 @@ public class ColorSpaceConverter {
      * @param B Blue in range 0..255
      * @return HSB values: H is 0..360 degrees / 360 (0..1), S is 0..1, B is 0..1
      */
-    public double[] rgbToHsb(Color color) {
+    public static double[] rgbToHsb(Color color) {
         return rgbToHsb(color.getRed(), color.getGreen(), color.getBlue());
     }
-    public double[] rgbToHsb(int R, int G, int B) {
+    public static double[] rgbToHsb(int R, int G, int B) {
         double[] result = new double[3];
         float[] hsb = new float[3];
         Color.RGBtoHSB(R, G, B, hsb);

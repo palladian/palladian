@@ -80,7 +80,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      */
     @Deprecated
     public static <T> Bag<T> create() {
-        return new Bag<>(new HashMap<T, Integer>());
+        return new Bag<>(new HashMap<>());
     }
 
     /**

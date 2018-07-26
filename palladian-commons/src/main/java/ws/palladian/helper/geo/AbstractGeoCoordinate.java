@@ -36,23 +36,14 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     @Override
     public double distance(GeoCoordinate other) {
         Validate.notNull(other, "other must not be null");
-        double lat1 = toRadians(getLatitude());
-        double lon1 = toRadians(getLongitude());
-        double lat2 = toRadians(other.getLatitude());
-        double lon2 = toRadians(other.getLongitude());
-        double dLat = (lat2 - lat1) / 2;
-        double dLon = (lon2 - lon1) / 2;
-        double a = sin(dLat) * sin(dLat) + cos(lat1) * cos(lat2) * sin(dLon) * sin(dLon);
-        return 2 * EARTH_RADIUS_KM * atan2(sqrt(a), sqrt(1 - a));
+        return GeoUtils.computeDistance(getLatitude(), getLongitude(), other.getLatitude(), other.getLongitude());
     }
 
     @Override
     public String toDmsString() {
-        Double lat = getLatitude();
-        Double lng = getLongitude();
-        if (lat == null || lng == null) {
-            return StringUtils.EMPTY;
-        }
+        double lat = getLatitude();
+        double lng = getLongitude();
+
         int[] latParts = getParts(lat);
         int[] lngParts = getParts(lng);
         String latSuffix = StringUtils.EMPTY;
@@ -111,12 +102,12 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
     @Override
     public double[] getBoundingBox(double distance) {
         Validate.isTrue(distance >= 0, "distance must be equal/greater zero");
-        // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/
-        double lat1 = getLatitude() - distance / 111.04;
-        double lat2 = getLatitude() + distance / 111.04;
-        double long1 = getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.04);
-        double long2 = getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.04);
-        return new double[] {lat1, long1, lat2, long2};
+        // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/ and https://www.wikiwand.com/en/Latitude
+        double lat1 = getLatitude() - distance / 111.2;
+        double lat2 = getLatitude() + distance / 111.2;
+        double lng1 = getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
+        double lng2 = getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
+        return new double[] {lat1, lng1, lat2, lng2};
     }
 
     @Override

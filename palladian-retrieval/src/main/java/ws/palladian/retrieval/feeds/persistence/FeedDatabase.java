@@ -38,24 +38,15 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedDatabase.class);
 
-    // ////////////////// feed prepared statements ////////////////////
+    /** Feed prepared statements */
     private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, description = ?, text = ?, itemHash = ?";
     private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, checks = ?, checkInterval = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, activityPattern = ?, lastPollTime = ?, lastETag = ?, lastModified = ?, lastResult = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ?";
     private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, checks = ?, checkInterval = ?, unreachableCount = ?, unparsableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastModified = ?, lastResult = ?, lastPollTime = ?, activityPattern = ?, totalProcessingTime = ?, misses = ?, lastMissTimestamp = ?, blocked = ?, lastSuccessfulCheck = ?, windowSize = ?, hasVariableWindowSize = ?, totalItems = ? WHERE id = ?";
     private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
-//    private static final String DELETE_FEED_BY_URL = "DELETE FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
-    // private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
-//    private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
-//    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, newestItemHash = '', checks = 0, lastFeedEntry = NULL";
-//    private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
-//    private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
-//    private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
-//    private static final String GET_ITEMS_FOR_FEED = "SELECT * FROM feed_items WHERE feedId = ? ORDER BY published DESC";
-//    private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ?";
@@ -66,7 +57,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_INDHIST_MODEL_BY_ID = "SELECT * FROM feed_indhist_model WHERE feedId = ?;";
 
     /**
-     * @param dataSource
+     * @param dataSource The data source.
      */
     protected FeedDatabase(DataSource dataSource) {
         super(dataSource);
@@ -87,8 +78,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             output = StringHelper.removeControlCharacters(output);
             if (output.length() > 255) {
                 output = output.substring(0, 255);
-                LOGGER.error("Truncated " + name + " of feed " + feed + " to fit database. Original value was: "
-                        + input);
+                LOGGER.error(
+                        "Truncated " + name + " of feed " + feed + " to fit database. Original value was: " + input);
             }
         }
         return output;
@@ -104,11 +95,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     public boolean addFeed(Feed feed) {
         boolean added = false;
 
-        List<Object> parameters = new ArrayList<Object>();
+        List<Object> parameters = new ArrayList<>();
         parameters.add(truncateToVarchar255(feed.getFeedUrl(), "feedUrl", feed.getFeedUrl()));
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
-//        parameters.add(feed.getNewestItemHash());
+        // parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getUnparsableCount());
         parameters.add(SqlHelper.getTimestamp(feed.getLastFeedEntry()));
@@ -116,11 +107,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(SqlHelper.getTimestamp(feed.getLastPollTime()));
         parameters.add(truncateToVarchar255(feed.getLastETag(), "lastETag", feed.getFeedUrl()));
         parameters.add(SqlHelper.getTimestamp(feed.getHttpLastModified()));
-//        if (feed.getLastFeedTaskResult() != null) {
-            parameters.add(feed.getLastFeedTaskResult());
-//        } else {
-//            parameters.add(null);
-//        }
+        parameters.add(feed.getLastFeedTaskResult());
         parameters.add(feed.getTotalProcessingTime());
         parameters.add(feed.getMisses());
         parameters.add(feed.getLastMissTime());
@@ -146,24 +133,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return added;
     }
 
-//    @Override
-//    public boolean addFeedItem(FeedItem item) {
-//        boolean added = false;
-//
-//        int result = runInsertReturnId(ADD_FEED_ITEM, getItemParameters(item));
-//        if (result > 0) {
-//            item.setId(result);
-//            added = true;
-//        }
-//
-//        return added;
-//    }
-
     @Override
     public int addFeedItems(List<FeedItem> feedItems) {
         int added = 0;
 
-        List<List<Object>> batchArgs = new ArrayList<List<Object>>();
+        List<List<Object>> batchArgs = new ArrayList<>();
         for (FeedItem feedItem : feedItems) {
             List<Object> parameters = getItemParameters(feedItem);
             batchArgs.add(parameters);
@@ -182,25 +156,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return added;
     }
 
-//    /**
-//     * When the check approach is switched we need to reset learned and calculated values such as check intervals,
-//     * checks, lastHeadlines etc.
-//     */
-//    public void changeCheckApproach() {
-//        runUpdate(CHANGE_CHECK_APPROACH);
-//    }
-
-    public void clearFeedTables() {
-        runUpdate("TRUNCATE TABLE feeds");
-        runUpdate("TRUNCATE TABLE feed_items");
-        runUpdate("TRUNCATE TABLE feeds_post_distribution");
-        runUpdate("TRUNCATE TABLE feed_evaluation_polls");
-    }
-
-//    public void deleteFeedItemById(int id) {
-//        runUpdate(DELETE_ITEM_BY_ID, id);
-//    }
-
     @Override
     public Feed getFeedById(int feedId) {
         return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_ID, feedId);
@@ -211,61 +166,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_URL, feedUrl);
     }
 
-//    public FeedItem getFeedItemById(int id) {
-//        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEM_BY_ID, id);
-//    }
-
-//    @Override
-//    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
-//        return runSingleQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS_BY_RAW_ID_2, feedId, rawId);
-//    }
-
-//    @Deprecated
-//    public FeedItem getFeedItemByRawId(String rawId) {
-//        return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID, rawId);
-//    }
-
-//    public ResultIterator<FeedItem> getFeedItems() {
-//        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ALL_ITEMS);
-//    }
-
-//    /**
-//     * Get {@link FeedItem}s for the specified feed id. The result is sorted by publish date descendingly, i. e. newer
-//     * items first.
-//     * 
-//     * @param feedId
-//     * @return
-//     */
-//    public ResultIterator<FeedItem> getFeedItemsForFeedId(int feedId) {
-//        return runQueryWithIterator(FeedItemRowConverter.INSTANCE, GET_ITEMS_FOR_FEED, feedId);
-//    }
-
-//    /**
-//     * Get the specified count of feed items, starting at offset.
-//     * 
-//     * @param limit
-//     * @param offset
-//     * @return
-//     */
-//    public List<FeedItem> getFeedItems(int limit, int offset) {
-//        return runQuery(FeedItemRowConverter.INSTANCE, GET_ITEMS, limit, offset);
-//    }
-
-//    /**
-//     * Get FeedItems by using a custom SQL query. The SELECT part must contain all appropriate columns with their
-//     * names from the feed_items table.
-//     * 
-//     * @param sqlQuery
-//     * @return
-//     */
-//    // @Override
-//    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
-//        return runQuery(FeedItemRowConverter.INSTANCE, sqlQuery);
-//    }
-
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
 
-        final Map<Integer, int[]> postDistribution = new HashMap<Integer, int[]>();
+        final Map<Integer, int[]> postDistribution = new HashMap<>();
 
         ResultSetCallback callback = new ResultSetCallback() {
 
@@ -293,7 +196,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     private List<Object> getItemParameters(FeedItem entry) {
-        List<Object> parameters = new ArrayList<Object>();
+        List<Object> parameters = new ArrayList<>();
         parameters.add(entry.getFeedId());
         parameters.add(entry.getTitle());
         parameters.add(entry.getUrl());
@@ -321,13 +224,13 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             return addFeed(feed);
         }
 
-        boolean updated = false;
+        boolean updated;
 
-        List<Object> parameters = new ArrayList<Object>();
+        List<Object> parameters = new ArrayList<>();
         parameters.add(truncateToVarchar255(feed.getFeedUrl(), "feedUrl", feed.getId() + ""));
         parameters.add(feed.getChecks());
         parameters.add(feed.getUpdateInterval());
-//        parameters.add(feed.getNewestItemHash());
+        // parameters.add(feed.getNewestItemHash());
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getUnparsableCount());
         parameters.add(feed.getLastFeedEntry());
@@ -363,8 +266,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         if (updated && replaceCachedItems) {
             updated = deleteCachedItemById(feed.getId());
             if (!updated) {
-                LOGGER.error("Deleting cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                        + ") failed.");
+                LOGGER.error(
+                        "Deleting cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl() + ") failed.");
             }
             if (updated) {
                 updated = addCacheItems(feed);
@@ -383,14 +286,14 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return updateFeed(feed, true);
     }
 
-//    @Override
-//    public boolean deleteFeedByUrl(String feedUrl) {
-//        return runUpdate(DELETE_FEED_BY_URL, feedUrl) == 1;
-//    }
+    // @Override
+    // public boolean deleteFeedByUrl(String feedUrl) {
+    // return runUpdate(DELETE_FEED_BY_URL, feedUrl) == 1;
+    // }
 
     public void updateFeedPostDistribution(Feed feed, Map<Integer, int[]> postDistribution) {
         for (java.util.Map.Entry<Integer, int[]> distributionEntry : postDistribution.entrySet()) {
-            List<Object> parameters = new ArrayList<Object>();
+            List<Object> parameters = new ArrayList<>();
             parameters.add(feed.getId());
             parameters.add(distributionEntry.getKey());
             parameters.add(distributionEntry.getValue()[0]);
@@ -399,9 +302,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         }
     }
 
-//    @Override
+    // @Override
     private boolean updateMetaInformation(Feed feed) {
-        List<Object> parameters = new ArrayList<Object>();
+        List<Object> parameters = new ArrayList<>();
 
         // truncateToVarchar255(, "feedUrl", feed.getId()+"")
 
@@ -433,7 +336,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     @Override
     public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {
 
-        List<Object> parameters = new ArrayList<Object>();
+        List<Object> parameters = new ArrayList<>();
         parameters.add(pollMetaInfo.getFeedID());
         parameters.add(pollMetaInfo.getPollSQLTimestamp());
         parameters.add(truncateToVarchar255(pollMetaInfo.getHttpETag(), "lastETag", pollMetaInfo.getFeedID() + ""));
@@ -452,15 +355,15 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     /**
      * Add the feed's cached items (item hash and corrected publish date) to database.
      * 
-     * @param feed
+     * @param feed The feed for which we want to cache the items.
      * @return true if all items have been added.
      */
     private boolean addCacheItems(Feed feed) {
 
-        List<List<Object>> batchArgs = new ArrayList<List<Object>>();
+        List<List<Object>> batchArgs = new ArrayList<>();
         Map<String, Date> cachedItems = feed.getCachedItems();
         for (String hash : cachedItems.keySet()) {
-            List<Object> parameters = new ArrayList<Object>();
+            List<Object> parameters = new ArrayList<>();
             parameters.add(feed.getId());
             parameters.add(hash);
             parameters.add(cachedItems.get(hash));
@@ -478,8 +381,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @param id The feed id.
      * @return All cached items (hash, publish date) or empty map if no item is cached. Never <code>null</code>.
      */
-    private Map<String, Date> getCachedItemsById(int id) {
-        Map<String, Date> cachedItems = new HashMap<String, Date>();
+    protected Map<String, Date> getCachedItemsById(int id) {
+        Map<String, Date> cachedItems = new HashMap<>();
 
         List<CachedItem> itemList = runQuery(FeedCacheItemRowConverter.INSTANCE, GET_CACHE_ITEMS_BY_ID, id);
         for (CachedItem item : itemList) {
@@ -510,19 +413,15 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         // store hourly change rates, default is 0.0D
         double[] changeRate = new double[24];
 
-        RowConverter<int[]> converter = new RowConverter<int[]>() {
+        RowConverter<int[]> converter = resultSet -> {
+            // store hourly data as hourOfDay, newItems, observationPeriod
+            int[] hourlyData = new int[3];
 
-            @Override
-            public int[] convert(ResultSet resultSet) throws SQLException {
-                // store hourly data as hourOfDay, newItems, observationPeriod
-                int[] hourlyData = new int[3];
+            hourlyData[0] = resultSet.getInt("hourOfDay");
+            hourlyData[1] = resultSet.getInt("newItems");
+            hourlyData[2] = resultSet.getInt("observationPeriodDays");
 
-                hourlyData[0] = resultSet.getInt("hourOfDay");
-                hourlyData[1] = resultSet.getInt("newItems");
-                hourlyData[2] = resultSet.getInt("observationPeriodDays");
-
-                return hourlyData;
-            }
+            return hourlyData;
         };
 
         List<int[]> hourlyData = runQuery(converter, GET_INDHIST_MODEL_BY_ID, feedId);

@@ -65,10 +65,8 @@ public class HttpRetriever {
 
     // ///////////// constants with default configuration ////////
 
-    /**
-     * The user agent string that is used by the crawler.
-     */
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5";
+    /** The user agent string that is used by the crawler. */
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36";
 
     /**
      * The user agent used when resolving redirects.
@@ -433,8 +431,13 @@ public class HttpRetriever {
             }
 
             int statusCode = response.getStatusLine().getStatusCode();
-            long receivedBytes = metrics.getReceivedBytesCount();
-            metrics.reset();
+            long receivedBytes = 0;
+
+            if (metrics != null) {
+                receivedBytes = metrics.getReceivedBytesCount();
+                metrics.reset();
+            }
+
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
 
             // did we get redirected?

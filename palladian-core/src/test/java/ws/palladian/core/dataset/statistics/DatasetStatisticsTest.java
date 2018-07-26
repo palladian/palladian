@@ -18,7 +18,7 @@ public class DatasetStatisticsTest {
 	public void testDatasetStatistics() throws FileNotFoundException {
 		Builder configBuilder = CsvDatasetReaderConfig.filePath(ResourceHelper.getResourceFile("/classifier/saheart.csv"));
 		configBuilder.readHeader(true);
-		configBuilder.fieldSeparator(",");
+		configBuilder.setFieldSeparator(",");
 		Dataset dataset = configBuilder.create();
 
 		DatasetStatistics statistics = new DatasetStatistics(dataset);

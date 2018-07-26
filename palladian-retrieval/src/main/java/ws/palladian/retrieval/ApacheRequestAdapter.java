@@ -22,17 +22,16 @@ final class ApacheRequestAdapter extends HttpEntityEnclosingRequestBase implemen
         }
         HttpEntity entity = adapted.getEntity();
         if (entity != null) {
-            // setEntity(new InputStreamEntity(entity.getInputStream(), entity.length()));
-            String cleanContentType = entity.getContentType();
             ContentType contentType = null;
+            String cleanContentType = entity.getContentType();
             if (cleanContentType != null) {
                 String[] split = cleanContentType.split(";");
                 cleanContentType = split[0];
                 if (split.length > 1) {
-                    NameValuePair[] params = new NameValuePair[split.length-1];
+                    NameValuePair[] params = new NameValuePair[split.length - 1];
                     for (int i = 1; i < split.length; i++) {
                         String[] kv = split[i].split("=");
-                        params[i-1] = new BasicNameValuePair(kv[0], kv[1]);
+                        params[i - 1] = new BasicNameValuePair(kv[0], kv[1]);
                     }
                     contentType = ContentType.create(cleanContentType, params);
                 } else {

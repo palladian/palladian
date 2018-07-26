@@ -3,14 +3,8 @@ package ws.palladian.classification;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
@@ -26,9 +21,9 @@ public final class DatasetManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetManager.class);
-    
+
     private DatasetManager() {
-        
+
     }
 
     /**
@@ -39,6 +34,54 @@ public final class DatasetManager {
      */
     public static void createIndex(String corpusRootFolder) throws IOException {
         createIndex(corpusRootFolder, null);
+    }
+
+    /**
+     * Read the image files in a folder and create an index file.
+     * This method assumes that the filenames contain the target class name and a running counter, e.g. categoryA1.jpg, categoryB131.png etc.
+     */
+    public void createIndexFromMixedFolder(String folderPath, String targetFilePath) {
+
+        String targetFileFolderPath = new File(targetFilePath).getParent() + File.separator;
+        String relativePath = folderPath.replace(targetFileFolderPath, "");
+
+        StringBuilder index = new StringBuilder();
+        File[] files = FileHelper.getFiles(folderPath);
+        for (File file : files) {
+            String name = file.getName();
+            name = name.replaceAll("\\d+\\..*", "");
+            name = name.replace("-", " ");
+            index.append(relativePath).append(File.separator).append(file.getName()).append(";").append(name).append("\n");
+        }
+
+        FileHelper.writeToFile(targetFilePath, index);
+    }
+
+    /**
+     * Create one folder per class from a folder that contains all dataset entries for all classes.
+     * This method assumes that the filenames contain the target class name and a running counter, e.g. categoryA1.jpg, categoryB131.png etc.
+     * 
+     * @param sourceFolderPath The folder with the dataset files of all classes.
+     * @param targetFolderPath The folder where the subfolders - one for each class - shall be created.
+     */
+    public void folderize(String sourceFolderPath, String targetFolderPath) {
+        File[] files = FileHelper.getFiles(sourceFolderPath);
+        Set<String> classNames = new HashSet<>();
+        for (File file : files) {
+            String className = file.getName();
+            className = className.replaceAll("\\d+\\..*", "");
+            className = className.replace("-", " ");
+
+            File targetFolder = new File(targetFolderPath + File.separator + className);
+            if (!targetFolder.exists()) {
+                targetFolder.mkdirs();
+            }
+
+            FileHelper.copyFileToDirectory(file, targetFolder);
+            classNames.add(className);
+        }
+
+        LOGGER.info("moved " + files.length + " files to " + classNames.size() + " class folders in " + targetFolderPath);
     }
 
     /**
@@ -107,8 +150,7 @@ public final class DatasetManager {
      * @param instancesPerClass The number of instances per class.
      * @throws IOException
      */
-    public static String createIndexExcerpt(String indexFilePath, final String separator, final int instancesPerClass)
-            throws IOException {
+    public static String createIndexExcerpt(String indexFilePath, final String separator, final int instancesPerClass) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -116,7 +158,7 @@ public final class DatasetManager {
         final FileWriter indexFile = new FileWriter(indexFilename);
 
         // number of instances for each class
-        final Bag<String> cm = Bag.create();
+        final Bag<String> cm = new Bag<>();
 
         LineAction la = new LineAction() {
 
@@ -152,7 +194,7 @@ public final class DatasetManager {
 
         return indexFilename;
     }
-    
+
     /**
      * <p>
      * Create a balanced index that each class has the same number of items in the dataset.
@@ -186,8 +228,7 @@ public final class DatasetManager {
      * @param totalInstances The total number of instances.
      * @throws IOException
      */
-    public static String createIndexExcerptRandom(String indexFilePath, final String separator, final int totalInstances)
-            throws IOException {
+    public static String createIndexExcerptRandom(String indexFilePath, final String separator, final int totalInstances) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -258,8 +299,7 @@ public final class DatasetManager {
      * @return The list of files used for the folds.
      * @throws IOException
      */
-    public static List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds, int numberOfInstances)
-            throws IOException {
+    public static List<String[]> splitForCrossValidation(Dataset dataset, int crossValidationFolds, int numberOfInstances) throws IOException {
 
         List<String[]> fileSplits = new ArrayList<String[]>();
 
@@ -296,8 +336,7 @@ public final class DatasetManager {
                 lineNumber++;
             }
 
-            String trainingFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_training" + fold
-                    + ".txt";
+            String trainingFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_training" + fold + ".txt";
             String testFilePath = dataset.getRootPath() + dataset.getName() + "_crossValidation_test" + fold + ".txt";
 
             FileHelper.writeToFile(trainingFilePath, trainingData);
@@ -320,15 +359,18 @@ public final class DatasetManager {
      * @throws IOException
      */
     public static String[] splitIndex(String indexFilePath, int splitPercentage) throws IOException {
-        return splitIndex(indexFilePath, splitPercentage, " ");
+        return splitIndex(indexFilePath, splitPercentage, " ", false);
     }
 
-    public static String[] splitIndex(String indexFilePath, int splitPercentage, String separator) throws IOException {
+    public static String[] splitIndex(String indexFilePath, int splitPercentage, String separator, boolean hasHeader) throws IOException {
 
         StopWatch sw = new StopWatch();
 
-        String split1Name = FileHelper.appendToFileName(indexFilePath, "_split1");
-        String split2Name = FileHelper.appendToFileName(indexFilePath, "_split2");
+        String split1Name;
+        String split2Name;
+
+        split1Name = FileHelper.appendToFileName(indexFilePath, "-train-" + splitPercentage);
+        split2Name = FileHelper.appendToFileName(indexFilePath, "-test-" + (100 - splitPercentage));
 
         FileWriter splitFile1 = new FileWriter(split1Name);
         FileWriter splitFile2 = new FileWriter(split2Name);
@@ -337,7 +379,14 @@ public final class DatasetManager {
         Map<String, Set<String>> classMap = new HashMap<>();
 
         List<String> lines = FileHelper.readFileToArray(indexFilePath);
+        int c = 0;
+        String header = "";
         for (String line : lines) {
+            c++;
+            if (hasHeader && c == 1) {
+                header = line;
+                continue;
+            }
 
             String[] parts = line.split(separator);
             Set<String> links = classMap.get(parts[1]);
@@ -348,13 +397,21 @@ public final class DatasetManager {
             } else {
                 links.add(parts[0]);
             }
+
+        }
+
+        if (hasHeader) {
+            splitFile1.write(header);
+            splitFile1.write("\n");
+            splitFile2.write(header);
+            splitFile2.write("\n");
         }
 
         // make the split
         for (Entry<String, Set<String>> entry : classMap.entrySet()) {
 
             Set<String> links = entry.getValue();
-            int maxEntriesSplit1 = (int) (links.size() * splitPercentage / (double) 100);
+            int maxEntriesSplit1 = (int)(links.size() * splitPercentage / (double)100);
             int entriesSplit1 = 0;
             for (String string : links) {
 
@@ -382,7 +439,7 @@ public final class DatasetManager {
 
         LOGGER.info("file " + indexFilePath + " splitted in " + sw.getElapsedTimeString());
 
-        return new String[] { split1Name, split2Name };
+        return new String[] {split1Name, split2Name};
     }
 
     /**
@@ -505,7 +562,7 @@ public final class DatasetManager {
         List<String> linesTraining = new ArrayList<String>();
         List<String> linesTest = new ArrayList<String>();
 
-        int trainingLines = (int) (percentageTraining * lines.size());
+        int trainingLines = (int)(percentageTraining * lines.size());
         for (int i = 0; i < lines.size(); i++) {
 
             if (i < trainingLines) {
@@ -532,10 +589,10 @@ public final class DatasetManager {
     public static Bag<String> calculateClassDistribution(final Dataset dataset) {
         return calculateClassDistribution(dataset, null);
     }
-    
+
     public static Bag<String> calculateClassDistribution(final Dataset dataset, String csvPath) {
 
-        final Bag<String> classCounts = Bag.create();
+        final Bag<String> classCounts = new Bag<>();
         LineAction la = new LineAction() {
 
             @Override
@@ -551,15 +608,15 @@ public final class DatasetManager {
         };
 
         FileHelper.performActionOnEveryLine(dataset.getPath(), la);
-        
+
         if (csvPath != null) {
             StringBuilder csv = new StringBuilder();
-            for (String entry : classCounts) {
+            for (String entry : classCounts.createSorted(CollectionHelper.Order.DESCENDING).uniqueItems()) {
                 csv.append(entry).append(";").append(classCounts.count(entry)).append("\n");
             }
             FileHelper.writeToFile(csvPath, csv);
         }
-        
+
         return classCounts;
     }
 
@@ -637,21 +694,20 @@ public final class DatasetManager {
         return modifiedDataset;
     }
 
-
     /**
      * @param args
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
 
+        new DatasetManager().folderize("F:\\PalladianData\\Datasets\\recipes50\\pictures", "F:\\PalladianData\\Datasets\\recipes50\\foldered");
+
         // Dataset dataset = new Dataset();
         // dataset.setPath("data/temp/trainCollection.csv");
         // dataset.setSeparationString("<###>");
         // splitForCrossValidation(dataset, 3, 10);
 
-        createBalancedIndex(
-                "H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt",
-                " ");
+        // createBalancedIndex("H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt", " ");
 
         System.exit(0);
 

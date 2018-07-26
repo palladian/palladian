@@ -2,6 +2,7 @@ package ws.palladian.extraction.location;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ws.palladian.helper.constants.Language;
@@ -143,4 +144,8 @@ public interface Location {
      */
     boolean hasName(String name, Set<Language> languages);
 
+    /**
+     * @return Meta data connected to the location.
+     */
+    Map<String, Object> getMetaData();
 }

@@ -20,6 +20,8 @@ package ws.palladian.retrieval.parser.json;
  * SOFTWARE.
  */
 
+import com.jayway.jsonpath.JsonPath;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -154,24 +156,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     /**
      * <p>
-     * Construct a {@link JsonObject} from a source JSON text string. This is the most commonly used JsonObject
-     * constructor.
-     * </p>
-     * 
-     * @param source A string beginning with <code>{</code>&nbsp;<small>(left brace)</small> and ending with
-     *            <code>}</code>&nbsp;<small>(right brace)</small>.
-     * @exception JsonException If there is a syntax error in the source string or a duplicated key.
-     */
-    public JsonObject(String source) throws JsonException {
-        this(new JsonTokener(source));
-    }
-
-    /**
-     * <p>
      * Try to construct a {@link JsonObject} from a source JSON text string. Instead of the constructor, this method
      * does not throw a {@link JsonException} in case the JsonObject cannot be constructed.
      * </p>
-     * 
+     *
      * @param source A string beginning with <code>{</code>&nbsp;<small>(left brace)</small> and ending with
      *            <code>}</code>&nbsp;<small>(right brace)</small>.
      * @return The {@link JsonObject}, or <code>null</code> in case it could not be parsed.
@@ -182,6 +170,20 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } catch (JsonException e) {
             return null;
         }
+    }
+
+    /**
+     * <p>
+     * Construct a {@link JsonObject} from a source JSON text string. This is the most commonly used JsonObject
+     * constructor.
+     * </p>
+     *
+     * @param source A string beginning with <code>{</code>&nbsp;<small>(left brace)</small> and ending with
+     *            <code>}</code>&nbsp;<small>(right brace)</small>.
+     * @exception JsonException If there is a syntax error in the source string or a duplicated key.
+     */
+    public JsonObject(String source) throws JsonException {
+        this(new JsonTokener(source));
     }
 
     /**
@@ -468,6 +470,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } else {
             throw new JsonException("No value/item for query.");
         }
+    }
+
+    public Object queryJsonPath(String jPath) {
+        net.minidev.json.JSONArray jsa = JsonPath.read(this, jPath);
+        if (jsa == null || jsa.isEmpty()) {
+            return null;
+        }
+        return jsa.get(0);
     }
 
     @Override

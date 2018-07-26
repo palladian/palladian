@@ -3,6 +3,7 @@ package ws.palladian.extraction.token;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Token;
 import ws.palladian.extraction.sentence.PalladianSentenceDetector;
 import ws.palladian.helper.StopWatch;
@@ -186,6 +187,82 @@ public final class Tokenizer {
         Iterator<Token> tokenIterator = new WordTokenizer().iterateTokens(string);
         tokenIterator = new NGramWrapperIterator(tokenIterator, n1, n2);
         return CollectionHelper.newHashSet(CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER));
+    }
+
+    /**
+     * Compute possible splits, e.g. "starbucks mocha drink"
+     * => 3 [starbucks, mocha, drink]
+     * => 2 [starbucks mocha, drink]
+     * => 2 [starbucks, mocha drink]
+     * => 1 [starbucks mocha drink]
+     *
+     * @param string The string to split.
+     * @param n1 Min n for word n-grams.
+     * @param n2 Max n for word n-grams.
+     * @return A set of possible splits.
+     */
+    public static Set<List<String>> computeSplits(String string, int n1, int n2, int maxSplits) {
+        Validate.notEmpty(string);
+        Validate.notNull(string);
+
+        Set<List<String>> splits = new HashSet<>();
+        computeSplits(splits, new ArrayList<>(), string, n1, n2, maxSplits);
+
+        return splits;
+    }
+
+    private static void computeSplits(Set<List<String>> splits, List<String> currentSplit, String string, int n1,
+                                      int n2, int maxSplits) {
+
+        if (string.isEmpty()) {
+            splits.add(new ArrayList<>(currentSplit));
+            currentSplit.remove(currentSplit.size() - 1);
+            return;
+        }
+
+        if (splits.size() >= maxSplits) {
+            return;
+        }
+
+        List<String> ngrams = computeStartingWordNGrams(string, n1, n2);
+
+        for (String ngram : ngrams) {
+            currentSplit.add(ngram);
+//            computeSplits(splits, currentSplit, string.replaceAll("^" + ngram, "").trim(), n1, n2, maxSplits);
+            computeSplits(splits, currentSplit, string.startsWith(ngram) ? string.substring(ngram.length()).trim() : string, n1, n2, maxSplits);
+        }
+        if (!currentSplit.isEmpty()) {
+            currentSplit.remove(currentSplit.size() - 1);
+        }
+    }
+
+    /**
+     * Only consider n-grams that start with the string, e.g. "starbucks mocha" but not "mocha drink" for the string
+     * "starbucks mocha drink".
+     *
+     * @param string The string to split.
+     * @param n1 Min n-gram length.
+     * @param n2 Max n-gram length.
+     * @return A list of possible n-grams.
+     */
+    public static List<String> computeStartingWordNGrams(String string, int n1, int n2) {
+        ArrayList<String> ngrams = new ArrayList<>();
+
+        String[] split = string.split(" ");
+        n2 = Math.min(n2, split.length);
+        for (int i = 0; i < Math.min(split.length, n2 - n1 + 1); i++) {
+            String ngram = "";
+            for (int j = 0; j < n2 - i; j++) {
+                ngram += split[j] + " ";
+            }
+            ngram = ngram.trim();
+
+            if (!ngram.isEmpty()) {
+                ngrams.add(ngram);
+            }
+        }
+
+        return ngrams;
     }
 
     public static String getSentence(String string, int position) {
@@ -415,11 +492,11 @@ public final class Tokenizer {
             }
         }
 
-        if (string.indexOf("!") > -1 && (string.indexOf("!") < endIndex || endIndex == -1)) {
+        if (string.contains("!") && (string.indexOf("!") < endIndex || endIndex == -1)) {
             endIndex = string.indexOf("!");
         }
 
-        if (string.indexOf("?") > -1 && (string.indexOf("?") < endIndex || endIndex == -1)) {
+        if (string.contains("?") && (string.indexOf("?") < endIndex || endIndex == -1)) {
             endIndex = string.indexOf("?");
         }
 

@@ -1,8 +1,17 @@
 package ws.palladian.core.value;
 
 import org.apache.commons.lang3.Validate;
+import ws.palladian.core.value.io.AbstractValueParser;
+import ws.palladian.core.value.io.ValueParser;
 
 public final class ImmutableTextValue extends AbstractValue implements TextValue {
+
+    public static final ValueParser PARSER = new AbstractValueParser(ImmutableTextValue.class) {
+        @Override
+        public Value parse(String input) {
+            return new ImmutableTextValue(input);
+        }
+    };
 
     private final String textValue;
 

@@ -1,7 +1,5 @@
 package ws.palladian.helper.geo;
 
-import static java.lang.Math.toRadians;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,6 +12,9 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Distance;
+
+import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
 
 /**
  * <p>
@@ -42,12 +43,7 @@ public final class GeoUtils {
     private static final Pattern PATTERN_PARSE_DMS = Pattern.compile(DMS);
 
     /** Distance function between two {@link GeoCoordinate}s. */
-    public static final Distance<GeoCoordinate> DISTANCE = new Distance<GeoCoordinate>() {
-        @Override
-        public double getDistance(GeoCoordinate c1, GeoCoordinate c2) {
-            return c1.distance(c2);
-        }
-    };
+    public static final Distance<GeoCoordinate> DISTANCE = GeoCoordinate::distance;
 
     /**
      * <p>
@@ -62,7 +58,7 @@ public final class GeoUtils {
      * @param coordinates The {@link GeoCoordinate}s, not empty or <code>null</code>.
      * @return An array with the midpoint, first element is latitude, second element is longitude.
      */
-    public static final GeoCoordinate getMidpoint(Collection<? extends GeoCoordinate> coordinates) {
+    public static GeoCoordinate getMidpoint(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "locations must not be empty");
         int count = coordinates.size();
         if (count == 1) { // shortcut
@@ -105,7 +101,7 @@ public final class GeoUtils {
      * @see <a href="http://en.wikipedia.org/wiki/Geometric_median">Wikipedia: Geometric median</a>
      * @see Elementary Statistics for Geographers, James E. Burt, Gerald M. Barber, Guilford Press, 1996
      */
-    public static final GeoCoordinate getCenterOfMinimumDistance(Collection<? extends GeoCoordinate> coordinates) {
+    public static GeoCoordinate getCenterOfMinimumDistance(Collection<? extends GeoCoordinate> coordinates) {
         Validate.notEmpty(coordinates, "coordinates must not be empty");
 
         if (coordinates.size() == 1) { // shortcut
@@ -187,7 +183,7 @@ public final class GeoUtils {
      * @return The double value with decimal degree.
      * @throws NumberFormatException in case the string could not be parsed.
      */
-    public static final double parseDms(String dmsString) {
+    public static double parseDms(String dmsString) {
         Validate.notEmpty(dmsString, "dmsString must not be empty");
         Matcher matcher = PATTERN_PARSE_DMS.matcher(dmsString);
         if (!matcher.matches()) {
@@ -218,17 +214,40 @@ public final class GeoUtils {
      * @param c2 Second coordinate, not <code>null</code>.
      * @return The approximate distance between the two coordinates.
      */
-    // XXX consider moving directly to GeoCoordinate
-    public static final double approximateDistance(GeoCoordinate c1, GeoCoordinate c2) {
+    public static double approximateDistance(double lat1, double lng1, double lat2, double lng2) {
+        double rlat1 = toRadians(lat1);
+        double rlat2 = toRadians(lat2);
+        double rlng1 = toRadians(lng1);
+        double rlng2 = toRadians(lng2);
+
+        double x = (rlng2 - rlng1) * Math.cos((rlat1 + rlat2) / 2);
+        double y = (rlat2 - rlat1);
+        return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
+    }
+
+    public static double approximateDistance(GeoCoordinate c1, GeoCoordinate c2) {
         Validate.notNull(c1, "c1 must not be null");
         Validate.notNull(c2, "c2 must not be null");
-        double lat1 = toRadians(c1.getLatitude());
-        double lat2 = toRadians(c2.getLatitude());
-        double lon2 = toRadians(c2.getLongitude());
-        double lon1 = toRadians(c1.getLongitude());
-        double x = (lon2 - lon1) * Math.cos((lat1 + lat2) / 2);
-        double y = (lat2 - lat1);
-        return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
+        return approximateDistance(c1.getLatitude(), c1.getLongitude(), c2.getLatitude(), c2.getLongitude());
+    }
+
+    /**
+     * Compute the exact distance between two coordinates.
+     * @param lat1 Latitude Point 1.
+     * @param lng1 Longitude Point 1.
+     * @param lat2 Latitude Point 2.
+     * @param lng2 Longitude Point 2.
+     * @return The distance between the two points in kilometers.
+     */
+    public static double computeDistance(double lat1, double lng1, double lat2, double lng2) {
+        double rlat1 = toRadians(lat1);
+        double rlng1 = toRadians(lng1);
+        double rlat2 = toRadians(lat2);
+        double rlng2 = toRadians(lng2);
+        double dLat = (rlat2 - rlat1) / 2;
+        double dLon = (rlng2 - rlng1) / 2;
+        double a = sin(dLat) * sin(dLat) + cos(rlat1) * cos(rlat2) * sin(dLon) * sin(dLon);
+        return 2 * EARTH_RADIUS_KM * atan2(sqrt(a), sqrt(1 - a));
     }
 
     /**
@@ -299,7 +318,7 @@ public final class GeoUtils {
         }
         return result;
     }
-    
+
     /**
      * <p>
      * For each pair in the given Collection of {@link GeoCoordinate}s determine the distance, and return the highest

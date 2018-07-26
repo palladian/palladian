@@ -19,14 +19,14 @@ import java.util.Set;
 public class Scheduler {
 
     /**
-     * Check scheduled tasks every 60 seconds.
+     * Check scheduled tasks every 20 seconds.
      */
-    private final int checkInterval = 60000;
+    private final int checkInterval = 20000;
 
-    private Set<Pair<Runnable, Schedule>> tasks;
+    private final Set<Pair<Runnable, Schedule>> tasks;
 
     private Scheduler() {
-        tasks = Collections.synchronizedSet(new HashSet<Pair<Runnable, Schedule>>());
+        tasks = Collections.synchronizedSet(new HashSet<>());
         runPeriodicTimeCheck();
     }
 
@@ -43,7 +43,7 @@ public class Scheduler {
         tasks.add(pair);
     }
 
-    public void addTask(Pair <Runnable, Schedule> pair) {
+    public void addTask(Pair<Runnable, Schedule> pair) {
         tasks.add(pair);
     }
 
@@ -55,11 +55,11 @@ public class Scheduler {
                 while (true) {
                     Date currentDate = new Date();
 
-                    // check all tasks
-                    for (Pair<Runnable, Schedule> task : tasks) {
-                        if (task.getRight().onSchedule(currentDate)) {
+                    synchronized (tasks) {
+                        // check all tasks
+                        tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
                             task.getLeft().run();
-                        }
+                        });
                     }
 
                     ThreadHelper.deepSleep(checkInterval);

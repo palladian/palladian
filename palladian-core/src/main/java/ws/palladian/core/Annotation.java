@@ -20,12 +20,7 @@ import ws.palladian.helper.functional.Function;
 public interface Annotation extends Token {
 
     /** Function to convert an {@link Annotation} to its tag. */
-    Function<Annotation, String> TAG_CONVERTER = new Function<Annotation, String>() {
-        @Override
-        public String compute(Annotation input) {
-            return input.getTag();
-        }
-    };
+    Function<Annotation, String> TAG_CONVERTER = input -> input.getTag();
 
     /**
      * @return The tag assigned to this annotation (like POS, entity, etc.).

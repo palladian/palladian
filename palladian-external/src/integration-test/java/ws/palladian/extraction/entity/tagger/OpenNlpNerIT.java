@@ -67,7 +67,7 @@ public class OpenNlpNerIT {
         // precision MUC: 60.72%, recall MUC: 54.67%, F1 MUC: 57.54%
         // precision exact: 52.15%, recall exact: 46.96%, F1 exact: 49.42%
         EvaluationResult er = tagger.evaluate(testPath, TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getMucResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
         ITHelper.assertMin("F1-MUC", 0.73, er.getF1(EvaluationMode.MUC));
         ITHelper.assertMin("F1-Exact", 0.67, er.getF1(EvaluationMode.MUC));

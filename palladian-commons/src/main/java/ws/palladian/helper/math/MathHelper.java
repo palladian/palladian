@@ -450,7 +450,20 @@ public final class MathHelper {
      * @param collection The collection from we want to sample from.
      * @return A random entry from the collection.
      */
-    public static <T> T randomEntry(Collection<T> collection) {
+    public static <T> T getRandomEntry(List<T> list) {
+        int randomIndex = getRandomIntBetween(0, list.size() - 1);
+        return list.get(randomIndex);
+    }
+
+    /**
+     * <p>
+     * Return a random entry from a given collection and use reservoir sampling (might be VERY slow for slightly collections > 1000 entries)
+     * </p>
+     *
+     * @param collection The collection from we want to sample from.
+     * @return A random entry from the collection.
+     */
+    public static <T> T getRandomEntryWithSampling(Collection<T> collection) {
         // Collection<T> randomSample = randomSample(collection, 1);
         Collection<T> randomSample = sample(collection, 1);
         return CollectionHelper.getFirst(randomSample);
@@ -530,7 +543,7 @@ public final class MathHelper {
     public static <T> Collection<T> sample(Iterator<T> input, int k) {
         Validate.notNull(input, "input must not be null");
         Validate.isTrue(k >= 0, "k must be greater/equal zero");
-        List<T> sample = new ArrayList<T>(k);
+        List<T> sample = new ArrayList<>(k);
         for (int i = 0; i < k; i++) {
             if (input.hasNext()) {
                 sample.add(input.next());
@@ -980,7 +993,11 @@ public final class MathHelper {
 
     /**
      * Map two natural numbers (non-negative!) to a third natural number. N x N => N.
-     * f(a,b) = c where there are no two settings for a and b that produce the same c.
+     * f(a,b) = c where there are now two settings for a and b that produce the same c.
+     * 
+     * The mapping for two maximum most 16 bit integers (65535, 65535) will be 8589803520 which as you see cannot be fit
+     * into 32 bits and must be long.
+     * 
      * @see https://en.wikipedia.org/wiki/Pairing_function
      * @param a The first number.
      * @param b The second number.

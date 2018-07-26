@@ -163,12 +163,7 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
         List<Location> locations = runQuery(LocationRowConverter.INSTANCE, prepStmt, locationIds);
 
         // sort the returned list, so that we have the order of the given locations IDs
-        Collections.sort(locations, new Comparator<Location>() {
-            @Override
-            public int compare(Location l0, Location l1) {
-                return locationIds.indexOf(l0.getId()) - locationIds.indexOf(l1.getId());
-            }
-        });
+        Collections.sort(locations, (l0, l1) -> locationIds.indexOf(l0.getId()) - locationIds.indexOf(l1.getId()));
 
         return locations;
     }
@@ -253,7 +248,10 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
     @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         Collection<Collection<Location>> result = getLocationsInternal(null, null, coordinate, distance).values();
-        return new ArrayList<Location>(CollectionHelper.getFirst(result));
+        if (result.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(CollectionHelper.getFirst(result));
     }
 
     @Override

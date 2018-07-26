@@ -86,7 +86,7 @@ public class BasicWebContent implements WebContent {
         }
 
         public Builder setTags(Set<String> tags) {
-            this.tags = tags != null ? new HashSet<String>(tags) : Collections.<String> emptySet();
+            this.tags = tags != null ? new HashSet<>(tags) : Collections.<String> emptySet();
             return this;
         }
 
@@ -113,9 +113,9 @@ public class BasicWebContent implements WebContent {
             this.published = webContent.getPublished();
             this.coordinate = webContent.getCoordinate();
             this.identifier = webContent.getIdentifier();
-            this.tags = new HashSet<String>(webContent.getTags());
+            this.tags = new HashSet<>(webContent.getTags());
             this.source = webContent.getSource();
-            this.additionalData = new HashMap<String, Object>(webContent.getAdditionalData());
+            this.additionalData = new HashMap<>(webContent.getAdditionalData());
             return this;
         }
 

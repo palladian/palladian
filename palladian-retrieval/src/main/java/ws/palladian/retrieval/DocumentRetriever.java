@@ -47,7 +47,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class DocumentRetriever {
+public class DocumentRetriever implements WebDocumentRetriever {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentRetriever.class);
@@ -136,10 +136,13 @@ public class DocumentRetriever {
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
         getWebDocuments(urls, callback, null);
     }
+
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
         getWebDocuments(urls, callback, fileTypeConsumers, new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever"));
     }
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers, final ProgressMonitor progressMonitor) {
+
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers,
+            final ProgressMonitor progressMonitor) {
 
         List<String> urlsList = new ArrayList<>(urls);
         List<String> sublist;
@@ -154,9 +157,12 @@ public class DocumentRetriever {
             while (!urlQueue.isEmpty()) {
 
                 final String url = urlQueue.poll();
+
                 Thread ct = new Thread("Retrieving: " + url) {
                     @Override
                     public void run() {
+                        Thread.currentThread().setName("Retrieving: " + url);
+
                         requestThrottle.hold();
 
                         // react file fileTypeConsumer?
@@ -219,12 +225,9 @@ public class DocumentRetriever {
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<>();
-        getWebDocuments(urls, new Consumer<Document>() {
-            @Override
-            public void process(Document document) {
-                synchronized (result) {
-                    result.add(document);
-                }
+        getWebDocuments(urls, document -> {
+            synchronized (result) {
+                result.add(document);
             }
         });
         return result;
@@ -276,8 +279,7 @@ public class DocumentRetriever {
         return null;
     }
 
-    public JsonObject getJsonObject(String url, Map<String, String> postParams, HttpMethod method)
-            throws JsonException {
+    public JsonObject getJsonObject(String url, Map<String, String> postParams, HttpMethod method) throws JsonException {
         HttpRequest2Builder builder = new HttpRequest2Builder(method, url);
         builder.setEntity(new FormEncodedHttpEntity.Builder().addData(postParams).create());
         HttpRequest2 request = builder.create();
@@ -406,12 +408,9 @@ public class DocumentRetriever {
      */
     public Set<String> getTexts(Collection<String> urls) {
         final Set<String> result = new HashSet<>();
-        getTexts(urls, new Consumer<String>() {
-            @Override
-            public void process(String text) {
-                synchronized (result) {
-                    result.add(text);
-                }
+        getTexts(urls, text -> {
+            synchronized (result) {
+                result.add(text);
             }
         });
         return result;
@@ -571,35 +570,29 @@ public class DocumentRetriever {
 
     private void initializeAgents() {
         userAgents = new ArrayList<>();
+        userAgents.add("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0");
-        userAgents.add(
-                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1 Safari/534.50");
+        userAgents.add("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+        userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1 Safari/534.50");
         userAgents.add("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)");
-        userAgents.add(
-                "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5");
+        userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5");
         userAgents.add("Opera/9.80 (Windows NT 6.1; U; en) Presto/2.2.15 Version/10.10");
 
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.1");
-        userAgents.add(
-                "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; InfoPath.2; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 1.1.4322)");
+        userAgents.add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; InfoPath.2; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 1.1.4322)");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; rv:5.0) Gecko/20100101 Firefox/5.0");
-        userAgents.add(
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1");
+        userAgents.add("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_2) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.202 Safari/535.1");
         userAgents.add("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:7.0.1) Gecko/20100101 Firefox/7.0.1");
         userAgents.add("Mozilla/5.0 (X11; Linux i686) AppleWebKit/534.34 (KHTML, like Gecko) rekonq Safari/534.34");
         userAgents.add(
                 "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB6; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; OfficeLiveConnector.1.4; OfficeLivePatch.1.3)");
-        userAgents.add(
-                "IE 7 ? Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)");
-        userAgents.add(
-                "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.23) Gecko/20110920 Firefox/3.6.23 SearchToolbar/1.2");
-        userAgents.add(
-                "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; .NET CLR 1.1.4322; InfoPath.2; .NET CLR 3.5.21022)");
+        userAgents.add("IE 7 ? Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30)");
+        userAgents.add("Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.23) Gecko/20110920 Firefox/3.6.23 SearchToolbar/1.2");
+        userAgents.add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; SLCC1; .NET CLR 2.0.50727; .NET CLR 3.0.04506; .NET CLR 1.1.4322; InfoPath.2; .NET CLR 3.5.21022)");
         userAgents.add(
                 "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET CLR 1.1.4322; Tablet PC 2.0; OfficeLiveConnector.1.3; OfficeLivePatch.1.3; MS-RTC LM 8; InfoPath.3)");
-        userAgents.add(
-                "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
+        userAgents.add("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; FDM; .NET CLR 2.0.50727; InfoPath.2; .NET CLR 1.1.4322)");
     }
 
     public void switchAgent() {
@@ -608,6 +601,9 @@ public class DocumentRetriever {
         httpRetriever.setUserAgent(s);
     }
 
+    public void setAgent(String s) {
+        httpRetriever.setUserAgent(s);
+    }
     public HttpRetriever getHttpRetriever() {
         return httpRetriever;
     }
@@ -623,6 +619,16 @@ public class DocumentRetriever {
      */
     public static void main(String[] args) throws Exception {
         DocumentRetriever retriever = new DocumentRetriever();
+
+        Set<String> urls1 = new HashSet<>();
+        urls1.add("http://cinefreaks.com");
+        urls1.add("http://webknox.com");
+        Consumer<Document> crawlerCallback1 = document -> {
+            // do something with the page
+            System.out.println(document.getDocumentURI());
+            LOGGER.info(document.getDocumentURI());
+        };
+        retriever.getWebDocuments(urls1, crawlerCallback1);
 
         // // speed test download and parse documents vs. text only retrieval, result: almost no difference, about 10ms
         // per
@@ -653,12 +659,9 @@ public class DocumentRetriever {
         // true);
 
         // create a retriever that is triggered for every retrieved page
-        Consumer<Document> crawlerCallback = new Consumer<Document>() {
-            @Override
-            public void process(Document document) {
-                // do something with the page
-                LOGGER.info(document.getDocumentURI());
-            }
+        Consumer<Document> crawlerCallback = document -> {
+            // do something with the page
+            LOGGER.info(document.getDocumentURI());
         };
         retriever.addRetrieverCallback(crawlerCallback);
 

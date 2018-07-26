@@ -26,7 +26,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt"));
 		config.readHeader(false);
 		config.readClassFromLastColumn(true);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(";");
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			assertTrue(iterator.hasNext());
@@ -45,7 +45,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt"));
 		config.readHeader(false);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(";");
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
@@ -61,7 +61,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/diabetes2.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(true);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(";");
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
@@ -77,7 +77,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(";");
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();
@@ -98,7 +98,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(";");
 		config.parser(Filters.ALL, ImmutableStringValue.PARSER);
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
@@ -120,7 +120,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetSpecialValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(";");
 		config.skipColumns(regex("NaN|positiveInfinity|negativeInfinity"));
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
@@ -139,7 +139,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt"));
 		config.readHeader(false);
 		config.readClassFromLastColumn(true);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(";");
 		CsvDatasetReader reader = config.create();
 		assertEquals(1000, reader.size());
 	}
@@ -149,7 +149,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetQuotedValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(';');
 		config.quoteCharacter('"');
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
@@ -167,7 +167,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetWhitespaceValues.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(true);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(';');
 		config.trim(true);
 		config.defaultParsers(stringValue());
 		CsvDatasetReader reader = config.create();
@@ -188,7 +188,7 @@ public class CsvDatasetReaderTest {
 		Builder config = CsvDatasetReaderConfig.filePath(getResourceFile("/csvDatasetTextWithLinebreaks.csv"));
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
-		config.fieldSeparator(';');
+		config.setFieldSeparator(';');
 		config.quoteCharacter('"');
 		config.defaultParsers(stringValue());
 		CsvDatasetReader reader = config.create();

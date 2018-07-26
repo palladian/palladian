@@ -110,7 +110,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
 
     private Collection<Location> performOverpassQuery(String query) {
         String queryUrl = String.format("%s/interpreter?data=%s", queryBaseUrl,
-                UrlHelper.encodeParameter(query.toString()));
+                UrlHelper.encodeParameter(query));
         try {
             LOGGER.debug("Requesting from {}", queryUrl);
             HttpResult result = retriever.httpGet(queryUrl);
@@ -141,9 +141,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
                 locations.add(new ImmutableLocation(hack, name, altNames, type, coordinate, population, null));
             }
             return locations;
-        } catch (HttpException e) {
-            throw new IllegalStateException(e);
-        } catch (JsonException e) {
+        } catch (HttpException | JsonException e) {
             throw new IllegalStateException(e);
         }
     }

@@ -74,7 +74,7 @@ public class BlockingLocationSource extends MultiQueryLocationSource {
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages) {
         Set<String> lowercaseLocationNames = CollectionHelper.convertSet(locationNames, Functions.LOWERCASE);
         Set<String> needsLookup = CollectionHelper.filterSet(lowercaseLocationNames, filter);
-        int blocked = new HashSet<String>(lowercaseLocationNames).size() - needsLookup.size();
+        int blocked = new HashSet<>(lowercaseLocationNames).size() - needsLookup.size();
         LOGGER.debug("get {} locations, blocked {} locations", needsLookup.size(), blocked);
         blockedItems += blocked;
         acceptedItems += needsLookup.size();

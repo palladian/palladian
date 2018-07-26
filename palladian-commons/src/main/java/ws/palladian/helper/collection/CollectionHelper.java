@@ -1,25 +1,10 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
+import it.unimi.dsi.fastutil.ints.AbstractIntSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -115,7 +100,7 @@ public final class CollectionHelper {
         Validate.notNull(map, "map must not be null");
         Validate.notNull(order, "order must not be null");
         List<Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        Collections.sort(list, new EntryValueComparator<V>(order));
+        Collections.sort(list, new EntryValueComparator<>(order));
 
         Map<K, V> result = new LinkedHashMap<>();
         for (Entry<K, V> entry : list) {
@@ -154,18 +139,15 @@ public final class CollectionHelper {
     @Deprecated
     public static <V extends Comparable<V>> Map<String, V> sortByStringKeyLength(Map<String, V> map, final Order order) {
 
-        LinkedList<Entry<String, V>> list = new LinkedList<Entry<String, V>>(map.entrySet());
+        LinkedList<Entry<String, V>> list = new LinkedList<>(map.entrySet());
 
-        Comparator<Entry<String, V>> comparator = new Comparator<Entry<String, V>>() {
-            @Override
-            public int compare(Entry<String, V> o1, Entry<String, V> o2) {
-                int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
-                return order == Order.ASCENDING ? ret : -ret;
-            }
+        Comparator<Entry<String, V>> comparator = (o1, o2) -> {
+            int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
+            return order == Order.ASCENDING ? ret : -ret;
         };
         Collections.sort(list, comparator);
 
-        Map<String, V> result = new LinkedHashMap<String, V>();
+        Map<String, V> result = new LinkedHashMap<>();
         for (Entry<String, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
@@ -228,62 +210,6 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Create a new {@link HashMap}. This method allows omitting the type parameter when creating the HashMap:
-     * <code>Map&lt;String, Integer&gt; map = new HashMap<>();</code>.
-     * </p>
-     * 
-     * @return A new {@link HashMap}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <K, V> HashMap<K, V> newHashMap() {
-        return new HashMap<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link TreeMap}. This method allows omitting the type parameter when creating the TreeMap:
-     * <code>Map&lt;String, Integer&gt; map = CollectionHelper.newTreeMap();</code>.
-     * </p>
-     * 
-     * @return A new {@link TreeMap}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <K, V> TreeMap<K, V> newTreeMap() {
-        return new TreeMap<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link LinkedHashMap}. This method allows omitting the type parameter when creating the
-     * LinkedHashMap: <code>Map&lt;String, Integer&gt; map = CollectionHelper.newLinkedHashMap();</code>.
-     * </p>
-     * 
-     * @return A new {@link LinkedHashMap}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {
-        return new LinkedHashMap<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link ArrayList}. This method allows omitting the type parameter when creating the ArrayList:
-     * <code>List&lt;String&gt; list = new ArrayList<>();</code>.
-     * </p>
-     * 
-     * @return A new {@link ArrayList}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <E> ArrayList<E> newArrayList() {
-        return new ArrayList<>();
-    }
-
-    /**
-     * <p>
      * Create a new {@link ArrayList} and fill it with the contents of the given {@link Iterable}.
      * </p>
      * 
@@ -326,20 +252,6 @@ public final class CollectionHelper {
     public static <E> ArrayList<E> newArrayList(E... elements) {
         Validate.notNull(elements, "elements must not be null");
         return new ArrayList<E>(Arrays.asList(elements));
-    }
-
-    /**
-     * <p>
-     * Create a new {@link LinkedList}. This method allows omitting the type parameter when creating the LinkedList:
-     * <code>List&lt;String&gt; list = CollectionHelper.newLinkedList();</code>.
-     * </p>
-     * 
-     * @return A new {@link LinkedList}.
-     * @deprecated since Java 7
-     */
-    @Deprecated
-    public static <E> LinkedList<E> newLinkedList() {
-        return new LinkedList<>();
     }
 
     /**
@@ -398,34 +310,6 @@ public final class CollectionHelper {
             set.add(elements.next());
         }
         return set;
-    }
-
-    /**
-     * <p>
-     * Create a new {@link TreeSet}. This method allows omitting the type parameter when creating the TreeSet:
-     * <code>Set&lt;String&gt; set = CollectionHelper.newTreeSet();</code>.
-     * </p>
-     * 
-     * @return A new {@link TreeSet}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <E> TreeSet<E> newTreeSet() {
-        return new TreeSet<>();
-    }
-
-    /**
-     * <p>
-     * Create a new {@link LinkedHashSet}. This method allows omitting the type parameter when creating the
-     * LinkedHashSet: <code>Set&lt;String&gt; set = new LinkedHashSet<>();</code>.
-     * </p>
-     * 
-     * @return A new {@link LinkedHashSet}.
-     * @deprecated Since Java 7, make use of the diamond operator.
-     */
-    @Deprecated
-    public static <E> LinkedHashSet<E> newLinkedHashSet() {
-        return new LinkedHashSet<>();
     }
 
     /**
@@ -663,6 +547,10 @@ public final class CollectionHelper {
         return list.subList(o, o + n);
     }
 
+    public static <T> T getEntry(LinkedHashSet<T> set, int num) {
+        return getFirst(getSubset(set, num, 1));
+    }
+
     /**
      * <p>
      * Get a sub set of elements of an ordered {@link LinkedHashSet}.
@@ -822,7 +710,7 @@ public final class CollectionHelper {
     public static <I, O> List<O> convertList(Iterable<I> iterable, Function<? super I, O> function) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
-        return convert(iterable, function, new ArrayList<O>());
+        return convert(iterable, function, new ArrayList<>());
     }
 
     /**
@@ -957,12 +845,7 @@ public final class CollectionHelper {
     public static <T> Iterable<T> limit(final Iterable<T> iterable, final int limit) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.isTrue(limit >= 0, "limit must be greater/equal zero");
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return limit(iterable.iterator(), limit);
-            }
-        };
+        return () -> limit(iterable.iterator(), limit);
     }
 
     /**
@@ -1025,6 +908,31 @@ public final class CollectionHelper {
         }
         Set<T> intersection = new HashSet<>();
         for (T element : smallerSet) {
+            if (largerSet.contains(element)) {
+                intersection.add(element);
+            }
+        }
+        return intersection;
+    }
+
+    public static AbstractIntSet intersect(AbstractIntSet setA, AbstractIntSet setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+        // the most common variant to calculate an intersection is something like this:
+        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
+        // however, if both sets have considerably different sizes, this can be optimized,
+        // by iterating over the smaller set and checking whether the current element
+        // occurs in the larger set:
+        AbstractIntSet smallerSet = setA;
+        AbstractIntSet largerSet = setB;
+
+        // swap smaller/larger set if necessary
+        if (smallerSet.size() > largerSet.size()) {
+            smallerSet = setB;
+            largerSet = setA;
+        }
+        AbstractIntSet intersection = new IntOpenHashSet();
+        for (int element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
             }
@@ -1139,7 +1047,35 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <T> T getRandom(Collection<T> collection) {
-        return new ArrayList<T>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
+        return new ArrayList<>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
+    }
+
+    /**
+     * Use divide and conquer to find the index in a sorted list that has <= the query number.
+     * E.g. num = 10 and list [2,8,11,88] => return 1 (index of 8 because it is <= 10)
+     * @param num The query number.
+     * @param list The <b>sorted</b> list of numbers.
+     * @param <T> Type of number.
+     * @return
+     */
+    public static <T extends Number> int findIndexBefore(T num, List<T> list) {
+        return findIndexBefore(num, list, 0);
+    }
+
+    private static <T extends Number> int findIndexBefore(T num, List<T> list, int globalIndex) {
+
+        int i = list.size() / 2;
+
+        if (Objects.equals(list.get(i), num) || list.size() == 1) {
+            return globalIndex + i;
+        } else if (list.get(i).doubleValue() > num.doubleValue()) {
+            list = list.subList(0, i);
+        } else {
+            globalIndex += i;
+            list = list.subList(i, list.size());
+        }
+
+        return findIndexBefore(num, list, globalIndex);
     }
     
 	/**

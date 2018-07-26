@@ -47,13 +47,14 @@ public final class StringHelper {
     private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
     private static final Pattern PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
     private static final Pattern PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
+    private static final Pattern PATTERN_NON_ASCII_SPACE = Pattern.compile(" ");
     private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
     private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
     private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
-    private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF]");
+    private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
     private StringHelper() {
         // utility class.
@@ -648,6 +649,7 @@ public final class StringHelper {
      * @see http://forums.sun.com/thread.jspa?threadID=5370865
      */
     public static String removeNonAsciiCharacters(String string) {
+        string = PATTERN_NON_ASCII_SPACE.matcher(string).replaceAll(" ");
         return PATTERN_NON_ASCII.matcher(string).replaceAll("");
     }
 
@@ -885,23 +887,6 @@ public final class StringHelper {
         return PATTERN_UPPERCASE.matcher(string).replaceAll("").length();
     }
 
-    /**
-     * Capitalized word count.
-     *
-     * @param string the string
-     * @return the int
-     */
-    public static int capitalizedWordCount(String string) {
-        StringTokenizer st = new StringTokenizer(string);
-        int capitalizedWordCount = 0;
-        while (st.hasMoreTokens()) {
-            String token = (String)st.nextElement();
-            if (StringHelper.isCompletelyUppercase(token)) {
-                capitalizedWordCount++;
-            }
-        }
-        return capitalizedWordCount;
-    }
 
     /**
      * <p>
@@ -1049,6 +1034,9 @@ public final class StringHelper {
     public static String removeControlCharacters(String string) {
         // replace line breaks encoded in utf-8
         string = string.replace("\u2028", "\n");
+
+        // replace line breaks encoded in html entities
+        string = string.replace("&#10", "\n");
 
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
@@ -1703,17 +1691,29 @@ public final class StringHelper {
     public static String numberWordsToNumbers(String text) {
         text = StringHelper.replaceWord("zero", "0", text);
         text = StringHelper.replaceWord("one", "1", text);
+        text = StringHelper.replaceWord("first", "1", text);
         text = StringHelper.replaceWord("two", "2", text);
+        text = StringHelper.replaceWord("second", "2", text);
         text = StringHelper.replaceWord("three", "3", text);
+        text = StringHelper.replaceWord("third", "3", text);
         text = StringHelper.replaceWord("four", "4", text);
+        text = StringHelper.replaceWord("fourth", "4", text);
         text = StringHelper.replaceWord("five", "5", text);
+        text = StringHelper.replaceWord("fifth", "5", text);
         text = StringHelper.replaceWord("six", "6", text);
+        text = StringHelper.replaceWord("sixth", "6", text);
         text = StringHelper.replaceWord("seven", "7", text);
+        text = StringHelper.replaceWord("seventh", "7", text);
         text = StringHelper.replaceWord("eight", "8", text);
+        text = StringHelper.replaceWord("eights", "8", text);
         text = StringHelper.replaceWord("nine", "9", text);
+        text = StringHelper.replaceWord("nineth", "9", text);
         text = StringHelper.replaceWord("ten", "10", text);
+        text = StringHelper.replaceWord("tenth", "10", text);
         text = StringHelper.replaceWord("eleven", "11", text);
+        text = StringHelper.replaceWord("eleventh", "11", text);
         text = StringHelper.replaceWord("twelve", "12", text);
+        text = StringHelper.replaceWord("twelveth", "12", text);
         text = StringHelper.replaceWord("twenty", "20", text);
         text = StringHelper.replaceWord("thirty", "30", text);
         text = StringHelper.replaceWord("forty", "40", text);

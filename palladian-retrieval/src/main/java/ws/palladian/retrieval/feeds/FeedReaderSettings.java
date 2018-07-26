@@ -64,12 +64,7 @@ public interface FeedReaderSettings {
     /** Warn if processing of a feed takes longer than this. */
     long DEFAULT_EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
     
-    Factory<FeedParser> DEFAULT_PARSER_FACTORY = new Factory<FeedParser>() {
-        @Override
-        public FeedParser create() {
-            return new RomeFeedParser();
-        }
-    };
+    Factory<FeedParser> DEFAULT_PARSER_FACTORY = RomeFeedParser::new;
 
     /**
      * @return The store which provides persistence for the feed data, not <code>null</code>.
@@ -117,7 +112,7 @@ public interface FeedReaderSettings {
      * 
      * @author Philipp Katz
      */
-    static class Builder implements Factory<FeedReaderSettings> {
+    class Builder implements Factory<FeedReaderSettings> {
         FeedStore store;
         FeedProcessingAction action;
         UpdateStrategy updateStrategy = DEFAULT_UPDATE_STRATEGY;

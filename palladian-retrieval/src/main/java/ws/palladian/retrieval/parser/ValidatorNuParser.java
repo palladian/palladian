@@ -39,9 +39,7 @@ public final class ValidatorNuParser extends BaseDocumentParser {
                 document.setDocumentURI(systemId);
             }
             return document;
-        } catch (SAXException e) {
-            throw new ParserException(e);
-        } catch (IOException e) {
+        } catch (SAXException | IOException e) {
             throw new ParserException(e);
         }
     }

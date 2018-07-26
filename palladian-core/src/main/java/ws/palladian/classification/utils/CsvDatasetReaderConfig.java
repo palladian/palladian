@@ -74,7 +74,7 @@ public class CsvDatasetReaderConfig {
 		 *             now throw an exception.
 		 */
 		@Deprecated
-		public Builder fieldSeparator(String fieldSeparator) {
+		public Builder setFieldSeparator(String fieldSeparator) {
 			Validate.notEmpty(fieldSeparator, "fieldSeparator must not be empty");
 			if (fieldSeparator.length() != 1) {
 				throw new IllegalArgumentException("fieldSeparators with a length != 1 are not supported.");
@@ -88,7 +88,7 @@ public class CsvDatasetReaderConfig {
 		 *            The separator between entries, usually colon or semicolon.
 		 * @return The builder.
 		 */
-		public Builder fieldSeparator(char fieldSeparator) {
+		public Builder setFieldSeparator(char fieldSeparator) {
 			this.fieldSeparator = fieldSeparator;
 			return this;
 		}

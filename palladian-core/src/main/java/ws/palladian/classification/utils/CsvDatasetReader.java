@@ -220,7 +220,7 @@ public class CsvDatasetReader extends AbstractDataset {
      */
     @Deprecated
     public CsvDatasetReader(File filePath, boolean readHeader, String fieldSeparator) {
-    	this(CsvDatasetReaderConfig.filePath(filePath).readHeader(readHeader).fieldSeparator(fieldSeparator).createConfig());
+    	this(CsvDatasetReaderConfig.filePath(filePath).readHeader(readHeader).setFieldSeparator(fieldSeparator).createConfig());
     }
     
     /**

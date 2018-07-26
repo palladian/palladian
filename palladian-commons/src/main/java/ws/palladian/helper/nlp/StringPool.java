@@ -6,7 +6,7 @@ public class StringPool {
 
     private static final int MAX_SIZE = 10000;
 
-    private final ConcurrentHashMap<String, String> pool = new ConcurrentHashMap<String, String>();
+    private final ConcurrentHashMap<String, String> pool = new ConcurrentHashMap<>();
 
     public String get(String string) {
         if (pool.size() > MAX_SIZE) { // brute-force

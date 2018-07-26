@@ -40,12 +40,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
      * @return A new instance of MultiMap.
      */
     public static <K, V> MultiMap<K, V> createWithList() {
-        return new DefaultMultiMap<>(new Factory<Collection<V>>() {
-            @Override
-            public Collection<V> create() {
-                return new ArrayList<>();
-            }
-        });
+        return new DefaultMultiMap<>(ArrayList::new);
     }
 
     /**
@@ -56,12 +51,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
      * @return A new instance of MultiMap.
      */
     public static <K, V> MultiMap<K, V> createWithSet() {
-        return new DefaultMultiMap<>(new Factory<Collection<V>>() {
-            @Override
-            public Collection<V> create() {
-                return new HashSet<>();
-            }
-        });
+        return new DefaultMultiMap<>(HashSet::new);
     }
 
     /**
@@ -74,7 +64,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
      * @param collectionFactory The factory which creates the {@link Collection}s for the key, not <code>null</code>.
      */
     public DefaultMultiMap(Factory<? extends Collection<V>> collectionFactory) {
-    	super(new HashMap<K, Collection<V>>());
+    	super(new HashMap<>());
         Validate.notNull(collectionFactory, "collectionFactory must not be null");
         this.collectionFactory = collectionFactory;
     }
@@ -113,7 +103,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
 
     @Override
     public List<V> allValues() {
-        List<V> values = new ArrayList<V>();
+        List<V> values = new ArrayList<>();
         for (Collection<V> value : values()) {
             values.addAll(value);
         }

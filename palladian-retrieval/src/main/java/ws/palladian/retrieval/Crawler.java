@@ -3,11 +3,13 @@ package ws.palladian.retrieval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.functional.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -75,8 +77,8 @@ public class Crawler {
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
-    private Set<String> urlStack = Collections.synchronizedSet(new HashSet<String>());
-    private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> urlStack = Collections.synchronizedSet(new HashSet<>());
+    private Set<String> visitedUrls = Collections.synchronizedSet(new HashSet<>());
 
     /** If true, all query params in the URL ?= will be stripped. */
     private boolean stripQueryParams = true;

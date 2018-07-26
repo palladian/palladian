@@ -61,6 +61,11 @@ public class StringHelperTest {
     }
 
     @Test
+    public void testLastIndexOfWordCaseSensitive() {
+        collector.checkThat(StringHelper.lastIndexOfWordCaseSensitive("test", "abc test and another test"), is(21));
+    }
+
+    @Test
     public void testContainsWord() {
 
         assertTrue(StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));

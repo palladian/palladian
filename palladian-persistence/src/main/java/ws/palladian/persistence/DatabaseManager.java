@@ -84,7 +84,7 @@ public class DatabaseManager {
      * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
      */
-    public final boolean entryExists(String sql, List<? extends Object> args) {
+    public final boolean entryExists(String sql, List<?> args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
         return entryExists(sql, args.toArray());
@@ -124,7 +124,7 @@ public class DatabaseManager {
         PreparedStatement ps = null;
         ResultSet rs = null;
         int affectedRows = 0;
-        List<? extends Object> data = null;
+        List<?> data = null;
 
         try {
 
@@ -193,7 +193,7 @@ public class DatabaseManager {
             }
 
             @Override
-            public List<? extends Object> getData(int number) {
+            public List<?> getData(int number) {
                 return batchArgs.get(number);
             }
 
@@ -231,7 +231,7 @@ public class DatabaseManager {
             ps = connection.prepareStatement(sql);
 
             for (int i = 0; i < provider.getCount(); i++) {
-                List<? extends Object> args = provider.getData(i);
+                List<?> args = provider.getData(i);
                 fillPreparedStatement(ps, args);
                 ps.addBatch();
             }
@@ -272,7 +272,7 @@ public class DatabaseManager {
             }
 
             @Override
-            public List<? extends Object> getData(int number) {
+            public List<?> getData(int number) {
                 return batchArgs.get(number);
             }
 
@@ -309,7 +309,7 @@ public class DatabaseManager {
      * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
-    public final int runInsertReturnId(String sql, List<? extends Object> args) {
+    public final int runInsertReturnId(String sql, List<?> args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
         return runInsertReturnId(null, sql, args.toArray());
@@ -543,7 +543,7 @@ public class DatabaseManager {
      * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return List with results.
      */
-    public final <T> List<T> runQuery(RowConverter<T> converter, String sql, List<? extends Object> args) {
+    public final <T> List<T> runQuery(RowConverter<T> converter, String sql, List<?> args) {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
@@ -582,7 +582,7 @@ public class DatabaseManager {
         Validate.notNull(converter, "converter must not be null");
         Validate.notNull(query, "query must not be null");
 
-        final List<T> result = new ArrayList<T>();
+        final List<T> result = new ArrayList<>();
 
         ResultCallback<T> callback = new ResultCallback<T>() {
 
@@ -644,7 +644,7 @@ public class DatabaseManager {
      * @return Iterator for iterating over results.
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql,
-            List<? extends Object> args) {
+            List<?> args) {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
@@ -738,7 +738,7 @@ public class DatabaseManager {
      * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
-    public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<? extends Object> args) {
+    public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<?> args) {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
@@ -799,7 +799,7 @@ public class DatabaseManager {
      * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The number of affected rows, or -1 if an error occurred.
      */
-    public final int runUpdate(String sql, List<? extends Object> args) {
+    public final int runUpdate(String sql, List<?> args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
         return runUpdate(new BasicQuery(sql, args));
@@ -832,7 +832,7 @@ public class DatabaseManager {
      * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The number of affected rows, or -1 if an error occurred.
      */
-    public final int runUpdate(Connection connection, String sql, List<? extends Object> args) {
+    public final int runUpdate(Connection connection, String sql, List<?> args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
         return runUpdate(connection, new BasicQuery(sql, args));
@@ -1080,7 +1080,7 @@ public class DatabaseManager {
      * @param args {@link List} of parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
-    protected static void fillPreparedStatement(PreparedStatement ps, List<? extends Object> args)
+    protected static void fillPreparedStatement(PreparedStatement ps, List<?> args)
             throws SQLException {
         fillPreparedStatement(ps, args.toArray());
     }

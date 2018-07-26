@@ -51,7 +51,7 @@ public abstract class AbstractFeedParser implements FeedParser {
     @Override
     public Feed getFeed(String feedUrl) throws FeedParserException {
         try {
-            HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+            HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
             HttpResult httpResult = httpRetriever.httpGet(feedUrl);
             return getFeed(httpResult);
         } catch (HttpException e) {

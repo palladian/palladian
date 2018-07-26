@@ -174,6 +174,10 @@ public class FatStats extends AbstractStats {
         // subtract one from the count, when we have a sample
 		return Math.sqrt(s / (getCount() - (isSample() ? 1 : 0)));
     }
+
+    public double getStandardError() {
+        return getStandardDeviation() / Math.sqrt(getCount());
+    }
     
     @Override
     public double getPercentile(int p) {
@@ -314,6 +318,7 @@ public class FatStats extends AbstractStats {
         stringBuilder.append("Min: ").append(getMin()).append("\n");
         stringBuilder.append("Max: ").append(getMax()).append("\n");
         stringBuilder.append("Standard Deviation: ").append(getStandardDeviation()).append("\n");
+        stringBuilder.append("Standard Error: ").append(getStandardError()).append("\n");
         stringBuilder.append("Mean: ").append(getMean()).append("\n");
         stringBuilder.append("Mode: " ).append(getMode()).append('\n');
         for (int p = 10; p < 100; p += 10) {

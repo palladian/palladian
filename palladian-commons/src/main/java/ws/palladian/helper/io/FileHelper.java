@@ -1,27 +1,6 @@
 package ws.palladian.helper.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,8 +63,7 @@ public final class FileHelper {
     public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif", "svg", "psd", "ai", "indd", "eps");
 
     /** Constant for video file extensions. */
-    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov",
-            "xvid", "wmv");
+    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid", "wmv");
 
     /** Constant for audio file extensions. */
     public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
@@ -168,7 +146,7 @@ public final class FileHelper {
     }
 
     /**
-     * Gets the file name.
+     * Gets the file name without the file type.
      * 
      * @param path The path to the file.
      * @return The file name part of the path.
@@ -185,7 +163,7 @@ public final class FileHelper {
         if (lastSeparator == 0) {
             lastSeparator = path.lastIndexOf("\\") + 1;
         }
-        if (lastDot > -1) {
+        if (lastDot > -1 && lastSeparator < lastDot) {
             fileName = path.substring(lastSeparator, lastDot);
         } else {
             fileName = path.substring(lastSeparator);
@@ -262,6 +240,11 @@ public final class FileHelper {
         lastQM = fileType.indexOf("&");
         if (lastQM > -1) {
             fileType = fileType.substring(0, lastQM);
+        }
+
+        // there must be no slashes in file types
+        if (fileType.contains("/")) {
+            fileType = "";
         }
 
         return fileType;
@@ -342,13 +325,13 @@ public final class FileHelper {
 
             reader = new BufferedReader(new InputStreamReader(stream, encoding));
 
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 contents.append(line).append(NEWLINE_CHARACTER);
             }
 
         } finally {
-            close(stream,reader);
+            close(stream, reader);
         }
 
         return contents.toString();
@@ -592,15 +575,15 @@ public final class FileHelper {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(filePath);
-            
+
             if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            	inputStream = new GZIPInputStream(inputStream);
+                inputStream = new GZIPInputStream(inputStream);
             }
-            
+
             lineNumber = performActionOnEveryLine(inputStream, lineAction);
         } catch (IOException e) {
-        	LOGGER.error("Encountered IOException for \"" + filePath + "\": " + e.getMessage(), e);
-		} finally {
+            LOGGER.error("Encountered IOException for \"" + filePath + "\": " + e.getMessage(), e);
+        } finally {
             close(inputStream);
         }
         return lineNumber;
@@ -996,7 +979,8 @@ public final class FileHelper {
      * <p>
      * Copy a file.
      * </p>
-     * 
+     *
+     * @deprecated use FileUtils.copyFile instead
      * @param sourceFile Path to the file to copy.
      * @param destinationFile The destination path of the file.
      */
@@ -1013,8 +997,6 @@ public final class FileHelper {
             out = new FileOutputStream(new File(destinationFile));
             copy(in, out);
             success = true;
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
@@ -1136,8 +1118,6 @@ public final class FileHelper {
                 return false;
             } else {
                 for (File directoryFile : f.listFiles()) {
-                    // directoryFile.delete();
-                    // changed this to work recursively -- Philipp, 2010-12-22.
                     delete(directoryFile.getPath(), true);
                 }
             }
@@ -1158,6 +1138,7 @@ public final class FileHelper {
     public static boolean delete(String filename) {
         return delete(filename, true);
     }
+
     public static boolean delete(File file) {
         return delete(file.getAbsolutePath(), false);
     }
@@ -1216,6 +1197,7 @@ public final class FileHelper {
     public static File[] getFilesRecursive(String folderPath) {
         return getFilesRecursive(folderPath, "");
     }
+
     public static File[] getFilesRecursive(String folderPath, String substring) {
         return getFiles(folderPath, substring, true);
     }
@@ -1285,7 +1267,7 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(String fileName) {
-        return performActionOnEveryLine(fileName, NOP_LINE_ACTION);
+        return getNumberOfLines(new File(fileName));
     }
 
     /**
@@ -1297,7 +1279,28 @@ public final class FileHelper {
      * @return The number of lines.
      */
     public static int getNumberOfLines(File file) {
-        return getNumberOfLines(file.getPath());
+        InputStream is = null;
+        try {
+            is = new BufferedInputStream(new FileInputStream(file));
+            byte[] c = new byte[1024];
+            int count = 0;
+            int readChars;
+            boolean empty = true;
+            while ((readChars = is.read(c)) != -1) {
+                empty = false;
+                for (int i = 0; i < readChars; ++i) {
+                    if (c[i] == '\n') {
+                        ++count;
+                    }
+                }
+            }
+            return (count == 0 && !empty) ? 1 : count;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(is);
+        }
+        return -1;
     }
 
     private static void addDirectorToZip(ZipOutputStream zout, File dir, String relativePath) {
@@ -1378,7 +1381,6 @@ public final class FileHelper {
         zout.closeEntry();
         fin.close();
     }
-
 
     /**
      * <p>
@@ -1508,8 +1510,6 @@ public final class FileHelper {
                 content.append(s);
                 content.append("\n");
             }
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
@@ -1548,8 +1548,6 @@ public final class FileHelper {
             dest.close();
 
             success = true;
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
@@ -1560,49 +1558,79 @@ public final class FileHelper {
     }
 
     /**
-     * Unzip a file.
+     * Extracts a zip file specified by the zipFilePath to the current working directory.
      * 
-     * @param filename the file to unzip.
-     * @return <tt>True</tt> if zipping and saving was successfully, <tt>false</tt> otherwise.
+     * @param zipFilePath The path to the zipped file.
+     * @throws IOException
      */
-    public static boolean unzipFile(String filename) {
-
-        int bufferSize = 1024;
-
-        ZipInputStream zis = null;
-        FileInputStream fis = null;
-        BufferedOutputStream dest = null;
-        FileOutputStream fos = null;
-
+    public static void unzip(String zipFilePath) throws IOException {
+        unzip(zipFilePath, null);
+    }
+    public static boolean tryUnzip(String zipFilePath) {
         try {
-
-            fis = new FileInputStream(filename);
-            zis = new ZipInputStream(new BufferedInputStream(fis));
-            ZipEntry entry;
-
-            while ((entry = zis.getNextEntry()) != null) {
-
-                LOGGER.debug("extracting: " + entry);
-                int count;
-                byte data[] = new byte[bufferSize];
-
-                // write the files to the disk
-                fos = new FileOutputStream(getFilePath(filename) + entry.getName());
-                dest = new BufferedOutputStream(fos, bufferSize);
-                while ((count = zis.read(data, 0, bufferSize)) != -1) {
-                    dest.write(data, 0, count);
-                }
-                dest.close();
-            }
-
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            unzip(zipFilePath, null);
+        } catch (IOException e) {
+            e.printStackTrace();
             return false;
-        } finally {
-            close(dest, fis, zis, fos);
         }
 
         return true;
+    }
+
+    /**
+     * Extracts a zip file specified by the zipFilePath to a directory specified by
+     * destDirectory (will be created if does not exists).
+     * 
+     * @param zipFilePath The path to the zipped file.
+     * @param destDirectory The target directory (if null, current working dirctory)
+     * @throws IOException
+     */
+    public static void unzip(String zipFilePath, String destDirectory) throws IOException {
+        if (destDirectory != null) {
+            File destDir = new File(destDirectory);
+            if (!destDir.exists()) {
+                destDir.mkdir();
+            }
+        }
+
+        ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+        ZipEntry entry = zipIn.getNextEntry();
+        // iterates over entries in the zip file
+        while (entry != null) {
+            String filePath = entry.getName();
+            if (destDirectory != null) {
+                filePath = destDirectory + File.separator + filePath;
+            }
+
+            if (!entry.isDirectory()) {
+                // if the entry is a file, extracts it
+                extractFile(zipIn, filePath);
+            } else {
+                // if the entry is a directory, make the directory
+                File dir = new File(filePath);
+                dir.mkdir();
+            }
+
+            zipIn.closeEntry();
+            entry = zipIn.getNextEntry();
+        }
+        zipIn.close();
+    }
+
+    /**
+     * Extracts a zip entry (file entry)
+     * @param zipIn
+     * @param filePath
+     * @throws IOException
+     */
+    private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+        byte[] bytesIn = new byte[4096];
+        int read;
+        while ((read = zipIn.read(bytesIn)) != -1) {
+            bos.write(bytesIn, 0, read);
+        }
+        bos.close();
     }
 
     /**
@@ -1681,10 +1709,7 @@ public final class FileHelper {
                         LOGGER.error("could not create the directories " + filePath);
                         success = false;
                     }
-                } catch (IOException e) {
-                    LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
-                    success = false;
-                } catch (SecurityException e) {
+                } catch (IOException | SecurityException e) {
                     LOGGER.error("could not create the file " + filePath + " : " + e.getLocalizedMessage());
                     success = false;
                 }
@@ -1728,17 +1753,17 @@ public final class FileHelper {
         return concatenated;
     }
 
-	/**
-	 * <p>
-	 * Close all given closeables, check for <code>null</code>, catch potential
-	 * {@link IOException}s. Note: With Java 7, make use of the
-	 * <i>try-with-resources</i> construct, if possible.
-	 * </p>
-	 * 
-	 * @param closeables
-	 *            All objects which are closeable, <code>null</code> values will
-	 *            be ignored.
-	 */
+    /**
+     * <p>
+     * Close all given closeables, check for <code>null</code>, catch potential
+     * {@link IOException}s. Note: With Java 7, make use of the
+     * <i>try-with-resources</i> construct, if possible.
+     * </p>
+     * 
+     * @param closeables
+     *            All objects which are closeable, <code>null</code> values will
+     *            be ignored.
+     */
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
             if (closeable != null) {
@@ -1888,8 +1913,7 @@ public final class FileHelper {
                     String directoryName = "palladian-" + System.currentTimeMillis();
                     File newTempDirectory = new File(baseDirectory, directoryName);
                     if (!newTempDirectory.mkdir()) {
-                        throw new IllegalStateException("Could not create the temporary directory " + directoryName
-                                + " in " + baseDirectory.getPath());
+                        throw new IllegalStateException("Could not create the temporary directory " + directoryName + " in " + baseDirectory.getPath());
                     }
                     tempDirectory = newTempDirectory;
 
@@ -1939,8 +1963,7 @@ public final class FileHelper {
      * @param consumer A consumer to process the matching items, not <code>null</code>.
      * @return The number of processed files.
      */
-    public static int traverseFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter,
-            Consumer<? super File> consumer) {
+    public static int traverseFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter, Consumer<? super File> consumer) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
@@ -2007,7 +2030,6 @@ public final class FileHelper {
 
     /*
      * The main method.
-     * 
      * @param a The arguments.
      */
     public static void main(String[] a) {
@@ -2052,7 +2074,7 @@ public final class FileHelper {
         // sb.append(" * use this file except in compliance with the License. You may obtain a copy of\n");
         // sb.append(" * the License at\n");
         // sb.append(" *\n");
-        // sb.append(" *     http://www.apache.org/licenses/LICENSE-2.0\n");
+        // sb.append(" * http://www.apache.org/licenses/LICENSE-2.0\n");
         // sb.append(" *\n");
         // sb.append(" * Unless required by applicable law or agreed to in writing, software\n");
         // sb.append(" * distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n");
@@ -2121,8 +2143,7 @@ public final class FileHelper {
         isFileName("ab.ai");
         isFileName("  abasdf.mpeg2 ");
 
-        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"),
-                "sampleTextForTagging_tagged"));
+        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
 

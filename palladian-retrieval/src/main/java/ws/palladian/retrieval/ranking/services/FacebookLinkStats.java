@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.ranking.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,17 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
@@ -37,6 +37,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * 
  * @author Julien Schmehl
  * @author Philipp Katz
+ * @author David Urbansky
  */
 public final class FacebookLinkStats extends AbstractRankingService {
 
@@ -71,6 +72,32 @@ public final class FacebookLinkStats extends AbstractRankingService {
     /** Maximum number of URLs to fetch during each request. */
     private static final int BATCH_SIZE = 50;
 
+    private static final String CONFIG_ACCESS_TOKEN = "api.facebook.app.token";
+    private String accessToken;
+
+    /**
+     * <p>
+     * Create a new {@link FacebookLinkStats} ranking service.
+     * </p>
+     *
+     * @param configuration The configuration which must provide an access token <tt>api.facebook.app.token</tt>.
+     */
+    public FacebookLinkStats(Configuration configuration) {
+        this(configuration.getString(CONFIG_ACCESS_TOKEN));
+    }
+
+    /**
+     * <p>
+     * Create a new {@link FacebookLinkStats} ranking service.
+     * </p>
+     *
+     * @param accessToken The required access token, not <code>null</code> or empty.
+     */
+    public FacebookLinkStats(String accessToken) {
+        Validate.notEmpty(accessToken, "The accessToken is missing.");
+        this.accessToken = accessToken;
+    }
+
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         return getRanking(Collections.singletonList(url)).values().iterator().next();
@@ -98,16 +125,13 @@ public final class FacebookLinkStats extends AbstractRankingService {
     private Map<String, Ranking> getRanking2(List<String> urls) throws RankingServiceException {
         Validate.isTrue(urls.size() <= BATCH_SIZE);
         THROTTLE.hold();
-        Map<String, Ranking> results = new HashMap<String, Ranking>();
-        String fqlQuery = createQuery(urls);
-        LOGGER.debug("FQL = {}", fqlQuery);
+        Map<String, Ranking> results = new HashMap<>();
         HttpResult response;
         try {
-            HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, "https://api.facebook.com/method/fql.query");
-            FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
-            entityBuilder.addData("format", "json");
-            entityBuilder.addData("query", fqlQuery);
-            requestBuilder.setEntity(entityBuilder.create());
+            String requestUrl = "https://graph.facebook.com/?fields=og_object{likes.limit(0).summary(true)},share&ids=";
+            requestUrl += StringUtils.join(urls, ",");
+            requestUrl += "&access_token" + accessToken;
+            HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.GET, requestUrl);
             response = retriever.execute(requestBuilder.create());
         } catch (HttpException e) {
             throw new RankingServiceException("HttpException " + e.getMessage(), e);
@@ -115,42 +139,27 @@ public final class FacebookLinkStats extends AbstractRankingService {
         String content = response.getStringContent();
         LOGGER.debug("JSON response = {}", content);
         checkError(content);
-        JsonArray json;
+        JsonObject json;
         try {
-            json = new JsonArray(content);
-            for (int i = 0; i < urls.size(); i++) {
-                JsonObject currentObject = json.getJsonObject(i);
-                Ranking.Builder builder = new Ranking.Builder(this, urls.get(i));
-                builder.add(LIKES, currentObject.getInt("like_count"));
-                builder.add(SHARES, currentObject.getInt("share_count"));
-                builder.add(COMMENTS, currentObject.getInt("comment_count"));
-                builder.add(ALL, currentObject.getInt("total_count"));
+            json = new JsonObject(content);
+            for (String url : urls) {
+                JsonObject currentObject = json.getJsonObject(url);
+                Ranking.Builder builder = new Ranking.Builder(this, url);
+                Integer likes = currentObject.tryQueryInt("og_object/likes/summary/total_count");
+                Integer shares = currentObject.tryQueryInt("share/share_count");
+                Integer comments = currentObject.tryQueryInt("share/comment_count");
+                builder.add(LIKES, likes);
+                builder.add(SHARES, shares);
+                builder.add(COMMENTS, comments);
+                builder.add(ALL, likes + shares + comments);
                 Ranking result = builder.create();
-                results.put(urls.get(i), result);
-                LOGGER.trace("Facebook link stats for {}: {}", urls.get(i), result);
+                results.put(url, result);
+                LOGGER.trace("Facebook link stats for {}: {}", url, result);
             }
         } catch (JsonException e) {
             throw new RankingServiceException("Error while parsing JSON response (" + content + ")", e);
         }
         return results;
-    }
-
-    private String createQuery(List<String> urls) {
-        StringBuilder fqlQuery = new StringBuilder();
-        fqlQuery.append("select total_count,like_count,comment_count,share_count from link_stat where url in (");
-        boolean first = true;
-        for (String url : urls) {
-            if (first) {
-                first = false;
-            } else {
-                fqlQuery.append(',');
-            }
-            fqlQuery.append('"');
-            fqlQuery.append(UrlHelper.encodeParameter(url));
-            fqlQuery.append('"');
-        }
-        fqlQuery.append(')');
-        return fqlQuery.toString();
     }
 
     /**
@@ -183,17 +192,15 @@ public final class FacebookLinkStats extends AbstractRankingService {
         return RANKING_TYPES;
     }
 
-    public static void main(String[] args) throws RankingServiceException {
-        FacebookLinkStats facebookLinkStats = new FacebookLinkStats();
+    public static void main(String[] args) throws RankingServiceException, JsonException, IOException {
+
+        FacebookLinkStats facebookLinkStats = new FacebookLinkStats(
+                FileHelper.readFileToString("data/temp/facebookAccessToken.txt"));
         StopWatch stopWatch = new StopWatch();
-        // System.out
-        // .println(facebookLinkStats
-        // .getRanking("http://www.cinefreaks.com/news/698/Schau-10-Minuten-von-John-Carter-an---im-Kino-ab-08-M%C3%A4rz"));
         List<String> urls = Arrays.asList(
-                "http://www.cinefreaks.com/news/698/Schau-10-Minuten-von-John-Carter-an---im-Kino-ab-08-M%C3%A4rz",
-                "http://wickedweasel.com/");
-//        System.out.println(facebookLinkStats.getRanking("http://wickedweasel.com/"));
-        System.out.println(facebookLinkStats.getRanking(urls));
+                "http://www.bonappetit.com/recipes/2011/04/sliced_baguette_with_radishes_and_anchovy_butter",
+                "https://spoonacular.com/");
+        System.out.println(facebookLinkStats.getRanking2(urls));
         System.out.println(stopWatch.getElapsedTimeString());
     }
 }

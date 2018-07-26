@@ -38,7 +38,7 @@ public final class CompositeRankingService extends AbstractRankingService implem
      * @param rankingServices
      */
     public CompositeRankingService(Collection<RankingService> rankingServices) {
-        this.rankingServices = new ArrayList<RankingService>(rankingServices);
+        this.rankingServices = new ArrayList<>(rankingServices);
     }
 
     @Override
@@ -57,7 +57,7 @@ public final class CompositeRankingService extends AbstractRankingService implem
     }
 
     public Map<RankingService, Ranking> getRankings(String url) throws RankingServiceException {
-        Map<RankingService, Ranking> rankings = new HashMap<RankingService, Ranking>();
+        Map<RankingService, Ranking> rankings = new HashMap<>();
         for (RankingService rankingService : rankingServices) {
             try {
                 Ranking ranking = rankingService.getRanking(url);
@@ -77,7 +77,7 @@ public final class CompositeRankingService extends AbstractRankingService implem
 
     @Override
     public List<RankingType> getRankingTypes() {
-        List<RankingType> rankingTypes = new ArrayList<RankingType>();
+        List<RankingType> rankingTypes = new ArrayList<>();
         for (RankingService rankingService : rankingServices) {
             rankingTypes.addAll(rankingService.getRankingTypes());
         }

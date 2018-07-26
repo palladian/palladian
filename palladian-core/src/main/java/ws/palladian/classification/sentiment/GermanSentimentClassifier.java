@@ -37,10 +37,10 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     private static final long serialVersionUID = 3611658830894765273L;
 
     /** Sentiment Map. It contains the word and the sentiment between [-1,1] (-1 is negative, 1 is positive). */
-    private Map<String, Double> sentimentMap = new HashMap<String, Double>();
+    private Map<String, Double> sentimentMap = new HashMap<>();
 
     /** Some words can emphasize the sentiment. In this map we store these words and their multiplier. */
-    private static final Map<String, Double> emphasizeMap = new HashMap<String, Double>();
+    private static final Map<String, Double> emphasizeMap = new HashMap<>();
 
     static {
         emphasizeMap.put("bisschen", 0.9);
@@ -85,18 +85,18 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         List<String> positiveLines = FileHelper.readFileToArray(dictionaryFilePath + "Positive.txt");
         List<String> negativeLines = FileHelper.readFileToArray(dictionaryFilePath + "Negative.txt");
 
-        List<String> sentimentLines = new ArrayList<String>();
+        List<String> sentimentLines = new ArrayList<>();
         sentimentLines.addAll(positiveLines);
         sentimentLines.addAll(negativeLines);
 
         for (String sentimentLine : sentimentLines) {
-            String[] parts = sentimentLine.split("\t");
+            String[] parts = sentimentLine.toLowerCase().split("\t");
 
             String mainWord = parts[0];
-            
-//            if (sentimentLine.indexOf("unschön") > -1) {
-//                System.out.println("stop");
-//            }
+
+            // if (sentimentLine.indexOf("unschön") > -1) {
+            // System.out.println("stop");
+            // }
 
             double sentimentValue = Double.parseDouble(parts[1]);
 
@@ -118,91 +118,97 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     private void saveDictionary(String modelPath) throws IOException {
         FileHelper.serialize(this, modelPath);
     }
- 
+
     @Override
     public Category getPolarity(String text, String query) {
-        
+
         String positiveCategory = "positive";
         String negativeCategory = "negative";
-        
+
         if (query != null) {
             query = query.toLowerCase();
         }
-        
+
         // total sum of positive and negative sentiments (on word level) in the text
         // double positiveSentimentSum = 0;
         // double negativeSentimentSum = 0;
-                
+
         List<String> sentences = Tokenizer.getSentences(text);
-        
+
         for (String sentence : sentences) {
-            
+
+            String lcSentence = sentence.toLowerCase();
+
             double positiveSentimentSumSentence = 0;
             double negativeSentimentSumSentence = 0;
-            
+
             // if a query is given, we only consider sentences that contain the query term(s)
-            if (query != null && sentence.toLowerCase().indexOf(query) == -1) {
+            if (query != null && !lcSentence.contains(query)) {
                 continue;
             }
-            
-            String[] tokens = sentence.split("\\s");
+
+            String[] tokens = lcSentence.split("\\s");
             String beforeLastToken = "";
             String lastToken = "";
             for (String token : tokens) {
-                
+
                 token = StringHelper.trim(token);
-                
+
                 // check whether we should emphasize the sentiment
                 double emphasizeWeight = 1.0;
                 if (emphasizeMap.get(lastToken) != null) {
                     emphasizeWeight = emphasizeMap.get(lastToken);
                 }
-                
+
                 // check whether we need to negate the sentiment
                 if (lastToken.equalsIgnoreCase("nicht") || beforeLastToken.equalsIgnoreCase("nicht")
                         || lastToken.equalsIgnoreCase("ohne") || lastToken.equalsIgnoreCase("kein")
                         || lastToken.equalsIgnoreCase("keine")) {
                     emphasizeWeight *= -1;
                 }
-                
+
                 Double sentiment = sentimentMap.get(token);
                 if (sentiment != null) {
                     sentiment *= emphasizeWeight;
                     if (sentiment > 0) {
-                        LOGGER.debug("positive word: " + token + " ("+sentiment+")");
+                        LOGGER.debug("positive word: " + token + " (" + sentiment + ")");
                         // positiveSentimentSum += sentiment;
                         positiveSentimentSumSentence += sentiment;
                     } else {
-                        LOGGER.debug("negative word: " + token + " ("+sentiment+")");
+                        LOGGER.debug("negative word: " + token + " (" + sentiment + ")");
                         // negativeSentimentSum += Math.abs(sentiment);
                         negativeSentimentSumSentence += Math.abs(sentiment);
                     }
                 }
-                
+
                 beforeLastToken = lastToken;
                 lastToken = token;
             }
-            
+
             CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
             builder.add(positiveCategory, positiveSentimentSumSentence);
             builder.add(negativeCategory, negativeSentimentSumSentence);
             CategoryEntries categoryEntries = builder.create();
 
-            double probabilityMostLikelySentiment = categoryEntries.getProbability(categoryEntries.getMostLikelyCategory());
+            double probabilityMostLikelySentiment = categoryEntries
+                    .getProbability(categoryEntries.getMostLikelyCategory());
             if (probabilityMostLikelySentiment > confidenceThreshold
-                    && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
+                    && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence
+                            || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
                     && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
                 addOpinionatedSentence(categoryEntries.getMostLikelyCategory(), sentence);
             }
 
         }
-        
-//        CategoryEntries categoryEntries = new CategoryEntries();
-//        CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory, positiveSentimentSum);
-//        CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory, negativeSentimentSum);
-//        categoryEntries.add(positiveCategoryEntry);
-//        categoryEntries.add(negativeCategoryEntry);
-        
+
+        // CategoryEntries categoryEntries = new CategoryEntries();
+        // CategoryEntry positiveCategoryEntry = new CategoryEntry(categoryEntries, positiveCategory,
+        // positiveSentimentSum);
+        // CategoryEntry negativeCategoryEntry = new CategoryEntry(categoryEntries, negativeCategory,
+        // negativeSentimentSum);
+        // categoryEntries.add(positiveCategoryEntry);
+        // categoryEntries.add(negativeCategoryEntry);
+
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         int positiveSentences = 0;
         if (getOpinionatedSentences().get("positive") != null) {
@@ -215,16 +221,17 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 
         builder.add(positiveCategory, positiveSentences);
         builder.add(negativeCategory, negativeSentences);
-        
+
         return builder.create().getMostLikely();
     }
 
     public static void main(String[] args) throws IOException {
-        GermanSentimentClassifier gsc = null;
-        
+        GermanSentimentClassifier gsc;
+
         // build the model
         gsc = new GermanSentimentClassifier();
-        gsc.buildModel("data/temp/SentiWS_v1.8c_", "data/temp/gsc.gz");
+        gsc.buildModel("data/temp/SentiWS_v1.8c-added_", "data/temp/gsc.gz");
+        System.exit(0);
 
         gsc = new GermanSentimentClassifier("data/temp/gsc.gz");
         gsc.setConfidenceThreshold(0.6);
@@ -232,15 +239,16 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         result = gsc.getPolarity("Die DAK hat Versäumt die Krankenkasse zu benachrichtigen und das ist auch gut so.");
         result = gsc.getPolarity("Die Deutsche-Bahn ist scheisse!!!");
         // result =
-        // gsc.getPolarity("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder Unternehmen");
+        // gsc.getPolarity("Angaben zu rechtlichen und/oder wirtschaftlichen Verknüpfungen zu anderen Büros oder
+        // Unternehmen");
         // result = gsc.getPolarity(FileHelper.readFileToString("data/temp/opiniontext.TXT"));
-        
+
         Map<String, List<String>> opinionatedSentences = gsc.getOpinionatedSentences();
         for (Entry<String, List<String>> entry : opinionatedSentences.entrySet()) {
             System.out.println(entry.getKey());
             CollectionHelper.print(entry.getValue());
         }
-        
+
         System.out.println(result);
     }
 
