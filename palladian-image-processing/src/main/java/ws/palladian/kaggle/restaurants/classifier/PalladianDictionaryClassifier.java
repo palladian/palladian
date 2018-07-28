@@ -1,4 +1,4 @@
-package ws.palladian.classifiers;
+package ws.palladian.kaggle.restaurants.classifier;
 
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;

@@ -1,7 +1,10 @@
 package ws.palladian.utils;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
@@ -10,8 +13,6 @@ import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.functional.Filter;
-
-import java.io.File;
 
 /**
  * Filters instances which have Infinity/NaN values, which cause trouble to the

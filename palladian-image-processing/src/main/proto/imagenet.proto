@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package ws.palladian.kaggle.restaurants.features.imagenet;
+
+option java_package = "ws.palladian.kaggle.restaurants.features.imagenet";
+option java_outer_classname = "ImageNetProtos";
+
+message Image {
+	required bytes data = 1;
+}
+
+message Categories {
+	message Category {
+		required int32 nodeId = 1;
+		required double score = 2;
+	}
+	repeated Category category = 1;
+}
+
+service ImageNet {
+	rpc Classify(Image) returns (Categories) {}
+}

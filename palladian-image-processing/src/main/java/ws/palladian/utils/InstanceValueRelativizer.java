@@ -1,16 +1,17 @@
 package ws.palladian.utils;
 
+import java.util.Objects;
+
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.DatasetTransformer;
+import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
 
-import java.util.Objects;
-
-public class InstanceValueRelativizer implements Function<Instance, Instance> {
+public class InstanceValueRelativizer implements DatasetTransformer {
 	private final Filter<? super String> filter;
 
 	public InstanceValueRelativizer(Filter<? super String> filter) {
@@ -48,6 +49,11 @@ public class InstanceValueRelativizer implements Function<Instance, Instance> {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " (" + filter + ")";
+	}
+
+	@Override
+	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+		return featureInformation;
 	}
 
 }

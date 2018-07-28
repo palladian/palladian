@@ -1,14 +1,15 @@
 package ws.palladian.utils;
 
+import java.util.Objects;
+
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.DatasetTransformer;
+import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
-
-import java.util.Objects;
 
 /**
  * Create binary values for numeric values; values greater zero are mapped to
@@ -17,7 +18,7 @@ import java.util.Objects;
  * @author pk
  *
  */
-public class InstanceValueBinarizer implements Function<Instance, Instance> {
+public class InstanceValueBinarizer implements DatasetTransformer {
 	private final Filter<? super String> filter;
 
 	/**
@@ -49,6 +50,11 @@ public class InstanceValueBinarizer implements Function<Instance, Instance> {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + " (" + filter + ")";
+	}
+
+	@Override
+	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+		return featureInformation;
 	}
 
 }

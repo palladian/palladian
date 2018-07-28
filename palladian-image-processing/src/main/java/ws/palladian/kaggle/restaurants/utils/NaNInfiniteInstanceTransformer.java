@@ -1,4 +1,4 @@
-package ws.palladian.utils;
+package ws.palladian.kaggle.restaurants.utils;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
