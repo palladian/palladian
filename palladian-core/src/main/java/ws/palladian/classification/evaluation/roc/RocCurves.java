@@ -140,6 +140,21 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint>, Graph {
 			return AbstractGraphPainter.format(threshold) + ": sensitivity=" + AbstractGraphPainter.format(sensitivity) + ", specificity=" + AbstractGraphPainter.format(specificity);
 		}
 	}
+	
+	public static final class MccAtThreshold {
+		public final double mcc;
+		public final double threshold;
+
+		MccAtThreshold(double mcc, double threshold) {
+			this.mcc = mcc;
+			this.threshold = threshold;
+		}
+
+		@Override
+		public String toString() {
+			return mcc + " @ " + threshold;
+		}
+	}	
 
 	/** Sorted list with classified items by confidence. */
 	private final List<ResultEntry> results;
@@ -289,5 +304,27 @@ public class RocCurves implements Iterable<RocCurves.EvaluationPoint>, Graph {
 			stream.println(StringUtils.join(line, separator));
 		}
 	}
+	
+	/**
+	 * Determine the optimal threshold which reaches a maximum MCC.
+	 * 
+	 * @param rocCurves
+	 *            The ROC curves.
+	 * @return The best result.
+	 */
+	public MccAtThreshold determineBestMCC(int numSteps) {
+		double bestThreshold = 0;
+		double bestMcc = Double.MIN_VALUE;
+		for (int i = 0; i < numSteps; i++) {
+			double threshold = (double) i / numSteps;
+			ConfusionMatrix confusionMatrix = getConfusionMatrix(threshold);
+			double mcc = confusionMatrix.getMatthewsCorrelationCoefficient();
+			if (mcc > bestMcc) {
+				bestMcc = mcc;
+				bestThreshold = threshold;
+			}
+		}
+		return new MccAtThreshold(bestMcc, bestThreshold);
+	}	
 
 }
