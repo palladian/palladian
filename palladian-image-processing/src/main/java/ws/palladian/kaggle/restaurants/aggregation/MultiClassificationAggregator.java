@@ -20,6 +20,7 @@ import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
 import ws.palladian.classification.liblinear.LibLinearClassifier;
 import ws.palladian.classification.liblinear.LibLinearLearner;
 import ws.palladian.classification.liblinear.LibLinearModel;
+import ws.palladian.classification.liblinear.SelfTuningLibLinearLearner;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig.Builder;
@@ -40,7 +41,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
-import ws.palladian.kaggle.restaurants.classifier.liblinear.SelfTuningLibLinearLearner;
 import ws.palladian.kaggle.restaurants.dataset.Label;
 import ws.palladian.kaggle.restaurants.utils.Config;
 

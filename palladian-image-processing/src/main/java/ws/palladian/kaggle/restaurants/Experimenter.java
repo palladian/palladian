@@ -22,6 +22,7 @@ import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DatasetTransformer;
 import ws.palladian.core.dataset.DatasetWithFeatureAsCategory;
+import ws.palladian.core.dataset.IdentityDatasetTransformer;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.date.DateHelper;
@@ -31,7 +32,6 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.kaggle.restaurants.dataset.Label;
 import ws.palladian.kaggle.restaurants.utils.ClassifierCombination;
 import ws.palladian.kaggle.restaurants.utils.ClassifierCombination.EvaluationResult;
-import ws.palladian.kaggle.restaurants.utils.IdentityDatasetTransformer;
 
 /**
  * Batch evaluation of binary classification problems.

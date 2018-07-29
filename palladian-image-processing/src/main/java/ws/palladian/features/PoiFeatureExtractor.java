@@ -24,15 +24,15 @@ import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.clustering.Cluster;
+import ws.palladian.clustering.Clusterer;
+import ws.palladian.clustering.CommonsKMeansClusterer;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.kaggle.restaurants.clusterer.Cluster;
-import ws.palladian.kaggle.restaurants.clusterer.Clusterer;
-import ws.palladian.kaggle.restaurants.clusterer.CommonsKMeansClusterer;
 import ws.palladian.kaggle.restaurants.features.descriptors.DescriptorExtractor;
 import ws.palladian.utils.ImageUtils;
 
