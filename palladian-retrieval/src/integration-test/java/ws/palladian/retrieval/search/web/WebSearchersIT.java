@@ -21,17 +21,11 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
-import ws.palladian.retrieval.search.images.BingImageSearcher;
 import ws.palladian.retrieval.search.images.FlickrSearcher;
 import ws.palladian.retrieval.search.images.PixabaySearcher;
-import ws.palladian.retrieval.search.images.PublicDomainImageSearcher;
-import ws.palladian.retrieval.search.images.StockXchngSearcher;
-import ws.palladian.retrieval.search.news.BingNewsSearcher;
 import ws.palladian.retrieval.search.socialmedia.InstagramSearcher;
 import ws.palladian.retrieval.search.socialmedia.RedditSearcher;
-import ws.palladian.retrieval.search.socialmedia.SocialMentionSearcher;
 import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
-import ws.palladian.retrieval.search.videos.BingVideoSearcher;
 import ws.palladian.retrieval.search.videos.VimeoSearcher;
 import ws.palladian.retrieval.search.videos.YouTubeSearcher;
 
@@ -57,11 +51,9 @@ public class WebSearchersIT {
         List<Object[]> searchers = new ArrayList<>();
 
         // web page searchers
-        searchers.add(new Object[] {new BingSearcher(configuration)});
         // searchers.add(new Object[] {new DuckDuckGoSearcher()});
         // searchers.add(new Object[] {new GooglePlusSearcher(configuration)});
         // searchers.add(new Object[] {new GoogleCustomSearcher(configuration)});
-        searchers.add(new Object[] {new GoogleScraperSearcher()});
         // searchers.add(new Object[] {new TopsyUrlSearcher(configuration)});
         searchers.add(new Object[] {new WebKnoxSearcher(configuration)});
         searchers.add(new Object[] {new WikipediaSearcher()});
@@ -71,26 +63,20 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new FacebookSearcher(configuration)});
         searchers.add(new Object[] {new TwitterSearcher(configuration)});
         searchers.add(new Object[] {new RedditSearcher()});
-        searchers.add(new Object[] {new SocialMentionSearcher()});
         // searchers.add(new Object[] {new YelpSearcher(configuration)});
 
         // news searchers
         // searchers.add(new Object[] {new NewsSeecrSearcher(configuration)});
-        searchers.add(new Object[] {new BingNewsSearcher(configuration)});
         // searchers.add(new Object[] {new HakiaNewsSearcher(configuration)});
         // searchers.add(new Object[] {new FarooNewsSearcher()});
 
         // video searchers
         searchers.add(new Object[] {new VimeoSearcher(configuration)});
         searchers.add(new Object[] {new YouTubeSearcher(configuration)});
-        searchers.add(new Object[] {new BingVideoSearcher(configuration)});
 
         // image searchers
-        searchers.add(new Object[] {new BingImageSearcher(configuration)});
         searchers.add(new Object[] {new FlickrSearcher(configuration)});
         searchers.add(new Object[] {new PixabaySearcher(configuration)});
-        searchers.add(new Object[] {new PublicDomainImageSearcher()});
-        searchers.add(new Object[] {new StockXchngSearcher()});
 
         return searchers;
     }

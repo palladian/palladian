@@ -45,9 +45,6 @@ public class RankingServicesIT {
         rankers.add(new Object[] {new AlexaRank()});
         rankers.add(new Object[] {new BibsonomyBookmarks(configuration)});
         rankers.add(new Object[] {new BitlyClicks(configuration)});
-        rankers.add(new Object[] {new Compete(configuration)});
-        rankers.add(new Object[] {new DeliciousBookmarks()});
-        rankers.add(new Object[] {new DmozIndexed()});
         rankers.add(new Object[] {new FacebookLinkStats(configuration)});
         // rankers.add(new Object[] {new Foursquare(configuration)});
         rankers.add(new Object[] {new GoogleCachedPage()});
