@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	<artifactId>palladian-external</artifactId>
 	<name>Palladian: External Tools</name>
@@ -113,7 +113,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -124,13 +124,13 @@
 			<artifactId>logback-core</artifactId>
 			<version>${logback.version}</version>
 		</dependency>
-		
+
 		<dependency>
     		<groupId>ml.dmlc</groupId>
     		<artifactId>xgboost4j</artifactId>
     		<version>0.72</version>
 		</dependency>
-		
+
 	</dependencies>
 	<repositories>
 		<!--<repository>

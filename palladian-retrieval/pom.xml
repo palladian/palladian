@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>ws.palladian</groupId>
 		<artifactId>palladian</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	<artifactId>palladian-retrieval</artifactId>
 	<name>Palladian: Retrieval</name>
@@ -29,7 +29,7 @@
 				<version>99-empty</version>
 			</dependency>
 		</dependencies>
-	</dependencyManagement>	
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>ws.palladian</groupId>
@@ -73,5 +73,5 @@
 			<id>version99</id>
 			<url>http://version99.qos.ch/</url>
 		</repository>
-	</repositories>	
+	</repositories>
 </project>
