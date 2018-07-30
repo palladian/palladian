@@ -15,7 +15,7 @@ import ws.palladian.core.Learner;
 import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.extraction.text.vector.ITextVectorizer;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 
 public class TextVectorClassifier<M extends Model> extends AbstractLearner<TextVectorClassifier.TextVectorModel<M>> implements Classifier<TextVectorClassifier.TextVectorModel<M>> {
 	
@@ -56,7 +56,7 @@ public class TextVectorClassifier<M extends Model> extends AbstractLearner<TextV
 
 	@Override
 	public TextVectorModel<M> train(Dataset dataset) {
-		Dataset transformedDataset = dataset.transform(vectorizer).filterFeatures(Filters.not(Filters.equal("text")));
+		Dataset transformedDataset = dataset.transform(vectorizer).filterFeatures(Predicates.not(Predicates.equal("text")));
 		return new TextVectorModel<>(learner.train(transformedDataset));
 	}
 

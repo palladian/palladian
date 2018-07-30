@@ -20,9 +20,9 @@ import ws.palladian.helper.collection.CollectionHelper;
  * 
  * @author Philipp Katz
  */
-public final class Filters {
+public final class Predicates {
 
-    private Filters() {
+    private Predicates() {
         // no instances
     }
 

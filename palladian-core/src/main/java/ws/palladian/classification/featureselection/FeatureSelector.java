@@ -1,8 +1,8 @@
 package ws.palladian.classification.featureselection;
 
-import static ws.palladian.helper.functional.Filters.equal;
-import static ws.palladian.helper.functional.Filters.not;
-import static ws.palladian.helper.functional.Filters.or;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
+import static ws.palladian.helper.functional.Predicates.or;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,6 +15,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -34,9 +36,7 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filters;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
@@ -234,7 +234,7 @@ public final class FeatureSelector extends AbstractFeatureRanker {
         try {
         	if (config.isBackward()) {
 	            // run with all features
-	            TestRun initialRun = new TestRun(trainSet, validationSet, Filters.ALL, Filters.NONE, progress);
+	            TestRun initialRun = new TestRun(trainSet, validationSet, Predicates.ALL, Predicates.NONE, progress);
 	            TestRunResult startScore = initialRun.call();
 	            LOGGER.info("Score with all features {}", startScore.score);
         	}

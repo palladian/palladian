@@ -1,6 +1,6 @@
 package ws.palladian.classification.utils;
 
-import static ws.palladian.helper.functional.Filters.equal;
+import static ws.palladian.helper.functional.Predicates.equal;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import java.util.function.Predicate;
 
 public class CsvDatasetReaderConfig {
@@ -149,7 +149,7 @@ public class CsvDatasetReaderConfig {
 		 */
 		public Builder treatAsNullValue(String nullValue) {
 			Validate.notNull(nullValue, "nullValue must not be null");
-			this.nullValues = Filters.equal(nullValue);
+			this.nullValues = Predicates.equal(nullValue);
 			return this;
 		}
 
@@ -297,7 +297,7 @@ public class CsvDatasetReaderConfig {
 			this.parser = parser;
 		}
 		TargetValueParser(String columnName, ValueParser parser) {
-			this(Filters.equal(columnName), parser);
+			this(Predicates.equal(columnName), parser);
 		}
 	}
 

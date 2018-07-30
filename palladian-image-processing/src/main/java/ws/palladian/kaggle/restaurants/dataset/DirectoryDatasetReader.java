@@ -1,8 +1,8 @@
 package ws.palladian.kaggle.restaurants.dataset;
 
-import static ws.palladian.helper.functional.Filters.ALL;
-import static ws.palladian.helper.functional.Filters.and;
-import static ws.palladian.helper.functional.Filters.fileExtension;
+import static ws.palladian.helper.functional.Predicates.ALL;
+import static ws.palladian.helper.functional.Predicates.and;
+import static ws.palladian.helper.functional.Predicates.fileExtension;
 
 import java.io.File;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.AbstractIterator;
 import java.util.function.Predicate;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
 
 public class DirectoryDatasetReader implements Iterable<Instance> {
@@ -29,7 +29,7 @@ public class DirectoryDatasetReader implements Iterable<Instance> {
 
 	public DirectoryDatasetReader(File directory, Predicate<? super File> filter) {
 		this.directory = directory;
-		this.imageFiles = FileHelper.getFiles(directory, and(fileExtension("jpg"), filter), Filters.ALL);
+		this.imageFiles = FileHelper.getFiles(directory, and(fileExtension("jpg"), filter), Predicates.ALL);
 	}
 
 	@Override

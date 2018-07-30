@@ -1,7 +1,7 @@
 package ws.palladian.classification.text.nbsvm;
 
-import static ws.palladian.helper.functional.Filters.equal;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.util.ArrayList;
 import java.util.Arrays;

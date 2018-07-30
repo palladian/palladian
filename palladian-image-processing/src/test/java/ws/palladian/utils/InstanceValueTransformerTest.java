@@ -1,7 +1,7 @@
 package ws.palladian.utils;
 
 import static org.junit.Assert.assertEquals;
-import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.helper.functional.Predicates.regex;
 
 import org.junit.Test;
 

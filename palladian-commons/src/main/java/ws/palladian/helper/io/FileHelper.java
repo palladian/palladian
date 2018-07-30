@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Collector;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.MathHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -2016,7 +2016,7 @@ public final class FileHelper {
      * @return The number of processed files.
      */
     public static int traverseFiles(File path, Predicate<? super File> fileFilter, Consumer<? super File> consumer) {
-        return traverseFiles(path, fileFilter, Filters.ALL, consumer);
+        return traverseFiles(path, fileFilter, Predicates.ALL, consumer);
     }
 
     /**
@@ -2046,7 +2046,7 @@ public final class FileHelper {
      * @return A list with matched files, or an empty list, never <code>null</code>.
      */
     public static List<File> getFiles(File path, Predicate<? super File> fileFilter) {
-        return getFiles(path, fileFilter, Filters.ALL);
+        return getFiles(path, fileFilter, Predicates.ALL);
     }
 
     /*

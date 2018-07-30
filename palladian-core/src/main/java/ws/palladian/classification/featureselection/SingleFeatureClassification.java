@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -22,9 +24,7 @@ import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filters;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
@@ -107,7 +107,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
         progressReporter.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
-        	Predicate<String> filter = Filters.equal(feature);
+        	Predicate<String> filter = Predicates.equal(feature);
             Dataset eliminatedTrainData = trainSet.filterFeatures(filter);
             Dataset eliminatedTestData = validationSet.filterFeatures(filter);
 

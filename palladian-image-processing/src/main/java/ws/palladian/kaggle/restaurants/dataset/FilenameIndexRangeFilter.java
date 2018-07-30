@@ -3,7 +3,7 @@ package ws.palladian.kaggle.restaurants.dataset;
 import java.io.File;
 
 import java.util.function.Predicate;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 
 public final class FilenameIndexRangeFilter implements Predicate<File> {
 
@@ -14,7 +14,7 @@ public final class FilenameIndexRangeFilter implements Predicate<File> {
 	}
 
 	public static Predicate<File> above(int index) {
-		return Filters.not(until(index));
+		return Predicates.not(until(index));
 	}
 
 	private FilenameIndexRangeFilter(int maxIndex) {

@@ -1,7 +1,7 @@
 package ws.palladian.classification.encode;
 
 
-import static ws.palladian.helper.functional.Filters.equal;
+import static ws.palladian.helper.functional.Predicates.equal;
 
 import java.util.Set;
 

@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
@@ -308,7 +308,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             }
         }
         // remove "vision:" tags; http://stackoverflow.com/questions/21287302/flickr-api-what-are-the-vision-tags
-        CollectionHelper.remove(tags, Filters.not(Filters.regex("vision:.*")));
+        CollectionHelper.remove(tags, Predicates.not(Predicates.regex("vision:.*")));
         return tags;
     }
 

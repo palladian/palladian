@@ -11,7 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.functional.Factory;
 import java.util.function.Predicate;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import java.util.function.Function;
 import ws.palladian.helper.math.MathHelper;
 
@@ -322,7 +322,7 @@ public final class CollectionHelper {
      */
     public static <T> int removeNulls(Iterable<T> iterable) {
         Validate.notNull(iterable, "iterable must not be null");
-        return remove(iterable, Filters.NOT_NULL);
+        return remove(iterable, Predicates.NOT_NULL);
     }
 
     /**

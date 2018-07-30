@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
@@ -25,7 +25,7 @@ public final class TudContentExtractionDataset implements ContentExtractionDatas
             throw new IllegalArgumentException(tudDatasetDirectory + " is not a directory.");
         }
         this.fileUrlMapping = readFileUrlMapping(tudDatasetDirectory);
-        this.txtFiles = FileHelper.getFiles(tudDatasetDirectory, Filters.fileExtension(".txt"));
+        this.txtFiles = FileHelper.getFiles(tudDatasetDirectory, Predicates.fileExtension(".txt"));
     }
 
     private static Map<String, String> readFileUrlMapping(File tudDatasetDirectory) {

@@ -9,8 +9,8 @@ import static ws.palladian.features.RegionFeatureExtractor.REGION;
 import static ws.palladian.features.color.HSB.*;
 import static ws.palladian.features.color.Luminosity.LUMINOSITY;
 import static ws.palladian.features.color.RGB.*;
-import static ws.palladian.helper.functional.Filters.or;
-import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.helper.functional.Predicates.or;
+import static ws.palladian.helper.functional.Predicates.regex;
 
 import java.io.File;
 import java.io.IOException;

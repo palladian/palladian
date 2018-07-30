@@ -15,7 +15,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.helper.NoThrottle;
@@ -184,7 +184,7 @@ public class HttpCrawler {
     }
 
     public static void main(String[] args) {
-        Predicate<String> urlFilter = Filters.regex("http://www.breakingnews.com/topic/.*");
+        Predicate<String> urlFilter = Predicates.regex("http://www.breakingnews.com/topic/.*");
         HttpCrawler crawler = new HttpCrawler(urlFilter, new Consumer<HttpResult>() {
             @Override
             public void accept(HttpResult result) {

@@ -2,8 +2,8 @@ package ws.palladian.extraction.location.experimental;
 
 import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.LEFT;
 import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.RIGHT;
-import static ws.palladian.helper.functional.Filters.and;
-import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.helper.functional.Predicates.and;
+import static ws.palladian.helper.functional.Predicates.regex;
 import static ws.palladian.helper.functional.Functions.LOWERCASE;
 
 import java.io.File;

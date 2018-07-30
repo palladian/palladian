@@ -13,7 +13,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -103,7 +103,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
      */
     public DocumentRetriever(HttpRetriever httpRetriever) {
         this.httpRetriever = httpRetriever;
-        downloadFilter = Filters.ALL;
+        downloadFilter = Predicates.ALL;
         this.initializeAgents();
         retrieverCallbacks = new ArrayList<>();
     }

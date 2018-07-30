@@ -1,6 +1,6 @@
 package ws.palladian.classification.evaluation;
 
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.util.Iterator;
 import java.util.Objects;

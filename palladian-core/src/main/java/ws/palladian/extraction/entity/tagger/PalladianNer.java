@@ -6,7 +6,7 @@ import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
 import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.io.IOException;
 import java.text.NumberFormat;

@@ -18,7 +18,7 @@ import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import java.util.function.Predicate;
 
 /**
@@ -36,7 +36,7 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 		private static final Collection<FeatureSetting> DEFAULT_FEATURE_SETTINGS = Collections
 				.singleton(FeatureSettingBuilder.words().create());
 
-		private static final Set<Predicate<Object>> DEFAULT_PRUNING_STRATEGIES = Collections.singleton(Filters.ALL);
+		private static final Set<Predicate<Object>> DEFAULT_PRUNING_STRATEGIES = Collections.singleton(Predicates.ALL);
 
 		private static final Collection<? extends Scorer> DEFAULT_SCORERS = Collections
 				.singleton(PalladianTextClassifier.DEFAULT_SCORER);

@@ -4,8 +4,8 @@ import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_C
 import static ws.palladian.extraction.location.LocationFilters.coordinate;
 import static ws.palladian.helper.collection.CollectionHelper.convertSet;
 import static ws.palladian.helper.collection.CollectionHelper.filterSet;
-import static ws.palladian.helper.functional.Filters.equal;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.util.AbstractSet;
 import java.util.Collection;

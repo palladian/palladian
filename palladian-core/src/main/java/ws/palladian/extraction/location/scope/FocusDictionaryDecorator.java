@@ -13,7 +13,7 @@ import ws.palladian.core.AbstractCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -66,7 +66,7 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
     private final Predicate<String> categoryFilter;
     
     public FocusDictionaryDecorator(DictionaryModel decorated, Set<String> categories) {
-        this(decorated, Filters.equal(categories));
+        this(decorated, Predicates.equal(categories));
     }
 
     public FocusDictionaryDecorator(DictionaryModel decorated, Predicate<String> categoryFilter) {
