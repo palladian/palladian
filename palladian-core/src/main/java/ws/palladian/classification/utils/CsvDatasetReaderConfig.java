@@ -19,8 +19,8 @@ import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
+import java.util.function.Predicate;
 
 public class CsvDatasetReaderConfig {
 	public static final class Builder implements Factory<CsvDatasetReader> {
@@ -35,9 +35,9 @@ public class CsvDatasetReaderConfig {
 		private char fieldSeparator = ';';
 		private boolean readClassFromLastColumn = true;
 		private List<TargetValueParser> parsers = new ArrayList<>();
-		private Filter<? super String> nullValues = equal(DEFAULT_NULL_VALUE);
+		private Predicate<? super String> nullValues = equal(DEFAULT_NULL_VALUE);
 		private Compression compression = Compressions.NONE;
-		private List<Filter<? super String>> skipColumns = new ArrayList<>();
+		private List<Predicate<? super String>> skipColumns = new ArrayList<>();
 		private long limit = Long.MAX_VALUE;
 		private List<ValueParser> defaultParsers = Arrays.asList(DEFAULT_PARSERS);
 		private char quoteCharacter = '\u0000';
@@ -117,7 +117,7 @@ public class CsvDatasetReaderConfig {
 		 *            The parser.
 		 * @return The builder.
 		 */
-		public Builder parser(Filter<? super String> name, ValueParser parser) {
+		public Builder parser(Predicate<? super String> name, ValueParser parser) {
 			Validate.notNull(name, "name must not be null");
 			Validate.notNull(parser, "parser must not be null");
 			parsers.add(new TargetValueParser(name, parser));
@@ -160,7 +160,7 @@ public class CsvDatasetReaderConfig {
 		 *            {@value #DEFAULT_NULL_VALUE} as NullValue.
 		 * @return The builder.
 		 */
-		public Builder treatAsNullValue(Filter<? super String> nullValues) {
+		public Builder treatAsNullValue(Predicate<? super String> nullValues) {
 			Validate.notNull(nullValues, "nullValues must not be null");
 			this.nullValues = nullValues;
 			return this;
@@ -205,7 +205,7 @@ public class CsvDatasetReaderConfig {
 		 *            Filter for the column names to skip.
 		 * @return The builder.
 		 */
-		public Builder skipColumns(Filter<? super String> name) {
+		public Builder skipColumns(Predicate<? super String> name) {
 			Validate.notNull(name, "name must not be null");
 			this.skipColumns.add(name);
 			return this;
@@ -226,7 +226,7 @@ public class CsvDatasetReaderConfig {
 		
 		/**
 		 * Define the default parsers to try, if not explicitly defined via
-		 * {@link #parser(Filter, ValueParser)}.
+		 * {@link #parser(Predicate, ValueParser)}.
 		 * 
 		 * @param parsers
 		 *            The default parsers.
@@ -290,9 +290,9 @@ public class CsvDatasetReaderConfig {
 	
 	/** {@link ValueParser} targeted on (a) specific column(s). */
 	private static final class TargetValueParser {
-		final Filter<? super String> columnName;
+		final Predicate<? super String> columnName;
 		final ValueParser parser;
-		TargetValueParser(Filter<? super String> columnName, ValueParser parser) {
+		TargetValueParser(Predicate<? super String> columnName, ValueParser parser) {
 			this.columnName = columnName;
 			this.parser = parser;
 		}
@@ -326,9 +326,9 @@ public class CsvDatasetReaderConfig {
 	private final char fieldSeparator;
 	private final boolean readClassFromLastColumn;
 	private final List<TargetValueParser> parsers;
-	private final Filter<? super String> nullValues;
+	private final Predicate<? super String> nullValues;
 	private final Compression compression;
-	private final List<Filter<? super String>> skipColumns;
+	private final List<Predicate<? super String>> skipColumns;
 	private final long limit;
 	private final List<ValueParser> defaultParsers;
 	private final char quoteCharacter;
@@ -374,7 +374,7 @@ public class CsvDatasetReaderConfig {
 	 */
 	public ValueParser getParser(String name) {
 		for (TargetValueParser targetValueParser : parsers) {
-			if (targetValueParser.columnName.accept(name)) {
+			if (targetValueParser.columnName.test(name)) {
 				return targetValueParser.parser;
 			}
 		}
@@ -382,7 +382,7 @@ public class CsvDatasetReaderConfig {
 	}
 
 	boolean isNullValue(String value) {
-		return nullValues.accept(value);
+		return nullValues.test(value);
 	}
 	
 	public InputStream openInputStream() throws IOException {
@@ -390,8 +390,8 @@ public class CsvDatasetReaderConfig {
 	}
 	
 	public boolean isSkippedColumn(String name) {
-		for (Filter<? super String> columnFilter : skipColumns) {
-			if (columnFilter.accept(name)) {
+		for (Predicate<? super String> columnFilter : skipColumns) {
+			if (columnFilter.test(name)) {
 				return true;
 			}
 		}

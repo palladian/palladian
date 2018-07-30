@@ -79,7 +79,7 @@ public class LabelEncoder extends AbstractDatasetFeatureVectorTransformer {
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		InstanceBuilder builder = new InstanceBuilder();
 		for (Entry<String, Map<String, Integer>> mapping : mappings.entrySet()) {
 			String valueName = mapping.getKey();

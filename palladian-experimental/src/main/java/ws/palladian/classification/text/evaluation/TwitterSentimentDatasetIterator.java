@@ -25,7 +25,7 @@ import ws.palladian.core.dataset.split.RandomSplit;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.CloseableIteratorAdapter;
 import ws.palladian.helper.io.DelimitedStringHelper;
@@ -74,7 +74,7 @@ public final class TwitterSentimentDatasetIterator extends AbstractDataset {
         monitor.startTask(getClass().getSimpleName(), numLines);
         Function<String, Instance> converter = new Function<String, Instance>() {
             @Override
-            public Instance compute(String input) {
+            public Instance apply(String input) {
                 List<String> split = DelimitedStringHelper.splitLine(input, ',', '"');
                 if (split.size() != 6) {
                     throw new IllegalStateException("Expected six columns, got " + split.size() + " in '" + input + "'");

@@ -7,7 +7,7 @@ import ws.palladian.core.FilteredVector;
 import ws.palladian.core.ImmutableInstance;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.AbstractIterator2;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.CloseableIterator;
 
 /**
@@ -43,7 +43,7 @@ public class FilteredDataset extends AbstractDataset {
 
 	private final FeatureInformation featureInformation;
 
-	public FilteredDataset(Dataset original, Filter<? super String> filteredFeatures) {
+	public FilteredDataset(Dataset original, Predicate<? super String> filteredFeatures) {
 		this.original = original;
 		this.featureInformation = new FeatureInformationBuilder().add(original.getFeatureInformation()).filter(filteredFeatures).create();
 	}

@@ -1,6 +1,6 @@
 package ws.palladian.core;
 
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 /**
  * <p>

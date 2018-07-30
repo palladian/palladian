@@ -17,7 +17,7 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.math.FatStats;
@@ -46,7 +46,7 @@ public class LocationSet extends AbstractSet<Location> {
      * @return A {@link LocationSet} with all items matching the filter.
      * @see LocationFilters
      */
-    public LocationSet where(Filter<? super Location> filter) {
+    public LocationSet where(Predicate<? super Location> filter) {
         Validate.notNull(filter, "filter must not be null");
         return new LocationSet(filterSet(this, filter));
     }
@@ -60,7 +60,7 @@ public class LocationSet extends AbstractSet<Location> {
      *         result would be empty.
      * @see LocationFilters
      */
-    public LocationSet whereConditionally(Filter<? super Location> filter) {
+    public LocationSet whereConditionally(Predicate<? super Location> filter) {
         Validate.notNull(filter, "filter must not be null");
         LocationSet temp = where(filter);
         return temp.size() > 0 ? temp : this;

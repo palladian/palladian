@@ -16,7 +16,7 @@ import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 
@@ -127,7 +127,7 @@ public class InformativenessAssigner {
         Consumer<Document> callback = new Consumer<Document>() {
 
             @Override
-            public void process(Document document) {
+            public void accept(Document document) {
                 PalladianContentExtractor pse = new PalladianContentExtractor();
                 try {
                     pse.setDocument(document);

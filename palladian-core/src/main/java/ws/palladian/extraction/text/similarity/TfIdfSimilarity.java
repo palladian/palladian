@@ -35,8 +35,8 @@ public class TfIdfSimilarity extends AbstractStringMetric {
 	@Override
 	public double getSimilarity(String i1, String i2) {
 
-		List<String> t1 = CollectionHelper.newArrayList(preprocessor.compute(i1));
-		List<String> t2 = CollectionHelper.newArrayList(preprocessor.compute(i2));
+		List<String> t1 = CollectionHelper.newArrayList(preprocessor.apply(i1));
+		List<String> t2 = CollectionHelper.newArrayList(preprocessor.apply(i2));
 
 		Set<String> uniqueTerms = new HashSet<>();
 		uniqueTerms.addAll(t1);
@@ -93,11 +93,11 @@ public class TfIdfSimilarity extends AbstractStringMetric {
 			String question1 = instance.getVector().getNominal("question1").getString();
 			String question2 = instance.getVector().getNominal("question2").getString();
 			if (textHashes.add(question1.hashCode())) {
-				List<String> tokens = CollectionHelper.newArrayList(preprocessor.compute(question1));
+				List<String> tokens = CollectionHelper.newArrayList(preprocessor.apply(question1));
 				termCorpus.addTermsFromDocument(new HashSet<>(tokens));
 			}
 			if (textHashes.add(question2.hashCode())) {
-				List<String> tokens = CollectionHelper.newArrayList(preprocessor.compute(question2));
+				List<String> tokens = CollectionHelper.newArrayList(preprocessor.apply(question2));
 				termCorpus.addTermsFromDocument(new HashSet<>(tokens));
 			}
 

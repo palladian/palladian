@@ -8,7 +8,7 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 final class ApacheCookieStoreAdapter implements CookieStore {
 
@@ -33,7 +33,7 @@ final class ApacheCookieStoreAdapter implements CookieStore {
         return CollectionHelper.convertList(adapted.getCookies(),
                 new Function<ws.palladian.retrieval.Cookie, Cookie>() {
                     @Override
-                    public Cookie compute(ws.palladian.retrieval.Cookie input) {
+                    public Cookie apply(ws.palladian.retrieval.Cookie input) {
                         BasicClientCookie cookie = new BasicClientCookie(input.getName(), input.getValue());
                         cookie.setDomain(input.getDomain());
                         cookie.setPath(cookie.getPath());

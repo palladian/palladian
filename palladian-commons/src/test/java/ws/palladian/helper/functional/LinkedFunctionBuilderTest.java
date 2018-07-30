@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.Test;
 
@@ -13,21 +14,21 @@ public class LinkedFunctionBuilderTest {
 
     private class StringToIntegerFunction implements Function<String, Integer> {
         @Override
-        public Integer compute(String input) {
+        public Integer apply(String input) {
             return Arrays.asList("zero", "one", "two", "three", "four").indexOf(input.toLowerCase());
         }
     }
 
     private class NumberSquareRootFunction implements Function<Number, Double> {
         @Override
-        public Double compute(Number input) {
+        public Double apply(Number input) {
             return Math.sqrt(input.doubleValue());
         }
     }
 
     private class RoundFunction implements Function<Number, Long> {
         @Override
-        public Long compute(Number input) {
+        public Long apply(Number input) {
             return Math.round(input.doubleValue());
         }
     }

@@ -2,6 +2,7 @@ package ws.palladian.helper.functional;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.Validate;
 
@@ -20,7 +21,7 @@ public final class Functions {
      */
     public static final Function<Object, String> TO_STRING = new Function<Object, String>() {
         @Override
-        public String compute(Object input) {
+        public String apply(Object input) {
             return input != null ? input.toString() : null;
         }
     };
@@ -32,7 +33,7 @@ public final class Functions {
      */
     public static final Function<String, String> LOWERCASE = new Function<String, String>() {
         @Override
-        public String compute(String input) {
+        public String apply(String input) {
             return input != null ? input.toLowerCase() : null;
         }
     };
@@ -59,7 +60,7 @@ public final class Functions {
         }
 
         @Override
-        public O compute(I input) {
+        public O apply(I input) {
             return map.get(input);
         }
 
@@ -89,7 +90,7 @@ public final class Functions {
         Validate.notNull(output, "output must not be null");
         return new Function<I, O>() {
             @Override
-            public I compute(I input) {
+            public I apply(I input) {
                 return input;
             }
         };
@@ -101,7 +102,7 @@ public final class Functions {
 	public static <I> Function<I, I> identity() {
 		return new Function<I, I>() {
 			@Override
-			public I compute(I input) {
+			public I apply(I input) {
 				return input;
 			}
 			@Override

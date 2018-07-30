@@ -8,7 +8,7 @@ import java.util.Objects;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.collection.AbstractIterator2;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * Allows cross-validating a {@link Dataset} based on an ID value. The ID value
@@ -19,13 +19,13 @@ import ws.palladian.helper.functional.Filter;
  */
 public class IdBasedCrossValidator implements CrossValidator {
 
-	private final class FilterImplementation implements Filter<Instance> {
+	private final class FilterImplementation implements Predicate<Instance> {
 		private final int fold;
 		FilterImplementation(int fold) {
 			this.fold = fold;
 		}
 		@Override
-		public boolean accept(Instance item) {
+		public boolean test(Instance item) {
 			// String id = item.getVector().getNominal(idValueName).getString();
 			String id = item.getVector().get(idValueName).toString();
 			return Integer.parseInt(id) % numFolds == fold;

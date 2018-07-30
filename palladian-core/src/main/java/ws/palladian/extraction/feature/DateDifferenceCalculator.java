@@ -26,7 +26,7 @@ public class DateDifferenceCalculator extends AbstractDatasetFeatureVectorTransf
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		LocalDate date1 = ((LocalDateValue) featureVector.get(featureName1)).getLocalDate();
 		LocalDate date2 = ((LocalDateValue) featureVector.get(featureName2)).getLocalDate();
 

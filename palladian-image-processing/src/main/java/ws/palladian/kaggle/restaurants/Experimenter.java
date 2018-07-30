@@ -26,7 +26,7 @@ import ws.palladian.core.dataset.IdentityDatasetTransformer;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.kaggle.restaurants.dataset.Label;
@@ -42,8 +42,8 @@ public class Experimenter {
 	
 	private static final class Experiment {
 		final ClassifierCombination<?> classifierCombination;
-		final Collection<? extends Filter<? super String>> featureSets;
-		Experiment(ClassifierCombination<?> classifierCombination, Collection<? extends Filter<? super String>> featureSets) {
+		final Collection<? extends Predicate<? super String>> featureSets;
+		Experiment(ClassifierCombination<?> classifierCombination, Collection<? extends Predicate<? super String>> featureSets) {
 			this.classifierCombination = Objects.requireNonNull(classifierCombination);
 			this.featureSets = Objects.requireNonNull(featureSets);
 		}
@@ -134,12 +134,12 @@ public class Experimenter {
 	 *            Filters for the features to use.
 	 * @return This instance.
 	 */
-	public <M extends Model> Experimenter withClassifier(Learner<M> learner, Classifier<M> classifier, Collection<? extends Filter<? super String>> featureSets) {
+	public <M extends Model> Experimenter withClassifier(Learner<M> learner, Classifier<M> classifier, Collection<? extends Predicate<? super String>> featureSets) {
 		experiments.add(new Experiment(new ClassifierCombination<>(learner, classifier), featureSets));
 		return this;
 	}
 	
-	public <M extends Model> Experimenter withClassifier(Learner<M> learner, Classifier<M> classifier, Filter<? super String> featureSet) {
+	public <M extends Model> Experimenter withClassifier(Learner<M> learner, Classifier<M> classifier, Predicate<? super String> featureSet) {
 		return withClassifier(learner, classifier, Collections.singleton(featureSet));
 	}
 
@@ -150,7 +150,7 @@ public class Experimenter {
 	 *            Filters for the features to use.
 	 * @return This instance.
 	 */
-	public <LC extends Learner<M> & Classifier<M>, M extends Model> Experimenter withClassifier(LC learnerClassifier, Collection<? extends Filter<? super String>> featureSets) {
+	public <LC extends Learner<M> & Classifier<M>, M extends Model> Experimenter withClassifier(LC learnerClassifier, Collection<? extends Predicate<? super String>> featureSets) {
 		experiments.add(new Experiment(new ClassifierCombination<>(learnerClassifier), featureSets));
 		return this;
 	}
@@ -212,7 +212,7 @@ public class Experimenter {
 			if (dryRun) {
 				System.out.println("\tclassifier: " + experiment.classifierCombination);
 			}
-			for (Filter<? super String> featureSet : experiment.featureSets) {
+			for (Predicate<? super String> featureSet : experiment.featureSets) {
 				Dataset experimentTraining = classTraining.filterFeatures(featureSet);
 				Dataset experimentTesting = classTesting.filterFeatures(featureSet);
 				Set<String> featureNames = experimentTraining.getFeatureInformation().getFeatureNames();

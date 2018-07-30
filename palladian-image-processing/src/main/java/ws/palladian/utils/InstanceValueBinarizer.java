@@ -9,7 +9,7 @@ import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * Create binary values for numeric values; values greater zero are mapped to
@@ -19,20 +19,20 @@ import ws.palladian.helper.functional.Filter;
  *
  */
 public class InstanceValueBinarizer implements DatasetTransformer {
-	private final Filter<? super String> filter;
+	private final Predicate<? super String> filter;
 
 	/**
 	 * @param filter Filter for the numeric values to map.
 	 */
-	public InstanceValueBinarizer(Filter<? super String> filter) {
+	public InstanceValueBinarizer(Predicate<? super String> filter) {
 		this.filter = Objects.requireNonNull(filter);
 	}
 
 	@Override
-	public Instance compute(Instance input) {
+	public Instance apply(Instance input) {
 		InstanceBuilder builder = new InstanceBuilder();
 		for (VectorEntry<String, Value> entry : input.getVector()) {
-			if (filter.accept(entry.key())) {
+			if (filter.test(entry.key())) {
 				if (entry.value() instanceof NumericValue) {
 					boolean binary = ((NumericValue) entry.value()).getDouble() > 0;
 					builder.set(entry.key(), binary);

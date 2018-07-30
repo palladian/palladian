@@ -23,8 +23,8 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import ws.palladian.helper.collection.CollectionHelper.Order;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Predicate;
+import java.util.function.Function;
 
 /**
  * @author Philipp Katz
@@ -112,7 +112,7 @@ public class CollectionHelperTest {
 
         Collection<String> names = CollectionHelper.convertSet(set, new Function<NameObject, String>() {
             @Override
-            public String compute(NameObject item) {
+            public String apply(NameObject item) {
                 return item.getName();
             }
         });
@@ -128,7 +128,7 @@ public class CollectionHelperTest {
 
         Collection<Integer> ages = CollectionHelper.convertSet(set, new Function<NameObject, Integer>() {
             @Override
-            public Integer compute(NameObject item) {
+            public Integer apply(NameObject item) {
                 return item.getAge();
             }
         });
@@ -198,9 +198,9 @@ public class CollectionHelperTest {
     @Test
     public void testRemove() {
         List<String> items = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "a", "b", "c"));
-        int filtered = CollectionHelper.remove(items, new Filter<String>() {
+        int filtered = CollectionHelper.remove(items, new Predicate<String>() {
             @Override
-            public boolean accept(String item) {
+            public boolean test(String item) {
                 return item.equals("a") || item.equals("b");
             }
         });
@@ -213,7 +213,7 @@ public class CollectionHelperTest {
         List<String> items = Arrays.asList("one", "two", "three", "four", "five", "six");
         MultiMap<Integer, String> groupedResult = CollectionHelper.groupBy(items, new Function<String, Integer>() {
             @Override
-            public Integer compute(String input) {
+            public Integer apply(String input) {
                 return input.length();
             }
         });

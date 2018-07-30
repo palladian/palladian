@@ -13,8 +13,8 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.functional.Consumer;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -42,7 +42,7 @@ public final class ClassFinder {
     private static final String CLASS_FILE_EXTENSION = ".class";
 
     /** Filter classes compatible to the given type, no interfaces, no abstract classes. */
-    private static final class ConcreteClassFilter implements Filter<Class<?>> {
+    private static final class ConcreteClassFilter implements Predicate<Class<?>> {
         private final Class<?> type;
 
         public ConcreteClassFilter(Class<?> type) {
@@ -50,7 +50,7 @@ public final class ClassFinder {
         }
 
         @Override
-        public boolean accept(Class<?> item) {
+        public boolean test(Class<?> item) {
             return type.isAssignableFrom(item) && !item.isInterface() && !Modifier.isAbstract(item.getModifiers());
         }
     }
@@ -78,7 +78,7 @@ public final class ClassFinder {
      */
     @SuppressWarnings("unchecked")
     public static <T> Collection<Class<? extends T>> findClasses(Class<T> type,
-            final Filter<? super String> namespaceFilter) {
+            final Predicate<? super String> namespaceFilter) {
         Validate.notNull(type, "type must not be null");
         Validate.notNull(namespaceFilter, "namespaceFilter must not be null");
 
@@ -97,12 +97,12 @@ public final class ClassFinder {
                         String name = currentEntry.getName();
                         String className = pathToClassName(name);
                         if (currentEntry.isDirectory() || !name.endsWith(CLASS_FILE_EXTENSION)
-                                || !namespaceFilter.accept(className)) {
+                                || !namespaceFilter.test(className)) {
                             continue;
                         }
                         try {
                             Class<?> clazz = Class.forName(className);
-                            if (classFilter.accept(clazz)) {
+                            if (classFilter.test(clazz)) {
                                 result.add((Class<T>)clazz);
                             }
                         } catch (ClassNotFoundException e) {
@@ -115,21 +115,21 @@ public final class ClassFinder {
                     LOGGER.error("IOException when trying to read {}", classPathItem, e);
                 }
             } else { // we're checking .class files
-                FileHelper.traverseFiles(new File(classPathItem), new Filter<File>() {
+                FileHelper.traverseFiles(new File(classPathItem), new Predicate<File>() {
                     @Override
-                    public boolean accept(File pathname) {
+                    public boolean test(File pathname) {
                         String namespaceName = pathname.getPath().substring(classPathItem.length() + 1);
                         namespaceName = namespaceName.replace(File.separatorChar, '.');
                         return pathname.getName().endsWith(CLASS_FILE_EXTENSION)
-                                && namespaceFilter.accept(namespaceName);
+                                && namespaceFilter.test(namespaceName);
                     }
                 }, new Consumer<File>() {
                     @Override
-                    public void process(File file) {
+                    public void accept(File file) {
                         String className = pathToClassName(file.getPath().substring(classPathItem.length() + 1));
                         try {
                             Class<?> clazz = Class.forName(className);
-                            if (classFilter.accept(clazz)) {
+                            if (classFilter.test(clazz)) {
                                 result.add((Class<T>)clazz);
                             }
                         } catch (ClassNotFoundException e) {

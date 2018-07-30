@@ -6,7 +6,7 @@ import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.CloseableIterator;
 
 class SubDataset extends AbstractDataset {
@@ -14,9 +14,9 @@ class SubDataset extends AbstractDataset {
 	private static final class SubDatasetIterator extends AbstractIterator2<Instance> implements CloseableIterator<Instance> {
 
 		private final CloseableIterator<Instance> iterator;
-		private final Filter<? super Instance> instanceFilter;
+		private final Predicate<? super Instance> instanceFilter;
 
-		public SubDatasetIterator(CloseableIterator<Instance> iterator, Filter<? super Instance> instanceFilter) {
+		public SubDatasetIterator(CloseableIterator<Instance> iterator, Predicate<? super Instance> instanceFilter) {
 			this.iterator = iterator;
 			this.instanceFilter = instanceFilter;
 		}
@@ -25,7 +25,7 @@ class SubDataset extends AbstractDataset {
 		protected Instance getNext() {
 			while (iterator.hasNext()) {
 				Instance next = iterator.next();
-				if (instanceFilter.accept(next)) {
+				if (instanceFilter.test(next)) {
 					return next;
 				}
 			}
@@ -40,10 +40,10 @@ class SubDataset extends AbstractDataset {
 	}
 
 	private final Dataset dataset;
-	private final Factory<? extends Filter<? super Instance>> instanceFilterFactory;
+	private final Factory<? extends Predicate<? super Instance>> instanceFilterFactory;
 
 	/** Instantiated from {@link AbstractDataset}; not used from outside. */
-	SubDataset(Dataset dataset, Factory<? extends Filter<? super Instance>> instanceFilterFactory) {
+	SubDataset(Dataset dataset, Factory<? extends Predicate<? super Instance>> instanceFilterFactory) {
 		this.dataset = dataset;
 		this.instanceFilterFactory = instanceFilterFactory;
 	}

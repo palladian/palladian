@@ -27,7 +27,7 @@ public class NbSvmClassifier implements Classifier<NbSvmModel> {
 
 	@Override
 	public CategoryEntries classify(FeatureVector featureVector, NbSvmModel model) {
-		FeatureVector vectorized = vectorizer.compute(featureVector);
+		FeatureVector vectorized = vectorizer.apply(featureVector);
 		FeatureVector transformedVector = NbSvmLearner.transform(model.dictionary, model.r, vectorized);
 		// TODO the paper describes an interpolation between MNB and SVN (with a
 		// parameter "beta"); I tried implementing it, but it did not improve results.

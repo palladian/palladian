@@ -26,7 +26,7 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
@@ -763,7 +763,7 @@ public final class MediaWikiUtil {
         final int[] counter = {0};
         parseDump(new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2"), new Consumer<WikiPage>() {
             @Override
-            public void process(WikiPage item) {
+            public void accept(WikiPage item) {
                 counter[0]++;
             }
         });

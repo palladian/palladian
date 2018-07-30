@@ -33,7 +33,7 @@ import org.apache.lucene.util.Version;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * <p>
@@ -92,7 +92,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
         }
 
         @Override
-        public DictionaryBuilder setPruningStrategy(Filter<? super CategoryEntries> strategy) {
+        public DictionaryBuilder setPruningStrategy(Predicate<? super CategoryEntries> strategy) {
             delegate.setPruningStrategy(strategy);
             return this;
         }

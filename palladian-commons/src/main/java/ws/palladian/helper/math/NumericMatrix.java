@@ -12,13 +12,13 @@ import ws.palladian.helper.collection.MapMatrix;
 import ws.palladian.helper.collection.Matrix;
 import ws.palladian.helper.collection.MatrixDecorator;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Serializable {
 
     private final class NumericEntryConverter implements Function<MatrixVector<K, Double>, NumericMatrixVector<K>> {
         @Override
-        public NumericMatrixVector<K> compute(MatrixVector<K, Double> input) {
+        public NumericMatrixVector<K> apply(MatrixVector<K, Double> input) {
             return new NumericMatrixVector<>(input);
         }
     }

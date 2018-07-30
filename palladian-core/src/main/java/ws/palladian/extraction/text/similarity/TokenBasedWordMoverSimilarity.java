@@ -53,7 +53,7 @@ public class TokenBasedWordMoverSimilarity extends AbstractStringMetric {
 	}
 
 	private Collection<String> preprocess(String s) {
-		Iterator<String> featureIterator = preprocessor.compute(s);
+		Iterator<String> featureIterator = preprocessor.apply(s);
 		return CollectionHelper.newHashSet(featureIterator);
 	}
 

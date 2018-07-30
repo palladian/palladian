@@ -13,18 +13,18 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class RandomSplit extends AbstractFilterSplit {
 	
 	/** The logger for this class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(RandomSplit.class);
 
-	private final class SplitAssignmentFilter implements Filter<Object> {
+	private final class SplitAssignmentFilter implements Predicate<Object> {
 		private int currentIndex;
 
 		@Override
-		public boolean accept(Object item) {
+		public boolean test(Object item) {
 			return indices.get(currentIndex++) < splitIndex;
 		}
 	}
@@ -55,7 +55,7 @@ public class RandomSplit extends AbstractFilterSplit {
 	}
 
 	@Override
-	protected Filter<? super Instance> createFilter() {
+	protected Predicate<? super Instance> createFilter() {
 		return new SplitAssignmentFilter();
 	}
 

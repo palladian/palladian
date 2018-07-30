@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -27,7 +27,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
 
     private final class EntryConverter implements Function<MatrixVector<K, Integer>, IntegerMatrixVector<K>> {
         @Override
-        public IntegerMatrixVector<K> compute(MatrixVector<K, Integer> input) {
+        public IntegerMatrixVector<K> apply(MatrixVector<K, Integer> input) {
             return new IntegerMatrixVector<K>(input);
         }
     }

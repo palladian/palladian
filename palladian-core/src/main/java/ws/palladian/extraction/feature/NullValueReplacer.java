@@ -19,7 +19,7 @@ public class NullValueReplacer extends AbstractDatasetFeatureVectorTransformer {
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		return new AbstractFeatureVector() {
 			Iterator<VectorEntry<String, Value>> iterator = featureVector.iterator();
 			@Override

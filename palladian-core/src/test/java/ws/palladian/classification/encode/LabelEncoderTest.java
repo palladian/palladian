@@ -24,16 +24,16 @@ public class LabelEncoderTest {
 		Dataset dataset = new DefaultDataset(instances);
 		LabelEncoder labelEncoder = new LabelEncoder(dataset);
 
-		Instance transformedInstance = labelEncoder.compute(new InstanceBuilder().set("value", "a").create("dummy"));
+		Instance transformedInstance = labelEncoder.apply(new InstanceBuilder().set("value", "a").create("dummy"));
 		assertEquals(0, transformedInstance.getVector().getNumeric("value_labelEncoded").getInt());
 
-		Instance transformedInstance2 = labelEncoder.compute(new InstanceBuilder().set("value", "b").create("dummy"));
+		Instance transformedInstance2 = labelEncoder.apply(new InstanceBuilder().set("value", "b").create("dummy"));
 		assertEquals(1, transformedInstance2.getVector().getNumeric("value_labelEncoded").getInt());
 
-		Instance transformedInstance3 = labelEncoder.compute(new InstanceBuilder().set("value", "z").create("dummy"));
+		Instance transformedInstance3 = labelEncoder.apply(new InstanceBuilder().set("value", "z").create("dummy"));
 		assertEquals(2, transformedInstance3.getVector().getNumeric("value_labelEncoded").getInt());
 
-		Instance transformedInstance4 = labelEncoder.compute(new InstanceBuilder().set("value", "x").create("dummy"));
+		Instance transformedInstance4 = labelEncoder.apply(new InstanceBuilder().set("value", "x").create("dummy"));
 		assertTrue(transformedInstance4.getVector().get("value_labelEncoded").isNull());
 	}
 }

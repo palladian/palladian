@@ -62,7 +62,7 @@ public class DateParticleExtractor extends AbstractDatasetFeatureVectorTransform
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		Value value = featureVector.get(featureName);
 		
 		if (value.isNull()) {

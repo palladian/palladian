@@ -34,7 +34,7 @@ public class EmbeddingTextVectorizer extends AbstractDatasetFeatureVectorTransfo
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 
 		String textValue = getTextValue(featureVector);
 		if (!dictionary.isCaseSensitive()) {

@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * <p>
@@ -38,7 +38,7 @@ import ws.palladian.helper.functional.Filter;
  * @see <a href="http://www.michaelnielsen.org/ddi/why-bloom-filters-work-the-way-they-do/">Why Bloom filters work the
  *      way they do </a>
  */
-public class BloomFilter<T> implements Filter<T>, Serializable {
+public class BloomFilter<T> implements Predicate<T>, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -157,7 +157,7 @@ public class BloomFilter<T> implements Filter<T>, Serializable {
     }
 
     @Override
-    public boolean accept(T item) {
+    public boolean test(T item) {
         if (item == null) {
             return false;
         }

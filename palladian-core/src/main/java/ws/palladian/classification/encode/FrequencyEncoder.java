@@ -74,7 +74,7 @@ public class FrequencyEncoder extends AbstractDatasetFeatureVectorTransformer {
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		InstanceBuilder builder = new InstanceBuilder();
 		for (String valueName : nominalValueNames) {
 			Value value = featureVector.get(valueName);

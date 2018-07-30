@@ -32,7 +32,7 @@ public class TextVectorizerTest {
 	public void testTextVectorizer_binary() {
 		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs, TextVectorizer.TFStrategy.BINARY,
 				TextVectorizer.IDFStrategy.UNARY, 100);
-		Instance vectorizedDocument = vectorizer.compute(createDoc("The sky is blue."));
+		Instance vectorizedDocument = vectorizer.apply(createDoc("The sky is blue."));
 		assertEquals(5, vectorizedDocument.getVector().size());
 		assertEquals(1, vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
 		assertEquals(1, vectorizedDocument.getVector().getNumeric("blue").getFloat(), 0.0001);
@@ -43,7 +43,7 @@ public class TextVectorizerTest {
 	public void testTextVectorizer_count_alpha1() {
 		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs,
 				TextVectorizer.TFStrategy.RAW_COUNT, TextVectorizer.IDFStrategy.UNARY, 100, 1);
-		Instance vectorizedDocument = vectorizer.compute(createDoc("The sky is blue."));
+		Instance vectorizedDocument = vectorizer.apply(createDoc("The sky is blue."));
 		assertEquals(14, vectorizedDocument.getVector().size());
 		assertEquals(2, vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
 		assertEquals(1, vectorizedDocument.getVector().getNumeric("bright").getFloat(), 0.0001);
@@ -53,7 +53,7 @@ public class TextVectorizerTest {
 	public void testTextVectorizer_tf() {
 		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs,
 				TextVectorizer.TFStrategy.TERM_FREQUENCY, TextVectorizer.IDFStrategy.UNARY, 100);
-		Instance vectorizedDocument = vectorizer.compute(createDoc("The sky is blue."));
+		Instance vectorizedDocument = vectorizer.apply(createDoc("The sky is blue."));
 		assertEquals(5, vectorizedDocument.getVector().size());
 		assertEquals(1. / 5, vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
 	}
@@ -62,7 +62,7 @@ public class TextVectorizerTest {
 	public void testTextVectorizer_tf_idf() {
 		TextVectorizer vectorizer = new TextVectorizer("text", featureSetting, docs,
 				TextVectorizer.TFStrategy.TERM_FREQUENCY, TextVectorizer.IDFStrategy.IDF_SMOOTH, 100);
-		Instance vectorizedDocument = vectorizer.compute(createDoc("The sky is blue."));
+		Instance vectorizedDocument = vectorizer.apply(createDoc("The sky is blue."));
 		assertEquals(5, vectorizedDocument.getVector().size());
 		assertEquals(1. / 5 * Math.log(4. / 3), vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
 	}

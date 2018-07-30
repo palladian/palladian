@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * Builder for a {@link DictionaryModel}.
@@ -50,13 +50,13 @@ public interface DictionaryBuilder extends Factory<DictionaryModel> {
     DictionaryBuilder addDocument(Collection<String> terms, String category, int weight);
 
     /**
-     * Set a {@link Filter} for pruning to this builder. The filter should be applied before invoking the
+     * Set a {@link Predicate} for pruning to this builder. The filter should be applied before invoking the
      * {@link #create()} method.
      * 
      * @param strategy The pruning strategy, not <code>null</code>.
      * @return The builder instance.
      */
-    DictionaryBuilder setPruningStrategy(Filter<? super CategoryEntries> strategy);
+    DictionaryBuilder setPruningStrategy(Predicate<? super CategoryEntries> strategy);
 
     /**
      * Adds the content of a given {@link DictionaryModel}.

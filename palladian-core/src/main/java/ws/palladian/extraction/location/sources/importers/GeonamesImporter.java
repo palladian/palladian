@@ -30,7 +30,7 @@ import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
@@ -160,7 +160,7 @@ public final class GeonamesImporter {
         progress.startTask("Reading child-parent hierarchies", totalLines);
         readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
             @Override
-            public void process(GeonameLocation item) {
+            public void accept(GeonameLocation item) {
                 Integer parentId = getParent(item);
                 if (parentId != null) {
                     childParentIds.put(item.geonamesId, parentId);
@@ -191,7 +191,7 @@ public final class GeonamesImporter {
         progress.startTask("Inserting locations", numLines);
         readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
             @Override
-            public void process(GeonameLocation geonameLocation) {
+            public void accept(GeonameLocation geonameLocation) {
                 LocationBuilder builder = new LocationBuilder();
                 builder.setId(geonameLocation.geonamesId);
                 builder.setPrimaryName(geonameLocation.primaryName);
@@ -277,7 +277,7 @@ public final class GeonamesImporter {
         
         readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
             @Override
-            public void process(GeonameLocation geonameLocation) {
+            public void accept(GeonameLocation geonameLocation) {
                 String codeCombined = geonameLocation.getCodeCombined();
 
                 // remove historic locations from the hierarchy mapping again, as we do not want the DDR in the
@@ -438,7 +438,7 @@ public final class GeonamesImporter {
                     return;
                 }
                 GeonameLocation geonameLocation = new GeonameLocation(line);
-                callback.process(geonameLocation);
+                callback.accept(geonameLocation);
                 progress.increment();
             }
         });

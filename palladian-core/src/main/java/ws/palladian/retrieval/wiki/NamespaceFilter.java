@@ -3,9 +3,9 @@ package ws.palladian.retrieval.wiki;
 import java.util.HashSet;
 import java.util.Set;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
-public final class NamespaceFilter implements Filter<WikiPageReference> {
+public final class NamespaceFilter implements Predicate<WikiPageReference> {
 
     private final Set<Integer> acceptedNamespaces;
 
@@ -17,7 +17,7 @@ public final class NamespaceFilter implements Filter<WikiPageReference> {
     }
 
     @Override
-    public boolean accept(WikiPageReference item) {
+    public boolean test(WikiPageReference item) {
         return acceptedNamespaces.contains(item.getNamespaceId());
     }
 

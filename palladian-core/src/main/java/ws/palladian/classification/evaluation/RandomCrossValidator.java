@@ -11,7 +11,7 @@ import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class RandomCrossValidator implements CrossValidator {
 
@@ -22,18 +22,18 @@ public class RandomCrossValidator implements CrossValidator {
 		}
 		@Override
 		public Dataset getTrain() {
-			return data.subset(new Factory<Filter<Object>>() {
+			return data.subset(new Factory<Predicate<Object>>() {
 				@Override
-				public Filter<Object> create() {
+				public Predicate<Object> create() {
 					 return not(new FoldAssignmentFilter(fold));
 				}
 			});
 		}
 		@Override
 		public Dataset getTest() {
-			return data.subset(new Factory<Filter<Object>>() {
+			return data.subset(new Factory<Predicate<Object>>() {
 				@Override
-				public Filter<Object> create() {
+				public Predicate<Object> create() {
 					 return new FoldAssignmentFilter(fold);
 				}
 			});
@@ -66,14 +66,14 @@ public class RandomCrossValidator implements CrossValidator {
 	 * Index-based filter which accepts items based on the pre-calculated
 	 * foldAssigments array.
 	 */
-	private final class FoldAssignmentFilter implements Filter<Object> {
+	private final class FoldAssignmentFilter implements Predicate<Object> {
 		private final int fold;
 		private int currentIndex;
 		public FoldAssignmentFilter(int fold) {
 			this.fold = fold;
 		}
 		@Override
-		public boolean accept(Object item) {
+		public boolean test(Object item) {
 			return foldAssignments[currentIndex++] == fold;
 		}
 	}

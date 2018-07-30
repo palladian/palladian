@@ -4,7 +4,7 @@ import java.util.Set;
 
 import ws.palladian.core.Instance;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.CloseableIterator;
 
 /**
@@ -54,7 +54,7 @@ public interface Dataset extends Iterable<Instance> {
 	 * @param nameFilter The filter to apply.
 	 * @return The filtered dataset.
 	 */
-	Dataset filterFeatures(Filter<? super String> nameFilter);
+	Dataset filterFeatures(Predicate<? super String> nameFilter);
 	
 	/**
 	 * Get a subset of the dataset.
@@ -63,7 +63,7 @@ public interface Dataset extends Iterable<Instance> {
 	 *            The filter which defines the subset.
 	 * @return The subset with instances matching the filter.
 	 */
-	Dataset subset(Filter<? super Instance> instanceFilter);
+	Dataset subset(Predicate<? super Instance> instanceFilter);
 	
 	/**
 	 * Get a subset of the dataset.
@@ -72,7 +72,7 @@ public interface Dataset extends Iterable<Instance> {
 	 *            The factory with the filter which defines the subset.
 	 * @return The subset with instances matching the filter.
 	 */
-	Dataset subset(Factory<? extends Filter<? super Instance>> instanceFilterFactory);
+	Dataset subset(Factory<? extends Predicate<? super Instance>> instanceFilterFactory);
 	
 	/**
 	 * Read the whole dataset into memory. Only do that for small datasets and

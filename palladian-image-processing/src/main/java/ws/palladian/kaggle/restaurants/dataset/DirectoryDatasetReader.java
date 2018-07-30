@@ -15,7 +15,7 @@ import ws.palladian.dataset.ImageValue;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
 
@@ -27,7 +27,7 @@ public class DirectoryDatasetReader implements Iterable<Instance> {
 		this(directory, ALL);
 	}
 
-	public DirectoryDatasetReader(File directory, Filter<? super File> filter) {
+	public DirectoryDatasetReader(File directory, Predicate<? super File> filter) {
 		this.directory = directory;
 		this.imageFiles = FileHelper.getFiles(directory, and(fileExtension("jpg"), filter), Filters.ALL);
 	}

@@ -18,8 +18,8 @@ import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Filters;
+import java.util.function.Predicate;
 
 /**
  * Configuration for the {@link PalladianTextClassifierOptimizer}. Create using
@@ -36,7 +36,7 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 		private static final Collection<FeatureSetting> DEFAULT_FEATURE_SETTINGS = Collections
 				.singleton(FeatureSettingBuilder.words().create());
 
-		private static final Set<Filter<Object>> DEFAULT_PRUNING_STRATEGIES = Collections.singleton(Filters.ALL);
+		private static final Set<Predicate<Object>> DEFAULT_PRUNING_STRATEGIES = Collections.singleton(Filters.ALL);
 
 		private static final Collection<? extends Scorer> DEFAULT_SCORERS = Collections
 				.singleton(PalladianTextClassifier.DEFAULT_SCORER);
@@ -45,7 +45,7 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 
 		private Collection<FeatureSetting> featureSettings = DEFAULT_FEATURE_SETTINGS;
 
-		private Collection<? extends Filter<? super CategoryEntries>> pruningStrategies = DEFAULT_PRUNING_STRATEGIES;
+		private Collection<? extends Predicate<? super CategoryEntries>> pruningStrategies = DEFAULT_PRUNING_STRATEGIES;
 
 		private Collection<? extends Scorer> scorers = DEFAULT_SCORERS;
 		
@@ -80,7 +80,7 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 		 * @return
 		 */
 		public Builder<R> setPruningStrategies(
-				Collection<? extends Filter<? super CategoryEntries>> pruningStrategies) {
+				Collection<? extends Predicate<? super CategoryEntries>> pruningStrategies) {
 			this.pruningStrategies = pruningStrategies;
 			return this;
 		}
@@ -94,7 +94,7 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 		 * @return
 		 */
 		@SafeVarargs
-		public final Builder<R> setPruningStrategies(Filter<CategoryEntries>... pruningStrategies) {
+		public final Builder<R> setPruningStrategies(Predicate<CategoryEntries>... pruningStrategies) {
 			return setPruningStrategies(Arrays.asList(pruningStrategies));
 		}
 
@@ -150,7 +150,7 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 
 	private final Collection<FeatureSetting> featureSettings;
 
-	private final Collection<? extends Filter<? super CategoryEntries>> pruningStrategies;
+	private final Collection<? extends Predicate<? super CategoryEntries>> pruningStrategies;
 
 	private final Collection<? extends Scorer> scorers;
 
@@ -172,7 +172,7 @@ public class PalladianTextClassifierOptimizerConfig<R> {
 		return scorers;
 	}
 
-	Collection<? extends Filter<? super CategoryEntries>> getPruningStrategies() {
+	Collection<? extends Predicate<? super CategoryEntries>> getPruningStrategies() {
 		return pruningStrategies;
 	}
 

@@ -36,7 +36,7 @@ import ws.palladian.features.color.ColorExtractor;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.date.DateHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.utils.CsvDatasetWriter;
@@ -139,7 +139,7 @@ public class Evaluator {
     public static void evaluateTrainTestSplits() throws IOException, JsonException {
         List<FeatureExtractor> extractors = new ArrayList<>();
         extractors.add(new BlockCodeExtractor());
-        Filter<String> blockCodeFeatures = regex("text");
+        Predicate<String> blockCodeFeatures = regex("text");
 
         ImageDataset imageDataset = new ImageDataset(
                 new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
@@ -185,7 +185,7 @@ public class Evaluator {
      */
     public static void runBlockCodeExperiments(ImageDataset imageDataset) throws IOException, JsonException {
 
-        Filter<String> blockCodeFeatures = regex("text");
+        Predicate<String> blockCodeFeatures = regex("text");
 
         File resultDirectory = new File(
                 imageDataset.getBasePath() + "blockcode-evaluation-results-" + DateHelper.getCurrentDatetime());
@@ -336,31 +336,31 @@ public class Evaluator {
         File resultDirectory = new File(imageDataset.getBasePath() + "results-" + DateHelper.getCurrentDatetime());
 //        Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
 
-        Filter<String> surfFeatures = regex("SURF.*");
-        Filter<String> siftFeatures = regex("SIFT.*");
-        Filter<String> boundsFeatures = regex("width|height|ratio");
-        Filter<String> colorFeatures = regex("main_color.*");
-        Filter<String> statisticsFeatures = regex(
+        Predicate<String> surfFeatures = regex("SURF.*");
+        Predicate<String> siftFeatures = regex("SIFT.*");
+        Predicate<String> boundsFeatures = regex("width|height|ratio");
+        Predicate<String> colorFeatures = regex("main_color.*");
+        Predicate<String> statisticsFeatures = regex(
                 "(?!(cell|4x4)-).*_(max|mean|min|range|stdDev|relStdDev|sum|count|\\d{2}-percentile)");
-        Filter<String> local4StatisticsFeatures = regex("cell-\\d/4.*");
-        Filter<String> local9StatisticsFeatures = regex("cell-\\d/9.*");
-        Filter<String> symmetryFeatures = regex("symmetry-.*");
-        Filter<String> edginessFeatures = regex("edginess-.*");
-        Filter<String> regionFeatures = regex(".*_region.*");
-        Filter<String> frequencyFeatures = regex("frequency-.*");
-        Filter<String> gridFeatures = regex("4x4-similarity_.*");
-        Filter<String> blockCodeFeatures = regex("text");
+        Predicate<String> local4StatisticsFeatures = regex("cell-\\d/4.*");
+        Predicate<String> local9StatisticsFeatures = regex("cell-\\d/9.*");
+        Predicate<String> symmetryFeatures = regex("symmetry-.*");
+        Predicate<String> edginessFeatures = regex("edginess-.*");
+        Predicate<String> regionFeatures = regex(".*_region.*");
+        Predicate<String> frequencyFeatures = regex("frequency-.*");
+        Predicate<String> gridFeatures = regex("4x4-similarity_.*");
+        Predicate<String> blockCodeFeatures = regex("text");
 
-        Filter<String> allQuantitativeFeatures = or(colorFeatures, statisticsFeatures, symmetryFeatures,
+        Predicate<String> allQuantitativeFeatures = or(colorFeatures, statisticsFeatures, symmetryFeatures,
                 local4StatisticsFeatures, local9StatisticsFeatures, regionFeatures, edginessFeatures, frequencyFeatures,
                 gridFeatures);
         // Filter<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
-        List<Filter<String>> allCombinations = asList(colorFeatures, statisticsFeatures, symmetryFeatures,
+        List<Predicate<String>> allCombinations = asList(colorFeatures, statisticsFeatures, symmetryFeatures,
                 regionFeatures, frequencyFeatures, gridFeatures, allQuantitativeFeatures);
 
         // List<Filter<String>> smallList = asList(colorFeatures,statisticsFeatures);
 //         List<Filter<String>> smallList = asList(allQuantitativeFeatures);
-        List<Filter<String>> smallList = asList(blockCodeFeatures);
+        List<Predicate<String>> smallList = asList(blockCodeFeatures);
 
         // experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), smallList);
         // experimenter.addClassifier(new PalladianDictionaryClassifier(), smallList);

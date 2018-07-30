@@ -6,26 +6,26 @@ import java.util.Set;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
 
 public abstract class AbstractDataset implements Dataset {
 
 	@Override
-	public Dataset filterFeatures(Filter<? super String> nameFilter) {
+	public Dataset filterFeatures(Predicate<? super String> nameFilter) {
 		Objects.requireNonNull(nameFilter, "nameFilter must not be null");
 		return new FilteredDataset(this, nameFilter);
 	}
 
 	@Override
-	public Dataset subset(Filter<? super Instance> instanceFilter) {
+	public Dataset subset(Predicate<? super Instance> instanceFilter) {
 		Objects.requireNonNull(instanceFilter, "instanceFilter must not be null");
 		return new SubDataset(this, Factories.constant(instanceFilter));
 	}
 	
 	@Override
-	public Dataset subset(Factory<? extends Filter<? super Instance>> instanceFilterFactory) {
+	public Dataset subset(Factory<? extends Predicate<? super Instance>> instanceFilterFactory) {
 		Objects.requireNonNull(instanceFilterFactory, "instanceFilterFactory must not be null");
 		return new SubDataset(this, instanceFilterFactory);
 	}

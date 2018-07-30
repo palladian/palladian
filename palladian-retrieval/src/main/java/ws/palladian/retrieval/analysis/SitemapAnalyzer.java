@@ -22,7 +22,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -92,7 +92,7 @@ public class SitemapAnalyzer {
         Consumer<Document> retrieverCallback = new Consumer<Document>() {
 
             @Override
-            public void process(Document document) {
+            public void accept(Document document) {
                 Map<String, Object> map = new HashMap<>();
 
                 Set<String> outInt = HtmlHelper.getLinks(document, true, false);

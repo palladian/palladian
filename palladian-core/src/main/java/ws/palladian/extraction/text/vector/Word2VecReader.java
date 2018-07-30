@@ -12,15 +12,15 @@ import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class Word2VecReader {
 
 	private final static long ONE_GB = 1024 * 1024 * 1024;
 
-	private static final Filter<String> FILTER = new Filter<String>() {
+	private static final Predicate<String> FILTER = new Predicate<String>() {
 		@Override
-		public boolean accept(String word) {
+		public boolean test(String word) {
 			return !word.contains("_");
 		}
 	};
@@ -80,7 +80,7 @@ public class Word2VecReader {
 				float[] floats = new float[vectorSize];
 				buffer.asFloatBuffer().get(floats);
 				String word = sb.toString();
-				if (FILTER.accept(word)) {
+				if (FILTER.test(word)) {
 					entries.put(word, floats);
 				}
 

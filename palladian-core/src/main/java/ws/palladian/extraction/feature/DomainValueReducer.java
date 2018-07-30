@@ -76,7 +76,7 @@ public class DomainValueReducer extends AbstractDatasetFeatureVectorTransformer 
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		Value value = featureVector.get(featureName);
 		String mapping = domainMapping.get(value);
 		if (mapping != null) {

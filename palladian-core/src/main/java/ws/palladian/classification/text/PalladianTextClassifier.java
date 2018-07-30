@@ -19,7 +19,7 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -197,7 +197,7 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         for (Instance instance : dataset) {
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
-            Iterator<String> iterator = preprocessor.compute(textValue.getText());
+            Iterator<String> iterator = preprocessor.apply(textValue.getText());
             Collection<String> terms = new HashSet<>();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());
@@ -213,7 +213,7 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         Validate.notNull(model, "model must not be null");
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         TextValue textValue = (TextValue)featureVector.get(VECTOR_TEXT_IDENTIFIER);
-        Iterator<String> iterator = preprocessor.compute(textValue.getText());
+        Iterator<String> iterator = preprocessor.apply(textValue.getText());
         Bag<String> termCounts = new Bag<>();
         while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
             termCounts.add(iterator.next());

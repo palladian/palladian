@@ -13,7 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -23,7 +23,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * Remove stop words from a text.
  * </p>
  */
-public class StopWordRemover implements Filter<String> {
+public class StopWordRemover implements Predicate<String> {
 	private static final Map<String, Set<String>> CACHE = new HashMap<>();
 
     private final Set<String> stopwords;
@@ -149,7 +149,7 @@ public class StopWordRemover implements Filter<String> {
     }
     
     @Override
-    public boolean accept(String item) {
+    public boolean test(String item) {
         return !isStopWord(item);
     }
 

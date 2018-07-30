@@ -13,7 +13,7 @@ import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -204,7 +204,7 @@ public class FatStats extends AbstractStats {
     private static List<Double> getDoubleValues(Collection<? extends Number> values) {
         return CollectionHelper.convertList(values, new Function<Number, Double>() {
             @Override
-            public Double compute(Number input) {
+            public Double apply(Number input) {
                 return input.doubleValue();
             }
         });

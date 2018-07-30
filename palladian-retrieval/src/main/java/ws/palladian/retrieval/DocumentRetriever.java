@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Consumer;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
@@ -67,7 +67,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
     private RequestThrottle requestThrottle = NoThrottle.INSTANCE;
 
     /** The filter for the retriever. */
-    private Filter<? super String> downloadFilter;
+    private Predicate<? super String> downloadFilter;
 
     /**
      * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
@@ -171,7 +171,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
                             String fileType = FileHelper.getFileType(url);
                             Consumer<String> stringConsumer = fileTypeConsumers.get(fileType);
                             if (stringConsumer != null) {
-                                stringConsumer.process(url);
+                                stringConsumer.accept(url);
                                 consumerFound = true;
                             }
                         }
@@ -179,7 +179,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
                         if (!consumerFound) {
                             Document document = getWebDocument(url);
                             if (document != null) {
-                                callback.process(document);
+                                callback.accept(document);
                             }
                         }
 
@@ -328,7 +328,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
 
         String contentString = null;
 
-        if (downloadFilter.accept(url)) {
+        if (downloadFilter.test(url)) {
             try {
                 if (isFile(url)) {
                     contentString = FileHelper.readFileToString(url);
@@ -379,7 +379,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
                         }
                         String text = getText(url);
                         if (text != null) {
-                            callback.process(text);
+                            callback.accept(text);
                         }
                     }
                 }
@@ -437,7 +437,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
         String cleanUrl = url.trim();
         InputStream inputStream = null;
 
-        if (downloadFilter.accept(cleanUrl)) {
+        if (downloadFilter.test(cleanUrl)) {
 
             try {
 
@@ -522,11 +522,11 @@ public class DocumentRetriever implements WebDocumentRetriever {
         return this.numThreads;
     }
 
-    public void setDownloadFilter(Filter<String> downloadFilter) {
+    public void setDownloadFilter(Predicate<String> downloadFilter) {
         this.downloadFilter = downloadFilter;
     }
 
-    public Filter<? super String> getDownloadFilter() {
+    public Predicate<? super String> getDownloadFilter() {
         return downloadFilter;
     }
 
@@ -536,7 +536,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
 
     private void callRetrieverCallback(Document document) {
         for (Consumer<Document> retrieverCallback : retrieverCallbacks) {
-            retrieverCallback.process(document);
+            retrieverCallback.accept(document);
         }
     }
 

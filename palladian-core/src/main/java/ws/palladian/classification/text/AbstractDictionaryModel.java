@@ -16,7 +16,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 public abstract class AbstractDictionaryModel implements DictionaryModel {
 
@@ -34,7 +34,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
     public Set<String> getCategories() {
         return CollectionHelper.convertSet(getDocumentCounts(), new Function<Category, String>() {
             @Override
-            public String compute(Category input) {
+            public String apply(Category input) {
                 return input.getName();
             }
         });

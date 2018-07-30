@@ -9,7 +9,7 @@ import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public final class PruningSimulatedDictionaryModel extends AbstractDictionaryModel {
 
@@ -17,12 +17,12 @@ public final class PruningSimulatedDictionaryModel extends AbstractDictionaryMod
 
     private final DictionaryModel delegate;
 
-    private final Filter<? super CategoryEntries> strategy;
+    private final Predicate<? super CategoryEntries> strategy;
 
     /** Cached value, lazy initialized. */
     private Integer numUniqTerms;
 
-    public PruningSimulatedDictionaryModel(DictionaryModel delegate, Filter<? super CategoryEntries> strategy) {
+    public PruningSimulatedDictionaryModel(DictionaryModel delegate, Predicate<? super CategoryEntries> strategy) {
         Validate.notNull(delegate, "delegate must not be null");
         Validate.notNull(strategy, "strategy must not be null");
         this.delegate = delegate;
@@ -42,7 +42,7 @@ public final class PruningSimulatedDictionaryModel extends AbstractDictionaryMod
     @Override
     public CategoryEntries getCategoryEntries(String term) {
         CategoryEntries entries = delegate.getCategoryEntries(term);
-        return strategy.accept(entries) ? entries : CategoryEntries.EMPTY;
+        return strategy.test(entries) ? entries : CategoryEntries.EMPTY;
     }
 
     @Override
@@ -65,10 +65,10 @@ public final class PruningSimulatedDictionaryModel extends AbstractDictionaryMod
 
     @Override
     public Iterator<DictionaryEntry> iterator() {
-        return CollectionHelper.filter(delegate.iterator(), new Filter<DictionaryEntry>() {
+        return CollectionHelper.filter(delegate.iterator(), new Predicate<DictionaryEntry>() {
             @Override
-            public boolean accept(DictionaryEntry item) {
-                return strategy.accept(item.getCategoryEntries());
+            public boolean test(DictionaryEntry item) {
+                return strategy.test(item.getCategoryEntries());
             }
         });
     }

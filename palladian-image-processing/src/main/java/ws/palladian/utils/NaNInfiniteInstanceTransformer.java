@@ -13,7 +13,7 @@ public enum NaNInfiniteInstanceTransformer implements DatasetTransformer {
 	TRANSFORMER;
 
 	@Override
-	public Instance compute(Instance input) {
+	public Instance apply(Instance input) {
 		FeatureVector featureVector = input.getVector();
 		InstanceBuilder builder = new InstanceBuilder().add(featureVector);
 		for (VectorEntry<String, Value> entry : featureVector) {

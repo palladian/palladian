@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
 
@@ -71,9 +71,9 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
     @Override
     public void removeRow(final K y) {
         keysY.remove(y);
-        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K, K>>() {
+        CollectionHelper.remove(matrixMap.keySet(), new Predicate<Pair<K, K>>() {
             @Override
-            public boolean accept(Pair<K, K> item) {
+            public boolean test(Pair<K, K> item) {
                 return !item.getRight().equals(y);
             }
         });
@@ -82,9 +82,9 @@ public class PairMatrix<K, V> extends AbstractMatrix<K, V> {
     @Override
     public void removeColumn(final K x) {
         keysX.remove(x);
-        CollectionHelper.remove(matrixMap.keySet(), new Filter<Pair<K, K>>() {
+        CollectionHelper.remove(matrixMap.keySet(), new Predicate<Pair<K, K>>() {
             @Override
-            public boolean accept(Pair<K, K> item) {
+            public boolean test(Pair<K, K> item) {
                 return !item.getLeft().equals(x);
             }
         });

@@ -20,11 +20,11 @@ public class ReflectionFunctionTest {
         ReflectionFunction<Sample, String> f4 = ReflectionFunction.create(Sample.class, "toString", String.class);
         ReflectionFunction<Sample, Object> f5 = ReflectionFunction.create(Sample.class, "getStringValue", Object.class);
         Sample sampleInstance = new Sample("a", 1);
-        assertEquals("a", f1.compute(sampleInstance));
-        assertEquals(1, (int)f2.compute(sampleInstance));
-        assertEquals(1, (int)f3.compute(sampleInstance));
-        assertTrue(f4.compute(sampleInstance).startsWith(Sample.class.getName()));
-        assertEquals("a", f5.compute(sampleInstance));
+        assertEquals("a", f1.apply(sampleInstance));
+        assertEquals(1, (int)f2.apply(sampleInstance));
+        assertEquals(1, (int)f3.apply(sampleInstance));
+        assertTrue(f4.apply(sampleInstance).startsWith(Sample.class.getName()));
+        assertEquals("a", f5.apply(sampleInstance));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -58,7 +58,7 @@ public class ReflectionFunctionTest {
     
     @Test
     public void testNullParameters() {
-        assertNull(ReflectionFunction.create(Sample.class, "getStringValue", String.class).compute(null));
+        assertNull(ReflectionFunction.create(Sample.class, "getStringValue", String.class).apply(null));
     }
     
     @Test
@@ -74,7 +74,7 @@ public class ReflectionFunctionTest {
         System.out.println("Normal " + stopWatch);
         stopWatch = new StopWatch();
         for (int i = 0; i < k; i++) {
-            f1.compute(sampleInstance);
+            f1.apply(sampleInstance);
         }
         System.out.println("Reflection: "+stopWatch);
     }

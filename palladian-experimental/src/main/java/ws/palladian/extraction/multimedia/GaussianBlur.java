@@ -10,7 +10,7 @@ import java.awt.image.WritableRaster;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 public final class GaussianBlur implements Function<BufferedImage, BufferedImage> {
 
@@ -22,7 +22,7 @@ public final class GaussianBlur implements Function<BufferedImage, BufferedImage
     }
 
     @Override
-    public BufferedImage compute(BufferedImage input) {
+    public BufferedImage apply(BufferedImage input) {
         return apply(input, width);
     }
 

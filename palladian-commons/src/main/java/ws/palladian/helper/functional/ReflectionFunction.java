@@ -1,6 +1,7 @@
 package ws.palladian.helper.functional;
 
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.Validate;
@@ -90,7 +91,7 @@ public final class ReflectionFunction<I, O> implements Function<I, O> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public O compute(I input) {
+    public O apply(I input) {
         if (input == null) {
             return null;
         }

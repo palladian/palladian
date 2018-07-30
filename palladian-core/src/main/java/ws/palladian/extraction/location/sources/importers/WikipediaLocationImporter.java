@@ -31,7 +31,7 @@ import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ProgressReporterInputStream;
 import ws.palladian.retrieval.wiki.InfoboxTypeMapper;
@@ -164,7 +164,7 @@ public class WikipediaLocationImporter {
         MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
 
             @Override
-            public void process(WikiPage page) {
+            public void accept(WikiPage page) {
                 if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                     return;
                 }
@@ -249,7 +249,7 @@ public class WikipediaLocationImporter {
         MediaWikiUtil.parseDump(inputStream, new Consumer<WikiPage>() {
 
             @Override
-            public void process(WikiPage page) {
+            public void accept(WikiPage page) {
                 if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                     return;
                 }

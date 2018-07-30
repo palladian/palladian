@@ -62,7 +62,7 @@ public class TextVectorClassifier<M extends Model> extends AbstractLearner<TextV
 
 	@Override
 	public CategoryEntries classify(FeatureVector featureVector, TextVectorModel<M> model) {
-		FeatureVector vectorizedVector = vectorizer.compute(featureVector);
+		FeatureVector vectorizedVector = vectorizer.apply(featureVector);
 		return classifier.classify(vectorizedVector, model.model);
 	}
 	

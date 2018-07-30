@@ -5,7 +5,7 @@ import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public interface FeatureVector extends Vector<String, Value> {
 
@@ -53,6 +53,6 @@ public interface FeatureVector extends Vector<String, Value> {
 	 *            The filter, not <code>null</code>.
 	 * @return A filtered version of this vector.
 	 */
-	FeatureVector filter(Filter<? super String> nameFilter);
+	FeatureVector filter(Predicate<? super String> nameFilter);
 
 }

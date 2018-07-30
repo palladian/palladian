@@ -10,9 +10,9 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.functional.Filters;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 import ws.palladian.helper.math.MathHelper;
 
 /**
@@ -327,7 +327,7 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and remove non-matching items; after applying this method, the
+     * Apply a {@link Predicate} to an {@link Iterable} and remove non-matching items; after applying this method, the
      * Iterable only contains the items which matched the filter.
      * </p>
      * 
@@ -335,7 +335,7 @@ public final class CollectionHelper {
      * @param filter The Filter to apply, not <code>null</code>.
      * @return The number of items which were removed, <code>0</code> in case no items were removed.
      */
-    public static <T> int remove(Iterable<T> iterable, Filter<? super T> filter) {
+    public static <T> int remove(Iterable<T> iterable, Predicate<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
 
@@ -343,7 +343,7 @@ public final class CollectionHelper {
         Iterator<T> iterator = iterable.iterator();
         while (iterator.hasNext()) {
             T item = iterator.next();
-            if (!filter.accept(item)) {
+            if (!filter.test(item)) {
                 iterator.remove();
                 removed++;
             }
@@ -353,7 +353,7 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Collection}.
+     * Apply a {@link Predicate} to an {@link Iterable} and return the filtered result as new {@link Collection}.
      * </p>
      * 
      * @param iterable The Iterable to filter, not <code>null</code>.
@@ -362,13 +362,13 @@ public final class CollectionHelper {
      *            {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the filter.
      */
-    public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Filter<? super T> filter, C output) {
+    public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Predicate<? super T> filter, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
         Validate.notNull(output, "output must not be null");
 
         for (T item : iterable) {
-            if (filter.accept(item)) {
+            if (filter.test(item)) {
                 output.add(item);
             }
         }
@@ -377,29 +377,29 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link List}.
+     * Apply a {@link Predicate} to an {@link Iterable} and return the filtered result as new {@link List}.
      * </p>
      * 
      * @param list The Iterable to filter, not <code>null</code>.
      * @param filter The filter to apply, not <code>null</code>.
      * @return A List with the items that passed the filter.
-     * @see #filter(Iterable, Filter, Collection)
+     * @see #filter(Iterable, Predicate, Collection)
      */
-    public static <T> List<T> filterList(Iterable<T> iterable, Filter<? super T> filter) {
+    public static <T> List<T> filterList(Iterable<T> iterable, Predicate<? super T> filter) {
         return filter(iterable, filter, new ArrayList<T>());
     }
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable} and return the filtered result as new {@link Set}.
+     * Apply a {@link Predicate} to an {@link Iterable} and return the filtered result as new {@link Set}.
      * </p>
      * 
      * @param list The Iterable to filter, not <code>null</code>.
      * @param filter The filter to apply, not <code>null</code>.
      * @return A Set with the items that passed the filter.
-     * @see #filter(Iterable, Filter, Collection)
+     * @see #filter(Iterable, Predicate, Collection)
      */
-    public static <T> Set<T> filterSet(Iterable<T> iterable, Filter<? super T> filter) {
+    public static <T> Set<T> filterSet(Iterable<T> iterable, Predicate<? super T> filter) {
         return filter(iterable, filter, new HashSet<T>());
     }
 
@@ -431,7 +431,7 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterator}.
+     * Apply a {@link Predicate} to an {@link Iterator}.
      * </p>
      * 
      * @param iterator The iterator to filter, not <code>null</code>.
@@ -439,7 +439,7 @@ public final class CollectionHelper {
      * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
      *         are not accepted by the filter.
      */
-    public static <T> Iterator<T> filter(Iterator<? extends T> iterator, Filter<? super T> filter) {
+    public static <T> Iterator<T> filter(Iterator<? extends T> iterator, Predicate<? super T> filter) {
         Validate.notNull(iterator, "iterator must not be null");
         Validate.notNull(filter, "filter must not be null");
         return new FilterIterator<T>(iterator, filter);
@@ -447,7 +447,7 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Apply a {@link Filter} to an {@link Iterable}.
+     * Apply a {@link Predicate} to an {@link Iterable}.
      * </p>
      * 
      * @param iterable The iterable to filter, not <code>null</code>.
@@ -455,7 +455,7 @@ public final class CollectionHelper {
      * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
      *         are not accepted by the filter.
      */
-    public static <T> Iterable<T> filter(final Iterable<? extends T> iterable, final Filter<? super T> filter) {
+    public static <T> Iterable<T> filter(final Iterable<? extends T> iterable, final Predicate<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
 //        return new Iterable<T>() {
@@ -464,9 +464,9 @@ public final class CollectionHelper {
 //                return filter(iterable.iterator(), filter);
 //            }
 //        };
-        return filter(iterable, new Factory<Filter<? super T>>() {
+        return filter(iterable, new Factory<Predicate<? super T>>() {
 			@Override
-			public Filter<? super T> create() {
+			public Predicate<? super T> create() {
 				return filter;
 			}
         });
@@ -474,7 +474,7 @@ public final class CollectionHelper {
 
 	/**
 	 * <p>
-	 * Apply a {@link Filter} to an {@link Iterable}. This method takes a
+	 * Apply a {@link Predicate} to an {@link Iterable}. This method takes a
 	 * factory, which produces the filter, thus allowing stateful filters which
 	 * need to be re-created for each newly produced iterator.
 	 * 
@@ -488,7 +488,7 @@ public final class CollectionHelper {
 	 *         by the filter.
 	 */
 	public static <T> Iterable<T> filter(final Iterable<? extends T> iterable,
-			final Factory<? extends Filter<? super T>> filter) {
+			final Factory<? extends Predicate<? super T>> filter) {
 		Validate.notNull(iterable, "iterable must not be null");
 		Validate.notNull(filter, "filter must not be null");
 		return new Iterable<T>() {
@@ -632,7 +632,7 @@ public final class CollectionHelper {
 
         MultiMap<V, I> result = DefaultMultiMap.createWithList();
         for (I item : iterable) {
-            result.add(function.compute(item), item);
+            result.add(function.apply(item), item);
         }
         return result;
     }
@@ -672,7 +672,7 @@ public final class CollectionHelper {
         Validate.notNull(output, "output must not be null");
 
         for (I item : iterable) {
-            output.add(function.compute(item));
+            output.add(function.apply(item));
         }
         return output;
     }
@@ -734,7 +734,7 @@ public final class CollectionHelper {
 
             @Override
             public O next() {
-                return function.compute(iterator.next());
+                return function.apply(iterator.next());
             }
 
             @Override
@@ -961,18 +961,18 @@ public final class CollectionHelper {
 
     /**
      * <p>
-     * Check, if the provided {@link Filter} accepts all items from given {@link Iterable}.
+     * Check, if the provided {@link Predicate} accepts all items from given {@link Iterable}.
      * </p>
      * 
      * @param iterable The iterable, not <code>null</code>.
      * @param filter The filter, not <code>null</code>.
      * @return <code>true</code> in case the filter accepted all items from the iterable, <code>false</code> otherwise.
      */
-    public static <T> boolean acceptAll(Iterable<T> iterable, Filter<? super T> filter) {
+    public static <T> boolean acceptAll(Iterable<T> iterable, Predicate<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
         for (T item : iterable) {
-            if (!filter.accept(item)) {
+            if (!filter.test(item)) {
                 return false;
             }
         }

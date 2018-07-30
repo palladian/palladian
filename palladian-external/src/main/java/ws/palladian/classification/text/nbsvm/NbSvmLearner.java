@@ -103,7 +103,7 @@ public class NbSvmLearner extends AbstractLearner<NbSvmModel> {
 
 		Dataset transformedDataset = vectorizedDataset.transform(new AbstractDatasetFeatureVectorTransformer() {
 			@Override
-			public FeatureVector compute(FeatureVector featureVector) {
+			public FeatureVector apply(FeatureVector featureVector) {
 				return transform(dictionary, r, featureVector);
 			}
 		});

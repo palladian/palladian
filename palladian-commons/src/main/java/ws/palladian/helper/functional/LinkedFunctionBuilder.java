@@ -1,5 +1,7 @@
 package ws.palladian.helper.functional;
 
+import java.util.function.Function;
+
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -90,8 +92,8 @@ public final class LinkedFunctionBuilder {
         }
 
         @Override
-        public O compute(I input) {
-            return f2.compute(f1.compute(input));
+        public O apply(I input) {
+            return f2.apply(f1.apply(input));
         }
 
         @Override

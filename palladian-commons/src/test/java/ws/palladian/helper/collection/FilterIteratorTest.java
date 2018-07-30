@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import org.junit.Before;
 import org.junit.Test;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class FilterIteratorTest {
 
@@ -23,9 +23,9 @@ public class FilterIteratorTest {
     public void setUp() {
         Collection<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         // filter for even numbers
-        iterator = new FilterIterator<Integer>(numbers.iterator(), new Filter<Number>() {
+        iterator = new FilterIterator<Integer>(numbers.iterator(), new Predicate<Number>() {
             @Override
-            public boolean accept(Number value) {
+            public boolean test(Number value) {
                 return value.intValue() % 2 == 0;
             }
         });

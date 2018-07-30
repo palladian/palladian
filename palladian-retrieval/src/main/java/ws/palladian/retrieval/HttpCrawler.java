@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Consumer;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import ws.palladian.helper.functional.Filters;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
@@ -67,7 +67,7 @@ public class HttpCrawler {
                             LOGGER.info("Giving up for {}", url);
                             break; // policy say: no more retries
                         } else {
-                            action.process(result);
+                            action.accept(result);
                             // extract new links
                             Document document = htmlParser.parse(result);
                             Set<String> links = HtmlHelper.getLinks(document, true, true);
@@ -113,7 +113,7 @@ public class HttpCrawler {
 
     private final DocumentParser htmlParser;
 
-    private final Filter<String> urlFilter;
+    private final Predicate<String> urlFilter;
 
     private final Consumer<HttpResult> action;
 
@@ -121,15 +121,15 @@ public class HttpCrawler {
 
     private final RetryPolicy retryPolicy;
 
-    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action) {
+    public HttpCrawler(Predicate<String> urlFilter, Consumer<HttpResult> action) {
         this(urlFilter, action, NoThrottle.INSTANCE);
     }
 
-    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle) {
+    public HttpCrawler(Predicate<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle) {
         this(urlFilter, action, throttle, NoRetryPolicy.INSTANCE);
     }
 
-    public HttpCrawler(Filter<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle,
+    public HttpCrawler(Predicate<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle,
             RetryPolicy retryPolicy) {
         urlQueue = new ConcurrentLinkedQueue<String>();
         checkedUrls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
@@ -184,10 +184,10 @@ public class HttpCrawler {
     }
 
     public static void main(String[] args) {
-        Filter<String> urlFilter = Filters.regex("http://www.breakingnews.com/topic/.*");
+        Predicate<String> urlFilter = Filters.regex("http://www.breakingnews.com/topic/.*");
         HttpCrawler crawler = new HttpCrawler(urlFilter, new Consumer<HttpResult>() {
             @Override
-            public void process(HttpResult result) {
+            public void accept(HttpResult result) {
                 System.out.println("Fetched " + result.getUrl());
             }
         }, new FixedIntervalRequestThrottle(100, TimeUnit.MILLISECONDS));

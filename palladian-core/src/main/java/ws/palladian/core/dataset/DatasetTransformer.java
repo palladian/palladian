@@ -1,7 +1,7 @@
 package ws.palladian.core.dataset;
 
 import ws.palladian.core.Instance;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 /**
  * Performs transformations on a {@link Dataset}. <b>Note:</b> In general, consider

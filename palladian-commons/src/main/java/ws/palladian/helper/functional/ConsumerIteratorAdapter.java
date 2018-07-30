@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import ws.palladian.helper.collection.AbstractIterator2;
 
@@ -116,7 +117,7 @@ public abstract class ConsumerIteratorAdapter<T> {
         }
 
         @Override
-        public void process(T item) {
+        public void accept(T item) {
             try {
                 while (!queue.offer(item, SLEEP_MS_BETWEEN_QUEUE_PUT, TimeUnit.MILLISECONDS)) {
                     if (!producing) {

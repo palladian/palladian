@@ -11,7 +11,7 @@ import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.
@@ -30,18 +30,18 @@ public final class DateExtractionHelper {
     }
 
     public static <T extends ExtractedDate> List<T> filterByRange(List<T> dates) {
-        return CollectionHelper.filter(dates, new Filter<T>() {
+        return CollectionHelper.filter(dates, new Predicate<T>() {
             @Override
-            public boolean accept(T date) {
+            public boolean test(T date) {
                 return isDateInRange(date);
             }
         }, new ArrayList<T>());
     }
 
     public static <T extends ExtractedDate> List<T> filterFullDate(List<T> dates) {
-        return CollectionHelper.filter(dates, new Filter<T>() {
+        return CollectionHelper.filter(dates, new Predicate<T>() {
             @Override
-            public boolean accept(T date) {
+            public boolean test(T date) {
                 return date.get(ExtractedDate.YEAR) != -1 && date.get(ExtractedDate.MONTH) != -1
                         && date.get(ExtractedDate.DAY) != -1;
             }

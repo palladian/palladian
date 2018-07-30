@@ -10,7 +10,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 
 /**
  * <p>
@@ -84,7 +84,7 @@ class MediaWikiPageContentHandler extends DefaultHandler {
             float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
             LOGGER.debug("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
         }
-        callback.process(new WikiPage(pageId, namespaceId, title, text));
+        callback.accept(new WikiPage(pageId, namespaceId, title, text));
     }
 
     @Override
