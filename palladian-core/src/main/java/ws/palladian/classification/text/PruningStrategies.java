@@ -6,23 +6,23 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * Different strategies for pruning a {@link DictionaryModel}.
  * 
- * @see DictionaryBuilder#addPruningStrategy(Filter)
+ * @see DictionaryBuilder#addPruningStrategy(Predicate)
  * @author Philipp Katz
  */
 public final class PruningStrategies {
     
     // XXX make static methods
     
-    public static Filter<CategoryEntries> none() {
+    public static Predicate<CategoryEntries> none() {
         return new TermCountPruningStrategy(0);
     }
     
-    public static Filter<CategoryEntries> termCount(int minCount) {
+    public static Predicate<CategoryEntries> termCount(int minCount) {
         return new TermCountPruningStrategy(minCount);
     }
 
@@ -33,7 +33,7 @@ public final class PruningStrategies {
      * @deprecated Use {@link PruningStrategies#termCount(int)} instead.
      */
     @Deprecated
-    public static final class TermCountPruningStrategy implements Filter<CategoryEntries> {
+    public static final class TermCountPruningStrategy implements Predicate<CategoryEntries> {
 
         private final int minCount;
 
@@ -43,7 +43,7 @@ public final class PruningStrategies {
         }
 
         @Override
-        public boolean accept(CategoryEntries entries) {
+        public boolean test(CategoryEntries entries) {
             return entries.getTotalCount() >= minCount;
         }
 
@@ -59,7 +59,7 @@ public final class PruningStrategies {
      * 
      * @author Philipp Katz
      */
-    public static final class MinProbabilityPruningStrategy implements Filter<CategoryEntries> {
+    public static final class MinProbabilityPruningStrategy implements Predicate<CategoryEntries> {
 
         private final double minProbability;
 
@@ -69,7 +69,7 @@ public final class PruningStrategies {
         }
 
         @Override
-        public boolean accept(CategoryEntries item) {
+        public boolean test(CategoryEntries item) {
             return item.getMostLikely().getProbability() >= minProbability;
         }
 
@@ -80,7 +80,7 @@ public final class PruningStrategies {
      * 
      * @author Philipp Katz
      */
-    public static final class InformationGainPruningStrategy implements Filter<CategoryEntries> {
+    public static final class InformationGainPruningStrategy implements Predicate<CategoryEntries> {
 
         private final double threshold;
 
@@ -116,7 +116,7 @@ public final class PruningStrategies {
         }
 
         @Override
-        public boolean accept(CategoryEntries entries) {
+        public boolean test(CategoryEntries entries) {
             return getInformationGain(entries) >= threshold;
         }
 

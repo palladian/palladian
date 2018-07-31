@@ -21,7 +21,7 @@ import ws.palladian.core.Instance;
 public abstract class AbstractDatasetFeatureVectorTransformer implements DatasetTransformer {
 
 	@Override
-	public final Instance compute(final Instance input) {
+	public final Instance apply(final Instance input) {
 		return new AbstractInstance() {
 			@Override
 			public int getWeight() {
@@ -30,7 +30,7 @@ public abstract class AbstractDatasetFeatureVectorTransformer implements Dataset
 
 			@Override
 			public FeatureVector getVector() {
-				return compute(input.getVector());
+				return apply(input.getVector());
 			}
 
 			@Override
@@ -41,7 +41,7 @@ public abstract class AbstractDatasetFeatureVectorTransformer implements Dataset
 	}
 
 	// TODO refactor this to compute(FeatureInformation, FeatureVector)
-	public abstract FeatureVector compute(FeatureVector featureVector);
+	public abstract FeatureVector apply(FeatureVector featureVector);
 	
 	@Override
 	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {

@@ -7,7 +7,7 @@ import org.w3c.dom.Node;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -124,7 +124,7 @@ public class Crawler {
             String fileType = FileHelper.getFileType(currentUrl);
             Consumer<String> stringConsumer = getFileTypeConsumers().get(fileType);
             if (stringConsumer != null) {
-                stringConsumer.process(currentUrl);
+                stringConsumer.accept(currentUrl);
                 return;
             }
         }
@@ -141,7 +141,7 @@ public class Crawler {
             }
 
             addUrlsToStack(links);
-        } else if (documentRetriever.getDownloadFilter().accept(currentUrl)){
+        } else if (documentRetriever.getDownloadFilter().test(currentUrl)){
             LOGGER.error("could not get " + currentUrl + ", putting it back on the stack for later");
             addUrlToStack(currentUrl);
         }
@@ -338,7 +338,7 @@ public class Crawler {
         url = cleanUrl(url);
 
         // check URL first
-        if (url != null && url.length() < 400 && !visitedUrls.contains(url) && documentRetriever.getDownloadFilter().accept(url)) {
+        if (url != null && url.length() < 400 && !visitedUrls.contains(url) && documentRetriever.getDownloadFilter().test(url)) {
 
             boolean follow = true;
 
@@ -450,7 +450,7 @@ public class Crawler {
         // create a callback that is triggered for every crawled page
         Consumer<Document> crawlerCallback = new Consumer<Document>() {
             @Override
-            public void process(Document item) {
+            public void accept(Document item) {
                 LOGGER.info("downloaded the page " + item.getDocumentURI());
             }
         };

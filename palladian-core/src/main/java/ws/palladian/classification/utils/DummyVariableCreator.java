@@ -1,7 +1,7 @@
 package ws.palladian.classification.utils;
 
-import static ws.palladian.helper.functional.Filters.equal;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -225,7 +225,7 @@ public class DummyVariableCreator extends AbstractDatasetFeatureVectorTransforme
 	}
 	
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		return convert(featureVector);
 	}
 

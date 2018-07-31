@@ -1,6 +1,27 @@
 package ws.palladian.helper.io;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -23,9 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Collector;
-import ws.palladian.helper.functional.Consumer;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.MathHelper;
 
 // TODO Remove all functionalities that are provided by Apache commons.
@@ -1963,7 +1984,7 @@ public final class FileHelper {
      * @param consumer A consumer to process the matching items, not <code>null</code>.
      * @return The number of processed files.
      */
-    public static int traverseFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter, Consumer<? super File> consumer) {
+    public static int traverseFiles(File path, Predicate<? super File> fileFilter, Predicate<? super File> directoryFilter, Consumer<? super File> consumer) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
@@ -1974,12 +1995,12 @@ public final class FileHelper {
             throw new IllegalArgumentException("Given path '" + path + "' does not point to a directory.");
         }
         for (File file : files) {
-            if (file.isDirectory() && directoryFilter.accept(file)) {
+            if (file.isDirectory() && directoryFilter.test(file)) {
                 traverseFiles(file, fileFilter, directoryFilter, consumer);
             }
-            if (fileFilter.accept(file)) {
+            if (fileFilter.test(file)) {
                 counter++;
-                consumer.process(file);
+                consumer.accept(file);
             }
         }
         return counter;
@@ -1994,8 +2015,8 @@ public final class FileHelper {
      * @param consumer A consumer to process the matching files, not <code>null</code>.
      * @return The number of processed files.
      */
-    public static int traverseFiles(File path, Filter<? super File> fileFilter, Consumer<? super File> consumer) {
-        return traverseFiles(path, fileFilter, Filters.ALL, consumer);
+    public static int traverseFiles(File path, Predicate<? super File> fileFilter, Consumer<? super File> consumer) {
+        return traverseFiles(path, fileFilter, Predicates.ALL, consumer);
     }
 
     /**
@@ -2007,7 +2028,7 @@ public final class FileHelper {
      * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
      * @return A list with matched files, or an empty list, never <code>null</code>.
      */
-    public static List<File> getFiles(File path, Filter<? super File> fileFilter, Filter<? super File> directoryFilter) {
+    public static List<File> getFiles(File path, Predicate<? super File> fileFilter, Predicate<? super File> directoryFilter) {
         Validate.notNull(path, "path must not be null");
         Validate.notNull(fileFilter, "fileFilter must not be null");
         Validate.notNull(directoryFilter, "directoryFilter must not be null");
@@ -2024,8 +2045,8 @@ public final class FileHelper {
      * @param fileFilter A filter which determines which files to get, not <code>null</code>.
      * @return A list with matched files, or an empty list, never <code>null</code>.
      */
-    public static List<File> getFiles(File path, Filter<? super File> fileFilter) {
-        return getFiles(path, fileFilter, Filters.ALL);
+    public static List<File> getFiles(File path, Predicate<? super File> fileFilter) {
+        return getFiles(path, fileFilter, Predicates.ALL);
     }
 
     /*

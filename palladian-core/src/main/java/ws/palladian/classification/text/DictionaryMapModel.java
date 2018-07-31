@@ -13,7 +13,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator2;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class DictionaryMapModel extends AbstractDictionaryModel {
 
@@ -66,7 +66,7 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		}
 
 		@Override
-		public DictionaryBuilder setPruningStrategy(Filter<? super CategoryEntries> strategy) {
+		public DictionaryBuilder setPruningStrategy(Predicate<? super CategoryEntries> strategy) {
 			throw new UnsupportedOperationException();
 		}
 

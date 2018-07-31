@@ -3,7 +3,7 @@ package ws.palladian.classification.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static ws.palladian.core.value.ValueDefinitions.stringValue;
-import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.helper.functional.Predicates.regex;
 import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ import ws.palladian.classification.utils.CsvDatasetReaderConfig.Builder;
 import ws.palladian.core.Instance;
 import ws.palladian.core.value.ImmutableStringValue;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.CloseableIterator;
 
 public class CsvDatasetReaderTest {
@@ -99,7 +99,7 @@ public class CsvDatasetReaderTest {
 		config.readHeader(true);
 		config.readClassFromLastColumn(false);
 		config.setFieldSeparator(";");
-		config.parser(Filters.ALL, ImmutableStringValue.PARSER);
+		config.parser(Predicates.ALL, ImmutableStringValue.PARSER);
 		CsvDatasetReader reader = config.create();
 		try (CloseableIterator<Instance> iterator = reader.iterator()) {
 			Instance instance = iterator.next();

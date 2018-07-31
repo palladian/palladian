@@ -12,20 +12,20 @@ import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * Filters instances which have Infinity/NaN values, which cause trouble to the
  * KNN classifier (and potentially others as well).
  */
-public enum NaNInfiniteInstanceFilter implements Filter<Instance> {
+public enum NaNInfiniteInstanceFilter implements Predicate<Instance> {
 	FILTER;
 
 	/** The logger for this class. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(NaNInfiniteInstanceFilter.class);
 
 	@Override
-	public boolean accept(Instance item) {
+	public boolean test(Instance item) {
 		FeatureVector featureVector = item.getVector();
 		for (VectorEntry<String, Value> entry : featureVector) {
 			Value value = entry.value();

@@ -1,6 +1,7 @@
 package ws.palladian.helper.functional;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class Collector<T> implements Consumer<T> {
 
@@ -11,7 +12,7 @@ public class Collector<T> implements Consumer<T> {
     }
 
     @Override
-    public void process(T item) {
+    public void accept(T item) {
         collection.add(item);
     }
 

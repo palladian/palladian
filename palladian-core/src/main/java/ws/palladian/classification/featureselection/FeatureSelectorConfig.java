@@ -14,8 +14,8 @@ import ws.palladian.core.Model;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 public class FeatureSelectorConfig {
@@ -31,7 +31,7 @@ public class FeatureSelectorConfig {
 			this.mapper = mapper;
 		}
 		public double score(Dataset trainData, Dataset testData) {
-			return mapper.compute(evaluator.evaluate(learnerFactory.create(), classifierFactory.create(), trainData, testData));
+			return mapper.apply(evaluator.evaluate(learnerFactory.create(), classifierFactory.create(), trainData, testData));
 		}
 	}
 	public static final class Builder<M extends Model> implements Factory<FeatureSelector>{
@@ -39,7 +39,7 @@ public class FeatureSelectorConfig {
 		private final Factory<? extends Classifier<M>> classifierFactory;
 		private EvaluationConfig<M, ?> evaluator;
 		private int numThreads = 1;
-		private Collection<Filter<? super String>> featureGroups = new HashSet<>();
+		private Collection<Predicate<? super String>> featureGroups = new HashSet<>();
 		private boolean backward = true;
 		private Builder(Learner<M> learner, Classifier<M> classifier) {
 			this(Factories.constant(learner), Factories.constant(classifier));
@@ -90,7 +90,7 @@ public class FeatureSelectorConfig {
 			Validate.notNull(className, "className must not be null");
 			evaluator(new RocCurves.RocCurvesEvaluator(className), new Function<RocCurves, Double>() {
 				@Override
-				public Double compute(RocCurves input) {
+				public Double apply(RocCurves input) {
 					return input.getAreaUnderCurve();
 				}
 			});
@@ -105,12 +105,12 @@ public class FeatureSelectorConfig {
 			this.numThreads = numThreads;
 			return this;
 		}
-		public Builder<M> featureGroups(Collection<? extends Filter<? super String>> featureGroups) {
+		public Builder<M> featureGroups(Collection<? extends Predicate<? super String>> featureGroups) {
 			Validate.notNull(featureGroups, "featureGroups must not be null");
 			this.featureGroups = new HashSet<>(featureGroups);
 			return this;
 		}
-		public Builder<M> addFeatureGroup(Filter<? super String> featureGroup) {
+		public Builder<M> addFeatureGroup(Predicate<? super String> featureGroup) {
 			Validate.notNull(featureGroup, "featureGroup must not be null");
 			this.featureGroups.add(featureGroup);
 			return this;
@@ -160,7 +160,7 @@ public class FeatureSelectorConfig {
 //	private final Factory<? extends Classifier<M>> classifierFactory;
 	private final EvaluationConfig<?, ?> evaluator;
 	private final int numThreads;
-	private final Collection<? extends Filter<? super String>> featureGroups;
+	private final Collection<? extends Predicate<? super String>> featureGroups;
 	private final boolean backward;
 	protected FeatureSelectorConfig(Builder<?> builder) {
 //		learnerFactory = builder.learnerFactory;
@@ -182,7 +182,7 @@ public class FeatureSelectorConfig {
 	public int numThreads() {
 		return numThreads;
 	}
-	public Collection<? extends Filter<? super String>> featureGroups() {
+	public Collection<? extends Predicate<? super String>> featureGroups() {
 		return featureGroups;
 	}
 	public boolean isBackward() {

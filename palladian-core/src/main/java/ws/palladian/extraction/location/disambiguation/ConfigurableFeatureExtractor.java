@@ -10,8 +10,8 @@ import static ws.palladian.extraction.location.LocationFilters.radius;
 import static ws.palladian.extraction.location.LocationFilters.siblingOf;
 import static ws.palladian.extraction.location.LocationFilters.type;
 import static ws.palladian.helper.collection.CollectionHelper.coalesce;
-import static ws.palladian.helper.functional.Filters.equal;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -2,7 +2,7 @@ package ws.palladian.core;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * Filters for {@link Annotation}s and {@link Token}s.
@@ -15,21 +15,21 @@ public final class AnnotationFilters {
         // no instances
     }
 
-    public static Filter<Token> range(int start, int end) {
+    public static Predicate<Token> range(int start, int end) {
         return new TokenRangeFilter(start, end);
     }
 
-    public static Filter<Annotation> tag(final String tag) {
+    public static Predicate<Annotation> tag(final String tag) {
         Validate.notNull(tag, "tag must not be null");
-        return new Filter<Annotation>() {
+        return new Predicate<Annotation>() {
             @Override
-            public boolean accept(Annotation item) {
+            public boolean test(Annotation item) {
                 return tag.equals(item.getTag());
             }
         };
     }
 
-    private static final class TokenRangeFilter implements Filter<Token> {
+    private static final class TokenRangeFilter implements Predicate<Token> {
 
         private final int start;
         private final int end;
@@ -40,7 +40,7 @@ public final class AnnotationFilters {
         }
 
         @Override
-        public boolean accept(Token item) {
+        public boolean test(Token item) {
             return item.getStartPosition() >= start && item.getEndPosition() <= end;
         }
 

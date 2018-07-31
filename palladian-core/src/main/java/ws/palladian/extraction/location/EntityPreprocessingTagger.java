@@ -19,7 +19,7 @@ import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
 import ws.palladian.extraction.entity.StringTagger;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -93,9 +93,9 @@ public class EntityPreprocessingTagger implements Tagger {
         List<Annotation> fixedAnnotations = new ArrayList<>();
 
         Set<String> inSentence = getInSentenceCandidates(text, annotations);
-        inSentence = CollectionHelper.filterSet(inSentence, new Filter<String>() {
+        inSentence = CollectionHelper.filterSet(inSentence, new Predicate<String>() {
             @Override
-            public boolean accept(String item) {
+            public boolean test(String item) {
                 return getLowercaseRatio(item) <= lowercaseThreshold;
             }
         });

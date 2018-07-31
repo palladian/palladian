@@ -31,7 +31,7 @@ public class BooleanToNumericValueTransformer extends AbstractDatasetFeatureVect
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		InstanceBuilder builder = new InstanceBuilder();
 		for (VectorEntry<String, Value> entry : featureVector) {
 			if (entry.value() instanceof BooleanValue) {

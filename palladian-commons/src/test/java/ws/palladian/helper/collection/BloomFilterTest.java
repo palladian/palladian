@@ -29,8 +29,8 @@ public class BloomFilterTest {
                 "lemon", "melon"));
         filter.addAll(items);
         assertTrue(CollectionHelper.acceptAll(items, filter));
-        assertFalse(filter.accept("mango"));
-        assertFalse(filter.accept("pineapple"));
+        assertFalse(filter.test("mango"));
+        assertFalse(filter.test("pineapple"));
         // System.out.println(filter);
     }
 

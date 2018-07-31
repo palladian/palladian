@@ -26,8 +26,8 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
@@ -87,7 +87,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
         }
 
         @Override
-        public Instance compute(LocationDocument input) {
+        public Instance apply(LocationDocument input) {
             Location mainLocation = input.getMainLocation();
             String gridIdentifier = UNDETERMINED;
             if (mainLocation != null && mainLocation.getCoordinate() != null) {
@@ -125,9 +125,9 @@ public class DictionaryScopeDetector implements ScopeDetector {
      * 
      * @author Philipp Katz
      */
-    static final class CoordinateFilter implements Filter<LocationDocument> {
+    static final class CoordinateFilter implements Predicate<LocationDocument> {
         @Override
-        public boolean accept(LocationDocument item) {
+        public boolean test(LocationDocument item) {
             return item.getMainLocation() != null && item.getMainLocation().getCoordinate() != null;
         }
 

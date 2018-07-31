@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -28,7 +28,7 @@ public final class CleanevalDataset implements ContentExtractionDataset {
 
     public CleanevalDataset(File cleanEvalDirectory) {
         Validate.notNull(cleanEvalDirectory, "cleanEvalDirectory must not be null");
-        this.txtFiles = FileHelper.getFiles(cleanEvalDirectory, Filters.fileExtension("txt"));
+        this.txtFiles = FileHelper.getFiles(cleanEvalDirectory, Predicates.fileExtension("txt"));
     }
 
     @Override

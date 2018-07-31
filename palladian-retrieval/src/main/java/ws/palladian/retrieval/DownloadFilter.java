@@ -8,7 +8,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -27,7 +27,7 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class DownloadFilter implements Filter<String> {
+public class DownloadFilter implements Predicate<String> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadFilter.class);
@@ -69,7 +69,7 @@ public class DownloadFilter implements Filter<String> {
     }
 
     @Override
-    public boolean accept(String url) {
+    public boolean test(String url) {
         String fileType = FileHelper.getFileType(url).toLowerCase();
         boolean whitelisted = whitelist.isEmpty() || whitelist.contains(fileType);
         boolean blacklisted = blacklist.contains(fileType);

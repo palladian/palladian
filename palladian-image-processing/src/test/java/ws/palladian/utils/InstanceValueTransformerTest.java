@@ -1,7 +1,7 @@
 package ws.palladian.utils;
 
 import static org.junit.Assert.assertEquals;
-import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.helper.functional.Predicates.regex;
 
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class InstanceValueTransformerTest {
 	@Test
 	public void testBinarizer() {
 		InstanceValueBinarizer transformer = new InstanceValueBinarizer(regex("word.*"));
-		Instance result = transformer.compute(TEST_INSTANCE);
+		Instance result = transformer.apply(TEST_INSTANCE);
 		assertEquals(ImmutableBooleanValue.TRUE, result.getVector().get("word-a"));
 		assertEquals(ImmutableBooleanValue.FALSE, result.getVector().get("word-d"));
 	}
@@ -37,7 +37,7 @@ public class InstanceValueTransformerTest {
 	@Test
 	public void testRelativizer() {
 		InstanceValueRelativizer transformer = new InstanceValueRelativizer(regex("word.*"));
-		Instance result = transformer.compute(TEST_INSTANCE);
+		Instance result = transformer.apply(TEST_INSTANCE);
 		assertEquals(new ImmutableDoubleValue(0.3), result.getVector().get("word-a"));
 		assertEquals(new ImmutableDoubleValue(0), result.getVector().get("word-d"));
 	}

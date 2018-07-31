@@ -3,8 +3,8 @@ package ws.palladian.extraction.entity.tagger;
 import static ws.palladian.core.AnnotationFilters.range;
 import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.helper.collection.CollectionHelper.filterList;
-import static ws.palladian.helper.functional.Filters.NONE;
-import static ws.palladian.helper.functional.Filters.fileExtension;
+import static ws.palladian.helper.functional.Predicates.NONE;
+import static ws.palladian.helper.functional.Predicates.fileExtension;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

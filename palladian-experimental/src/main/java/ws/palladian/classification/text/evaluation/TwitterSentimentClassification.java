@@ -12,7 +12,7 @@ import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
@@ -26,9 +26,9 @@ public class TwitterSentimentClassification {
         Iterable<Instance> testData = new TwitterSentimentDatasetIterator(testFile);
 
         // skip "neutral" class in test data
-        testData = CollectionHelper.filter(testData, new Filter<Instance>() {
+        testData = CollectionHelper.filter(testData, new Predicate<Instance>() {
             @Override
-            public boolean accept(Instance item) {
+            public boolean test(Instance item) {
                 return !item.getCategory().equals("2");
             }
         });

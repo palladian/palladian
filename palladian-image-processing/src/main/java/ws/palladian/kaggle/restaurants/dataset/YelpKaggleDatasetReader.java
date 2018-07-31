@@ -24,7 +24,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.kaggle.restaurants.utils.Config;
 import ws.palladian.utils.ModuloFilter;
@@ -54,14 +54,14 @@ public class YelpKaggleDatasetReader extends AbstractDataset {
 	 * the businesses, i.e. one businesses photos are either in the training or
 	 * the validation set.
 	 */
-	public static enum BusinessFilter implements Filter<Instance> {
+	public static enum BusinessFilter implements Predicate<Instance> {
 		TRAIN(true), VALIDATE(false);
 		private final boolean b;
 		private BusinessFilter(boolean b) {
 			this.b = b;
 		}
 		@Override
-		public boolean accept(Instance item) {
+		public boolean test(Instance item) {
 			Value businessIdValue = item.getVector().get("businessId");
 //			if (businessIdValue == null || businessIdValue == NullValue.NULL) { // XXX inconsistent naming
 //				businessIdValue = item.getVector().get("business_id");

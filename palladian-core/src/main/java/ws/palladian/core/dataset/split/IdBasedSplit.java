@@ -2,8 +2,7 @@ package ws.palladian.core.dataset.split;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
-import ws.palladian.core.dataset.split.AbstractFilterSplit;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class IdBasedSplit extends AbstractFilterSplit {
 
@@ -12,10 +11,10 @@ public class IdBasedSplit extends AbstractFilterSplit {
 	}
 
 	@Override
-	protected Filter<? super Instance> createFilter() {
-		return new Filter<Instance>() {
+	protected Predicate<? super Instance> createFilter() {
+		return new Predicate<Instance>() {
 			@Override
-			public boolean accept(Instance item) {
+			public boolean test(Instance item) {
 				String id = item.getVector().getNominal("Id").getString();
 				return Integer.parseInt(id) % 2 == 0;
 			}

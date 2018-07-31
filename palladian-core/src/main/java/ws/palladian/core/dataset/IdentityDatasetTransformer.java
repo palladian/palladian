@@ -11,7 +11,7 @@ public final class IdentityDatasetTransformer implements DatasetTransformer {
 	}
 
 	@Override
-	public Instance compute(Instance input) {
+	public Instance apply(Instance input) {
 		return input;
 	}
 

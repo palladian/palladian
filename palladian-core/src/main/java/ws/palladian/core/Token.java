@@ -1,13 +1,13 @@
 package ws.palladian.core;
 
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 public interface Token extends Comparable<Token> {
 
     /** Function to convert a {@link Token} to its String value. */
     Function<Token, String> VALUE_CONVERTER = new Function<Token, String>() {
         @Override
-        public String compute(Token input) {
+        public String apply(Token input) {
             return input.getValue();
         }
     };

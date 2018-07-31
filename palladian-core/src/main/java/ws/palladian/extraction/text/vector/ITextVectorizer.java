@@ -7,6 +7,6 @@ public interface ITextVectorizer extends DatasetTransformer {
 	
 	// TODO refactor this to compute(FeatureInformation, FeatureVector)
 	// TODO copied from AbstractDatasetFeatureVectorTransformer
-	public abstract FeatureVector compute(FeatureVector featureVector);
+	public abstract FeatureVector apply(FeatureVector featureVector);
 
 }

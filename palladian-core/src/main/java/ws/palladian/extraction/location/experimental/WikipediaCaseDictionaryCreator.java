@@ -18,7 +18,7 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -48,7 +48,7 @@ class WikipediaCaseDictionaryCreator {
             final int[] counter = new int[] {0};
             MediaWikiUtil.parseDump(wikipediaDump, new Consumer<WikiPage>() {
                 @Override
-                public void process(WikiPage page) {
+                public void accept(WikiPage page) {
                     if (page.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                         return;
                     }

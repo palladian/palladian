@@ -9,20 +9,20 @@ import ws.palladian.core.dataset.FeatureInformation;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class InstanceValueRelativizer implements DatasetTransformer {
-	private final Filter<? super String> filter;
+	private final Predicate<? super String> filter;
 
-	public InstanceValueRelativizer(Filter<? super String> filter) {
+	public InstanceValueRelativizer(Predicate<? super String> filter) {
 		this.filter = Objects.requireNonNull(filter);
 	}
 
 	@Override
-	public Instance compute(Instance input) {
+	public Instance apply(Instance input) {
 		int bowSum = 0;
 		for (VectorEntry<String, Value> entry : input.getVector()) {
-			if (filter.accept(entry.key())) {
+			if (filter.test(entry.key())) {
 				if (entry.value() instanceof NumericValue) {
 					bowSum += ((NumericValue) entry.value()).getDouble();
 				} else {
@@ -33,7 +33,7 @@ public class InstanceValueRelativizer implements DatasetTransformer {
 		}
 		InstanceBuilder builder = new InstanceBuilder();
 		for (VectorEntry<String, Value> entry : input.getVector()) {
-			if (filter.accept(entry.key())) {
+			if (filter.test(entry.key())) {
 				double frequency = 0;
 				if (bowSum > 0) {
 					frequency = ((NumericValue) entry.value()).getDouble() / bowSum;

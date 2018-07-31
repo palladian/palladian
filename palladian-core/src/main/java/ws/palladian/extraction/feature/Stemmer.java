@@ -19,7 +19,7 @@ import org.tartarus.snowball.ext.swedishStemmer;
 import org.tartarus.snowball.ext.turkishStemmer;
 
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 /**
  * Stemmer using <a href="http://snowball.tartarus.org">Snowball</a>. Important: This class is <b>not</b> Thread-safe!
@@ -88,7 +88,7 @@ public final class Stemmer implements Function<String, String> {
     }
 
     @Override
-    public String compute(String input) {
+    public String apply(String input) {
         return stem(input);
     }
 

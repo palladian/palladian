@@ -19,7 +19,7 @@ import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -57,7 +57,7 @@ public final class PalladianTextClassifierOptimizer<R> {
         progressReporter.startTask("Evaluating feature settings", config.getFeatureSettings().size() * config.getScorers().size());
         for (FeatureSetting featureSetting : config.getFeatureSettings()) {
             DictionaryModel model = new PalladianTextClassifier(featureSetting, config.getDictionaryBuilder()).train(training);
-            for (Filter<? super CategoryEntries> pruningStrategy : config.getPruningStrategies()) {
+            for (Predicate<? super CategoryEntries> pruningStrategy : config.getPruningStrategies()) {
                 model = new PruningSimulatedDictionaryModel(model, pruningStrategy);
                 for (Scorer scorer : config.getScorers()) {
                     PalladianTextClassifier textClassifier = new PalladianTextClassifier(featureSetting, scorer);

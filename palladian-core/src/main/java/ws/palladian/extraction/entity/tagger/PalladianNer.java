@@ -6,7 +6,7 @@ import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
 import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
 import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
 import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -61,8 +61,8 @@ import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.RegExp;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
@@ -338,7 +338,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         PalladianTextClassifier textClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.ANNOTATION_FEATURE_SETTING, builder );
         Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
             @Override
-            public Instance compute(Annotation input) {
+            public Instance apply(Annotation input) {
                 return new InstanceBuilder().setText(input.getValue()).create(input.getTag());
             }
         });
@@ -683,9 +683,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private static void removeDates(Set<Annotation> annotations) {
-        int numRemoved = CollectionHelper.remove(annotations, new Filter<Annotation>() {
+        int numRemoved = CollectionHelper.remove(annotations, new Predicate<Annotation>() {
             @Override
-            public boolean accept(Annotation annotation) {
+            public boolean test(Annotation annotation) {
                 return !isDateFragment(annotation.getValue());
             }
         });
@@ -746,9 +746,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @param annotations The annotations.
      */
     private void removeSentenceStartErrors(Set<Annotation> annotations) {
-        int removed = CollectionHelper.remove(annotations, new Filter<Annotation>() {
+        int removed = CollectionHelper.remove(annotations, new Predicate<Annotation>() {
             @Override
-            public boolean accept(Annotation annotation) {
+            public boolean test(Annotation annotation) {
                 if (annotation.getValue().indexOf(" ") == -1) {
                     if (model.lowerCaseDictionary.contains(annotation.getValue().toLowerCase())) {
                         LOGGER.debug("Remove by case signature: {}", annotation.getValue());
@@ -762,9 +762,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     }
 
     private void removeIncorrectlyTaggedInTraining(Set<Annotation> annotations) {
-        int removed = CollectionHelper.remove(annotations, new Filter<Annotation>() {
+        int removed = CollectionHelper.remove(annotations, new Predicate<Annotation>() {
             @Override
-            public boolean accept(Annotation annotation) {
+            public boolean test(Annotation annotation) {
                 return !model.removeAnnotations.contains(annotation.getValue().toLowerCase());
             }
         });
@@ -897,7 +897,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         PalladianTextClassifier contextClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.CONTEXT_FEATURE_SETTING, builder );
         Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
             @Override
-            public Instance compute(Annotation input) {
+            public Instance apply(Annotation input) {
                 return new InstanceBuilder().setText(NerHelper.getCharacterContext(input, text, PalladianNerTrainingSettings.WINDOW_SIZE)).create(
                         input.getTag());
             }

@@ -32,7 +32,7 @@ public final class ToNominalValueTransformer extends AbstractDatasetFeatureVecto
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		String nominalValue = featureVector.get(valueName).toString();
 		FeatureVector appendedVector = new InstanceBuilder().set(valueName + "_nominal", nominalValue).create();
 		return new AppendedVector(featureVector, appendedVector);

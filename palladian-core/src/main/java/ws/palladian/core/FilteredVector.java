@@ -8,7 +8,7 @@ import java.util.Set;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * A feature vector, where features can be removed by applying a filter.
@@ -22,7 +22,7 @@ public class FilteredVector extends AbstractFeatureVector {
 	private final Set<String> filteredNames;
 
 	/**
-	 * @deprecated Use {@link FeatureVector#filter(Filter)} for direct access.
+	 * @deprecated Use {@link FeatureVector#filter(Predicate)} for direct access.
 	 */
 	public FilteredVector(FeatureVector original, Set<String> filteredFeatures) {
 		Objects.requireNonNull(original, "original must not be null");
@@ -32,9 +32,9 @@ public class FilteredVector extends AbstractFeatureVector {
 	}
 
 	/**
-	 * @deprecated Use {@link FeatureVector#filter(Filter)} for direct access.
+	 * @deprecated Use {@link FeatureVector#filter(Predicate)} for direct access.
 	 */
-	public FilteredVector(FeatureVector original, Filter<? super String> filteredFeatures) {
+	public FilteredVector(FeatureVector original, Predicate<? super String> filteredFeatures) {
 		this(original, CollectionHelper.filterSet(original.keys(), filteredFeatures));
 	}
 

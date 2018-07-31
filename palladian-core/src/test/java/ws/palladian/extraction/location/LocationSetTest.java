@@ -10,8 +10,8 @@ import static ws.palladian.extraction.location.LocationType.CITY;
 import static ws.palladian.extraction.location.LocationType.POI;
 import static ws.palladian.extraction.location.LocationType.REGION;
 import static ws.palladian.extraction.location.LocationType.UNIT;
-import static ws.palladian.helper.functional.Filters.equal;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.util.Arrays;
 import java.util.Collections;

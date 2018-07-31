@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -22,9 +24,7 @@ import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
-import ws.palladian.helper.functional.Function;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
@@ -55,7 +55,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
 		Double evaluate(Dataset trainingData, Dataset testingData) {
             M model = learner.train(trainingData);
 			R evaluationResult = evaluator.evaluate(classifier, model, testingData);
-			return mapper.compute(evaluationResult);
+			return mapper.apply(evaluationResult);
 		}
     }
 
@@ -107,7 +107,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
         progressReporter.startTask("Single feature classification", allFeatures.size());
 
         for (String feature : allFeatures) {
-            Filter<String> filter = Filters.equal(feature);
+        	Predicate<String> filter = Predicates.equal(feature);
             Dataset eliminatedTrainData = trainSet.filterFeatures(filter);
             Dataset eliminatedTestData = validationSet.filterFeatures(filter);
 
@@ -133,7 +133,7 @@ public final class SingleFeatureClassification extends AbstractFeatureRanker {
         // measures as provided by the ConfusionMatrix can be used (e.g. accuracy, precision, ...).
         Function<ConfusionMatrix, Double> scorer = new Function<ConfusionMatrix, Double>() {
             @Override
-            public Double compute(ConfusionMatrix input) {
+            public Double apply(ConfusionMatrix input) {
                 double value = input.getF(1.0, "true");
                 return Double.isNaN(value) ? 0 : value;
             }

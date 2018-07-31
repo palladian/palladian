@@ -2,8 +2,8 @@ package ws.palladian.extraction.location.experimental;
 
 import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.LEFT;
 import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.RIGHT;
-import static ws.palladian.helper.functional.Filters.and;
-import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.helper.functional.Predicates.and;
+import static ws.palladian.helper.functional.Predicates.regex;
 import static ws.palladian.helper.functional.Functions.LOWERCASE;
 
 import java.io.File;
@@ -25,7 +25,7 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -87,7 +87,7 @@ public class PatternAnalyzer {
                 }
             }
         });
-        Set<Filter<CategoryEntries>> pruningStrategies = new HashSet<>();
+        Set<Predicate<CategoryEntries>> pruningStrategies = new HashSet<>();
         pruningStrategies.add(new PruningStrategies.TermCountPruningStrategy(minCount));
         pruningStrategies.add(new PruningStrategies.MinProbabilityPruningStrategy(minProb));
         builder.setPruningStrategy(and(pruningStrategies));

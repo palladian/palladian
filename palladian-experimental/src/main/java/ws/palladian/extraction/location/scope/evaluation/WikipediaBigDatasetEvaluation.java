@@ -17,10 +17,10 @@ import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Consumer;
+import java.util.function.Consumer;
 import ws.palladian.helper.functional.ConsumerIteratorAdapter;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
@@ -45,7 +45,7 @@ public class WikipediaBigDatasetEvaluation {
         private static final String UNDETERMINED = "undetermined";
 
         @Override
-        public LocationDocument compute(WikiPage input) {
+        public LocationDocument apply(WikiPage input) {
             // copy MarkupCoordinate, as it contains lots of junk taking memory
             MarkupCoordinate tmp = input.getCoordinate();
             GeoCoordinate scope = new ImmutableGeoCoordinate(tmp.getLatitude(), tmp.getLongitude());
@@ -55,7 +55,7 @@ public class WikipediaBigDatasetEvaluation {
     };
 
     /** Split by modulo. */
-    private static final class ModSplitter implements Filter<WikiPage> {
+    private static final class ModSplitter implements Predicate<WikiPage> {
 
         private final int mod;
         private final int min;
@@ -77,7 +77,7 @@ public class WikipediaBigDatasetEvaluation {
         }
 
         @Override
-        public boolean accept(WikiPage item) {
+        public boolean test(WikiPage item) {
             int tmp = item.getId() % mod;
             return min <= tmp && tmp <= max;
         }
@@ -93,9 +93,9 @@ public class WikipediaBigDatasetEvaluation {
 
             @Override
             protected void consume(Iterable<WikiPage> iterable) {
-                iterable = CollectionHelper.filter(iterable, new Filter<WikiPage>() {
+                iterable = CollectionHelper.filter(iterable, new Predicate<WikiPage>() {
                     @Override
-                    public boolean accept(WikiPage item) {
+                    public boolean test(WikiPage item) {
                         if (item.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
                             return false;
                         }

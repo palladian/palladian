@@ -18,8 +18,8 @@ import ws.palladian.helper.collection.BloomFilter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.functional.Filter;
 import ws.palladian.helper.functional.Functions;
+import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
@@ -36,7 +36,7 @@ public class BlockingLocationSource extends MultiQueryLocationSource {
 
     private final LocationSource wrapped;
 
-    private final Filter<String> filter;
+    private final Predicate<String> filter;
 
     private int blockedItems;
 
@@ -50,7 +50,7 @@ public class BlockingLocationSource extends MultiQueryLocationSource {
         this(wrapped, initializeBloomFilter(wrapped));
     }
 
-    public BlockingLocationSource(LocationSource wrapped, Filter<String> filter) {
+    public BlockingLocationSource(LocationSource wrapped, Predicate<String> filter) {
         this.wrapped = wrapped;
         this.filter = filter;
     }

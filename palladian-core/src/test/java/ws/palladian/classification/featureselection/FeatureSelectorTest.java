@@ -2,7 +2,7 @@ package ws.palladian.classification.featureselection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static ws.palladian.helper.functional.Filters.regex;
+import static ws.palladian.helper.functional.Predicates.regex;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -6,20 +6,20 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
- * Different {@link Filter}s for {@link Location}s.
+ * Different {@link Predicate}s for {@link Location}s.
  * 
  * @author Philipp Katz
  */
 public final class LocationFilters {
     
-    /** {@link Filter} for removing {@link Location}s without coordinates. */
-    private static final Filter<Location> COORDINATE_FILTER = new Filter<Location>() {
+    /** {@link Predicate} for removing {@link Location}s without coordinates. */
+    private static final Predicate<Location> COORDINATE_FILTER = new Predicate<Location>() {
         @Override
-        public boolean accept(Location location) {
+        public boolean test(Location location) {
             return location.getCoordinate() != null && location.getCoordinate() != GeoCoordinate.NULL;
         }
     };
@@ -28,51 +28,51 @@ public final class LocationFilters {
         // no instance
     }
 
-    public static Filter<Location> childOf(final Location location) {
+    public static Predicate<Location> childOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Filter<Location>() {
+        return new Predicate<Location>() {
             @Override
-            public boolean accept(Location item) {
+            public boolean test(Location item) {
                 return item.childOf(location);
             }
         };
     }
 
-    public static Filter<Location> descendantOf(final Location location) {
+    public static Predicate<Location> descendantOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Filter<Location>() {
+        return new Predicate<Location>() {
             @Override
-            public boolean accept(Location item) {
+            public boolean test(Location item) {
                 return item.descendantOf(location);
             }
         };
     }
 
-    public static Filter<Location> ancestorOf(final Location location) {
+    public static Predicate<Location> ancestorOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Filter<Location>() {
+        return new Predicate<Location>() {
             @Override
-            public boolean accept(Location item) {
+            public boolean test(Location item) {
                 return location.descendantOf(item);
             }
         };
     }
 
-    public static Filter<Location> siblingOf(final Location location) {
+    public static Predicate<Location> siblingOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Filter<Location>() {
+        return new Predicate<Location>() {
             @Override
-            public boolean accept(Location item) {
+            public boolean test(Location item) {
                 return item.getAncestorIds().equals(location.getAncestorIds());
             }
         };
     }
 
-    public static Filter<Location> parentOf(final Location location) {
+    public static Predicate<Location> parentOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Filter<Location>() {
+        return new Predicate<Location>() {
             @Override
-            public boolean accept(Location item) {
+            public boolean test(Location item) {
                 return location.childOf(item);
             }
         };
@@ -86,7 +86,7 @@ public final class LocationFilters {
      * @param distance The maximum distance in kilometers for a location to be accepted, greater/equal zero.
      * @return A new filter centered around the given coordinate with the specified distance
      */
-    public static Filter<Location> radius(GeoCoordinate center, double distance) {
+    public static Predicate<Location> radius(GeoCoordinate center, double distance) {
         Validate.notNull(center, "center must not be null");
         Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
         return new LocationRadiusFilter(center, distance);
@@ -100,11 +100,11 @@ public final class LocationFilters {
      * @param minPopulation The minimum population count, must be greater zero.
      * @return A filter for the specified minimum population count.
      */
-    public static Filter<Location> population(final long minPopulation) {
+    public static Predicate<Location> population(final long minPopulation) {
         Validate.isTrue(minPopulation >= 0, "population must be greater/equal zero");
-        return new Filter<Location>() {
+        return new Predicate<Location>() {
             @Override
-            public boolean accept(Location item) {
+            public boolean test(Location item) {
                 return item.getPopulation() != null && item.getPopulation() >= minPopulation;
             }
         };
@@ -117,7 +117,7 @@ public final class LocationFilters {
      * @param types The types to accept, not <code>null</code>.
      * @return A new filter which accepts the given types.
      */
-    public static Filter<Location> type(LocationType... types) {
+    public static Predicate<Location> type(LocationType... types) {
         Validate.notNull(types, "types must not be null");
         return new LocationTypeFilter(types);
     }
@@ -126,7 +126,7 @@ public final class LocationFilters {
      * @return A filter which only accepts locations which have a coordinate (rejecting those locations, where the
      *         coordinate is <code>null</code> or {@link GeoCoordinate#NULL}).
      */
-    public static Filter<Location> coordinate() {
+    public static Predicate<Location> coordinate() {
         return COORDINATE_FILTER;
     }
 
@@ -136,7 +136,7 @@ public final class LocationFilters {
      * 
      * @author Philipp Katz
      */
-    private static class LocationTypeFilter implements Filter<Location> {
+    private static class LocationTypeFilter implements Predicate<Location> {
 
         private final Set<LocationType> types;
 
@@ -145,7 +145,7 @@ public final class LocationFilters {
         }
 
         @Override
-        public boolean accept(Location item) {
+        public boolean test(Location item) {
             return types.contains(item.getType());
         }
 
@@ -166,7 +166,7 @@ public final class LocationFilters {
 //        }
 //
 //        @Override
-//        public boolean accept(Location item) {
+//        public boolean test(Location item) {
 //            return item.getId() == id;
 //        }
 //
@@ -174,13 +174,13 @@ public final class LocationFilters {
     
     /**
      * <p>
-     * A {@link Filter} for {@link Location}s which only accepts those locations within a specified radius around a
+     * A {@link Predicate} for {@link Location}s which only accepts those locations within a specified radius around a
      * given center (e.g. give me all locations in distance 1 kilometers from point x). The logic is optimized for speed
      * to avoid costly distance calculations and uses a bounding box as blocker first.
      * 
      * @author Philipp Katz
      */
-    private static class LocationRadiusFilter implements Filter<Location> {
+    private static class LocationRadiusFilter implements Predicate<Location> {
 
         private final GeoCoordinate center;
         private final double distance;
@@ -193,7 +193,7 @@ public final class LocationFilters {
         }
 
         @Override
-        public boolean accept(Location item) {
+        public boolean test(Location item) {
             GeoCoordinate coordinate = item.getCoordinate();
             if (coordinate == null) {
                 return false;

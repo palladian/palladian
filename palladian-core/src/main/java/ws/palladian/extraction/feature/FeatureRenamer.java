@@ -10,7 +10,7 @@ import ws.palladian.core.dataset.FeatureInformation.FeatureInformationEntry;
 import ws.palladian.core.dataset.FeatureInformationBuilder;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 public final class FeatureRenamer extends AbstractDatasetFeatureVectorTransformer {
 
@@ -26,7 +26,7 @@ public final class FeatureRenamer extends AbstractDatasetFeatureVectorTransforme
 		Validate.notEmpty(replacement, "replacement must not be null or empty");
 		this.featureNameMapping = new Function<String, String>() {
 			@Override
-			public String compute(String input) {
+			public String apply(String input) {
 				return input.replaceAll(regex, replacement);
 			}
 		};
@@ -36,21 +36,21 @@ public final class FeatureRenamer extends AbstractDatasetFeatureVectorTransforme
 	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
 		FeatureInformationBuilder builder = new FeatureInformationBuilder();
 		for (FeatureInformationEntry fiEntry : featureInformation) {
-			String mappedName = featureNameMapping.compute(fiEntry.getName());
+			String mappedName = featureNameMapping.apply(fiEntry.getName());
 			builder.set(mappedName != null ? mappedName : fiEntry.getName(), fiEntry.getType());
 		}
 		return builder.create();
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		// return new RenamedFeatureVector(featureVector, featureNameMapping);
 
 		// XXX not very efficient to create a whole new FeatureVector here,
 		// but is solves above's bug for now
 		InstanceBuilder builder = new InstanceBuilder();
 		for (VectorEntry<String, Value> entry : featureVector) {
-			builder.set(featureNameMapping.compute(entry.key()), entry.value());
+			builder.set(featureNameMapping.apply(entry.key()), entry.value());
 		}
 		return builder.create();
 	}

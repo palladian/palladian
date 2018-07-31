@@ -2,19 +2,19 @@ package ws.palladian.kaggle.restaurants.dataset;
 
 import java.io.File;
 
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
+import java.util.function.Predicate;
+import ws.palladian.helper.functional.Predicates;
 
-public final class FilenameIndexRangeFilter implements Filter<File> {
+public final class FilenameIndexRangeFilter implements Predicate<File> {
 
 	private final int maxIndex;
 
-	public static Filter<File> until(int index) {
+	public static Predicate<File> until(int index) {
 		return new FilenameIndexRangeFilter(index);
 	}
 
-	public static Filter<File> above(int index) {
-		return Filters.not(until(index));
+	public static Predicate<File> above(int index) {
+		return Predicates.not(until(index));
 	}
 
 	private FilenameIndexRangeFilter(int maxIndex) {
@@ -22,7 +22,7 @@ public final class FilenameIndexRangeFilter implements Filter<File> {
 	}
 
 	@Override
-	public boolean accept(File item) {
+	public boolean test(File item) {
 		String numberPart = item.getName().replaceAll("[^\\d]", "");
 		try {
 			int filenameIndex = Integer.parseInt(numberPart);

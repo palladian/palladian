@@ -11,14 +11,14 @@ public class ModuloFilterTest {
 	@Test
 	public void testSplitFilter() {
 		ModuloFilter filter = new ModuloFilter(true);
-		assertTrue(filter.accept(new Object()));
-		assertFalse(filter.accept(new Object()));
-		assertTrue(filter.accept(new Object()));
+		assertTrue(filter.test(new Object()));
+		assertFalse(filter.test(new Object()));
+		assertTrue(filter.test(new Object()));
 
 		filter = new ModuloFilter(false);
-		assertFalse(filter.accept(new Object()));
-		assertTrue(filter.accept(new Object()));
-		assertFalse(filter.accept(new Object()));
+		assertFalse(filter.test(new Object()));
+		assertTrue(filter.test(new Object()));
+		assertFalse(filter.test(new Object()));
 	}
 
 }

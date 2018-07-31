@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,20 +16,20 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper;
 
 /**
- * Default {@link Filter} implementations.
+ * Default {@link Predicate} implementations.
  * 
  * @author Philipp Katz
  */
-public final class Filters {
+public final class Predicates {
 
-    private Filters() {
+    private Predicates() {
         // no instances
     }
 
     /** A filter which removes <code>null</code> elements. */
-    public static final Filter<Object> NOT_NULL = new Filter<Object>() {
+    public static final Predicate<Object> NOT_NULL = new Predicate<Object>() {
         @Override
-        public boolean accept(Object item) {
+        public boolean test(Object item) {
             return item != null;
         }
         @Override
@@ -38,9 +39,9 @@ public final class Filters {
     };
 
     /** A filter which accepts all elements. */
-    public static final Filter<Object> ALL = new Filter<Object>() {
+    public static final Predicate<Object> ALL = new Predicate<Object>() {
         @Override
-        public boolean accept(Object item) {
+        public boolean test(Object item) {
             return true;
         }
         @Override
@@ -50,9 +51,9 @@ public final class Filters {
     };
 
     /** A filter which rejects all elements. */
-    public static final Filter<Object> NONE = new Filter<Object>() {
+    public static final Predicate<Object> NONE = new Predicate<Object>() {
         @Override
-        public boolean accept(Object item) {
+        public boolean test(Object item) {
             return false;
         }
         @Override
@@ -62,9 +63,9 @@ public final class Filters {
     };
 
     /** A filter which rejects empty {@link CharSequence}s. */
-    public static final Filter<CharSequence> EMPTY = new Filter<CharSequence>() {
+    public static final Predicate<CharSequence> EMPTY = new Predicate<CharSequence>() {
         @Override
-        public boolean accept(CharSequence item) {
+        public boolean test(CharSequence item) {
             return item != null && item.length() > 0;
         }
         @Override
@@ -80,12 +81,12 @@ public final class Filters {
      * @param filter The Filter to wrap, not <code>null</code>.
      * @return A filter with inverted logic of the specified filter.
      */
-    public static <T> Filter<T> not(final Filter<T> filter) {
+    public static <T> Predicate<T> not(final Predicate<T> filter) {
         Validate.notNull(filter, "filter must not be null");
-        return new Filter<T>() {
+        return new Predicate<T>() {
             @Override
-            public boolean accept(T item) {
-                return !filter.accept(item);
+            public boolean test(T item) {
+                return !filter.test(item);
             }
             @Override
             public String toString() {
@@ -94,26 +95,26 @@ public final class Filters {
         };
     }
 
-    public static <T> Filter<T> equal(T value) {
+    public static <T> Predicate<T> equal(T value) {
         return new EqualsFilter<>(Collections.singleton(value));
     }
 
-    public static <T> Filter<T> equal(Collection<T> values) {
+    public static <T> Predicate<T> equal(Collection<T> values) {
         return new EqualsFilter<>(new HashSet<T>(values));
     }
 
     @SafeVarargs
-    public static <T> Filter<T> equal(T... values) {
+    public static <T> Predicate<T> equal(T... values) {
         return new EqualsFilter<>(new HashSet<T>(Arrays.asList(values)));
     }
 
     /**
-     * A {@link Filter} which simply filters by Object's equality ({@link Object#equals(Object)}).
+     * A {@link Predicate} which simply filters by Object's equality ({@link Object#equals(Object)}).
      * 
      * @author Philipp Katz
      * @param <T> The type of items to filter.
      */
-    private static final class EqualsFilter<T> implements Filter<T> {
+    private static final class EqualsFilter<T> implements Predicate<T> {
         private final Set<T> values;
 
         private EqualsFilter(Set<T> values) {
@@ -121,7 +122,7 @@ public final class Filters {
         }
 
         @Override
-        public boolean accept(T item) {
+        public boolean test(T item) {
             return item != null && values.contains(item);
         }
         
@@ -131,32 +132,32 @@ public final class Filters {
         }
     }
 
-    public static Filter<String> regex(String pattern) {
+    public static Predicate<String> regex(String pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         return new RegexFilter(Pattern.compile(pattern));
     }
 
-    public static Filter<String> regex(Pattern pattern) {
+    public static Predicate<String> regex(Pattern pattern) {
         Validate.notNull(pattern, "pattern must not be null");
         return new RegexFilter(pattern);
     }
     
-	public static Filter<String> contains(final String substring) {
+	public static Predicate<String> contains(final String substring) {
 		Validate.notNull(substring, "substring must not be null");
-		return new Filter<String>() {
+		return new Predicate<String>() {
 			@Override
-			public boolean accept(String item) {
+			public boolean test(String item) {
 				return item.contains(substring);
 			}
 		};
 	}
 
     /**
-     * A {@link Filter} for {@link String}s using Regex.
+     * A {@link Predicate} for {@link String}s using Regex.
      * 
      * @author Philipp Katz
      */
-    private static final class RegexFilter implements Filter<String> {
+    private static final class RegexFilter implements Predicate<String> {
 
         private final Pattern pattern;
 
@@ -165,7 +166,7 @@ public final class Filters {
         }
 
         @Override
-        public boolean accept(String item) {
+        public boolean test(String item) {
             if (item == null) {
                 return false;
             }
@@ -187,7 +188,7 @@ public final class Filters {
      * @param filters The filters to combine, not <code>null</code>.
      * @return An <code>AND</code>-combination of the given filters.
      */
-    public static <T> Filter<T> and(Collection<? extends Filter<? super T>> filters) {
+    public static <T> Predicate<T> and(Collection<? extends Predicate<? super T>> filters) {
         Validate.notNull(filters, "filters must not be null");
         return new AndFilter<>(filters);
     }
@@ -201,7 +202,7 @@ public final class Filters {
      * @return An <code>AND</code>-combination of the given filters.
      */
     @SafeVarargs
-    public static <T> Filter<T> and(Filter<? super T>... filters) {
+    public static <T> Predicate<T> and(Predicate<? super T>... filters) {
         Validate.notNull(filters, "filters must not be null");
         return new AndFilter<>(new LinkedHashSet<>(Arrays.asList(filters)));
     }
@@ -215,7 +216,7 @@ public final class Filters {
 	 *            The filters to combine, not <code>null</code>.
 	 * @return An <code>OR</code>-combination of the given filters.
 	 */
-	public static <T> Filter<T> or(Collection<? extends Filter<? super T>> filters) {
+	public static <T> Predicate<T> or(Collection<? extends Predicate<? super T>> filters) {
 		Validate.notNull(filters, "filters must not be null");
 		return new OrFilter<>(filters);
 	}
@@ -230,30 +231,30 @@ public final class Filters {
 	 * @return An <code>OR</code>-combination of the given filters.
 	 */
     @SafeVarargs
-	public static <T> Filter<T> or(Filter<? super T>... filters) {
+	public static <T> Predicate<T> or(Predicate<? super T>... filters) {
     	Validate.notNull(filters, "filters must not be null");
     	return new OrFilter<>(new LinkedHashSet<>(Arrays.asList(filters)));
     }
 
     /**
-     * A chain of {@link Filter}s effectively acting as an AND filter, i.e. the processed items need to pass all
+     * A chain of {@link Predicate}s effectively acting as an AND filter, i.e. the processed items need to pass all
      * contained filters, to be accepted by the chain.
      * 
      * @param <T> Type of items to be processed.
      * @author Philipp Katz
      */
-    private static final class AndFilter<T> implements Filter<T> {
+    private static final class AndFilter<T> implements Predicate<T> {
 
-        private final Collection<? extends Filter<? super T>> filters;
+        private final Collection<? extends Predicate<? super T>> filters;
 
-        AndFilter(Collection<? extends Filter<? super T>> filters) {
+        AndFilter(Collection<? extends Predicate<? super T>> filters) {
             this.filters = filters;
         }
 
         @Override
-        public boolean accept(T item) {
-            for (Filter<? super T> filter : filters) {
-                if (!filter.accept(item)) {
+        public boolean test(T item) {
+            for (Predicate<? super T> filter : filters) {
+                if (!filter.test(item)) {
                     return false;
                 }
             }
@@ -267,17 +268,17 @@ public final class Filters {
 
     }
     
-    private static final class OrFilter<T> implements Filter<T> {
-    	private final Collection<? extends Filter<? super T>> filters;
+    private static final class OrFilter<T> implements Predicate<T> {
+    	private final Collection<? extends Predicate<? super T>> filters;
 
-		OrFilter(Collection<? extends Filter<? super T>> filters) {
+		OrFilter(Collection<? extends Predicate<? super T>> filters) {
 			this.filters = filters;
 		}
 
 		@Override
-		public boolean accept(T item) {
-			for (Filter<? super T> filter : filters) {
-				if (filter.accept(item)) {
+		public boolean test(T item) {
+			for (Predicate<? super T> filter : filters) {
+				if (filter.test(item)) {
 					return true;
 				}
 			}
@@ -298,12 +299,12 @@ public final class Filters {
      *            don't do harm either), not <code>null</code>.
      * @return A filter accepting the given file name extensions.
      */
-    public static Filter<File> fileExtension(String... extensions) {
+    public static Predicate<File> fileExtension(String... extensions) {
         Validate.notNull(extensions, "extensions must not be null");
         return new FileExtensionFilter(extensions);
     }
 
-    private static final class FileExtensionFilter implements Filter<File> {
+    private static final class FileExtensionFilter implements Predicate<File> {
         private final Set<String> extensionsSet;
 
         private FileExtensionFilter(String... extensions) {
@@ -319,7 +320,7 @@ public final class Filters {
         }
 
         @Override
-        public boolean accept(File item) {
+        public boolean test(File item) {
             if (item.isFile()) {
                 String fileName = item.getName();
                 int dotIdx = fileName.lastIndexOf('.');
@@ -343,10 +344,10 @@ public final class Filters {
      * 
      * @return A filter accepting directories.
      */
-    public static Filter<File> directory() {
-        return new Filter<File>() {
+    public static Predicate<File> directory() {
+        return new Predicate<File>() {
             @Override
-            public boolean accept(File item) {
+            public boolean test(File item) {
                 return item.isDirectory();
             }
         };
@@ -357,10 +358,10 @@ public final class Filters {
 	 * 
 	 * @return A filter accepting files.
 	 */
-	public static Filter<File> file() {
-		return new Filter<File>() {
+	public static Predicate<File> file() {
+		return new Predicate<File>() {
 			@Override
-			public boolean accept(File item) {
+			public boolean test(File item) {
 				return item.isFile();
 			}
 		};
@@ -372,12 +373,12 @@ public final class Filters {
      * @param names The names to accept, not <code>null</code>.
      * @return A filter accepting files with the specified names.
      */
-    public static Filter<File> fileName(String... names) {
+    public static Predicate<File> fileName(String... names) {
         Validate.notNull(names, "names must not be null");
         return new FileNameFilter(names);
     }
 
-    private static final class FileNameFilter implements Filter<File> {
+    private static final class FileNameFilter implements Predicate<File> {
         private final Set<String> nameSet;
 
         public FileNameFilter(String... names) {
@@ -385,7 +386,7 @@ public final class Filters {
         }
 
         @Override
-        public boolean accept(File item) {
+        public boolean test(File item) {
             return nameSet.contains(item.getName());
         }
         

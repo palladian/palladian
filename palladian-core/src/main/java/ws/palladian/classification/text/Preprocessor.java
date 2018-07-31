@@ -12,8 +12,8 @@ import ws.palladian.extraction.token.CharacterNGramTokenizer;
 import ws.palladian.extraction.token.NGramWrapperIterator;
 import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Preprocessor implements Function<String, Iterator<String>> {
 
@@ -25,7 +25,7 @@ public class Preprocessor implements Function<String, Iterator<String>> {
     }
 
     @Override
-    public Iterator<String> compute(String input) {
+    public Iterator<String> apply(String input) {
         String content = input;
         if (!featureSetting.isCaseSensitive()) {
             content = content.toLowerCase();
@@ -46,12 +46,12 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
         if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
+            tokenIterator = CollectionHelper.filter(tokenIterator, new Predicate<Token>() {
                 int minTermLength = featureSetting.getMinimumTermLength();
                 int maxTermLength = featureSetting.getMaximumTermLength();
 
                 @Override
-                public boolean accept(Token item) {
+                public boolean test(Token item) {
                     return item.getValue().length() >= minTermLength && item.getValue().length() <= maxTermLength;
                 }
             });

@@ -89,7 +89,7 @@ public class DummyVariableCreatorTest {
         Dataset dataset = makeDataset();
         DummyVariableCreator dummyVariableCreator = new DummyVariableCreator(dataset, true);
         FeatureVector instance = new InstanceBuilder().set("f1", "beta").set("f2", false).create();
-        FeatureVector converted = dummyVariableCreator.compute(instance);
+        FeatureVector converted = dummyVariableCreator.apply(instance);
         assertEquals(7, converted.size());
         assertFalse(converted.get("f1").isNull());
         assertFalse(converted.get("f2").isNull());

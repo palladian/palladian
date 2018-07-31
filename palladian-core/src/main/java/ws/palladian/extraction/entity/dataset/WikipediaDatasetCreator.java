@@ -3,8 +3,8 @@ package ws.palladian.extraction.entity.dataset;
 import static ws.palladian.core.AnnotationFilters.tag;
 import static ws.palladian.helper.collection.CollectionHelper.remove;
 import static ws.palladian.helper.constants.Language.ENGLISH;
-import static ws.palladian.helper.functional.Filters.fileExtension;
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.fileExtension;
+import static ws.palladian.helper.functional.Predicates.not;
 import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
 import static ws.palladian.retrieval.wiki.MediaWikiDescriptor.Builder.wikipedia;
 

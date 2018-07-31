@@ -1,16 +1,16 @@
 package ws.palladian.core.dataset.split;
 
-import static ws.palladian.helper.functional.Filters.not;
+import static ws.palladian.helper.functional.Predicates.not;
 
 import java.util.Objects;
 
 import ws.palladian.core.Instance;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
- * Template for {@link TrainTestSplit} based on a {@link Filter}. The filter
+ * Template for {@link TrainTestSplit} based on a {@link Predicate}. The filter
  * decides which data goes into the training and which into the testing set.
  * 
  * @author pk
@@ -26,9 +26,9 @@ public abstract class AbstractFilterSplit implements TrainTestSplit {
 
 	@Override
 	public final Dataset getTrain() {
-		return dataset.subset(new Factory<Filter<? super Instance>>() {
+		return dataset.subset(new Factory<Predicate<? super Instance>>() {
 			@Override
-			public Filter<? super Instance> create() {
+			public Predicate<? super Instance> create() {
 				return createFilter();
 			}
 		});
@@ -36,9 +36,9 @@ public abstract class AbstractFilterSplit implements TrainTestSplit {
 
 	@Override
 	public final Dataset getTest() {
-		return dataset.subset(new Factory<Filter<? super Instance>>() {
+		return dataset.subset(new Factory<Predicate<? super Instance>>() {
 			@Override
-			public Filter<? super Instance> create() {
+			public Predicate<? super Instance> create() {
 				return not(createFilter());
 			}
 		});
@@ -50,6 +50,6 @@ public abstract class AbstractFilterSplit implements TrainTestSplit {
 	 * 
 	 * @return The filter for splitting the data.
 	 */
-	protected abstract Filter<? super Instance> createFilter();
+	protected abstract Predicate<? super Instance> createFilter();
 
 }

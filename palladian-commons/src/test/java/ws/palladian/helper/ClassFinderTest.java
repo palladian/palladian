@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import ws.palladian.helper.functional.Filters;
+import ws.palladian.helper.functional.Predicates;
 
 public class ClassFinderTest {
 
@@ -30,7 +30,7 @@ public class ClassFinderTest {
     @Test
     public void testClassFinder() {
         Collection<Class<? extends ExampleInterface>> classes = ClassFinder.findClasses(ExampleInterface.class,
-                Filters.regex("ws.palladian.helper.*"));
+                Predicates.regex("ws.palladian.helper.*"));
         assertEquals(2, classes.size());
         assertTrue(classes.contains(ExampleClass1.class));
         assertTrue(classes.contains(ExampleClass2.class));

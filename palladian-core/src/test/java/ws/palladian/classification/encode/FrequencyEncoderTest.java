@@ -37,7 +37,7 @@ public class FrequencyEncoderTest {
 	public void testWithRegularValues() {
 		FrequencyEncoder frequencyEncoder = new FrequencyEncoder(dataset);
 		Instance testInstance = new InstanceBuilder().set("f1", "a").set("f2", "a").create(true);
-		FeatureVector transformedVector = frequencyEncoder.compute(testInstance).getVector();
+		FeatureVector transformedVector = frequencyEncoder.apply(testInstance).getVector();
 		assertEquals(3. / 8, transformedVector.getNumeric("f1_frequency").getDouble(), DELTA);
 		assertEquals(5. / 8, transformedVector.getNumeric("f2_frequency").getDouble(), DELTA);
 	}
@@ -46,7 +46,7 @@ public class FrequencyEncoderTest {
 	public void testWithNullValues_frequency() {
 		FrequencyEncoder frequencyEncoder = new FrequencyEncoder(dataset, NullValueStrategy.ASSIGN_FREQUENCY);
 		Instance testInstance = new InstanceBuilder().setNull("f1").setNull("f2").create(true);
-		FeatureVector transformedVector = frequencyEncoder.compute(testInstance).getVector();
+		FeatureVector transformedVector = frequencyEncoder.apply(testInstance).getVector();
 		assertEquals(0, transformedVector.getNumeric("f1_frequency").getDouble(), DELTA);
 		assertEquals(3. / 8, transformedVector.getNumeric("f2_frequency").getDouble(), DELTA);
 	}
@@ -55,7 +55,7 @@ public class FrequencyEncoderTest {
 	public void testWithNullValues_null() {
 		FrequencyEncoder frequencyEncoder = new FrequencyEncoder(dataset, NullValueStrategy.KEEP_NULL);
 		Instance testInstance = new InstanceBuilder().setNull("f1").setNull("f2").create(true);
-		FeatureVector transformedVector = frequencyEncoder.compute(testInstance).getVector();
+		FeatureVector transformedVector = frequencyEncoder.apply(testInstance).getVector();
 		assertTrue(transformedVector.get("f1_frequency").isNull());
 		assertTrue(transformedVector.get("f2_frequency").isNull());
 	}

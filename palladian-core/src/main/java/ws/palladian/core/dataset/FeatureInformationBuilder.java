@@ -15,7 +15,7 @@ import ws.palladian.core.value.Value;
 import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public class FeatureInformationBuilder implements Factory<FeatureInformation> {
 
@@ -82,12 +82,12 @@ public class FeatureInformationBuilder implements Factory<FeatureInformation> {
 		return this;
 	}
 	
-	public FeatureInformationBuilder filter(Filter<? super String> filter) {
+	public FeatureInformationBuilder filter(Predicate<? super String> filter) {
 		Objects.requireNonNull(filter, "filter must not be null");
 		Iterator<Entry<String, Class<? extends Value>>> iterator = nameValues.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Entry<String, Class<? extends Value>> current = iterator.next();
-			if (!filter.accept(current.getKey())) {
+			if (!filter.test(current.getKey())) {
 				iterator.remove();
 			}
 		}

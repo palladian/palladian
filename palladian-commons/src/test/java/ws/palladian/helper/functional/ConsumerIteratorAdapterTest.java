@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 
@@ -14,11 +15,11 @@ public class ConsumerIteratorAdapterTest {
         new ConsumerIteratorAdapter<String>() {
             @Override
             protected void produce(Consumer<String> action) {
-                action.process("one");
-                action.process("two");
-                action.process("three");
-                action.process("four");
-                action.process("five");
+                action.accept("one");
+                action.accept("two");
+                action.accept("three");
+                action.accept("four");
+                action.accept("five");
             }
 
             @Override

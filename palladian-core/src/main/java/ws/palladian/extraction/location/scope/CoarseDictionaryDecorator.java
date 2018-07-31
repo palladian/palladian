@@ -23,7 +23,7 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Function;
+import java.util.function.Function;
 
 /**
  * Decorator for a fine grid dictionary to "simulate" a coarse grid dictionary.
@@ -92,7 +92,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
         Set<String> fineCategories = decorated.getCategories();
         return CollectionHelper.convertSet(fineCategories, new Function<String, String>() {
             @Override
-            public String compute(String input) {
+            public String apply(String input) {
                 return mapToCoarse(input);
             }
         });

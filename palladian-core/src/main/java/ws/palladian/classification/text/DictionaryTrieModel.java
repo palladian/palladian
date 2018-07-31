@@ -19,7 +19,7 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.Trie;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         /** The number of terms stored in this dictionary. */
         private int numTerms;
         /** The pruning strategies to apply when creating the model. */
-        private Filter<? super CategoryEntries> pruningStrategy;
+        private Predicate<? super CategoryEntries> pruningStrategy;
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -107,7 +107,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 while (iterator.hasNext()) {
                     Entry<String, LinkedCategoryEntries> next = iterator.next();
                     LinkedCategoryEntries entries = next.getValue();
-                    if (!pruningStrategy.accept(entries)) {
+                    if (!pruningStrategy.test(entries)) {
                         iterator.remove();
                         numRemoved++;
                     }
@@ -128,7 +128,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         }
 
         @Override
-        public DictionaryBuilder setPruningStrategy(Filter<? super CategoryEntries> strategy) {
+        public DictionaryBuilder setPruningStrategy(Predicate<? super CategoryEntries> strategy) {
             Validate.notNull(strategy, "strategy must not be null");
             this.pruningStrategy = strategy;
             return this;

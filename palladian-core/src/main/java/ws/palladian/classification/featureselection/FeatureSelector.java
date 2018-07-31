@@ -1,8 +1,8 @@
 package ws.palladian.classification.featureselection;
 
-import static ws.palladian.helper.functional.Filters.equal;
-import static ws.palladian.helper.functional.Filters.not;
-import static ws.palladian.helper.functional.Filters.or;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
+import static ws.palladian.helper.functional.Predicates.or;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,6 +15,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -34,9 +36,7 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.functional.Factory;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
-import ws.palladian.helper.functional.Function;
+import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.ConfusionMatrix;
 
 /**
@@ -60,7 +60,7 @@ public final class FeatureSelector extends AbstractFeatureRanker {
     @Deprecated
     public static final Function<ConfusionMatrix, Double> ACCURACY_SCORER = new Function<ConfusionMatrix, Double>() {
         @Override
-        public Double compute(ConfusionMatrix input) {
+        public Double apply(ConfusionMatrix input) {
             return input.getAccuracy();
         }
     };
@@ -87,7 +87,7 @@ public final class FeatureSelector extends AbstractFeatureRanker {
         }
 
         @Override
-        public Double compute(ConfusionMatrix input) {
+        public Double apply(ConfusionMatrix input) {
             double value = input.getF(1., className);
             return Double.isNaN(value) ? 0 : value;
         }
@@ -103,12 +103,12 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 
         private final Dataset trainData;
         private final Dataset testData;
-        private final Filter<? super String> features;
-        private final Filter<? super String> evaluatedFeature;
+        private final Predicate<? super String> features;
+        private final Predicate<? super String> evaluatedFeature;
         private final ProgressReporter progress;
 
         public TestRun(Dataset trainData, Dataset testData,
-				Filter<? super String> features, Filter<? super String> evaluatedFeature, ProgressReporter progress) {
+        		Predicate<? super String> features, Predicate<? super String> evaluatedFeature, ProgressReporter progress) {
         	this.trainData = trainData;
         	this.testData = testData;
         	this.features = features;
@@ -134,9 +134,9 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 
     private static final class TestRunResult {
         private final Double score;
-        private final Filter<? super String> evaluatedFeature;
+        private final Predicate<? super String> evaluatedFeature;
 
-        public TestRunResult(Double score, Filter<? super String> evaluatedFeature) {
+        public TestRunResult(Double score, Predicate<? super String> evaluatedFeature) {
             this.score = score;
             this.evaluatedFeature = evaluatedFeature;
         }
@@ -222,8 +222,8 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 	public FeatureRanking rankFeatures(Dataset trainSet, Dataset validationSet, ProgressReporter progress) {
         Map<String, Integer> ranks = new HashMap<>();
 
-        final Set<Filter<? super String>> allFeatureFilters = constructFeatureFilters(trainSet);
-        final List<Filter<? super String>> selectedFeatures = new ArrayList<>();
+        final Set<Predicate<? super String>> allFeatureFilters = constructFeatureFilters(trainSet);
+        final List<Predicate<? super String>> selectedFeatures = new ArrayList<>();
         final int iterations = allFeatureFilters.size() * (allFeatureFilters.size() + 1) / 2;
         progress.startTask("Feature selection", iterations);
         int featureIndex = config.isBackward() ? 0 : allFeatureFilters.size();
@@ -234,7 +234,7 @@ public final class FeatureSelector extends AbstractFeatureRanker {
         try {
         	if (config.isBackward()) {
 	            // run with all features
-	            TestRun initialRun = new TestRun(trainSet, validationSet, Filters.ALL, Filters.NONE, progress);
+	            TestRun initialRun = new TestRun(trainSet, validationSet, Predicates.ALL, Predicates.NONE, progress);
 	            TestRunResult startScore = initialRun.call();
 	            LOGGER.info("Score with all features {}", startScore.score);
         	}
@@ -243,17 +243,17 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 
             // stepwise elimination
             for (;;) {
-                Set<Filter<? super String>> featuresToCheck = new HashSet<>(allFeatureFilters);
+                Set<Predicate<? super String>> featuresToCheck = new HashSet<>(allFeatureFilters);
                 featuresToCheck.removeAll(selectedFeatures);
                 if (featuresToCheck.isEmpty()) {
                     break;
                 }
                 List<TestRun> runs = new ArrayList<>();
 
-                for (Filter<? super String> currentFeature : featuresToCheck) {
-                    List<Filter<? super String>> currentRunFeatures = new ArrayList<>(selectedFeatures);
+                for (Predicate<? super String> currentFeature : featuresToCheck) {
+                    List<Predicate<? super String>> currentRunFeatures = new ArrayList<>(selectedFeatures);
                     currentRunFeatures.add(currentFeature);
-                    Filter<String> featureFilter = or(currentRunFeatures);
+                    Predicate<String> featureFilter = or(currentRunFeatures);
                     if (config.isBackward()) {
                     	featureFilter = not(featureFilter);
                     }
@@ -261,7 +261,7 @@ public final class FeatureSelector extends AbstractFeatureRanker {
                 }
 
                 List<Future<TestRunResult>> runFutures = executor.invokeAll(runs);
-                Filter<? super String> selectedFeature = null;
+                Predicate<? super String> selectedFeature = null;
                 double highestScore = 0;
                 for (Future<TestRunResult> future : runFutures) {
                     TestRunResult testRunResult = future.get();
@@ -294,9 +294,9 @@ public final class FeatureSelector extends AbstractFeatureRanker {
 	 *            The dataset.
 	 * @return A set of filters for every feature within the dataset.
 	 */
-	private Set<Filter<? super String>> constructFeatureFilters(Dataset dataset) {
+	private Set<Predicate<? super String>> constructFeatureFilters(Dataset dataset) {
 		// XXX check, whether the filters are disjunct?
-		Set<Filter<? super String>> filters = new HashSet<>(config.featureGroups());
+		Set<Predicate<? super String>> filters = new HashSet<>(config.featureGroups());
 		Set<String> allFeatures = dataset.getFeatureInformation().getFeatureNames();
 		Iterable<String> unmatchedFeatures = CollectionHelper.filter(allFeatures, not(or(config.featureGroups())));
 		for (String unmatchedFeature : unmatchedFeatures) {

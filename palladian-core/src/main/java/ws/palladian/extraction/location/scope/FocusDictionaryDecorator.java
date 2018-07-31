@@ -13,9 +13,9 @@ import ws.palladian.core.AbstractCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Filter;
-import ws.palladian.helper.functional.Filters;
-import ws.palladian.helper.functional.Function;
+import ws.palladian.helper.functional.Predicates;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * This decorator for a {@link DictionaryModel} only classifies into a given (sub)set of categories. This way, a little
@@ -29,19 +29,19 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
     private static final class FocusedCategoryEntries extends AbstractCategoryEntries {
 
         private final CategoryEntries wrapped;
-        private final Filter<String> categoryFilter;
+        private final Predicate<String> categoryFilter;
 
-        FocusedCategoryEntries(CategoryEntries wrapped, Filter<String> categoryFilter) {
+        FocusedCategoryEntries(CategoryEntries wrapped, Predicate<String> categoryFilter) {
             this.wrapped = wrapped;
             this.categoryFilter = categoryFilter;
         }
 
         @Override
         public Iterator<Category> iterator() {
-            return CollectionHelper.filter(wrapped.iterator(), new Filter<Category>() {
+            return CollectionHelper.filter(wrapped.iterator(), new Predicate<Category>() {
                 @Override
-                public boolean accept(Category item) {
-                    return categoryFilter.accept(item.getName());
+                public boolean test(Category item) {
+                    return categoryFilter.test(item.getName());
                 }
             });
         }
@@ -54,7 +54,7 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
 
         @Override
         public Category getCategory(String categoryName) {
-            return categoryFilter.accept(categoryName) ? wrapped.getCategory(categoryName) : null;
+            return categoryFilter.test(categoryName) ? wrapped.getCategory(categoryName) : null;
         }
 
     }
@@ -63,13 +63,13 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
 
     private final DictionaryModel decorated;
 
-    private final Filter<String> categoryFilter;
+    private final Predicate<String> categoryFilter;
     
     public FocusDictionaryDecorator(DictionaryModel decorated, Set<String> categories) {
-        this(decorated, Filters.equal(categories));
+        this(decorated, Predicates.equal(categories));
     }
 
-    public FocusDictionaryDecorator(DictionaryModel decorated, Filter<String> categoryFilter) {
+    public FocusDictionaryDecorator(DictionaryModel decorated, Predicate<String> categoryFilter) {
         Validate.notNull(decorated, "decorated must not be null");
         Validate.notNull(categoryFilter, "categoryFilter must not be null");
         this.decorated = decorated;
@@ -80,7 +80,7 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
     public Set<String> getCategories() {
         return CollectionHelper.convertSet(getDocumentCounts(), new Function<Category, String>() {
             @Override
-            public String compute(Category input) {
+            public String apply(Category input) {
                 return input.getName();
             }
         });

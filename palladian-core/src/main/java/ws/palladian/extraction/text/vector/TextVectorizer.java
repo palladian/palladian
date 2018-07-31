@@ -121,7 +121,7 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer impl
 		MapTermCorpus termCorpus = new MapTermCorpus();
 		for (Instance instance : dataset) {
 			String text = getTextValue(instance.getVector());
-			Iterator<String> tokenIterator = preprocessor.compute(text);
+			Iterator<String> tokenIterator = preprocessor.apply(text);
 			termCorpus.addTermsFromDocument(CollectionHelper.newHashSet(tokenIterator));
 		}
 		this.termCorpus = termCorpus.getReducedCorpus(vectorSize);
@@ -154,9 +154,9 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer impl
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		String text = getTextValue(featureVector);
-		Iterator<String> tokenIterator = preprocessor.compute(text);
+		Iterator<String> tokenIterator = preprocessor.apply(text);
 		Bag<String> tokens = new Bag<>(CollectionHelper.newArrayList(tokenIterator));
 
 		InstanceBuilder instanceBuilder = new InstanceBuilder();

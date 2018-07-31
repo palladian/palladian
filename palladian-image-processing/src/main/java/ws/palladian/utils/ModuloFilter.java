@@ -1,6 +1,6 @@
 package ws.palladian.utils;
 
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 /**
  * This filter simply accepts a certain fraction of series of data, which is
@@ -8,7 +8,7 @@ import ws.palladian.helper.functional.Filter;
  * 
  * @author pk
  */
-public final class ModuloFilter implements Filter<Object> {
+public final class ModuloFilter implements Predicate<Object> {
 
 	private final int mod;
 	private final int remainder;
@@ -25,7 +25,7 @@ public final class ModuloFilter implements Filter<Object> {
 	}
 
 	@Override
-	public boolean accept(Object item) {
+	public boolean test(Object item) {
 		return ++count % mod == remainder;
 	}
 

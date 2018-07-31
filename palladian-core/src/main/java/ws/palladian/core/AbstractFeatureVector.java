@@ -11,7 +11,7 @@ import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.functional.Filter;
+import java.util.function.Predicate;
 
 public abstract class AbstractFeatureVector implements FeatureVector {
 
@@ -75,7 +75,7 @@ public abstract class AbstractFeatureVector implements FeatureVector {
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public FeatureVector filter(Filter<? super String> nameFilter) {
+	public FeatureVector filter(Predicate<? super String> nameFilter) {
 		return new FilteredVector(this, nameFilter);
 	}
 	

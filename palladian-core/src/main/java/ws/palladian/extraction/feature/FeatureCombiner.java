@@ -30,7 +30,7 @@ public class FeatureCombiner extends AbstractDatasetFeatureVectorTransformer {
 	}
 
 	@Override
-	public FeatureVector compute(FeatureVector featureVector) {
+	public FeatureVector apply(FeatureVector featureVector) {
 		String value1 = featureVector.get(feature1).toString();
 		String value2 = featureVector.get(feature2).toString();
 		InstanceBuilder builder = new InstanceBuilder();
