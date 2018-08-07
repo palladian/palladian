@@ -894,72 +894,120 @@ public final class MathHelper {
      * @param stringNumber The string containing the numeric expression.
      * @return The parsed double.
      */
-    public static double parseStringNumber(String stringNumber) {
+    public static Double parseStringNumber(String stringNumber) {
+        return parseStringNumber(stringNumber, null);
+    }
+    public static Double parseStringNumber(String stringNumber, Double defaultIfNothingFound) {
         Validate.notNull(stringNumber);
 
         stringNumber = stringNumber.toLowerCase();
 
-        double value = 0.;
+        Double value = defaultIfNothingFound;
 
         // find fraction characters
         Set<String> remove = new HashSet<>();
         if (stringNumber.contains("¼")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 1 / 4.;
             remove.add("¼");
         }
         if (stringNumber.contains("½")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 1 / 2.;
             remove.add("½");
         }
         if (stringNumber.contains("¾")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 3 / 4.;
             remove.add("¾");
         }
         if (stringNumber.contains("⅓")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 1 / 3.;
             remove.add("⅓");
         }
         if (stringNumber.contains("⅔")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 2 / 3.;
             remove.add("⅔");
         }
         if (stringNumber.contains("⅕")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 1 / 5.;
             remove.add("⅕");
         }
         if (stringNumber.contains("⅖")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 2 / 5.;
             remove.add("⅖");
         }
         if (stringNumber.contains("⅗")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 3 / 5.;
             remove.add("⅗");
         }
         if (stringNumber.contains("⅘")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 4 / 5.;
             remove.add("⅘");
         }
         if (stringNumber.contains("⅙")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 1 / 6.;
             remove.add("⅙");
         }
         if (stringNumber.contains("⅚")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 5 / 6.;
             remove.add("⅚");
         }
         if (stringNumber.contains("⅛")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 1 / 8.;
             remove.add("⅛");
         }
         if (stringNumber.contains("⅜")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 3 / 8.;
             remove.add("⅜");
         }
         if (stringNumber.contains("⅝")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 5 / 8.;
             remove.add("⅝");
         }
         if (stringNumber.contains("⅞")) {
+            if (value == null) {
+                value = 0.;
+            }
             value += 7 / 8.;
             remove.add("⅞");
         }
@@ -973,6 +1021,9 @@ public final class MathHelper {
         if (matcher.find()) {
             int nominator = Integer.parseInt(matcher.group(1));
             int denominator = Integer.parseInt(matcher.group(2));
+            if (value == null) {
+                value = 0.;
+            }
             value += nominator / (double)denominator;
             stringNumber = stringNumber.replace(matcher.group(), StringUtils.EMPTY);
         }
@@ -981,6 +1032,9 @@ public final class MathHelper {
         Matcher exPattern = EX_PATTERN.matcher(stringNumber);
         if (exPattern.find()) {
             try {
+                if (value == null) {
+                    value = 0.;
+                }
                 value += Double.valueOf(exPattern.group(0));
                 return value;
             } catch (Exception e) {
@@ -995,6 +1049,9 @@ public final class MathHelper {
         stringNumber = stringNumber.trim();
         if (!stringNumber.isEmpty()) {
             try {
+                if (value == null) {
+                    value = 0.;
+                }
                 value += Double.parseDouble(stringNumber);
             } catch (Exception e) {
                 // ccl

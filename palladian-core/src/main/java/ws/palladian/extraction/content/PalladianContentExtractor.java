@@ -637,10 +637,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                         String widthText = StringHelper.getSubstringBetween(styleText, "width:", "px").trim();
                         String heightText = StringHelper.getSubstringBetween(styleText, "height:", "px").trim();
                         if (!widthText.isEmpty()) {
-                            builder.setWidth((int)MathHelper.parseStringNumber(widthText));
+                            builder.setWidth(MathHelper.parseStringNumber(widthText, 0.0).intValue());
                         }
                         if (!heightText.isEmpty()) {
-                            builder.setHeight((int)MathHelper.parseStringNumber(heightText));
+                            builder.setHeight(MathHelper.parseStringNumber(heightText, 0.0).intValue());
                         }
                     }
                 }
