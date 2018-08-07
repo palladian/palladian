@@ -405,7 +405,7 @@ public final class StringHelper {
                 + allowedNeighbors + word + "$)|(^" + word + "$)";
 
         try {
-            Pattern pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+            Pattern pattern = PatternHelper.compileOrGet(regexp, Pattern.CASE_INSENSITIVE);
             return pattern.matcher(searchString).find();
         } catch (PatternSyntaxException e) {
             LOGGER.error("PatternSyntaxException for {} with regExp {}", new Object[] {searchString, regexp, e});
@@ -423,7 +423,7 @@ public final class StringHelper {
      * @return The index position or -1 if the word is not contained.
      */
     public static int indexOfWordCaseSensitive(String word, String searchString) {
-        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
+        Matcher matcher = PatternHelper.compileOrGet("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
         boolean found = matcher.find();
         if (found) {
             return matcher.start(1);
@@ -441,7 +441,7 @@ public final class StringHelper {
      * @return The index position or -1 if the word is not contained.
      */
     public static int lastIndexOfWordCaseSensitive(String word, String searchString) {
-        Matcher matcher = Pattern.compile("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
+        Matcher matcher = PatternHelper.compileOrGet("((?<=^)|(?<=[;!?.,: ]))" + word + "(?=([;!?.,: ]|$))").matcher(searchString);
         int start = -1;
         while (matcher.find()) {
             start = matcher.start(1);
@@ -1535,7 +1535,7 @@ public final class StringHelper {
      */
     public static int countRegexMatches(String text, String pattern) {
         Validate.notNull(pattern, "pattern must not be null");
-        return countRegexMatches(text, Pattern.compile(pattern));
+        return countRegexMatches(text, PatternHelper.compileOrGet(pattern));
     }
 
     public static int countRegexMatches(String text, Pattern pattern) {
@@ -1739,15 +1739,15 @@ public final class StringHelper {
 
         if (caseInsensitive) {
             if (dotAll) {
-                pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+                pattern = PatternHelper.compileOrGet(regexp, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
             } else {
-                pattern = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+                pattern = PatternHelper.compileOrGet(regexp, Pattern.CASE_INSENSITIVE);
             }
         } else {
             if (dotAll) {
-                pattern = Pattern.compile(regexp, Pattern.DOTALL);
+                pattern = PatternHelper.compileOrGet(regexp, Pattern.DOTALL);
             } else {
-                pattern = Pattern.compile(regexp);
+                pattern = PatternHelper.compileOrGet(regexp);
             }
         }
 
@@ -1800,11 +1800,11 @@ public final class StringHelper {
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(String regexp, String text) {
-        return getRegexpMatches(Pattern.compile(regexp), text);
+        return getRegexpMatches(PatternHelper.compileOrGet(regexp), text);
     }
 
     public static List<String> getRegexpMatches(String regexp, String text, int patternArguments) {
-        return getRegexpMatches(Pattern.compile(regexp, patternArguments), text);
+        return getRegexpMatches(PatternHelper.compileOrGet(regexp, patternArguments), text);
     }
 
     /**
