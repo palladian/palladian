@@ -74,9 +74,9 @@
 .sa.au
 .tas.au
 .vic.au
-.wa.auFor
+.wa.au
 .gov.au
-.edu.au:
+.edu.au
 .com.aw
 .com.az
 .net.az
