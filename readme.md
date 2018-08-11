@@ -1,4 +1,4 @@
-# <img src="_assets/palladian-128.png" alt="" height="64px"> Palladian Toolkit
+# ![Palladian Logo](https://i.imgur.com/QNPJb18.png) Palladian Toolkit
 
 [![Run Status](https://api.shippable.com/projects/5507af415ab6cc1352a2391e/badge?branch=master)](https://app.shippable.com/bitbucket/palladian/palladian)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ws.palladian/palladian/badge.svg)](http://mvnrepository.com/artifact/ws.palladian/palladian)
