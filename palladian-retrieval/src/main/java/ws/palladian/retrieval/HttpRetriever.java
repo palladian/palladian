@@ -203,6 +203,19 @@ public class HttpRetriever {
     }
 
     /**
+     * <p>
+     * Performs an HTTP HEAD operation.
+     * </p>
+     *
+     * @param url the URL for the HEAD, not <code>null</code> or empty.
+     * @return response for the HEAD.
+     * @throws HttpException in case the HEAD fails, or the supplied URL is not valid.
+     */
+    public HttpResult httpHead(String url) throws HttpException {
+        return execute(new HttpRequest2Builder(HttpMethod.HEAD, url).create());
+    }
+
+    /**
      * Replaced by {@link #execute(HttpRequest2)}
      */
     @Deprecated
