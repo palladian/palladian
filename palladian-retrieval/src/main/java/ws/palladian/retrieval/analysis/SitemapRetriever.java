@@ -8,10 +8,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -25,8 +22,12 @@ import java.util.regex.Pattern;
 public class SitemapRetriever {
 
     private final static Pattern LOC_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</loc)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private final static Pattern PRIORITY_PATTERN = Pattern.compile("(?<=>)[0-9.]+?(?=</priority)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     public Set<String> getUrls(String sitemapIndexUrl) {
+        return getUrls(sitemapIndexUrl, new HashMap<>());
+    }
+    public Set<String> getUrls(String sitemapIndexUrl, Map<String, Double> urlToPriorityMap) {
         LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
 
         HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
@@ -36,19 +37,15 @@ public class SitemapRetriever {
 
         // is the sitemap gzipped?
         if (FileHelper.getFileType(sitemapIndexUrl).equalsIgnoreCase("gz")) {
-
             String tempPath = "data/temp/sitemapIndex.xml";
             httpRetriever.downloadAndSave(sitemapIndexUrl, tempPath + ".gzipped");
             FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
             sitemapIndex = documentRetriever.getText(tempPath);
             FileHelper.delete(tempPath);
             FileHelper.delete(tempPath + ".gzipped");
-
         } else {
-
             // get sitemap index page
             sitemapIndex = documentRetriever.getText(sitemapIndexUrl);
-
         }
 
         List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapIndex);
@@ -91,15 +88,29 @@ public class SitemapRetriever {
 
             String[] lines = sitemapText.split("\n");
             List<String> sitemapUrls = new ArrayList<>();
+            List<String> priorityStrings = new ArrayList<>();
             for (String line : lines) {
                 List<String> regexpMatches = StringHelper.getRegexpMatches(LOC_PATTERN, line);
                 sitemapUrls.addAll(regexpMatches);
+                List<String> priorityMatches = StringHelper.getRegexpMatches(PRIORITY_PATTERN, line);
+                priorityStrings.addAll(priorityMatches);
             }
 
             // clean
             LinkedHashSet<String> cleanSitemapUrls = new LinkedHashSet<>();
             for (String url : sitemapUrls) {
                 cleanSitemapUrls.add(normalizeUrl(url));
+            }
+
+            // get all priority tags, only if number of priority tags = number of URLs we can map them
+            try {
+                if (sitemapUrls.size() == priorityStrings.size()) {
+                    for (int k = 0; k < sitemapUrls.size(); k++) {
+                        urlToPriorityMap.put(sitemapUrls.get(k), Double.valueOf(priorityStrings.get(k)));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             pageUrls.addAll(cleanSitemapUrls);
@@ -111,7 +122,6 @@ public class SitemapRetriever {
             i++;
 
             sitemapRetriever.incrementAndPrintProgress();
-
         }
 
         return pageUrls;
