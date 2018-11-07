@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -454,6 +455,17 @@ public class DocumentRetriever implements WebDocumentRetriever {
                     HttpRequest2 request = httpRequest2Builder.create();
                     HttpResult httpResult = httpRetriever.execute(request);
                     document = parse(httpResult, xml);
+
+                    // check for location header before setting the document URL
+                    String locationRedirect = httpResult.getHeaderString("location");
+                    if (locationRedirect != null) {
+                        String domainOriginal = UrlHelper.getDomain(cleanUrl);
+                        String domainRedirect = UrlHelper.getDomain(locationRedirect);
+                        if (!domainOriginal.equals(domainRedirect)) {
+                            cleanUrl = locationRedirect;
+                        }
+                    }
+
                     document.setDocumentURI(cleanUrl);
                     document.setUserData(HTTP_RESULT_KEY, httpResult, null);
                 }
