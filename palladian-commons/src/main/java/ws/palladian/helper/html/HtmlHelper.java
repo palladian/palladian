@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 
 /**
  * <p>
@@ -787,6 +788,11 @@ public final class HtmlHelper {
 
             // remove anchors from link
             currentLink = UrlHelper.removeAnchors(currentLink);
+
+            // remove tel and mailto
+            if (PatternHelper.compileOrGet("^(tel|mailto):").matcher(currentLink).find()) {
+                continue;
+            }
 
             // normalize relative and absolute links
             // currentLink = makeFullURL(url, currentLink);
