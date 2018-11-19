@@ -66,6 +66,49 @@
 			<artifactId>json-path</artifactId>
 			<version>2.3.0</version>
 		</dependency>
+		<!--SELENIUM-->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>3.14.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-remote-driver</artifactId>
+			<version>3.14.0</version>
+		</dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.github.detro</groupId>-->
+            <!--<artifactId>ghostdriver</artifactId>-->
+            <!--<version>2.1.0</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.codeborne</groupId>
+            <artifactId>phantomjsdriver</artifactId>
+            <version>1.4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-chrome-driver</artifactId>
+            <version>3.141.59</version>
+        </dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.seleniumhq.selenium</groupId>-->
+			<!--<artifactId>selenium-firefox-driver</artifactId>-->
+			<!--<version>3.14.0</version>-->
+		<!--</dependency>-->
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>22.0</version>
+		</dependency>
+		<!-- END OF SELENIUM DEPENDENCIES -->
+
 	</dependencies>
 	<repositories>
 		<!-- http://www.slf4j.org/faq.html#excludingJCL -->

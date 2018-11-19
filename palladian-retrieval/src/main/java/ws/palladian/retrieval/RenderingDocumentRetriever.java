@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
@@ -23,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,14 +58,21 @@ public class RenderingDocumentRetriever implements WebDocumentRetriever {
 
         // create service if not initialized yet
         if (service == null) {
-            String baseExecutablePath = "src/main/resources/chromedriver";
+            String baseExecutablePath = "chromedriver";
             if (SystemUtils.IS_OS_WINDOWS) {
                 baseExecutablePath += ".exe";
             }
-            service = new ChromeDriverService.Builder()
-                    .usingDriverExecutable(new File(baseExecutablePath))
-                    .usingAnyFreePort()
-                    .build();
+            File file;
+            try {
+                URL dir_url = ClassLoader.getSystemResource(baseExecutablePath);
+                file = new File(dir_url.toURI());
+                service = new ChromeDriverService.Builder()
+                        .usingDriverExecutable(file)
+                        .usingAnyFreePort()
+                        .build();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         // start new headless browser instance
@@ -276,6 +285,7 @@ public class RenderingDocumentRetriever implements WebDocumentRetriever {
         WebDocumentRetriever r = new RenderingDocumentRetriever();
         Document webDocument = r.getWebDocument("https://genius.com/");
         ((RenderingDocumentRetriever) r).takeScreenshot("");
+        System.out.println(HtmlHelper.getInnerXml(webDocument));
         ((RenderingDocumentRetriever) r).close();
 //        Document webDocument = r.getWebDocument("https://www.sitesearch360.com");
 //        ((RenderingDocumentRetriever) r).takeScreenshot("");
