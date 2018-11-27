@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +73,15 @@ public class PalladianSpellChecker {
     public PalladianSpellChecker() {}
 
     public PalladianSpellChecker(String file) {
+        this(file, false);
+    }
+
+    /**
+     * Create the object.
+     * @param file The text file from which to create a dictionary.
+     * @param ignoreDiacritics If true, diacritics will be ignored, e.g. "uber" will not try to be corrected to "über"
+     */
+    public PalladianSpellChecker(String file, boolean ignoreDiacritics) {
 
         StopWatch stopWatch = new StopWatch();
 
@@ -85,6 +95,9 @@ public class PalladianSpellChecker {
 
             @Override
             public void performAction(String line, int lineNumber) {
+                if (ignoreDiacritics) {
+                    line = StringUtils.stripAccents(line);
+                }
                 Matcher m = p.matcher(line.toLowerCase());
                 String lastMatch = null;
                 while (m.find()) {
@@ -153,10 +166,10 @@ public class PalladianSpellChecker {
      * Compute all edit distance 1 words. This list can get rather long.
      * </p>
      * <ol>
-     * <li>n deletions</li>
+     * <li>n deletions (deleted letter)</li>
      * <li>n-1 transpositions</li>
      * <li>26n alternations (replaced letter)</li>
-     * <li>26(n+1) insertions (letter added at arbirary position)</li>
+     * <li>26(n+1) insertions (letter added at arbitrary position)</li>
      * </ol>
      *
      * @param word The word for which we create the edit distance words.
@@ -199,7 +212,6 @@ public class PalladianSpellChecker {
                 result.add(substring0i + c + substringi1);
             }
 
-            // umlauts
             result.add(substring0i + 'ä' + substringi1);
             result.add(substring0i + 'ö' + substringi1);
             result.add(substring0i + 'ü' + substringi1);
