@@ -1,5 +1,7 @@
 package ws.palladian.helper.nlp;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import ws.palladian.helper.collection.LruMap;
@@ -11,7 +13,7 @@ import ws.palladian.helper.collection.LruMap;
  */
 public class PatternHelper {
 
-    private static final LruMap<String, Pattern> PATTERN_CACHE = LruMap.accessOrder(10000);
+    private static final Map<String, Pattern> PATTERN_CACHE = Collections.synchronizedMap(LruMap.accessOrder(10000));
 
     public static Pattern compileOrGet(String string) {
         return compileOrGet(string, 0);
