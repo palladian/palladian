@@ -74,9 +74,9 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.HEBREW));
 
         // German
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
-        language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.GERMAN));
+        // palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
+        // language = palladianContentExtractor.detectLanguage();
+        // collector.checkThat(language, is(Language.GERMAN));
 
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.spiegel.de/"));
         language = palladianContentExtractor.detectLanguage();
