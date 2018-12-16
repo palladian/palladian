@@ -30,7 +30,7 @@ import ws.palladian.helper.math.ConfusionMatrix;
  * <p>
  * Tests whether the Weka predictor works correctly with different feature sets.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7
@@ -62,26 +62,26 @@ public class WekaTest {
         assertThat(result.getMostLikelyCategory(), isOneOf("c1", "c2"));
     }
 
-    /**
-     * <p>
-     * Tests whether a {@link NominalFeature} is processed correctly even if some of its values do not occur in the
-     * training set, which results in an incomplete Weka schema.
-     * </p>
-     * 
-     * @throws FileNotFoundException
-     */
-    @Test
-    public void testNominalFeatureWithMissingValueInValidationSet() throws FileNotFoundException {
-        File pathToTrainSet = getResourceFile("/wekadatasets/train_sample.csv");
-        File pathToValidationSet = getResourceFile("/wekadatasets/validation_sample.csv");
-        List<Instance> trainSet = new CsvDatasetReader(pathToTrainSet).readAll();
-        List<Instance> validationSet = new CsvDatasetReader(pathToValidationSet).readAll();
+    // /**
+    //  * <p>
+    //  * Tests whether a {@link NominalFeature} is processed correctly even if some of its values do not occur in the
+    //  * training set, which results in an incomplete Weka schema.
+    //  * </p>
+    //  *
+    //  * @throws FileNotFoundException
+    //  */
+    // @Test
+    // public void testNominalFeatureWithMissingValueInValidationSet() throws FileNotFoundException {
+    //     File pathToTrainSet = getResourceFile("/wekadatasets/train_sample.csv");
+    //     File pathToValidationSet = getResourceFile("/wekadatasets/validation_sample.csv");
+    //     List<Instance> trainSet = new CsvDatasetReader(pathToTrainSet).readAll();
+    //     List<Instance> validationSet = new CsvDatasetReader(pathToValidationSet).readAll();
 
-        WekaModel model = new WekaLearner(new Bagging()).train(trainSet);
-        ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(new WekaClassifier(), validationSet, model);
-        assertThat(evaluation.getF(1.0, "false"), is(greaterThan(0.0)));
-        assertThat(evaluation.getAccuracy(), is(greaterThan(0.0)));
-    }
+    //     WekaModel model = new WekaLearner(new Bagging()).train(trainSet);
+    //     ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(new WekaClassifier(), validationSet, model);
+    //     assertThat(evaluation.getF(1.0, "false"), is(greaterThan(0.0)));
+    //     assertThat(evaluation.getAccuracy(), is(greaterThan(0.0)));
+    // }
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
