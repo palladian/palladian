@@ -1,0 +1,7 @@
+# below’s directory contains testing files which
+# should be ignored in the GitHub statistics;
+# marking them as 'linguist-generated' ignores
+# them in the statistics, AND suppresses
+# them within the diffs
+# https://github.com/github/linguist#generated-code
+**/src/test/resources/* linguist-generated
