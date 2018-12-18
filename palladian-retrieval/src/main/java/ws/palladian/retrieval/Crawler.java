@@ -3,13 +3,10 @@ package ws.palladian.retrieval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
-import java.util.function.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -21,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 /**
@@ -106,6 +104,10 @@ public class Crawler {
 
     public void setRequestThrottle(RequestThrottle requestThrottle) {
         this.requestThrottle = requestThrottle;
+    }
+
+    public boolean validate(String url) {
+        return true;
     }
 
     /**
@@ -338,7 +340,7 @@ public class Crawler {
         url = cleanUrl(url);
 
         // check URL first
-        if (url != null && url.length() < 400 && !visitedUrls.contains(url) && documentRetriever.getDownloadFilter().test(url)) {
+        if (url != null && url.length() < 400 && !visitedUrls.contains(url) && documentRetriever.getDownloadFilter().test(url) && validate(url)) {
 
             boolean follow = true;
 
