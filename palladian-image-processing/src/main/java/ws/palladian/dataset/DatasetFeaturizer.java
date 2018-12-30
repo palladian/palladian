@@ -6,6 +6,9 @@ import org.deeplearning4j.nn.modelimport.keras.UnsupportedKerasConfigurationExce
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModelHelper;
 import org.deeplearning4j.nn.modelimport.keras.trainedmodels.TrainedModels;
 import org.deeplearning4j.nn.transferlearning.TransferLearningHelper;
+import org.deeplearning4j.zoo.PretrainedType;
+import org.deeplearning4j.zoo.ZooModel;
+import org.deeplearning4j.zoo.model.VGG16;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.slf4j.Logger;
@@ -37,15 +40,17 @@ public class DatasetFeaturizer {
         }
 
         // import org.deeplearning4j.transferlearning.vgg16 and print summary
-        TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
         LOGGER.info("loading vgg16 model");
-        ComputationGraph vgg16 = modelImportHelper.loadModel();
-//        LOGGER.info(vgg16.summary());
+        ZooModel zooModel = new VGG16();
+        ComputationGraph vgg16 = (ComputationGraph) zooModel.initPretrained(PretrainedType.IMAGENET);
+//        TrainedModelHelper modelImportHelper = new TrainedModelHelper(TrainedModels.VGG16);
+//        ComputationGraph vgg16 = modelImportHelper.loadModel();
+        // LOGGER.info(vgg16.summary());
 
         // use the TransferLearningHelper to freeze the specified vertices and below
         // NOTE: This is done in place! Pass in a cloned version of the model if you would prefer to not do this in place
         TransferLearningHelper transferLearningHelper = new TransferLearningHelper(vgg16, featurizeExtractionLayer);
-//        LOGGER.info(vgg16.summary());
+        // LOGGER.info(vgg16.summary());
 
         DatasetIterator datasetIterator = new DatasetIterator(dataset, batchSize);
         datasetIterator.setup(trainPercentage);
@@ -54,24 +59,31 @@ public class DatasetFeaturizer {
 
         int trainDataSaved = 0;
         while (trainIter.hasNext()) {
-            DataSet currentFeaturized = transferLearningHelper.featurize(trainIter.next());
-            saveToDisk(dataset, currentFeaturized, trainDataSaved, true);
-            trainDataSaved++;
+            try {
+                DataSet currentFeaturized = transferLearningHelper.featurize(trainIter.next());
+                saveToDisk(dataset, currentFeaturized, trainDataSaved, true);
+                trainDataSaved++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         int testDataSaved = 0;
         while (testIter.hasNext()) {
-            DataSet currentFeaturized = transferLearningHelper.featurize(testIter.next());
-            saveToDisk(dataset, currentFeaturized, testDataSaved, false);
-            testDataSaved++;
+            try {
+                DataSet currentFeaturized = transferLearningHelper.featurize(testIter.next());
+                saveToDisk(dataset, currentFeaturized, testDataSaved, false);
+                testDataSaved++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         LOGGER.info("finished pre-saving featurized test and train data");
     }
 
     public static void saveToDisk(ImageDataset imageDataset, DataSet currentFeaturized, int iterNum, boolean isTrain) {
-        File fileFolder = isTrain ? new File(imageDataset.getBasePath() + "featurizedTraining")
-                : new File(imageDataset.getBasePath() + "featurizedTesting");
+        File fileFolder = isTrain ? new File(imageDataset.getBasePath() + "featurizedTraining") : new File(imageDataset.getBasePath() + "featurizedTesting");
         if (iterNum == 0) {
             fileFolder.mkdirs();
         }

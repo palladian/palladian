@@ -1,5 +1,6 @@
 package ws.palladian.classifiers;
 
+import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -43,6 +44,7 @@ public final class SparkPi {
         });
 
         System.out.println("Pi is roughly " + 4.0 * count / n);
+        Logger.getRootLogger().info("Pi is roughly " + 4.0 * count / n);
 
         jsc.stop();
     }

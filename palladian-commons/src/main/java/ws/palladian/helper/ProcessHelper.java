@@ -95,7 +95,7 @@ public final class ProcessHelper {
         log += "Free Memory: " + runtime.freeMemory() / mb + "\n";
 
         // total available memory
-        log += "Total Memory:" + runtime.totalMemory() / mb + "\n";
+        log += "Total Memory: " + runtime.totalMemory() / mb + "\n";
 
         // maximum available memory
         log += "Max. Memory: " + runtime.maxMemory() / mb + "\n";
