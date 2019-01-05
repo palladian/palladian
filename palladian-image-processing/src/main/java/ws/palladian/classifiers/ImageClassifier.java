@@ -115,8 +115,6 @@ public class ImageClassifier implements Serializable {
 
         try {
             // FIXME
-            String apiKey = "AKIAJY7N46WJXGM3HUDA";
-            String apiSecret = "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";
             credentials = new BasicAWSCredentials(apiKey, apiSecret);
         } catch (Exception e) {
             e.printStackTrace();
@@ -135,8 +133,6 @@ public class ImageClassifier implements Serializable {
 
         try {
             // FIXME
-            String apiKey = "AKIAJY7N46WJXGM3HUDA";
-            String apiSecret = "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";
             credentials = new BasicAWSCredentials(apiKey, apiSecret);
         } catch (Exception e) {
             e.printStackTrace();
@@ -685,7 +681,6 @@ public class ImageClassifier implements Serializable {
         File newModelPath = new File(modelPath + imageDataset.getName() + ".zip");
 
         // newImageClassifier.transferLearn(imageDataset, newModelPath, 80);
-        newImageClassifier.transferLearnOnSpark(imageDataset, newModelPath, 80, "AKIAJY7N46WJXGM3HUDA", "QM+BIm1DAvxH+ssUv7s+n1fO5XiFmsXKBAD62k1J");
 //        System.exit(0);
 //
 //        ImageClassifier imageClassifier = new ImageClassifier(newModelPath.getPath(), imageDataset.getClassNames());
