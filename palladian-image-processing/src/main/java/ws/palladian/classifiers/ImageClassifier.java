@@ -115,6 +115,8 @@ public class ImageClassifier implements Serializable {
 
         try {
             // FIXME
+            String apiKey = "";
+            String apiSecret = "";
             credentials = new BasicAWSCredentials(apiKey, apiSecret);
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,6 +135,8 @@ public class ImageClassifier implements Serializable {
 
         try {
             // FIXME
+            String apiKey = "";
+            String apiSecret = "";
             credentials = new BasicAWSCredentials(apiKey, apiSecret);
         } catch (Exception e) {
             e.printStackTrace();
