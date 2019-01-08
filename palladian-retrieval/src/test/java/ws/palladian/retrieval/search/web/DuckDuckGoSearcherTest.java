@@ -27,9 +27,6 @@ public class DuckDuckGoSearcherTest {
 
         for (WebContent result : results) {
             collector.checkThat(result.getUrl().isEmpty(), is(false));
-//            System.out.println(result.getSummary());
         }
-
-
     }
 }

@@ -42,7 +42,7 @@ public final class CompositeRankingService extends AbstractRankingService implem
     }
 
     @Override
-    public Ranking getRanking(String url) throws RankingServiceException {
+    public Ranking getRanking(String url) {
         Ranking.Builder builder = new Ranking.Builder(this, url);
         for (RankingService rankingService : rankingServices) {
             try {
@@ -56,7 +56,7 @@ public final class CompositeRankingService extends AbstractRankingService implem
         return builder.create();
     }
 
-    public Map<RankingService, Ranking> getRankings(String url) throws RankingServiceException {
+    public Map<RankingService, Ranking> getRankings(String url) {
         Map<RankingService, Ranking> rankings = new HashMap<>();
         for (RankingService rankingService : rankingServices) {
             try {

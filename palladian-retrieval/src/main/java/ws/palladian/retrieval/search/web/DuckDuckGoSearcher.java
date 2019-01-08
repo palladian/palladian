@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Philipp Katz
  */
 public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DuckDuckGoSearcher.class);
 
@@ -45,7 +44,6 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
-
         List<WebContent> result = new ArrayList<>();
 
         DocumentRetriever documentRetriever = new DocumentRetriever();
@@ -68,9 +66,11 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             BasicWebContent.Builder builder = new BasicWebContent.Builder();
             builder.setSummary(XPathHelper.getXhtmlNodeTextContent(node, ".//a[contains(@class,'result__snippet')]"));
             builder.setTitle(XPathHelper.getXhtmlNodeTextContent(node, ".//h2"));
-            builder.setUrl(XPathHelper.getXhtmlNodeTextContent(node, ".//h2/a/@href"));
-            result.add(builder.create());
-
+            String url = XPathHelper.getXhtmlNodeTextContent(node, ".//h2/a/@href");
+            builder.setUrl(url);
+            if (!url.isEmpty()) {
+                result.add(builder.create());
+            }
         }
 
         return result;
@@ -96,5 +96,4 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
     public boolean isDeprecated() {
         return false;
     }
-
 }

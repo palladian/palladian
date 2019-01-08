@@ -29,6 +29,7 @@ public class ImageDataset {
 
     public ImageDataset(File dataset) throws IOException, JsonException {
         JsonObject json = new JsonObject(FileHelper.readFileToString(dataset));
+        System.out.println(json);
         this.basePath = dataset.getParentFile().getAbsolutePath() + File.separator;
         this.folderedPath = basePath + json.tryGetString("folderedPath");
         this.separator = Optional.ofNullable(json.tryGetString("separator")).orElse("\t");
