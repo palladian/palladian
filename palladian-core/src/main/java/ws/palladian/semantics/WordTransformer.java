@@ -394,6 +394,8 @@ public class WordTransformer {
             return "";
         }
 
+        singular = singular.toLowerCase();
+
         // for composite terms we transform the last word, e.g. "computer mouse" => "computer mice"
         String prefix = "";
         String[] parts = singular.split(" ");
