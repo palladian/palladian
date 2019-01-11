@@ -1,11 +1,10 @@
 package ws.palladian.retrieval;
 
-import org.apache.commons.lang.SystemUtils;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -24,64 +23,38 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
 
 /**
  * A selenium-based retriever for web documents that should be rendered (execute JS and CSS).
  *
  * @author Jaroslav Vankat, David Urbansky
  */
-public class RenderingDocumentRetriever implements WebDocumentRetriever {
-
+public class RenderingDocumentRetriever extends WebDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(RenderingDocumentRetriever.class);
 
-    private static ChromeDriverService service = null;
     protected RemoteWebDriver driver;
-    protected boolean forceReload = false;
     private int timeoutSeconds = 10;
 
     /**
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
      */
     public RenderingDocumentRetriever() {
-        this(false);
-    }
-
-    /**
-     * @param forceReload Whether to force reloading the page when <code>goTo</code> with the current url is called
-     */
-    public RenderingDocumentRetriever(boolean forceReload) {
         StopWatch sw = new StopWatch();
 
-        // create service if not initialized yet
-        if (service == null) {
-            String baseExecutablePath = "chromedriver";
-            if (SystemUtils.IS_OS_WINDOWS) {
-                baseExecutablePath += ".exe";
-            }
-            File file;
-            try {
-                URL dir_url = ClassLoader.getSystemResource(baseExecutablePath);
-                file = new File(dir_url.toURI());
-                service = new ChromeDriverService.Builder()
-                        .usingDriverExecutable(file)
-                        .usingAnyFreePort()
-                        .build();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        WebDriverManager.chromedriver().setup();
+        WebDriverManager.getInstance(CHROME).setup();
 
         // start new headless browser instance
         ChromeOptions options = new ChromeOptions();
         options.addArguments("headless");
-        driver = new ChromeDriver(service, options); // DesiredCapabilities.chrome());
+        driver = new ChromeDriver(options);
 
         LOGGER.info("Starting up a browser instance took " + sw.getElapsedTimeString());
-        this.forceReload = forceReload;
     }
 
     /**
@@ -116,6 +89,10 @@ public class RenderingDocumentRetriever implements WebDocumentRetriever {
      * @param url The url of the document
      */
     public void goTo(String url) {
+        goTo(url, false);
+    }
+
+    public void goTo(String url, boolean forceReload) {
         if (forceReload || !driver.getCurrentUrl().equals(url)) {
             driver.get(url);
         }
@@ -139,6 +116,10 @@ public class RenderingDocumentRetriever implements WebDocumentRetriever {
      * @param timeoutInSeconds The maximum time to wait in seconds
      */
     public void goTo(String url, ExpectedCondition<Boolean> condition, Integer timeoutInSeconds) {
+        goTo(url, condition, timeoutInSeconds, false);
+    }
+
+    public void goTo(String url, ExpectedCondition<Boolean> condition, Integer timeoutInSeconds, boolean forceReload) {
         if (forceReload || !driver.getCurrentUrl().equals(url)) {
             if (!forceReload) {
                 LOGGER.info(driver.getCurrentUrl() + " x " + url);
@@ -249,12 +230,12 @@ public class RenderingDocumentRetriever implements WebDocumentRetriever {
     /**
      * Find all DOM nodes matching the given selector in a specific context.
      *
-     * @param preselector The CSS selector of the context to search
-     * @param selector    The CSS selector
-     * @return List of queried nodes
+     * @param preSelector The CSS selector of the context to search.
+     * @param selector    The CSS selector.
+     * @return List of queried nodes.
      */
-    public List<WebElement> findAll(String preselector, String selector) {
-        List<WebElement> pres = driver.findElements(By.cssSelector(preselector != null ? preselector : "html"));
+    public List<WebElement> findAll(String preSelector, String selector) {
+        List<WebElement> pres = driver.findElements(By.cssSelector(preSelector != null ? preSelector : "html"));
         List<WebElement> result = new ArrayList<>();
         for (WebElement el : pres) {
             result.addAll(el.findElements(By.cssSelector(selector)));

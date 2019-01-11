@@ -48,8 +48,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public class DocumentRetriever implements WebDocumentRetriever {
-
+public class DocumentRetriever extends WebDocumentRetriever {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentRetriever.class);
 
@@ -67,19 +66,11 @@ public class DocumentRetriever implements WebDocumentRetriever {
     /** The number of milliseconds each host gets between two requests. */
     private RequestThrottle requestThrottle = NoThrottle.INSTANCE;
 
-    /** The filter for the retriever. */
-    private Predicate<? super String> downloadFilter;
-
     /**
      * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
      * this retriever.
      */
     private Map<String, String> globalHeaders = null;
-
-    /**
-     * The callbacks that are called after each parsed page.
-     */
-    private final List<Consumer<Document>> retrieverCallbacks;
 
     private List<String> userAgents;
 
@@ -104,9 +95,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
      */
     public DocumentRetriever(HttpRetriever httpRetriever) {
         this.httpRetriever = httpRetriever;
-        downloadFilter = Predicates.ALL;
         this.initializeAgents();
-        retrieverCallbacks = new ArrayList<>();
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -329,7 +318,7 @@ public class DocumentRetriever implements WebDocumentRetriever {
 
         String contentString = null;
 
-        if (downloadFilter.test(url)) {
+        if (getDownloadFilter().test(url)) {
             try {
                 if (isFile(url)) {
                     contentString = FileHelper.readFileToString(url);
@@ -433,13 +422,11 @@ public class DocumentRetriever implements WebDocumentRetriever {
      *         {@link DownloadFilter}.
      */
     private Document getDocument(String url, boolean xml) {
-
         Document document = null;
         String cleanUrl = url.trim();
         InputStream inputStream = null;
 
-        if (downloadFilter.test(cleanUrl)) {
-
+        if (getDownloadFilter().test(cleanUrl)) {
             try {
 
                 if (isFile(cleanUrl)) {
@@ -471,13 +458,11 @@ public class DocumentRetriever implements WebDocumentRetriever {
                 }
 
                 callRetrieverCallback(document);
-
             } catch (Exception e) {
                 LOGGER.error(url + ", " + e.getMessage());
             } finally {
                 FileHelper.close(inputStream);
             }
-
         }
 
         return document;
@@ -532,36 +517,6 @@ public class DocumentRetriever implements WebDocumentRetriever {
     }
     public int getNumThreads() {
         return this.numThreads;
-    }
-
-    public void setDownloadFilter(Predicate<String> downloadFilter) {
-        this.downloadFilter = downloadFilter;
-    }
-
-    public Predicate<? super String> getDownloadFilter() {
-        return downloadFilter;
-    }
-
-    // ////////////////////////////////////////////////////////////////
-    // Callbacks
-    // ////////////////////////////////////////////////////////////////
-
-    private void callRetrieverCallback(Document document) {
-        for (Consumer<Document> retrieverCallback : retrieverCallbacks) {
-            retrieverCallback.accept(document);
-        }
-    }
-
-    public List<Consumer<Document>> getRetrieverCallbacks() {
-        return retrieverCallbacks;
-    }
-
-    public void addRetrieverCallback(Consumer<Document> retrieverCallback) {
-        retrieverCallbacks.add(retrieverCallback);
-    }
-
-    public void removeRetrieverCallback(Consumer<Document> retrieverCallback) {
-        retrieverCallbacks.remove(retrieverCallback);
     }
 
     public Map<String, String> getGlobalHeaders() {

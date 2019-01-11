@@ -35,7 +35,7 @@ public class Crawler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
     /** The document retriever. */
-    private DocumentRetriever documentRetriever;
+    private WebDocumentRetriever documentRetriever;
 
     /** Maximum number of threads used during crawling. */
     private int maxThreads = 10;
@@ -403,7 +403,7 @@ public class Crawler {
         this.fileTypeConsumers = fileTypeConsumers;
     }
 
-    public DocumentRetriever getDocumentRetriever() {
+    public WebDocumentRetriever getDocumentRetriever() {
         return documentRetriever;
     }
 
