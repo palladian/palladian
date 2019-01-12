@@ -19,7 +19,6 @@ import ws.palladian.retrieval.resources.WebContent;
  * @author Philipp Katz
  */
 public abstract class AbstractSearcher<R extends WebContent> implements Searcher<R> {
-
     @Override
     public final List<String> searchUrls(String query, int resultCount) throws SearcherException {
         return searchUrls(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
@@ -27,7 +26,7 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
 
     @Override
     public final List<String> searchUrls(String query, int resultCount, Language language) throws SearcherException {
-        List<String> urls = new ArrayList<String>();
+        List<String> urls = new ArrayList<>();
 
         List<R> webresults = search(query, resultCount, language);
         for (R webresult : webresults) {
@@ -87,5 +86,4 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
     public boolean isDeprecated() {
         return false;
     }
-
 }
