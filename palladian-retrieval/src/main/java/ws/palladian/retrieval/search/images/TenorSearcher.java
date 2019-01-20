@@ -91,7 +91,7 @@ public class TenorSearcher extends AbstractSearcher<WebImage> {
                 builder.setWidth(dimensions.getInt(0));
                 builder.setHeight(dimensions.getInt(1));
                 builder.setImageType(ImageType.GIF);
-                builder.setThumbnailUrl(media.tryQueryString("gif/preview"));
+                builder.setThumbnailUrl(media.tryQueryString("nanogif/url"));
                 builder.setLicense(License.FREE);
                 builder.setLicenseLink("https://tenor.com/gifapi/documentation#attribution");
                 results.add(builder.create());
