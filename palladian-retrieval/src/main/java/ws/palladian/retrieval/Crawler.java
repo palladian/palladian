@@ -116,7 +116,6 @@ public class Crawler {
      * @param currentUrl A URL.
      */
     protected void crawl(String currentUrl) {
-
         LOGGER.info("catch from stack: {}", currentUrl);
 
         requestThrottle.hold();
@@ -131,7 +130,9 @@ public class Crawler {
             }
         }
 
-        Document document = documentRetriever.getWebDocument(currentUrl);
+        // get the document retriever via getter, sub classes could override the getter and return a pooled resource for example
+        WebDocumentRetriever currentDocumentRetriever = getDocumentRetriever();
+        Document document = currentDocumentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
             Set<String> links = HtmlHelper.getLinks(document, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain);
@@ -143,11 +144,12 @@ public class Crawler {
             }
 
             addUrlsToStack(links);
-        } else if (documentRetriever.getDownloadFilter().test(currentUrl)){
+        } else if (currentDocumentRetriever.getDownloadFilter().test(currentUrl)){
             LOGGER.error("could not get " + currentUrl + ", putting it back on the stack for later");
             addUrlToStack(currentUrl);
         }
 
+        release(currentDocumentRetriever);
     }
 
     public void setSilentStopTime(int stopTimeInMinutes){
@@ -167,7 +169,6 @@ public class Crawler {
      * Start the crawling process.
      */
     private void startCrawl() {
-
         // crawl
         final AtomicLong lastCrawlTime = new AtomicLong(System.currentTimeMillis());
         long silentStopTimeMillis = TimeUnit.MINUTES.toMillis(silentStopTime);
@@ -230,7 +231,6 @@ public class Crawler {
         if (crawlerCallbackOnFinish != null) {
             crawlerCallbackOnFinish.callback();
         }
-
     }
 
     /**
@@ -248,7 +248,6 @@ public class Crawler {
         this.subDomain = subDomain;
         startCrawl();
     }
-
 
     /**
      * Start the crawling process.
@@ -336,12 +335,10 @@ public class Crawler {
     }
 
     protected synchronized void addUrlToStack(String url) {
-
         url = cleanUrl(url);
 
         // check URL first
         if (url != null && url.length() < 400 && !visitedUrls.contains(url) && documentRetriever.getDownloadFilter().test(url) && validate(url)) {
-
             boolean follow = true;
 
             // check whether the url should be followed
@@ -366,7 +363,6 @@ public class Crawler {
             if (follow) {
                 urlStack.add(url);
             }
-
         }
     }
 
@@ -407,8 +403,13 @@ public class Crawler {
         return documentRetriever;
     }
 
-    public void setDocumentRetriever(DocumentRetriever documentRetriever) {
+    public void setDocumentRetriever(WebDocumentRetriever documentRetriever) {
         this.documentRetriever = documentRetriever;
+    }
+
+    public void release(WebDocumentRetriever documentRetriever) {
+        // may be implemented by child classes that use pooled resources and need to release them
+        return;
     }
 
     public boolean isStripQueryParams() {
