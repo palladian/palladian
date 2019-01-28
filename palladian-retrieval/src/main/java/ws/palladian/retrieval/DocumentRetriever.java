@@ -1,28 +1,26 @@
 package ws.palladian.retrieval;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.helper.NoThrottle;
-import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 /**
  * <p>
@@ -55,22 +53,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     /** The {@link HttpRetriever} used for HTTP operations. */
     private final HttpRetriever httpRetriever;
 
-    /** The number of threads for downloading in parallel. */
-    public static final int DEFAULT_NUM_THREADS = 10;
-
     public static final String HTTP_RESULT_KEY = "httpResult";
-
-    /** The maximum number of threads to use. */
-    private int numThreads = DEFAULT_NUM_THREADS;
-
-    /** The number of milliseconds each host gets between two requests. */
-    private RequestThrottle requestThrottle = NoThrottle.INSTANCE;
-
-    /**
-     * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
-     * this retriever.
-     */
-    private Map<String, String> globalHeaders = null;
 
     private List<String> userAgents;
 
@@ -110,30 +93,14 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * @param url The URL or file path of the web page.
      * @return The W3C document, or <code>null</code> in case of any error.
      */
+    @Override
     public Document getWebDocument(String url) {
         return getDocument(url, false);
     }
 
-    /**
-     * <p>
-     * Get multiple URLs in parallel, for each finished download the supplied callback is invoked. The number of
-     * simultaneous threads for downloading and parsing can be defined using {@link #setNumThreads(int)}.
-     * </p>
-     *
-     * @param urls the URLs to download.
-     * @param callback the callback to be called for each finished download.
-     */
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
-        getWebDocuments(urls, callback, null);
-    }
-
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
-        getWebDocuments(urls, callback, fileTypeConsumers, new ProgressMonitor(urls.size(), 0.5, "DocumentRetriever"));
-    }
-
+    @Override
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers,
             final ProgressMonitor progressMonitor) {
-
         List<String> urlsList = new ArrayList<>(urls);
         List<String> sublist;
         int num = 10000;
@@ -142,7 +109,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
             final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>(sublist);
 
-            ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+            ExecutorService executor = Executors.newFixedThreadPool(getNumThreads());
 
             while (!urlQueue.isEmpty()) {
 
@@ -153,18 +120,10 @@ public class DocumentRetriever extends WebDocumentRetriever {
                     public void run() {
                         Thread.currentThread().setName("Retrieving: " + url);
 
-                        requestThrottle.hold();
+                        getRequestThrottle().hold();
 
                         // react file fileTypeConsumer?
-                        boolean consumerFound = false;
-                        if (fileTypeConsumers != null) {
-                            String fileType = FileHelper.getFileType(url);
-                            Consumer<String> stringConsumer = fileTypeConsumers.get(fileType);
-                            if (stringConsumer != null) {
-                                stringConsumer.accept(url);
-                                consumerFound = true;
-                            }
-                        }
+                        boolean consumerFound = reactToFileTypeConsumer(url, fileTypeConsumers);
 
                         if (!consumerFound) {
                             Document document = getWebDocument(url);
@@ -198,21 +157,10 @@ public class DocumentRetriever extends WebDocumentRetriever {
                 LOGGER.error(e.getMessage(), e);
             }
             LOGGER.info("...all threads finished in " + sw.getTotalElapsedTimeString());
-
         }
-
     }
 
-    /**
-     * <p>
-     * Get multiple URLs in parallel. The number of simultaneous threads for downloading and parsing can be defined
-     * using {@link #setNumThreads(int)}.
-     * </p>
-     *
-     * @param urls the URLs to download.
-     * @return set with the downloaded documents, documents which could not be downloaded or parsed successfully, are
-     *         not included.
-     */
+    @Override
     public Set<Document> getWebDocuments(Collection<String> urls) {
         final Set<Document> result = new HashSet<>();
         getWebDocuments(urls, document -> {
@@ -315,7 +263,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
      *         possible errors.
      */
     public String getText(String url) {
-
         String contentString = null;
 
         if (getDownloadFilter().test(url)) {
@@ -352,8 +299,8 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
         final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>(urls);
 
-        Thread[] threads = new Thread[numThreads];
-        for (int i = 0; i < numThreads; i++) {
+        Thread[] threads = new Thread[getNumThreads()];
+        for (int i = 0; i < getNumThreads(); i++) {
             threads[i] = new Thread() {
                 @Override
                 public void run() {
@@ -505,36 +452,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
         return getParser(xml).parse(inputStream);
     }
 
-    /**
-     * <p>
-     * Set the maximum number of simultaneous threads for downloading.
-     * </p>
-     *
-     * @param numThreads the number of threads to use.
-     */
-    public void setNumThreads(int numThreads) {
-        this.numThreads = numThreads;
-    }
-    public int getNumThreads() {
-        return this.numThreads;
-    }
-
-    public Map<String, String> getGlobalHeaders() {
-        return globalHeaders;
-    }
-
-    public void setGlobalHeaders(Map<String, String> globalHeaders) {
-        this.globalHeaders = globalHeaders;
-    }
-
-    public RequestThrottle getRequestThrottle() {
-        return requestThrottle;
-    }
-
-    public void setRequestThrottle(RequestThrottle requestThrottle) {
-        this.requestThrottle = requestThrottle;
-    }
-
     private void initializeAgents() {
         userAgents = new ArrayList<>();
         userAgents.add("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
@@ -584,7 +501,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      *
      * @param args The arguments.
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         DocumentRetriever retriever = new DocumentRetriever();
 
         Set<String> urls1 = new HashSet<>();
