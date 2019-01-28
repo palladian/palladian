@@ -1,19 +1,29 @@
 package ws.palladian.retrieval;
 
+import io.github.bonigarcia.wdm.DriverManagerType;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.commons.codec.binary.Base64;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
@@ -24,15 +34,16 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
 
 /**
  * A selenium-based retriever for web documents that should be rendered (execute JS and CSS).
  *
- * @author Jaroslav Vankat, David Urbansky
+ * Note: This is NOT thread safe.
+ * @author David Urbansky, Jaroslav Vankat
  */
 public class RenderingDocumentRetriever extends WebDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(RenderingDocumentRetriever.class);
@@ -44,17 +55,31 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
      */
     public RenderingDocumentRetriever() {
-        StopWatch sw = new StopWatch();
+        this(CHROME);
+    }
+    public RenderingDocumentRetriever(DriverManagerType browser) {
+        if (browser == DriverManagerType.FIREFOX) {
+            WebDriverManager.firefoxdriver().setup();
+            FirefoxOptions firefoxOptions = new FirefoxOptions();
+            firefoxOptions.setHeadless(true);
+            firefoxOptions.setAcceptInsecureCerts(true);
+            firefoxOptions.addPreference("general.useragent.override", HttpRetriever.USER_AGENT);
+            driver = new FirefoxDriver(firefoxOptions);
+        } else if (browser == DriverManagerType.CHROME) {
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions options = new ChromeOptions();
+            options.setHeadless(true);
+            options.setAcceptInsecureCerts(true);
+            options.addArguments("--disable-gpu");
+            options.addArguments("--disable-extensions");
+            options.addArguments("--proxy-server='direct://'");
+            options.addArguments("--proxy-bypass-list=*");
+            options.addArguments("--start-maximized");
+            options.addArguments("--window-size=1920,1080");
+            options.addArguments("--user-agent=" + HttpRetriever.USER_AGENT);
 
-        WebDriverManager.chromedriver().setup();
-        WebDriverManager.getInstance(CHROME).setup();
-
-        // start new headless browser instance
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("headless");
-        driver = new ChromeDriver(options);
-
-        LOGGER.info("Starting up a browser instance took " + sw.getElapsedTimeString());
+            driver = new ChromeDriver(options);
+        }
     }
 
     /**
@@ -84,7 +109,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     }
 
     /**
-     * Go to a certain page and (hopefully) wait for the document to be loaded.
+     * Go to a certain page and wait for the document to be loaded.
      *
      * @param url The url of the document
      */
@@ -96,6 +121,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         if (forceReload || !driver.getCurrentUrl().equals(url)) {
             driver.get(url);
         }
+        new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
     }
 
     /**
@@ -128,7 +154,6 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         }
         new WebDriverWait(driver, timeoutInSeconds).until(condition);
     }
-
 
     /**
      * Execute a JavaScript command
@@ -177,6 +202,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         try {
             InputStream stream = new ByteArrayInputStream(driver.getPageSource().getBytes(StandardCharsets.UTF_8.name()));
             document = ParserFactory.createHtmlParser().parse(stream);
+            document.setDocumentURI(driver.getCurrentUrl());
         } catch (ParserException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -189,10 +215,42 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 
         if (driver != null) {
             driver.get(url);
-            document = getCurrentWebDocument();
+            document = getCurrentWebDocument();// fixme  document.setDocumentURI(cleanUrl);           document.setUserData(HTTP_RESULT_KEY, httpResult, null);
+            callRetrieverCallback(document);
         }
 
         return document;
+    }
+
+    @Override
+    public void getWebDocuments(Collection<String> urls, Consumer<Document> callback, Map<String, Consumer<String>> fileTypeConsumers, ProgressMonitor progressMonitor) {
+        for (String url : urls) {
+            // react file fileTypeConsumer?
+            boolean consumerFound = reactToFileTypeConsumer(url, fileTypeConsumers);
+
+            if (!consumerFound) {
+                Document document = getWebDocument(url);
+                if (document != null) {
+                    callback.accept(document);
+                }
+            }
+
+            if (progressMonitor != null) {
+                progressMonitor.incrementAndPrintProgress();
+            }
+        }
+    }
+
+    @Override
+    public Set<Document> getWebDocuments(Collection<String> urls) {
+        Set<Document> documents = new HashSet<>();
+
+        for (String url : urls) {
+            Document document = getWebDocument(url);
+            documents.add(document);
+        }
+
+        return documents;
     }
 
     /**
@@ -246,6 +304,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     /**
      * Close the webdriver.
      */
+    @Override
     public void close() {
         driver.close();
     }
@@ -262,12 +321,26 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         this.timeoutSeconds = timeoutSeconds;
     }
 
-    public static void main(String... args) {
-        WebDocumentRetriever r = new RenderingDocumentRetriever();
-        Document webDocument = r.getWebDocument("https://genius.com/");
-        ((RenderingDocumentRetriever) r).takeScreenshot("");
+    public static void main(String... args) throws HttpException {
+        StopWatch stopWatch = new StopWatch();
+        RenderingDocumentRetriever r = new RenderingDocumentRetriever(DriverManagerType.CHROME);
+        //DocumentRetriever r = new DocumentRetriever();
+        //HttpResult httpResult = HttpRetrieverFactory.getHttpRetriever().httpGet("https://www.patagonia.com/");
+        //System.out.println(httpResult);
+//        r.goTo("https://www.patagonia.com/", true);
+//        Document webDocument = r.getCurrentWebDocument();
+//        Document webDocument = r.getWebDocument("https://www.patagonia.com/");
+        Document webDocument = r.getWebDocument("https://www.kraftrecipes.com/");
+//        Document webDocument = r.getWebDocument("https://www.whatismyip.com/");
+        System.out.println(r.driver.executeScript("return navigator.userAgent"));
+//        Document webDocument = r.getWebDocument("https://genius.com/");
+        r.takeScreenshot("");
         System.out.println(HtmlHelper.getInnerXml(webDocument));
-        ((RenderingDocumentRetriever) r).close();
+        System.out.println(webDocument.getDocumentURI());
+        System.out.println(r.driver.getTitle());
+//        r.close();
+        System.out.println(stopWatch.getElapsedTimeStringAndIncrement());
+        r.close();
 //        Document webDocument = r.getWebDocument("https://www.sitesearch360.com");
 //        ((RenderingDocumentRetriever) r).takeScreenshot("");
 //        System.out.println(HtmlHelper.getInnerXml(webDocument));
