@@ -293,7 +293,6 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     private AbstractHttpClient createHttpClient() {
-
         // initialize the HttpClient
         DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
 
@@ -332,7 +331,6 @@ public class HttpRetriever {
         }
 
         return backend;
-
     }
 
     private String createUrl(HttpRequest httpRequest) {

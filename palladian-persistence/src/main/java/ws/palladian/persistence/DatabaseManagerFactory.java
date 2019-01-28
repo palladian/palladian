@@ -42,7 +42,7 @@ public final class DatabaseManagerFactory {
     
     public static final String DB_CONFIG_FILE = "database.xml";
 
-    private final static Map<String, DataSource> dataSourceRegistry = new HashMap<String, DataSource>();
+    private final static Map<String, DataSource> dataSourceRegistry = new HashMap<>();
     
     /** Specify the {@link DataSourceFactory} to use, if you need a custom one. */
     public static DataSourceFactory dataSourceFactory = BoneCpDataSourceFactory.INSTANCE;

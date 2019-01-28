@@ -14,7 +14,6 @@ import com.jolbox.bonecp.BoneCPDataSource;
  * @see <a href="http://jolbox.com/">BoneCP</p>.
  */
 public final class BoneCpDataSourceFactory implements DataSourceFactory {
-    
     public static final DataSourceFactory INSTANCE = new BoneCpDataSourceFactory();
 
     private BoneCpDataSourceFactory() {
@@ -39,5 +38,4 @@ public final class BoneCpDataSourceFactory implements DataSourceFactory {
         boneConfig.setPartitionCount(3);
         return new BoneCPDataSource(boneConfig);
     }
-
 }

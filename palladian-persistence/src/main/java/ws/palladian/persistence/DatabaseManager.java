@@ -397,7 +397,6 @@ public class DatabaseManager {
                 generatedId = 0;
             }
 
-
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
             generatedId = -1;
