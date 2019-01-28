@@ -105,10 +105,9 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>22.0</version>
+			<version>27.0.1-jre</version>
 		</dependency>
 		<!-- END OF SELENIUM DEPENDENCIES -->
-
 	</dependencies>
 	<repositories>
 		<!-- http://www.slf4j.org/faq.html#excludingJCL -->
