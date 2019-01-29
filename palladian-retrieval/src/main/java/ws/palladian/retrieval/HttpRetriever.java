@@ -65,7 +65,9 @@ public class HttpRetriever {
 
     // ///////////// constants with default configuration ////////
 
-    /** The user agent string that is used by the crawler. */
+    /**
+     * The user agent string that is used by the crawler.
+     */
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36";
 
     /**
@@ -212,7 +214,15 @@ public class HttpRetriever {
      * @throws HttpException in case the HEAD fails, or the supplied URL is not valid.
      */
     public HttpResult httpHead(String url) throws HttpException {
-        return execute(new HttpRequest2Builder(HttpMethod.HEAD, url).create());
+        return httpHead(url, null);
+    }
+
+    public HttpResult httpHead(String url, Map<String, String> headers) throws HttpException {
+        HttpRequest2Builder httpRequest2Builder = new HttpRequest2Builder(HttpMethod.HEAD, url);
+        if (headers != null) {
+            httpRequest2Builder.addHeaders(headers);
+        }
+        return execute(httpRequest2Builder.create());
     }
 
     /**
