@@ -62,7 +62,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     public RenderingDocumentRetriever(DriverManagerType browser) {
         this(browser, null);
     }
-    public RenderingDocumentRetriever(DriverManagerType browser, Proxy proxy) {
+    public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy) {
         if (browser == DriverManagerType.FIREFOX) {
             WebDriverManager.firefoxdriver().setup();
             FirefoxOptions firefoxOptions = new FirefoxOptions();
