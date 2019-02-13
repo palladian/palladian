@@ -514,6 +514,7 @@ public enum UnitType {
         unitList.add("metres");
         unitList.add("meter");
         unitList.add("metre");
+        unitList.add("mtr");
         unitList.add("m");
         UnitType.LENGTH.units.add(Pair.of(unitList, 100.0));
 
@@ -558,6 +559,7 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("tons");
         unitList.add("ton");
+        unitList.add("t");
         UnitType.WEIGHT.units.add(Pair.of(unitList, 1000000.));
 
         unitList = new ArrayList<>();
