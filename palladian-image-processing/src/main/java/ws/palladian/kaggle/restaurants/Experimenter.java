@@ -39,7 +39,6 @@ import ws.palladian.kaggle.restaurants.utils.ClassifierCombination.EvaluationRes
  * @author pk
  */
 public class Experimenter {
-	
 	private static final class Experiment {
 		final ClassifierCombination<?> classifierCombination;
 		final Collection<? extends Predicate<? super String>> featureSets;
@@ -293,7 +292,14 @@ public class Experimenter {
 					csvResult.append(confusionMatrix.getF(1, trueClass)).append(';');
 					csvResult.append(confusionMatrix.getAccuracy()).append(';');
 					csvResult.append(confusionMatrix.getSuperiority()).append(';');
-					csvResult.append(confusionMatrix.getMatthewsCorrelationCoefficient()).append(';');
+					double mcc = -1;
+					try {
+						mcc = confusionMatrix.getMatthewsCorrelationCoefficient();
+					} catch (Exception e) {
+						// ccl
+						e.printStackTrace();
+					}
+					csvResult.append(mcc).append(';');
 					csvResult.append(evaluationResult.getRocCurves().getAreaUnderCurve()).append('\n');
 					FileHelper.appendFile(summaryCsv.getAbsolutePath(), csvResult);
 					
@@ -311,10 +317,8 @@ public class Experimenter {
 					}
 					
 					progress.increment();
-					
 				}
 			}
 		}
 	}
-
 }

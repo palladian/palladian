@@ -25,9 +25,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.classification.DatasetManager;
+import ws.palladian.classification.nb.NaiveBayesClassifier;
+import ws.palladian.classification.nb.NaiveBayesLearner;
+import ws.palladian.classification.quickml.QuickMlClassifier;
+import ws.palladian.classification.quickml.QuickMlLearner;
+import ws.palladian.classification.text.BayesScorer;
+import ws.palladian.classification.text.FeatureSettingBuilder;
+import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.dataset.DefaultDataset;
 import ws.palladian.core.value.ImmutableTextValue;
 import ws.palladian.dataset.ImageDataset;
 import ws.palladian.dataset.ImageValue;
@@ -38,6 +47,7 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.date.DateHelper;
 import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.kaggle.restaurants.Experimenter;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.utils.CsvDatasetWriter;
 
@@ -278,10 +288,11 @@ public class Evaluator {
     }
 
     public static void main(String[] args) throws IOException, JsonException {
-
+        System.out.println("Run evaluator");
+        ////// 1. path to dataset
 //         String datasetPath = "E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json";
 //         String datasetPath = "D:\\PalladianData\\Datasets\\recipes50\\dataset.json";
-         String datasetPath = "D:\\PalladianData\\Datasets\\food-101\\dataset.json";
+         String datasetPath = "C:\\Workspace\\data\\recipes50\\dataset.json";
 //        String datasetPath = "/home/david/datasets/dataset.json";
 
         if (args.length > 0) {
@@ -294,6 +305,7 @@ public class Evaluator {
 //        runBlockCodeExperiments(imageDataset);
 //        System.exit(0);
 
+        ////// 2. adding feature extractors
         ColorExtractor[] colorExtractors = new ColorExtractor[] {LUMINOSITY, RED, GREEN, BLUE, HUE, SATURATION,
                 BRIGHTNESS};
         List<FeatureExtractor> extractors = new ArrayList<>();
@@ -315,6 +327,8 @@ public class Evaluator {
         extractors.clear();
         extractors.add(new BlockCodeExtractor());
 
+        ////// 3. extract features for train and test set
+
         //// read training data and create features
         extractFeatures(extractors, imageDataset, ImageDataset.TRAIN);
 
@@ -323,7 +337,7 @@ public class Evaluator {
 
         // System.exit(0);
 
-        // train and test
+        ////// 4. create training and test instances
         CsvDatasetReaderConfig.Builder csvConfigBuilder = CsvDatasetReaderConfig
                 .filePath(imageDataset.getTrainFeaturesFile());
         csvConfigBuilder.parser("text", ImmutableTextValue.PARSER);
@@ -334,8 +348,12 @@ public class Evaluator {
         Iterable<Instance> testingInstances = csvConfigBuilder.create();
 
         File resultDirectory = new File(imageDataset.getBasePath() + "results-" + DateHelper.getCurrentDatetime());
+        DefaultDataset trainingDs = new DefaultDataset(trainingInstances);
+        DefaultDataset testDs = new DefaultDataset(testingInstances);
+        Experimenter experimenter = new Experimenter(trainingDs, testDs, resultDirectory);
 //        Experimenter experimenter = new Experimenter(trainingInstances, testingInstances, resultDirectory);
 
+        ////// 5. decide which features and combinations should be evaluated
         Predicate<String> surfFeatures = regex("SURF.*");
         Predicate<String> siftFeatures = regex("SIFT.*");
         Predicate<String> boundsFeatures = regex("width|height|ratio");
@@ -354,16 +372,17 @@ public class Evaluator {
         Predicate<String> allQuantitativeFeatures = or(colorFeatures, statisticsFeatures, symmetryFeatures,
                 local4StatisticsFeatures, local9StatisticsFeatures, regionFeatures, edginessFeatures, frequencyFeatures,
                 gridFeatures);
-        // Filter<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
+        // Predicate<String> allFeatures = or(surfFeatures, siftFeatures, allQuantitativeFeatures);
         List<Predicate<String>> allCombinations = asList(colorFeatures, statisticsFeatures, symmetryFeatures,
                 regionFeatures, frequencyFeatures, gridFeatures, allQuantitativeFeatures);
 
-        // List<Filter<String>> smallList = asList(colorFeatures,statisticsFeatures);
-//         List<Filter<String>> smallList = asList(allQuantitativeFeatures);
+//         List<Predicate<String>> smallList = asList(colorFeatures,statisticsFeatures);
+//         List<Predicate<String>> smallList = asList(allQuantitativeFeatures);
         List<Predicate<String>> smallList = asList(blockCodeFeatures);
 
-        // experimenter.addClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), smallList);
-        // experimenter.addClassifier(new PalladianDictionaryClassifier(), smallList);
+        ////// 6. add classifiers with feature sets to the experiment and run it
+//         experimenter.withClassifier(QuickMlLearner.randomForest(100), new QuickMlClassifier(), allCombinations);
+//         experimenter.addClassifier(new PalladianDictionaryClassifier(), smallList);
         // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 3).create()),
         // smallList);
         // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 7).create()),
@@ -383,9 +402,8 @@ public class Evaluator {
 //                        BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
 //                smallList);
         /////////////////////////////////////////////
-        // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 4).create(), new
-        // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
-        // smallList);
+         experimenter.withClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 4).create(), new
+                         BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)), smallList);
         // experimenter.addClassifier(new PalladianTextClassifier(FeatureSettingBuilder.words(1, 5).create(), new
         // BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.LAPLACE, BayesScorer.Options.PRIORS)),
         // smallList);
@@ -397,9 +415,9 @@ public class Evaluator {
         // experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), smallList);
         // experimenter.addClassifier(new KnnLearner(), new KnnClassifier(), smallList);
         // experimenter.addClassifier(new ZeroRLearner(), new ZeroRClassifier(), asList(Filters.NONE));
-        // experimenter.addClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), allCombinations);
+//         experimenter.withClassifier(new NaiveBayesLearner(), new NaiveBayesClassifier(), allCombinations);
 //         experimenter.addClassifier(QuickMlLearner.tree(), new QuickMlClassifier(), allCombinations);
 
-//        experimenter.run();
+        experimenter.run();
     }
 }
