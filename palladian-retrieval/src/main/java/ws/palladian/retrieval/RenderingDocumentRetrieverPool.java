@@ -17,16 +17,23 @@ import java.util.concurrent.Future;
  */
 public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocumentRetriever> {
     private DriverManagerType driverManagerType;
+    private org.openqa.selenium.Proxy proxy;
+    private String userAgent = HttpRetriever.USER_AGENT;
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
+        this(driverManagerType, size, null, HttpRetriever.USER_AGENT);
+    }
+    public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent) {
         super(size);
         this.driverManagerType = driverManagerType;
+        this.proxy = proxy;
+        this.userAgent = userAgent;
         initializePool();
     }
 
     @Override
     protected RenderingDocumentRetriever createObject() {
-        return new RenderingDocumentRetriever(driverManagerType);
+        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent);
     }
 
     // test drive

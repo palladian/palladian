@@ -353,6 +353,12 @@ public final class HtmlHelper {
             LOGGER.error("htmlDocToString:TransformerException", e);
         }
         String result = builder.toString();
+
+        // if the node is an attribute we might want to get its text content
+        if (result.isEmpty()) {
+            result = node.getTextContent();
+        }
+
         // result = result.replaceAll("[ \t]*?\n", "\n");
         result = NORMALIZE_LINES.matcher(result).replaceAll("");
         result = result.replaceAll("\n{3,}", "\n\n");

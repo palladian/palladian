@@ -13,8 +13,7 @@ public class UnitNormalizerTest {
     public ErrorCollector collector = new ErrorCollector();
 
     @Test
-    public void testDetectUnit() throws Exception {
-
+    public void testDetectUnit() {
         String input;
 
         input = "120 g/cm³";
@@ -52,7 +51,6 @@ public class UnitNormalizerTest {
 
         input = "filter_groess # filter_groess # gross # 39";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.nullValue());
-
     }
 
     @Test

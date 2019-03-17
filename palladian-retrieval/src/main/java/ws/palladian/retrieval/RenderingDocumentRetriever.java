@@ -41,8 +41,9 @@ import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
 
 /**
  * A selenium-based retriever for web documents that should be rendered (execute JS and CSS).
- *
+ * <p>
  * Note: This is NOT thread safe.
+ *
  * @author David Urbansky, Jaroslav Vankat
  */
 public class RenderingDocumentRetriever extends WebDocumentRetriever {
@@ -55,15 +56,24 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
      */
     public RenderingDocumentRetriever() {
-        this(CHROME);
+        this(CHROME, null, HttpRetriever.USER_AGENT);
     }
+
     public RenderingDocumentRetriever(DriverManagerType browser) {
+        this(browser, null, HttpRetriever.USER_AGENT);
+    }
+    public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent) {
         if (browser == DriverManagerType.FIREFOX) {
             WebDriverManager.firefoxdriver().setup();
             FirefoxOptions firefoxOptions = new FirefoxOptions();
             firefoxOptions.setHeadless(true);
             firefoxOptions.setAcceptInsecureCerts(true);
-            firefoxOptions.addPreference("general.useragent.override", HttpRetriever.USER_AGENT);
+            firefoxOptions.addPreference("general.useragent.override", userAgent);
+
+            if (proxy != null) {
+                firefoxOptions.setCapability(CapabilityType.PROXY, proxy);
+            }
+
             driver = new FirefoxDriver(firefoxOptions);
         } else if (browser == DriverManagerType.CHROME) {
             WebDriverManager.chromedriver().setup();
@@ -72,11 +82,16 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             options.setAcceptInsecureCerts(true);
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
-            options.addArguments("--proxy-server='direct://'");
-            options.addArguments("--proxy-bypass-list=*");
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
-            options.addArguments("--user-agent=" + HttpRetriever.USER_AGENT);
+            options.addArguments("--user-agent=" + userAgent);
+
+            if (proxy != null) {
+                options.setCapability(CapabilityType.PROXY, proxy);
+            } else {
+                options.addArguments("--proxy-server='direct://'");
+                options.addArguments("--proxy-bypass-list=*");
+            }
 
             driver = new ChromeDriver(options);
         }
@@ -214,8 +229,12 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         Document document = null;
 
         if (driver != null) {
+            // XXX
+            // document.setDocumentURI(cleanUrl);
+            // document.setUserData(HTTP_RESULT_KEY, httpResult, null);
+//            this.goTo(url);
             driver.get(url);
-            document = getCurrentWebDocument();// fixme  document.setDocumentURI(cleanUrl);           document.setUserData(HTTP_RESULT_KEY, httpResult, null);
+            document = getCurrentWebDocument();
             callRetrieverCallback(document);
         }
 

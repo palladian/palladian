@@ -21,15 +21,16 @@ public class NormalizationTest {
 
     @Test
     public void testSmartNormalization() {
-
         Pair<Double, List<String>> transformed = null;
 
         transformed = UnitNormalizer.smartTransform(0.5, UnitType.LENGTH);
         assertEquals("5.0mm", transformed.getLeft() + getShortest(transformed.getRight()));
 
         transformed = UnitNormalizer.smartTransform(5000000., UnitType.WEIGHT);
-        assertEquals("5.0ton", transformed.getLeft() + getShortest(transformed.getRight()));
+        assertEquals("5.0t", transformed.getLeft() + getShortest(transformed.getRight()));
 
+        transformed = UnitNormalizer.smartTransform(5000000., UnitType.WEIGHT);
+        assertEquals("5.0t", transformed.getLeft() + getShortest(transformed.getRight()));
     }
 
     private String getShortest(List<String> list) {
@@ -54,15 +55,13 @@ public class NormalizationTest {
 
     @Test
     public void testGetUnitType() {
-
         assertEquals(UnitType.WEIGHT, UnitNormalizer.getUnitType("g"));
         assertEquals(UnitType.VOLUME, UnitNormalizer.getUnitType("tablespoon"));
-
     }
 
     @Test
     public void testDetectUnit() {
-
+        assertEquals("t", UnitNormalizer.detectUnit("8 t"));
         assertEquals("kg/m³", UnitNormalizer.detectUnit("8 kg/m³"));
         assertEquals("ghz", UnitNormalizer.detectUnit("8 in ghz"));
         assertEquals("hz", UnitNormalizer.detectUnit("8 hz"));
