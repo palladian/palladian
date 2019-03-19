@@ -3,10 +3,7 @@ package ws.palladian.retrieval;
 import io.github.bonigarcia.wdm.DriverManagerType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.codec.binary.Base64;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -62,6 +59,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     public RenderingDocumentRetriever(DriverManagerType browser) {
         this(browser, null, HttpRetriever.USER_AGENT);
     }
+
     public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent) {
         if (browser == DriverManagerType.FIREFOX) {
             WebDriverManager.firefoxdriver().setup();
@@ -93,6 +91,16 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
                 options.addArguments("--proxy-bypass-list=*");
             }
 
+            driver = new ChromeDriver(options);
+        }
+    }
+
+    public RenderingDocumentRetriever(DriverManagerType browser, MutableCapabilities options) {
+        if (browser == DriverManagerType.FIREFOX) {
+            WebDriverManager.firefoxdriver().setup();
+            driver = new FirefoxDriver(options);
+        } else if (browser == DriverManagerType.CHROME) {
+            WebDriverManager.chromedriver().setup();
             driver = new ChromeDriver(options);
         }
     }
