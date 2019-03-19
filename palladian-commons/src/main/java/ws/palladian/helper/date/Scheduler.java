@@ -4,10 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.helper.ThreadHelper;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
@@ -17,13 +14,17 @@ import java.util.Set;
  * @author David Urbansky
  */
 public class Scheduler {
-
     /**
-     * Check scheduled tasks every 20 seconds.
+     * Check scheduled tasks every 10 seconds.
      */
-    private final int checkInterval = 20000;
+    private final int checkInterval = 10000;
 
     private final Set<Pair<Runnable, Schedule>> tasks;
+
+    /**
+     * Collect errors.
+     */
+    private final List<Throwable> errors = new ArrayList<>();
 
     private Scheduler() {
         tasks = Collections.synchronizedSet(new HashSet<>());
@@ -48,7 +49,6 @@ public class Scheduler {
     }
 
     private void runPeriodicTimeCheck() {
-
         (new Thread() {
             @Override
             public void run() {
@@ -58,7 +58,12 @@ public class Scheduler {
                     synchronized (tasks) {
                         // check all tasks
                         tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
-                            task.getLeft().run();
+                            try {
+                                task.getLeft().run();
+                            } catch (Exception e) {
+                                errors.add(e);
+                                e.printStackTrace();
+                            }
                         });
                     }
 
@@ -66,7 +71,10 @@ public class Scheduler {
                 }
             }
         }).start();
+    }
 
+    public List<Throwable> getErrors() {
+        return errors;
     }
 
     public static void main(String[] args) {
