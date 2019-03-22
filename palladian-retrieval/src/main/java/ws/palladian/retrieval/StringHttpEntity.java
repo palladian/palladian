@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.http.entity.ContentType;
 
 /**
  * {@link HttpEntity} which is provided as a {@link String}.
@@ -27,6 +28,15 @@ public final class StringHttpEntity implements HttpEntity {
         Validate.notNull(string, "string must not be null");
         this.string = string;
         this.contentType = contentType;
+    }
+    public StringHttpEntity(String string, ContentType contentType) {
+        Validate.notNull(string, "string must not be null");
+        this.string = string;
+        if (contentType != null) {
+            this.contentType = contentType.toString();
+        } else {
+            this.contentType = null;
+        }
     }
 
     @Override
