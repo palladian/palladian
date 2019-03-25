@@ -334,7 +334,6 @@ public class ImageHandler {
      * @return The transformed buffered image.
      */
     public static BufferedImage boxCrop(BufferedImage image, int boxWidth, int boxHeight) {
-
         Validate.notNull(image);
 
         // scale to fill the target box completely
@@ -374,7 +373,6 @@ public class ImageHandler {
      * @throws IOException
      */
     public static void rescaleAllImages(String imageFolder, int imageWidth, int imageHeight, boolean fit) throws IOException {
-
         File[] imageFiles = FileHelper.getFiles(imageFolder);
         for (File file : imageFiles) {
             BufferedImage image = load(file);
@@ -389,7 +387,6 @@ public class ImageHandler {
     }
 
     public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean toFit) {
-
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
             return null;
@@ -419,7 +416,6 @@ public class ImageHandler {
     }
 
     private static BufferedImage scaleDown(BufferedImage bufferedImage, double scaleX, double scaleY) {
-
         ParameterBlock pb = new ParameterBlock();
         pb.addSource(bufferedImage); // The source image
         // x scale
@@ -445,7 +441,6 @@ public class ImageHandler {
     }
 
     private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
-
         // "SubsampleAverage" is smooth but does only work for downscaling. If upscaling, we need to use "Scale".
         boolean upscale = false;
         if (scale > 1.0) {
@@ -502,7 +497,6 @@ public class ImageHandler {
      * @return The scaled image.
      */
     private static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
-
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
             return null;
@@ -571,7 +565,6 @@ public class ImageHandler {
         return downloadAndSave(url, savePath, 1.f);
     }
     public static String downloadAndSave(String url, String savePath, float quality) {
-
         try {
 
             Set<String> detectedContentTypes = new HashSet<>();
@@ -841,7 +834,6 @@ public class ImageHandler {
     }
 
     public static boolean saveImage(BufferedImage image, String fileType, String filePath, float quality) {
-
         try {
             Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(fileType.toUpperCase());
             if (iter.hasNext()) {
