@@ -700,14 +700,14 @@ public final class DatasetManager {
      */
     public static void main(String[] args) throws IOException {
 
-        new DatasetManager().folderize("F:\\PalladianData\\Datasets\\recipes50\\pictures", "F:\\PalladianData\\Datasets\\recipes50\\foldered");
+//        new DatasetManager().folderize("F:\\PalladianData\\Datasets\\recipes50\\pictures", "F:\\PalladianData\\Datasets\\recipes50\\foldered");
 
         // Dataset dataset = new Dataset();
         // dataset.setPath("data/temp/trainCollection.csv");
         // dataset.setSeparationString("<###>");
         // splitForCrossValidation(dataset, 3, 10);
 
-        // createBalancedIndex("H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt", " ");
+         createBalancedIndex("H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt", " ");
 
         System.exit(0);
 

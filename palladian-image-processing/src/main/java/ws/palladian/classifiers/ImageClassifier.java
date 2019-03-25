@@ -80,7 +80,6 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  * @author David Urbansky
  */
 public class ImageClassifier implements Serializable {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageClassifier.class);
 
     private ComputationGraph vgg16;
@@ -651,12 +650,16 @@ public class ImageClassifier implements Serializable {
     }
 
     public static void main(String[] args) throws IOException, InvalidKerasConfigurationException, UnsupportedKerasConfigurationException, JsonException, UnirestException {
+        // path to dataset
+        ImageDataset imageDataset1 = new ImageDataset(new File("E:\\Projects\\Programming\\Java\\WebKnox\\data\\temp\\images\\recipes50\\dataset.json"));
 
-//        ImageDataset imageDataset1 = new ImageDataset(new File("F:\\PalladianData\\Datasets\\recipes50\\dataset.json"));
-//        ImageClassifier newImageClassifier1 = new ImageClassifier();
-//        File newModelPath1 = new File("recipe50-model.zip");
-//        newImageClassifier1.transferLearn(imageDataset1, newModelPath1, 80);
-//        System.exit(0);
+        // create classifier
+        ImageClassifier newImageClassifier1 = new ImageClassifier();
+        File newModelPath1 = new File("recipe50-model.zip");
+
+        // start transfer learning
+        newImageClassifier1.transferLearn(imageDataset1, newModelPath1, 80);
+        System.exit(0);
          System.out.println(new File(".").getAbsolutePath());
 
         String bucketName = "webknox-dl4j";
@@ -684,8 +687,8 @@ public class ImageClassifier implements Serializable {
         FileHelper.createDirectory(modelPath);
         File newModelPath = new File(modelPath + imageDataset.getName() + ".zip");
 
-        // newImageClassifier.transferLearn(imageDataset, newModelPath, 80);
-//        System.exit(0);
+         newImageClassifier.transferLearn(imageDataset, newModelPath, 80);
+        System.exit(0);
 //
 //        ImageClassifier imageClassifier = new ImageClassifier(newModelPath.getPath(), imageDataset.getClassNames());
         // ImageClassifier imageClassifier = new ImageClassifier("data\\models\\deeplearning4j\\flower-model.zip",
@@ -706,7 +709,5 @@ public class ImageClassifier implements Serializable {
 //                System.out.println(categoryEntry.getName() + " : " + categoryEntry.getProbability());
 //            }
 //        }
-
     }
-
 }

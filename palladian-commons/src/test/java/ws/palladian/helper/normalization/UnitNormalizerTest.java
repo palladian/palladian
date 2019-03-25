@@ -16,6 +16,9 @@ public class UnitNormalizerTest {
     public void testDetectUnit() {
         String input;
 
+        input = "10 t";
+        collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("t"));
+
         input = "120 g/cm³";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.DENSITY));
 
