@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
  * Created by David on 10.07.2015.
  */
 public class Schedule {
-
     private long lastRun = -1;
 
     private Integer dayOfYear;
@@ -19,7 +18,6 @@ public class Schedule {
     private Integer minuteOfHour;
 
     public boolean onSchedule(Date date) {
-
         // we only resolve meticulous accuracy so the task must not have run within the last 60 seconds
         if (date.getTime() - TimeUnit.SECONDS.toMillis(60) < lastRun) {
             return false;
@@ -56,7 +54,9 @@ public class Schedule {
             }
         }
 
-        lastRun = System.currentTimeMillis();
+        if (onSchedule) {
+            lastRun = System.currentTimeMillis();
+        }
         return onSchedule;
     }
 
