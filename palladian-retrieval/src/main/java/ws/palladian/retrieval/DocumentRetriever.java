@@ -375,7 +375,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
         if (getDownloadFilter().test(cleanUrl)) {
             try {
-
                 if (isFile(cleanUrl)) {
                     File file = new File(cleanUrl);
                     inputStream = new BufferedInputStream(new FileInputStream(new File(cleanUrl)));
@@ -388,6 +387,13 @@ public class DocumentRetriever extends WebDocumentRetriever {
                     }
                     HttpRequest2 request = httpRequest2Builder.create();
                     HttpResult httpResult = httpRetriever.execute(request);
+
+                    // make sure this is not a binary file otherwise this may take long
+                    String contentType = Optional.ofNullable(httpResult.getHeaderString("content-type")).orElse("");
+                    if (contentType.equalsIgnoreCase("application/octet-stream")) {
+                        return null;
+                    }
+
                     document = parse(httpResult, xml);
 
                     // check for location header before setting the document URL
