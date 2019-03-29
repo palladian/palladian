@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.analysis;
 
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -149,7 +150,9 @@ public class SitemapRetriever {
 
         // read
         HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
-        String sitemapText = new DocumentRetriever(httpRetriever).getText(sitemapUrl);
+        DocumentRetriever retriever = new DocumentRetriever(httpRetriever);
+        retriever.setGlobalHeaders(MapBuilder.createPut("Cookie","euConsent=true").create());
+        String sitemapText = retriever.getText(sitemapUrl);
         List<String> sitemapUrls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapText);
 
         // clean
