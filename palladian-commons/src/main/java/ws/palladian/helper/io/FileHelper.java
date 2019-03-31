@@ -105,6 +105,7 @@ public final class FileHelper {
         binaryFileExtensions.add("docx");
         binaryFileExtensions.add("ppt");
         binaryFileExtensions.add("pptx");
+        binaryFileExtensions.add("ppsx");
         binaryFileExtensions.add("xls");
         binaryFileExtensions.add("xlsx");
         binaryFileExtensions.add("zip");

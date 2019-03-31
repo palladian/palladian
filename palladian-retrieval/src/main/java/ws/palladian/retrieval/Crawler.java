@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
  * 
  */
 public class Crawler {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
@@ -42,6 +41,9 @@ public class Crawler {
 
     /** Silent Stop Time */
     private int silentStopTime = 10;
+
+    /** If a web page could not be reached we can put it back on the stack to try another time. */
+    private boolean retryFailedRetrievals = true;
 
     /** Number of active threads. */
     private AtomicInteger threadCount = new AtomicInteger(0);
@@ -144,7 +146,7 @@ public class Crawler {
             }
 
             addUrlsToStack(links);
-        } else if (currentDocumentRetriever.getDownloadFilter().test(currentUrl)){
+        } else if (isRetryFailedRetrievals() && currentDocumentRetriever.getDownloadFilter().test(currentUrl)){
             LOGGER.error("could not get " + currentUrl + ", putting it back on the stack for later");
             addUrlToStack(currentUrl);
         }
@@ -442,6 +444,14 @@ public class Crawler {
 
     public void setVisitedUrls(Set<String> visitedUrls) {
         this.visitedUrls = visitedUrls;
+    }
+
+    public boolean isRetryFailedRetrievals() {
+        return retryFailedRetrievals;
+    }
+
+    public void setRetryFailedRetrievals(boolean retryFailedRetrievals) {
+        this.retryFailedRetrievals = retryFailedRetrievals;
     }
 
     public static void main(String[] args) throws UnknownHostException {

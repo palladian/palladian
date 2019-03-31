@@ -184,6 +184,9 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
+        assertEquals(100000, MathHelper.parseStringNumber("100,000"), 0.001);
+        assertEquals(0.36, MathHelper.parseStringNumber("0,36", 0.0), 0.01);
+        assertEquals(0.36, MathHelper.parseStringNumber("0,36 whatever", 0.0), 0.01);
         assertEquals(0.0, MathHelper.parseStringNumber("no numbers here", 0.0), 0.01);
         assertEquals(null, MathHelper.parseStringNumber("no numbers here"));
         assertEquals(60000000, MathHelper.parseStringNumber("6.0E7 mpix"), 0.001);
@@ -194,7 +197,6 @@ public class MathHelperTest {
         assertEquals(3.125, MathHelper.parseStringNumber("3 1/8 bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1½ bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
-        assertEquals(100000, MathHelper.parseStringNumber("100,000"), 0.001);
         assertEquals(1777, MathHelper.parseStringNumber("1,777"), 0.001);
         assertEquals(17, MathHelper.parseStringNumber("17cm"), 0.001);
         assertEquals(17, MathHelper.parseStringNumber("17ags"), 0.001);
