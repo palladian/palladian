@@ -152,7 +152,6 @@ public class UnitNormalizer {
      * @return A collection of units of the same type.
      */
     public static Collection<String> getAllUnitsOfSameType(String unit) {
-
         if (isDigitalUnit(unit)) {
             return UnitType.DIGITAL.getUnitNames();
         }
@@ -234,7 +233,6 @@ public class UnitNormalizer {
      * @return True if both units are the same type.
      */
     public static boolean unitsSameType(String unit1, String unit2) {
-
         unit1 = unit1.toLowerCase().trim();
         unit2 = unit2.toLowerCase().trim();
 
@@ -314,7 +312,6 @@ public class UnitNormalizer {
      * @return The unit to which all values are normalized to, e.g. "second" for time units.
      */
     public static String findBaseUnit(String unit) {
-
         unit = unit.toLowerCase();
         Collection<String> allUnitsOfSameType = getAllUnitsOfSameType(unit);
         for (String unitType : allUnitsOfSameType) {
@@ -336,7 +333,6 @@ public class UnitNormalizer {
      * @return The multiplier.
      */
     public static double unitLookup(String unit) {
-
         unit = unit.trim();
         if (unit.endsWith(".")) {
             unit = unit.substring(0, unit.length() - 1);
@@ -359,7 +355,6 @@ public class UnitNormalizer {
                     }
                 }
             }
-
         }
 
         // nothing found? try case insensive
@@ -378,7 +373,6 @@ public class UnitNormalizer {
                         }
                     }
                 }
-
             }
         }
 
@@ -408,7 +402,6 @@ public class UnitNormalizer {
         double combinedValue = -1.0;
 
         try {
-
             Pattern pattern;
             Matcher matcher;
 

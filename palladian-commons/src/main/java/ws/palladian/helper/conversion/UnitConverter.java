@@ -38,7 +38,6 @@ public class UnitConverter {
     }
 
     public static Double convertTemperature(Double amount, String fromUnit, String toUnit) {
-
         TemperatureUnit from = TemperatureUnit.getByName(fromUnit);
         TemperatureUnit to = TemperatureUnit.getByName(toUnit);
 

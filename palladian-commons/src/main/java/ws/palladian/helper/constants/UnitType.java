@@ -15,7 +15,6 @@ import java.util.List;
  * @author David Urbansky
  */
 public enum UnitType {
-
     NONE(null), //
     BANDWIDTH("bit/s"), //
     TIME("s"), //
@@ -52,7 +51,6 @@ public enum UnitType {
     }
 
     static {
-
         List<String> unitList;
 
         // NONE units are normalized to 1
@@ -714,6 +712,14 @@ public enum UnitType {
         unitList.add("cp");
         unitList.add("c");
         UnitType.VOLUME.units.add(Pair.of(unitList, 236.588));
+
+        unitList = new ArrayList<>();
+        unitList.add("deciliters");
+        unitList.add("deciliter");
+        unitList.add("decilitres");
+        unitList.add("decilitre");
+        unitList.add("dl");
+        UnitType.VOLUME.units.add(Pair.of(unitList, 100.));
 
         unitList = new ArrayList<>();
         unitList.add("fl. oz");
