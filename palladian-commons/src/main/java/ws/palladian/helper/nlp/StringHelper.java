@@ -31,7 +31,6 @@ import ws.palladian.helper.normalization.UnitNormalizer;
  * @author Martin Gregor
  */
 public final class StringHelper {
-
     /**
      * The logger for this class.
      */
@@ -315,6 +314,16 @@ public final class StringHelper {
         String modText = PATTERN_NUMBERING1.matcher(numberedText).replaceAll("");
         modText = PATTERN_NUMBERING2.matcher(modText).replaceAll("");
         return modText;
+    }
+
+    /**
+     * Replace numbers in a text. 1.1 Text => Text, Text 1.2 => Text
+     *
+     * @param numberedText The text that possibly has numbers before it starts.
+     * @return The text without the numbers.
+     */
+    public static String removeNumbers(String numberedText) {
+        return PATTERN_NUMBER.matcher(numberedText).replaceAll("");
     }
 
     /**
@@ -698,7 +707,6 @@ public final class StringHelper {
      * @return true, if is number
      */
     public static boolean isNumber(String string) {
-
         if (string == null || string.isEmpty()) {
             return false;
         }

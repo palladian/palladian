@@ -67,7 +67,6 @@ public class StringHelperTest {
 
     @Test
     public void testContainsWord() {
-
         assertTrue(StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));
 
         assertTrue(StringHelper.containsWord("test", "a test b"));
@@ -168,6 +167,11 @@ public class StringHelperTest {
     }
 
     @Test
+    public void testRemoveNumbers() {
+        assertEquals("Text whatever", StringHelper.removeNumbers("Text 1.2 whatever"));
+    }
+
+    @Test
     public void testRemoveNumbering() {
         assertEquals("Text", StringHelper.removeNumbering("Text"));
         assertEquals("Text", StringHelper.removeNumbering("1 Text"));
@@ -177,7 +181,6 @@ public class StringHelperTest {
         assertEquals("Text", StringHelper.removeNumbering("1.2.3.Text"));
         assertEquals("Text", StringHelper.removeNumbering("1.2.3.4     Text"));
         assertEquals("Led Zeppelin", StringHelper.removeNumbering("#14 Led Zeppelin"));
-
     }
 
     @Test
