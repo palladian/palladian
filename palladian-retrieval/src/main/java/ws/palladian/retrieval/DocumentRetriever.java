@@ -388,9 +388,9 @@ public class DocumentRetriever extends WebDocumentRetriever {
                     HttpRequest2 request = httpRequest2Builder.create();
                     HttpResult httpResult = httpRetriever.execute(request);
 
-                    // make sure this is not a binary file otherwise this may take long
+                    // make sure this is not a binary file or anything else we can probably not parse to a document
                     String contentType = Optional.ofNullable(httpResult.getHeaderString("content-type")).orElse("");
-                    if (contentType.equalsIgnoreCase("application/octet-stream")) {
+                    if (contentType.toLowerCase().contains("application/")) {
                         return null;
                     }
 
