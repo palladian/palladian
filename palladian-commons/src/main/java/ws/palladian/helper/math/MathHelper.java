@@ -31,16 +31,20 @@ import ws.palladian.helper.io.LineAction;
  * <p>
  * The MathHelper provides mathematical functionality.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
 public final class MathHelper {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
 
-    /** Public, non-final, so that it can be assigned with a custom seed. */
+    /**
+     * Public, non-final, so that it can be assigned with a custom seed.
+     */
     public static Random RANDOM = new Random();
 
     private static final Map<Double, String> FRACTION_MAP;
@@ -54,7 +58,9 @@ public final class MathHelper {
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
     private static final Pattern CLEAN_PATTERN4 = Pattern.compile("(?<=\\d),(?=\\d\\d?($|\\s))");
 
-    /** The supported confidence levels. */
+    /**
+     * The supported confidence levels.
+     */
     public static final Collection<Double> CONFIDENCE_LEVELS;
 
     static {
@@ -112,7 +118,7 @@ public final class MathHelper {
      * <p>
      * Calculate the Jaccard similarity between two sets. <code>J(A, B) = |A intersection B| / |A union B|</code>.
      * </p>
-     * 
+     *
      * @param setA The first set, not <code>null</code>.
      * @param setB The second set, not <code>null</code>.
      * @return The Jaccard similarity in the range [0, 1].
@@ -145,7 +151,7 @@ public final class MathHelper {
      * Calculate the overlap coefficient between two sets.
      * <code>Overlap(A, B) = |A intersection B| / min(|A|, |B|)</code>.
      * </p>
-     * 
+     *
      * @param setA The first set.
      * @param setB The second set.
      * @return The overlap coefficient in the range [0, 1].
@@ -166,7 +172,9 @@ public final class MathHelper {
         return SetSimilarities.OVERLAP.getSimilarity(setA, setB);
     }
 
-    /** @deprecated Use {@link NumericVector} instead. */
+    /**
+     * @deprecated Use {@link NumericVector} instead.
+     */
     @Deprecated
     public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
 
@@ -177,7 +185,9 @@ public final class MathHelper {
         return dotProduct / (magnitude1 * magnitude2);
     }
 
-    /** @deprecated Use {@link NumericVector} instead. */
+    /**
+     * @deprecated Use {@link NumericVector} instead.
+     */
     @Deprecated
     public static double computeDotProduct(Double[] vector1, Double[] vector2) {
         double dotProduct = 0.0;
@@ -189,7 +199,9 @@ public final class MathHelper {
         return dotProduct;
     }
 
-    /** @deprecated Use {@link NumericVector} instead. */
+    /**
+     * @deprecated Use {@link NumericVector} instead.
+     */
     @Deprecated
     public static double computeMagnitude(Double[] vector) {
         double magnitude = 0.0;
@@ -207,11 +219,10 @@ public final class MathHelper {
      * href="http://www.bioconsulting.com/calculation_of_the_confidence_interval.htm">Calculation Of The Confidence
      * Interval</a>.
      * </p>
-     * 
-     * @param samples The number of samples used, greater zero.
+     *
+     * @param samples         The number of samples used, greater zero.
      * @param confidenceLevel The level of confidence. Must be one of the values in {@link #CONFIDENCE_LEVELS}.
-     * @param mean The mean, in range [0,1]. If unknown, assume worst case with mean = 0.5.
-     * 
+     * @param mean            The mean, in range [0,1]. If unknown, assume worst case with mean = 0.5.
      * @return The calculated confidence interval.
      */
     public static double computeConfidenceInterval(long samples, double confidenceLevel, double mean) {
@@ -232,6 +243,7 @@ public final class MathHelper {
         double numberFactor = Math.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;
     }
+
     public static double ceil(double number, int digits) {
         if (Double.isNaN(number)) {
             return Double.NaN;
@@ -239,6 +251,7 @@ public final class MathHelper {
         double numberFactor = Math.pow(10.0, digits);
         return Math.ceil(numberFactor * number) / numberFactor;
     }
+
     public static double floor(double number, int digits) {
         if (Double.isNaN(number)) {
             return Double.NaN;
@@ -252,10 +265,10 @@ public final class MathHelper {
      * Check whether one value is in a certain range of another value. For example, value1: 5 is within the range: 2 of
      * value2: 3.
      * </p>
-     * 
+     *
      * @param value1 The value to check whether it is in the range of the other value.
      * @param value2 The value for which the range is added or subtracted.
-     * @param range The range.
+     * @param range  The range.
      * @return <tt>True</tt>, if value1 <= value2 + range && value1 >= value2 - range, <tt>false</tt> otherwise.
      */
     public static boolean isWithinRange(double value1, double value2, double range) {
@@ -269,10 +282,10 @@ public final class MathHelper {
      * <p>
      * Check whether one value is in a certain interval. For example, value: 5 is within the interval min: 2 to max: 8.
      * </p>
-     * 
+     *
      * @param value The value to check whether it is in the interval.
-     * @param min The min value of the interval.
-     * @param max the max value of the interval
+     * @param min   The min value of the interval.
+     * @param max   the max value of the interval
      * @return <tt>True</tt>, if value >= min && value <= max, <tt>false</tt> otherwise.
      */
     public static boolean isWithinInterval(double value, double min, double max) {
@@ -287,7 +300,7 @@ public final class MathHelper {
     }
 
     public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue,
-            double correctnessMargin) {
+                                                    double correctnessMargin) {
         double numMin = correctValue - correctnessMargin * correctValue;
         double numMax = correctValue + correctnessMargin * correctValue;
 
@@ -307,11 +320,11 @@ public final class MathHelper {
      * <p>
      * Check whether two numeric intervals overlap.
      * </p>
-     * 
+     *
      * @param start1 The start1.
-     * @param end1 The end1.
+     * @param end1   The end1.
      * @param start2 The start2.
-     * @param end2 The end2.
+     * @param end2   The end2.
      * @return True, if the intervals overlap, false otherwise.
      */
     public static boolean overlap(int start1, int end1, int start2, int end2) {
@@ -355,7 +368,7 @@ public final class MathHelper {
 
     /**
      * Calculate similarity of two lists of the same size.
-     * 
+     *
      * @param list1 The first list.
      * @param list2 The second list.
      * @return The similarity of the two lists.
@@ -398,8 +411,8 @@ public final class MathHelper {
             position1++;
         }
 
-        double similarity = 1 - (double)summedRealDistance / (double)summedMaxDistance;
-        double squaredShiftSimilarity = 1 - (double)summedRealSquaredDistance / (double)summedMaxSquaredDistance;
+        double similarity = 1 - (double) summedRealDistance / (double) summedMaxDistance;
+        double squaredShiftSimilarity = 1 - (double) summedRealSquaredDistance / (double) summedMaxSquaredDistance;
         double rootMeanSquareError = stats.getRmse();
 
         return new ListSimilarity(similarity, squaredShiftSimilarity, rootMeanSquareError);
@@ -429,7 +442,7 @@ public final class MathHelper {
      * <p>
      * Transform an IP address to a number.
      * </p>
-     * 
+     *
      * @param ipAddress The IP address given in w.x.y.z notation.
      * @return The integer of the IP address.
      */
@@ -448,7 +461,7 @@ public final class MathHelper {
      * <p>
      * Transform a number into an IP address.
      * </p>
-     * 
+     *
      * @param number The integer to be transformed.
      * @return The IP address.
      */
@@ -460,7 +473,7 @@ public final class MathHelper {
      * <p>
      * Return a random entry from a given collection.
      * </p>
-     * 
+     *
      * @param collection The collection from we want to sample from.
      * @return A random entry from the collection.
      */
@@ -533,11 +546,11 @@ public final class MathHelper {
      * Create a random sampling of the given size using a <a
      * href="http://en.wikipedia.org/wiki/Reservoir_sampling">Reservoir Sampling</a> algorithm. The input data can be
      * supplied as iterable, thus does not have to fit in memory. Only the created random sample is kept in memory.
-     * 
+     *
      * @param input The iterable providing the input data, not <code>null</code>.
-     * @param k The size of the sampling.
+     * @param k     The size of the sampling.
      * @return A {@link Collection} with the random sample of size k (or smaller, in case the input data did not provide
-     *         enough samples).
+     * enough samples).
      */
     public static <T> Collection<T> sample(Iterable<T> input, int k) {
         return sample(input.iterator(), k);
@@ -548,11 +561,11 @@ public final class MathHelper {
      * Create a random sampling of the given size using a <a
      * href="http://en.wikipedia.org/wiki/Reservoir_sampling">Reservoir Sampling</a> algorithm. The input data can be
      * supplied as iterator, thus does not have to fit in memory. Only the created random sample is kept in memory.
-     * 
+     *
      * @param input The iterator providing the input data, not <code>null</code>.
-     * @param k The size of the sampling.
+     * @param k     The size of the sampling.
      * @return A {@link Collection} with the random sample of size k (or smaller, in case the input data did not provide
-     *         enough samples).
+     * enough samples).
      */
     public static <T> Collection<T> sample(Iterator<T> input, int k) {
         Validate.notNull(input, "input must not be null");
@@ -581,10 +594,10 @@ public final class MathHelper {
      * <p>
      * Create numbers random numbers between [min,max).
      * </p>
-     * 
+     *
      * @param numbers Number of numbers to generate.
-     * @param min The minimum number.
-     * @param max The maximum number.
+     * @param min     The minimum number.
+     * @param max     The maximum number.
      * @return A set of random numbers between min and max.
      */
     public static Set<Integer> createRandomNumbers(int numbers, int min, int max) {
@@ -597,7 +610,7 @@ public final class MathHelper {
         }
         while (randomNumbers.size() < numbers) {
             double nd = RANDOM.nextDouble();
-            int randomNumber = (int)(nd * max + min);
+            int randomNumber = (int) (nd * max + min);
             randomNumbers.add(randomNumber);
         }
 
@@ -608,14 +621,14 @@ public final class MathHelper {
      * <p>
      * Returns a random number in the interval [low,high].
      * </p>
-     * 
-     * @param low The minimum number.
+     *
+     * @param low  The minimum number.
      * @param high The maximum number.
      * @return The random number within the interval.
      */
     public static int getRandomIntBetween(int low, int high) {
         int hl = high - low;
-        return (int)Math.round(RANDOM.nextDouble() * hl + low);
+        return (int) Math.round(RANDOM.nextDouble() * hl + low);
     }
 
     /**
@@ -626,10 +639,10 @@ public final class MathHelper {
      * %2Fproject_abstracts_folder%2Fproj_student_learning_folder%2Fmultiple_reg__ludlow
      * .pps&ei=NQQ7TOHNCYacOPan6IoK&usg=AFQjCNEybhIQVP2xwNGHEdYMgqNYelp1lQ&sig2=cwCNr11vMv0PHwdwu_LIAQ,
      * http://www.stat.ufl.edu/~aa/sta6127/ch11.pdf
-     * 
+     * <p>
      * See <a href="http://en.wikipedia.org/wiki/Simple_linear_regression">http://en.wikipedia.org/wiki/
      * Simple_linear_regression</a> for an explanation.
-     * 
+     *
      * @param x A series of x values.
      * @param y A series of y values.
      * @return The parameter alpha [0] and beta [1] for the regression line.
@@ -670,15 +683,15 @@ public final class MathHelper {
      * dimensional array, where the first dimension indicates the Rank k, the second dimension distinguishes between Pr
      * and AP. Example:
      * </p>
-     * 
+     *
      * <pre>
      * double[][] ap = MathHelper.calculateAP(rankedList);
      * int k = rankedList.size() - 1;
      * double prAtK = ap[k][0];
      * double apAtK = ap[k][1];
      * </pre>
-     * 
-     * @param rankedList The ranked list with Boolean values indicating the relevancies of the items.
+     *
+     * @param rankedList                  The ranked list with Boolean values indicating the relevancies of the items.
      * @param totalNumberRelevantForQuery The total number of relevant documents for the query.
      * @return A two dimensional array containing Precision @ Rank k and Average Precision @ Rank k.
      */
@@ -699,7 +712,7 @@ public final class MathHelper {
                 numRelevant++;
             }
 
-            double prAtK = (double)numRelevant / (k + 1);
+            double prAtK = (double) numRelevant / (k + 1);
 
             if (relevant) {
                 relPrSum += prAtK;
@@ -729,7 +742,7 @@ public final class MathHelper {
      * <p>
      * Compute the Pearson's correlation coefficient between to variables.
      * </p>
-     * 
+     *
      * @param x A list of double values from the data series of the first variable.
      * @param y A list of double values from the data series of the second variable.
      * @return The Pearson correlation coefficient.
@@ -768,9 +781,9 @@ public final class MathHelper {
      * <p>
      * Try to translate a number into a fraction, e.g. 0.333 = 1/3.
      * </p>
-     * 
-     * @parameter number A number.
+     *
      * @return The fraction of the number if it was possible to transform, otherwise the number as a string.
+     * @parameter number A number.
      */
     public static String numberToFraction(Double number) {
         String fraction = StringUtils.EMPTY;
@@ -778,7 +791,7 @@ public final class MathHelper {
         String sign = number >= 0 ? StringUtils.EMPTY : "-";
         number = Math.abs(number);
 
-        int fullPart = (int)Math.floor(number);
+        int fullPart = (int) Math.floor(number);
         number = number - fullPart;
 
         double minMargin = 1;
@@ -818,7 +831,7 @@ public final class MathHelper {
      * </p>
      * <p>
      * For example, the string "a b c" will return 7 combinations (2^3=8 but all empty is not allowed, hence 7):
-     * 
+     *
      * <pre>
      * a b c
      * a b
@@ -828,9 +841,9 @@ public final class MathHelper {
      * b
      * a
      * </pre>
-     * 
+     *
      * </p>
-     * 
+     *
      * @param string A tokenized string to get the spans for.
      * @return A collection of spans.
      */
@@ -840,7 +853,7 @@ public final class MathHelper {
         int bits = items.length;
         List<List<T>> combinations = new ArrayList<List<T>>();
 
-        int max = (int)Math.pow(2, bits);
+        int max = (int) Math.pow(2, bits);
         for (long i = 1; i < max; i++) {
             List<T> combination = new LinkedList<T>();
             if (computeCombinationRecursive(i, items, combination, 0)) {
@@ -855,18 +868,18 @@ public final class MathHelper {
      * <p>
      * Recursive computation function for combinations.
      * </p>
-     * 
-     * @param bitPattern The pattern describing the indices in the list of {@code items} to include in the resulting
-     *            combination.
-     * @param items The list of items to construct combinations from.
-     * @param combination The result combination will be constructed into this list.
+     *
+     * @param bitPattern   The pattern describing the indices in the list of {@code items} to include in the resulting
+     *                     combination.
+     * @param items        The list of items to construct combinations from.
+     * @param combination  The result combination will be constructed into this list.
      * @param currentIndex The current index in the list of items. For this call the algorithm needs to decide whether
-     *            to include the item at that position in the combination or not based on whether the value in
-     *            {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
+     *                     to include the item at that position in the combination or not based on whether the value in
+     *                     {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
      * @return {@code true} if the computed combination was computed successfully.
      */
     private static <T> boolean computeCombinationRecursive(long bitPattern, T[] items, List<T> combination,
-            int currentIndex) {
+                                                           int currentIndex) {
         if (bitPattern % 2 != 0) {
             combination.add(items[currentIndex]);
         }
@@ -882,7 +895,7 @@ public final class MathHelper {
      * <p>
      * Parse a numeric expression in a string to a double.
      * </p>
-     * 
+     *
      * <pre>
      * "0.5" => 0.5
      * "1/2" => 0.5
@@ -891,13 +904,14 @@ public final class MathHelper {
      * "1½" => 1.5
      * "1 ½" => 1.5
      * </pre>
-     * 
+     *
      * @param stringNumber The string containing the numeric expression.
      * @return The parsed double.
      */
     public static Double parseStringNumber(String stringNumber) {
         return parseStringNumber(stringNumber, null);
     }
+
     public static Double parseStringNumber(String stringNumber, Double defaultIfNothingFound) {
         Validate.notNull(stringNumber);
 
@@ -1025,7 +1039,7 @@ public final class MathHelper {
             if (value == null) {
                 value = 0.;
             }
-            value += nominator / (double)denominator;
+            value += nominator / (double) denominator;
             stringNumber = stringNumber.replace(matcher.group(), StringUtils.EMPTY);
         }
 
@@ -1048,7 +1062,7 @@ public final class MathHelper {
 
         // comma to periods if there are commas for decimal separation
         stringNumber = CLEAN_PATTERN4.matcher(stringNumber).replaceAll(".");
-        stringNumber = stringNumber.replace(",","");
+        stringNumber = stringNumber.replace(",", "");
 
         stringNumber = CLEAN_PATTERN2.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         stringNumber = CLEAN_PATTERN3.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
@@ -1070,17 +1084,17 @@ public final class MathHelper {
     /**
      * Map two natural numbers (non-negative!) to a third natural number. N x N => N.
      * f(a,b) = c where there are now two settings for a and b that produce the same c.
-     * 
+     * <p>
      * The mapping for two maximum most 16 bit integers (65535, 65535) will be 8589803520 which as you see cannot be fit
      * into 32 bits and must be long.
-     * 
-     * @see https://en.wikipedia.org/wiki/Pairing_function
+     *
      * @param a The first number.
      * @param b The second number.
      * @return The target number.
+     * @see https://en.wikipedia.org/wiki/Pairing_function
      */
     public static long cantorize(int a, int b) {
-        return (((long)a + (long)b) * ((long)a + (long)b + 1) / 2) + (long)b;
+        return (((long) a + (long) b) * ((long) a + (long) b + 1) / 2) + (long) b;
     }
 
     /**
@@ -1088,7 +1102,7 @@ public final class MathHelper {
      * Calculate the <a href="http://en.wikipedia.org/wiki/Order_of_magnitude">order of magnitude</a> for a given
      * number. E.g. <code>orderOfMagnitude(100) = 2</code>.
      * </p>
-     * 
+     *
      * @param number The number.
      * @return The order of magnitude for the given number.
      */
@@ -1098,13 +1112,13 @@ public final class MathHelper {
             // http://www.mathworks.com/matlabcentral/fileexchange/28559-order-of-magnitude-of-number
             return 0;
         }
-        return (int)Math.floor(Math.log10(number));
+        return (int) Math.floor(Math.log10(number));
     }
 
     /**
      * <p>
      * Add two int values and check for integer overflows.
-     * 
+     *
      * @param a The first value.
      * @param b The second value (negative value to subtract).
      * @return The sum of the given values.
@@ -1117,42 +1131,76 @@ public final class MathHelper {
         }
         return sum;
     }
-    
-	// Code taken from: https://github.com/benhamner/Metrics/blob/master/Python/ml_metrics/average_precision.py
-	
-	public static <T> double getAveragePrecision(Set<T> actual, List<T> predicted, int k) {
-		Objects.requireNonNull(actual, "actual was null");
-		Objects.requireNonNull(predicted, "predicted was null");
-		if (k <= 0) {
-			throw new IllegalStateException("k must be greater one");
-		}
-		if (actual.isEmpty()) {
-			return 0;
-		}
-		if (predicted.size() > k) {
-			predicted = predicted.subList(0, k);
-		}
-		double score = 0.0;
-		int numHits = 0;
-		for (int i = 0; i < predicted.size(); i++) {
-			T p = predicted.get(i);
-			if (actual.contains(p) && !predicted.subList(0, i).contains(p)) {
-				numHits++;
-				score += numHits / (i + 1.0);
-			}
-		}
-		return score / Math.min(actual.size(), k);
-	}
 
-	public static <T> double getMeanAveragePrecision(Iterable<? extends Pair<? extends Set<T>, ? extends List<T>>> data,
-			int k) {
-		double meanAveragePrecision = 0;
-		int n = 0;
-		for (Pair<? extends Set<T>, ? extends List<T>> pair : data) {
-			n++;
-			meanAveragePrecision += getAveragePrecision(pair.getKey(), pair.getValue(), k);
-		}
-		return meanAveragePrecision / n;
-	}
+    // Code taken from: https://github.com/benhamner/Metrics/blob/master/Python/ml_metrics/average_precision.py
 
+    public static <T> double getAveragePrecision(Set<T> actual, List<T> predicted, int k) {
+        Objects.requireNonNull(actual, "actual was null");
+        Objects.requireNonNull(predicted, "predicted was null");
+        if (k <= 0) {
+            throw new IllegalStateException("k must be greater one");
+        }
+        if (actual.isEmpty()) {
+            return 0;
+        }
+        if (predicted.size() > k) {
+            predicted = predicted.subList(0, k);
+        }
+        double score = 0.0;
+        int numHits = 0;
+        for (int i = 0; i < predicted.size(); i++) {
+            T p = predicted.get(i);
+            if (actual.contains(p) && !predicted.subList(0, i).contains(p)) {
+                numHits++;
+                score += numHits / (i + 1.0);
+            }
+        }
+        return score / Math.min(actual.size(), k);
+    }
+
+    public static <T> double getMeanAveragePrecision(Iterable<? extends Pair<? extends Set<T>, ? extends List<T>>> data,
+                                                     int k) {
+        double meanAveragePrecision = 0;
+        int n = 0;
+        for (Pair<? extends Set<T>, ? extends List<T>> pair : data) {
+            n++;
+            meanAveragePrecision += getAveragePrecision(pair.getKey(), pair.getValue(), k);
+        }
+        return meanAveragePrecision / n;
+    }
+
+    /**
+     * Faster implementation than default java @see http://www.java-gaming.org/topics/extremely-fast-atan2/36467/msg/346112/view.html#msg346112
+     */
+    public static float atan(float y) {
+        return atan2(y, 1.0f);
+    }
+
+    public static float atan2(float y, float x) {
+        final float PI = 3.1415927f;
+        final float PI_2 = PI / 2f;
+        final float MINUS_PI_2 = -PI_2;
+        if (x == 0.0f) {
+            if (y > 0.0f) {
+                return PI_2;
+            }
+            if (y == 0.0f) {
+                return 0.0f;
+            }
+            return MINUS_PI_2;
+        }
+
+        final float atan;
+        final float z = y / x;
+        if (Math.abs(z) < 1.0f) {
+            atan = z / (1.0f + 0.28f * z * z);
+            if (x < 0.0f) {
+                return (y < 0.0f) ? atan - PI : atan + PI;
+            }
+            return atan;
+        } else {
+            atan = PI_2 - z / (z * z + 0.28f);
+            return (y < 0.0f) ? atan - PI : atan;
+        }
+    }
 }
