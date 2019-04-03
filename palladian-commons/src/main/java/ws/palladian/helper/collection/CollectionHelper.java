@@ -3,8 +3,7 @@ package ws.palladian.helper.collection;
 import java.util.*;
 import java.util.Map.Entry;
 
-import it.unimi.dsi.fastutil.ints.AbstractIntSet;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -578,6 +577,41 @@ public final class CollectionHelper {
                 continue;
             }
             subSet.add(next);
+            if (subSet.size() == num) {
+                break;
+            }
+        }
+
+        return subSet;
+    }
+
+    /**
+     * <p>
+     * Get a sub set of elements of an ordered set of integers.
+     * </p>
+     *
+     * @param set The set from which to get the element, not <code>null</code>.
+     * @param offset The number of elements to skip.
+     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @return The sub set.
+     */
+    public static IntSortedSet getSubset(AbstractIntSortedSet set, int offset, int num) {
+        Validate.notNull(set, "set must not be null");
+        Validate.isTrue(offset >= 0, "offset must be greater/equal zero");
+        Validate.isTrue(num >= 0, "num must be greater/equal zero");
+
+        IntLinkedOpenHashSet subSet = new IntLinkedOpenHashSet();
+        if (offset > set.size()) {
+            return subSet;
+        }
+
+        IntBidirectionalIterator iterator = set.iterator();
+        for (int i = 0; i < set.size(); i++) {
+            int value = iterator.next();
+            if (i < offset) {
+                continue;
+            }
+            subSet.add(value);
             if (subSet.size() == num) {
                 break;
             }
