@@ -18,7 +18,6 @@ import ws.palladian.helper.constants.Language;
  * @author David Urbansky
  */
 public class WordTransformerTest {
-
     @Test
     public void testSplitGermanCompounds() {
         List<String> words;

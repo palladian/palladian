@@ -2,6 +2,8 @@ package ws.palladian.semantics;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,6 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public class WordTransformer {
-
     /**
      * The logger for this class.
      */
@@ -64,7 +65,6 @@ public class WordTransformer {
     private static final Map<String, String> ENGLISH_STEMMING_EXCEPTIONS = new HashMap<>();
 
     static {
-
         // German nouns
         InputStream inputStream = null;
         try {
@@ -172,7 +172,6 @@ public class WordTransformer {
         } finally {
             FileHelper.close(inputStream);
         }
-
     }
 
     /**
@@ -214,7 +213,6 @@ public class WordTransformer {
      * @return The singular form of the word.
      */
     public static String wordToSingularEnglish(String pluralForm) {
-
         String plural = pluralForm;
 
         if (plural == null) {
@@ -290,16 +288,16 @@ public class WordTransformer {
     }
 
     public static String wordToSingularGermanCaseSensitive(String lowerCasePluralForm) {
-
         String singular = GERMAN_PLURAL_SINGULAR.get(lowerCasePluralForm);
         if (singular != null) {
             return singular;
         } else {
-
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldketten" ->
             // "Gold" "Ketten" -> "Kette" => "Goldkette"
-            for (String word2 : GERMAN_NOUNS) {
-                if (word2.length() < lowerCasePluralForm.length() - 1 && lowerCasePluralForm.endsWith(word2)) {
+            int maxLength = lowerCasePluralForm.length() - 1;
+            List<String> filtered = GERMAN_NOUNS.parallelStream().filter(w -> w.length() < maxLength).collect(Collectors.toList());
+            for (String word2 : filtered) {
+                if (lowerCasePluralForm.endsWith(word2)) {
                     String singular2 = wordToSingularGermanCaseSensitive(word2);
                     return lowerCasePluralForm.replace(word2, singular2);
                 }
@@ -318,7 +316,6 @@ public class WordTransformer {
      * @return All words in its correct order that the compound is made out of.
      */
     public static List<String> splitGermanCompoundWords(String word) {
-
         List<String> words = new ArrayList<>();
 
         word = word.toLowerCase();
@@ -376,7 +373,16 @@ public class WordTransformer {
             return wordToPluralGerman(singular);
         }
 
-        throw new IllegalArgumentException("Language must be 'en'.");
+        throw new IllegalArgumentException("Language must be English or German.");
+    }
+    public static String wordToPluralCaseSensitive(String lowercaseSingular, Language language) {
+        if (language.equals(Language.ENGLISH)) {
+            return wordToPluralEnglishCaseSensitive(lowercaseSingular);
+        } else if (language.equals(Language.GERMAN)) {
+            return wordToPluralGermanCaseSensitive(lowercaseSingular);
+        }
+
+        throw new IllegalArgumentException("Language must be English or German.");
     }
 
     /**
@@ -389,32 +395,37 @@ public class WordTransformer {
      * @return The plural.
      */
     public static String wordToPluralEnglish(String singular) {
-
         if (singular == null) {
             return "";
         }
 
-        singular = singular.toLowerCase();
+        return wordToPluralEnglishCaseSensitive(singular.toLowerCase());
+    }
+
+    public static String wordToPluralEnglishCaseSensitive(String lowercaseSingular) {
+        if (lowercaseSingular == null) {
+            return "";
+        }
+
+        lowercaseSingular = lowercaseSingular.toLowerCase();
 
         // for composite terms we transform the last word, e.g. "computer mouse" => "computer mice"
         String prefix = "";
-        String[] parts = singular.split(" ");
+        String[] parts = lowercaseSingular.split(" ");
         if (parts.length > 1) {
-            singular = parts[parts.length - 1];
-            if (parts.length > 1) {
-                for (int i = 0; i < parts.length - 1; i++) {
-                    prefix += parts[i] + " ";
-                }
+            lowercaseSingular = parts[parts.length - 1];
+            for (int i = 0; i < parts.length - 1; i++) {
+                prefix += parts[i] + " ";
             }
         }
 
         String plural;
 
         // check exceptions where no rules apply to transformation
-        if (getIrregularNouns().containsKey(singular)) {
-            String pluralWord = getIrregularNouns().get(singular);
+        if (getIrregularNouns().containsKey(lowercaseSingular)) {
+            String pluralWord = getIrregularNouns().get(lowercaseSingular);
 
-            if (StringHelper.startsUppercase(singular)) {
+            if (StringHelper.startsUppercase(lowercaseSingular)) {
                 pluralWord = StringHelper.upperCaseFirstLetter(pluralWord);
             }
 
@@ -424,37 +435,37 @@ public class WordTransformer {
         }
 
         // word must be at least three characters long
-        if (singular.length() < 3) {
-            return prefix + singular;
+        if (lowercaseSingular.length() < 3) {
+            return prefix + lowercaseSingular;
         }
 
         // get last two letters
-        String lastLetter = singular.substring(singular.length() - 1, singular.length());
-        String secondLastLetter = singular.substring(singular.length() - 2, singular.length() - 1);
+        String lastLetter = lowercaseSingular.substring(lowercaseSingular.length() - 1, lowercaseSingular.length());
+        String secondLastLetter = lowercaseSingular.substring(lowercaseSingular.length() - 2, lowercaseSingular.length() - 1);
         String lastTwoLetters = secondLastLetter + lastLetter;
 
         // if word ends in a vowel plus -y (-ay, -ey, -iy, -oy, -uy), add an -s
         if (lastTwoLetters.equalsIgnoreCase("ay") || lastTwoLetters.equalsIgnoreCase("ey")
                 || lastTwoLetters.equalsIgnoreCase("iy") || lastTwoLetters.equalsIgnoreCase("oy")
                 || lastTwoLetters.equalsIgnoreCase("uy")) {
-            return prefix + singular + "s";
+            return prefix + lowercaseSingular + "s";
         }
 
         // if word ends in a consonant plus -y, change the -y into -ie and add
         // an -s
         if (lastLetter.equalsIgnoreCase("y")) {
-            return prefix + singular.substring(0, singular.length() - 1) + "ies";
+            return prefix + lowercaseSingular.substring(0, lowercaseSingular.length() - 1) + "ies";
         }
 
         // if words that end in -is, change the -is to -es
         if (lastTwoLetters.equalsIgnoreCase("is")) {
-            return prefix + singular.substring(0, singular.length() - 2) + "es";
+            return prefix + lowercaseSingular.substring(0, lowercaseSingular.length() - 2) + "es";
         }
 
         // if word ends on -s, -z, -x, -ch or -sh end add an -es
         if (lastLetter.equalsIgnoreCase("s") || lastLetter.equalsIgnoreCase("z") || lastLetter.equalsIgnoreCase("x")
                 || lastTwoLetters.equalsIgnoreCase("ch") || lastTwoLetters.equalsIgnoreCase("sh")) {
-            return prefix + singular + "es";
+            return prefix + lowercaseSingular + "es";
         }
 
         // some words that end in -f or -fe have plurals that end in -ves
@@ -463,7 +474,7 @@ public class WordTransformer {
         // }
 
         // if no other rule applied just add an s
-        return prefix + singular + "s";
+        return prefix + lowercaseSingular + "s";
     }
 
     /**
@@ -477,7 +488,6 @@ public class WordTransformer {
      * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      */
     public static String wordToPluralGerman(String singular) {
-
         if (singular == null) {
             return "";
         }
@@ -494,13 +504,14 @@ public class WordTransformer {
         if (plural != null) {
             return plural;
         } else {
-
             // try to divide the word in its two longest subwords and transform the last one, e.g. "Goldkette" ->
             // "Gold" "Kette" -> "Ketten" => "Goldketten"
-            for (String word2 : GERMAN_NOUNS) {
-                if (word2.length() < lowerCaseWord.length() && lowerCaseWord.endsWith(word2)) {
-                    String singular2 = wordToPluralGermanCaseSensitive(word2);
-                    return lowerCaseWord.replace(word2, singular2);
+            int lowerCaseWordLength = lowerCaseWord.length();
+            List<String> filtered = GERMAN_NOUNS.parallelStream().filter(w -> w.length() < lowerCaseWordLength).collect(Collectors.toList());
+            for (String word2 : filtered) {
+                if (lowerCaseWord.endsWith(word2)) {
+                    String plural2 = wordToPluralGermanCaseSensitive(word2);
+                    return lowerCaseWord.replace(word2, plural2);
                 }
             }
         }
@@ -650,7 +661,6 @@ public class WordTransformer {
     }
 
     public static String getSimplePresent(String verb) {
-
         if (verb.isEmpty()) {
             return verb;
         }
@@ -670,7 +680,6 @@ public class WordTransformer {
     }
 
     public static String getSimplePast(String verb) {
-
         if (verb.isEmpty()) {
             return verb;
         }
@@ -686,7 +695,6 @@ public class WordTransformer {
     }
 
     private static String getRegularVerbPast(String verb) {
-
         if (verb.isEmpty()) {
             return verb;
         }
@@ -741,7 +749,6 @@ public class WordTransformer {
     }
 
     public static EnglishTense getTense(String string, List<Annotation> annotations) {
-
         if (string.isEmpty()) {
             return EnglishTense.SIMPLE_PRESENT;
         }
@@ -790,9 +797,15 @@ public class WordTransformer {
     }
 
     public static void main(String[] args) {
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < 1000; i++) {
+            String word = WordTransformer.wordToPluralCaseSensitive("schuhbox", Language.GERMAN);
+//            System.out.println(word);
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
 
-        System.out.println(WordTransformer.stemGermanWord("Strassen"));
-        System.out.println(WordTransformer.stemGermanWord("straße"));
+//        System.out.println(WordTransformer.stemGermanWord("Strassen"));
+//        System.out.println(WordTransformer.stemGermanWord("straße"));
         // System.out.println(WordTransformer.stemEnglishWord("bleed"));
         // System.out.println(WordTransformer.getThirdPersonSingular("cross"));
         // System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
@@ -824,5 +837,4 @@ public class WordTransformer {
         System.out.println(WordTransformer.wordToPlural("Oktober", Language.GERMAN));
         System.out.println(sw.getElapsedTimeString());
     }
-
 }
