@@ -1,32 +1,9 @@
 package ws.palladian.extraction.multimedia;
 
-import java.awt.*;
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.awt.image.renderable.ParameterBlock;
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.*;
-import java.util.List;
-import java.util.Map.Entry;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.media.jai.*;
-import javax.media.jai.operator.ColorQuantizerDescriptor;
-import javax.media.jai.operator.ErodeDescriptor;
-import javax.media.jai.operator.GradientMagnitudeDescriptor;
-import javax.swing.*;
-
+import com.sun.media.jai.codec.SeekableStream;
 import org.apache.commons.lang.Validate;
-import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -41,7 +18,26 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
-import com.sun.media.jai.codec.SeekableStream;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.media.jai.*;
+import javax.media.jai.operator.ColorQuantizerDescriptor;
+import javax.media.jai.operator.ErodeDescriptor;
+import javax.media.jai.operator.GradientMagnitudeDescriptor;
+import javax.swing.*;
+import java.awt.Color;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.renderable.ParameterBlock;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -972,7 +968,6 @@ public class ImageHandler {
     }
 
     public static List<ws.palladian.extraction.multimedia.Color> detectColors(BufferedImage bufferedImage) {
-
         final double maxClusterDistance = 50;
 
         final int upperBound = 245;
@@ -1014,40 +1009,34 @@ public class ImageHandler {
 
         Collections.sort(clusters, (o1, o2) -> o2.population - o1.population);
 
-        // for (ColorCluster cluster : clusters) {
-        // if (cluster.population > 50) {
-        // System.out.println(rgbToHex(cluster.getCenterColor()) + " : " + cluster.population);
-        // }
-        // }
-
         List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
         Set<String> seenMainColors = new HashSet<>();
 
         // go through clusters and get top 3 main colors
         for (ColorCluster cluster : clusters) {
-
             Color imageColor = cluster.getCenterColor();
             String hex = rgbToHex(imageColor);
 
-            Pair<Double, ws.palladian.extraction.multimedia.Color> bestMatch = null;
+            Double bestMatchScore = null;
+            ws.palladian.extraction.multimedia.Color bestMatchColor = null;
 
             for (ws.palladian.extraction.multimedia.Color currentColor : COLORS) {
                 Color color = hexToRgb(currentColor.getHexCode());
                 double distance = colorDistance(imageColor, color);
-                if (bestMatch == null || distance < bestMatch.getValue0()) {
-                    bestMatch = Pair.with(distance, new ws.palladian.extraction.multimedia.Color(hex, currentColor.getSpecificColorName(), currentColor.getMainColorName()));
+                if (bestMatchColor == null || distance < bestMatchScore) {
+                    bestMatchColor = new ws.palladian.extraction.multimedia.Color(hex, currentColor.getSpecificColorName(), currentColor.getMainColorName());
+                    bestMatchScore = distance;
                 }
 
             }
 
-            if (seenMainColors.add(bestMatch.getValue1().getMainColorName())) {
-                colors.add(bestMatch.getValue1());
+            if (seenMainColors.add(bestMatchColor.getMainColorName())) {
+                colors.add(bestMatchColor);
             }
 
             if (seenMainColors.size() >= 3) {
                 break;
             }
-
         }
 
         return colors;
@@ -1082,16 +1071,17 @@ public class ImageHandler {
     }
 
     public static Color getNearestColor(Color color, Collection<Color> colorPalette) {
-
-        Pair<Color, Double> nearestMatch = Pair.with(null, Double.MAX_VALUE);
+        Color nearestColor = null;
+        Double nearestDistance = Double.MAX_VALUE;
         for (Color color1 : colorPalette) {
             Double distance = colorDistance(color, color1);
-            if (nearestMatch.getValue0() == null || nearestMatch.getValue1() > distance) {
-                nearestMatch = Pair.with(color1, distance);
+            if (nearestColor == null || nearestDistance > distance) {
+                nearestColor = color1;
+                nearestDistance = distance;
             }
         }
 
-        return nearestMatch.getValue0();
+        return nearestColor;
     }
 
     public static BufferedImage pixelate(BufferedImage image, int boxSize) {
