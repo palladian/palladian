@@ -1,10 +1,9 @@
 package ws.palladian.helper.constants;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
+import ws.palladian.helper.StopWatch;
 
 /**
  * <p>
@@ -14,10 +13,9 @@ import org.apache.commons.lang3.StringUtils;
  * @see <a href="http://en.wikipedia.org/wiki/ISO_639">Wikipedia: ISO 639</a>.
  * @see <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php">ISO 639-2 Language Code List</a>.
  * 
- * @author Philipp Katz
+ * @author Philipp Katz, David Urbansky
  */
 public enum Language {
-
     AFRIKAANS("af", "afr", "Afrikaans"), //
     ALBANIAN("sq", "sqi", "Albanian"), //
     AMHARIC("am", "amh", "Amharic"), //
@@ -146,7 +144,16 @@ public enum Language {
     private final String iso6392;
     private final String name;
 
-    private Language(String iso6391, String iso6392, String name) {
+    /** Getting the language by iso 6391 is slow due to iterating through all values. Keep them in a map instead. */
+    private static final Map<String, Language> iso6391Map = new HashMap<>();
+
+    static {
+        for (Language language : values()) {
+            iso6391Map.put(language.getIso6391(), language);
+        }
+    }
+
+    Language(String iso6391, String iso6392, String name) {
         this.iso6391 = iso6391;
         this.iso6392 = iso6392;
         this.name = name;
@@ -185,15 +192,7 @@ public enum Language {
      * @return The {@link Language} for the specified code, or <code>null</code> if no matching language was found.
      */
     public static Language getByIso6391(String iso6391) {
-        if (StringUtils.isBlank(iso6391)) {
-            return null;
-        }
-        for (Language language : values()) {
-            if (iso6391.equalsIgnoreCase(language.getIso6391())) {
-                return language;
-            }
-        }
-        return null;
+        return iso6391Map.get(iso6391);
     }
 
     /**
@@ -232,4 +231,11 @@ public enum Language {
         return null;
     }
 
+    public static void main(String[] args) {
+        StopWatch stopWatch = new StopWatch();
+        for (int i = 0; i < 1000000; i++) {
+            Language de = Language.getByIso6391("de");
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+    }
 }
