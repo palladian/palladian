@@ -23,7 +23,6 @@ import ws.palladian.helper.StopWatch;
  * @author Philipp Katz
  */
 public class StringHelperTest {
-
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
@@ -67,6 +66,8 @@ public class StringHelperTest {
 
     @Test
     public void testContainsWord() {
+        assertTrue(StringHelper.containsWord("organic", "Organic-pralines are tasty"));
+        assertTrue(StringHelper.containsWord("pralines", "Organic-pralines are tasty"));
         assertTrue(StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));
 
         assertTrue(StringHelper.containsWord("test", "a test b"));

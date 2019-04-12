@@ -200,7 +200,7 @@ public class WordTransformer {
             return wordToSingularGerman(pluralForm);
         }
 
-        throw new IllegalArgumentException("Language must be 'en' or 'de'.");
+        throw new IllegalArgumentException("Language must be English or German.");
     }
 
     /**
