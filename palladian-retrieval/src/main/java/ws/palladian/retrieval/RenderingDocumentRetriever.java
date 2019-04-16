@@ -2,14 +2,12 @@ package ws.palladian.retrieval;
 
 import io.github.bonigarcia.wdm.DriverManagerType;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.commons.codec.binary.Base64;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -18,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
