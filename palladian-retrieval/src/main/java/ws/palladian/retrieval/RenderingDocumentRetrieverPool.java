@@ -19,21 +19,23 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     private DriverManagerType driverManagerType;
     private org.openqa.selenium.Proxy proxy;
     private String userAgent = HttpRetriever.USER_AGENT;
+    private String driverVersionCode = null;
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
-        this(driverManagerType, size, null, HttpRetriever.USER_AGENT);
+        this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
     }
-    public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent) {
+    public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
         super(size);
         this.driverManagerType = driverManagerType;
         this.proxy = proxy;
         this.userAgent = userAgent;
+        this.driverVersionCode = driverVersionCode;
         initializePool();
     }
 
     @Override
     protected RenderingDocumentRetriever createObject() {
-        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent);
+        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode);
     }
 
     // test drive

@@ -49,16 +49,20 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
      */
     public RenderingDocumentRetriever() {
-        this(CHROME, null, HttpRetriever.USER_AGENT);
+        this(CHROME, null, HttpRetriever.USER_AGENT, null);
     }
 
     public RenderingDocumentRetriever(DriverManagerType browser) {
-        this(browser, null, HttpRetriever.USER_AGENT);
+        this(browser, null, HttpRetriever.USER_AGENT, null);
     }
 
-    public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent) {
+    public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
         if (browser == DriverManagerType.FIREFOX) {
-            WebDriverManager.firefoxdriver().setup();
+            if (driverVersionCode != null) {
+                WebDriverManager.firefoxdriver().version(driverVersionCode).setup();
+            } else {
+                WebDriverManager.firefoxdriver().setup();
+            }
             FirefoxOptions firefoxOptions = new FirefoxOptions();
             firefoxOptions.setHeadless(true);
             firefoxOptions.setAcceptInsecureCerts(true);
@@ -70,7 +74,11 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 
             driver = new FirefoxDriver(firefoxOptions);
         } else if (browser == DriverManagerType.CHROME) {
-            WebDriverManager.chromedriver().setup();
+            if (driverVersionCode != null) {
+                WebDriverManager.chromedriver().version(driverVersionCode).setup();
+            } else {
+                WebDriverManager.chromedriver().setup();
+            }
             ChromeOptions options = new ChromeOptions();
             options.setHeadless(true);
             options.setAcceptInsecureCerts(true);
