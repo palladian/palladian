@@ -40,7 +40,6 @@ import ws.palladian.helper.nlp.PatternHelper;
  * @author Philipp Katz
  */
 public final class HtmlHelper {
-
     /**
      * The logger for this class.
      */
@@ -306,6 +305,9 @@ public final class HtmlHelper {
      * @author Philipp Katz
      */
     public static String documentToReadableText(Node node) {
+        if (node == null) {
+            return "";
+        }
         final StringBuilder builder = new StringBuilder();
         try {
             TransformerFactory factory = TRANSFORMER_FACTORIES.get();
@@ -314,7 +316,7 @@ public final class HtmlHelper {
                 boolean ignoreCharacters = false;
 
                 @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                public void startElement(String uri, String localName, String qName, Attributes attributes) {
                     String tag = localName.toLowerCase();
                     if (IGNORE_INSIDE.contains(tag)) {
                         ignoreCharacters = true;
@@ -326,7 +328,7 @@ public final class HtmlHelper {
                 }
 
                 @Override
-                public void endElement(String uri, String localName, String qName) throws SAXException {
+                public void endElement(String uri, String localName, String qName) {
                     String tag = localName.toLowerCase();
                     if (IGNORE_INSIDE.contains(tag)) {
                         ignoreCharacters = false;
@@ -338,7 +340,7 @@ public final class HtmlHelper {
                 }
 
                 @Override
-                public void characters(char[] ch, int start, int length) throws SAXException {
+                public void characters(char[] ch, int start, int length) {
                     if (ignoreCharacters) {
                         return;
                     }
@@ -356,7 +358,7 @@ public final class HtmlHelper {
 
         // if the node is an attribute we might want to get its text content
         if (result.isEmpty()) {
-            result = node.getTextContent();
+            result = Optional.ofNullable(node.getTextContent()).orElse("");
         }
 
         // result = result.replaceAll("[ \t]*?\n", "\n");
