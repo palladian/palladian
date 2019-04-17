@@ -70,7 +70,6 @@ import ws.palladian.helper.math.MathHelper;
  * @author Martin Werner
  */
 public final class FileHelper {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
@@ -118,6 +117,7 @@ public final class FileHelper {
         binaryFileExtensions.add("msi");
         binaryFileExtensions.add("swf");
         binaryFileExtensions.add("dll");
+        binaryFileExtensions.add("dwg");
         binaryFileExtensions.addAll(VIDEO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
