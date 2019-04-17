@@ -48,7 +48,6 @@ import ws.palladian.retrieval.ranking.services.SemRush;
  * 
  */
 public class SitemapAnalyzer {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SitemapAnalyzer.class);
 
