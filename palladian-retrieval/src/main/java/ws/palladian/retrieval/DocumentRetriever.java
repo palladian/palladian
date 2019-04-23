@@ -13,6 +13,7 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -98,9 +99,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
         return getDocument(url, false);
     }
 
-    @Override
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers,
-            final ProgressMonitor progressMonitor) {
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final ProgressMonitor progressMonitor) {
         List<String> urlsList = new ArrayList<>(urls);
         List<String> sublist;
         int num = 10000;
@@ -112,7 +111,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
             ExecutorService executor = Executors.newFixedThreadPool(getNumThreads());
 
             while (!urlQueue.isEmpty()) {
-
                 final String url = urlQueue.poll();
 
                 Thread ct = new Thread("Retrieving: " + url) {
@@ -123,7 +121,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
                         getRequestThrottle().hold();
 
                         // react file fileTypeConsumer?
-                        boolean consumerFound = reactToFileTypeConsumer(url, fileTypeConsumers);
+                        boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
 
                         if (!consumerFound) {
                             Document document = getWebDocument(url);
@@ -296,7 +294,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * @param callback The callback to be called for each finished download.
      */
     public void getTexts(Collection<String> urls, final Consumer<String> callback) {
-
         final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>(urls);
 
         Thread[] threads = new Thread[getNumThreads()];
@@ -372,6 +369,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
         Document document = null;
         String cleanUrl = url.trim();
         InputStream inputStream = null;
+        HttpResult httpResult = null;
 
         if (getDownloadFilter().test(cleanUrl)) {
             try {
@@ -386,11 +384,14 @@ public class DocumentRetriever extends WebDocumentRetriever {
                         httpRequest2Builder.addHeaders(globalHeaders);
                     }
                     HttpRequest2 request = httpRequest2Builder.create();
-                    HttpResult httpResult = httpRetriever.execute(request);
+                    httpResult = httpRetriever.execute(request);
 
                     // make sure this is not a binary file or anything else we can probably not parse to a document
                     String contentType = Optional.ofNullable(httpResult.getHeaderString("content-type")).orElse("");
                     if (contentType.toLowerCase().contains("application/")) {
+                        if (getErrorCallback() != null) {
+                            getErrorCallback().accept(new DocumentRetrievalTrial(cleanUrl, httpResult));
+                        }
                         return null;
                     }
 
@@ -413,6 +414,9 @@ public class DocumentRetriever extends WebDocumentRetriever {
                 callRetrieverCallback(document);
             } catch (Exception e) {
                 LOGGER.error(url + ", " + e.getMessage());
+                if (getErrorCallback() != null) {
+                    getErrorCallback().accept(new DocumentRetrievalTrial(cleanUrl, httpResult));
+                }
             } finally {
                 FileHelper.close(inputStream);
             }

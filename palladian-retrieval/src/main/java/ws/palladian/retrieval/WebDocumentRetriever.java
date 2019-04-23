@@ -6,6 +6,7 @@ import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -39,6 +40,14 @@ public abstract class WebDocumentRetriever {
      * The callbacks that are called after each parsed page.
      */
     private final List<Consumer<Document>> retrieverCallbacks = new ArrayList<>();
+
+    /**
+     * The callback that are called if a URL could not successfully be parsed to a document.
+     */
+    private Consumer<DocumentRetrievalTrial> errorCallback = null;
+
+    /** Special consumers for file types other than HTML */
+    private Map<String, Consumer<String>> fileTypeConsumers = new HashMap<>();
 
     /**
      * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
@@ -98,15 +107,10 @@ public abstract class WebDocumentRetriever {
      * @param callback the callback to be called for each finished download.
      */
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
-        getWebDocuments(urls, callback, null);
+        getWebDocuments(urls, callback,  new ProgressMonitor(urls.size(), 1., "DocumentRetriever"));
     }
 
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers) {
-        getWebDocuments(urls, callback, fileTypeConsumers, new ProgressMonitor(urls.size(), 1., "DocumentRetriever"));
-    }
-
-    public abstract void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final Map<String, Consumer<String>> fileTypeConsumers,
-                                         final ProgressMonitor progressMonitor);
+    public abstract void getWebDocuments(Collection<String> urls, final Consumer<Document> callback,final ProgressMonitor progressMonitor);
 
     /**
      * <p>
@@ -137,10 +141,17 @@ public abstract class WebDocumentRetriever {
         // nothing to close by default
     }
 
+    public Map<String, Consumer<String>> getFileTypeConsumers() {
+        return fileTypeConsumers;
+    }
+
+    public void setFileTypeConsumers(Map<String, Consumer<String>> fileTypeConsumers) {
+        this.fileTypeConsumers = fileTypeConsumers;
+    }
+
     // ////////////////////////////////////////////////////////////////
     // Callbacks
     // ////////////////////////////////////////////////////////////////
-
     void callRetrieverCallback(Document document) {
         for (Consumer<Document> retrieverCallback : retrieverCallbacks) {
             retrieverCallback.accept(document);
@@ -157,5 +168,13 @@ public abstract class WebDocumentRetriever {
 
     public void removeRetrieverCallback(Consumer<Document> retrieverCallback) {
         retrieverCallbacks.remove(retrieverCallback);
+    }
+
+    public Consumer<DocumentRetrievalTrial> getErrorCallback() {
+        return errorCallback;
+    }
+
+    public void setErrorCallback(Consumer<DocumentRetrievalTrial> errorCallback) {
+        this.errorCallback = errorCallback;
     }
 }

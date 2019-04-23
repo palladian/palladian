@@ -19,6 +19,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -247,6 +248,9 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 //            this.goTo(url);
             driver.get(url);
             document = getCurrentWebDocument();
+            if (document == null && getErrorCallback() != null) {
+                getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
+            }
             callRetrieverCallback(document);
         }
 
@@ -254,10 +258,10 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     }
 
     @Override
-    public void getWebDocuments(Collection<String> urls, Consumer<Document> callback, Map<String, Consumer<String>> fileTypeConsumers, ProgressMonitor progressMonitor) {
+    public void getWebDocuments(Collection<String> urls, Consumer<Document> callback, ProgressMonitor progressMonitor) {
         for (String url : urls) {
             // react file fileTypeConsumer?
-            boolean consumerFound = reactToFileTypeConsumer(url, fileTypeConsumers);
+            boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
 
             if (!consumerFound) {
                 Document document = getWebDocument(url);
