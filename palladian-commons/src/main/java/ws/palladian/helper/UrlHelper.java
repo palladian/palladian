@@ -35,7 +35,6 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Julien Schmehl
  */
 public final class UrlHelper {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlHelper.class);
 
@@ -53,7 +52,6 @@ public final class UrlHelper {
     private static final List<String> DOMAIN_SUFFIXES;
 
     static {
-
         InputStream resourceAsStream = UrlHelper.class.getResourceAsStream("/top-level-domains.txt");
         final List<String> tlds = new ArrayList<>();
         FileHelper.performActionOnEveryLine(resourceAsStream, new LineAction() {
