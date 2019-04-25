@@ -18,7 +18,6 @@ import ws.palladian.helper.io.ResourceHelper;
 
 /** @formatter:off */
 public class DateParserTest {
-
     /**
      * <p>
      * Test for finding dates with no explicitly given format.
@@ -26,7 +25,6 @@ public class DateParserTest {
      */
     @Test
     public void testFindDate1() {
-
         // others
         assertEquals("2010-07-02 19:07:49", DateParser.findDate("Tue, 02 Jul 2010 19:07:49 GMT").getNormalizedDateString());
         assertEquals("2010-07-23 15:35:58", DateParser.findDate("7/23/2010 3:35:58 PM").getNormalizedDateString());
@@ -116,6 +114,7 @@ public class DateParserTest {
         assertEquals("2008-10-27 19:00", DateParser.findDate("Mon, 27 Oct 2008 19:00 GMT").getNormalizedDateString());
         assertEquals("2008-10-10 16:34:01", DateParser.findDate("10 Oct 2008 16:34:01 EST").getNormalizedDateString());
         assertEquals("2009-02-12 01:56:22", DateParser.findDate("Thu Feb 12 01:56:22 CET 2009").getNormalizedDateString());
+        assertEquals("2019-04-24 22:26:46", DateParser.findDate("Wed Apr 24 22:26:46 CEST 2019").getNormalizedDateString());
 
         assertEquals("2008-11-23", DateParser.findDate("Sun, 23 Nov 2008").getNormalizedDateString());
         assertEquals("2006-05-16 06:04:54", DateParser.findDate("Tue, 16 May 2006 15:04:54 +0900").getNormalizedDateString());
@@ -125,7 +124,6 @@ public class DateParserTest {
 
         // Last updated: 10:09:03 AM GMT(+03) Saturday, 12, November, 2011
         assertEquals("2011-11-12",DateParser.findDate("Saturday, 12, November, 2011").getNormalizedDateString());
-
     }
 
     /**
@@ -135,7 +133,6 @@ public class DateParserTest {
      */
     @Test
     public void testFindDate2() {
-
         ExtractedDate date;
         String text;
 
@@ -543,5 +540,4 @@ public class DateParserTest {
         }
         DateParser.printHallOfShame();
     }
-
 }

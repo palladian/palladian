@@ -46,7 +46,7 @@ public final class RegExp {
     private static final String HOUR12_1 = "1[0-2]|[0-9]";
     private static final String MIN = "0[0-9]|[1-5][0-9]";
     private static final String SEC = MIN;
-    public static final String TIMEZONE = "\\s(?:UTC|MEZ|GMT|Z|AEST|BST|EST|CET)";
+    public static final String TIMEZONE = "\\s(?:UTC|MEZ|GMT|Z|AEST|BST|EST|CES?T)";
     private static final String TIME_SEC = "(?:" + HOUR + "):(?:" + MIN + "):(?:" + SEC + ")";
     private static final String FLOAT_SEC_OPT = "(?:\\.\\d*)?";
     private static final String AM_PM = "\\s[AP]M"; // AM/PM
@@ -192,9 +192,9 @@ public final class RegExp {
             + MONTH_NAME_LONG + ")(?:,?\\s|-)(?:" + YEAR_SHORT_LONG + ")" + TIME_SEPARATOR + "(?:" + TIME + ")("
             + DIFF_UTC + "|" + TIMEZONE + ")?", "DD. MMMM YYYY HH:MM:SS +UTC");
 
-    /** MMMM DD HH:MM:SS TZ YYYY */
-    public static final DateFormat DATE_MMMM_DD_HH_MM_SS_TZ_YYYY = new DateFormat("(?:" + MONTH_NAME_SHORT + ")\\s(?:"
-            + DAY_OF_MONTH_1_2 + ")\\s(?:" + TIME + ")" + TIMEZONE + "\\s" + LONG_YEAR, "MMMM DD HH:MM:SS TZ YYYY");
+    /** MMM DD HH:MM:SS TZ YYYY */
+    public static final DateFormat DATE_MMM_DD_HH_MM_SS_TZ_YYYY = new DateFormat("(?:" + MONTH_NAME_SHORT + ")\\s(?:"
+            + DAY_OF_MONTH_1_2 + ")\\s(?:" + TIME + ")" + TIMEZONE + "\\s" + LONG_YEAR, "MMM DD HH:MM:SS TZ YYYY");
 
     // US dates
     /** American date. MM/DD/YYYY. */
@@ -300,7 +300,7 @@ public final class RegExp {
     /** All formats with time. ISO, US and EU standards. No RFCs! */
     private static final DateFormat[] TIME_FORMATS = new DateFormat[] {DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T,
             DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T, DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T,
-            DATE_USA_MM_D_Y_T_SEPARATOR, DATE_MMMM_DD_HH_MM_SS_TZ_YYYY};
+            DATE_USA_MM_D_Y_T_SEPARATOR, DATE_MMM_DD_HH_MM_SS_TZ_YYYY};
 
     /** All formats with three parts (year, month and day). */
     private static final DateFormat[] THREE_PART_FORMATS = new DateFormat[] {DATE_ISO8601_YMD, DATE_USA_MM_D_Y,

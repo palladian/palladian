@@ -20,7 +20,6 @@ import ws.palladian.helper.constants.RegExp;
  * @author Sandro Reichert
  */
 public class DateHelper {
-
     /**
      * Maximum allowed year for {@link #validateYear(Date)}.
      */
@@ -115,7 +114,6 @@ public class DateHelper {
      * @return The number for the month name, or <code>-1</code> if no month was recognized.
      */
     public static int monthNameToNumber(String monthName) {
-
         String month = monthName;
         month = month.replaceAll(",", "");
         month = month.replaceAll("\\.", "");
