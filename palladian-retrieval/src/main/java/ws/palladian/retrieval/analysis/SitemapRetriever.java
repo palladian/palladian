@@ -67,6 +67,10 @@ public class SitemapRetriever {
             sitemapContent = documentRetriever.getText(sitemapUrl);
         }
 
+        if (sitemapContent == null) {
+            return pageUrls;
+        }
+
         sitemapContent = cleanUpSitemap(sitemapContent);
         SitemapType sitemapType = getSitemapType(sitemapContent);
         if (sitemapType == null) {
