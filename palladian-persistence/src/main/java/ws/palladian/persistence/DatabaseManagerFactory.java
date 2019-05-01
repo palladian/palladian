@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
  * @author David Urbansky
  */
 public final class DatabaseManagerFactory {
-    
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseManagerFactory.class);
     
@@ -162,7 +161,6 @@ public final class DatabaseManagerFactory {
      * @throws IllegalStateException In case the initialization fails.
      */
     public static <D extends DatabaseManager> D create(Class<D> managerClass, Configuration config) {
-
         String driver = config.getString("db.driver");
         String jdbcUrl = config.getString("db.jdbcUrl");
         String username = config.getString("db.username");
@@ -223,7 +221,6 @@ public final class DatabaseManagerFactory {
         } catch (Exception e) {
             throw new IllegalArgumentException("Unable to instantiate DatabaseManager", e);
         }
-
     }
 
     /**

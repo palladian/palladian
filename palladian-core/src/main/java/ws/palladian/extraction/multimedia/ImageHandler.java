@@ -18,10 +18,7 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
+import javax.imageio.*;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.media.jai.*;
 import javax.media.jai.operator.ColorQuantizerDescriptor;
@@ -561,11 +558,10 @@ public class ImageHandler {
     }
     public static String downloadAndSave(String url, String savePath, float quality) {
         try {
-
             Set<String> detectedContentTypes = new HashSet<>();
             BufferedImage bi = load(url, detectedContentTypes);
 
-            String fileExtension = CollectionHelper.getFirst(detectedContentTypes);
+            String fileExtension = Optional.ofNullable(CollectionHelper.getFirst(detectedContentTypes)).orElse("jpg");
 
             if (!savePath.toLowerCase().endsWith(fileExtension.toLowerCase())) {
                 savePath += "." + fileExtension;
@@ -575,9 +571,12 @@ public class ImageHandler {
             LOGGER.debug("write " + savePath + " with " + fileExtension);
             FileHelper.createDirectoriesAndFile(savePath);
 
-            saveImage(bi, fileExtension, savePath, quality);
-//            ImageIO.write(newBufferedImage, fileExtension, new File(savePath));
-
+            // gifs lose animation when saved using the save method, let us download them as files
+            if (fileExtension.equalsIgnoreCase("gif")) {
+                HttpRetrieverFactory.getHttpRetriever().downloadAndSave(url, savePath);
+            } else {
+                saveImage(bi, fileExtension, savePath, quality);
+            }
         } catch (NullPointerException | IllegalArgumentException e) {
             LOGGER.error("problem with URL:" + url + ", " + e.getMessage());
             return null;
@@ -1221,7 +1220,6 @@ public class ImageHandler {
     }
 
     public static void main(String[] args) throws Exception {
-
         // BufferedImage loadedImage =
         // load("http://de.mathworks.com/help/releases/R2015b/examples/images/DetectEdgesInImagesExample_01.png");
         // BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
@@ -1229,9 +1227,44 @@ public class ImageHandler {
         // load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Novelties/Clown_Cone_000l.jpg");
         // BufferedImage loadedImage =
         // load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Sundaes/Sundae_Enlarged_2scoop2.jpg");
-        BufferedImage loadedImage = load("http://www.cariboucoffee.com/media/image/1/cooler_chocolate.jpg");
+//        BufferedImage loadedImage = load("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif");
+        ImageHandler.downloadAndSave("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif", "tenor-downloaded.gif");
+        System.exit(0);
+
+//        InputStream in = new FileInputStream("tenor-src.gif");
+//        Image image = Toolkit.getDefaultToolkit().createImage(org.apache.commons.io.IOUtils.toByteArray(in));
+//
+//        Iterator<ImageWriter> iter = ImageIO.getImageWritersBySuffix("gif");
+//        if (!iter.hasNext()) {
+//            throw new IIOException("no GIF Image Writers exist");
+//        } else {
+//            ImageWriter writer = iter.next();
+//            ImageWriteParam iwp = writer.getDefaultWriteParam();
+//
+//            FileHelper.createDirectoriesAndFile("tenor-dest.gif");
+//
+//            File outFile = new File("tenor-dest.gif");
+//            FileImageOutputStream output = new FileImageOutputStream(outFile);
+//            writer.setOutput(output);
+//            IIOImage newImage = new IIOImage(loadedImage, null, null);
+//            writer.write(null, newImage, iwp);
+//            output.close();
+//        }
+
+//        File outFile = new File("tenor-dest.gif");
+//        Graphics2D g2 = image.createGraphics();
+//        g2.drawImage(img, 0, 0, null);
+//        g2.dispose();
+//        ImageIO.write(bi, "jpg", new File("img.jpg"));
+//        ImageIcon image = new ImageIcon(loadedImage);
+//        int width = 100;
+//        int height = 100;
+//        image.setImage(image.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
+//        image.
+
         // BufferedImage loadedImage = load("GrilledChickenCaesarSalad_579x441.jpg");
-        System.out.println(loadedImage.getWidth());
+//        System.out.println(loadedImage.getWidth());
+//        ImageHandler.saveImage(loadedImage, "tenor-dest.gif");
         // saveImage(detectEdges(loadedImage), "gradient.png");
         // saveImage(detectEdges(toGrayScale(loadedImage)), "gradient-grey.png");
         // System.out.println(ImageHandler.detectEdginess(load("gradient-grey.png")));
