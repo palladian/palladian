@@ -55,6 +55,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     private final HttpRetriever httpRetriever;
 
     public static final String HTTP_RESULT_KEY = "httpResult";
+    public static final String ORIGINAL_REQUEST_URL = "requestUrl";
 
     private List<String> userAgents;
 
@@ -126,6 +127,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
                         if (!consumerFound) {
                             Document document = getWebDocument(url);
                             if (document != null) {
+                                document.setUserData(ORIGINAL_REQUEST_URL, url, null);
                                 callback.accept(document);
                             }
                         }

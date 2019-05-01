@@ -48,7 +48,6 @@ import java.util.Map.Entry;
  * @author Philipp Katz
  */
 public class ImageHandler {
-
     /**
      * The logger for this class.
      */
