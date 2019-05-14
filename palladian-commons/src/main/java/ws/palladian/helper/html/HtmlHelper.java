@@ -742,7 +742,6 @@ public final class HtmlHelper {
      * @return A collection of URLs.
      */
     public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow, boolean includeSubdomains) {
-
         Set<String> pageLinks = new HashSet<>();
 
         if (document == null) {
@@ -774,7 +773,6 @@ public final class HtmlHelper {
         linkNodes.addAll(XPathHelper.getXhtmlNodes(document, "//area[@href]"));
 
         for (Node linkNode : linkNodes) {
-
             Node hrefNode = linkNode.getAttributes().getNamedItem("href");
 
             if (hrefNode == null) {
