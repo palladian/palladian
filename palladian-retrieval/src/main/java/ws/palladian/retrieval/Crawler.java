@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -71,6 +72,9 @@ public class Crawler {
 
     /** Regexps that must not be contained in the URLs or they won't be followed. */
     protected final Set<Pattern> blackListUrlRegexps = new HashSet<>();
+
+    /** Sometimes we might want to follow links to certain domains, e.g. a site abc.com linking to static files on cloudfront.com. */
+    protected final Set<String> whiteListLinkDomains = new HashSet<>();
 
     /** Replace certain patterns in each retrieved URL. */
     private final LinkedHashMap<Pattern, String> urlModificationRegexps = new LinkedHashMap<>();
@@ -138,7 +142,15 @@ public class Crawler {
 
         if (document != null) {
             Set<String> links = HtmlHelper.getLinks(document, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain);
+
             // check if we can get more links out of it
+            if (!whiteListLinkDomains.isEmpty()) {
+                Set<String> outLinks = HtmlHelper.getLinks(document, document.getDocumentURI(), false, true, "", false, subDomain);
+                for (String whiteListLinkDomain : whiteListLinkDomains) {
+                    List<String> tmpList = outLinks.stream().filter(u -> u.contains(whiteListLinkDomain)).collect(Collectors.toList());
+                    links.addAll(tmpList);
+                }
+            }
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
                 LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
@@ -304,6 +316,14 @@ public class Crawler {
         for (String string : blackListRegexps) {
             addBlackListRegexp(string);
         }
+    }
+
+    public void addWhiteListLinkDomains(String domain) {
+        whiteListLinkDomains.add(domain);
+    }
+
+    public Set<String> getWhiteListLinkDomains() {
+        return whiteListLinkDomains;
     }
 
     public Map<Pattern, String> getUrlModificationRegexps() {

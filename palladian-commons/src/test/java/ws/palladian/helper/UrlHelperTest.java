@@ -85,6 +85,7 @@ public class UrlHelperTest {
 
     @Test
     public void testMakeFullUrl() {
+        assertEquals("http://big-planet.biz/vacancies.php?d=314", UrlHelper.makeFullUrl("http://big-planet.biz/vacancies.php", null, "?d=314"));
         assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", "", "page.html"));
         assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", null, "page.html"));
         assertEquals("http://www.xyz.de/page.html",

@@ -199,9 +199,13 @@ public final class UrlHelper {
         String result = linkUrl;
         if (contextUrl != null) {
             try {
-                result = new URL(new URL(contextUrl), linkUrl).toString();
-                result = result.replace("../", "");
-                result = result.replace("./", "");
+                if (linkUrl.startsWith("?")) {
+                    result = contextUrl + linkUrl;
+                } else {
+                    result = new URL(new URL(contextUrl), linkUrl).toString();
+                    result = result.replace("../", "");
+                    result = result.replace("./", "");
+                }
             } catch (MalformedURLException e) {
                 // don't care
             }

@@ -13,9 +13,8 @@ import java.util.Set;
  * @author Philipp Katz
  */
 public interface CategoryEntries extends Iterable<Category> {
-
     /** An empty instance. */
-    public static final CategoryEntries EMPTY = new ImmutableCategoryEntries();
+    CategoryEntries EMPTY = new ImmutableCategoryEntries();
 
     /**
      * <p>
@@ -95,5 +94,4 @@ public interface CategoryEntries extends Iterable<Category> {
      * @return The entropy based on the category probabilities. 
      */
     double getEntropy();
-
 }
