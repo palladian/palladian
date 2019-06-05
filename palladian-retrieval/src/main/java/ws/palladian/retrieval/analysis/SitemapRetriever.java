@@ -35,7 +35,13 @@ public class SitemapRetriever {
     public SitemapRetriever(DocumentRetriever documentRetriever) {
         this.documentRetriever = documentRetriever;
         Map<String, String> stringStringMap = Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>());
-        stringStringMap.put("Cookie","euConsent=true");
+        String cookieString = stringStringMap.get("Cookie");
+        if (cookieString != null) {
+            cookieString += ";euConsent=true";
+        } else {
+            cookieString = "euConsent=true";
+        }
+        stringStringMap.put("Cookie",cookieString);
     }
 
     /** Get all urls from the sitemap. If it is a sitemap index, get all urls from all sitemaps linked in the index. */
