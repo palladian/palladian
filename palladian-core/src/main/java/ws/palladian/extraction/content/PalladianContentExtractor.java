@@ -706,7 +706,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public String getResultTitle(Collection<String> excludeNodes) {
-
         // try to get it from the biggest headline, take last one as we assume this to be the most specific
         List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1[not(ancestor::header) and not(ancestor::footer)]");
 
@@ -723,8 +722,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         String resultTitle = "";
         if (h1Node != null) {
-            resultTitle = StringHelper.clean(h1Node.getTextContent());
+            resultTitle = StringHelper.clean(HtmlHelper.documentToReadableText(h1Node).replaceAll("\n+", " - "));
         }
+
         if (resultTitle.isEmpty()) {
             Node titleNode = XPathHelper.getXhtmlNode(getDocument(), "//title");
 
