@@ -607,7 +607,7 @@ public final class CollectionHelper {
 
         IntBidirectionalIterator iterator = set.iterator();
         for (int i = 0; i < set.size(); i++) {
-            int value = iterator.next();
+            int value = iterator.nextInt();
             if (i < offset) {
                 continue;
             }
