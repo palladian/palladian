@@ -35,8 +35,8 @@ import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
 
 /**
  * A selenium-based retriever for web documents that should be rendered (execute JS and CSS).
- * <p>
- * Note: This is NOT thread safe.
+ *
+ * Note: This is NOT thread safe, use a RenderingDocumentRetrieverPool for parallel applications.
  *
  * @author David Urbansky, Jaroslav Vankat
  */
@@ -245,8 +245,8 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             // XXX
             // document.setDocumentURI(cleanUrl);
             // document.setUserData(HTTP_RESULT_KEY, httpResult, null);
-//            this.goTo(url);
-            driver.get(url);
+            this.goTo(url);
+//            driver.get(url);
             document = getCurrentWebDocument();
             if (document == null && getErrorCallback() != null) {
                 getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
