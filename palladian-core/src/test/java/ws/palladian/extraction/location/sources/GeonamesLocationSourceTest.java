@@ -35,7 +35,7 @@ public class GeonamesLocationSourceTest {
         assertEquals(48.78232, coordinate.getLatitude(), 0);
         assertEquals(9.17702, coordinate.getLongitude(), 0);
         assertEquals(2825297, location.getId());
-        assertEquals(58, location.getAlternativeNames().size());
+        assertEquals(59, location.getAlternativeNames().size());
         assertTrue(location.getAlternativeNames().contains(new AlternativeName("Stoccarda", Language.ITALIAN)));
     }
 

@@ -23,7 +23,6 @@ import ws.palladian.extraction.location.sources.importers.GeonamesImporter.Input
 import ws.palladian.helper.constants.Language;
 
 public class GeonamesImporterTest {
-
     private static final class FileInputStreamProvider implements InputStreamProvider {
         private final File file;
 
@@ -40,7 +39,7 @@ public class GeonamesImporterTest {
     private static CollectionLocationStore locationStore;
 
     @BeforeClass
-    public static void readData() throws FileNotFoundException, IOException {
+    public static void readData() throws IOException {
         locationStore = new CollectionLocationStore();
         GeonamesImporter importer = new GeonamesImporter(locationStore, null);
         InputStreamProvider hierarchyFile = new FileInputStreamProvider(getResourceFile("/geonames.org/hierarchy.txt"));
@@ -57,7 +56,7 @@ public class GeonamesImporterTest {
         assertEquals("Flein", location.getPrimaryName());
         assertEquals(49.10306, location.getCoordinate().getLatitude(), 0);
         assertEquals(9.21083, location.getCoordinate().getLongitude(), 0);
-        assertEquals((Long)6558l, location.getPopulation());
+        assertEquals((Long) 6558l, location.getPopulation());
         assertEquals(LocationType.CITY, location.getType());
 
         location = locationStore.getLocation(2825297);
@@ -65,7 +64,7 @@ public class GeonamesImporterTest {
         assertEquals(48.78232, location.getCoordinate().getLatitude(), 0);
         assertEquals(9.17702, location.getCoordinate().getLongitude(), 0);
         assertEquals(LocationType.CITY, location.getType());
-        assertEquals((Long)589793l, location.getPopulation());
+        assertEquals((Long) 589793l, location.getPopulation());
 
         location = locationStore.getLocation(2953481);
         assertEquals("Baden-Württemberg", location.getPrimaryName());
@@ -127,7 +126,7 @@ public class GeonamesImporterTest {
 
         location = locationStore.getLocation(6255147);
         assertEquals("Asia", location.getPrimaryName());
-        assertEquals((Long)3812366000l, location.getPopulation());
+        assertEquals((Long) 3812366000l, location.getPopulation());
         assertEquals(LocationType.CONTINENT, location.getType());
 
         location = locationStore.getLocation(2622320);
@@ -446,7 +445,7 @@ public class GeonamesImporterTest {
     private static void checkHierarchy(List<Integer> hierarchy, int... values) {
         assertEquals(values.length, hierarchy.size());
         for (int i = 0; i < values.length; i++) {
-            assertEquals(values[i], (int)hierarchy.get(i));
+            assertEquals(values[i], (int) hierarchy.get(i));
         }
     }
 
@@ -454,11 +453,10 @@ public class GeonamesImporterTest {
     public void testAlternativeNames() {
         Location location = locationStore.getLocation(2825297);
         Collection<AlternativeName> alternativeNames = location.getAlternativeNames();
-        assertEquals(57, alternativeNames.size());
+        assertEquals(58, alternativeNames.size());
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.GERMAN)));
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.ENGLISH)));
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.SPANISH)));
         assertTrue(alternativeNames.contains(new AlternativeName("Shtutgarti", Language.ALBANIAN)));
     }
-
 }
