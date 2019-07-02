@@ -30,4 +30,4 @@ To use the `SNAPSHOT` builds, make sure to configure your `~/.m2/settings.xml` a
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; 2009 — 2018.
+The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; 2009 — 2019.
