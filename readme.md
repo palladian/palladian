@@ -1,6 +1,6 @@
 # ![Palladian Logo](https://i.imgur.com/QNPJb18.png) Palladian Toolkit
 
-[![Run Status](https://api.shippable.com/projects/5507af415ab6cc1352a2391e/badge?branch=master)](https://app.shippable.com/bitbucket/palladian/palladian)
+[![Run Status](https://api.shippable.com/projects/5c18a5a66cc0720700a558f2/badge?branch=master)](https://app.shippable.com/subs/github/palladian/dashboard)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ws.palladian/palladian/badge.svg)](http://mvnrepository.com/artifact/ws.palladian/palladian)
 
 What is it?
