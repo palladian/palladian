@@ -1,19 +1,9 @@
 package ws.palladian.extraction.content;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.FileNotFoundException;
-import java.security.Security;
-import java.util.List;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.junit.rules.ErrorCollector;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
@@ -21,9 +11,14 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.resources.WebImage;
 
-public class PalladianContentExtractorTest {
+import java.io.FileNotFoundException;
+import java.security.Security;
+import java.util.List;
 
-    /***/
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+
+public class PalladianContentExtractorTest {
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
@@ -38,12 +33,10 @@ public class PalladianContentExtractorTest {
         // System.out.println(DigestUtils.md5Hex(text));
 
         assertEquals("80eff9d14c83b529212bd64e78bc1fe4", DigestUtils.md5Hex(text));
-
     }
 
     @Test
-    public void testLanguageExtraction() throws PageContentExtractorException, FileNotFoundException {
-
+    public void testLanguageExtraction() throws PageContentExtractorException {
         // make sure all http retrievers globally trust self-signed certificates
         HttpRetrieverFactory.setFactory(new HttpRetrieverFactory(true));
         Security.setProperty("jdk.tls.disabledAlgorithms", "SSLv3, DHE, RC4, MD5withRSA, DH keySize < 768, EC keySize < 224");
@@ -52,10 +45,9 @@ public class PalladianContentExtractorTest {
         Language language;
 
         // Norwegian
-        // FIXME fails
-        // palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.visma.no/"));
-        // language = palladianContentExtractor.detectLanguage();
-        // collector.checkThat(language, is(Language.NORWEGIAN));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.visma.no/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.NORWEGIAN_BOKMAL));
 
         // Slovak
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.nbs.sk/sk/titulna-stranka"));
@@ -63,10 +55,9 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.SLOVAK));
 
         // Polish
-        // FIXME fails
-        // palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.boomrent.pl/"));
-        // language = palladianContentExtractor.detectLanguage();
-        // collector.checkThat(language, is(Language.POLISH));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.boomrent.pl/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.POLISH));
 
         // Hebrew
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://ashdod.metropolinet.co.il/he-il/אתר-העיר/"));
@@ -74,16 +65,12 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.HEBREW));
 
         // German
-        // palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.cinefreaks.com"));
-        // language = palladianContentExtractor.detectLanguage();
-        // collector.checkThat(language, is(Language.GERMAN));
-
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.spiegel.de/"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.GERMAN));
 
         // Portuguese
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.funny.pt"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.abola.pt"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.PORTUGUESE));
 
@@ -111,10 +98,9 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.FRENCH));
 
         // Spanish
-        // FIXME fails
-        // palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://elpais.com/"));
-        // language = palladianContentExtractor.detectLanguage();
-        // collector.checkThat(language, is(Language.SPANISH));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://elpais.com/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.SPANISH));
 
         // Italian
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.corriere.it/"));
@@ -125,15 +111,12 @@ public class PalladianContentExtractorTest {
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://tass.ru/"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.RUSSIAN));
-
     }
 
     @Test
     public void testDominantImageExtraction() throws PageContentExtractorException, FileNotFoundException {
-
-    	// TODO make this work without internet connection!
-    	// TODO i.e. make this work with local files instead of accessing the web!!!
-
+        // TODO make this work without internet connection!
+        // TODO i.e. make this work with local files instead of accessing the web!!!
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         WebImage image;
 
@@ -155,7 +138,6 @@ public class PalladianContentExtractorTest {
         // palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://realhousemoms.com/root-beer-chicken-wings/"));
         // image = palladianContentExtractor.getDominantImage();
         // collector.checkThat(image.getImageUrl(), containsString("Root-Beer-Chicken-Wings-for-Real-Housemoms-Horizontal-Photo-e1422767540265.jpg"));
-
     }
 
     @Test
@@ -183,5 +165,4 @@ public class PalladianContentExtractorTest {
 
         // CollectionHelper.print(images);
     }
-
 }

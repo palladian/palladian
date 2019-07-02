@@ -91,6 +91,8 @@ public enum Language {
     NEPALI("ne", "nep", "Nepali"), //
     NORTHERN_NDEBELE("nd", "nde", "Northern Ndebele"), //
     NORWEGIAN("no", "nor", "Norwegian"), //
+    NORWEGIAN_BOKMAL("nb", "nob", "Norwegian"), //
+    NORWEGIAN_NYNORSK("nn", "nno", "Norwegian"), //
     OCCITAN("oc", "oci", "Occitan"), //
     OJIBWE("oj", "oji", "Ojibwe"), //
     PASHTO("ps", "pus", "Pashto"), //
