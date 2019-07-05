@@ -30,6 +30,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
 
@@ -45,6 +46,9 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 
     protected RemoteWebDriver driver;
     private int timeoutSeconds = 10;
+
+    /** We can configure the retriever to wait for certain elements on certain URLs that match the given pattern. */
+    private Map<Pattern, String> waitForElementMap = new HashMap<>();
 
     /**
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
@@ -149,7 +153,22 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         if (forceReload || !driver.getCurrentUrl().equals(url)) {
             driver.get(url);
         }
-        new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+
+        // check whether a pattern matches and we have elements to wait for
+        String selector = null;
+        for (Map.Entry<Pattern, String> patternStringEntry : waitForElementMap.entrySet()) {
+            if (patternStringEntry.getKey().matcher(url).find()) {
+                selector = patternStringEntry.getValue();
+                break;
+            }
+        }
+
+        if (selector != null) {
+            final String cssSelector = selector;
+            new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> webDriver.findElement(By.cssSelector(cssSelector)));
+        } else {
+            new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+        }
     }
 
     /**
@@ -354,6 +373,14 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 
     public void setTimeoutSeconds(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
+    }
+
+    public Map<Pattern, String> getWaitForElementMap() {
+        return waitForElementMap;
+    }
+
+    public void setWaitForElementMap(Map<Pattern, String> waitForElementMap) {
+        this.waitForElementMap = waitForElementMap;
     }
 
     public static void main(String... args) throws HttpException {
