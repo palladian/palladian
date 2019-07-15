@@ -49,6 +49,10 @@ public class Crawler {
     /** Number of active threads. */
     private AtomicInteger threadCount = new AtomicInteger(0);
 
+    /** If true, we'll remember for each URL where we found a reference that linked to it. */
+    private boolean trackLinks = false;
+    private Map<String, String> trackedLinks = Collections.synchronizedMap(new HashMap<>());
+
     private ExecutorService executor = Executors.newFixedThreadPool(maxThreads);
 
     /** The number of milliseconds each host gets between two requests. */
@@ -157,10 +161,10 @@ public class Crawler {
                         currentUrl, urlStack.size(), visitedUrls.size()});
             }
 
-            addUrlsToStack(links);
+            addUrlsToStack(links, currentUrl);
         } else if (isRetryFailedRetrievals() && currentDocumentRetriever.getDownloadFilter().test(currentUrl)){
             LOGGER.error("could not get " + currentUrl + ", putting it back on the stack for later");
-            addUrlToStack(currentUrl);
+            addUrlToStack(currentUrl, currentUrl);
         }
 
         release(currentDocumentRetriever);
@@ -334,9 +338,9 @@ public class Crawler {
         this.urlModificationRegexps.putAll(urlModificationRegexps);
     }
 
-    private synchronized void addUrlsToStack(Set<String> urls) {
+    private synchronized void addUrlsToStack(Set<String> urls, String sourceUrl) {
         for (String url : urls) {
-            addUrlToStack(url);
+            addUrlToStack(url, sourceUrl);
         }
     }
 
@@ -356,7 +360,7 @@ public class Crawler {
         return url;
     }
 
-    protected synchronized void addUrlToStack(String url) {
+    protected synchronized void addUrlToStack(String url, String sourceUrl) {
         url = cleanUrl(url);
 
         // check URL first
@@ -384,6 +388,9 @@ public class Crawler {
 
             if (follow) {
                 urlStack.add(url);
+                if (trackLinks) {
+                    trackedLinks.put(url, sourceUrl);
+                }
             }
         }
     }
@@ -472,6 +479,22 @@ public class Crawler {
 
     public void setRetryFailedRetrievals(boolean retryFailedRetrievals) {
         this.retryFailedRetrievals = retryFailedRetrievals;
+    }
+
+    public boolean isTrackLinks() {
+        return trackLinks;
+    }
+
+    public void setTrackLinks(boolean trackLinks) {
+        this.trackLinks = trackLinks;
+    }
+
+    public Map<String, String> getTrackedLinks() {
+        return trackedLinks;
+    }
+
+    public void setTrackedLinks(Map<String, String> trackedLinks) {
+        this.trackedLinks = trackedLinks;
     }
 
     public static void main(String[] args) throws UnknownHostException {
