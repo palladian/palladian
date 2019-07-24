@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -28,7 +29,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * </p>
  *
  * @author David Urbansky
- * @see http://norvig.com/spell-correct.html
+ * @see https://norvig.com/spell-correct.html
  */
 public class PalladianSpellChecker {
 
@@ -231,6 +232,7 @@ public class PalladianSpellChecker {
             result.add(substringI2 + 'ü' + substringI);
         }
 
+        result.removeIf(StringUtils::isEmpty);
         return result;
     }
 
