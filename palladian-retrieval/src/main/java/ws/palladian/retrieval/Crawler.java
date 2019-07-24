@@ -10,6 +10,7 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import java.net.UnknownHostException;
 import java.util.*;
@@ -57,6 +58,8 @@ public class Crawler {
 
     /** The number of milliseconds each host gets between two requests. */
     private RequestThrottle requestThrottle = NoThrottle.INSTANCE;
+
+    private Consumer<String> errorCallback;
 
     // ///////////////////////////////////////////////////////
     // ////////////////// crawl settings ////////////////////
@@ -208,6 +211,10 @@ public class Crawler {
                             } catch (Throwable t) {
                                 // whatever
                                 t.printStackTrace();
+                                LOGGER.error(t.getMessage(), t);
+                                if (errorCallback != null) {
+                                    errorCallback.accept(url);
+                                }
                             }
                         }
                     };
@@ -495,6 +502,15 @@ public class Crawler {
 
     public void setTrackedLinks(Map<String, String> trackedLinks) {
         this.trackedLinks = trackedLinks;
+    }
+
+
+    public Consumer<String> getErrorCallback() {
+        return errorCallback;
+    }
+
+    public void setErrorCallback(Consumer<String> errorCallback) {
+        this.errorCallback = errorCallback;
     }
 
     public static void main(String[] args) throws UnknownHostException {
