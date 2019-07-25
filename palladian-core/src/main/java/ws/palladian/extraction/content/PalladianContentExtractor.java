@@ -871,6 +871,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.RUSSIAN;
         } else if (domain.endsWith(".no")) {
             return Language.NORWEGIAN;
+        } else if (domain.endsWith(".cz")) {
+            return Language.CZECH;
         } else if (domain.endsWith(".sk")) {
             return Language.SLOVAK;
         } else if (domain.endsWith(".fi")) {
