@@ -51,6 +51,8 @@ public final class UrlHelper {
     /** List of possible domain suffixes. */
     private static final List<String> DOMAIN_SUFFIXES;
 
+    private static final Pattern URL_PARAM = Pattern.compile("\\?.*");
+
     static {
         InputStream resourceAsStream = UrlHelper.class.getResourceAsStream("/top-level-domains.txt");
         final List<String> tlds = new ArrayList<>();
@@ -200,7 +202,7 @@ public final class UrlHelper {
         if (contextUrl != null) {
             try {
                 if (linkUrl.startsWith("?")) {
-                    result = contextUrl + linkUrl;
+                    result = URL_PARAM.matcher(contextUrl).replaceAll("") + linkUrl;
                 } else {
                     result = new URL(new URL(contextUrl), linkUrl).toString();
                     result = result.replace("../", "");

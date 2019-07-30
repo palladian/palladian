@@ -37,17 +37,6 @@ public class UrlHelperTest {
         assertEquals("amazon.com/", UrlHelper.getCleanUrl("amazon.com/"));
     }
 
-//    @Test
-//    public void testUrlValidation() {
-//        collector.checkThat(UrlHelper.isValidUrl("me@gmail.com"), is(false));
-//        collector.checkThat(UrlHelper.isValidUrl("http://.com"), is(false));
-//        collector.checkThat(UrlHelper.isValidUrl("http://com."), is(false));
-//        collector.checkThat(UrlHelper.isValidUrl("http:// "), is(false));
-//        collector.checkThat(UrlHelper.isValidUrl("http://.com"), is(false));
-//        collector.checkThat(UrlHelper.isValidUrl("https://palladian.ai"), is(true));
-//        collector.checkThat(UrlHelper.isValidUrl("https://palladian.ai/whatever/comes/here"), is(true));
-//    }
-
     @Test
     public void testGetDomain() {
         collector.checkThat(UrlHelper.getDomain("https://www.ashland.or.us/", false, false), is("ashland.or.us"));
@@ -85,6 +74,7 @@ public class UrlHelperTest {
 
     @Test
     public void testMakeFullUrl() {
+        assertEquals("http://big-planet.biz/vacancies.php?d=aaa", UrlHelper.makeFullUrl("http://big-planet.biz/vacancies.php?d=123&b=whatever", null, "?d=aaa"));
         assertEquals("http://big-planet.biz/vacancies.php?d=314", UrlHelper.makeFullUrl("http://big-planet.biz/vacancies.php", null, "?d=314"));
         assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", "", "page.html"));
         assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", null, "page.html"));
