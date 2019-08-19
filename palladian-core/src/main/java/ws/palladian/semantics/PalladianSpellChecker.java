@@ -32,7 +32,6 @@ import ws.palladian.helper.nlp.StringHelper;
  * @see https://norvig.com/spell-correct.html
  */
 public class PalladianSpellChecker {
-
     /**
      * The logger for this class.
      */
@@ -52,7 +51,9 @@ public class PalladianSpellChecker {
     private int maxWordLengthDistanceTwo = 10;
     private int minWordLength = 2;
 
-    /** The number of occurrences for a candidate before we skip breaking German compounds apart. */
+    /**
+     * The number of occurrences for a candidate before we skip breaking German compounds apart.
+     */
     private int germanCompoundStopCount = 50;
 
     /**
@@ -61,7 +62,9 @@ public class PalladianSpellChecker {
     private Map<String, String> manualWordMappings = new HashMap<>();
     private Map<String, String> manualPhraseMappings = new HashMap<>();
 
-    /** Keep track of the context around words and use it to improve decision when correcting words. */
+    /**
+     * Keep track of the context around words and use it to improve decision when correcting words.
+     */
     private Bag<String> contextCounter = new Bag<>();
 
     /**
@@ -71,7 +74,8 @@ public class PalladianSpellChecker {
 
     private Trie<Integer> words = new Trie<>();
 
-    public PalladianSpellChecker() {}
+    public PalladianSpellChecker() {
+    }
 
     public PalladianSpellChecker(String file) {
         this(file, false);
@@ -79,11 +83,11 @@ public class PalladianSpellChecker {
 
     /**
      * Create the object.
-     * @param file The text file from which to create a dictionary.
+     *
+     * @param file             The text file from which to create a dictionary.
      * @param ignoreDiacritics If true, diacritics will be ignored, e.g. "uber" will not try to be corrected to "über"
      */
     public PalladianSpellChecker(String file, boolean ignoreDiacritics) {
-
         StopWatch stopWatch = new StopWatch();
 
         int lines = FileHelper.getNumberOfLines(file);
@@ -128,17 +132,16 @@ public class PalladianSpellChecker {
     /**
      * <p>
      * Set manual mappings by providing a mapping file. Each line must follow the following format:
-     * 
+     *
      * <pre>
      * wrongword = correctword
      * </pre>
-     * 
+     *
      * </p>
      *
      * @param mappingFile The file with mappings.
      */
     public void setManualMappings(File mappingFile) {
-
         List<String> strings = FileHelper.readFileToArray(mappingFile);
         for (String string : strings) {
             String[] split = string.split("=");
@@ -153,13 +156,13 @@ public class PalladianSpellChecker {
         }
 
     }
-    
+
     public void addManualMapping(String source, String target) {
-         if (source.contains(" ")) {
+        if (source.contains(" ")) {
             manualPhraseMappings.put(source.toLowerCase(), target);
-         } else {
+        } else {
             manualWordMappings.put(source.toLowerCase(), target);
-         }
+        }
     }
 
     /**
@@ -332,7 +335,6 @@ public class PalladianSpellChecker {
     }
 
     public String correctWord(String word, boolean caseSensitive, String leftContext, String rightContext) {
-
         boolean uppercase = false;
         int uppercaseCount = 0;
         if (!caseSensitive) {
@@ -398,6 +400,10 @@ public class PalladianSpellChecker {
                 compoundCorrect = true;
                 List<String> strings = WordTransformer.splitGermanCompoundWords(word);
                 for (String string : strings) {
+                    if (string.length() < 2) {
+                        compoundCorrect = false;
+                        break;
+                    }
                     if (words.get(string) == null) {
                         String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
                         // if (words.get(key) == null && strings.size() > 1) {

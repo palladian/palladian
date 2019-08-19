@@ -77,6 +77,11 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
             return YELP_CATEGORY_FACET;
         }
 
+        @Override
+        public String getValue() {
+            return getCategories();
+        }
+
         private String getCategories() {
             return StringUtils.join(categories, ",");
         }

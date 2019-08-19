@@ -1,22 +1,10 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -32,12 +20,10 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.Facet;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.RateLimitedException;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.*;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -46,14 +32,16 @@ import ws.palladian.retrieval.search.SearcherException;
  * needs to be done via OAuth 2.0 in advance, the accessToken is necessary for initializing this searcher. The necessary
  * steps are not implemented here, as they require user interaction.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://instagram.com/developer/">Instagram Developer Documentation</a>
  * @see <a href="http://instagram.com/developer/authentication/">Authentication</a>
  */
 public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage> {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(InstagramSearcher.class);
 
     /**
@@ -62,10 +50,10 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * we also query the locations endpoint (<code>/locations/search</code>) with the coordinate and then search for
      * images in all locations. This gives in general more results, but also results in considerably more API requests
      * for each query.
-     * 
+     *
      * @author Philipp Katz
      */
-    public static enum DeepCoordinateRetrieval implements Facet {
+    public enum DeepCoordinateRetrieval implements Facet {
         DEEP;
 
         private static final String INSTAGRAM_DEEP_COORDINATE_RETRIEVAL_ID = "instagram.deepCoordinateRetrieval";
@@ -74,13 +62,18 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         public String getIdentifier() {
             return INSTAGRAM_DEEP_COORDINATE_RETRIEVAL_ID;
         }
+
+        @Override
+        public String getValue() {
+            return null;
+        }
     }
 
     /**
      * Facet, which allows searching Instagram by a Instagram-specific location ID.
-     * 
-     * @see <a href="http://instagram.com/developer/endpoints/locations/">Location Endpoints</a>
+     *
      * @author Philipp Katz
+     * @see <a href="http://instagram.com/developer/endpoints/locations/">Location Endpoints</a>
      */
     public static final class LocationId implements Facet {
         private static final String INSTAGRAM_LOCATION_ID = "instagram.locationId";
@@ -96,18 +89,29 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         }
 
         @Override
+        public String getValue() {
+            return String.valueOf(getLocationId());
+        }
+
+        @Override
         public String getIdentifier() {
             return INSTAGRAM_LOCATION_ID;
         }
     }
 
-    /** The identifier for the {@link Configuration} key with the access token. */
+    /**
+     * The identifier for the {@link Configuration} key with the access token.
+     */
     public static final String CONFIG_ACCESS_TOKEN = "api.instagram.accessToken";
 
-    /** Name of this searcher. */
+    /**
+     * Name of this searcher.
+     */
     public static final String SEARCHER_NAME = "Instagram";
 
-    /** Instagram allows maximum 5000 requests/hour; however, we take a smaller value to be on the save side. */
+    /**
+     * Instagram allows maximum 5000 requests/hour; however, we take a smaller value to be on the save side.
+     */
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.HOURS, 4500);
 
     private final String accessToken;
@@ -118,7 +122,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * <p>
      * Initialize a new {@link InstagramTagSearcher} with the specified OAuth access token.
      * </p>
-     * 
+     *
      * @param accessToken The OAuth access token, not <code>null</code> or empty.
      */
     public InstagramSearcher(String accessToken) {
@@ -132,9 +136,9 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * Initialize a new {@link InstagramTagSearcher} with the an OAuth access token provided via the
      * {@link Configuration} instance.
      * </p>
-     * 
+     *
      * @param configuration The configuration providing an OAuth access token with the identifier
-     *            {@value #CONFIG_ACCESS_TOKEN}, not <code>null</code>.
+     *                      {@value #CONFIG_ACCESS_TOKEN}, not <code>null</code>.
      */
     public InstagramSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_ACCESS_TOKEN));
@@ -147,7 +151,8 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
     private List<WebImage> fetchResult(int resultCount, String queryUrl) throws SearcherException {
         List<WebImage> result = new ArrayList<>();
-        page: for (;;) {
+        page:
+        for (; ; ) {
             HttpResult httpResult = performGet(queryUrl);
             String jsonString = httpResult.getStringContent();
             LOGGER.trace("JSON = {}", jsonString);
@@ -187,11 +192,11 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
     /**
      * Perform a HTTP get, check rate limits (proactive using the {@link RequestThrottle}, and after request by checking
      * the status code.
-     * 
+     *
      * @param queryUrl The URL to GET.
      * @return The {@link HttpResult} for the GET operation.
      * @throws RateLimitedException In case the service gave a rate limited error.
-     * @throws SearcherException In other cases of HTTP errors.
+     * @throws SearcherException    In other cases of HTTP errors.
      */
     private HttpResult performGet(String queryUrl) throws RateLimitedException, SearcherException {
         LOGGER.debug("GET {}", queryUrl);
@@ -215,7 +220,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
     /**
      * Parse a JSON entry into a WebImage.
-     * 
+     *
      * @param data The JSON data.
      * @return A parsed WebImage.
      * @throws JsonException In case parsing failes.
@@ -254,7 +259,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
     /**
      * Try to extract error message from JSON.
-     * 
+     *
      * @param stringContent The result string.
      * @return A formatted error message, or an empty String, in case the response could not be parsed.
      */
@@ -278,7 +283,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         String tag = getTag(query);
         List<WebImage> results;
         Facet facet = query.getFacet(LocationId.INSTAGRAM_LOCATION_ID);
-        LocationId locationIdFacet = facet != null ? (LocationId)facet : null;
+        LocationId locationIdFacet = facet != null ? (LocationId) facet : null;
 
         // we search by URL; but first, we need to get the ID ...
         if (query.getUrl() != null) {
@@ -308,7 +313,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         } else if (query.getCoordinate() != null) {
             final GeoCoordinate coordinate = query.getCoordinate();
             // 5000 meters is maximum radius
-            int radius = query.getRadius() != null ? (int)Math.min(query.getRadius() * 1000, 5000) : 5000;
+            int radius = query.getRadius() != null ? (int) Math.min(query.getRadius() * 1000, 5000) : 5000;
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append("https://api.instagram.com/v1/media/search");
             urlBuilder.append("?lat=").append(coordinate.getLatitude());
@@ -369,7 +374,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
 
     /**
      * Transforms a {@link Date} to a UNIX timestamp.
-     * 
+     *
      * @param date The date.
      * @return A UNIX timestamp.
      */
@@ -381,13 +386,13 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * In case, the {@link MultifacetQuery} asks for a URL, we first have to transform the URL to an Instagram ID. This
      * costs one additional HTTP request, but it does not require API key authorization, so I guess it does not fall
      * under the quota (and therefore do not use the {@link RequestThrottle} here).
-     * 
+     *
      * @param url The URL to transform.
      * @return An Instagram ID.
      * @throws SearcherException In case, the transformation fails.
      * @see <a
-     *      href="http://stackoverflow.com/questions/16758316/where-do-i-find-the-instagram-media-id-of-a-image">Where
-     *      do I find the Instagram media ID of a image</a>
+     * href="http://stackoverflow.com/questions/16758316/where-do-i-find-the-instagram-media-id-of-a-image">Where
+     * do I find the Instagram media ID of a image</a>
      */
     private String getIdForUrl(String url) throws SearcherException {
         try {
@@ -430,9 +435,9 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
      * When searching by {@link GeoCoordinate}s, we can first retrieve all available locations for that coordinate
      * (seems, that we can get 20 locations maximum), and then use the obtained location IDs to retrieve content. This
      * seems to yield in more results than the <code>/media/search</code> endpoint.
-     * 
+     *
      * @param coordinate The coordinate.
-     * @param distance The distance.
+     * @param distance   The distance.
      * @return A list of location IDs for the given coordinate+distance, or an empty list.
      * @throws SearcherException In case, the query fails.
      */
@@ -447,7 +452,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         try {
             JsonArray jsonData = new JsonObject(httpResult.getStringContent()).getJsonArray("data");
             for (int i = 0; i < jsonData.size(); i++) {
-                JsonObject currentData = (JsonObject)jsonData.get(i);
+                JsonObject currentData = (JsonObject) jsonData.get(i);
                 locationIds.add(new LocationId(currentData.getInt("id")));
             }
         } catch (JsonException e) {

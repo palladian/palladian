@@ -561,7 +561,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public List<WebImage> getImages(Node imageParentNode, Document webDocument, String imgXPath, Collection<Node> excludeNodes) {
-
         if (imageUrls != null) {
             return imageUrls;
         }
@@ -591,7 +590,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         for (Node node : imageNodes) {
             try {
-
                 if (excludeNodes.contains(node)) {
                     continue;
                 }
@@ -900,7 +898,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * @return The dominant image.
      */
     public WebImage getDominantImage(Collection<String> contentIncludeXPath, Collection<String> contentExcludeXPath) {
-
         // check meta property first
         Node xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//meta[@property='og:image']//@content");
         if (xhtmlNode != null) {
@@ -910,7 +907,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<Node> excludeImageNodes = new ArrayList<>();
         if (contentExcludeXPath != null && !contentExcludeXPath.isEmpty()) {
             for (String xpath : contentExcludeXPath) {
-                excludeImageNodes.addAll(XPathHelper.getXhtmlNodes(getDocument(), xpath + "//img"));
+                List<Node> excludeImages = XPathHelper.getXhtmlNodes(getDocument(), xpath + "//img");
+                excludeImageNodes.addAll(excludeImages);
             }
         }
 
@@ -942,13 +940,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         Node mainContentNode = getDocument();
 
         if (contentIncludeXPath != null && !contentIncludeXPath.isEmpty()) {
-
             for (String includeXPath : contentIncludeXPath) {
                 mainContentNode = XPathHelper.getXhtmlNode(getDocument(), includeXPath);
                 images.addAll(getImages(mainContentNode, getDocument(),
                         ".//img[not(ancestor::header) and not(ancestor::footer) and not(ancestor::a[contains(@href,'index') or @href=''])]", excludeImageNodes));
             }
-
         } else {
             // get images that are not in header or footer or that link to the index (which are usually logos and
             // banners)
@@ -974,7 +970,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 // }
                 // filter out images that are too small (that we know of)
                 filterBySize(images, 50, 50);
-                Collections.sort(images, new ImageSizeComparator());
+                images.sort(new ImageSizeComparator());
                 image = CollectionHelper.getFirst(images);
             }
         }

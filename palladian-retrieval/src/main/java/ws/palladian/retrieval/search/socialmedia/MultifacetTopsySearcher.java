@@ -43,14 +43,13 @@ import ws.palladian.retrieval.search.SearcherException;
  * <p>
  * Search for Tweets on <a href="http://topsy.com">Topsy</a>. Topsy has a better archive, so we can search older Tweets.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://code.google.com/p/otterapi/">Topsy REST API</a>
  * @see <a href="http://manage.topsy.com/">Topsy API registration</a>
  */
 public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<WebContent> {
-
-    public static enum ContentType implements Facet {
+    public enum ContentType implements Facet {
         IMAGE, TWEET, VIDEO;
         private static final String TOPSY_CONTENT_TYPE = "topsy.contentType";
 
@@ -58,26 +57,41 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
         public String getIdentifier() {
             return TOPSY_CONTENT_TYPE;
         }
+
+        @Override
+        public String getValue() {
+            return "";
+        }
     }
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(MultifacetTopsySearcher.class);
 
-    /** The identifier for the API key when provided via {@link Configuration}. */
+    /**
+     * The identifier for the API key when provided via {@link Configuration}.
+     */
     public static final String CONFIG_API_KEY = "api.topsy.key";
 
     public static final String SEARCHER_NAME = "Topsy";
 
     private static final Set<Language> SUPPORTED_LANGUAGES = EnumSet.of(ENGLISH, JAPANESE, CHINESE, KOREAN);
 
-    /** Pattern for extracting the status ID from a twitter URL. */
+    /**
+     * Pattern for extracting the status ID from a twitter URL.
+     */
     private static final Pattern URL_STATUS_PATTERN = Pattern
             .compile("https?://twitter.com/[A-Za-z0-9_]*/status/(\\d+)");
 
-    /** Pattern to determine from the text content, whether the tweet is likely a retweet. */
+    /**
+     * Pattern to determine from the text content, whether the tweet is likely a retweet.
+     */
     private static final Pattern CONTENT_RETWEET_PATTERN = Pattern.compile("(?:^|\\s)RT @[A-Za-z0-9_]+");
 
-    /** Pattern to extract hashtags. */
+    /**
+     * Pattern to extract hashtags.
+     */
     private static final Pattern CONTENT_HASHTAG_PATTERN = Pattern.compile("#([A-Za-z0-9]+)");
 
     private final String apiKey;
@@ -88,7 +102,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
      * <p>
      * Create a new Topsy searcher with the specified API key.
      * </p>
-     * 
+     *
      * @param apiKey The API key, not <code>null</code> or empty.
      */
     public MultifacetTopsySearcher(String apiKey) {
@@ -101,9 +115,9 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
      * <p>
      * Create a new Topsy searcher with an API key provided by a {@link Configuration} instance.
      * </p>
-     * 
+     *
      * @param configuration The Configuration providing the required API key via key {@value #CONFIG_API_KEY}, not
-     *            <code>null</code>.
+     *                      <code>null</code>.
      */
     public MultifacetTopsySearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -120,7 +134,8 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
         List<WebContent> webContent = new ArrayList<>();
         Long totalResults = null;
         int skippedRetweets = 0;
-        out: for (int page = 1;; page++) {
+        out:
+        for (int page = 1; ; page++) {
             String queryUrl = buildQueryUrl(query, page, apiKey);
             LOGGER.debug("Request URL = {}", queryUrl);
             HttpResult httpResult;
@@ -166,7 +181,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
     /**
      * Very simple check, to determine, whether the current tweet is a retweet. This will not catch all acutal retweets,
      * as the "RT @bla" is not compulsive, but still will filter out lots of duplicates.
-     * 
+     *
      * @param item The JSON representing the tweet.
      * @return <code>true</code> in case the tweet is very likely a retweet.
      */
@@ -207,7 +222,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
 
     /**
      * Extract hashtags from the Tweet's text.
-     * 
+     *
      * @param content The text.
      * @return {@link Set} with hashtags in the order they occur in the text, or an empty Set.
      */
@@ -225,7 +240,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
 
     /**
      * Extract the Tweet ID from the permalink URL.
-     * 
+     *
      * @param permalink The parmalink.
      * @return The Tweet ID, or <code>null</code> in case the ID could not be extracted.
      */
@@ -246,14 +261,14 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
             queryUrl.append("?q=").append(UrlHelper.encodeParameter(query.getText()));
             Facet facet = query.getFacet(ContentType.TOPSY_CONTENT_TYPE);
             if (facet != null) {
-                ContentType contentTypeFacet = (ContentType)facet;
+                ContentType contentTypeFacet = (ContentType) facet;
                 queryUrl.append("&type=").append(contentTypeFacet.toString().toLowerCase());
             }
-        } else if (StringUtils.isNotBlank(query.getUrl())){
+        } else if (StringUtils.isNotBlank(query.getUrl())) {
             validateUrl(query.getUrl());
             queryUrl.append("http://otter.topsy.com/trackbacks.json");
             queryUrl.append("?url=").append(query.getUrl());
-        }else{
+        } else {
             throw new SearcherException("Either text or URL must be provided for the query.");
         }
         queryUrl.append("&apikey=").append(apiKey);

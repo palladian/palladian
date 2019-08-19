@@ -23,7 +23,6 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
  * @author Philipp Katz
  */
 public interface MultifacetQuery {
-
     /**
      * <p>
      * Builder for creating a {@link MultifacetQuery}.
@@ -31,7 +30,7 @@ public interface MultifacetQuery {
      * 
      * @author Philipp Katz
      */
-    public static class Builder implements Factory<MultifacetQuery> {
+    class Builder implements Factory<MultifacetQuery> {
 
         /** Default number of results if not specified explicitly. */
         private static final int DEFAULT_RESULT_COUNT = 10;

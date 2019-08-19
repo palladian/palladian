@@ -1,24 +1,22 @@
 package ws.palladian.retrieval.search;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.retrieval.resources.WebContent;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
  * Search results from a {@link Searcher}. It optionally provides the number of total available results for the query
  * using {@link #getResultCount()}.
  * </p>
- * 
- * @author Philipp Katz
+ *
  * @param <R>
+ * @author Philipp Katz
  */
 public class SearchResults<R extends WebContent> implements Iterable<R> {
-
     private final List<R> resultList;
 
     private final Long resultCount;
@@ -57,7 +55,7 @@ public class SearchResults<R extends WebContent> implements Iterable<R> {
 
     /**
      * @return The number of total available results, or <code>null</code> in case this information is not provided by
-     *         the searcher.
+     * the searcher.
      */
     public Long getResultCount() {
         return resultCount;
@@ -80,5 +78,4 @@ public class SearchResults<R extends WebContent> implements Iterable<R> {
         builder.append("]");
         return builder.toString();
     }
-
 }

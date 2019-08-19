@@ -1,5 +1,22 @@
 package ws.palladian.retrieval.search.socialmedia;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebContent;
+import ws.palladian.retrieval.resources.WebContent;
+import ws.palladian.retrieval.search.*;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,60 +25,40 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
-import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.OAuthParams;
-import ws.palladian.retrieval.OAuthUtil;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
-import ws.palladian.retrieval.resources.BasicWebContent;
-import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.Facet;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.RateLimitedException;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
-
 /**
  * <p>
  * Searcher for Tweets on Twitter. The Tweet content can be accessed via {@link BasicWebContent#getSummary()}.
  * </p>
- * 
- * @see <a href="https://dev.twitter.com/docs/api/1.1/get/search/tweets">API Resources: GET search</a>
+ *
  * @author Philipp Katz
+ * @see <a href="https://dev.twitter.com/docs/api/1.1/get/search/tweets">API Resources: GET search</a>
  */
 public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent> {
-
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterSearcher.class);
 
-    /** The name of this searcher. */
+    /**
+     * The name of this searcher.
+     */
     private static final String SEARCHER_NAME = "Twitter";
 
-    /** The result type for which to search. */
-    public static enum ResultType implements Facet {
-        /** Popular + real time results. */
+    /**
+     * The result type for which to search.
+     */
+    public enum ResultType implements Facet {
+        /**
+         * Popular + real time results.
+         */
         MIXED,
-        /** Only most recent results. */
+        /**
+         * Only most recent results.
+         */
         RECENT,
-        /** Only most popular results. */
+        /**
+         * Only most popular results.
+         */
         POPULAR;
 
         private static final String TWITTER_RESULT_TYPE_ID = "twitter.resultType";
@@ -71,18 +68,27 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             return TWITTER_RESULT_TYPE_ID;
         }
 
+        @Override
         public String getValue() {
             return toString().toLowerCase();
         }
     }
 
-    /** The identifier for the {@link Configuration} key with the OAuth consumer key. */
+    /**
+     * The identifier for the {@link Configuration} key with the OAuth consumer key.
+     */
     public static final String CONFIG_CONSUMER_KEY = "api.twitter.consumerKey";
-    /** The identifier for the {@link Configuration} key with the OAuth consumer secret. */
+    /**
+     * The identifier for the {@link Configuration} key with the OAuth consumer secret.
+     */
     public static final String CONFIG_CONSUMER_SECRET = "api.twitter.consumerSecret";
-    /** The identifier for the {@link Configuration} key with the OAuth access token. */
+    /**
+     * The identifier for the {@link Configuration} key with the OAuth access token.
+     */
     public static final String CONFIG_ACCESS_TOKEN = "api.twitter.accessToken";
-    /** The identifier for the {@link Configuration} key with the OAuth access token secret. */
+    /**
+     * The identifier for the {@link Configuration} key with the OAuth access token secret.
+     */
     public static final String CONFIG_ACCESS_TOKEN_SECRET = "api.twitter.accessTokenSecret";
 
     private static final String DATE_PATTERN = "E MMM dd HH:mm:ss Z yyyy";
@@ -103,7 +109,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * <p>
      * Create a new {@link TwitterSearcher}.
      * </p>
-     * 
+     *
      * @param oAuthParams The parameters for the OAuth-based authentication, not <code>null</code>
      */
     public TwitterSearcher(OAuthParams oAuthParams) {
@@ -116,10 +122,10 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * <p>
      * Create a new {@link TwitterSearcher}.
      * </p>
-     * 
-     * @param consumerKey The OAuth consumer key, not <code>null</code> or empty.
-     * @param consumerSecret The OAuth consumer secret, not <code>null</code> or empty.
-     * @param accessToken The OAuth access token, not <code>null</code> or empty.
+     *
+     * @param consumerKey       The OAuth consumer key, not <code>null</code> or empty.
+     * @param consumerSecret    The OAuth consumer secret, not <code>null</code> or empty.
+     * @param accessToken       The OAuth access token, not <code>null</code> or empty.
      * @param accessTokenSecret The OAuth access token secret, not <code>null</code> or empty.
      */
     public TwitterSearcher(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
@@ -130,10 +136,10 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * <p>
      * Create a new {@link TwitterSearcher}.
      * </p>
-     * 
+     *
      * @param configuration A {@link Configuration} instance providing the necessary parameters for OAuth authentication
-     *            ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
-     *            {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
+     *                      ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
+     *                      {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
      */
     public TwitterSearcher(Configuration configuration) {
         this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
@@ -146,11 +152,11 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * Build URL linking to the Tweet, which is of the form
      * <code>http://twitter.com/{twitter-user-id}/status/{tweet-status-id}</code>.
      * </p>
-     * 
-     * @param userId The Twitter user id.
+     *
+     * @param userId   The Twitter user id.
      * @param statusId The Twitter status id.
      * @return The URL linking to the Twitter webpage for showing the Tweet, or <code>null</code> in case any of the
-     *         both parameters was <code>null</code>.
+     * both parameters was <code>null</code>.
      */
     private String createTweetUrl(String userId, String statusId) {
         if (userId == null || statusId == null) {
@@ -179,11 +185,11 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
         LOGGER.debug("X-Rate-Limit-Reset = {}; X-Rate-Limit-Remaining = {}", resetHeader, remainingHeader);
 
         if (statusCode == 429) { // changed to v1.1 without verifying; see
-                                 // https://dev.twitter.com/docs/rate-limiting/1.1
+            // https://dev.twitter.com/docs/rate-limiting/1.1
             Integer timeUntilReset = null;
             if (resetHeader != null) {
                 try {
-                    int now = (int)(System.currentTimeMillis() / 1000);
+                    int now = (int) (System.currentTimeMillis() / 1000);
                     timeUntilReset = Integer.parseInt(resetHeader) - now;
                 } catch (NumberFormatException e) {
                     // ignore
@@ -202,7 +208,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      * <p>
      * Create the request URL for the supplied parameters.
      * </p>
-     * 
+     *
      * @param query The actual query.
      * @return The authenticated {@link HttpRequest} for accessing the API.
      */
@@ -224,7 +230,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             }
             Facet facet = query.getFacet(ResultType.TWITTER_RESULT_TYPE_ID);
             if (facet != null) {
-                ResultType resultType = (ResultType)facet;
+                ResultType resultType = (ResultType) facet;
                 builder.addUrlParam("result_type", resultType.getValue());
             }
             GeoCoordinate coordinate = query.getCoordinate();
@@ -262,7 +268,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
 
         try {
 
-            for (; webResults.size() < query.getResultCount();) {
+            for (; webResults.size() < query.getResultCount(); ) {
                 HttpRequest2 request = buildRequest(query, maxId);
                 HttpResult httpResult = performHttpRequest(request);
 

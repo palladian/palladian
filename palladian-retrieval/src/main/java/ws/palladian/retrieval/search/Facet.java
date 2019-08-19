@@ -8,7 +8,6 @@ package ws.palladian.retrieval.search;
  * @author Philipp Katz
  */
 public interface Facet {
-
     String getIdentifier();
-
+    String getValue();
 }
