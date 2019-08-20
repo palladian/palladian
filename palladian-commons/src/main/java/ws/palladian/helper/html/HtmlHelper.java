@@ -155,6 +155,9 @@ public final class HtmlHelper {
     public static String stripHtmlTags(String htmlText) {
         return STRIP_ALL_TAGS.matcher(htmlText).replaceAll("");
     }
+    public static String stripHtmlTags(String htmlText, String replacement) {
+        return STRIP_ALL_TAGS.matcher(htmlText).replaceAll(replacement);
+    }
 
     /**
      * @deprecated Prefer using varargs {@link #stripHtmlTags(String, HtmlElement...)} because it is shorter in code

@@ -1076,10 +1076,8 @@ public final class StringHelper {
     }
 
     public static String clean(String text, String keepCharacters) {
-
         text = removeControlCharacters(text);
         text = cleanKeepFormat(text, keepCharacters);
-
         return text;
     }
 
@@ -1088,7 +1086,6 @@ public final class StringHelper {
     }
 
     public static String cleanKeepFormat(String text, String keepCharacters) {
-
         text = HtmlHelper.stripHtmlTags(text);
         text = StringEscapeUtils.unescapeHtml(text);
         text = replaceProtectedSpace(text);

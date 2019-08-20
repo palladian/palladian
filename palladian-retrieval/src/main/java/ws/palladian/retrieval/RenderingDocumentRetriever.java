@@ -240,6 +240,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         } else {
             goTo(url);
         }
+
         return getCurrentWebDocument();
     }
 

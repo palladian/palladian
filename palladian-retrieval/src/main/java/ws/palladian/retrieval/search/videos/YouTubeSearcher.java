@@ -7,10 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateParser;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -227,6 +226,27 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         }
 
         return webResults;
+    }
+
+    public String getCaptions(String videoId, boolean asXml) {
+        DocumentRetriever retriever = new DocumentRetriever();
+        String text = retriever.getText("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
+        String url = StringHelper.getSubstringBetween(text, "timedtext", "\\\"");
+        url = url.replace("\\\\u0026","&");
+        url = "https://www.youtube.com/api/timedtext" + url;
+        String xml = retriever.getText(url);
+
+        if (asXml) {
+            return xml;
+        }
+
+        xml = HtmlHelper.stripHtmlTags(xml," ");
+        xml = xml.replaceAll("\\[.*?\\]", "");
+        xml = xml.replaceAll("\\n", " ");
+
+        xml = StringHelper.clean(xml);
+
+        return xml;
     }
 
     public List<VideoPlaylist> getPlaylists(String channelId) throws SearcherException {
