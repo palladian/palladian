@@ -228,7 +228,10 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     public String getCaptions(String videoId, boolean asXml) {
         DocumentRetriever retriever = new DocumentRetriever();
         String text = retriever.getText("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
-        String url = StringHelper.getSubstringBetween(text, "timedtext", "\\\"");
+        String url = StringHelper.getSubstringBetween(text, "api\\/timedtext", "\\\"");
+        if (url.isEmpty()) {
+            return "";
+        }
         url = url.replace("\\\\u0026","&");
         url = "https://www.youtube.com/api/timedtext" + url;
         String xml = Optional.ofNullable(retriever.getText(url)).orElse("");
