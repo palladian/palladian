@@ -22,10 +22,7 @@ import ws.palladian.retrieval.search.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -201,7 +198,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         return new SearchResults<>(webResults, numResults);
     }
 
-    private List<WebVideo> getVideos(List<String> videoIds) {
+    public List<WebVideo> getVideos(List<String> videoIds) {
         List<WebVideo> webResults = new ArrayList<>();
 
         // retrieve data about the found video IDs
@@ -234,7 +231,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         String url = StringHelper.getSubstringBetween(text, "timedtext", "\\\"");
         url = url.replace("\\\\u0026","&");
         url = "https://www.youtube.com/api/timedtext" + url;
-        String xml = retriever.getText(url);
+        String xml = Optional.ofNullable(retriever.getText(url)).orElse("");
 
         if (asXml) {
             return xml;
