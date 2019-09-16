@@ -147,7 +147,7 @@ public final class StringHelper {
         if (string.length() <= maxLength) {
             return string;
         }
-        return string.substring(0, maxLength).concat(" ...");
+        return string.substring(0, maxLength).concat("…");
     }
 
     /**
