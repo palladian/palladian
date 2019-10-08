@@ -17,7 +17,6 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
@@ -26,7 +25,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
@@ -36,7 +34,7 @@ import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
 
 /**
  * A selenium-based retriever for web documents that should be rendered (execute JS and CSS).
- *
+ * <p>
  * Note: This is NOT thread safe, use a RenderingDocumentRetrieverPool for parallel applications.
  *
  * @author David Urbansky, Jaroslav Vankat
@@ -47,7 +45,9 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     protected RemoteWebDriver driver;
     private int timeoutSeconds = 10;
 
-    /** We can configure the retriever to wait for certain elements on certain URLs that match the given pattern. */
+    /**
+     * We can configure the retriever to wait for certain elements on certain URLs that match the given pattern.
+     */
     private Map<Pattern, String> waitForElementMap = new HashMap<>();
 
     /**
@@ -163,11 +163,15 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             }
         }
 
-        if (selector != null) {
-            final String cssSelector = selector;
-            new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> webDriver.findElement(By.cssSelector(cssSelector)));
-        } else {
-            new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+        try {
+            if (selector != null) {
+                final String cssSelector = selector;
+                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> webDriver.findElement(By.cssSelector(cssSelector)));
+            } else {
+                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+            }
+        } catch (Exception e) {
+            LOGGER.error("problem with waiting", e);
         }
     }
 
@@ -199,7 +203,11 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             }
             driver.get(url);
         }
-        new WebDriverWait(driver, timeoutInSeconds).until(condition);
+        try {
+            new WebDriverWait(driver, timeoutInSeconds).until(condition);
+        } catch (Exception e) {
+            LOGGER.error("problem with waiting for condition", e);
+        }
     }
 
     /**
@@ -251,7 +259,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             InputStream stream = new ByteArrayInputStream(driver.getPageSource().getBytes(StandardCharsets.UTF_8.name()));
             document = ParserFactory.createHtmlParser().parse(stream);
             document.setDocumentURI(driver.getCurrentUrl());
-        } catch (ParserException | UnsupportedEncodingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -271,7 +279,11 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             if (document == null && getErrorCallback() != null) {
                 getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
             }
-            callRetrieverCallback(document);
+            try {
+                callRetrieverCallback(document);
+            } catch (Exception e) {
+                LOGGER.error("problem with retriever callback", e);
+            }
         }
 
         return document;
@@ -284,10 +296,10 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
 
             if (!consumerFound) {
-                Document document = getWebDocument(url);
-                if (document != null) {
-                    callback.accept(document);
+                if (getRetrieverCallbacks().isEmpty()) {
+                    addRetrieverCallback(callback);
                 }
+                getWebDocument(url);
             }
 
             if (progressMonitor != null) {
