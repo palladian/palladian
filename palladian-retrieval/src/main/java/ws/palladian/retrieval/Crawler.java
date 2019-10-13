@@ -227,7 +227,6 @@ public class Crawler {
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
-
         }
 
         // wait for the threads to finish
