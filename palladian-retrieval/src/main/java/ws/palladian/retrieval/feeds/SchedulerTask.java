@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
  * @author Philipp Katz
  */
 class SchedulerTask extends TimerTask {
-
     /** The logger for objects of this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerTask.class);
 
@@ -78,11 +77,10 @@ class SchedulerTask extends TimerTask {
      * tend to block those parallel requests.
      * </p>
      * 
-     * @return
      */
     private Collection<Feed> getFeeds() {
         if (lastWakeUpTime == null) {
-            List<Feed> feedList = new ArrayList<Feed>();
+            List<Feed> feedList = new ArrayList<>();
             feedList.addAll(settings.getStore().getFeeds());
             Collections.shuffle(feedList);
             return feedList;
@@ -171,5 +169,4 @@ class SchedulerTask extends TimerTask {
             scheduledTasks.remove(feedId);
         }
     }
-
 }
