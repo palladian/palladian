@@ -1237,7 +1237,15 @@ public class ImageHandler {
         // BufferedImage loadedImage =
         // load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Sundaes/Sundae_Enlarged_2scoop2.jpg");
         // BufferedImage loadedImage = load("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif");
-        ImageHandler.downloadAndSave("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif", "tenor-downloaded.gif");
+//        ImageHandler.downloadAndSave("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif", "tenor-downloaded.gif");
+//        BufferedImage loadedImage = load("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif");
+        //ImageHandler.downloadAndSave("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif", "tenor-downloaded.gif");
+        String url = "https://www.shutterbug.com/images/styles/600_wide/public/promosky12318.png";
+//        ImageHandler.downloadAndSave(url, "landscape.png");
+        BufferedImage loadedImage = ImageHandler.load(url);
+        ImageHandler.saveImage(loadedImage, "png", "landscape-saved2.png", 0.5f);
+        loadedImage = ImageHandler.boxFit(loadedImage, 200,200);
+        ImageHandler.saveImage(loadedImage, "png", "landscape-saved-200x200.png", 0.5f);
         System.exit(0);
 
         // InputStream in = new FileInputStream("tenor-src.gif");
