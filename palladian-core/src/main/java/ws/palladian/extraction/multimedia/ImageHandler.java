@@ -836,7 +836,7 @@ public class ImageHandler {
 
                 if (fileType.equalsIgnoreCase("jpg")) {
                     iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    iwp.setCompressionQuality(quality);
+                    iwp.setCompressionQuality(Math.max(0.1f, Math.min(quality, 1.0f)));
                 } else if (quality < 1) {
                     LOGGER.debug("compression is not supported for " + fileType + " files, " + filePath);
                 }
