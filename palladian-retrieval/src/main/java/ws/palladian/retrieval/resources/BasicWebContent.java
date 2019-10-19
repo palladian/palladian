@@ -154,9 +154,9 @@ public class BasicWebContent implements WebContent {
         this.published = webResult.getPublished();
         this.coordinate = webResult.getCoordinate();
         this.identifier = webResult.getIdentifier();
-        this.tags = new HashSet<String>(webResult.getTags());
+        this.tags = new HashSet<>(webResult.getTags());
         this.source = webResult.getSource();
-        this.additionalData = new HashMap<String, Object>(webResult.getAdditionalData());
+        this.additionalData = new HashMap<>(webResult.getAdditionalData());
     }
 
     protected BasicWebContent(Builder builder) {

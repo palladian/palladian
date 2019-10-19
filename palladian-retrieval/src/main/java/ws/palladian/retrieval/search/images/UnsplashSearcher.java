@@ -10,6 +10,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.json.JsonArray;
@@ -92,6 +93,7 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
 
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setAdditionalData("id", resultHit.tryQueryString("id"));
                     builder.setUrl(resultHit.tryQueryString("urls/raw"));
                     builder.setImageUrl(resultHit.tryQueryString("urls/regular"));
                     builder.setTitle(resultHit.tryQueryString("description"));
