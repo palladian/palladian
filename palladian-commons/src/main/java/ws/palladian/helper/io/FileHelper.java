@@ -112,6 +112,7 @@ public final class FileHelper {
         binaryFileExtensions.add("jar");
         binaryFileExtensions.add("rar");
         binaryFileExtensions.add("tar");
+        binaryFileExtensions.add("tgz");
         binaryFileExtensions.add("gz");
         binaryFileExtensions.add("exe");
         binaryFileExtensions.add("msi");

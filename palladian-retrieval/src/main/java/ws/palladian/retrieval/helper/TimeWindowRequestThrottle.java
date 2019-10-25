@@ -19,7 +19,6 @@ import ws.palladian.helper.date.DateHelper;
  * 
  */
 public class TimeWindowRequestThrottle implements RequestThrottle {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeWindowRequestThrottle.class);
 
@@ -28,7 +27,7 @@ public class TimeWindowRequestThrottle implements RequestThrottle {
     private final int maximumRequests;
 
     private final Queue<Long> requestTimestamps;
-    
+
     private long totalThrottledTime;
 
     /**
@@ -47,7 +46,7 @@ public class TimeWindowRequestThrottle implements RequestThrottle {
         Validate.isTrue(maximumRequests > 0, "maximumRequests must be greater zero");
         this.timeWindow = unit.toMillis(timeWindow);
         this.maximumRequests = maximumRequests;
-        this.requestTimestamps = new LinkedList<Long>();
+        this.requestTimestamps = new LinkedList<>();
         this.totalThrottledTime = 0;
     }
 
@@ -86,7 +85,7 @@ public class TimeWindowRequestThrottle implements RequestThrottle {
         }
         return requestTimestamps.size();
     }
-    
+
     /**
      * @return The total time, which this throttle was blocked in milliseconds.
      */

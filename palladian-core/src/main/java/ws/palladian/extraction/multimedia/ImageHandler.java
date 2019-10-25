@@ -4,6 +4,7 @@ import com.sun.media.jai.codec.SeekableStream;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.BASE64Decoder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -63,6 +64,13 @@ public class ImageHandler {
             }
         });
         COLORS = Collections.unmodifiableList(colors);
+    }
+
+    public static BufferedImage getImage(String base64EncodedImage) throws IOException {
+        BASE64Decoder decoder = new BASE64Decoder();
+        byte[] imageByte = decoder.decodeBuffer(base64EncodedImage);
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
+        return ImageIO.read(bis);
     }
 
     /**
@@ -556,6 +564,7 @@ public class ImageHandler {
     public static String downloadAndSave(String url, String savePath) {
         return downloadAndSave(url, savePath, 1.f);
     }
+
     public static String downloadAndSave(String url, String savePath, float quality) {
         try {
             Set<String> detectedContentTypes = new HashSet<>();
@@ -836,7 +845,7 @@ public class ImageHandler {
 
                 if (fileType.equalsIgnoreCase("jpg")) {
                     iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-                    iwp.setCompressionQuality(quality);
+                    iwp.setCompressionQuality(Math.max(0.1f, Math.min(quality, 1.0f)));
                 } else if (quality < 1) {
                     LOGGER.debug("compression is not supported for " + fileType + " files, " + filePath);
                 }
@@ -1227,44 +1236,52 @@ public class ImageHandler {
         // load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Novelties/Clown_Cone_000l.jpg");
         // BufferedImage loadedImage =
         // load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Sundaes/Sundae_Enlarged_2scoop2.jpg");
+        // BufferedImage loadedImage = load("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif");
+//        ImageHandler.downloadAndSave("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif", "tenor-downloaded.gif");
 //        BufferedImage loadedImage = load("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif");
-        ImageHandler.downloadAndSave("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif", "tenor-downloaded.gif");
+        //ImageHandler.downloadAndSave("https://media.tenor.com/images/c72d51692045c85b0f5f213f113ebfc4/tenor.gif", "tenor-downloaded.gif");
+        String url = "https://www.shutterbug.com/images/styles/600_wide/public/promosky12318.png";
+//        ImageHandler.downloadAndSave(url, "landscape.png");
+        BufferedImage loadedImage = ImageHandler.load(url);
+        ImageHandler.saveImage(loadedImage, "png", "landscape-saved2.png", 0.5f);
+        loadedImage = ImageHandler.boxFit(loadedImage, 200,200);
+        ImageHandler.saveImage(loadedImage, "png", "landscape-saved-200x200.png", 0.5f);
         System.exit(0);
 
-//        InputStream in = new FileInputStream("tenor-src.gif");
-//        Image image = Toolkit.getDefaultToolkit().createImage(org.apache.commons.io.IOUtils.toByteArray(in));
-//
-//        Iterator<ImageWriter> iter = ImageIO.getImageWritersBySuffix("gif");
-//        if (!iter.hasNext()) {
-//            throw new IIOException("no GIF Image Writers exist");
-//        } else {
-//            ImageWriter writer = iter.next();
-//            ImageWriteParam iwp = writer.getDefaultWriteParam();
-//
-//            FileHelper.createDirectoriesAndFile("tenor-dest.gif");
-//
-//            File outFile = new File("tenor-dest.gif");
-//            FileImageOutputStream output = new FileImageOutputStream(outFile);
-//            writer.setOutput(output);
-//            IIOImage newImage = new IIOImage(loadedImage, null, null);
-//            writer.write(null, newImage, iwp);
-//            output.close();
-//        }
+        // InputStream in = new FileInputStream("tenor-src.gif");
+        // Image image = Toolkit.getDefaultToolkit().createImage(org.apache.commons.io.IOUtils.toByteArray(in));
+        //
+        // Iterator<ImageWriter> iter = ImageIO.getImageWritersBySuffix("gif");
+        // if (!iter.hasNext()) {
+        // throw new IIOException("no GIF Image Writers exist");
+        // } else {
+        // ImageWriter writer = iter.next();
+        // ImageWriteParam iwp = writer.getDefaultWriteParam();
+        //
+        // FileHelper.createDirectoriesAndFile("tenor-dest.gif");
+        //
+        // File outFile = new File("tenor-dest.gif");
+        // FileImageOutputStream output = new FileImageOutputStream(outFile);
+        // writer.setOutput(output);
+        // IIOImage newImage = new IIOImage(loadedImage, null, null);
+        // writer.write(null, newImage, iwp);
+        // output.close();
+        // }
 
-//        File outFile = new File("tenor-dest.gif");
-//        Graphics2D g2 = image.createGraphics();
-//        g2.drawImage(img, 0, 0, null);
-//        g2.dispose();
-//        ImageIO.write(bi, "jpg", new File("img.jpg"));
-//        ImageIcon image = new ImageIcon(loadedImage);
-//        int width = 100;
-//        int height = 100;
-//        image.setImage(image.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
-//        image.
+        // File outFile = new File("tenor-dest.gif");
+        // Graphics2D g2 = image.createGraphics();
+        // g2.drawImage(img, 0, 0, null);
+        // g2.dispose();
+        // ImageIO.write(bi, "jpg", new File("img.jpg"));
+        // ImageIcon image = new ImageIcon(loadedImage);
+        // int width = 100;
+        // int height = 100;
+        // image.setImage(image.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
+        // image.
 
         // BufferedImage loadedImage = load("GrilledChickenCaesarSalad_579x441.jpg");
-//        System.out.println(loadedImage.getWidth());
-//        ImageHandler.saveImage(loadedImage, "tenor-dest.gif");
+        // System.out.println(loadedImage.getWidth());
+        // ImageHandler.saveImage(loadedImage, "tenor-dest.gif");
         // saveImage(detectEdges(loadedImage), "gradient.png");
         // saveImage(detectEdges(toGrayScale(loadedImage)), "gradient-grey.png");
         // System.out.println(ImageHandler.detectEdginess(load("gradient-grey.png")));
