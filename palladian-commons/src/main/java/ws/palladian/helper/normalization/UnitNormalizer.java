@@ -124,6 +124,11 @@ public class UnitNormalizer {
         return UnitType.ELECTRIC_CHARGE.contains(unit);
     }
 
+    private static boolean isCurrencyUnit(String unit) {
+        return UnitType.CURRENCY.contains(unit);
+    }
+
+
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
             if (PATTERNS.get(unit).matcher(text).find()) {
@@ -557,6 +562,9 @@ public class UnitNormalizer {
             }
             if (isVoltageUnit(word)) {
                 unitType = UnitType.VOLTAGE;
+            }
+            if (isCurrencyUnit(word)) {
+                unitType = UnitType.CURRENCY;
             }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit
