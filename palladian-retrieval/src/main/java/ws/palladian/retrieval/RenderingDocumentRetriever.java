@@ -270,19 +270,24 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         Document document = null;
 
         if (driver != null) {
-            // XXX
-            // document.setDocumentURI(cleanUrl);
-            // document.setUserData(HTTP_RESULT_KEY, httpResult, null);
-            this.goTo(url);
+            // react file fileTypeConsumer?
+            boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
+
+            if (!consumerFound) {
+                // XXX
+                // document.setDocumentURI(cleanUrl);
+                // document.setUserData(HTTP_RESULT_KEY, httpResult, null);
+                this.goTo(url);
 //            driver.get(url);
-            document = getCurrentWebDocument();
-            if (document == null && getErrorCallback() != null) {
-                getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
-            }
-            try {
-                callRetrieverCallback(document);
-            } catch (Exception e) {
-                LOGGER.error("problem with retriever callback", e);
+                document = getCurrentWebDocument();
+                if (document == null && getErrorCallback() != null) {
+                    getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
+                }
+                try {
+                    callRetrieverCallback(document);
+                } catch (Exception e) {
+                    LOGGER.error("problem with retriever callback", e);
+                }
             }
         }
 
