@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.HtmlHelper;
@@ -226,15 +227,18 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     }
 
     public String getCaptions(String videoId, boolean asXml) {
-        DocumentRetriever retriever = new DocumentRetriever();
-        String text = retriever.getText("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
+        DocumentRetriever simpleRetriever = new DocumentRetriever();
+        WebDocumentRetriever retriever = new RenderingDocumentRetriever();
+        Document webDocument = retriever.getWebDocument("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
+//        String text = retriever.getText("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
+        String text = HtmlHelper.getInnerXml(webDocument);
         String url = StringHelper.getSubstringBetween(text, "api\\/timedtext", "\\\"");
         if (url.isEmpty()) {
             return "";
         }
         url = url.replace("\\\\u0026","&");
         url = "https://www.youtube.com/api/timedtext" + url;
-        String xml = Optional.ofNullable(retriever.getText(url)).orElse("");
+        String xml = Optional.ofNullable(simpleRetriever.getText(url)).orElse("");
 
         if (asXml) {
             return xml;
