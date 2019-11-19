@@ -1,54 +1,66 @@
 package ws.palladian.helper;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * Various helper methods for working with URLs.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  * @author Sandro Reichert
  * @author Julien Schmehl
  */
 public final class UrlHelper {
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlHelper.class);
 
-    /** Names of attributes in (X)HTML containing links. */
+    /**
+     * Names of attributes in (X)HTML containing links.
+     */
     private static final List<String> LINK_ATTRIBUTES = Arrays.asList("href", "src");
 
-    /** RegEx pattern defining a session ID. */
+    /**
+     * RegEx pattern defining a session ID.
+     */
     private static final Pattern SESSION_ID_PATTERN = Pattern
             .compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
 
-    /** List of top level domains. */
+    /**
+     * List of top level domains.
+     */
     private static final String TOP_LEVEL_DOMAINS;
 
-    /** List of possible domain suffixes. */
+    /**
+     * List of possible domain suffixes.
+     */
     private static final List<String> DOMAIN_SUFFIXES;
 
     private static final Pattern URL_PARAM = Pattern.compile("\\?.*");
@@ -105,10 +117,10 @@ public final class UrlHelper {
      * <p>
      * Remove sessions IDs from a URL.
      * </p>
-     * 
+     *
      * @param originalUrl The URL from which to remove the session ID.
      * @return The URL without the session ID if one was present, or the original URL if no session ID was found,
-     *         <code>null</code> in case the original URL was <code>null</code>.
+     * <code>null</code> in case the original URL was <code>null</code>.
      */
     public static String removeSessionId(String originalUrl) {
         if (originalUrl == null) {
@@ -122,11 +134,10 @@ public final class UrlHelper {
      * Transforms all relative URLs (i.e. in attributes <tt>href</tt> and <tt>src</tt>) of an (X)HTML {@link Document}
      * to full, absolute URLs. The document's URL should be specified using {@link Document#setDocumentURI(String)}.
      * </p>
-     * 
+     *
      * @param document The document for which to create absolute URLs, this will be modified in-place
      */
     public static void makeAbsoluteUrls(Document document) {
-
         String documentUrl = document.getDocumentURI();
         String baseUrl = getBaseUrl(document);
 
@@ -150,7 +161,7 @@ public final class UrlHelper {
      * Get the Base URL of the supplied (X)HTML document, which is specified via the <tt>base</tt> tag in the document's
      * header.
      * </p>
-     * 
+     *
      * @param document The document.
      * @return The base URL, if present, <code>null</code> otherwise.
      */
@@ -169,15 +180,13 @@ public final class UrlHelper {
      * <li>If provided, a base URL inside the document, which can be as well be absolute or relative to the document's
      * URL</li>
      * </ol>
-     * 
-     * @see <a href="http://www.mediaevent.de/xhtml/base.html">HTML base • Basis-Adresse einer Webseite</a>
-     * 
+     *
      * @param pageUrl actual URL of the document, can be <code>null</code>.
      * @param baseUrl base URL defined in document's header, can be <code>null</code> if no base URL is specified.
      * @param linkUrl link URL from the document to be made absolute, not <code>null</code>.
      * @return the absolute URL, empty String, if URL cannot be created, never <code>null</code>.
-     * 
      * @author Philipp Katz
+     * @see <a href="http://www.mediaevent.de/xhtml/base.html">HTML base • Basis-Adresse einer Webseite</a>
      */
     public static String makeFullUrl(String pageUrl, String baseUrl, String linkUrl) {
         if (linkUrl == null) {
@@ -241,8 +250,8 @@ public final class UrlHelper {
      * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to
      * <code>http://www.example.com</code>.
      * </p>
-     * 
-     * @param url The url.
+     *
+     * @param url             The url.
      * @param includeProtocol include protocol prefix, e.g. "http://"
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
      */
@@ -289,7 +298,7 @@ public final class UrlHelper {
      * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to
      * <code>http://www.example.com</code>.
      * </p>
-     * 
+     *
      * @param url The URL.
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
      */
@@ -302,13 +311,11 @@ public final class UrlHelper {
      * Returns the <i>canonical URL</i>. This URL is lowercase, with trailing slash and no index.htm*. The query
      * parameters are sorted alphabetically in ascending order, fragments (i.e. "anchor" parts) are removed.
      * </p>
-     * 
+     *
      * @param url The URL.
      * @return canonical URL, or empty String if URL cannot be determined, never <code>null</code>
-     * 
      */
     public static String getCanonicalUrl(String url) {
-
         if (url == null) {
             return "";
         }
@@ -373,14 +380,13 @@ public final class UrlHelper {
             LOGGER.trace("could not determine canonical url for {}", url);
             return "";
         }
-
     }
 
     /**
      * <p>
      * Decode a String which was used as URL parameter.
      * </p>
-     * 
+     *
      * @param string The string to be decoded.
      * @return The decoded string.
      */
@@ -391,20 +397,20 @@ public final class UrlHelper {
             throw new IllegalStateException("UTF-8 encoding unsupported. This should not happen.", e);
         }
     }
-    
+
     private static String tryDecodeParameter(String string) {
-    	try {
-    		return decodeParameter(string);
-    	} catch (IllegalArgumentException e) {
-    		return string;
-    	}
+        try {
+            return decodeParameter(string);
+        } catch (IllegalArgumentException e) {
+            return string;
+        }
     }
 
     /**
      * <p>
      * Encode a String to be used as URL parameter.
      * </p>
-     * 
+     *
      * @param string The string to be encoded.
      * @return The encoded string.
      */
@@ -420,7 +426,7 @@ public final class UrlHelper {
      * <p>
      * Extracts all recognizable URLs from a given text.
      * </p>
-     * 
+     *
      * @param text The text from which URLs should be extracted.
      * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
      */
@@ -440,7 +446,7 @@ public final class UrlHelper {
     /**
      * <p>
      * Creates an encoded key-value parameter string, which can e.g. be appended to a URL.
-     * 
+     *
      * @param parameters Map with key-value params, not <code>null</code>.
      * @return The key-value string.
      */
@@ -465,7 +471,7 @@ public final class UrlHelper {
     /**
      * <p>
      * Parses an encoded key-value string, which can e.g. be present as a query string appended to a URL.
-     * 
+     *
      * @param parameterString The key-value parameter string.
      * @return A list with parsed params.
      */
@@ -487,7 +493,7 @@ public final class UrlHelper {
             if (keyValue.length == 1) {
                 value = StringUtils.EMPTY;
             } else {
-            	value = tryDecodeParameter(param.substring(key.length() + 1));
+                value = tryDecodeParameter(param.substring(key.length() + 1));
             }
             params.add(Pair.of(key, value));
         }
@@ -497,19 +503,23 @@ public final class UrlHelper {
     /**
      * <p>
      * Get the base URL from the given URL (i.e. removing all query and hash params).
-     * 
+     *
      * @param url The URL, not <code>null</code>.
      * @return The base URL.
      */
     public static String parseBaseUrl(String url) {
         Validate.notNull(url, "url must not be null");
         int questionIdx = url.indexOf("?");
-        int hashIdx = url.indexOf("#");
-        int cutIdx = hashIdx;
+        int cutIdx = url.indexOf("#");
         if (questionIdx != -1) {
             cutIdx = questionIdx;
         }
         return cutIdx != -1 ? url.substring(0, cutIdx) : url;
     }
 
+    public static boolean isValidUrl(String url) {
+        String[] schemes = {"http", "https"};
+        UrlValidator urlValidator = new UrlValidator(schemes);
+        return urlValidator.isValid(url);
+    }
 }
