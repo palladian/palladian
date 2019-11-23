@@ -22,7 +22,17 @@ public class SendyMailer {
         this.apiKey = apiKey;
     }
 
-    public boolean subscribe(EmailContact emailContact) {
+    public boolean trySubscribe(EmailContact emailContact) {
+        try {
+            return subscribe(emailContact);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean subscribe(EmailContact emailContact) throws HttpException {
         String apiUrl = apiLocation + "subscribe";
 
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -49,16 +59,11 @@ public class SendyMailer {
 
         requestBuilder.setEntity(entityBuilder.create());
 
-        try {
-            HttpResult result = httpRetriever.execute(requestBuilder.create());
-            String responseText = StringHelper.clean(result.getStringContent()).toLowerCase();
-//            System.out.println("Result: " + responseText);
-            if (result.getStatusCode() > 300 || !responseText.equals("1")) {
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        HttpResult result = httpRetriever.execute(requestBuilder.create());
+        String responseText = StringHelper.clean(result.getStringContent()).toLowerCase();
+        // System.out.println("Result: " + responseText);
+        if (result.getStatusCode() > 300 || !responseText.equals("1")) {
+            throw new RuntimeException("Could not subscribe contact " + emailContact + ", reesponseText: " + responseText);
         }
 
         return true;
@@ -78,7 +83,7 @@ public class SendyMailer {
         try {
             HttpResult result = httpRetriever.execute(requestBuilder.create());
             String responseText = StringHelper.clean(result.getStringContent()).toLowerCase();
-//            System.out.println("Result: " + responseText);
+            // System.out.println("Result: " + responseText);
             try {
                 return Integer.valueOf(responseText);
             } catch (Exception e) {
@@ -96,9 +101,8 @@ public class SendyMailer {
         emailContact.setName("Me Mine");
         emailContact.setList("LIST_ID");
         emailContact.setReferrer("https://palladian.ai");
-        sendyMailer.subscribe(emailContact);
+        sendyMailer.trySubscribe(emailContact);
         System.out.println(sendyMailer.getSubscriberCount("LIST_ID"));
     }
-
 
 }

@@ -25,7 +25,6 @@ import ws.palladian.helper.math.MathHelper;
  * @author Philipp Katz
  */
 public final class CollectionHelper {
-
     /**
      * <p>
      * Indicate sorting order.

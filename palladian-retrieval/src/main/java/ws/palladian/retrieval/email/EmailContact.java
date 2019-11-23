@@ -126,4 +126,19 @@ public class EmailContact {
     public void setHoneyPot(boolean honeyPot) {
         this.honeyPot = honeyPot;
     }
+
+    @Override
+    public String toString() {
+        return "EmailContact{" +
+                "name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", list='" + list + '\'' +
+                ", countryCode='" + countryCode + '\'' +
+                ", ipAddress='" + ipAddress + '\'' +
+                ", referrer='" + referrer + '\'' +
+                ", gdpr=" + gdpr +
+                ", silent=" + silent +
+                ", honeyPot=" + honeyPot +
+                '}';
+    }
 }

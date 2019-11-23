@@ -492,5 +492,4 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     public String queryString(String jPath) throws JsonException {
         return JsonUtil.parseString(query(jPath));
     }
-
 }
