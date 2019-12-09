@@ -1,5 +1,6 @@
 package ws.palladian.retrieval;
 
+import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -8,6 +9,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -48,10 +50,14 @@ import java.util.function.Consumer;
  * @author Philipp Katz
  */
 public class DocumentRetriever extends WebDocumentRetriever {
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentRetriever.class);
 
-    /** The {@link HttpRetriever} used for HTTP operations. */
+    /**
+     * The {@link HttpRetriever} used for HTTP operations.
+     */
     private final HttpRetriever httpRetriever;
 
     public static final String HTTP_RESULT_KEY = "httpResult";
@@ -190,6 +196,37 @@ public class DocumentRetriever extends WebDocumentRetriever {
     // ////////////////////////////////////////////////////////////////
     // methods for retrieving + parsing JSON data
     // ////////////////////////////////////////////////////////////////
+    public String postJsonObject(String url, JsonObject jsonBody, boolean asFormParams) throws HttpException {
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, url);
+        
+        if (jsonBody != null) {
+            HttpEntity entity;
+            if (asFormParams) {
+                FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+                for (String key : jsonBody.keySet()) {
+                    entityBuilder.addData(key, jsonBody.tryGetString(key));
+                }
+                entity = entityBuilder.create();
+            } else {
+                entity = new StringHttpEntity(jsonBody.toString(), ContentType.APPLICATION_JSON);
+            }
+            requestBuilder.setEntity(entity);
+        }
+
+        HttpResult result = httpRetriever.execute(requestBuilder.create());
+        return result.getStringContent();
+    }
+
+    public String tryPostJsonObject(String url, JsonObject jsonBody, boolean asFormParams) {
+        try {
+            return postJsonObject(url, jsonBody, asFormParams);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
 
     /**
      * <p>
@@ -260,7 +297,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      *
      * @param url The URL of the desired contents.
      * @return The contents as a string, or <code>null</code> if contents could no be retrieved. See the error log for
-     *         possible errors.
+     * possible errors.
      */
     public String getText(String url) {
         String contentString = null;
@@ -292,7 +329,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * simultaneous threads for downloading and parsing can be defined using {@link #setNumThreads(int)}.
      * </p>
      *
-     * @param urls The URLs to download.
+     * @param urls     The URLs to download.
      * @param callback The callback to be called for each finished download.
      */
     public void getTexts(Collection<String> urls, final Consumer<String> callback) {
@@ -340,7 +377,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      *
      * @param urls The URLs to download.
      * @return Set with the downloaded texts. Texts which could not be downloaded or parsed successfully, are not
-     *         included.
+     * included.
      */
     public Set<String> getTexts(Collection<String> urls) {
         final Set<String> result = new HashSet<>();
@@ -365,7 +402,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * @param url the URL of the document to retriever or the file path.
      * @param xml indicate whether the document is well-formed XML or needs to be processed using an (X)HTML parser.
      * @return the parsed document, or <code>null</code> if any kind of error occurred or the document was filtered by
-     *         {@link DownloadFilter}.
+     * {@link DownloadFilter}.
      */
     private Document getDocument(String url, boolean xml) {
         Document document = null;
@@ -457,7 +494,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * </p>
      *
      * @param inputStream the stream to parse.
-     * @param xml <code>true</code> if this document is an XML document, <code>false</code> if HTML document.
+     * @param xml         <code>true</code> if this document is an XML document, <code>false</code> if HTML document.
      * @throws ParserException if parsing failed.
      */
     private Document parse(InputStream inputStream, boolean xml) throws ParserException {
@@ -492,7 +529,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     }
 
     public void switchAgent() {
-        int index = (int)(Math.random() * userAgents.size());
+        int index = (int) (Math.random() * userAgents.size());
         String s = userAgents.get(index);
         httpRetriever.setUserAgent(s);
     }
@@ -500,6 +537,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     public void setAgent(String s) {
         httpRetriever.setUserAgent(s);
     }
+
     public HttpRetriever getHttpRetriever() {
         return httpRetriever;
     }
