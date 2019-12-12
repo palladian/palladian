@@ -30,8 +30,9 @@ public class SitemapRetriever {
     public SitemapRetriever() {
         HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
         documentRetriever = new DocumentRetriever(httpRetriever);
-        documentRetriever.setGlobalHeaders(MapBuilder.createPut("Cookie","euConsent=true").create());
+        documentRetriever.setGlobalHeaders(MapBuilder.createPut("Cookie", "euConsent=true").create());
     }
+
     public SitemapRetriever(DocumentRetriever documentRetriever) {
         this.documentRetriever = documentRetriever;
         Map<String, String> stringStringMap = Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>());
@@ -41,20 +42,26 @@ public class SitemapRetriever {
         } else {
             cookieString = "euConsent=true";
         }
-        stringStringMap.put("Cookie",cookieString);
+        stringStringMap.put("Cookie", cookieString);
     }
 
-    /** Get all urls from the sitemap. If it is a sitemap index, get all urls from all sitemaps linked in the index. */
+    /**
+     * Get all urls from the sitemap. If it is a sitemap index, get all urls from all sitemaps linked in the index.
+     */
     public Set<String> getUrls(String sitemapUrl) {
         return getUrls(sitemapUrl, new HashMap<>());
     }
 
-    /** Get all urls from the sitemap. If it is a sitemap index, get all urls from all sitemaps linked in the index. Fill the url priority map. */
+    /**
+     * Get all urls from the sitemap. If it is a sitemap index, get all urls from all sitemaps linked in the index. Fill the url priority map.
+     */
     public Set<String> getUrls(String sitemapUrl, Map<String, Double> urlToPriorityMap) {
         return getUrls(sitemapUrl, urlToPriorityMap, ALL, true);
     }
 
-    /** Get all urls from the sitemap that match the pattern (or exclude those). If it is a sitemap index, get all urls from all sitemaps linked in the index. Fill the url priority map. */
+    /**
+     * Get all urls from the sitemap that match the pattern (or exclude those). If it is a sitemap index, get all urls from all sitemaps linked in the index. Fill the url priority map.
+     */
     public Set<String> getUrls(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
         LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
 
@@ -140,11 +147,14 @@ public class SitemapRetriever {
         // check for and remove namespaces
         List<String> namespaces = StringHelper.getRegexpMatches(PatternHelper.compileOrGet("(?<=xmlns:)([a-z0-9]+)(?=[=])"), sitemapText);
         for (String namespace : namespaces) {
-            sitemapText = sitemapText.replace(namespace+":","");
+            // we do not want to remove "image" otherwise we might end up with "image:loc" => "loc" and think these are "real" HTML content URLs (e.g. https://www.healthymummy.com/recipe-sitemap1.xml)
+            if (!namespace.equalsIgnoreCase("image")) {
+                sitemapText = sitemapText.replace(namespace + ":", "");
+            }
         }
 
         // remove <![CDATA[ and ]]
-        sitemapText = sitemapText.replace("<![CDATA[","").replace("]]>","");
+        sitemapText = sitemapText.replace("<![CDATA[", "").replace("]]>", "");
 
         sitemapText = PatternHelper.compileOrGet("\\n</loc>", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("</loc>");
         sitemapText = PatternHelper.compileOrGet("<loc>\\n", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("<loc>");
@@ -205,10 +215,10 @@ public class SitemapRetriever {
 
     /**
      * Normalize a URL by taking care of CDATA text and HTML entity escaping.
-     * 
+     *
      * @param url A sitemap conform URL.
-     * @link https://www.sitemaps.org/protocol.html#escaping
      * @return The normalized URL.
+     * @link https://www.sitemaps.org/protocol.html#escaping
      */
     protected String normalizeUrl(String url) {
         url = url.replace("<![CDATA[", "").replace("]]>", "").trim();
