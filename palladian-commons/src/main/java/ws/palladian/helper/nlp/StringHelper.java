@@ -51,6 +51,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
     private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
+    private static final Pattern PATTERN_DIGIT = Pattern.compile("[^0-9]");
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
@@ -870,7 +871,7 @@ public final class StringHelper {
         if (string == null) {
             return 0;
         }
-        return string.replaceAll("[^0-9]", "").length();
+        return PATTERN_DIGIT.matcher(string).replaceAll("").length();
     }
 
     /**
