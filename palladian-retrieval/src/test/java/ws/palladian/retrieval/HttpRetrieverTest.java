@@ -158,7 +158,6 @@ public class HttpRetrieverTest {
     }
 
     @Test
-    @Ignore
     public void testSelfSignedCertificate() throws HttpException {
         try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
             HttpRetriever retriever = factory.create();
@@ -168,14 +167,12 @@ public class HttpRetrieverTest {
     }
     
     @Test
-    @Ignore
     public void testGetExample() throws HttpException {
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://example.com");
         System.out.println(result);
     }
     
     @Test
-    @Ignore
     public void testUnknownCertificate() throws HttpException {
         try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
             HttpRetriever retriever = factory.create();
@@ -185,6 +182,15 @@ public class HttpRetrieverTest {
     }
     
     @Test
+    public void testSslSni() throws HttpException {
+        try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
+            HttpRetriever retriever = factory.create();
+            HttpResult result = retriever.httpGet("https://www.modernalchemyair.com/");
+            System.out.println(result);
+        }
+    }
+
+    @Test
     @Ignore
     public void testSSLPeerUnverified() throws HttpException {
         try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
@@ -193,5 +199,4 @@ public class HttpRetrieverTest {
             System.out.println(result);
         }
     }
-
 }
