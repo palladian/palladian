@@ -8,6 +8,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,7 +36,7 @@ class CustomSslSocketFactory extends SSLSocketFactory {
      * Unfortunately we need this to create a new socket on a retry.
      */
     private Socket createSocketCustom(HttpContext context) throws IOException {
-        Socket sock = super.createSocket(context);
+        Socket sock = super.createSocket(context); // FIXME help <- context (enable sni) is ignored in create socket super
         sock.setSoTimeout(socketConfig.getSoTimeout());
         sock.setReuseAddress(socketConfig.isSoReuseAddress());
         sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
@@ -60,8 +61,8 @@ class CustomSslSocketFactory extends SSLSocketFactory {
                 context = new BasicHttpContext();
             }
             return super.connectSocket(connectTimeout, socket, host, remoteAddress, localAddress, context);
-        } catch (SSLProtocolException e) {
-            if (enableSni && e.getMessage() != null && e.getMessage().equals("handshake alert:  unrecognized_name")) {
+        } catch (SSLHandshakeException e) {
+            if (enableSni && e.getMessage() != null && e.getMessage().contains("unrecognized_name")) {
 //                System.out.println("Server received saw wrong SNI host, retrying without SNI, host: " + host);
                 context.setAttribute(ENABLE_SNI, false);
                 // We need to create a new socket to retry (the first one is closed after IOException)
