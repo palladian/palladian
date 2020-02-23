@@ -37,6 +37,9 @@ public final class AllColumnsRowConverter {
                 String columnName = resultSet.getMetaData().getColumnLabel(i);
                 int columnType = resultSet.getMetaData().getColumnType(i);
 
+                if (resultSet.getObject(i) == null) {
+                    map.put(columnName, null);
+                } else
                 if (columnType == Types.INTEGER) {
                     map.put(columnName, resultSet.getInt(i));
                 } else if (columnType == Types.TINYINT) {
@@ -60,7 +63,6 @@ public final class AllColumnsRowConverter {
                 } else {
                     map.put(columnName, resultSet.getString(i));
                 }
-
             }
 
             return map;
