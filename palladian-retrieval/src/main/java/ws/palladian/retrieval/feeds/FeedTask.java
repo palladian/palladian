@@ -200,7 +200,7 @@ class FeedTask implements Callable<FeedTaskResult> {
      */
     private void doFinalStuff(StopWatch timer) {
         if (timer.getElapsedTime() > settings.getExecutionWarnTime()) {
-            LOGGER.warn("Processing feed id " + feed.getId() + " took very long: " + timer.getElapsedTimeString());
+            LOGGER.warn("Processing feed id " + feed.getFeedUrl() + " took very long: " + timer.getElapsedTimeString());
             resultSet.add(EXECUTION_TIME_WARNING);
         }
 

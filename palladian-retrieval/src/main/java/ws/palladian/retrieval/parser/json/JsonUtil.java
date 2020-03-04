@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Map;
 
 class JsonUtil {
-
     public static boolean parseBoolean(Object object) throws JsonException {
         try {
             if (object.equals(Boolean.FALSE) || object instanceof String && ((String)object).equalsIgnoreCase("false")) {
