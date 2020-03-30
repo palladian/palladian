@@ -24,7 +24,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * </p>
  */
 public class StopWordRemover implements Predicate<String> {
-	private static final Map<String, Set<String>> CACHE = new HashMap<>();
+    private static final Map<String, Set<String>> CACHE = new HashMap<>();
 
     private final Set<String> stopwords;
 
@@ -36,7 +36,7 @@ public class StopWordRemover implements Predicate<String> {
     public StopWordRemover() {
         this(Language.ENGLISH);
     }
-    
+
     /**
      * <p>
      * Create a new {@link StopTokenRemover} with stop words from the specified {@link File}.
@@ -63,6 +63,10 @@ public class StopWordRemover implements Predicate<String> {
      * @param language The language for which the stop words should be removed.
      */
     public StopWordRemover(Language language) {
+        this(language, false);
+    }
+
+    public StopWordRemover(Language language, boolean smallVersion) {
         Validate.notNull(language, "language must not be null");
         switch (language) {
             case ENGLISH:
@@ -83,29 +87,34 @@ public class StopWordRemover implements Predicate<String> {
             case JAPANESE:
             case VIETNAMESE:
             case FRENCH:
-                stopwords = loadStopwordsResourceCached("/stopwords_"+language.getIso6391()+".txt");
+                String resourcePath = "/stopwords_" + language.getIso6391();
+                if (smallVersion) {
+                    resourcePath += "_small";
+                }
+                resourcePath += ".txt";
+                stopwords = loadStopwordsResourceCached(resourcePath);
                 break;
             default:
                 stopwords = Collections.emptySet();
                 break;
         }
     }
-    
-	private static final Set<String> loadStopwordsResourceCached(String resourcePath) {
-		Set<String> stopwords = CACHE.get(resourcePath);
-		if (stopwords != null) {
-			return stopwords;
-		}
-		synchronized (CACHE) {
-			stopwords = CACHE.get(resourcePath);
-			if (stopwords == null) {
-				stopwords = loadStopwordsResource(resourcePath);
-				CACHE.put(resourcePath, stopwords);
-			}
-		}
-		return stopwords;
-	}    
-    
+
+    private static final Set<String> loadStopwordsResourceCached(String resourcePath) {
+        Set<String> stopwords = CACHE.get(resourcePath);
+        if (stopwords != null) {
+            return stopwords;
+        }
+        synchronized (CACHE) {
+            stopwords = CACHE.get(resourcePath);
+            if (stopwords == null) {
+                stopwords = loadStopwordsResource(resourcePath);
+                CACHE.put(resourcePath, stopwords);
+            }
+        }
+        return stopwords;
+    }
+
     private static Set<String> loadStopwordsResource(String resourcePath) {
         InputStream inputStream = StopWordRemover.class.getResourceAsStream(resourcePath);
         if (inputStream == null) {
@@ -117,7 +126,7 @@ public class StopWordRemover implements Predicate<String> {
             FileHelper.close(inputStream);
         }
     }
-    
+
     private static Set<String> loadStopwords(InputStream fileInputStream) {
         final Set<String> result = new HashSet<>();
         FileHelper.performActionOnEveryLine(fileInputStream, new LineAction() {
@@ -147,7 +156,7 @@ public class StopWordRemover implements Predicate<String> {
 
         return text;
     }
-    
+
     @Override
     public boolean test(String item) {
         return !isStopWord(item);
@@ -165,7 +174,6 @@ public class StopWordRemover implements Predicate<String> {
         stopwords.remove(word);
     }
 
-    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -179,6 +187,5 @@ public class StopWordRemover implements Predicate<String> {
         StopWordRemover stopWordRemover = new StopWordRemover();
         System.out.println(stopWordRemover.removeStopWords("is the"));
     }
-
 
 }
