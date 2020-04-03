@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -222,8 +223,10 @@ public class Crawler {
                     if (!executor.isShutdown()) {
                         executor.submit(ct);
                     }
+                } else {
+                    // powernap
+                    ThreadHelper.deepSleep(1000);
                 }
-
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
