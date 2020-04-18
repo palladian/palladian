@@ -3,11 +3,9 @@ package ws.palladian.classifiers.cloudservices;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,18 +29,37 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @see https://docs.microsoft.com/en-us/azure/cognitive-services/computer-vision/quickstarts/java#AnalyzeImage
  * @author David Urbansky
  */
-public class MicrosoftComputerVision {
-
+public class MicrosoftComputerVision implements ImageClassifier {
     private final String endpoint;
     private final String apiKey;
+
+    private int maxLabels = 10;
+
+    public MicrosoftComputerVision(Configuration config) {
+        this.endpoint = config.getString("api.microsoft.computevision.endpoint");
+        this.apiKey = config.getString("api.microsoft.computevision.key");
+    }
 
     public MicrosoftComputerVision(String endpoint, String apiKey) {
         this.endpoint = endpoint;
         this.apiKey = apiKey;
     }
 
-    public CategoryEntries classify(File image) throws IOException {
+    @Override
+    public void setMaxLabels(int maxLabels) {
+        this.maxLabels = maxLabels;
+    }
 
+    public List<String> classify(File image) throws Exception {
+        CategoryEntries centries = classifyWithProbability(image);
+        List<String> names = new ArrayList<>();
+        for (Category centry : centries) {
+            names.add(centry.getName());
+        }
+        return names;
+    }
+
+    public CategoryEntries classifyWithProbability(File image) throws IOException {
         Map<String, Category> entryMap = new LinkedHashMap<>();
         Category mostLikely = new ImmutableCategory("unknown", 0.);
 
@@ -70,10 +87,9 @@ public class MicrosoftComputerVision {
 
             if (entity != null) {
                 JsonObject responseJson = new JsonObject(EntityUtils.toString(entity));
-                JsonArray tags = responseJson.tryGetJsonArray("tags");
+                JsonArray tags = Optional.ofNullable(responseJson.tryGetJsonArray("tags")).orElse(new JsonArray());
 
                 for (int i = 0; i < tags.size(); i++) {
-
                     String tagName = tags.tryGetJsonObject(i).tryGetString("name");
                     Double score = tags.tryGetJsonObject(i).tryGetDouble("confidence");
 
@@ -84,6 +100,9 @@ public class MicrosoftComputerVision {
                         mostLikely = category;
                     }
 
+                    if (i >= maxLabels - 1) {
+                        break;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -94,7 +113,7 @@ public class MicrosoftComputerVision {
     }
 
     public static void main(String... args) throws Exception {
-        CategoryEntries labels = new MicrosoftComputerVision("endpoint", "apiKey").classify(new File("dog.jpg"));
+        CategoryEntries labels = new MicrosoftComputerVision("endpoint", "apiKey").classifyWithProbability(new File("dog.jpg"));
         CollectionHelper.print(labels);
     }
 }

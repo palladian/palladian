@@ -17,7 +17,7 @@
         <!--<nd4j.version>0.4-rc3.8</nd4j.version>-->
         <nd4j.version>1.0.0-beta3</nd4j.version>
         <dl4j.version>1.0.0-beta3</dl4j.version>
-        <dl4j.spark.version>1.0.0-beta3_spark_2</dl4j.spark.version>
+        <!--<dl4j.spark.version>1.0.0-beta3_spark_2</dl4j.spark.version>-->
         <canova.version>0.0.0.14</canova.version>
         <aws.version>1.11.197</aws.version>
         <shadedClassifier>bin</shadedClassifier>
@@ -165,12 +165,12 @@
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
-            <version>2.1.1</version>
-            <!--<scope>provided</scope>-->
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.spark</groupId>-->
+            <!--<artifactId>spark-core_2.11</artifactId>-->
+            <!--<version>2.1.1</version>-->
+            <!--&lt;!&ndash;<scope>provided</scope>&ndash;&gt;-->
+        <!--</dependency>-->
         <!--<dependency>-->
         <!--<groupId>org.apache.spark</groupId>-->
         <!--<artifactId>spark-core_2.10</artifactId>-->
@@ -201,11 +201,11 @@
             <artifactId>deeplearning4j-zoo</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
-            <artifactId>dl4j-spark_2.11</artifactId>
-            <version>${dl4j.spark.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.deeplearning4j</groupId>-->
+            <!--<artifactId>dl4j-spark_2.11</artifactId>-->
+            <!--<version>${dl4j.spark.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
@@ -234,12 +234,22 @@
         <dependency>
             <groupId>com.clarifai.clarifai-api2</groupId>
             <artifactId>core</artifactId>
-            <version>2.2.6</version>
+            <version>2.8.1</version>
         </dependency>
         <dependency>
-            <groupId>com.ibm.watson.developer_cloud</groupId>
-            <artifactId>java-sdk</artifactId>
-            <version>3.8.0</version>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.2-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.watson</groupId>
+            <artifactId>ibm-watson</artifactId>
+            <version>8.3.1</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
@@ -261,11 +271,6 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
             <version>${aws.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-all</artifactId>
-            <version>0.13.2</version>
         </dependency>
         <dependency>
             <groupId>org.imgscalr</groupId>

@@ -10,8 +10,6 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 
-import ws.palladian.helper.collection.CollectionHelper;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -21,17 +19,20 @@ import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.*;
 import com.amazonaws.util.IOUtils;
 
+import ws.palladian.helper.collection.CollectionHelper;
+
 /**
  * Amazon Rekognition image classifier.
  * 
  * @see http://docs.aws.amazon.com/rekognition/latest/dg/get-started-exercise-detect-labels.html
  * @author David Urbansky
  */
-public class AmazonRekognition {
-
+public class AmazonRekognition implements ImageClassifier {
     private AWSCredentials credentials = null;
     private static final String apiKeyKey = "api.amazon.cloud.key";
     private static final String apiSecretKey = "api.amazon.cloud.secret";
+
+    private int maxLabels = 10;
 
     public AmazonRekognition(Configuration configuration) {
         this(configuration.getString(apiKeyKey), configuration.getString(apiSecretKey));
@@ -45,12 +46,17 @@ public class AmazonRekognition {
         }
     }
 
-    public List<String> classify(File image) throws IOException {
-        return classify(image, 10);
+    @Override
+    public void setMaxLabels(int maxLabels) {
+        this.maxLabels = maxLabels;
+    }
+
+    @Override
+    public List<String> classify(File image) throws Exception {
+        return classify(image, maxLabels);
     }
 
     public List<String> classify(File image, int maxLabels) throws IOException {
-
         List<String> labels = new ArrayList<>();
 
         if (maxLabels < 1) {

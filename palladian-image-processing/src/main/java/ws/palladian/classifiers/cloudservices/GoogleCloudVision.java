@@ -1,10 +1,13 @@
 package ws.palladian.classifiers.cloudservices;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -21,20 +24,30 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @see https://cloud.google.com/vision/docs/
  * @author David Urbansky
  */
-public class GoogleCloudVision {
-
+public class GoogleCloudVision implements ImageClassifier {
     private final String apiKey;
+
+    private int maxLabels = 10;
+
+    public GoogleCloudVision(Configuration configuration) {
+        this(configuration.getString("api.google.cloud.key"));
+    }
 
     public GoogleCloudVision(String apiKey) {
         this.apiKey = apiKey;
     }
 
-    public List<String> classify(File image) throws IOException {
-        return classify(image, 10);
+    @Override
+    public void setMaxLabels(int maxLabels) {
+        this.maxLabels = maxLabels;
+    }
+
+    @Override
+    public List<String> classify(File image) throws Exception {
+        return classify(image, maxLabels);
     }
 
     public List<String> classify(File image, int maxNumberOfLabels) throws IOException {
-
         List<String> labels = new ArrayList<>();
 
         if (maxNumberOfLabels < 1) {
@@ -66,9 +79,12 @@ public class GoogleCloudVision {
 
             for (int i = 0; i < labelAnnotations.size(); i++) {
                 labels.add(labelAnnotations.tryGetJsonObject(i).tryGetString("description"));
+                if (labels.size() >= maxNumberOfLabels) {
+                    break;
+                }
             }
 
-        } catch (JsonException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             post.releaseConnection();
@@ -78,7 +94,6 @@ public class GoogleCloudVision {
     }
 
     public String recognizeText(File image) throws IOException {
-
         HttpClient httpClient = new HttpClient();
 
         String body = "{\"requests\": [{\"image\":{\"content\":\"XXX\"},\"features\": [{\"type\": \"DOCUMENT_TEXT_DETECTION\"}]}]}";
@@ -89,7 +104,7 @@ public class GoogleCloudVision {
         String encodedFile = Base64.getEncoder().encodeToString(bytes);
         body = body.replace("XXX", encodedFile);
 
-                PostMethod post = new PostMethod("https://vision.googleapis.com/v1/images:annotate?key=" + apiKey);
+        PostMethod post = new PostMethod("https://vision.googleapis.com/v1/images:annotate?key=" + apiKey);
         post.setRequestEntity(new StringRequestEntity(body.toString()));
 
         try {

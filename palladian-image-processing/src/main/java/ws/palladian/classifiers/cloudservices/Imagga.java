@@ -1,18 +1,21 @@
 package ws.palladian.classifiers.cloudservices;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.configuration.Configuration;
-
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+
+import ws.palladian.core.Category;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.ImmutableCategory;
+import ws.palladian.core.ImmutableCategoryEntries;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
 
 /**
  * Imagga image labeling.
@@ -20,13 +23,14 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  * @see https://docs.imagga.com/
  * @author David Urbansky
  */
-public class Imagga {
-
+public class Imagga implements ImageClassifier {
     private final String apiKey;
     private final String apiSecret;
 
     private static final String apiKeyKey = "api.imagga.key";
     private static final String apiSecretKey = "api.imagga.secret";
+
+    private int maxLabels = 10;
 
     public Imagga(String apiKey, String apiSecret) {
         this.apiKey = apiKey;
@@ -37,51 +41,59 @@ public class Imagga {
         this(configuration.getString(apiKeyKey), configuration.getString(apiSecretKey));
     }
 
+    @Override
+    public void setMaxLabels(int maxLabels) {
+        this.maxLabels = maxLabels;
+    }
+
+    @Override
     public List<String> classify(File image) throws Exception {
-        return classify(image, null);
+        CategoryEntries centries = classifyWithProbability(image);
+        List<String> names = new ArrayList<>();
+        for (Category centry : centries) {
+            names.add(centry.getName());
+        }
+        return names;
     }
 
-    public List<String> classify(File image, String modelName) throws Exception {
+    public CategoryEntries classifyWithProbability(File image) throws Exception {
+        Map<String, Category> entryMap = new LinkedHashMap<>();
+        Category mostLikely = new ImmutableCategory("unknown", 0.);
 
-        List<String> labels = new ArrayList<>();
+        JsonObject resultJson = upload(image);
 
-        String contentId = upload(image);
+        JsonArray tagsArray = Optional.ofNullable(resultJson.tryQueryJsonArray("result/tags")).orElse(new JsonArray());
 
-        String jsonName1 = "tags";
-        String jsonName2 = "tag";
-        String endpoint = "https://api.imagga.com/v1/tagging";
-        if (modelName != null) {
-            endpoint = "https://api.imagga.com/v1/categorizations/" + modelName;
-            jsonName1 = "categories";
-            jsonName2 = "name";
+        for (int i = 0; i < tagsArray.size(); i++) {
+            JsonObject jso = tagsArray.tryGetJsonObject(i);
+
+            String tagName = jso.tryQueryString("tag/en");
+            Double score = jso.tryQueryDouble("confidence") / 100;
+
+            ImmutableCategory category = new ImmutableCategory(tagName, score);
+            entryMap.put(tagName, category);
+
+            if (score > mostLikely.getProbability()) {
+                mostLikely = category;
+            }
+
+            entryMap.put(tagName, category);
+
+            if (i >= maxLabels - 1) {
+                break;
+            }
         }
 
-        HttpResponse response = Unirest.get(endpoint).queryString("content", contentId).basicAuth(apiKey, apiSecret).header("Accept", "application/json").asJson();
-
-        JsonObject jsonObject = new JsonObject(response.getBody().toString());
-
-        JsonArray results = jsonObject.tryGetJsonArray("results").getJsonObject(0).tryGetJsonArray(jsonName1);
-        for (int i = 0; i < results.size(); i++) {
-            JsonObject jso = results.tryGetJsonObject(i);
-            labels.add(jso.tryGetString(jsonName2));
-        }
-
-        return labels;
+        return new ImmutableCategoryEntries(entryMap, mostLikely);
     }
 
-    private String upload(File image) throws UnirestException, JsonException {
-        String endpoint = "https://api.imagga.com/v1/content";
-
+    private JsonObject upload(File image) throws UnirestException, JsonException {
+        String endpoint = "https://api.imagga.com/v2/tags";
         HttpResponse response = Unirest.post(endpoint).basicAuth(apiKey, apiSecret).field("image", image).asJson();
-
-        String jsonResponse = response.getBody().toString();
-
-        JsonObject jsonObject = new JsonObject(jsonResponse);
-
-        return jsonObject.tryGetJsonArray("uploaded").tryGetJsonObject(0).tryGetString("id");
+        return new JsonObject(response.getBody().toString());
     }
 
     public static void main(String... args) throws Exception {
-        new Imagga("TODO", "TODO").classify(new File("test.jpg"), null);
+        new Imagga("apiKey", "apiSecret").classify(new File("test.jpg"));
     }
 }
