@@ -63,7 +63,7 @@ public class SendyMailer {
         String responseText = StringHelper.clean(result.getStringContent()).toLowerCase();
         // System.out.println("Result: " + responseText);
         if (result.getStatusCode() > 300 || !responseText.equals("1")) {
-            throw new RuntimeException("Could not subscribe contact " + emailContact + ", reesponseText: " + responseText);
+            throw new RuntimeException("Could not subscribe contact " + emailContact + ", responseText: " + responseText);
         }
 
         return true;

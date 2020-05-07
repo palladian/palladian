@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RangeMapTest {
-
     private RangeMap<Double, String> rm;
 
     @Before

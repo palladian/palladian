@@ -168,7 +168,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
                 final String cssSelector = selector;
                 new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> webDriver.findElement(By.cssSelector(cssSelector)));
             } else {
-                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor)webDriver).executeScript("return document.readyState").equals("complete"));
             }
         } catch (Exception e) {
             LOGGER.error("problem with waiting", e);
@@ -178,7 +178,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     /**
      * Go to a certain page and wait until a condition is fulfilled (up to x seconds).
      *
-     * @param url       The url of the document
+     * @param url The url of the document
      * @param condition The condition to check
      */
     public void goTo(String url, ExpectedCondition<Boolean> condition) {
@@ -188,8 +188,8 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     /**
      * Go to a certain page and wait until a condition is fulfilled.
      *
-     * @param url              The url of the document
-     * @param condition        The condition to check
+     * @param url The url of the document
+     * @param condition The condition to check
      * @param timeoutInSeconds The maximum time to wait in seconds
      */
     public void goTo(String url, ExpectedCondition<Boolean> condition, Integer timeoutInSeconds) {
@@ -238,7 +238,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     /**
      * Go to a certain page, wait until a condition is fulfilled and retrieve the document
      *
-     * @param url       The url of the document
+     * @param url The url of the document
      * @param condition The condition to check
      * @return The document
      */
@@ -277,9 +277,12 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
                 // XXX
                 // document.setDocumentURI(cleanUrl);
                 // document.setUserData(HTTP_RESULT_KEY, httpResult, null);
-                this.goTo(url);
-//            driver.get(url);
-                document = getCurrentWebDocument();
+                try {
+                    this.goTo(url);
+                    document = getCurrentWebDocument();
+                } catch (Exception e) {
+                    LOGGER.error("problem opening page", e);
+                }
                 if (document == null && getErrorCallback() != null) {
                     getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
                 }
@@ -339,7 +342,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Find a DOM node.
      *
      * @param preselector The CSS selector of the context to search
-     * @param selector    The CSS selector
+     * @param selector The CSS selector
      * @return The queried node
      */
     public WebElement find(String preselector, String selector) {
@@ -361,7 +364,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Find all DOM nodes matching the given selector in a specific context.
      *
      * @param preSelector The CSS selector of the context to search.
-     * @param selector    The CSS selector.
+     * @param selector The CSS selector.
      * @return List of queried nodes.
      */
     public List<WebElement> findAll(String preSelector, String selector) {
@@ -404,29 +407,29 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     public static void main(String... args) throws HttpException {
         StopWatch stopWatch = new StopWatch();
         RenderingDocumentRetriever r = new RenderingDocumentRetriever(DriverManagerType.CHROME);
-        //DocumentRetriever r = new DocumentRetriever();
-        //HttpResult httpResult = HttpRetrieverFactory.getHttpRetriever().httpGet("https://www.patagonia.com/");
-        //System.out.println(httpResult);
-//        r.goTo("https://www.patagonia.com/", true);
-//        Document webDocument = r.getCurrentWebDocument();
-//        Document webDocument = r.getWebDocument("https://www.patagonia.com/");
+        // DocumentRetriever r = new DocumentRetriever();
+        // HttpResult httpResult = HttpRetrieverFactory.getHttpRetriever().httpGet("https://www.patagonia.com/");
+        // System.out.println(httpResult);
+        // r.goTo("https://www.patagonia.com/", true);
+        // Document webDocument = r.getCurrentWebDocument();
+        // Document webDocument = r.getWebDocument("https://www.patagonia.com/");
         Document webDocument = r.getWebDocument("https://www.kraftrecipes.com/");
-//        Document webDocument = r.getWebDocument("https://www.whatismyip.com/");
+        // Document webDocument = r.getWebDocument("https://www.whatismyip.com/");
         System.out.println(r.driver.executeScript("return navigator.userAgent"));
-//        Document webDocument = r.getWebDocument("https://genius.com/");
+        // Document webDocument = r.getWebDocument("https://genius.com/");
         r.takeScreenshot("");
         System.out.println(HtmlHelper.getInnerXml(webDocument));
         System.out.println(webDocument.getDocumentURI());
         System.out.println(r.driver.getTitle());
-//        r.close();
+        // r.close();
         System.out.println(stopWatch.getElapsedTimeStringAndIncrement());
         r.close();
-//        Document webDocument = r.getWebDocument("https://www.sitesearch360.com");
-//        ((RenderingDocumentRetriever) r).takeScreenshot("");
-//        System.out.println(HtmlHelper.getInnerXml(webDocument));
-//        r.goTo("http://www.wikiwand.com/en/Fashion");
-////        r.goTo("https://www.sitesearch360.com");
-//        WebElement contentBlock = r.find("#fullContent");
-//        System.out.println(contentBlock.getText());
+        // Document webDocument = r.getWebDocument("https://www.sitesearch360.com");
+        // ((RenderingDocumentRetriever) r).takeScreenshot("");
+        // System.out.println(HtmlHelper.getInnerXml(webDocument));
+        // r.goTo("http://www.wikiwand.com/en/Fashion");
+        //// r.goTo("https://www.sitesearch360.com");
+        // WebElement contentBlock = r.find("#fullContent");
+        // System.out.println(contentBlock.getText());
     }
 }
