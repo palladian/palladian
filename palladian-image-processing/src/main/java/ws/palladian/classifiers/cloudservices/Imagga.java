@@ -3,11 +3,9 @@ package ws.palladian.classifiers.cloudservices;
 import java.io.File;
 import java.util.*;
 
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 import org.apache.commons.configuration.Configuration;
-
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
@@ -87,7 +85,7 @@ public class Imagga implements ImageClassifier {
         return new ImmutableCategoryEntries(entryMap, mostLikely);
     }
 
-    private JsonObject upload(File image) throws UnirestException, JsonException {
+    private JsonObject upload(File image) throws JsonException {
         String endpoint = "https://api.imagga.com/v2/tags";
         HttpResponse response = Unirest.post(endpoint).basicAuth(apiKey, apiSecret).field("image", image).asJson();
         return new JsonObject(response.getBody().toString());

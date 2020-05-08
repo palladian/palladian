@@ -161,9 +161,9 @@
             <version>0.21</version>
         </dependency>
         <dependency>
-            <groupId>com.mashape.unirest</groupId>
+            <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
-            <version>1.4.9</version>
+            <version>3.7.02</version>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.spark</groupId>-->

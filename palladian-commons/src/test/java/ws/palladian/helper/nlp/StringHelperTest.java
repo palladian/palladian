@@ -148,11 +148,12 @@ public class StringHelperTest {
                 StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
         assertEquals("here starts the <clean> \"text\" stop",
                 StringHelper.clean("###here starts the &lt;clean&gt; &quot;text&quot; <b>stop</B>"));
-
         assertEquals("Say ‘hello’ to your horses for me",
                 StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
         assertEquals("Preheat oven to 375. Prepare a 8\" square",
                 StringHelper.clean("Preheat oven to 375. Prepare a 8″ square"));
+        assertEquals("Preheat oven to 375. Prepare a 8\" square",
+                StringHelper.clean("Preheat oven\t\tto\n375. Prepare a 8″ square"));
     }
 
     @Test

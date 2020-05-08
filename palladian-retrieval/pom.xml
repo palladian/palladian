@@ -24,15 +24,15 @@
 	<properties>
 		<selenium-version>3.141.59</selenium-version>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>commons-logging</groupId>
-				<artifactId>commons-logging</artifactId>
-				<version>99-empty</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+<!--	<dependencyManagement>-->
+<!--		<dependencies>-->
+<!--			<dependency>-->
+<!--				<groupId>commons-logging</groupId>-->
+<!--				<artifactId>commons-logging</artifactId>-->
+<!--				<version>99-empty</version>-->
+<!--			</dependency>-->
+<!--		</dependencies>-->
+<!--	</dependencyManagement>-->
 	<dependencies>
 		<dependency>
 			<groupId>ws.palladian</groupId>
