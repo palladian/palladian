@@ -182,6 +182,7 @@ public class HttpRetrieverTest {
     }
     
     @Test
+    @Ignore
     public void testSslSni() throws HttpException {
         try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
             HttpRetriever retriever = factory.create();
