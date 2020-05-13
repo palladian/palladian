@@ -474,7 +474,7 @@ public class DateParserTest {
 
     @Test
     public void testGet4DigitYear() {
-        assertEquals(1920, DateParserLogic.get4DigitYear(20));
+        assertEquals(2020, DateParserLogic.get4DigitYear(20));
         assertEquals(2007, DateParserLogic.get4DigitYear(7));
         assertEquals(2010, DateParserLogic.get4DigitYear(10));
         assertEquals(1999, DateParserLogic.get4DigitYear(99));

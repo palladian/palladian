@@ -46,7 +46,6 @@ import ws.palladian.retrieval.resources.WebImage;
  * @author David Urbansky
  */
 public class PalladianContentExtractor extends WebPageContentExtractor {
-
     /**
      * The logger for this class.
      */
@@ -817,7 +816,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * @return
      */
     public Language detectLanguage() {
-
         // look in HTML lang attribute <html lang="de">
         String innerXml = HtmlHelper.getInnerXml(getDocument());
         innerXml = innerXml.toLowerCase();
@@ -987,7 +985,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * @throws PageContentExtractorException
      */
     public static void main(String[] args) throws PageContentExtractorException {
-
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         palladianContentExtractor.setDocument(new DocumentRetriever().getWebDocument("http://janeshealthykitchen.com/instant-red-sauce/"));
         Language language = palladianContentExtractor.detectLanguage();
