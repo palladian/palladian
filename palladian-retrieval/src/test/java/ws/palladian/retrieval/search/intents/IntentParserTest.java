@@ -25,6 +25,7 @@ public class IntentParserTest {
                 "          \"max\": \"$1\"\n" +
                 "        }\n" +
                 "      ],\n" +
+                "      \"type\": \"DEFINITION\",\n" +
                 "      \"sorts\": [\n" +
                 "        {\n" +
                 "          \"key\": \"price\",\n" +
@@ -34,7 +35,7 @@ public class IntentParserTest {
                 "    },\n" +
                 "  }]";
         SearchIntentParser intentParser = new SearchIntentParser(new JsonArray(intentJson));
-        SearchIntentAction<ActivatedSearchIntentFilter> intentAction = intentParser.parse("shoes under $101");
+        ActivatedSearchIntentAction intentAction = intentParser.parse("shoes under $101");
 
         collector.checkThat(intentAction.getFilters().get(0).getKey(), Matchers.is("price"));
         collector.checkThat(intentAction.getFilters().get(0).getMinDefinition(), Matchers.nullValue());
@@ -42,7 +43,8 @@ public class IntentParserTest {
         collector.checkThat(intentAction.getFilters().get(0).getMax(), Matchers.is(101.0));
         collector.checkThat(intentAction.getSort().getKey(), Matchers.is("price"));
         collector.checkThat(intentAction.getSort().getDirection(), Matchers.is(SortDirection.ASC));
-        
+        collector.checkThat(intentAction.getModifiedQuery(), Matchers.is("shoes"));
+
         // test redirect
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
@@ -50,6 +52,7 @@ public class IntentParserTest {
                 "      {type: \"PHRASE_MATCH\", text: \"ups\"}," + 
                 "    ],\n" +
                 "    \"action\": {\n" +
+                "      \"type\": \"REDIRECT\"," +
                 "      \"redirect\": \"https://delivery.com\"" +
                 "    },\n" +
                 "  }]";
@@ -66,6 +69,7 @@ public class IntentParserTest {
                 "      {type: \"REGEX\", text: \"gta (\\\\d+)\"}," +
                 "    ],\n" +
                 "    \"action\": {\n" +
+                "      \"type\": \"REWRITE\"," +
                 "      \"rewrite\": \"grand theft auto $1\"" +
                 "    },\n" +
                 "  }]";
@@ -79,6 +83,7 @@ public class IntentParserTest {
                 "      {type: \"REGEX\", text: \"ticket ([a-z]\\\\d+)\"}," +
                 "    ],\n" +
                 "    \"action\": {\n" +
+                "      \"type\": \"REDIRECT\"," +
                 "      \"redirect\": \"https://helpcenter.com/tickets/$1\"" +
                 "    },\n" +
                 "  }]";

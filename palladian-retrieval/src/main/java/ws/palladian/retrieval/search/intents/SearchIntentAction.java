@@ -7,6 +7,12 @@ public class SearchIntentAction<T> {
     private List<T> filters = new ArrayList<>();
     private SearchIntentSort sort;
 
+    /** What type of action to take. */
+    private SearchIntentActionType type = null;
+
+    /** If true, the trigger phrase will be removed (not for redirect or rewrite matches). */
+    private boolean removeTrigger = true;
+
     /** If the trigger leads to a redirect. */
     private String redirect = null;
 
@@ -19,6 +25,10 @@ public class SearchIntentAction<T> {
     /** A list of queries that should be mixed into the search result. */
     private List<String> mixInQueries = new ArrayList<>();
 
+//    public SearchIntentAction(SearchIntentActionType type) {
+//        this.type = type;
+//    }
+//
     public List<T> getFilters() {
         return filters;
     }
@@ -69,5 +79,21 @@ public class SearchIntentAction<T> {
 
     public void addFilter(T intentFilter) {
         this.filters.add(intentFilter);
+    }
+
+    public boolean isRemoveTrigger() {
+        return removeTrigger;
+    }
+
+    public void setRemoveTrigger(boolean removeTrigger) {
+        this.removeTrigger = removeTrigger;
+    }
+
+    public SearchIntentActionType getType() {
+        return type;
+    }
+
+    public void setType(SearchIntentActionType type) {
+        this.type = type;
     }
 }
