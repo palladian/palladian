@@ -45,6 +45,37 @@ public class IntentParserTest {
         collector.checkThat(intentAction.getSort().getDirection(), Matchers.is(SortDirection.ASC));
         collector.checkThat(intentAction.getModifiedQuery(), Matchers.is("shoes"));
 
+        intentJson = "[{\n" +
+                "    \"triggers\": [\n" +
+                "      {type: \"CONTAINS\", text: \"cheap\"}" +
+                "    ],\n" +
+                "    \"action\": {\n" +
+                "      \"filters\": [\n" +
+                "        {\n" +
+                "          \"key\": \"price\",\n" +
+                "          \"min\": \"50\",\n" +
+                "          \"max\": \"100\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"type\": \"DEFINITION\",\n" +
+                "      \"sorts\": [\n" +
+                "        {\n" +
+                "          \"key\": \"price\",\n" +
+                "          \"direction\": \"DESC\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "  }]";
+        intentParser = new SearchIntentParser(new JsonArray(intentJson));
+        intentAction = intentParser.parse("cheapish shoes");
+
+        collector.checkThat(intentAction.getFilters().get(0).getKey(), Matchers.is("price"));
+        collector.checkThat(intentAction.getFilters().get(0).getMin(), Matchers.is(50.0));
+        collector.checkThat(intentAction.getFilters().get(0).getMax(), Matchers.is(100.0));
+        collector.checkThat(intentAction.getSort().getKey(), Matchers.is("price"));
+        collector.checkThat(intentAction.getSort().getDirection(), Matchers.is(SortDirection.DESC));
+        collector.checkThat(intentAction.getModifiedQuery(), Matchers.is("shoes"));
+
         // test redirect
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +

@@ -97,10 +97,7 @@ public class SearchIntentParser {
         for (SearchIntent intent : intents) {
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
                 if (intentTrigger.getMatchType() == QueryMatchType.MATCH && intentTrigger.getText().equals(query)) {
-                    if (intent.getIntentAction().getRewrite() != null) {
-                        query = intent.getIntentAction().getRewrite();
-                    }
-                    return new ActivatedSearchIntentAction(intent.getIntentAction(), query);
+                    return processMatch(QueryMatchType.MATCH, intent, query, null, intentTrigger);
                 }
             }
         }
@@ -108,10 +105,7 @@ public class SearchIntentParser {
         for (SearchIntent intent : intents) {
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
                 if (intentTrigger.getMatchType() == QueryMatchType.PHRASE_MATCH && StringHelper.containsWordCaseSensitive(intentTrigger.getText(), query)) {
-                    if (intent.getIntentAction().getRewrite() != null) {
-                        query = intent.getIntentAction().getRewrite();
-                    }
-                    return new ActivatedSearchIntentAction(intent.getIntentAction(), query);
+                    return processMatch(QueryMatchType.PHRASE_MATCH, intent, query, null, intentTrigger);
                 }
             }
         }
@@ -119,10 +113,7 @@ public class SearchIntentParser {
         for (SearchIntent intent : intents) {
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
                 if (intentTrigger.getMatchType() == QueryMatchType.CONTAINS && query.contains(intentTrigger.getText())) {
-                    if (intent.getIntentAction().getRewrite() != null) {
-                        query = intent.getIntentAction().getRewrite();
-                    }
-                    return new ActivatedSearchIntentAction(intent.getIntentAction(), query);
+                    return processMatch(QueryMatchType.CONTAINS, intent, query, null, intentTrigger);
                 }
             }
         }
@@ -137,44 +128,62 @@ public class SearchIntentParser {
                 }
                 Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
                 if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
-                    ActivatedSearchIntentAction intentAction = new ActivatedSearchIntentAction(intent.getIntentAction(), query);
-
-                    switch (intentAction.getType()) {
-                        case REWRITE:
-                            String rewrite = matcher.replaceAll(intentAction.getRewrite()).toLowerCase();
-                            intentAction.setRewrite(rewrite);
-                            intentAction.setModifiedQuery(rewrite);
-                            return intentAction;
-                        case REDIRECT:
-                            String redirect = matcher.replaceAll(intentAction.getRedirect());
-                            intentAction.setRedirect(redirect);
-                            return intentAction;
-                        case DEFINITION:
-                        default:
-                            List<ActivatedSearchIntentFilter> filledFilters = intentAction.getFilters();
-
-                            for (ActivatedSearchIntentFilter filledFilter : filledFilters) {
-                                String minDefinition = filledFilter.getMinDefinition();
-                                if (minDefinition != null && minDefinition.contains("$")) {
-                                    int position = Integer.parseInt(minDefinition.replace("$", ""));
-                                    filledFilter.setMin(Double.valueOf(matcher.group(position)));
-                                }
-                                String maxDefinition = filledFilter.getMaxDefinition();
-                                if (maxDefinition != null && maxDefinition.contains("$")) {
-                                    int position = Integer.parseInt(maxDefinition.replace("$", ""));
-                                    filledFilter.setMax(Double.valueOf(matcher.group(position)));
-                                }
-                            }
-                            intentAction.setFilters(filledFilters);
-                            if (intentAction.isRemoveTrigger()) {
-                                intentAction.setModifiedQuery(query.replaceAll(intentTrigger.getText(), ""));
-                            }
-                            return intentAction;
-                    }
+                    return processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
                 }
             }
         }
 
         return null;
+    }
+
+    private ActivatedSearchIntentAction processMatch(QueryMatchType qmt, SearchIntent intent, String query, Matcher matcher, SearchIntentTrigger intentTrigger) {
+        ActivatedSearchIntentAction intentAction = new ActivatedSearchIntentAction(intent.getIntentAction(), query);
+
+        switch (intentAction.getType()) {
+            case REWRITE:
+                String rewrite = intent.getIntentAction().getRewrite();
+                if (qmt == QueryMatchType.REGEX) {
+                    rewrite = matcher.replaceAll(intentAction.getRewrite()).toLowerCase();
+                }
+                intentAction.setRewrite(rewrite);
+                intentAction.setModifiedQuery(rewrite);
+                return intentAction;
+            case REDIRECT:
+                String redirect = intentAction.getRedirect();
+                if (qmt == QueryMatchType.REGEX) {
+                    redirect = matcher.replaceAll(intentAction.getRedirect());
+                }
+                intentAction.setRedirect(redirect);
+                return intentAction;
+            case DEFINITION:
+            default:
+                List<ActivatedSearchIntentFilter> filledFilters = intentAction.getFilters();
+
+                for (ActivatedSearchIntentFilter filledFilter : filledFilters) {
+                    String minDefinition = filledFilter.getMinDefinition();
+                    if (minDefinition != null) {
+                        if (minDefinition.contains("$")) {
+                            int position = Integer.parseInt(minDefinition.replace("$", ""));
+                            filledFilter.setMin(Double.valueOf(matcher.group(position)));
+                        } else {
+                            filledFilter.setMin(Double.valueOf(minDefinition));
+                        }
+                    }
+                    String maxDefinition = filledFilter.getMaxDefinition();
+                    if (maxDefinition != null) {
+                        if (maxDefinition.contains("$")) {
+                            int position = Integer.parseInt(maxDefinition.replace("$", ""));
+                            filledFilter.setMax(Double.valueOf(matcher.group(position)));
+                        } else {
+                            filledFilter.setMax(Double.valueOf(maxDefinition));
+                        }
+                    }
+                }
+                intentAction.setFilters(filledFilters);
+                if (intentAction.isRemoveTrigger()) {
+                    intentAction.setModifiedQuery(query.replaceAll("[^ ]*" + intentTrigger.getText() + "[^ ]*", ""));
+                }
+                return intentAction;
+        }
     }
 }
