@@ -22,6 +22,10 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 public class SearchIntentParser {
     List<SearchIntent> intents = new ArrayList<>();
 
+    public SearchIntentParser(List<? extends SearchIntent> intents) {
+        this.intents.addAll(intents);
+    }
+
     public SearchIntentParser(File intentActionFile) throws JsonException {
         this(new JsonArray(FileHelper.tryReadFileToString(intentActionFile)));
     }

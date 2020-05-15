@@ -4,26 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchIntent {
-    protected List<SearchIntentTrigger> intentTriggers = new ArrayList<>();
-    protected SearchIntentAction<SearchIntentFilter> intentAction;
+    protected List<SearchIntentTrigger> triggers = new ArrayList<>();
+    protected SearchIntentAction<SearchIntentFilter> action;
 
     public List<SearchIntentTrigger> getIntentTriggers() {
-        return intentTriggers;
+        return triggers;
     }
 
     public void setIntentTriggers(List<SearchIntentTrigger> intentTriggers) {
-        this.intentTriggers = intentTriggers;
+        this.triggers = intentTriggers;
     }
 
     public void addIntentTrigger(SearchIntentTrigger intentTrigger) {
-        this.intentTriggers.add(intentTrigger);
+        this.triggers.add(intentTrigger);
     }
 
     public SearchIntentAction<SearchIntentFilter> getIntentAction() {
-        return intentAction;
+        return action;
     }
 
     public void setIntentAction(SearchIntentAction<SearchIntentFilter> intentAction) {
-        this.intentAction = intentAction;
+        this.action = intentAction;
     }
 }
