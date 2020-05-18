@@ -165,8 +165,11 @@ public class SearchIntentParser {
                         if (minDefinition.contains("$")) {
                             int position = Integer.parseInt(minDefinition.replace("$", ""));
                             filledFilter.setMin(Double.valueOf(matcher.group(position)));
-                        } else {
-                            filledFilter.setMin(Double.valueOf(minDefinition));
+                        } else if (!minDefinition.isEmpty()) {
+                            try {
+                                filledFilter.setMin(Double.valueOf(minDefinition));
+                            } catch (Exception e) {
+                            }
                         }
                     }
                     String maxDefinition = filledFilter.getMaxDefinition();
@@ -174,8 +177,11 @@ public class SearchIntentParser {
                         if (maxDefinition.contains("$")) {
                             int position = Integer.parseInt(maxDefinition.replace("$", ""));
                             filledFilter.setMax(Double.valueOf(matcher.group(position)));
-                        } else {
-                            filledFilter.setMax(Double.valueOf(maxDefinition));
+                        } else if (!maxDefinition.isEmpty()) {
+                            try {
+                                filledFilter.setMax(Double.valueOf(maxDefinition));
+                            } catch (Exception e) {
+                            }
                         }
                     }
                 }
