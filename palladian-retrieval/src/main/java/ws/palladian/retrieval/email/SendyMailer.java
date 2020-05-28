@@ -69,6 +69,34 @@ public class SendyMailer {
         return true;
     }
 
+    public boolean tryUnsubscribe(EmailContact emailContact) {
+        try {
+            return unsubscribe(emailContact);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean unsubscribe(EmailContact emailContact) throws HttpException {
+        String apiUrl = apiLocation + "unsubscribe";
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, apiUrl);
+        FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
+        entityBuilder.addData("api_key", apiKey);
+        entityBuilder.addData("email", emailContact.getEmail());
+        entityBuilder.addData("list", emailContact.getList());
+        entityBuilder.addData("boolean", "true");
+        requestBuilder.setEntity(entityBuilder.create());
+        HttpResult result = httpRetriever.execute(requestBuilder.create());
+        String responseText = StringHelper.clean(result.getStringContent()).toLowerCase();
+        // System.out.println("Result: " + responseText);
+        if (result.getStatusCode() > 300 || !responseText.equals("1")) {
+            throw new RuntimeException("Could not unsubscribe contact " + emailContact + ", responseText: " + responseText);
+        }
+        return true;
+    }
+
     public int getSubscriberCount(String listId) {
         String apiUrl = apiLocation + "api/subscribers/active-subscriber-count.php";
 
