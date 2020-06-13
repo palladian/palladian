@@ -37,6 +37,8 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.unsplash.key";
 
+    private static final int MAX_PER_PAGE = 30;
+
     private final String apiKey;
 
     /**
@@ -71,7 +73,7 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         List<WebImage> results = new ArrayList<>();
 
         resultCount = Math.min(1000, resultCount);
-        int resultsPerPage = Math.min(100, resultCount);
+        int resultsPerPage = Math.min(MAX_PER_PAGE, resultCount);
         int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);
 
         DocumentRetriever documentRetriever = new DocumentRetriever();
@@ -81,7 +83,7 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         documentRetriever.setGlobalHeaders(globalHeaders);
 
         for (int page = 1; page <= pagesNeeded; page++) {
-            String requestUrl = buildRequest(query, page, Math.min(100, resultCount - results.size()));
+            String requestUrl = buildRequest(query, page, Math.min(MAX_PER_PAGE, resultCount - results.size()));
             try {
                 JsonObject jsonResponse = documentRetriever.getJsonObject(requestUrl);
                 if (jsonResponse == null) {
