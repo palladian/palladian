@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.*;
@@ -530,9 +532,12 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         try {
             return dateFormat.parse(dateString);
         } catch (ParseException e) {
+            ExtractedDate date = DateParser.findDate(dateString);
+            if (date != null) {
+                return date.getNormalizedDate();
+            }
             LOGGER.error("Error parsing date {}", dateString, e);
         }
         return null;
     }
-
 }

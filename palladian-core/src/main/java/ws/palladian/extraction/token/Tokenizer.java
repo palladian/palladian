@@ -100,7 +100,6 @@ public final class Tokenizer {
         }
 
         for (int i = 0; i <= length - n; i++) {
-
             // only allow edge ngrams
             if ((i > 0 && i != length - n) || (n == 1 && i > 0 && i != length - n)) {
                 continue;
