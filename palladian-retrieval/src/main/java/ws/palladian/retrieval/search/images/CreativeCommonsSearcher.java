@@ -31,6 +31,11 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
 
     private static final int MAX_PER_PAGE = 500;
 
+    private String licenses = "all-cc,commercial";
+
+    /** If null, search all sources. */
+    private String sources = null;
+
     @Override
     /**
      * @param language Supported languages are English.
@@ -80,7 +85,12 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     }
 
     private String buildRequest(String searchTerms, int page, int resultsPerPage) {
-        return String.format("https://api.creativecommons.engineering/v1/images?q=%s&license_type=all-cc,commercial&page=%s&page_size=%s&mature=true", UrlHelper.encodeParameter(searchTerms), page, resultsPerPage);
+        String url = String.format("https://api.creativecommons.engineering/v1/images?q=%s&license_type=%s&page=%s&page_size=%s&mature=true", UrlHelper.encodeParameter(searchTerms), licenses, page, resultsPerPage);
+        if (this.sources != null) {
+            url += "&source="+this.sources;
+        }
+
+        return url;
     }
 
     @Override
@@ -88,8 +98,25 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
         return SEARCHER_NAME;
     }
 
+    public String getLicenses() {
+        return licenses;
+    }
+
+    public void setLicenses(String licenses) {
+        this.licenses = licenses;
+    }
+
+    public String getSources() {
+        return sources;
+    }
+
+    public void setSources(String sources) {
+        this.sources = sources;
+    }
+
     public static void main(String[] args) throws SearcherException {
         CreativeCommonsSearcher searcher = new CreativeCommonsSearcher();
+        searcher.setSources("wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,smithsonian,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
         List<WebImage> results = searcher.search("brain", 1001);
         CollectionHelper.print(results);
     }
