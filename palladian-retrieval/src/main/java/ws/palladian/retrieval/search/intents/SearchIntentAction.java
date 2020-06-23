@@ -25,10 +25,13 @@ public class SearchIntentAction<T> {
     /** A list of queries that should be mixed into the search result. */
     private List<String> mixInQueries = new ArrayList<>();
 
+    /** A list of specific placements in the search results. */
+    private List<SearchResultPlacement> placements = new ArrayList<>();
+
 //    public SearchIntentAction(SearchIntentActionType type) {
 //        this.type = type;
 //    }
-//
+
     public List<T> getFilters() {
         return filters;
     }
@@ -95,5 +98,13 @@ public class SearchIntentAction<T> {
 
     public void setType(SearchIntentActionType type) {
         this.type = type;
+    }
+
+    public List<SearchResultPlacement> getPlacements() {
+        return placements;
+    }
+
+    public void setPlacements(List<SearchResultPlacement> placements) {
+        this.placements = placements;
     }
 }
