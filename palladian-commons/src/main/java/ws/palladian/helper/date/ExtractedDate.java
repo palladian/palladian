@@ -5,13 +5,12 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public interface ExtractedDate {
-
-    public static final int YEAR = 1;
-    public static final int MONTH = 2;
-    public static final int DAY = 3;
-    public static final int HOUR = 4;
-    public static final int MINUTE = 5;
-    public static final int SECOND = 6;
+    int YEAR = 1;
+    int MONTH = 2;
+    int DAY = 3;
+    int HOUR = 4;
+    int MINUTE = 5;
+    int SECOND = 6;
 
     /**
      * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values.
@@ -94,5 +93,4 @@ public interface ExtractedDate {
     double getDifference(ExtractedDate date, TimeUnit unit);
 
     Calendar getCalendar(DateExactness exactness);
-
 }

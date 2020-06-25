@@ -1,13 +1,19 @@
 package ws.palladian.retrieval.analysis;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.MapBuilder;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.util.*;
@@ -22,6 +28,7 @@ import java.util.regex.Pattern;
  * @link https://www.sitemaps.org/protocol.html
  */
 public class SitemapRetriever {
+    private boolean parseXml = false;
     private DocumentRetriever documentRetriever;
     private final static Pattern LOC_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</loc)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern PRIORITY_PATTERN = Pattern.compile("(?<=>)[0-9.]+?(?=</priority)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -84,7 +91,9 @@ public class SitemapRetriever {
             return pageUrls;
         }
 
-        sitemapContent = cleanUpSitemap(sitemapContent);
+        if (!parseXml) {
+            sitemapContent = cleanUpSitemap(sitemapContent);
+        }
         SitemapType sitemapType = getSitemapType(sitemapContent);
         if (sitemapType == null) {
             return pageUrls;
@@ -92,13 +101,18 @@ public class SitemapRetriever {
 
         switch (sitemapType) {
             case LIST:
-                List<String> cleanListUrls = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include);
+                List<String> cleanListUrls;
+                if (parseXml) {
+                    cleanListUrls = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include);
+                } else {
+                    cleanListUrls = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include);
+                }
+
                 pageUrls.addAll(cleanListUrls);
                 break;
             case INDEX:
                 List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapContent);
-                ProgressMonitor sitemapRetriever = new ProgressMonitor(urls.size(), 0.1, "SitemapRetriever");
-                int i = 1;
+                ProgressMonitor sitemapRetriever = new ProgressMonitor(urls.size(), 0.1, "SitemapRetriever ("+sitemapUrl+")");
                 for (String sitemapLinkUrl : urls) {
                     // clean url
                     sitemapLinkUrl = normalizeUrl(sitemapLinkUrl);
@@ -110,7 +124,7 @@ public class SitemapRetriever {
                     }
 
                     // download
-                    String downloadPath = "data/temp/sitemap" + i + ".xml.gzipped";
+                    String downloadPath = "data/temp/sitemap" + System.currentTimeMillis() + ".xml.gzipped";
                     String unzippedPath = downloadPath.replace(".gzipped", "");
                     documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath);
 
@@ -126,14 +140,17 @@ public class SitemapRetriever {
                     if (sitemapText == null) {
                         continue;
                     }
-                    List<String> cleanUrls = getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include);
+                    List<String> cleanUrls;
+                    if (parseXml) {
+                        cleanUrls = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include);
+                    } else {
+                        cleanUrls = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include);
+                    }
                     pageUrls.addAll(cleanUrls);
 
                     // clean up files
                     FileHelper.delete(downloadPath);
                     FileHelper.delete(unzippedPath);
-
-                    i++;
 
                     sitemapRetriever.incrementAndPrintProgress();
                 }
@@ -175,6 +192,25 @@ public class SitemapRetriever {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private List<String> getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
+        List<String> urls = new ArrayList<>();
+        try {
+            Document xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
+            List<Node> locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+            for (Node locationNode : locationNodes) {
+                String url = locationNode.getTextContent();
+                boolean matchedPattern = goalNodePattern.matcher(url).find();
+                if ((matchedPattern && include) || (!matchedPattern && !include)) {
+                    urls.add(normalizeUrl(url));
+                }
+            }
+        } catch (ParserException e) {
+            e.printStackTrace();
+        }
+
+        return urls;
     }
 
     private List<String> getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
@@ -230,5 +266,13 @@ public class SitemapRetriever {
         url = url.replace("&lt;", "<");
 
         return url;
+    }
+
+    public boolean isParseXml() {
+        return parseXml;
+    }
+
+    public void setParseXml(boolean parseXml) {
+        this.parseXml = parseXml;
     }
 }

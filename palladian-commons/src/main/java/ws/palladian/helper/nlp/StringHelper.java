@@ -2271,4 +2271,21 @@ public final class StringHelper {
 
     }
 
+    /**
+     * Return the text context around a word.
+     * @param word The word at the center.
+     * @param text The entire text.
+     * @param contextSize The size of the context in characters.
+     * @return The context before the word + the word + the context after the word.
+     */
+    public static String getContext(String word, String text, int contextSize) {
+        int wordBeginIndex = text.indexOf(word);
+        if (wordBeginIndex < 0) {
+            return "";
+        }
+        int wordEndIndex = wordBeginIndex + word.length();
+        int leftIndex = Math.max(0, wordBeginIndex - contextSize);
+        int rightIndex = Math.min(text.length(), wordEndIndex + contextSize);
+        return text.substring(leftIndex, wordBeginIndex) + text.substring(wordBeginIndex, rightIndex);
+    }
 }

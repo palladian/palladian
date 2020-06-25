@@ -65,6 +65,11 @@ public class StringHelperTest {
     }
 
     @Test
+    public void testGetContext() {
+        collector.checkThat(StringHelper.getContext("test", "abc test and another bla bla bla", 10), is("abc test and anoth"));
+    }
+
+    @Test
     public void testContainsWord() {
         assertTrue(StringHelper.containsWord("organic", "Organic-pralines are tasty"));
         assertTrue(StringHelper.containsWord("pralines", "Organic-pralines are tasty"));
