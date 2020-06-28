@@ -221,6 +221,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
     }
 
+    public Boolean tryGetBoolean(String key, Boolean defaultValue) {
+        try {
+            return getBoolean(key);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     /**
      * <p>
      * Get the {@link Double} value associated with a key.
@@ -243,6 +251,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
     }
 
+    public Double tryGetDouble(String key, Double defaultValue) {
+        try {
+            return getDouble(key);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     /**
      * <p>
      * Get the {@link Integer} value associated with a key.
@@ -262,6 +278,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return getInt(key);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public Integer tryGetInt(String key, Integer defaultValue) {
+        try {
+            return getInt(key);
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 
@@ -331,6 +355,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
     }
 
+    public Long tryGetLong(String key, Long defaultValue) {
+        try {
+            return getLong(key);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     /**
      * <p>
      * Get the {@link String} associated with a key.
@@ -353,6 +385,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return getString(key);
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public String tryGetString(String key, String defaultValue) {
+        try {
+            return getString(key);
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 
