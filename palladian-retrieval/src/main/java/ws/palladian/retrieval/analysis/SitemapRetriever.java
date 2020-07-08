@@ -142,9 +142,9 @@ public class SitemapRetriever {
                     }
                     List<String> cleanUrls;
                     if (parseXml) {
-                        cleanUrls = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include);
+                        cleanUrls = getUrlsFromSitemapParsed(sitemapText, goalNodePattern, include);
                     } else {
-                        cleanUrls = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include);
+                        cleanUrls = getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include);
                     }
                     pageUrls.addAll(cleanUrls);
 

@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
 
 public class EmailAnalyzerTest {
 @Rule
