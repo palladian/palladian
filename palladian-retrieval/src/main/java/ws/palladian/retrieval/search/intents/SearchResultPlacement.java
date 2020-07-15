@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.search.intents;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SearchResultPlacement {
     /** The positional index of the placement. */
     private int position = 0;
@@ -12,6 +15,8 @@ public class SearchResultPlacement {
 
     /** A type for the placement to identify how to handle it (e.g. pull product information by id or read content as HTML. */
     private String type;
+
+    private Map<String, Object> metaData = new HashMap<>();
 
     public int getPosition() {
         return position;
@@ -43,5 +48,13 @@ public class SearchResultPlacement {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Map<String, Object> getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, Object> metaData) {
+        this.metaData = metaData;
     }
 }
