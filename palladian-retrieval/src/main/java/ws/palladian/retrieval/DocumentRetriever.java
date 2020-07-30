@@ -199,6 +199,10 @@ public class DocumentRetriever extends WebDocumentRetriever {
     public String postJsonObject(String url, JsonObject jsonBody, boolean asFormParams) throws HttpException {
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, url);
+
+        if (globalHeaders != null) {
+            requestBuilder.addHeaders(globalHeaders);
+        }
         
         if (jsonBody != null) {
             HttpEntity entity;
