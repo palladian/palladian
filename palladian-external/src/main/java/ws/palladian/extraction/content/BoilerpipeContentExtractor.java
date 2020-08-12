@@ -32,7 +32,6 @@ import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
  * 
  */
 public class BoilerpipeContentExtractor extends WebPageContentExtractor {
-
     private final ExtractorBase extractor;
     private TextDocument textDocument;
 
@@ -46,7 +45,7 @@ public class BoilerpipeContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(File file, boolean parse) throws PageContentExtractorException {
         try {
             InputSource inputSource = new InputSource(new FileInputStream(file));
             setDocument(inputSource);
@@ -57,7 +56,12 @@ public class BoilerpipeContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public BoilerpipeContentExtractor setDocument(Document document) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         StringReader stringReader = new StringReader(HtmlHelper.xmlToString(document, false));
         InputSource inputSource = new InputSource(stringReader);
         setDocument(inputSource);

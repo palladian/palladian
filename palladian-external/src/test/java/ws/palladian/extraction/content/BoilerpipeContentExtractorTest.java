@@ -8,13 +8,11 @@ import org.junit.Test;
 import ws.palladian.helper.io.ResourceHelper;
 
 public class BoilerpipeContentExtractorTest {
-
     @Test
     public void testBoilerpipeContentExtractor() throws Exception {
         BoilerpipeContentExtractor extractor = new BoilerpipeContentExtractor();
-        extractor.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test001.html"));
+        extractor.setDocument(ResourceHelper.getResourceFile("/pageContentExtractor/test001.html"), true);
         assertEquals("5ff93a307fe92366326bcd1d801ab476", DigestUtils.md5Hex(extractor.getResultText()));
         assertEquals("e30074241dba8eb8258eab7be0ddea45", DigestUtils.md5Hex(extractor.getResultTitle()));
     }
-
 }
