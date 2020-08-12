@@ -21,11 +21,10 @@ import com.gravity.goose.Goose;
  * @author Philipp Katz
  */
 public class GooseContentExtractor extends WebPageContentExtractor {
-
     private Article article;
 
     @Override
-    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(File file, boolean parse) throws PageContentExtractorException {
         throw new PageContentExtractorException("Local files are not supported");
     }
 
@@ -35,7 +34,7 @@ public class GooseContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
         if (documentLocation.startsWith("http://") || documentLocation.startsWith("https://")) {
             Configuration config = new Configuration();
             config.setEnableImageFetching(false);
@@ -46,20 +45,25 @@ public class GooseContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(URL url) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(URL url, boolean parse) throws PageContentExtractorException {
         if (url.toString().startsWith("file://")) {
             throw new PageContentExtractorException("Local files are not supported");
         }
-        return setDocument(url.toString());
+        return setDocument(url.toString(), parse);
     }
 
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         String url = document.getDocumentURI();
         if (url == null || url.startsWith("file:")) {
             throw new IllegalArgumentException("Only extraction from web URLs is supported.");
         }
-        return setDocument(url);
+        return setDocument(url, parse);
     }
 
     @Override
@@ -84,7 +88,7 @@ public class GooseContentExtractor extends WebPageContentExtractor {
 
     public static void main(String[] args) throws PageContentExtractorException {
         GooseContentExtractor gooseExtactor = new GooseContentExtractor();
-        gooseExtactor.setDocument("http://techcrunch.com/2012/12/01/facebook-photo-sync-data/");
+        gooseExtactor.setDocument("http://techcrunch.com/2012/12/01/facebook-photo-sync-data/", true);
         System.out.println(gooseExtactor.getResultTitle());
         System.out.println(gooseExtactor.getResultText());
     }
