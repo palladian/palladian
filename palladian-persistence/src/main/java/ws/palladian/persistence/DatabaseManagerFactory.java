@@ -26,33 +26,37 @@ import org.slf4j.LoggerFactory;
  * {@code DatabaseManager} instances. The Factory is initialized as Singleton to get access from everywhere. As always:
  * use the singleton with care to not populate all layers of your application with database access code.
  * </p>
- * 
+ *
  * <p>
  * The Factory is able to load new subclasses of {@code DatabaseManager} dynamically if they are on the class path.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @author David Urbansky
  */
 public final class DatabaseManagerFactory {
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseManagerFactory.class);
-    
+
     public static final String DB_CONFIG_FILE = "database.xml";
 
     private final static Map<String, DataSource> dataSourceRegistry = new HashMap<>();
-    
-    /** Specify the {@link DataSourceFactory} to use, if you need a custom one. */
+
+    /**
+     * Specify the {@link DataSourceFactory} to use, if you need a custom one.
+     */
     public static DataSourceFactory dataSourceFactory = BoneCpDataSourceFactory.INSTANCE;
-    
+
     private static HierarchicalConfiguration configuration;
 
     /**
      * <p>
      * Obtain the database configuration; lazy loaded.
      * </p>
-     * 
+     *
      * @return The database configuration.
      */
     private static HierarchicalConfiguration getConfig() {
@@ -94,14 +98,14 @@ public final class DatabaseManagerFactory {
 //        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
 //        return create(managerClass, config);
 //    }
-    
+
     /**
      * <p>
      * Create a DatabaseManager with the configuration obtained from a persistence configuration file (
      * {@value #DB_CONFIG_FILE}). This configuration file allows to configure several data sources and is structured as
      * follows:
      * </p>
-     * 
+     *
      * <pre>
      * &lt;?xml version="1.0" encoding="UTF-8"?&gt;
      * &lt;databases&gt;
@@ -115,11 +119,11 @@ public final class DatabaseManagerFactory {
      *     […]
      * &lt;/databases&gt;
      * </pre>
-     * 
-     * @param <D> Type of the DataManager (sub)class to create.
-     * @param managerClass The type of the DatabaseManager class.
+     *
+     * @param <D>             Type of the DataManager (sub)class to create.
+     * @param managerClass    The type of the DatabaseManager class.
      * @param persistenceName The name of persistence configuration provided by {@value #DB_CONFIG_FILE} and specified
-     *            in <code>name</code> element (see example above).
+     *                        in <code>name</code> element (see example above).
      * @return A configured DatabaseManager with access to a connection pool.
      * @throws IllegalStateException In case the initialization fails.
      */
@@ -153,10 +157,10 @@ public final class DatabaseManagerFactory {
      * <li>db.username</li>
      * <li>db.password</li>
      * </ul>
-     * 
-     * @param <D> Type of the DataManager (sub)class to create.
+     *
+     * @param <D>          Type of the DataManager (sub)class to create.
      * @param managerClass The type of the DatabaseManager class.
-     * @param config The PropertiesConfiguration containing the four required fields.
+     * @param config       The PropertiesConfiguration containing the four required fields.
      * @return A configured DatabaseManager with access to a connection pool.
      * @throws IllegalStateException In case the initialization fails.
      */
@@ -198,21 +202,21 @@ public final class DatabaseManagerFactory {
      * <p>
      * Create a DatabaseManager with the supplied configuration.
      * </p>
-     * 
-     * @param <D> Type of the DataManager (sub)class to create.
-     * @param managerClass The type of the DatabaseManager class.
+     *
+     * @param <D>                 Type of the DataManager (sub)class to create.
+     * @param managerClass        The type of the DatabaseManager class.
      * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
-     * @param jdbcConnectionUrl The JDBC connection URL.
-     * @param username The user name for accessing the database.
-     * @param password The password for accessing the database.
+     * @param jdbcConnectionUrl   The JDBC connection URL.
+     * @param username            The user name for accessing the database.
+     * @param password            The password for accessing the database.
      * @return A configured DatabaseManager with access to a connection pool
      * @throws IllegalStateException In case the initialization fails.
      * @deprecated It is not necessary any longer to specify the JDBC driver class, you can use
-     *             {@link #create(Class, String, String, String)} instead
+     * {@link #create(Class, String, String, String)} instead
      */
     @Deprecated
     public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
-            String jdbcConnectionUrl, String username, String password) {
+                                                       String jdbcConnectionUrl, String username, String password) {
         try {
             Constructor<D> dbManagerConstructor = managerClass.getDeclaredConstructor(DataSource.class);
             dbManagerConstructor.setAccessible(true);
@@ -227,24 +231,35 @@ public final class DatabaseManagerFactory {
      * <p>
      * Create a DatabaseManager with the supplied configuration.
      * </p>
-     * 
-     * @param <D> Type of the DataManager (sub)class to create.
-     * @param managerClass The type of the DatabaseManager class.
+     *
+     * @param <D>               Type of the DataManager (sub)class to create.
+     * @param managerClass      The type of the DatabaseManager class.
      * @param jdbcConnectionUrl The JDBC connection URL.
-     * @param username The user name for accessing the database.
-     * @param password The password for accessing the database.
+     * @param username          The user name for accessing the database.
+     * @param password          The password for accessing the database.
      * @return A configured DatabaseManager with access to a connection pool
      * @throws IllegalStateException In case the initialization fails.
      */
     public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcConnectionUrl,
-            String username, String password) {
+                                                       String username, String password) {
         return create(managerClass, null, jdbcConnectionUrl, username, password);
+    }
+
+    public static <D extends DatabaseManager> D create(Class<D> managerClass, DataSource dataSource) {
+        try {
+            Constructor<D> dbManagerConstructor = managerClass.getDeclaredConstructor(DataSource.class);
+            dbManagerConstructor.setAccessible(true);
+            D ret = dbManagerConstructor.newInstance(dataSource);
+            return ret;
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Unable to instantiate DatabaseManager", e);
+        }
     }
 
     private static synchronized DataSource getDataSource(String jdbcConnectionUrl, String username, String password) {
         Validate.notEmpty(jdbcConnectionUrl, "jdbcConnectionUrl must not be empty");
         Validate.notEmpty(username, "username must not be empty");
-        
+
         DataSource dataSource = dataSourceRegistry.get(jdbcConnectionUrl);
         if (dataSource == null) {
             dataSource = dataSourceFactory.createDataSource(jdbcConnectionUrl, username, password);
