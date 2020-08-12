@@ -137,6 +137,15 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return this;
     }
 
+    @Override
+    public PalladianContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
+        setDocumentOnly(document);
+        if (parse) {
+            parseDocument();
+        }
+        return this;
+    }
+
     public PalladianContentExtractor setDocumentOnly(Document document) throws PageContentExtractorException {
         this.document = document;
         imageUrls = null;
@@ -207,7 +216,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     private void parseDocument() throws PageContentExtractorException {
-
         String content;
 
         // if true, we didn't find valid elements within the main content block and take the whole node text
@@ -323,7 +331,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         if (!useMainNodeText) {
-
             // shortestMatchingXPath = cleanXPath(shortestMatchingXPath);
 
             // add possible headlines that are on the same level as the content nodes to the target text nodes
@@ -382,7 +389,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * </p>
      */
     private void cleanDom() {
-
         // remove comments
         removeCommentNodes();
 
@@ -412,11 +418,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
             parentNode.removeChild(node);
         }
-
     }
 
     private void removeCommentNodes() {
-
         List<Node> divs = XPathHelper.getXhtmlNodes(document,
                 "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:section) or (self::xhtml:ol) or (self::xhtml:ul) or (self::xhtml:li)][@class='comment' or contains(@class,'comment ') or contains(@class,' comment') or contains(@class,'comments ') or contains(@class,' comments') or contains(@id,'comments') or @id='disqus_thread']");
 
@@ -424,11 +428,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             comments.add(HtmlHelper.documentToReadableText(node));
             node.getParentNode().removeChild(node);
         }
-
     }
 
     private Node getMainContentNodeWithHints() {
-
         Node mainNode = null;
 
         for (String hint : MAIN_NODE_HINTS) {
@@ -485,7 +487,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public List<WebImage> getImages(String fileType) {
-
         List<WebImage> filteredImages = new ArrayList<>();
         String ftSmall = fileType.toLowerCase();
         for (WebImage webImage : getImages()) {
@@ -564,11 +565,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return imageUrls;
         }
 
-        imageUrls = new ArrayList<>();
-
         if (imageParentNode == null) {
-            return imageUrls;
+            return new ArrayList<>();
         }
+        imageUrls = new ArrayList<>();
 
         // is there a base href?"
         String base = XPathHelper.getXhtmlNodeTextContent(webDocument, "//head/base/@href");
@@ -655,7 +655,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     private int getImageSize(String attributeText) throws NumberFormatException {
-
         int size;
         attributeText = attributeText.replace(",*", "");
 
@@ -1076,7 +1075,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\652.html");
         // pe.setDocument("C:\\Workspace\\data\\GoldStandard\\640.html");
         // pe.setDocument("http://www.upi.com/Top_News/US/2013/12/31/Man-faces-kidnapping-other-charges-in-trip-to-Las-Vegas-to-marry/UPI-67931388527587/");
-        pe.setDocument("http://www.voanews.com/content/russia-urges-nations-to-take-active-role-in-the-middle-east-93610219/169955.html");
+        pe.setDocument("http://www.voanews.com/content/russia-urges-nations-to-take-active-role-in-the-middle-east-93610219/169955.html", true);
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println("Title: " + pe.getResultTitle());

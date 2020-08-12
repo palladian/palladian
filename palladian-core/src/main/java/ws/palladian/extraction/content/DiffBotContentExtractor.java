@@ -21,7 +21,6 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @see <a href="http://www.diffbot.com/our-apis/article/">Diffbot: Article API</a>
  */
 public class DiffBotContentExtractor extends WebPageContentExtractor {
-
     /** The name of this extractor. */
     private static final String EXTRACTOR_NAME = "DiffBot Content Extractor";
 
@@ -42,9 +41,13 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
-    @Override
-    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
+//    @Override
+//    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
+//        return setDocument(documentLocation, true);
+//    }
 
+    @Override
+    public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
         String requestUrl = buildRequestUrl(documentLocation);
 
         HttpResult httpResult;
@@ -73,8 +76,13 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
 
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         String docUrl = document.getDocumentURI();
-        return setDocument(docUrl);
+        return setDocument(docUrl, parse);
     }
 
     private String buildRequestUrl(String docUrl) {

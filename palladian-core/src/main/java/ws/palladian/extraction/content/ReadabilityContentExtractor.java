@@ -8,11 +8,7 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -72,10 +68,13 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * All of the regular expressions in use within readability. Defined up here so we don't instantiate them repeatedly
      * in loops.
      **/
-    private static final Pattern UNLIKELY_CANDIDATES_RE = Pattern.compile("combx|comment|community|disqus|extra|foot|header|legal|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup", Pattern.CASE_INSENSITIVE);
+    private static final Pattern UNLIKELY_CANDIDATES_RE = Pattern.compile(
+            "combx|comment|community|disqus|extra|foot|header|legal|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup", Pattern.CASE_INSENSITIVE);
     private static final Pattern OK_MAYBE_ITS_A_CANDIDATE_RE = Pattern.compile("and|article|body|column|main|shadow", Pattern.CASE_INSENSITIVE);
     private static final Pattern POSITIVE_RE = Pattern.compile("article|body|content|entry|hentry|main|page|pagination|post|text|blog|story", Pattern.CASE_INSENSITIVE);
-    private static final Pattern NEGATIVE_RE = Pattern.compile("combx|comment|com-|contact|foot|footer|footnote|link|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NEGATIVE_RE = Pattern.compile(
+            "combx|comment|com-|contact|foot|footer|footnote|link|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget",
+            Pattern.CASE_INSENSITIVE);
     private static final Pattern DIV_TO_P_ELEMENTS_RE = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)", Pattern.CASE_INSENSITIVE);
     // private static final Pattern trimRe = Pattern.compile("^\\s+|\\s+$");
     private static final Pattern NORMALIZE_RE = Pattern.compile("\\s{2,}");
@@ -95,11 +94,17 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     private boolean writeDump = false;
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#setDocument(org.w3c.dom.Document)
      */
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         this.document = document;
         stripUnlikelyCandidates = true;
         weightClasses = true;
@@ -108,7 +113,8 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         return this;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultDocument()
      */
     @Override
@@ -116,7 +122,8 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         return resultNode;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText()
      */
     @Override
@@ -125,47 +132,50 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getImages()
      */
-    //    @Override
-    //	public List<String> getImages() {
-    //        List<String> imageURLs = new ArrayList<String>();
+    // @Override
+    // public List<String> getImages() {
+    // List<String> imageURLs = new ArrayList<String>();
     //
-    //        String baseURL = document.getDocumentURI();
+    // String baseURL = document.getDocumentURI();
     //
-    //        // PageAnalyzer.printDOM(resultDocument, "");
+    // // PageAnalyzer.printDOM(resultDocument, "");
     //
-    //        // we need to query the result document with an xpath but the name space check has to be done on the original
-    //        // document
-    //        String imgXPath = "//img";
-    //        if (XPathHelper.hasXhtmlNs(document)) {
-    //            imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
-    //        }
+    // // we need to query the result document with an xpath but the name space check has to be done on the original
+    // // document
+    // String imgXPath = "//img";
+    // if (XPathHelper.hasXhtmlNs(document)) {
+    // imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
+    // }
     //
-    //        List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
-    //        for (Node node : imageNodes) {
-    //            try {
-    //                String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
+    // List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
+    // for (Node node : imageNodes) {
+    // try {
+    // String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
     //
-    //                if (!imageURL.startsWith("http")) {
-    //                    imageURL = baseURL + imageURL;
-    //                }
+    // if (!imageURL.startsWith("http")) {
+    // imageURL = baseURL + imageURL;
+    // }
     //
-    //                imageURLs.add(imageURL);
-    //            } catch (NullPointerException e) {
-    //                LOGGER.warn("an image has not all necessary attributes");
-    //            }
-    //        }
+    // imageURLs.add(imageURL);
+    // } catch (NullPointerException e) {
+    // LOGGER.warn("an image has not all necessary attributes");
+    // }
+    // }
     //
-    //        return imageURLs;
-    //    }
+    // return imageURLs;
+    // }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultText(java.lang.String)
      */
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see ws.palladian.preprocessing.scraping.ContentExtractorInterface#getResultTitle()
      */
     @Override
@@ -185,7 +195,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     public boolean isWriteDump() {
         return writeDump;
     }
-    
+
     @Override
     public String getExtractorName() {
         return "Readability";
@@ -297,7 +307,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
         NodeList titleElements = document.getElementsByTagName("title");
         if (titleElements.getLength() == 1) {
-            curTitle = origTitle = getInnerText((Element) titleElements.item(0));
+            curTitle = origTitle = getInnerText((Element)titleElements.item(0));
         }
 
         if (Pattern.compile(" [\\|\\-] ").matcher(curTitle).find()) {
@@ -313,7 +323,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         } else if (curTitle.length() > 150 || curTitle.length() < 15) {
             NodeList hOnes = document.getElementsByTagName("h1");
             if (hOnes.getLength() == 1) {
-                curTitle = getInnerText((Element) hOnes.item(0));
+                curTitle = getInnerText((Element)hOnes.item(0));
             }
         }
 
@@ -391,13 +401,12 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         /* Remove extra paragraphs */
         NodeList articleParagraphs = articleContent.getElementsByTagName("p");
         for (int i = articleParagraphs.getLength() - 1; i >= 0; i--) {
-            Element currentParagraph = (Element) articleParagraphs.item(i);
+            Element currentParagraph = (Element)articleParagraphs.item(i);
             int imgCount = currentParagraph.getElementsByTagName("img").getLength();
             int embedCount = currentParagraph.getElementsByTagName("embed").getLength();
             int objectCount = currentParagraph.getElementsByTagName("object").getLength();
 
-            if (imgCount == 0 && embedCount == 0 && objectCount == 0
-                    && getInnerText(currentParagraph, false).length() == 0) {
+            if (imgCount == 0 && embedCount == 0 && objectCount == 0 && getInnerText(currentParagraph, false).length() == 0) {
                 currentParagraph.getParentNode().removeChild(currentParagraph);
             }
         }
@@ -463,12 +472,11 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         List<Element> nodesToScore = new LinkedList<Element>();
         NodeList allElements = document.getElementsByTagName("*");
         for (int nodeIndex = 0; nodeIndex < allElements.getLength(); nodeIndex++) {
-            Element node = (Element) allElements.item(nodeIndex);
+            Element node = (Element)allElements.item(nodeIndex);
             /* Remove unlikely candidates */
             if (stripUnlikelyCandidates) {
                 String unlikelyMatchString = node.getAttribute("class") + node.getAttribute("id");
-                if (UNLIKELY_CANDIDATES_RE.matcher(unlikelyMatchString).find()
-                        && !OK_MAYBE_ITS_A_CANDIDATE_RE.matcher(unlikelyMatchString).find()
+                if (UNLIKELY_CANDIDATES_RE.matcher(unlikelyMatchString).find() && !OK_MAYBE_ITS_A_CANDIDATE_RE.matcher(unlikelyMatchString).find()
                         && !node.getTagName().equalsIgnoreCase("body")) {
                     LOGGER.debug("Removing unlikely candidate - {}", unlikelyMatchString);
                     node.getParentNode().removeChild(node);
@@ -493,7 +501,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                     for (int i = 0; i < node.getChildNodes().getLength(); i++) {
                         Node childNode = node.getChildNodes().item(i);
                         if (childNode.getNodeType() == Node.TEXT_NODE &&
-                                // added by Philipp to prevent creation of empty p nodes
+                        // added by Philipp to prevent creation of empty p nodes
                                 childNode.getTextContent().trim().length() > 0) {
                             LOGGER.debug("replacing text node with a p tag with the same content.");
                             Element p = document.createElement("p");
@@ -538,11 +546,11 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             contentScore += innerText.split(",").length;
 
             /* For every 100 characters in this paragraph, add another point. Up to 3 points. */
-            contentScore += Math.min(Math.floor((float) innerText.length() / 100), 3);
+            contentScore += Math.min(Math.floor((float)innerText.length() / 100), 3);
 
             // if parent is ELEMENT_NODE, initialize readability and add score -- Philipp.
             if (parentNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element parentElement = (Element) parentNode;
+                Element parentElement = (Element)parentNode;
                 if (!hasReadability(parentElement)) {
                     initializeNode(parentElement);
                     candidates.add(parentElement);
@@ -552,12 +560,12 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
             // if grandparent is ELEMENT_NODE, initialize readability, add half of the score -- Philipp.
             if (grandParentNode != null && grandParentNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element grandParentElement = (Element) grandParentNode;
+                Element grandParentElement = (Element)grandParentNode;
                 if (!hasReadability(grandParentElement)) {
                     initializeNode(grandParentElement);
                     candidates.add(grandParentElement);
                 }
-                setReadability(grandParentElement, getReadability(grandParentElement) + contentScore / (float) 2);
+                setReadability(grandParentElement, getReadability(grandParentElement) + contentScore / (float)2);
             }
 
         }
@@ -577,9 +585,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             contentScore = contentScore * (1 - getLinkDensity(candidate));
             setReadability(candidate, contentScore);
 
-            LOGGER.debug("Candidate: {} ({}:{}) with score {}",
-                    new Object[] {candidate, candidate.getAttribute("class"), candidate.getAttribute("id"),
-                            contentScore});
+            LOGGER.debug("Candidate: {} ({}:{}) with score {}", new Object[] {candidate, candidate.getAttribute("class"), candidate.getAttribute("id"), contentScore});
 
             if (topCandidate == null || contentScore > getReadability(topCandidate)) {
                 topCandidate = candidate;
@@ -619,12 +625,11 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             if (!(siblingNodes.item(s).getNodeType() == Node.ELEMENT_NODE)) {
                 continue;
             }
-            Element siblingNode = (Element) siblingNodes.item(s);
+            Element siblingNode = (Element)siblingNodes.item(s);
             boolean append = false;
 
-            LOGGER.debug("Looking at sibling node: {} ({}:{}) {}",
-                    new Object[] {siblingNode, siblingNode.getAttribute("class"), siblingNode.getAttribute("id"),
-                            (hasReadability(siblingNode) ? " with score " + getReadability(siblingNode) : "")});
+            LOGGER.debug("Looking at sibling node: {} ({}:{}) {}", new Object[] {siblingNode, siblingNode.getAttribute("class"), siblingNode.getAttribute("id"),
+                    (hasReadability(siblingNode) ? " with score " + getReadability(siblingNode) : "")});
 
             if (siblingNode == topCandidate) {
                 append = true;
@@ -632,8 +637,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
             int contentBonus = 0;
             /* Give a bonus if sibling nodes and top candidates have the example same classname */
-            if (topCandidate.getAttribute("class").length() > 0
-                    && siblingNode.getAttribute("class").equals(topCandidate.getAttribute("class"))) {
+            if (topCandidate.getAttribute("class").length() > 0 && siblingNode.getAttribute("class").equals(topCandidate.getAttribute("class"))) {
                 contentBonus += getReadability(topCandidate) * 0.2;
             }
 
@@ -648,8 +652,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
                 if (nodeLength > 80 && linkDensity < 0.25) {
                     append = true;
-                } else if (nodeLength < 80 && linkDensity == 0
-                        && Pattern.compile("\\.( |$)").matcher(nodeContent).find()) {
+                } else if (nodeLength < 80 && linkDensity == 0 && Pattern.compile("\\.( |$)").matcher(nodeContent).find()) {
                     append = true;
                 }
             }
@@ -658,15 +661,14 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                 LOGGER.debug("Appending node: {}", siblingNode);
 
                 Element nodeToAppend;
-                if (!siblingNode.getNodeName().equalsIgnoreCase("div")
-                        && !siblingNode.getNodeName().equalsIgnoreCase("p")) {
+                if (!siblingNode.getNodeName().equalsIgnoreCase("div") && !siblingNode.getNodeName().equalsIgnoreCase("p")) {
                     /*
                      * We have a node that isn't a common block level element, like a form or td tag. Turn it into a div
                      * so it doesn't get filtered out later by
                      * accident.
                      */
                     LOGGER.debug("Altering siblingNode of {} to div.", siblingNode.getNodeName());
-                    nodeToAppend = (Element) document.renameNode(siblingNode, siblingNode.getNamespaceURI(), "div");
+                    nodeToAppend = (Element)document.renameNode(siblingNode, siblingNode.getNamespaceURI(), "div");
                 } else {
                     nodeToAppend = siblingNode;
                 }
@@ -734,7 +736,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         while (cur != null) {
             if (cur.getNodeType() == Node.ELEMENT_NODE) {
                 // Remove style attribute(s) :
-                Element curElement = (Element) cur;
+                Element curElement = (Element)cur;
                 curElement.removeAttribute("style");
                 cleanStyles(curElement);
             }
@@ -756,10 +758,10 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         int textLength = getInnerText(e).length();
         int linkLength = 0;
         for (int i = 0; i < links.getLength(); i++) {
-            Element linkElement = (Element) links.item(i);
+            Element linkElement = (Element)links.item(i);
             linkLength += getInnerText(linkElement).length();
         }
-        float linkDensity = textLength != 0 ? (float) linkLength / textLength : 0;
+        float linkDensity = textLength != 0 ? (float)linkLength / textLength : 0;
 
         return linkDensity;
     }
@@ -865,14 +867,13 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
          * todo: Consider taking into account original contentScore here.
          **/
         for (int i = curTagsLength - 1; i >= 0; i--) {
-            Element element = (Element) tagsList.item(i);
+            Element element = (Element)tagsList.item(i);
 
             int weight = getClassIdWeight(element);
             float contentScore = getReadability(element);
 
-            LOGGER.debug("Cleaning Conditionally {} ({}:{}) {}", new Object[] {element, element.getAttribute("class"),
-                    element.getAttribute("id"),
-                    (hasReadability(element) ? " with score " + getReadability(element) : "")});
+            LOGGER.debug("Cleaning Conditionally {} ({}:{}) {}",
+                    new Object[] {element, element.getAttribute("class"), element.getAttribute("id"), (hasReadability(element) ? " with score " + getReadability(element) : "")});
 
             if (weight + contentScore < 0) {
                 element.getParentNode().removeChild(element);
@@ -890,7 +891,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                 int embedCount = 0;
                 NodeList embeds = element.getElementsByTagName("embed");
                 for (int ei = 0; ei < embeds.getLength(); ei++) {
-                    Element embedElement = (Element) embeds.item(ei);
+                    Element embedElement = (Element)embeds.item(ei);
                     if (VIDEO_RE.matcher(embedElement.getAttribute("src")).find()) {
                         embedCount++;
                     }
@@ -904,7 +905,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                     toRemove = true;
                 } else if (li > p && !tag.equalsIgnoreCase("ul") && !tag.equalsIgnoreCase("ol")) {
                     toRemove = true;
-                } else if (input > Math.floor(p / (double) 3)) {
+                } else if (input > Math.floor(p / (double)3)) {
                     toRemove = true;
                 } else if (contentLength < 25 && (img == 0 || img > 2)) {
                     toRemove = true;
@@ -934,7 +935,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         for (int headerIndex = 1; headerIndex < 7; headerIndex++) {
             NodeList headers = e.getElementsByTagName("h" + headerIndex);
             for (int i = headers.getLength() - 1; i >= 0; i--) {
-                Element current = (Element) headers.item(i);
+                Element current = (Element)headers.item(i);
                 if (getClassIdWeight(current) < 0 || getLinkDensity(current) > 0.33) {
                     current.getParentNode().removeChild(current);
                 }
@@ -966,6 +967,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Usage example for the book.
+     * 
      * @throws Exception
      */
     @SuppressWarnings("unused")
@@ -975,7 +977,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
         // this method is heavily overloaded and accepts various types of input
         String url = "http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/";
-        extractor.setDocument(url);
+        extractor.setDocument(url, true);
 
         // get the main content as text representation
         String contentText = extractor.getResultText();
@@ -988,7 +990,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         String title = extractor.getResultTitle();
 
     }
-
 
     // private Document createResultDocument() {
     // Document result = Helper.createDocument();
@@ -1007,80 +1008,79 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     // return result;
     // }
 
-//    // //////////////////////////////////////////////////////////////////////////
-//    // main method for command line usage
-//    // //////////////////////////////////////////////////////////////////////////
-//    @SuppressWarnings("static-access")
-//    public static void main(String[] args) throws Exception {
-//
-//        ReadabilityContentExtractor pageContentExtractor = new ReadabilityContentExtractor();
-//        String outputfile = null;
-//
-//        CommandLineParser parser = new BasicParser();
-//
-//        Options options = new Options();
-//        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write dump of parsed page").create());
-//        options.addOption(OptionBuilder.withLongOpt("output").withDescription("save result to xml file").hasArg().withArgName("fileName").create());
-//
-//        try {
-//
-//            if (args.length < 1) {
-//                // no arguments given, print usage help in catch clause.
-//                throw new ParseException(null);
-//            }
-//
-//            CommandLine cmd = parser.parse(options, args);
-//
-//            if (cmd.hasOption("dump")) {
-//                pageContentExtractor.setWriteDump(true);
-//            }
-//            if (cmd.hasOption("output")) {
-//                outputfile = cmd.getOptionValue("output");
-//            }
-//
-//            if (cmd.getArgs().length == 1) {
-//
-//                pageContentExtractor.setDocument(cmd.getArgs()[0]);
-//
-//                System.out.println(pageContentExtractor.getResultTitle());
-//                System.out.println("================================");
-//                System.out.println(pageContentExtractor.getResultText());
-//
-//                if (outputfile != null) {
-//                    HtmlHelper.writeToFile(pageContentExtractor.getResultNode(), new File(outputfile));
-//                }
-//
-//
-//            } else {
-//                throw new ParseException(null);
-//            }
-//
-//        } catch (ParseException e) {
-//            // print usage help
-//            HelpFormatter formatter = new HelpFormatter();
-//            formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
-//
-//            WebPageContentExtractor extractor = new ReadabilityContentExtractor();
-//
-//            // this method is heavily overloaded and accepts various types of input
-//            String url = "http://www.ccc.govt.nz/cityleisure/recreationsport/sportsrecreationguide/orienteering.aspx";
-//            url = "http://www.abc.net.au/news/tag/cricket/";
-//            url = "http://www.lynchburg.edu/equestrian.xml";
-//            url = "http://manteno.govoffice.com/index.asp?Type=B_BASIC&SEC={0D9936D0-B3A8-4614-9140-4EAAACCDE62B}&DE={5C4D155C-AC28-409D-9CE8-87735F1AC462}";
-//
-//            extractor.setDocument(new URL(url));
-//
-//            // get the main content as text representation
-//            String contentText = extractor.getResultText();
-//
-//            // get the title
-//            String title = extractor.getResultTitle();
-//
-//            System.out.println("title: " + title);
-//            System.out.println("content: " + contentText);
-//        }
-//
-//    }
-
+    // // //////////////////////////////////////////////////////////////////////////
+    // // main method for command line usage
+    // // //////////////////////////////////////////////////////////////////////////
+    // @SuppressWarnings("static-access")
+    // public static void main(String[] args) throws Exception {
+    //
+    // ReadabilityContentExtractor pageContentExtractor = new ReadabilityContentExtractor();
+    // String outputfile = null;
+    //
+    // CommandLineParser parser = new BasicParser();
+    //
+    // Options options = new Options();
+    // options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write dump of parsed page").create());
+    // options.addOption(OptionBuilder.withLongOpt("output").withDescription("save result to xml file").hasArg().withArgName("fileName").create());
+    //
+    // try {
+    //
+    // if (args.length < 1) {
+    // // no arguments given, print usage help in catch clause.
+    // throw new ParseException(null);
+    // }
+    //
+    // CommandLine cmd = parser.parse(options, args);
+    //
+    // if (cmd.hasOption("dump")) {
+    // pageContentExtractor.setWriteDump(true);
+    // }
+    // if (cmd.hasOption("output")) {
+    // outputfile = cmd.getOptionValue("output");
+    // }
+    //
+    // if (cmd.getArgs().length == 1) {
+    //
+    // pageContentExtractor.setDocument(cmd.getArgs()[0]);
+    //
+    // System.out.println(pageContentExtractor.getResultTitle());
+    // System.out.println("================================");
+    // System.out.println(pageContentExtractor.getResultText());
+    //
+    // if (outputfile != null) {
+    // HtmlHelper.writeToFile(pageContentExtractor.getResultNode(), new File(outputfile));
+    // }
+    //
+    //
+    // } else {
+    // throw new ParseException(null);
+    // }
+    //
+    // } catch (ParseException e) {
+    // // print usage help
+    // HelpFormatter formatter = new HelpFormatter();
+    // formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
+    //
+    // WebPageContentExtractor extractor = new ReadabilityContentExtractor();
+    //
+    // // this method is heavily overloaded and accepts various types of input
+    // String url = "http://www.ccc.govt.nz/cityleisure/recreationsport/sportsrecreationguide/orienteering.aspx";
+    // url = "http://www.abc.net.au/news/tag/cricket/";
+    // url = "http://www.lynchburg.edu/equestrian.xml";
+    // url = "http://manteno.govoffice.com/index.asp?Type=B_BASIC&SEC={0D9936D0-B3A8-4614-9140-4EAAACCDE62B}&DE={5C4D155C-AC28-409D-9CE8-87735F1AC462}";
+    //
+    // extractor.setDocument(new URL(url));
+    //
+    // // get the main content as text representation
+    // String contentText = extractor.getResultText();
+    //
+    // // get the title
+    // String title = extractor.getResultTitle();
+    //
+    // System.out.println("title: " + title);
+    // System.out.println("content: " + contentText);
+    // }
+    //
+    // }
 
 }

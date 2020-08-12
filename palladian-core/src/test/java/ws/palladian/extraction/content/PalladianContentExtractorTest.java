@@ -28,7 +28,7 @@ public class PalladianContentExtractorTest {
     public void testPalladianContentExtractor() throws PageContentExtractorException, FileNotFoundException {
         PalladianContentExtractor extractor = new PalladianContentExtractor();
 
-        String text = extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html"))
+        String text = extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test001.html"), true)
                 .getResultText();
         // System.out.println(DigestUtils.md5Hex(text));
 
@@ -144,7 +144,7 @@ public class PalladianContentExtractorTest {
     public void testImageExtraction() throws PageContentExtractorException, FileNotFoundException {
         PalladianContentExtractor extractor = new PalladianContentExtractor();
 
-        extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test015.html"));
+        extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test015.html"), true);
         // extractor.setDocument("http://gizmodo.com/5823937/holy-shit-maul-semi+automatic-shotgun-shoots-taser-cartridges-and-is-called-maul");
         // System.out.println(extractor.getResultText());
 
@@ -157,7 +157,7 @@ public class PalladianContentExtractorTest {
         // Assert.assertEquals(640, images.get(0).getWidth());
 
         // => http://www.bbc.co.uk/news/science-environment-14254856
-        extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test020.html"));
+        extractor.setDocument(ResourceHelper.getResourcePath("/pageContentExtractor/test020.html"), true);
         images = extractor.getImages();
 
         collector.checkThat(images.size(), is(4));

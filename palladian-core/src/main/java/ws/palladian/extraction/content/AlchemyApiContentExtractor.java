@@ -20,7 +20,6 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @author David Urbansky
  */
 public class AlchemyApiContentExtractor extends WebPageContentExtractor {
-
     /** The name of this extractor. */
     private static final String EXTRACTOR_NAME = "AlchemyApi";
 
@@ -39,8 +38,7 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
-
+    public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
         String requestUrl = buildRequestUrl(documentLocation);
 
         HttpResult httpResult;
@@ -66,8 +64,13 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
 
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         String docUrl = document.getDocumentURI();
-        return setDocument(docUrl);
+        return setDocument(docUrl, parse);
     }
 
     private String buildRequestUrl(String docUrl) {

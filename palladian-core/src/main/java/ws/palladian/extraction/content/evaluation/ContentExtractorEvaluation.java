@@ -84,7 +84,7 @@ public final class ContentExtractorEvaluation {
                     File htmlFile = page.getHtmlFile();
 
                     try {
-                        extractor.setDocument(htmlFile);
+                        extractor.setDocument(htmlFile, true);
                     } catch (Exception e) {
                         LOGGER.warn("Encountered {} for {}", e, page);
                     }

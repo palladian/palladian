@@ -28,7 +28,6 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @author Philipp Katz
  */
 public abstract class WebPageContentExtractor {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WebPageContentExtractor.class);
 
     /**
@@ -44,16 +43,7 @@ public abstract class WebPageContentExtractor {
      */
     public abstract WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException;
 
-    /**
-     * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
-     * convenient concatenations of method invocations, like:
-     * <code>new PageContentExtractor().setDocument(new URL(...)).getResultDocument();</code>
-     * 
-     * @param url
-     * @return
-     * @throws PageContentExtractorException
-     */
-    // public abstract WebPageContentExtractor setDocument(InputSource source) throws PageContentExtractorException;
+    public abstract WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException;
 
     /**
      * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
@@ -64,10 +54,10 @@ public abstract class WebPageContentExtractor {
      * @return
      * @throws PageContentExtractorException
      */
-    public WebPageContentExtractor setDocument(URL url) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(URL url, boolean parse) throws PageContentExtractorException {
         boolean localFile = UrlHelper.isLocalFile(url);
         if (localFile) {
-            return setDocument(new File(url.getFile()));
+            return setDocument(new File(url.getFile()), parse);
         } else {
             HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
             HttpResult httpResult;
@@ -99,11 +89,11 @@ public abstract class WebPageContentExtractor {
      * @return
      * @throws PageContentExtractorException
      */
-    public WebPageContentExtractor setDocument(File file) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(File file, boolean parse) throws PageContentExtractorException {
         try {
             DocumentParser parser = ParserFactory.createHtmlParser();
             Document document = parser.parse(file);
-            return setDocument(document);
+            return setDocument(document, parse);
         } catch (ParserException e) {
             throw new PageContentExtractorException("error parsing the file " + file, e);
         }
@@ -118,10 +108,10 @@ public abstract class WebPageContentExtractor {
      * @return The instance of the PageContentExtractor.
      * @throws PageContentExtractorException
      */
-    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
+    public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
         try {
             URL url = createUrl(documentLocation);
-            return setDocument(url);
+            return setDocument(url, parse);
         } catch (MalformedURLException e) {
             throw new PageContentExtractorException("could not resolve " + documentLocation, e);
         } catch (NullPointerException e) {
@@ -171,7 +161,7 @@ public abstract class WebPageContentExtractor {
      */
     public String getResultText(String documentLocation) {
         try {
-            setDocument(documentLocation);
+            setDocument(documentLocation, true);
         } catch (PageContentExtractorException e) {
             LOGGER.error("location: " + documentLocation + " could not be loaded successfully, " + e.getMessage());
         }

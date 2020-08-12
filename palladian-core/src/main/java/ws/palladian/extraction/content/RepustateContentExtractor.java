@@ -21,7 +21,6 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * @see <a href="https://www.repustate.com/docs/#api-7">Repustate: Clean HTML</a>
  */
 public class RepustateContentExtractor extends WebPageContentExtractor {
-
     /** The name of this extractor. */
     private static final String EXTRACTOR_NAME = "Repustate Content Extractor";
 
@@ -40,16 +39,14 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
-
+    public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
         String requestUrl = buildRequestUrl(documentLocation);
 
         HttpResult httpResult;
         try {
             httpResult = httpRetriever.httpGet(requestUrl);
         } catch (HttpException e) {
-            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": "
-                    + e.getMessage(), e);
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": " + e.getMessage(), e);
         }
 
         extractedResult = httpResult.getStringContent();
@@ -58,8 +55,7 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
             JsonObject json = new JsonObject(extractedResult);
             extractedResult = json.getString("text");
         } catch (JsonException e) {
-            throw new PageContentExtractorException("Error while parsing the JSON response '"
-                    + httpResult.getStringContent() + "': " + e.getMessage(), e);
+            throw new PageContentExtractorException("Error while parsing the JSON response '" + httpResult.getStringContent() + "': " + e.getMessage(), e);
         }
 
         return this;
@@ -67,13 +63,17 @@ public class RepustateContentExtractor extends WebPageContentExtractor {
 
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         String docUrl = document.getDocumentURI();
-        return setDocument(docUrl);
+        return setDocument(docUrl, parse);
     }
 
     private String buildRequestUrl(String docUrl) {
-        return String.format("http://api.repustate.com/v2/%s/clean-html.json?url=%s", apiKey,
-                UrlHelper.encodeParameter(docUrl));
+        return String.format("http://api.repustate.com/v2/%s/clean-html.json?url=%s", apiKey, UrlHelper.encodeParameter(docUrl));
     }
 
     @Override

@@ -68,6 +68,7 @@ public final class XPathHelper {
 
     private static final Pattern AND_OR = Pattern.compile("and|or");
     private static final Pattern XHTML_TAGGABLE = Pattern.compile("[a-zA-Z][\\w]*|\\*");
+    private static final Pattern XHTML_NS = Pattern.compile("(\"[^\"]+\")|('[^']+')");
 
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<>();
@@ -452,7 +453,7 @@ public final class XPathHelper {
         // existing code below and add tests. Philipp, 2012-08-08
 
         // first we need to mask everything in quotes as this must not be analyzed for namespaces
-        List<String> toMask = StringHelper.getRegexpMatches(PatternHelper.compileOrGet("(\"[^\"]+\")|('[^']+')"), xPath);
+        List<String> toMask = StringHelper.getRegexpMatches(XHTML_NS, xPath);
         int maskId = 0;
         Map<String, String> unmaskMap = new HashMap<>();
         for (String quoted : toMask) {

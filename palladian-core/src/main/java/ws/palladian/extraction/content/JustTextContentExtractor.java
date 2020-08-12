@@ -25,7 +25,6 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see http://nlp.fi.muni.cz/projects/justext/
  */
 public class JustTextContentExtractor extends WebPageContentExtractor {
-
     /** For performing HTTP requests. */
     private final HttpRetriever httpRetriever;
 
@@ -37,16 +36,14 @@ public class JustTextContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
-
+    public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
         String requestUrl = buildRequestUrl(documentLocation);
 
         HttpResult httpResult;
         try {
             httpResult = httpRetriever.httpGet(requestUrl);
         } catch (HttpException e) {
-            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": "
-                    + e.getMessage(), e);
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": " + e.getMessage(), e);
         }
 
         extractedResult = httpResult.getStringContent();
@@ -70,14 +67,19 @@ public class JustTextContentExtractor extends WebPageContentExtractor {
 
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         String docUrl = document.getDocumentURI();
-        return setDocument(docUrl);
+        return setDocument(docUrl, parse);
     }
 
     private String buildRequestUrl(String docUrl) {
-        String requestUrl = String
-                .format("http://nlp.fi.muni.cz/projects/justext/?url=%s&language=-Any_language-&max_heading_distance=200&length_low=70&length_high=200&stopwords_low=0.3&stopwords_high=0.32&max_link_density=0.2",
-                        UrlHelper.encodeParameter(docUrl));
+        String requestUrl = String.format(
+                "http://nlp.fi.muni.cz/projects/justext/?url=%s&language=-Any_language-&max_heading_distance=200&length_low=70&length_high=200&stopwords_low=0.3&stopwords_high=0.32&max_link_density=0.2",
+                UrlHelper.encodeParameter(docUrl));
 
         return requestUrl;
     }
@@ -108,6 +110,5 @@ public class JustTextContentExtractor extends WebPageContentExtractor {
 
         System.out.println("text: " + resultText);
     }
-
 
 }

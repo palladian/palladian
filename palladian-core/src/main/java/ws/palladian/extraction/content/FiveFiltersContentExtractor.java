@@ -29,7 +29,6 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @see http://fivefilters.org/content-only/
  */
 public class FiveFiltersContentExtractor extends WebPageContentExtractor {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FiveFiltersContentExtractor.class);
 
@@ -45,16 +44,14 @@ public class FiveFiltersContentExtractor extends WebPageContentExtractor {
     }
 
     @Override
-    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
-
+    public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
         String requestUrl = buildRequestUrl(documentLocation);
 
         HttpResult httpResult;
         try {
             httpResult = httpRetriever.httpGet(requestUrl);
         } catch (HttpException e) {
-            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": "
-                    + e.getMessage(), e);
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": " + e.getMessage(), e);
         }
 
         extractedResult = httpResult.getStringContent();
@@ -71,8 +68,7 @@ public class FiveFiltersContentExtractor extends WebPageContentExtractor {
                 resultNode = htmlParser.parse(new StringInputStream(extractedResult));
                 extractedResult = HtmlHelper.documentToReadableText(resultNode);
 
-                extractedResult = extractedResult.replaceAll("This entry passed through the Full-Text RSS service.*",
-                        "");
+                extractedResult = extractedResult.replaceAll("This entry passed through the Full-Text RSS service.*", "");
             } catch (ParserException e) {
                 e.printStackTrace();
             }
@@ -81,20 +77,22 @@ public class FiveFiltersContentExtractor extends WebPageContentExtractor {
             LOGGER.error(e.getMessage());
         }
 
-
         return this;
     }
 
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         String docUrl = document.getDocumentURI();
-        return setDocument(docUrl);
+        return setDocument(docUrl, parse);
     }
 
     private String buildRequestUrl(String docUrl) {
-        String requestUrl = String.format("http://ftr.fivefilters.org/makefulltextfeed.php?url=%s&max=1",
-                UrlHelper.encodeParameter(docUrl));
-
+        String requestUrl = String.format("http://ftr.fivefilters.org/makefulltextfeed.php?url=%s&max=1", UrlHelper.encodeParameter(docUrl));
         return requestUrl;
     }
 
@@ -126,5 +124,4 @@ public class FiveFiltersContentExtractor extends WebPageContentExtractor {
         System.out.println("title: " + resultTitle);
         System.out.println("text: " + resultText);
     }
-
 }

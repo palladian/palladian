@@ -25,7 +25,6 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * @author David Urbansky
  */
 public class ReadItLaterContentExtractor extends WebPageContentExtractor {
-
     /** The API key for accessing the service. */
     private final String apiKey;
 
@@ -47,22 +46,24 @@ public class ReadItLaterContentExtractor extends WebPageContentExtractor {
 
     @Override
     public WebPageContentExtractor setDocument(Document document) throws PageContentExtractorException {
+        return setDocument(document, true);
+    }
+
+    @Override
+    public WebPageContentExtractor setDocument(Document document, boolean parse) throws PageContentExtractorException {
         String docUrl = document.getDocumentURI();
-        String requestUrl = String.format("http://text.readitlaterlist.com/v2/text?apikey=%s&url=%s", apiKey,
-                UrlHelper.encodeParameter(docUrl));
+        String requestUrl = String.format("http://text.readitlaterlist.com/v2/text?apikey=%s&url=%s", apiKey, UrlHelper.encodeParameter(docUrl));
         HttpResult httpResult;
         try {
             httpResult = httpRetriever.httpGet(requestUrl);
         } catch (HttpException e) {
-            throw new PageContentExtractorException("Error when contacting API for URL \"" + docUrl + "\": "
-                    + e.getMessage(), e);
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + docUrl + "\": " + e.getMessage(), e);
         }
         extractedResult = httpResult.getStringContent();
         try {
             extractedDocument = htmlParser.parse(httpResult);
         } catch (ParserException e) {
-            throw new PageContentExtractorException("Error when parsing the result HTML for URL \"" + docUrl + "\": "
-                    + e.getMessage(), e);
+            throw new PageContentExtractorException("Error when parsing the result HTML for URL \"" + docUrl + "\": " + e.getMessage(), e);
         }
         return this;
     }
@@ -111,5 +112,4 @@ public class ReadItLaterContentExtractor extends WebPageContentExtractor {
         System.out.println("title: " + title);
         System.out.println("text: " + resultText);
     }
-
 }
