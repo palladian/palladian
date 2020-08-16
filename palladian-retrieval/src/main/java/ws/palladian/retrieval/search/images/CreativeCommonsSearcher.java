@@ -56,7 +56,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
                 }
                 JsonObject json = new JsonObject(jsonResponse);
-                JsonArray jsonArray = json.getJsonArray("results");
+                JsonArray jsonArray = Optional.ofNullable(json.getJsonArray("results")).orElse(new JsonArray());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
 
@@ -116,7 +116,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
 
     public static void main(String[] args) throws SearcherException {
         CreativeCommonsSearcher searcher = new CreativeCommonsSearcher();
-        searcher.setSources("wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,smithsonian,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
+        searcher.setSources("wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
         List<WebImage> results = searcher.search("brain", 1001);
         CollectionHelper.print(results);
     }
