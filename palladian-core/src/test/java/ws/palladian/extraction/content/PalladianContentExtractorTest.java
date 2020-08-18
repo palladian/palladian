@@ -55,7 +55,7 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.SLOVAK));
 
         // Polish
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.boomrent.pl/"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://wyborcza.pl/"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.POLISH));
 
