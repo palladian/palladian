@@ -29,7 +29,6 @@ public class SendGridMailer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendGridMailer.class);
 
     private final Set<String> mailCategories = new HashSet<>();
-    private String recipientName = null;
 
     // avoid abuse
     public static int maxEmailsPerDay = 2000;
@@ -54,14 +53,6 @@ public class SendGridMailer {
         return recipientMap;
     }
 
-    public String getRecipientName() {
-        return recipientName;
-    }
-
-    public void setRecipientName(String recipientName) {
-        this.recipientName = recipientName;
-    }
-
     public boolean sendMail(String fromEmail, String fromName, String toEmail, String subject, String textMessage, String mailBody) {
         return sendMail(fromEmail, fromName, buildRecipientMap(toEmail), subject, textMessage, mailBody, new ArrayList<>());
     }
@@ -72,6 +63,10 @@ public class SendGridMailer {
 
     public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage) {
         return sendMail(fromEmail, fromName, recipientMap, subject, textMessage, htmlMessage, new ArrayList<>(), null);
+    }
+
+    public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType,List<String>> recipientMap, String subject, String htmlMessage) {
+        return sendMail(fromEmail, fromName, recipientMap, subject, null, htmlMessage, new ArrayList<>(), null);
     }
 
     public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage,
@@ -115,9 +110,6 @@ public class SendGridMailer {
                     continue;
                 }
                 Email to = new Email(toEmail);
-                if (recipientName != null) {
-                    to.setName(recipientName);
-                }
                 personalization.addTo(to);
             }
 
@@ -243,5 +235,4 @@ public class SendGridMailer {
     public boolean addCategory(String category) {
         return this.mailCategories.add(category);
     }
-
 }
