@@ -1,6 +1,11 @@
 package ws.palladian.retrieval.email;
 
 import com.sendgrid.*;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Attachments;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import com.sendgrid.helpers.mail.objects.Personalization;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -131,7 +136,7 @@ public class SendGridMailer {
                 personalization.addBcc(bcc);
             }
 
-            com.sendgrid.Mail mail = new com.sendgrid.Mail();
+            Mail mail = new Mail();
             mail.setFrom(from);
             mail.setSubject(subject);
 
