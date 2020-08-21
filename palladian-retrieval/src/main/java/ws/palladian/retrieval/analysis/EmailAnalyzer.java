@@ -11,7 +11,6 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 import java.util.Optional;
 
 public class EmailAnalyzer {
-
     public PersonProfile getProfile(String emailAddress) {
         PersonProfile personProfile = new PersonProfile();
         emailAddress = emailAddress.trim().toLowerCase();
@@ -48,7 +47,7 @@ public class EmailAnalyzer {
             String thumbnailUrl = firstEntry.tryQueryString("thumbnailUrl");
             personProfile.setImageUrl(thumbnailUrl);
 
-//            System.out.println(gravatarResponse.toString(2));
+            // System.out.println(gravatarResponse.toString(2));
         } else {
             try {
                 // must be fast or forget about it
@@ -80,5 +79,26 @@ public class EmailAnalyzer {
         }
 
         return personProfile;
+    }
+
+    /**
+     * Verify an email.
+     * @param email The email to verify.
+     * @param apiKey The api key for quickemailverification.com.
+     * @see http://docs.quickemailverification.com/email-verification-api/verify-an-email-address
+     * @return
+     */
+    public static EmailVerificationResult verify(String email, String apiKey) {
+        JsonObject response = new DocumentRetriever().tryGetJsonObject("http://api.quickemailverification.com/v1/verify?email=" + UrlHelper.encodeParameter(email) + "&apikey=" + apiKey);
+        if (response == null || response.tryGetString("success").equals("false")) {
+            return null;
+        }
+
+        return new EmailVerificationResult(response);
+    }
+
+    public static void main(String[] args) {
+        EmailVerificationResult verify = EmailAnalyzer.verify("email", "apiKey");
+        System.out.println(verify);
     }
 }
