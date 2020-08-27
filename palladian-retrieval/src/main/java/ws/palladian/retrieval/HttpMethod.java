@@ -6,7 +6,7 @@ package ws.palladian.retrieval;
  * @author Philipp Katz
  */
 public enum HttpMethod {
-    GET, POST, HEAD, PUT, DELETE;
+    GET, POST, HEAD, PUT, DELETE, PATCH;
     /**
      * @return An array with string values of all HTTP methods.
      */
