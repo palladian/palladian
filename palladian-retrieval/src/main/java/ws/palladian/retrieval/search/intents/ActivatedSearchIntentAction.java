@@ -35,4 +35,11 @@ public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSea
     public void setModifiedQuery(String modifiedQuery) {
         this.modifiedQuery = modifiedQuery.trim();
     }
+
+    @Override
+    public String toString() {
+        return "ActivatedSearchIntentAction{" +
+                "modifiedQuery='" + modifiedQuery + '\'' +
+                '}';
+    }
 }

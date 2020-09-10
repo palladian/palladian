@@ -3,10 +3,12 @@ package ws.palladian.retrieval.search.intents;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -18,6 +20,45 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * A generic intent parser. For example, query = "under 100€" + intent is "under \d+€" => action sort price < 100€.
  * Input: An intent file + query.
  * Output: A filled intent action.
+ *
+ * Sample Json Array:
+ * [
+ *  {
+ *      "triggers": [
+ *          {
+ *              "type": "CONTAINS",
+ *              "text": "cheap"
+ *          }
+ *      ],
+ *      "context": {
+ *          "categories": ["Notebook"],
+ *          "userGender": "female",
+ *          "whatever": 123.332
+ *      },
+ *      "action": {
+ *          "type": "DEFINITION",
+ *          "filters": [
+ *              {
+ *                  "key": "cost.PRICE",
+ *                  "min": 0,
+ *                  "max": 233
+ *              }
+ *          ],
+ *          "sorts": [
+ *              {
+ *                  "key": "cost.PRICE",
+ *                  "direction": "ASC"
+ *              }
+ *          ],
+ *          "explanation": {
+ *              "en": "You want the cheap stuff you penny pincher"
+ *          },
+ *          "metaData": {
+ *              "x": "y"
+ *          }
+ *      }
+ *  }
+ * ]
  */
 public class SearchIntentParser {
     List<SearchIntent> intents = new ArrayList<>();
@@ -75,6 +116,14 @@ public class SearchIntentParser {
                 intentAction.setSort(intentSort);
             }
 
+            JsonObject explanation = actionObj.tryGetJsonObject("explanation");
+            for (String languageCode : explanation.keySet()) {
+                intentAction.getExplanation().put(Language.getByIso6391(languageCode), explanation.tryGetString(languageCode));
+            }
+
+            JsonObject metaData = actionObj.tryGetJsonObject("metaData");
+            intentAction.setMetaData(metaData);
+
             // parse queries and redirects
             String redirect = actionObj.tryGetString("redirect");
             if (redirect != null) {
@@ -93,8 +142,14 @@ public class SearchIntentParser {
 
     // TODO option to rewrite only matching part or entire query
     public ActivatedSearchIntentAction parse(String query) {
+        return parse(query, null);
+    }
+    public ActivatedSearchIntentAction parse(String query, JsonObject context) {
         // XXX this could be slightly faster if we index actions by their match type so we don't have to iterate through all intents all the time
         for (SearchIntent intent : intents) {
+            if (!contextMatch(intent.getContext(), context)) {
+                continue;
+            }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
                 if (intentTrigger.getMatchType() == QueryMatchType.MATCH && intentTrigger.getText().equals(query)) {
                     return processMatch(QueryMatchType.MATCH, intent, query, null, intentTrigger);
@@ -103,6 +158,9 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
+            if (!contextMatch(intent.getContext(), context)) {
+                continue;
+            }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
                 if (intentTrigger.getMatchType() == QueryMatchType.PHRASE_MATCH && StringHelper.containsWordCaseSensitive(intentTrigger.getText(), query)) {
                     return processMatch(QueryMatchType.PHRASE_MATCH, intent, query, null, intentTrigger);
@@ -111,6 +169,9 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
+            if (!contextMatch(intent.getContext(), context)) {
+                continue;
+            }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
                 if (intentTrigger.getMatchType() == QueryMatchType.CONTAINS && query.contains(intentTrigger.getText())) {
                     return processMatch(QueryMatchType.CONTAINS, intent, query, null, intentTrigger);
@@ -119,6 +180,9 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
+            if (!contextMatch(intent.getContext(), context)) {
+                continue;
+            }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
                 String regex = intentTrigger.getText();
 
@@ -134,6 +198,25 @@ public class SearchIntentParser {
         }
 
         return null;
+    }
+
+    private boolean contextMatch(JsonObject intentContext, JsonObject queryContext) {
+        if (intentContext.isEmpty() || queryContext == null) {
+            return true;
+        }
+        // if a key exists in both intent and query context:
+        // if key is string the intent and query context values must match
+        // if key is numeric the intent and query context values must match
+        // if key is array the intent context must contain the query context
+        for (Map.Entry<String, Object> queryContextMap : queryContext.entrySet()) {
+            Object intentContextValue = intentContext.get(queryContextMap.getKey());
+            if (intentContextValue == null) {
+                continue;
+            }
+            queryContextMap.getValue().getClass().equals(intentContextValue.getClass());
+        }
+
+        return true;
     }
 
     private ActivatedSearchIntentAction processMatch(QueryMatchType qmt, SearchIntent intent, String query, Matcher matcher, SearchIntentTrigger intentTrigger) {
@@ -191,5 +274,12 @@ public class SearchIntentParser {
                 }
                 return intentAction;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SearchIntentParser{" +
+                "intents=" + intents +
+                '}';
     }
 }

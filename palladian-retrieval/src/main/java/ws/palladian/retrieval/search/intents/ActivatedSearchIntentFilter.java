@@ -35,4 +35,12 @@ public class ActivatedSearchIntentFilter extends SearchIntentFilter {
     public void setMax(Double max) {
         this.max = max;
     }
+
+    @Override
+    public String toString() {
+        return "ActivatedSearchIntentFilter{" +
+                "min=" + min +
+                ", max=" + max +
+                '}';
+    }
 }
