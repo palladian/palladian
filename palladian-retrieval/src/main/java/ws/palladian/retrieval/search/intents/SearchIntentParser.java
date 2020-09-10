@@ -116,7 +116,7 @@ public class SearchIntentParser {
                 intentAction.setSort(intentSort);
             }
 
-            JsonObject explanation = actionObj.tryGetJsonObject("explanation");
+            JsonObject explanation = Optional.ofNullable(actionObj.tryGetJsonObject("explanation")).orElse(new JsonObject());
             for (String languageCode : explanation.keySet()) {
                 intentAction.getExplanation().put(Language.getByIso6391(languageCode), explanation.tryGetString(languageCode));
             }
