@@ -144,10 +144,10 @@ public class SearchIntentParser {
     public ActivatedSearchIntentAction parse(String query) {
         return parse(query, null);
     }
-    public ActivatedSearchIntentAction parse(String query, JsonObject context) {
+    public ActivatedSearchIntentAction parse(String query, SearchIntentContextMatcher contextMatcher) {
         // XXX this could be slightly faster if we index actions by their match type so we don't have to iterate through all intents all the time
         for (SearchIntent intent : intents) {
-            if (!contextMatch(intent.getContext(), context)) {
+            if (!contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
@@ -158,7 +158,7 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
-            if (!contextMatch(intent.getContext(), context)) {
+            if (!contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
@@ -169,7 +169,7 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
-            if (!contextMatch(intent.getContext(), context)) {
+            if (!contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
@@ -180,7 +180,7 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
-            if (!contextMatch(intent.getContext(), context)) {
+            if (!contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
@@ -198,25 +198,6 @@ public class SearchIntentParser {
         }
 
         return null;
-    }
-
-    private boolean contextMatch(JsonObject intentContext, JsonObject queryContext) {
-        if (intentContext.isEmpty() || queryContext == null) {
-            return true;
-        }
-        // if a key exists in both intent and query context:
-        // if key is string the intent and query context values must match
-        // if key is numeric the intent and query context values must match
-        // if key is array the intent context must contain the query context
-        for (Map.Entry<String, Object> queryContextMap : queryContext.entrySet()) {
-            Object intentContextValue = intentContext.get(queryContextMap.getKey());
-            if (intentContextValue == null) {
-                continue;
-            }
-            queryContextMap.getValue().getClass().equals(intentContextValue.getClass());
-        }
-
-        return true;
     }
 
     private ActivatedSearchIntentAction processMatch(QueryMatchType qmt, SearchIntent intent, String query, Matcher matcher, SearchIntentTrigger intentTrigger) {
