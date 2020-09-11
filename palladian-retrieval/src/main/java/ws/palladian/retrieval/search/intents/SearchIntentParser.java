@@ -147,7 +147,7 @@ public class SearchIntentParser {
     public ActivatedSearchIntentAction parse(String query, SearchIntentContextMatcher contextMatcher) {
         // XXX this could be slightly faster if we index actions by their match type so we don't have to iterate through all intents all the time
         for (SearchIntent intent : intents) {
-            if (!contextMatcher.match(intent.getContext())) {
+            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
@@ -158,7 +158,7 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
-            if (!contextMatcher.match(intent.getContext())) {
+            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
@@ -169,7 +169,7 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
-            if (!contextMatcher.match(intent.getContext())) {
+            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
@@ -180,7 +180,7 @@ public class SearchIntentParser {
         }
 
         for (SearchIntent intent : intents) {
-            if (!contextMatcher.match(intent.getContext())) {
+            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                 continue;
             }
             for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
