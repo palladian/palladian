@@ -40,4 +40,14 @@ public class SearchIntentFilter {
     public void setMaxDefinition(String maxDefinition) {
         this.maxDefinition = maxDefinition;
     }
+
+    @Override
+    public String toString() {
+        return "SearchIntentFilter{" +
+                "key='" + key + '\'' +
+                ", values=" + values +
+                ", minDefinition='" + minDefinition + '\'' +
+                ", maxDefinition='" + maxDefinition + '\'' +
+                '}';
+    }
 }
