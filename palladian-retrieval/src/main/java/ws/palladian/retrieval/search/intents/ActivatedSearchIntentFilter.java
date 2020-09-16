@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 public class ActivatedSearchIntentFilter extends SearchIntentFilter {
     private Double min;
     private Double max;
+    private Boolean booleanValue;
     
     public ActivatedSearchIntentFilter(SearchIntentFilter intentFilter) {
         try {
@@ -41,6 +42,7 @@ public class ActivatedSearchIntentFilter extends SearchIntentFilter {
         return "ActivatedSearchIntentFilter{" +
                 "min=" + min +
                 ", max=" + max +
+                ", booleanValue=" + booleanValue +
                 '}';
     }
 }
