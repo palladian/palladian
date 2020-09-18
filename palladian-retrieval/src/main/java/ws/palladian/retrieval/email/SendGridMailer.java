@@ -61,6 +61,9 @@ public class SendGridMailer {
     public boolean sendMail(String fromEmail, String fromName, String toEmail, String subject, String textMessage, String mailBody) {
         return sendMail(fromEmail, fromName, buildRecipientMap(toEmail), subject, textMessage, mailBody, new ArrayList<>());
     }
+    public boolean sendMail(String fromEmail, String fromName, String toEmail, String subject, String textMessage, String mailBody, Map<String, String> responseHeaders) {
+        return sendMail(fromEmail, fromName, buildRecipientMap(toEmail), subject, textMessage, mailBody, new ArrayList<>(), null, responseHeaders);
+    }
 
     public boolean sendMail(String fromEmail, String fromName, String toEmail, String subject, String textMessage, String htmlMessage, List<File> attachmentFiles) {
         return sendMail(fromEmail, fromName, buildRecipientMap(toEmail), subject, textMessage, htmlMessage, attachmentFiles);
@@ -85,6 +88,11 @@ public class SendGridMailer {
 
     public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage,
                             List<File> attachmentFiles, String replyTo) {
+        return sendMail(fromEmail, fromName, recipientMap, subject, textMessage, htmlMessage, attachmentFiles, replyTo, null);
+    }
+
+    public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage,
+                            List<File> attachmentFiles, String replyTo, Map<String,String> responseHeaders) {
         List<String> toEmails = Optional.ofNullable(recipientMap.get(Message.RecipientType.TO)).orElse(new ArrayList<>());
 
         toEmails = toEmails.stream().filter(tm -> !tm.equalsIgnoreCase("undefined") && tm.contains("@")).collect(Collectors.toList());
@@ -174,7 +182,10 @@ public class SendGridMailer {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
-            sg.api(request);
+            Response apiResponse = sg.api(request);
+            if (responseHeaders != null) {
+                responseHeaders.putAll(apiResponse.getHeaders());
+            }
 
             // add email to sent, remove timestamps older than 24 hours from list
             sentEmails.add(System.currentTimeMillis());
