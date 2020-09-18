@@ -1,36 +1,60 @@
 package ws.palladian.retrieval.search.intents;
 
+import ws.palladian.helper.constants.Language;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SearchIntentAction<T> {
     private List<T> filters = new ArrayList<>();
     private SearchIntentSort sort;
 
-    /** What type of action to take. */
+    /**
+     * What type of action to take.
+     */
     private SearchIntentActionType type = null;
 
-    /** If true, the trigger phrase will be removed (not for redirect or rewrite matches). */
+    /**
+     * If true, the trigger phrase will be removed (not for redirect or rewrite matches).
+     */
     private boolean removeTrigger = true;
 
-    /** If the trigger leads to a redirect. */
+    /**
+     * If the trigger leads to a redirect.
+     */
     private String redirect = null;
 
-    /** If the trigger leads to a rewrite. */
+    /**
+     * If the trigger leads to a rewrite.
+     */
     private String rewrite = null;
 
-    /** A list of queries that should be executed and appended to the search result. */
+    /**
+     * A list of queries that should be executed and appended to the search result.
+     */
     private List<String> appendQueries = new ArrayList<>();
 
-    /** A list of queries that should be mixed into the search result. */
+    /**
+     * A list of queries that should be mixed into the search result.
+     */
     private List<String> mixInQueries = new ArrayList<>();
 
-    /** A list of specific placements in the search results. */
+    /**
+     * A list of specific placements in the search results.
+     */
     private List<SearchResultPlacement> placements = new ArrayList<>();
 
-//    public SearchIntentAction(SearchIntentActionType type) {
-//        this.type = type;
-//    }
+    /**
+     * Explanation with country codes for multiple languages.
+     */
+    private Map<Language, String> explanation = new HashMap<>();
+
+    /**
+     * Meta data
+     */
+    private Map<String, Object> metaData = new HashMap<>();
 
     public List<T> getFilters() {
         return filters;
@@ -106,5 +130,21 @@ public class SearchIntentAction<T> {
 
     public void setPlacements(List<SearchResultPlacement> placements) {
         this.placements = placements;
+    }
+
+    public Map<Language, String> getExplanation() {
+        return explanation;
+    }
+
+    public void setExplanation(Map<Language, String> explanation) {
+        this.explanation = explanation;
+    }
+
+    public Map<String, Object> getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, Object> metaData) {
+        this.metaData = metaData;
     }
 }

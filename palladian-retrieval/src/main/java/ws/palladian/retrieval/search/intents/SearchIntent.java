@@ -1,10 +1,13 @@
 package ws.palladian.retrieval.search.intents;
 
+import ws.palladian.retrieval.parser.json.JsonObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchIntent {
     protected List<SearchIntentTrigger> triggers = new ArrayList<>();
+    protected JsonObject context = new JsonObject();
     protected SearchIntentAction<SearchIntentFilter> action;
 
     public List<SearchIntentTrigger> getIntentTriggers() {
@@ -25,5 +28,22 @@ public class SearchIntent {
 
     public void setIntentAction(SearchIntentAction<SearchIntentFilter> intentAction) {
         this.action = intentAction;
+    }
+
+    public JsonObject getContext() {
+        return context;
+    }
+
+    public void setContext(JsonObject context) {
+        this.context = context;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchIntent{" +
+                "triggers=" + triggers +
+                ", context=" + context +
+                ", action=" + action +
+                '}';
     }
 }

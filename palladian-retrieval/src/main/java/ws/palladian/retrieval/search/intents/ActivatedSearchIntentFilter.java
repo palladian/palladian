@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 public class ActivatedSearchIntentFilter extends SearchIntentFilter {
     private Double min;
     private Double max;
+    private Boolean booleanValue;
     
     public ActivatedSearchIntentFilter(SearchIntentFilter intentFilter) {
         try {
@@ -34,5 +35,14 @@ public class ActivatedSearchIntentFilter extends SearchIntentFilter {
 
     public void setMax(Double max) {
         this.max = max;
+    }
+
+    @Override
+    public String toString() {
+        return "ActivatedSearchIntentFilter{" +
+                "min=" + min +
+                ", max=" + max +
+                ", booleanValue=" + booleanValue +
+                '}';
     }
 }

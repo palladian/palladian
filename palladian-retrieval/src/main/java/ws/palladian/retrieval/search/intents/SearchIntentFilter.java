@@ -8,6 +8,7 @@ public class SearchIntentFilter {
     private Collection<String> values = new HashSet<>();
     private String minDefinition;
     private String maxDefinition;
+    private Boolean booleanValue;
 
     public String getKey() {
         return key;
@@ -39,5 +40,24 @@ public class SearchIntentFilter {
 
     public void setMaxDefinition(String maxDefinition) {
         this.maxDefinition = maxDefinition;
+    }
+
+    public Boolean getBooleanValue() {
+        return booleanValue;
+    }
+
+    public void setBooleanValue(Boolean booleanValue) {
+        this.booleanValue = booleanValue;
+    }
+
+    @Override
+    public String toString() {
+        return "SearchIntentFilter{" +
+                "key='" + key + '\'' +
+                ", values=" + values +
+                ", minDefinition='" + minDefinition + '\'' +
+                ", maxDefinition='" + maxDefinition + '\'' +
+                ", booleanValue=" + booleanValue +
+                '}';
     }
 }
