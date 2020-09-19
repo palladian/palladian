@@ -127,7 +127,6 @@ public class DatabaseManager {
         List<?> data = null;
 
         try {
-
             connection = getConnection();
             connection.setAutoCommit(false);
 
@@ -144,6 +143,56 @@ public class DatabaseManager {
                 } else if (ps.getUpdateCount() == 1) {
                     // no ID generated
                     provider.insertedItem(i, -1);
+                }
+                affectedRows++;
+            }
+
+            connection.commit();
+            connection.setAutoCommit(true);
+
+        } catch (SQLException e) {
+            rollback(connection);
+            affectedRows = 0;
+            Object[] args = null;
+            if (data != null) {
+                args = data.toArray();
+            }
+            logError(e, sql, args);
+        } finally {
+            close(connection, ps, rs);
+        }
+
+        return affectedRows;
+    }
+
+    // FIXME
+    public final long runBatchInsertLongId(String sql, BatchDataProvider provider) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(provider, "provider must not be null");
+
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int affectedRows = 0;
+        List<?> data = null;
+
+        try {
+            connection = getConnection();
+            connection.setAutoCommit(false);
+
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            for (int i = 0; i < provider.getCount(); i++) {
+                data = provider.getData(i);
+                fillPreparedStatement(ps, data);
+                ps.executeUpdate();
+
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    provider.insertedItemLongId(i, rs.getLong(1));
+                } else if (ps.getUpdateCount() == 1) {
+                    // no ID generated
+                    provider.insertedItemLongId(i, -1);
                 }
                 affectedRows++;
             }
@@ -201,9 +250,49 @@ public class DatabaseManager {
             public void insertedItem(int number, int generatedId) {
                 result[number] = generatedId;
             }
+
+            @Override
+            public void insertedItemLongId(int number, long generatedId) {
+                result[number] = (int)generatedId;
+            }
         };
 
         runBatchInsert(sql, provider);
+        return result;
+    }
+
+    /** FIXME */
+    public final long[] runBatchInsertReturnLongIds(String sql, final List<List<Object>> batchArgs) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(batchArgs, "batchArgs must not be null");
+
+        final long[] result = new long[batchArgs.size()];
+        Arrays.fill(result, 0L);
+
+        BatchDataProvider provider = new BatchDataProvider() {
+
+            @Override
+            public int getCount() {
+                return batchArgs.size();
+            }
+
+            @Override
+            public List<?> getData(int number) {
+                return batchArgs.get(number);
+            }
+
+            @Override
+            public void insertedItem(int number, int generatedId) {
+                result[number] = generatedId;
+            }
+
+            @Override
+            public void insertedItemLongId(int number, long generatedId) {
+                result[number] = generatedId;
+            }
+        };
+
+        runBatchInsertLongId(sql, provider);
         return result;
     }
 
@@ -278,6 +367,11 @@ public class DatabaseManager {
 
             @Override
             public void insertedItem(int number, int generatedId) {
+                // no op.
+            }
+
+            @Override
+            public void insertedItemLongId(int number, long generatedId) {
                 // no op.
             }
         };
@@ -356,6 +450,53 @@ public class DatabaseManager {
      */
     public final int runInsertReturnId(Query query) {
         return runInsertReturnId(null, query);
+    }
+
+    /**
+     * FIXME
+     */
+    public long runInsertReturnLongId(String sql, Object... args) {
+        Connection connection = null;
+        long generatedId;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Query query = new BasicQuery(sql, args);
+
+        boolean closeConnection = false;
+        if (connection == null) {
+            closeConnection = true;
+        }
+
+        try {
+
+            if (connection == null) {
+                connection = getConnection();
+            }
+
+            // connection = getConnection();
+            ps = connection.prepareStatement(query.getSql(), Statement.RETURN_GENERATED_KEYS);
+            fillPreparedStatement(ps, query.getArgs());
+            ps.executeUpdate();
+
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                generatedId = rs.getLong(1);
+            } else {
+                generatedId = 0;
+            }
+
+        } catch (SQLException e) {
+            logError(e, query.getSql(), query.getArgs());
+            generatedId = -1;
+        } finally {
+            if (closeConnection) {
+                close(connection, ps, rs);
+            } else {
+                close(null, ps, rs);
+            }
+        }
+
+        return generatedId;
     }
 
     /**
@@ -642,8 +783,7 @@ public class DatabaseManager {
      * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return Iterator for iterating over results.
      */
-    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql,
-            List<?> args) {
+    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, List<?> args) {
         Validate.notNull(converter, "converter must not be null");
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
@@ -1079,8 +1219,7 @@ public class DatabaseManager {
      * @param args {@link List} of parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
-    protected static void fillPreparedStatement(PreparedStatement ps, List<?> args)
-            throws SQLException {
+    protected static void fillPreparedStatement(PreparedStatement ps, List<?> args) throws SQLException {
         fillPreparedStatement(ps, args.toArray());
     }
 
