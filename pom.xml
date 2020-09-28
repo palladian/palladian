@@ -227,6 +227,13 @@
 								<goals>
 									<goal>sign</goal>
 								</goals>
+								<!-- https://issues.apache.org/jira/browse/MGPG-59 -->
+								<configuration>
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
