@@ -37,3 +37,5 @@ jobs:
           OSSRH_USERNAME: palladian
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      # TODO parse surefire reports
