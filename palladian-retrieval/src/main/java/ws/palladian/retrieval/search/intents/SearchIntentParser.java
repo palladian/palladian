@@ -141,63 +141,97 @@ public class SearchIntentParser {
     }
 
     // TODO option to rewrite only matching part or entire query
-    public ActivatedSearchIntentAction parse(String query) {
+    public List<ActivatedSearchIntentAction> parse(String query) {
         return parse(query, null);
     }
-    public ActivatedSearchIntentAction parse(String query, SearchIntentContextMatcher contextMatcher) {
-        // XXX this could be slightly faster if we index actions by their match type so we don't have to iterate through all intents all the time
-        for (SearchIntent intent : intents) {
-            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
-                continue;
-            }
-            for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
-                if (intentTrigger.getMatchType() == QueryMatchType.MATCH && intentTrigger.getText().equals(query)) {
-                    return processMatch(QueryMatchType.MATCH, intent, query, null, intentTrigger);
+    public List<ActivatedSearchIntentAction> parse(String query, SearchIntentContextMatcher contextMatcher) {
+        List<ActivatedSearchIntentAction> intentActions = new ArrayList<>();
+
+        boolean intentMatchFound = false;
+        ol: do {
+            // XXX this could be slightly faster if we index actions by their match type so we don't have to iterate through all intents all the time
+            for (SearchIntent intent : intents) {
+                if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
+                    continue;
+                }
+                for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
+                    if (intentTrigger.getMatchType() == QueryMatchType.MATCH && intentTrigger.getText().equals(query)) {
+                        intentMatchFound = true;
+                        ActivatedSearchIntentAction im = processMatch(QueryMatchType.MATCH, intent, query, null, intentTrigger);
+                        intentActions.add(im);
+                        query = im.getModifiedQuery();
+                        if (im.getRedirect() != null) {
+                            return intentActions;
+                        }
+                        continue ol;
+                    }
                 }
             }
-        }
 
-        for (SearchIntent intent : intents) {
-            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
-                continue;
-            }
-            for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
-                if (intentTrigger.getMatchType() == QueryMatchType.PHRASE_MATCH && StringHelper.containsWordCaseSensitive(intentTrigger.getText(), query)) {
-                    return processMatch(QueryMatchType.PHRASE_MATCH, intent, query, null, intentTrigger);
+            for (SearchIntent intent : intents) {
+                if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
+                    continue;
+                }
+                for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
+                    if (intentTrigger.getMatchType() == QueryMatchType.PHRASE_MATCH && StringHelper.containsWordCaseSensitive(intentTrigger.getText(), query)) {
+                        intentMatchFound = true;
+                        ActivatedSearchIntentAction im = processMatch(QueryMatchType.PHRASE_MATCH, intent, query, null, intentTrigger);
+                        intentActions.add(im);
+                        query = im.getModifiedQuery();
+                        if (im.getRedirect() != null) {
+                            return intentActions;
+                        }
+                        continue ol;
+                    }
                 }
             }
-        }
 
-        for (SearchIntent intent : intents) {
-            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
-                continue;
-            }
-            for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
-                if (intentTrigger.getMatchType() == QueryMatchType.CONTAINS && query.contains(intentTrigger.getText())) {
-                    return processMatch(QueryMatchType.CONTAINS, intent, query, null, intentTrigger);
+            for (SearchIntent intent : intents) {
+                if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
+                    continue;
+                }
+                for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
+                    if (intentTrigger.getMatchType() == QueryMatchType.CONTAINS && query.contains(intentTrigger.getText())) {
+                        intentMatchFound = true;
+                        ActivatedSearchIntentAction im = processMatch(QueryMatchType.CONTAINS, intent, query, null, intentTrigger);
+                        intentActions.add(im);
+                        query = im.getModifiedQuery();
+                        if (im.getRedirect() != null) {
+                            return intentActions;
+                        }
+                        continue ol;
+                    }
                 }
             }
-        }
 
-        for (SearchIntent intent : intents) {
-            if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
-                continue;
-            }
-            for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
-                String regex = intentTrigger.getText();
-
-                // for URL replacements we want to replace the entire query, not just the matching part
-                if (intent.getIntentAction().getRedirect() != null) {
-                    regex = ".*" + regex + ".*";
+            for (SearchIntent intent : intents) {
+                if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
+                    continue;
                 }
-                Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
-                if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
-                    return processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
+                for (SearchIntentTrigger intentTrigger : intent.getIntentTriggers()) {
+                    String regex = intentTrigger.getText();
+
+                    // for URL replacements we want to replace the entire query, not just the matching part
+                    if (intent.getIntentAction().getRedirect() != null) {
+                        regex = ".*" + regex + ".*";
+                    }
+                    Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
+                    if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
+                        intentMatchFound = true;
+                        ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
+                        intentActions.add(im);
+                        query = im.getModifiedQuery();
+                        if (im.getRedirect() != null) {
+                            return intentActions;
+                        }
+                        continue ol;
+                    }
                 }
             }
-        }
+            intentMatchFound = false;
+        } while (intentMatchFound);
 
-        return null;
+        return intentActions;
     }
 
     private ActivatedSearchIntentAction processMatch(QueryMatchType qmt, SearchIntent intent, String query, Matcher matcher, SearchIntentTrigger intentTrigger) {

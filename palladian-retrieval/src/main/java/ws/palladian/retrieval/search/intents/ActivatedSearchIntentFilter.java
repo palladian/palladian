@@ -5,12 +5,13 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.beanutils.ConvertUtilsBean;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 public class ActivatedSearchIntentFilter extends SearchIntentFilter {
     private Double min;
     private Double max;
-    private Boolean booleanValue;
-    
+
     public ActivatedSearchIntentFilter(SearchIntentFilter intentFilter) {
         try {
             ConvertUtilsBean convertUtilsBean = BeanUtilsBean2.getInstance().getConvertUtils();
@@ -39,10 +40,12 @@ public class ActivatedSearchIntentFilter extends SearchIntentFilter {
 
     @Override
     public String toString() {
-        return "ActivatedSearchIntentFilter{" +
-                "min=" + min +
-                ", max=" + max +
-                ", booleanValue=" + booleanValue +
+        return "{" +
+                "key='" + getKey() + '\'' +
+                ", values=" + CollectionHelper.joinReadable(getValues()) +
+                ", min='" + min + '\'' +
+                ", max='" + max + '\'' +
+                ", boolean=" + getBooleanValue() +
                 '}';
     }
 }

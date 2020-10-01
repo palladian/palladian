@@ -16,8 +16,8 @@ import java.util.concurrent.Future;
  * @author David Urbansky
  */
 public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocumentRetriever> {
-    private DriverManagerType driverManagerType;
-    private org.openqa.selenium.Proxy proxy;
+    private final DriverManagerType driverManagerType;
+    private final org.openqa.selenium.Proxy proxy;
     private String userAgent = HttpRetriever.USER_AGENT;
     private String driverVersionCode = null;
 
