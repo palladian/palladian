@@ -16,7 +16,6 @@ import ws.palladian.retrieval.resources.WebContent;
  * Created by sky on 06.11.2016.
  */
 public class DuckDuckGoSearcherTest {
-
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 

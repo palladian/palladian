@@ -3,7 +3,7 @@ package ws.palladian.retrieval.analysis;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 public class EmailVerificationResult {
-    private enum VerfificationResult {
+    public enum VerfificationResult {
         VALID, INVALID, UNKNOWN
     }
 

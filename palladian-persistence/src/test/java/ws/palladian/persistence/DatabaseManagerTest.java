@@ -127,6 +127,11 @@ public class DatabaseManagerTest {
             public void insertedItem(int number, int generatedId) {
                 assertEquals(expectedIds[number], generatedId);
             }
+
+            @Override
+            public void insertedItemLongId(int number, long generatedId) {
+                assertEquals(expectedIds[number], generatedId);
+            }
         });
         assertEquals(4, insertedRows);
     }
@@ -150,6 +155,11 @@ public class DatabaseManagerTest {
             public void insertedItem(int number, int generatedId) {
                 assertEquals(-1, generatedId);
             }
+
+            @Override
+            public void insertedItemLongId(int number, long generatedId) {
+                assertEquals(-1, generatedId);
+            }
         });
         assertEquals(4, insertedRows);
     }
@@ -159,6 +169,11 @@ public class DatabaseManagerTest {
         final List<SampleClazz> test = Arrays.asList(c1, c2, c3, c1);
         int insertedRows = databaseManager.runBatchInsert(INSERT_TEST_2, new CollectionBatchDataProvider<SampleClazz>(
                 test) {
+            @Override
+            public void insertedItemLongId(int number, long generatedId) {
+                // no op
+            }
+
             @Override
             public List<? extends Object> getData(SampleClazz nextItem) {
                 List<Object> data = new ArrayList<>();

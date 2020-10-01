@@ -32,6 +32,9 @@ public interface BatchDataProvider {
      */
     void insertedItem(int number, int generatedId);
 
+    // FIXME
+    void insertedItemLongId(int number, long generatedId);
+
     /**
      * <p>
      * Retrieve the number of items in the batch. This is the number of instances which have to be delivered via
