@@ -435,14 +435,21 @@ public class HttpRetriever {
                 // read the payload, stop if a download size limitation has been set
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];
-                int length;
-                while ((length = in.read(buffer, 0, buffer.length)) != -1) {
-                    out.write(buffer, 0, length);
-                    if (maxFileSize != -1 && out.size() > maxFileSize) {
+                for (;;) {
+                    if (maxFileSize != -1 && out.size() >= maxFileSize) {
                         LOGGER.debug("Cancel transfer of {}, as max. file size limit of {} bytes was reached", url,
                                 maxFileSize);
                         break;
                     }
+                    int bytesToRead = buffer.length;
+                    if (maxFileSize != -1) {
+                        bytesToRead = (int) Math.min(maxFileSize - out.size(), buffer.length);
+                    }
+                    int bytesRead = in.read(buffer, 0, bytesToRead);
+                    if (bytesRead == -1) {
+                        break;
+                    }
+                    out.write(buffer, 0, bytesRead);
                 }
 
                 entityContent = out.toByteArray();

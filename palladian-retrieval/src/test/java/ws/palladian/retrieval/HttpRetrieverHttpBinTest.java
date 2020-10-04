@@ -1,6 +1,7 @@
 package ws.palladian.retrieval;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -38,6 +39,36 @@ public class HttpRetrieverHttpBinTest {
 		assertEquals("bar", cookie.getValue());
 		assertEquals("httpbin.org", cookie.getDomain());
 		assertEquals("/", cookie.getPath());
+	}
+
+	/**
+	 * Test that the given limit is followed. (also, when it is below the internal
+	 * buffer size).
+	 * 
+	 * https://gitlab.com/palladian/palladian-knime/-/issues/41
+	 */
+	@Test
+	public void testFileSizeLimitZero() throws HttpException {
+		HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/bytes/8192").create();
+		HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+		HttpResult result;
+
+		httpRetriever.setMaxFileSize(0);
+		result = httpRetriever.execute(request);
+		assertEquals(0, result.getContent().length);
+		assertTrue(result.getTransferedBytes() < 512);
+
+		httpRetriever.setMaxFileSize(512);
+		result = httpRetriever.execute(request);
+		assertEquals(512, result.getContent().length);
+
+		httpRetriever.setMaxFileSize(1536);
+		result = httpRetriever.execute(request);
+		assertEquals(1536, result.getContent().length);
+
+		httpRetriever.setMaxFileSize(-1);
+		result = httpRetriever.execute(request);
+		assertEquals(8192, result.getContent().length);
 	}
 
 }
