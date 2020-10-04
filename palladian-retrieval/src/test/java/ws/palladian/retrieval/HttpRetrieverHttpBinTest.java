@@ -1,7 +1,10 @@
 package ws.palladian.retrieval;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -69,6 +72,25 @@ public class HttpRetrieverHttpBinTest {
 		httpRetriever.setMaxFileSize(-1);
 		result = httpRetriever.execute(request);
 		assertEquals(8192, result.getContent().length);
+	}
+	
+	/**
+	 * In case of redirects, the final HTTP Result must not contain a `Location`
+	 * headers (this would mean, that an additional redirect should take place).
+	 * Instead, store all locations which were traversed in a
+	 * {@link HttpResult#getLocations()} property.
+	 * 
+	 * https://gitlab.com/palladian/palladian-knime/-/issues/5
+	 * https://gitlab.com/palladian/palladian-knime/-/issues/6
+	 */
+	@Test
+	public void testRedirects() throws HttpException {
+		HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/status/301").create();
+		HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+		HttpResult result = httpRetriever.execute(request);
+		assertEquals(Arrays.asList("https://httpbin.org/status/301", "https://httpbin.org/redirect/1"),
+				result.getLocations());
+		assertNull(result.getHeader("location"));
 	}
 
 }

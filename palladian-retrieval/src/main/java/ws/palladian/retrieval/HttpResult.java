@@ -2,6 +2,7 @@ package ws.palladian.retrieval;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public class HttpResult implements Serializable {
     private final Map<String, List<String>> headers;
     private final int statusCode;
     private final long transferedBytes;
+    private final List<String> locations;
 
     /**
      * <p>
@@ -39,20 +41,38 @@ public class HttpResult implements Serializable {
      * @param headers the HTTP headers.
      * @param statusCode the HTTP response code.
      * @param transferedBytes the number of transfered bytes.
+     * @deprecated Use {@link HttpResult#HttpResult(String, byte[], Map, int, long, List)}
      */
+    @Deprecated
     public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode,
             long transferedBytes) {
-        super();
+        this(url, content, headers, statusCode, transferedBytes, Collections.emptyList());
+    }
+
+    /**
+     * <p>
+     * Instantiate a new {@link HttpResult}.
+     * </p>
+     * 
+     * @param url the result's URL.
+     * @param content the content as byte array; empty byte array for response without content (e.g. HEAD).
+     * @param headers the HTTP headers.
+     * @param statusCode the HTTP response code.
+     * @param transferedBytes the number of transfered bytes.
+     * @param locations All redirected locations; last entry in the list represents the final target.
+     * @since 2.0
+     */
+    public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode,
+            long transferedBytes, List<String> locations) {
         this.url = url;
         this.content = content;
-        // this.headers = headers;
-
         // field names of the header are case-insensitive: http://www.ietf.org/rfc/rfc2616.txt
         // Each header field consists of a name followed by a colon (":") and the field value. Field names are
         // case-insensitive.
         this.headers = new CaseInsensitiveMap<>(headers);
         this.statusCode = statusCode;
         this.transferedBytes = transferedBytes;
+        this.locations = locations;
     }
 
     /**
@@ -168,6 +188,14 @@ public class HttpResult implements Serializable {
      */
     public boolean errorStatus() {
         return statusCode >= 400;
+    }
+
+    /**
+     * @return All redirected locations; last entry in the list represents the final target.
+     * @since 2.0
+     */
+    public List<String> getLocations() {
+        return Collections.unmodifiableList(locations);
     }
 
     /*

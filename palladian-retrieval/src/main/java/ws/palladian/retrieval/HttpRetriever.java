@@ -123,6 +123,8 @@ public class HttpRetriever {
      */
     private static final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
 
+    private static final String CONTEXT_LOCATIONS_ID = "CONTEXT_LOCATIONS_ID";
+
     // ///////////// Settings ////////
 
     /**
@@ -328,6 +330,16 @@ public class HttpRetriever {
         backend.addResponseInterceptor(metricsSaver);
         // end edit
 
+        backend.addRequestInterceptor((request, context) -> {
+            List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
+            if (locations == null) {
+                locations = new ArrayList<>();
+                context.setAttribute(CONTEXT_LOCATIONS_ID, locations);
+            }
+            String fullLocation = context.getAttribute("http.target_host") + request.getRequestLine().getUri();
+            locations.add(fullLocation);
+        });
+
         if (cookieStore != null) {
             backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
         } else {
@@ -469,16 +481,18 @@ public class HttpRetriever {
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
 
             // did we get redirected?
-            try {
-                Object attribute = context.getAttribute("http.request");
-                if (attribute != null && ((RequestWrapper) attribute).getOriginal() != null) {
-                    headers.put("Location", Arrays.asList(((RequestWrapper) attribute).getOriginal().getRequestLine().getUri()));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Object attribute = context.getAttribute("http.request");
+//                if (attribute != null && ((RequestWrapper) attribute).getOriginal() != null) {
+//                    headers.put("Location", Arrays.asList(((RequestWrapper) attribute).getOriginal().getRequestLine().getUri()));
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
 
-            result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
+            List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
+
+            result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes, locations);
 
             addDownload(receivedBytes);
 
