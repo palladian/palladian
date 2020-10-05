@@ -184,7 +184,7 @@ public class HttpRetriever {
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
         // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
+        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
     }
 
     // ////////////////////////////////////////////////////////////////
