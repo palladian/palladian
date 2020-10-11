@@ -481,15 +481,6 @@ public class HttpRetriever {
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
 
             // did we get redirected?
-//            try {
-//                Object attribute = context.getAttribute("http.request");
-//                if (attribute != null && ((RequestWrapper) attribute).getOriginal() != null) {
-//                    headers.put("Location", Arrays.asList(((RequestWrapper) attribute).getOriginal().getRequestLine().getUri()));
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-
             List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
 
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes, locations);
