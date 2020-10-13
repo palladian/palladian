@@ -10,9 +10,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ws.palladian.helper.io.ResourceHelper;
 
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -265,6 +262,14 @@ public class UrlHelperTest {
         params = UrlHelper.parseParams(url);
         assertEquals(1, params.size());
         assertEquals(Pair.of("sph", "o_lsteventos_fca=13/11/2015%%a_iap=1351%%a_lsteventos_vrp=0"), params.get(0));
+
+        // http://www.ideastorm.com/idea2ExploreMore?v=1538483000186&Type=AllIdeas&pagenum=2#comments
+        url = "http://www.ideastorm.com/idea2ExploreMore?v=1538483000186&Type=AllIdeas&pagenum=2#comments";
+        params = UrlHelper.parseParams(url);
+        assertEquals(3, params.size());
+        assertEquals(Pair.of("v", "1538483000186"), params.get(0));
+        assertEquals(Pair.of("Type", "AllIdeas"), params.get(1));
+        assertEquals(Pair.of("pagenum", "2"), params.get(2));
     }
 
     @Test

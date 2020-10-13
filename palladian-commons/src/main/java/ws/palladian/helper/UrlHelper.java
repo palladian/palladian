@@ -484,7 +484,11 @@ public final class UrlHelper {
             return params;
         }
 
-        String paramSubString = parameterString.substring(questionIdx + 1);
+        // ignore everything behind #
+        int hashIdx = parameterString.indexOf("#");
+        int endIdx = hashIdx != -1 ? hashIdx : parameterString.length();
+
+        String paramSubString = parameterString.substring(questionIdx + 1, endIdx);
         String[] paramSplit = paramSubString.split("&");
         for (String param : paramSplit) {
             String[] keyValue = param.split("=");
