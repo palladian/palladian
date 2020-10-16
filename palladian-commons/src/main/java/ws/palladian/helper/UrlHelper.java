@@ -461,9 +461,11 @@ public final class UrlHelper {
                 builder.append('&');
             }
             builder.append(encodeParameter(pair.getKey()));
-            builder.append('=');
             String value = pair.getValue();
-            builder.append(encodeParameter(value != null ? value : StringUtils.EMPTY));
+            if (value != null) {
+                builder.append('=');
+                builder.append(encodeParameter(value));
+            }
         }
         return builder.toString();
     }
@@ -494,8 +496,10 @@ public final class UrlHelper {
             String[] keyValue = param.split("=");
             String key = tryDecodeParameter(keyValue[0]);
             String value;
-            if (keyValue.length == 1) {
+            if (keyValue.length == 1 && param.contains("=")) {
                 value = StringUtils.EMPTY;
+            } else if (keyValue.length == 1) {
+                value = null;
             } else {
                 value = tryDecodeParameter(param.substring(key.length() + 1));
             }
