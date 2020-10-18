@@ -19,6 +19,9 @@ import java.util.function.Predicate;
 
 public class Preprocessor implements Function<String, Iterator<String>> {
 
+    /** Used as “marker” for a token to remove (e.g. stopword). */
+    public static final Token REMOVED_TOKEN = new ImmutableToken(0, "[REMOVED]");
+
     private final FeatureSetting featureSetting;
 
     public Preprocessor(FeatureSetting featureSetting) {
@@ -43,6 +46,9 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             if (featureSetting.isStem()) {
                 tokenIterator = applyStemming(tokenIterator);
             }
+            if (featureSetting.isRemoveStopwords()) {
+                tokenIterator = removeStopwords(tokenIterator);
+            }
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
             if (featureSetting.isCreateSkipGrams()) {
             	tokenIterator = new SkipGramWrapperIterator(tokenIterator);
@@ -57,6 +63,7 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                     (Predicate<Token>) item -> item.getValue().length() >= minTermLength
                             && item.getValue().length() <= maxTermLength);
         }
+        tokenIterator = CollectionHelper.filter(tokenIterator, (Predicate<Token>) t -> t != REMOVED_TOKEN);
         // XXX looks a bit "magic" to me, does that really improve results in general?
         /* tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
             @Override
@@ -65,12 +72,7 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                 return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
             }
         }); */
-        Iterator<String> tokenStringIterator = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
-        if (featureSetting.isRemoveStopwords()) {
-            tokenStringIterator = CollectionHelper.filter(tokenStringIterator,
-                    new StopWordRemover(featureSetting.getLanguage()));
-        }
-        return tokenStringIterator;
+        return CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
     }
 
     private Iterator<Token> applyStemming(Iterator<Token> tokenIterator) {
@@ -84,6 +86,21 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                 Token token = tokenIterator.next();
                 String stemmedValue = stemmer.stem(token.getValue());
                 return new ImmutableToken(token.getStartPosition(), stemmedValue);
+            }
+        };
+    }
+
+    private Iterator<Token> removeStopwords(Iterator<Token> tokenIterator) {
+        StopWordRemover stopwordRemover = new StopWordRemover();
+        return new AbstractIterator2<Token>() {
+            @Override
+            protected Token getNext() {
+                if (!tokenIterator.hasNext()) {
+                    return finished();
+                }
+                Token token = tokenIterator.next();
+                boolean stopWord = stopwordRemover.isStopWord(token.getValue());
+                return stopWord ? REMOVED_TOKEN : token;
             }
         };
     }
