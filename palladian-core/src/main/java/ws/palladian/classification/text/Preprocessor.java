@@ -16,6 +16,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+// TODO consider to replace the Iterator with a Stream?
 public class Preprocessor implements Function<String, Iterator<String>> {
 
     /** Used as “marker” for a token to remove (e.g. stopword). */
