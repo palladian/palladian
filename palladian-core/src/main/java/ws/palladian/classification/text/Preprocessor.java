@@ -51,15 +51,11 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
         if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenIterator = CollectionHelper.filter(tokenIterator, new Predicate<Token>() {
-                int minTermLength = featureSetting.getMinimumTermLength();
-                int maxTermLength = featureSetting.getMaximumTermLength();
-
-                @Override
-                public boolean test(Token item) {
-                    return item.getValue().length() >= minTermLength && item.getValue().length() <= maxTermLength;
-                }
-            });
+            int minTermLength = featureSetting.getMinimumTermLength();
+            int maxTermLength = featureSetting.getMaximumTermLength();
+            tokenIterator = CollectionHelper.filter(tokenIterator,
+                    (Predicate<Token>) item -> item.getValue().length() >= minTermLength
+                            && item.getValue().length() <= maxTermLength);
         }
         // XXX looks a bit "magic" to me, does that really improve results in general?
         /* tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
