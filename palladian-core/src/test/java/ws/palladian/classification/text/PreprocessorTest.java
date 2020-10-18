@@ -28,4 +28,13 @@ public class PreprocessorTest {
 		assertEquals("brown fox", tokens.next());
 	}
 
+	// https://gitlab.com/palladian/palladian-knime/-/issues/38
+	@Test
+	public void testMinMaxTermLength() {
+		FeatureSetting featureSetting = FeatureSettingBuilder.words(2).termLength(2, 20).create();
+		Preprocessor preprocessor = new Preprocessor(featureSetting);
+		Iterator<String> tokens = preprocessor.apply("I am not a virus");
+		assertEquals("am not", tokens.next());
+	}
+
 }

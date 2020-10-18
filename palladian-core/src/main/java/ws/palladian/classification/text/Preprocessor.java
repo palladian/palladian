@@ -49,19 +49,13 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             if (featureSetting.isRemoveStopwords()) {
                 tokenIterator = removeStopwords(tokenIterator);
             }
+            tokenIterator = filterByTermLengths(tokenIterator);
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
             if (featureSetting.isCreateSkipGrams()) {
             	tokenIterator = new SkipGramWrapperIterator(tokenIterator);
             }
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
-        }
-        if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            int minTermLength = featureSetting.getMinimumTermLength();
-            int maxTermLength = featureSetting.getMaximumTermLength();
-            tokenIterator = CollectionHelper.filter(tokenIterator,
-                    (Predicate<Token>) item -> item.getValue().length() >= minTermLength
-                            && item.getValue().length() <= maxTermLength);
         }
         tokenIterator = CollectionHelper.filter(tokenIterator, (Predicate<Token>) t -> t != REMOVED_TOKEN);
         // XXX looks a bit "magic" to me, does that really improve results in general?
@@ -103,6 +97,15 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                 return stopWord ? REMOVED_TOKEN : token;
             }
         };
+    }
+
+    private Iterator<Token> filterByTermLengths(Iterator<Token> tokenIterator) {
+        int minTermLength = featureSetting.getMinimumTermLength();
+        int maxTermLength = featureSetting.getMaximumTermLength();
+        return CollectionHelper.convert(tokenIterator, (Function<Token, Token>) token -> {
+            boolean keep = token.getValue().length() >= minTermLength && token.getValue().length() <= maxTermLength;
+            return keep ? token : REMOVED_TOKEN;
+        });
     }
 
 }
