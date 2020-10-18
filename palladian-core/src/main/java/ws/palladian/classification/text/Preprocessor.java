@@ -58,14 +58,6 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
         tokenIterator = CollectionHelper.filter(tokenIterator, (Predicate<Token>) t -> t != REMOVED_TOKEN);
-        // XXX looks a bit "magic" to me, does that really improve results in general?
-        /* tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
-            @Override
-            public boolean accept(Token item) {
-                String value = item.getValue();
-                return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
-            }
-        }); */
         return CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
     }
 
