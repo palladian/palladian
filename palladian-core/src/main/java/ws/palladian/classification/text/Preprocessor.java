@@ -12,7 +12,6 @@ import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.token.CharacterNGramTokenizer;
 import ws.palladian.extraction.token.NGramWrapperIterator;
 import ws.palladian.extraction.token.WordTokenizer;
-import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -63,32 +62,18 @@ public class Preprocessor implements Function<String, Iterator<String>> {
 
     private Iterator<Token> applyStemming(Iterator<Token> tokenIterator) {
         Stemmer stemmer = new Stemmer(featureSetting.getLanguage());
-        return new AbstractIterator2<Token>() {
-            @Override
-            protected Token getNext() {
-                if (!tokenIterator.hasNext()) {
-                    return finished();
-                }
-                Token token = tokenIterator.next();
-                String stemmedValue = stemmer.stem(token.getValue());
-                return new ImmutableToken(token.getStartPosition(), stemmedValue);
-            }
-        };
+        return CollectionHelper.convert(tokenIterator, (Function<Token, Token>) t -> {
+            String stemmedValue = stemmer.stem(t.getValue());
+            return new ImmutableToken(t.getStartPosition(), stemmedValue);
+        });
     }
 
     private Iterator<Token> removeStopwords(Iterator<Token> tokenIterator) {
         StopWordRemover stopwordRemover = new StopWordRemover();
-        return new AbstractIterator2<Token>() {
-            @Override
-            protected Token getNext() {
-                if (!tokenIterator.hasNext()) {
-                    return finished();
-                }
-                Token token = tokenIterator.next();
-                boolean stopWord = stopwordRemover.isStopWord(token.getValue());
-                return stopWord ? REMOVED_TOKEN : token;
-            }
-        };
+        return CollectionHelper.convert(tokenIterator, (Function<Token, Token>) t -> {
+            boolean stopWord = stopwordRemover.isStopWord(t.getValue());
+            return stopWord ? REMOVED_TOKEN : t;
+        });
     }
 
     private Iterator<Token> filterByTermLengths(Iterator<Token> tokenIterator) {
