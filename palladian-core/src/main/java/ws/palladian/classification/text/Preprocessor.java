@@ -5,12 +5,14 @@ import java.util.Iterator;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.token.CharacterNGramTokenizer;
 import ws.palladian.extraction.token.NGramWrapperIterator;
 import ws.palladian.extraction.token.WordTokenizer;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -38,6 +40,9 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                     featureSetting.isCharacterPadding()).iterateTokens(content);
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
             tokenIterator = new WordTokenizer().iterateTokens(content);
+            if (featureSetting.isStem()) {
+                tokenIterator = applyStemming(tokenIterator);
+            }
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
             if (featureSetting.isCreateSkipGrams()) {
             	tokenIterator = new SkipGramWrapperIterator(tokenIterator);
@@ -69,11 +74,22 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             tokenStringIterator = CollectionHelper.filter(tokenStringIterator,
                     new StopWordRemover(featureSetting.getLanguage()));
         }
-        if (featureSetting.isStem()) {
-            tokenStringIterator = CollectionHelper.convert(tokenStringIterator,
-                    new Stemmer(featureSetting.getLanguage()));
-        }
         return tokenStringIterator;
+    }
+
+    private Iterator<Token> applyStemming(Iterator<Token> tokenIterator) {
+        Stemmer stemmer = new Stemmer(featureSetting.getLanguage());
+        return new AbstractIterator2<Token>() {
+            @Override
+            protected Token getNext() {
+                if (!tokenIterator.hasNext()) {
+                    return finished();
+                }
+                Token token = tokenIterator.next();
+                String stemmedValue = stemmer.stem(token.getValue());
+                return new ImmutableToken(token.getStartPosition(), stemmedValue);
+            }
+        };
     }
 
 }
