@@ -25,4 +25,12 @@ public class FloatVectorUtilTest {
 		assertEquals(1, FloatVectorUtil.magnitude(FloatVectorUtil.normalize(new float[] { 2, 5, -8, 2, 0 })), 0.0001);
 	}
 
+	@Test
+	public void testCosine() {
+		// https://stackoverflow.com/a/1750187
+		float[] v1 = { 2, 0, 1, 1, 0, 2, 1, 1 };
+		float[] v2 = { 2, 1, 1, 0, 1, 1, 1, 1 };
+		assertEquals(0.822, FloatVectorUtil.cosine(v1, v2), 0.01);
+	}
+
 }
