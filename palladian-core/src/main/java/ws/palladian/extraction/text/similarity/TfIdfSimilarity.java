@@ -61,9 +61,11 @@ public class TfIdfSimilarity extends AbstractStringMetric {
 			}
 
 			float tf = (float) termCount / terms.size();
+			assert tf >= 0;
 			float idf = (float) termCorpus.getIdf(term, true);
+			assert idf >= 0;
 
-			vector[idx++] = (float) (tf * Math.log(idf));
+			vector[idx++] = tf * idf;
 
 		}
 
