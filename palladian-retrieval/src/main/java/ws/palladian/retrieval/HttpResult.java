@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -195,7 +196,7 @@ public class HttpResult implements Serializable {
      * @since 2.0
      */
     public List<String> getLocations() {
-        return Collections.unmodifiableList(locations);
+        return Collections.unmodifiableList(Optional.ofNullable(locations).orElse(Collections.emptyList()));
     }
 
     /*
