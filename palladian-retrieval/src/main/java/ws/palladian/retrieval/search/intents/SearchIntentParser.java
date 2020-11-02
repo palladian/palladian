@@ -149,6 +149,8 @@ public class SearchIntentParser {
     public List<ActivatedSearchIntentAction> parse(String query, SearchIntentContextMatcher contextMatcher) {
         List<ActivatedSearchIntentAction> intentActions = new ArrayList<>();
 
+        // if something goes wrong (e.g. circular redirects), we break out of the cycle
+        int numTries = 0;
         boolean intentMatchFound = false;
         ol:
         do {
@@ -232,7 +234,7 @@ public class SearchIntentParser {
                 }
             }
             intentMatchFound = false;
-        } while (intentMatchFound);
+        } while (intentMatchFound && numTries++ < 10);
 
         return intentActions;
     }
@@ -245,6 +247,8 @@ public class SearchIntentParser {
                 String rewrite = intent.getIntentAction().getRewrite();
                 if (qmt == QueryMatchType.REGEX) {
                     rewrite = matcher.replaceAll(intentAction.getRewrite()).toLowerCase();
+                } else {
+                    rewrite = query.replace(intentTrigger.getText(), intentAction.getRewrite());
                 }
                 intentAction.setRewrite(rewrite);
                 intentAction.setModifiedQuery(rewrite);

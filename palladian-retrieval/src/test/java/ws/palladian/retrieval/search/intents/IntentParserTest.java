@@ -118,6 +118,21 @@ public class IntentParserTest {
 
         collector.checkThat(intentAction.getRewrite(), Matchers.is("ps4 grand theft auto 6"));
 
+        intentJson = "[{\n" +
+                "    \"triggers\": [\n" +
+                "      {type: \"PHRASE_MATCH\", text: \"mtb\"}," +
+                "    ],\n" +
+                "    \"action\": {\n" +
+                "      \"type\": \"REWRITE\"," +
+                "      \"rewrite\": \"mountain bike\"" +
+                "    },\n" +
+                "  }]";
+        intentParser = new SearchIntentParser(new JsonArray(intentJson));
+        intentActions = intentParser.parse("mtb shoes");
+        intentAction = CollectionHelper.getFirst(intentActions);
+
+        collector.checkThat(intentAction.getRewrite(), Matchers.is("mountain bike shoes"));
+
         // test regex redirects
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
