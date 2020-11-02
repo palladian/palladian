@@ -106,13 +106,13 @@ public class FeatureSetting implements Serializable {
 
     /**
      * The minimum length of a single term, this only applies if {@link textFeatureType} is set to
-     * {@link TextFeatureType#WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
+     * {@link TextFeatureType#WORD_NGRAMS}.
      */
     private int minimumTermLength = DEFAULT_MIN_TERM_LENGTH;
 
     /**
      * The maximum length of a single term, this only applies if {@link textFeatureType} is set to
-     * {@link TextFeatureType#WORD_NGRAMS} and {@link maxNGramLength} is 1, that is, only unigrams will be used.
+     * {@link TextFeatureType#WORD_NGRAMS}.
      */
     private int maximumTermLength = DEFAULT_MAX_TERM_LENGTH;
 

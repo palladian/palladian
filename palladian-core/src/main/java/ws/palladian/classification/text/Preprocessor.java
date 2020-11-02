@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
+import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.feature.StopWordRemover;
@@ -15,7 +16,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+// TODO consider to replace the Iterator with a Stream?
 public class Preprocessor implements Function<String, Iterator<String>> {
+
+    /** Used as “marker” for a token to remove (e.g. stopword). */
+    public static final Token REMOVED_TOKEN = new ImmutableToken(0, "[REMOVED]");
 
     private final FeatureSetting featureSetting;
 
@@ -38,6 +43,13 @@ public class Preprocessor implements Function<String, Iterator<String>> {
                     featureSetting.isCharacterPadding()).iterateTokens(content);
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
             tokenIterator = new WordTokenizer().iterateTokens(content);
+            if (featureSetting.isStem()) {
+                tokenIterator = applyStemming(tokenIterator);
+            }
+            if (featureSetting.isRemoveStopwords()) {
+                tokenIterator = removeStopwords(tokenIterator);
+            }
+            tokenIterator = filterByTermLengths(tokenIterator);
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
             if (featureSetting.isCreateSkipGrams()) {
             	tokenIterator = new SkipGramWrapperIterator(tokenIterator);
@@ -45,35 +57,33 @@ public class Preprocessor implements Function<String, Iterator<String>> {
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
-        if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenIterator = CollectionHelper.filter(tokenIterator, new Predicate<Token>() {
-                int minTermLength = featureSetting.getMinimumTermLength();
-                int maxTermLength = featureSetting.getMaximumTermLength();
+        tokenIterator = CollectionHelper.filter(tokenIterator, (Predicate<Token>) t -> t != REMOVED_TOKEN);
+        return CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
+    }
 
-                @Override
-                public boolean test(Token item) {
-                    return item.getValue().length() >= minTermLength && item.getValue().length() <= maxTermLength;
-                }
-            });
-        }
-        // XXX looks a bit "magic" to me, does that really improve results in general?
-        /* tokenIterator = CollectionHelper.filter(tokenIterator, new Filter<Token>() {
-            @Override
-            public boolean accept(Token item) {
-                String value = item.getValue();
-                return !StringHelper.containsAny(value, Arrays.asList("&", "/", "=")) && !StringHelper.isNumber(value);
-            }
-        }); */
-        Iterator<String> tokenStringIterator = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
-        if (featureSetting.isRemoveStopwords()) {
-            tokenStringIterator = CollectionHelper.filter(tokenStringIterator,
-                    new StopWordRemover(featureSetting.getLanguage()));
-        }
-        if (featureSetting.isStem()) {
-            tokenStringIterator = CollectionHelper.convert(tokenStringIterator,
-                    new Stemmer(featureSetting.getLanguage()));
-        }
-        return tokenStringIterator;
+    private Iterator<Token> applyStemming(Iterator<Token> tokenIterator) {
+        Stemmer stemmer = new Stemmer(featureSetting.getLanguage());
+        return CollectionHelper.convert(tokenIterator, (Function<Token, Token>) t -> {
+            String stemmedValue = stemmer.stem(t.getValue());
+            return new ImmutableToken(t.getStartPosition(), stemmedValue);
+        });
+    }
+
+    private Iterator<Token> removeStopwords(Iterator<Token> tokenIterator) {
+        StopWordRemover stopwordRemover = new StopWordRemover();
+        return CollectionHelper.convert(tokenIterator, (Function<Token, Token>) t -> {
+            boolean stopWord = stopwordRemover.isStopWord(t.getValue());
+            return stopWord ? REMOVED_TOKEN : t;
+        });
+    }
+
+    private Iterator<Token> filterByTermLengths(Iterator<Token> tokenIterator) {
+        int minTermLength = featureSetting.getMinimumTermLength();
+        int maxTermLength = featureSetting.getMaximumTermLength();
+        return CollectionHelper.convert(tokenIterator, (Function<Token, Token>) token -> {
+            boolean keep = token.getValue().length() >= minTermLength && token.getValue().length() <= maxTermLength;
+            return keep ? token : REMOVED_TOKEN;
+        });
     }
 
 }

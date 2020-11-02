@@ -7,7 +7,10 @@ public abstract class AbstractTermCorpus implements TermCorpus {
     @Override
     public final double getIdf(String term, boolean smoothing) {
         int s = smoothing ? 1 : 0;
-        return Math.log((double) getNumDocs() / (getCount(term) + s));
+        // 1 + to avoid negative idf values (this is the way Lucene does it):
+        // https://lucene.apache.org/core/4_5_1/core/org/apache/lucene/search/similarities/TFIDFSimilarity.html
+        // https://stackoverflow.com/a/19959938 (comments)
+        return 1 + Math.log((double) getNumDocs() / (getCount(term) + s));
     }
 
     @Override

@@ -9,7 +9,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -440,13 +439,13 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
                     document = parse(httpResult, xml);
 
-                    // check for location header before setting the document URL
-                    String locationRedirect = httpResult.getHeaderString("location");
-                    if (locationRedirect != null) {
+                    // check if got redirected; if so then take the destination URL
+                    if (httpResult.getLocations().size() > 1) {
+                        String finalLocation = CollectionHelper.getLast(httpResult.getLocations());
                         String domainOriginal = UrlHelper.getDomain(cleanUrl);
-                        String domainRedirect = UrlHelper.getDomain(locationRedirect);
+                        String domainRedirect = UrlHelper.getDomain(finalLocation);
                         if (!domainOriginal.equals(domainRedirect)) {
-                            cleanUrl = locationRedirect;
+                            cleanUrl = finalLocation;
                         }
                     }
 

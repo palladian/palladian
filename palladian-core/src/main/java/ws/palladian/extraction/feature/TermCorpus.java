@@ -14,8 +14,10 @@ public interface TermCorpus extends Iterable<String> {
 
     /**
      * <p>
-     * Get the inverse document frequency for the specified term. To avoid division by zero, the number of documents
-     * containing the specified term is incremented by one.
+     * Get the logarithms of the inverse document frequency for the specified term.
+     * To avoid division by zero, the number of documents containing the specified
+     * term is incremented by one. To make the value always positive, we add one
+     * after taking the logarithm.
      * </p>
      * 
      * @param term The term for which to retrieve the inverse document frequency.

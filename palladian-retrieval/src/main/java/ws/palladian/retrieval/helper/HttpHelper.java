@@ -9,11 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -24,25 +20,31 @@ import org.apache.http.impl.cookie.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 
 /**
  * <p>
  * Some HTTP specific helper methods.
  * </p>
- * 
+ *
  * @author Sandro Reichert
  * @author Philipp Katz
  */
 public final class HttpHelper {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     public static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
 
-    /** Separator between HTTP header and content payload when writing HTTP results to file. */
+    /**
+     * Separator between HTTP header and content payload when writing HTTP results to file.
+     */
     private static final String HTTP_RESULT_SEPARATOR = "\n----------------- End Headers -----------------\n\n";
 
     private HttpHelper() {
@@ -57,11 +59,11 @@ public final class HttpHelper {
      * fails in many cases where providers send their own format. Therefore, one may use Palladian's sophisticated date
      * recognition here, which may be expensive.
      * </p>
-     * 
+     *
      * @param httpResult The {@link HttpResult} to get the date from.
      * @param headerName The name of the header field to get.
-     * @param strict If <code>true</code>, use {@link DateUtils} to get only dates according to the HTTP specification.
-     *            If <code>false</code>, use Palladian's sophisticated date recognition here, which may be expensive.
+     * @param strict     If <code>true</code>, use {@link DateUtils} to get only dates according to the HTTP specification.
+     *                   If <code>false</code>, use Palladian's sophisticated date recognition here, which may be expensive.
      * @return The extracted date or <code>null</code> if the given header name is not present or the date is invalid.
      */
     public static final Date getDateFromHeader(HttpResult httpResult, String headerName, boolean strict) {
@@ -97,19 +99,26 @@ public final class HttpHelper {
      * <p>
      * Download the content from a given URL and save it to a specified path. Can be used to download binary files.
      * </p>
-     * 
-     * @param httpResult The httpResult to save.
-     * @param filePath the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
-     *            is compressed automatically.
+     *
+     * @param httpResult                 The httpResult to save.
+     * @param filePath                   the path where the downloaded contents should be saved to; if file name ends with ".gz", the file
+     *                                   is compressed automatically.
      * @param includeHttpResponseHeaders whether to prepend the received HTTP headers for the request to the saved
-     *            content.
+     *                                   content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
     public static boolean saveToFile(HttpResult httpResult, String filePath, boolean includeHttpResponseHeaders) {
 
         boolean result = false;
-        boolean compress = filePath.endsWith(".gz") || filePath.endsWith(".gzip");
         OutputStream out = null;
+        boolean compress = filePath.endsWith(".gz") || filePath.endsWith(".gzip");
+
+        Map<String, List<String>> headers = httpResult.getHeaders();
+        List<String> headerList = Optional.ofNullable(httpResult.getHeader("content-type")).orElse(new ArrayList<>());
+        String header = CollectionHelper.getFirst(headerList);
+        if (header != null && header.equals("application/x-gzip")) {
+            compress = false;
+        }
 
         try {
             FileHelper.createDirectoriesAndFile(filePath);
@@ -125,8 +134,6 @@ public final class HttpHelper {
                 StringBuilder headerBuilder = new StringBuilder();
                 headerBuilder.append("Status Code").append(":");
                 headerBuilder.append(httpResult.getStatusCode()).append("\n");
-
-                Map<String, List<String>> headers = httpResult.getHeaders();
 
                 for (Entry<String, List<String>> headerField : headers.entrySet()) {
                     headerBuilder.append(headerField.getKey()).append(":");
@@ -156,7 +163,7 @@ public final class HttpHelper {
      * Load a HttpResult from a dataset file and return a {@link HttpResult}. If the file is gzipped (ending with
      * <code>.gz</code> or <code>.gzip</code>), it is decompressed automatically.
      * </p>
-     * 
+     *
      * @param file
      * @return The {@link HttpResult} from file or <code>null</code> on in case an {@link IOException} was caught.
      */
@@ -188,7 +195,7 @@ public final class HttpHelper {
             StringBuilder headerText = new StringBuilder();
             int b;
             while ((b = inputStream.read()) != -1) {
-                headerText.append((char)b);
+                headerText.append((char) b);
                 if (headerText.toString().endsWith(HTTP_RESULT_SEPARATOR)) {
                     break;
                 }
@@ -219,9 +226,9 @@ public final class HttpHelper {
      * Extract header information from the supplied string. The header data is put in the Map, the HTTP status code is
      * returned.
      * </p>
-     * 
+     *
      * @param headerText newline separated HTTP header text.
-     * @param headers out-parameter for parsed HTTP headers.
+     * @param headers    out-parameter for parsed HTTP headers.
      * @return the HTTP status code.
      */
     private static int parseHeaders(String headerText, Map<String, List<String>> headers) {
@@ -272,6 +279,10 @@ public final class HttpHelper {
 
     @SuppressWarnings("deprecation")
     public static void main(String[] args) {
+
+
+        HttpRetrieverFactory.getHttpRetriever().downloadAndSave("http://dev-api.semknox.com/products/healthcheck", "aa.gz");
+
 
         // DateUtils.parseDate fails here since it is not RFC 1123, RFC 1036 or ANSI C asctime()
         String dateString = "Thu, 22 Jul 2010 15:15:59GMT";

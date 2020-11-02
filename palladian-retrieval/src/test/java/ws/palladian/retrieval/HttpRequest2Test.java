@@ -30,4 +30,19 @@ public class HttpRequest2Test {
 		assertEquals(url, request.getUrl());
 	}
 
+	/**
+	 * URL which contains a ? but not being used as a query param.
+	 * 
+	 * See:
+	 * 
+	 * https://forum.knime.com/t/http-retriever-fails-to-fetch-urls-containing-a-outside-of-the-context-of-query-parameters/28018
+	 * https://gitlab.com/palladian/palladian-knime/-/issues/61
+	 */
+	@Test
+	public void testUrlWithQuestionParsing() {
+		String url = "https://www.dutyfree.co.il/בשמים-וקוסמטיקה/Skincare/yves-saint-laurent-top-secrets-cream-4?ml";
+		HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, url).create();
+		assertEquals(url, request.getUrl());
+	}
+
 }

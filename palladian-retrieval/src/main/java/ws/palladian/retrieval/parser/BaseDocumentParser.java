@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpResult;
 
 /**
@@ -47,8 +48,11 @@ public abstract class BaseDocumentParser implements DocumentParser {
         }
         LOGGER.debug("Encoding of HttpResult: {}, is supported: {}", charset, supportedCharset);
 
-        Document document = parse(inputSource);
-        document.setDocumentURI(httpResult.getUrl());
+		Document document = parse(inputSource);
+		// set the (potentially redirected) URL
+		String location = CollectionHelper.getLast(httpResult.getLocations());
+		document.setDocumentURI(location);
+        
         return document;
     }
 
