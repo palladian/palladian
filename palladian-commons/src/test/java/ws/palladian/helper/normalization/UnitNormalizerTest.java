@@ -54,6 +54,9 @@ public class UnitNormalizerTest {
 
         input = "filter_groess # filter_groess # gross # 39";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.nullValue());
+
+        input = "screen up to 350 inches.";
+        collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("inches"));
     }
 
     @Test

@@ -41,7 +41,7 @@ public class UnitNormalizer {
         Collections.sort(ALL_UNITS, StringLengthComparator.INSTANCE);
 
         for (String unit : ALL_UNITS) {
-            PATTERNS.put(unit, Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|-|\\s)", Pattern.CASE_INSENSITIVE));
+            PATTERNS.put(unit, Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|[-.,;]|\\s)", Pattern.CASE_INSENSITIVE));
         }
     }
 
