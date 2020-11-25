@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -73,7 +74,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             }
         }
 
-        return result;
+        return CollectionHelper.getSublist(result, 0, resultCount);
     }
 
     @Override
