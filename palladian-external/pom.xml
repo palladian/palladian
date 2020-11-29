@@ -102,7 +102,7 @@
 		</dependency>
 		<!--<dependency><groupId>tud.iir.external</groupId><artifactId>juliener</artifactId></dependency>-->
 		<!--<dependency><groupId>edu.smu.tspell</groupId><artifactId>jaws-bin</artifactId><version>1.2</version></dependency>-->
-		<dependency>
+		<!--<dependency>
 			<groupId>com.github.sanity</groupId>
 			<artifactId>quickml</artifactId>
 			<version>0.10.9</version>
@@ -112,7 +112,7 @@
 					<groupId>com.amazonaws</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+		</dependency>-->
 
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
