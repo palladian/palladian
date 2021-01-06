@@ -614,7 +614,7 @@ public class UnitNormalizer {
         }
 
         // trim again, delete also ":" this time
-        if (!unitText.equals("\"") && !unitText.equals("''")) {
+        if (!unitText.equals("\"") && !unitText.equals("”") && !unitText.equals("''")) {
             unitText = StringHelper.trim(unitText);
         }
 
