@@ -60,9 +60,9 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.POLISH));
 
         // Hebrew
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://ashdod.metropolinet.co.il/he-il/אתר-העיר/"));
-        language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.HEBREW));
+//        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://ashdod.metropolinet.co.il/he-il/אתר-העיר/"));
+//        language = palladianContentExtractor.detectLanguage();
+//        collector.checkThat(language, is(Language.HEBREW));
 
         // German
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://www.spiegel.de/"));
