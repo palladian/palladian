@@ -1,6 +1,6 @@
 # ![Palladian Logo](https://i.imgur.com/QNPJb18.png) Palladian Toolkit
 
-[![Run Status](https://api.shippable.com/projects/5c18a5a66cc0720700a558f2/badge?branch=master)](https://app.shippable.com/subs/github/palladian/dashboard)
+[![Actions Status](https://github.com/palladian/palladian/workflows/CI/badge.svg)](https://github.com/palladian/palladian/actions)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ws.palladian/palladian/badge.svg)](http://mvnrepository.com/artifact/ws.palladian/palladian)
 
 What is it?
@@ -30,4 +30,4 @@ To use the `SNAPSHOT` builds, make sure to configure your `~/.m2/settings.xml` a
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Klemens Muthmann, Philipp Katz; 2009 — 2019.
+The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2021.

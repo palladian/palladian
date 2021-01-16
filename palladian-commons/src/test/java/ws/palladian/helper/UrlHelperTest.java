@@ -10,9 +10,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ws.palladian.helper.io.ResourceHelper;
 
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -252,7 +249,7 @@ public class UrlHelperTest {
         assertEquals(Pair.of("reportType", "earningsReport"), params.get(1));
         assertEquals(Pair.of("program", "all"), params.get(2));
         assertEquals(Pair.of("deviceType", "all"), params.get(3));
-        assertEquals(Pair.of("periodTyp", StringUtils.EMPTY), params.get(4));
+        assertEquals(Pair.of("periodTyp", null), params.get(4));
 
         // https://tech.knime.org/forum/palladian/http-retriever-problem-with-some-urls
         url = "https://idw-online.de/de/pressreleasesrss?country_ids=35&country_ids=36&country_ids=46&country_ids=188&country_ids=65&country_ids=66&country_ids=68&country_ids=95&country_ids=97&country_ids=121&country_ids=126&country_ids=146&country_ids=147&country_ids=180&category_ids=10&category_ids=7&field_ids=100&field_ids=101&field_ids=401&field_ids=603&field_ids=600&field_ids=400&field_ids=606&field_ids=204&field_ids=102&field_ids=306&langs=de_DE&langs=en_US";
@@ -265,6 +262,25 @@ public class UrlHelperTest {
         params = UrlHelper.parseParams(url);
         assertEquals(1, params.size());
         assertEquals(Pair.of("sph", "o_lsteventos_fca=13/11/2015%%a_iap=1351%%a_lsteventos_vrp=0"), params.get(0));
+
+        // http://www.ideastorm.com/idea2ExploreMore?v=1538483000186&Type=AllIdeas&pagenum=2#comments
+        url = "http://www.ideastorm.com/idea2ExploreMore?v=1538483000186&Type=AllIdeas&pagenum=2#comments";
+        params = UrlHelper.parseParams(url);
+        assertEquals(3, params.size());
+        assertEquals(Pair.of("v", "1538483000186"), params.get(0));
+        assertEquals(Pair.of("Type", "AllIdeas"), params.get(1));
+        assertEquals(Pair.of("pagenum", "2"), params.get(2));
+
+        // distinguish between &foo and &foo=
+        url = "http://example.com?foo";
+        params = UrlHelper.parseParams(url);
+        assertEquals(1, params.size());
+        assertEquals(Pair.of("foo", null), params.get(0));
+
+        url = "http://example.com?foo=";
+        params = UrlHelper.parseParams(url);
+        assertEquals(1, params.size());
+        assertEquals(Pair.of("foo", ""), params.get(0));
     }
 
     @Test
@@ -280,6 +296,17 @@ public class UrlHelperTest {
         params.add(Pair.of("emptyParam", StringUtils.EMPTY));
         parameterString = UrlHelper.createParameterString(params);
         assertEquals("param=value&emptyParam=", parameterString);
+
+        // distinguish between &foo and &foo=
+        params = new ArrayList<>();
+        params.add(Pair.of("foo", null));
+        parameterString = UrlHelper.createParameterString(params);
+        assertEquals("foo", parameterString);
+
+        params = new ArrayList<>();
+        params.add(Pair.of("foo", ""));
+        parameterString = UrlHelper.createParameterString(params);
+        assertEquals("foo=", parameterString);
     }
 
     @Test

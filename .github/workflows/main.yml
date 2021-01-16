@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # https://github.com/marketplace/actions/setup-java-jdk#publishing-using-apache-maven
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+          server-id: ossrh
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_SECRET_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Build (and publish to Sonatype OSSRH when on master)
+        run: |
+          # only use -P release when on master branch
+          if [ ${GITHUB_REF#refs/heads/} == "master" ]; then MAVEN_PROFILE="deploy -P release"; fi
+          mvn -V -B clean install $MAVEN_PROFILE
+        env:
+          OSSRH_USERNAME: palladian
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      # TODO parse surefire reports

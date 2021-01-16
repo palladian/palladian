@@ -92,8 +92,13 @@ class CustomSslSocketFactory extends SSLSocketFactory {
             final String target,
             final int port,
             final HttpContext context) throws IOException {
-        Boolean enableSniValue = (Boolean) context.getAttribute(ENABLE_SNI);
-        boolean enableSni = enableSniValue == null || enableSniValue;
+    	boolean enableSni = true;
+    	if (context != null) {
+    		Object enableSniValue = context.getAttribute(ENABLE_SNI);
+    		if (enableSniValue instanceof Boolean) {
+    			enableSni = ((Boolean)enableSniValue).booleanValue();
+    		}
+    	}
         return super.createLayeredSocket(socket, enableSni ? target : "", port, context);
     }
 }
