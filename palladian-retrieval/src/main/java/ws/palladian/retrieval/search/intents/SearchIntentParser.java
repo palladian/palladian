@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search.intents;
 
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.normalization.UnitNormalizer;
@@ -294,23 +295,29 @@ public class SearchIntentParser {
                         List<String> replacedValues = new ArrayList<>();
                         for (String value : values) {
                             if (value.contains("$1")) {
-                                int position = Integer.parseInt(value.replace("$", ""));
+                                int position = MathHelper.parseStringNumber(value).intValue();
                                 String group = matcher.group(position);
-                                Double aDouble = Double.valueOf(group);
-                                Double margin = filledFilter.getMargin();
-                                String unit = filledFilter.getUnit();
-                                if (margin == null) {
-                                    margin = 0.05;
+
+                                // is the group match a number? could also be text such as "XXL"
+                                if (StringHelper.isNumber(group)) {
+                                    Double aDouble = Double.valueOf(group);
+                                    Double margin = filledFilter.getMargin();
+                                    String unit = filledFilter.getUnit();
+                                    if (margin == null) {
+                                        margin = 0.05;
+                                    }
+                                    if (unit != null) {
+                                        int unitPosition = Integer.parseInt(unit.replace("$", ""));
+                                        String unitGroup = matcher.group(unitPosition);
+                                        aDouble = UnitNormalizer.getNormalizedNumber(aDouble, unitGroup);
+                                    }
+                                    Double min = aDouble - (aDouble * margin);
+                                    Double max = aDouble + (aDouble * margin);
+                                    filledFilter.setMin(min);
+                                    filledFilter.setMax(max);
+                                } else {
+                                    replacedValues.add(value.replace("$1", group));
                                 }
-                                if (unit != null) {
-                                    int unitPosition = Integer.parseInt(unit.replace("$", ""));
-                                    String unitGroup = matcher.group(unitPosition);
-                                    aDouble = UnitNormalizer.getNormalizedNumber(aDouble, unitGroup);
-                                }
-                                Double min = aDouble - (aDouble*margin);
-                                Double max = aDouble + (aDouble*margin);
-                                filledFilter.setMin(min);
-                                filledFilter.setMax(max);
                             } else {
                                 replacedValues.add(value);
                             }
