@@ -61,6 +61,10 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
                     + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
         }
 
+        if (document == null) {
+            return result;
+        }
+
         List<Node> resultBodies = XPathHelper.getXhtmlNodes(document, "//div[contains(@class,'result__body')]");
 
         for (Node node : resultBodies) {
