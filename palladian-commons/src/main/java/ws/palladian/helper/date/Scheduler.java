@@ -55,6 +55,10 @@ public class Scheduler {
         tasks.add(pair);
     }
 
+    public List<Runnable> getTasks(String tag) {
+        return taggedTasks.get(tag);
+    }
+
     public void removeTasks(String tag) {
         List<Runnable> taggedRunnables = taggedTasks.get(tag);
         for (Runnable taggedRunnable : taggedRunnables) {
