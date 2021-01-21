@@ -28,7 +28,7 @@ public class Scheduler {
      */
     private final List<Throwable> errors = new ArrayList<>();
 
-    private Scheduler() {
+    protected Scheduler() {
         tasks = Collections.synchronizedSet(new HashSet<>());
         taggedTasks = Collections.synchronizedMap(new HashMap<>());
         runPeriodicTimeCheck();
