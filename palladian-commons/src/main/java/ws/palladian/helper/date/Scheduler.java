@@ -20,7 +20,8 @@ public class Scheduler {
      */
     private final long checkInterval = TimeUnit.SECONDS.toMillis(10);
 
-    private final Set<Pair<Runnable, Schedule>> tasks;
+    final Set<Pair<Runnable, Schedule>> tasks;
+    Map<String, List<Runnable>> taggedTasks;
 
     /**
      * Collect errors.
@@ -29,6 +30,7 @@ public class Scheduler {
 
     private Scheduler() {
         tasks = Collections.synchronizedSet(new HashSet<>());
+        taggedTasks = Collections.synchronizedMap(new HashMap<>());
         runPeriodicTimeCheck();
     }
 
@@ -40,13 +42,30 @@ public class Scheduler {
         return SingletonHolder.instance;
     }
 
-    public void addTask(Runnable runnable, Schedule schedule) {
+    public void addTask(Runnable runnable, Schedule schedule, String... tags) {
         Pair<Runnable, Schedule> pair = new ImmutablePair<>(runnable, schedule);
+        for (String tag : tags) {
+            List<Runnable> runnables = taggedTasks.computeIfAbsent(tag, k -> new ArrayList<>());
+            runnables.add(runnable);
+        }
         tasks.add(pair);
     }
 
     public void addTask(Pair<Runnable, Schedule> pair) {
         tasks.add(pair);
+    }
+
+    public void removeTasks(String tag) {
+        List<Runnable> taggedRunnables = taggedTasks.get(tag);
+        for (Runnable taggedRunnable : taggedRunnables) {
+            List<Pair<Runnable, Schedule>> toRemove = new ArrayList<>();
+            for (Pair<Runnable, Schedule> task : tasks) {
+                if (task.getKey().equals(taggedRunnable)) {
+                    toRemove.add(task);
+                }
+            }
+            tasks.removeAll(toRemove);
+        }
     }
 
     private void runPeriodicTimeCheck() {
@@ -113,5 +132,8 @@ public class Scheduler {
         Scheduler.getInstance().addTask(runnable, schedule);
         Scheduler.getInstance().addTask(runnable2, schedule2);
         Scheduler.getInstance().addTask(runnable3, schedule3);
+        Scheduler.getInstance().addTask(runnable3, schedule3, "s3");
+
+        Scheduler.getInstance().removeTasks("s3");
     }
 }
