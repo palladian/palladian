@@ -327,7 +327,11 @@ public class SearchIntentParser {
                 }
                 intentAction.setFilters(filledFilters);
                 if (intentAction.isRemoveTrigger()) {
-                    intentAction.setModifiedQuery(query.replaceAll("[^ ]*" + intentTrigger.getText() + "[^ ]*", ""));
+                    String replace = "[^ ]*" + intentTrigger.getText() + "[^ ]*";
+                    if (matcher != null) {
+                        replace = "[^ ]*" + Pattern.quote(matcher.group()) + "[^ ]*";
+                    }
+                    intentAction.setModifiedQuery(query.replaceAll(replace, ""));
                 }
                 return intentAction;
         }

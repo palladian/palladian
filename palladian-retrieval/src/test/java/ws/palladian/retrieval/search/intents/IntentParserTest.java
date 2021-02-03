@@ -48,6 +48,35 @@ public class IntentParserTest {
         collector.checkThat(intentAction.getSort().getDirection(), Matchers.is(SortDirection.ASC));
         collector.checkThat(intentAction.getModifiedQuery(), Matchers.is("shoes"));
 
+        // intents with lookaheads and lookbehinds
+        intentJson = "[{\n" +
+                "    \"triggers\": [\n" +
+                "      {type: \"REGEX\", text: \"(?<=(?:^|[;. ]))(?:cheap(ish?))(?=($|[;. ]))\"}" +
+                "    ],\n" +
+                "    \"action\": {\n" +
+                "      \"filters\": [\n" +
+                "        {\n" +
+                "          \"key\": \"price\",\n" +
+                "          \"min\": \"50\",\n" +
+                "          \"max\": \"100\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"type\": \"DEFINITION\",\n" +
+                "      \"sorts\": [\n" +
+                "        {\n" +
+                "          \"key\": \"price\",\n" +
+                "          \"direction\": \"DESC\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "  }]";
+        intentParser = new SearchIntentParser(new JsonArray(intentJson));
+        intentActions = intentParser.parse("cheapish shoes");
+        intentAction = CollectionHelper.getFirst(intentActions);
+
+        collector.checkThat(intentAction.getModifiedQuery(), Matchers.is("shoes"));
+
+        // contains
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
                 "      {type: \"CONTAINS\", text: \"cheap\"}" +
