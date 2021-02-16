@@ -6,6 +6,7 @@ import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.normalization.UnitNormalizer;
+import ws.palladian.helper.normalization.UnitTranslator;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -309,7 +310,10 @@ public class SearchIntentParser {
                                     if (unit != null) {
                                         int unitPosition = Integer.parseInt(unit.replace("$", ""));
                                         String unitGroup = matcher.group(unitPosition);
-                                        aDouble = UnitNormalizer.getNormalizedNumber(aDouble, unitGroup);
+                                        if(unitGroup != null) {
+                                            String translatedUnit = UnitTranslator.translate(unitGroup, intentTrigger.getLanguage());
+                                            aDouble = UnitNormalizer.getNormalizedNumber(aDouble, translatedUnit);
+                                        }
                                     }
                                     Double min = aDouble - (aDouble * margin);
                                     Double max = aDouble + (aDouble * margin);
