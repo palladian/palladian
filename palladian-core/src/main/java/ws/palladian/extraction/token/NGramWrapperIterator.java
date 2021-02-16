@@ -2,10 +2,12 @@ package ws.palladian.extraction.token;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator2;
@@ -38,27 +40,37 @@ public final class NGramWrapperIterator extends AbstractIterator2<Token> {
             tokenQueue.add(wrapped.next());
         }
         if (currentLength <= maxLength && currentLength <= tokenQueue.size()) {
-            return createNGram();
-        } else if (tokenQueue.size() >= minLength) {
+            Optional<Token> nGram = createNGram();
+            if (nGram.isPresent()) {
+                return nGram.get();
+            }
+        }
+        while (tokenQueue.size() >= minLength) {
             currentLength = minLength;
             tokenQueue.poll();
             if (wrapped.hasNext()) {
                 tokenQueue.add(wrapped.next());
             }
             if (tokenQueue.size() >= minLength) {
-                return createNGram();
+                Optional<Token> nGram = createNGram();
+                if (nGram.isPresent()) {
+                    return nGram.get();
+                }
             }
         }
         return finished();
     }
 
-    private Token createNGram() {
+    private Optional<Token> createNGram() {
         int start = 0;
         StringBuilder builder = new StringBuilder();
         Iterator<Token> queueIterator = tokenQueue.iterator();
         int length = 0;
         while (queueIterator.hasNext() && length++ < currentLength) {
             Token current = queueIterator.next();
+            if (current == Preprocessor.REMOVED_TOKEN) {
+                return Optional.empty(); // ignore
+            }
             if (length == 1) {
                 start = current.getStartPosition();
             } else {
@@ -67,7 +79,7 @@ public final class NGramWrapperIterator extends AbstractIterator2<Token> {
             builder.append(current.getValue());
         }
         currentLength++;
-        return new ImmutableToken(start, builder.toString());
+        return Optional.of(new ImmutableToken(start, builder.toString()));
     }
 
 }

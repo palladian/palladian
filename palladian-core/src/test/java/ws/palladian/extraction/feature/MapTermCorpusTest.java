@@ -51,10 +51,10 @@ public class MapTermCorpusTest {
 
 	@Test
 	public void test_getIdf() {
-		assertEquals(Math.log(4. / 2), corpus.getIdf("sky", false), DELTA);
-		assertEquals(Math.log(4. / 3), corpus.getIdf("sky", true), DELTA);
+		assertEquals(1 + Math.log(4. / 2), corpus.getIdf("sky", false), DELTA);
+		assertEquals(1 + Math.log(4. / 3), corpus.getIdf("sky", true), DELTA);
 		assertEquals(Double.POSITIVE_INFINITY, corpus.getIdf("moon", false), DELTA);
-		assertEquals(Math.log(4. / 1), corpus.getIdf("moon", true), DELTA);
+		assertEquals(1 + Math.log(4. / 1), corpus.getIdf("moon", true), DELTA);
 	}
 
 	private static Set<String> tokenize(String text) {

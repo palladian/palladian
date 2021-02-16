@@ -461,9 +461,11 @@ public final class UrlHelper {
                 builder.append('&');
             }
             builder.append(encodeParameter(pair.getKey()));
-            builder.append('=');
             String value = pair.getValue();
-            builder.append(encodeParameter(value != null ? value : StringUtils.EMPTY));
+            if (value != null) {
+                builder.append('=');
+                builder.append(encodeParameter(value));
+            }
         }
         return builder.toString();
     }
@@ -484,14 +486,20 @@ public final class UrlHelper {
             return params;
         }
 
-        String paramSubString = parameterString.substring(questionIdx + 1);
+        // ignore everything behind #
+        int hashIdx = parameterString.indexOf("#");
+        int endIdx = hashIdx != -1 ? hashIdx : parameterString.length();
+
+        String paramSubString = parameterString.substring(questionIdx + 1, endIdx);
         String[] paramSplit = paramSubString.split("&");
         for (String param : paramSplit) {
             String[] keyValue = param.split("=");
             String key = tryDecodeParameter(keyValue[0]);
             String value;
-            if (keyValue.length == 1) {
+            if (keyValue.length == 1 && param.contains("=")) {
                 value = StringUtils.EMPTY;
+            } else if (keyValue.length == 1) {
+                value = null;
             } else {
                 value = tryDecodeParameter(param.substring(key.length() + 1));
             }

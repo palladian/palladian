@@ -49,8 +49,8 @@ public class LuceneTermCorpusTest {
         Directory directory = getSample();
         TermCorpus corpus = new LuceneTermCorpus(directory);
         assertEquals(5, corpus.getNumDocs());
-        assertEquals(Math.log(5. / 1), corpus.getIdf("quick", false), 0);
-        assertEquals(Math.log(5. / 2), corpus.getIdf("brown", false), 0);
+        assertEquals(1 + Math.log(5. / 1), corpus.getIdf("quick", false), 0);
+        assertEquals(1 + Math.log(5. / 2), corpus.getIdf("brown", false), 0);
     }
 
 }

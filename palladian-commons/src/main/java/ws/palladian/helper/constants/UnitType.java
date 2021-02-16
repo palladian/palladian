@@ -349,6 +349,7 @@ public enum UnitType {
         unitList.add("minute(s)");
         unitList.add("minutes");
         unitList.add("minute");
+        unitList.add("mins");
         unitList.add("min");
         UnitType.TIME.units.add(Pair.of(unitList, 60.0));
 
@@ -356,6 +357,7 @@ public enum UnitType {
         unitList.add("second(s)");
         unitList.add("seconds");
         unitList.add("second");
+        unitList.add("secs");
         unitList.add("sec");
         unitList.add("s");
         UnitType.TIME.units.add(Pair.of(unitList, 1.0));
@@ -363,6 +365,7 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("milli seconds");
         unitList.add("milliseconds");
+        unitList.add("millis");
         unitList.add("ms");
         UnitType.TIME.units.add(Pair.of(unitList, 0.001));
 
@@ -535,6 +538,7 @@ public enum UnitType {
         unitList.add("inch");
         unitList.add("in");
         unitList.add("\"");
+        unitList.add("”");
         UnitType.LENGTH.units.add(Pair.of(unitList, 2.54));
 
         unitList = new ArrayList<>();
