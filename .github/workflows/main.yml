@@ -30,9 +30,9 @@ jobs:
 
       - name: Build (and publish to Sonatype OSSRH when on master)
         run: |
-          # only use -P release when (1) on master branch, (2) no pull request
-          if [ ${GITHUB_REF#refs/heads/} == "master" ]; then MAVEN_PROFILE="-P release"; fi
-          mvn -V -B clean deploy $MAVEN_PROFILE
+          # only use -P release when on master branch
+          if [ ${GITHUB_REF#refs/heads/} == "master" ]; then MAVEN_PROFILE="deploy -P release"; fi
+          mvn -V -B clean install $MAVEN_PROFILE
         env:
           OSSRH_USERNAME: palladian
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
