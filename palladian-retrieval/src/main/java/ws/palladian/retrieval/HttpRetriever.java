@@ -123,6 +123,8 @@ public class HttpRetriever {
      */
     private static final String CONTEXT_METRICS_ID = "CONTEXT_METRICS_ID";
 
+    private static final String CONTEXT_LOCATIONS_ID = "CONTEXT_LOCATIONS_ID";
+
     // ///////////// Settings ////////
 
     /**
@@ -328,6 +330,16 @@ public class HttpRetriever {
         backend.addResponseInterceptor(metricsSaver);
         // end edit
 
+        backend.addRequestInterceptor((request, context) -> {
+            List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
+            if (locations == null) {
+                locations = new ArrayList<>();
+                context.setAttribute(CONTEXT_LOCATIONS_ID, locations);
+            }
+            String fullLocation = context.getAttribute("http.target_host") + request.getRequestLine().getUri();
+            locations.add(fullLocation);
+        });
+
         if (cookieStore != null) {
             backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
         } else {
@@ -435,14 +447,21 @@ public class HttpRetriever {
                 // read the payload, stop if a download size limitation has been set
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];
-                int length;
-                while ((length = in.read(buffer, 0, buffer.length)) != -1) {
-                    out.write(buffer, 0, length);
-                    if (maxFileSize != -1 && out.size() > maxFileSize) {
+                for (;;) {
+                    if (maxFileSize != -1 && out.size() >= maxFileSize) {
                         LOGGER.debug("Cancel transfer of {}, as max. file size limit of {} bytes was reached", url,
                                 maxFileSize);
                         break;
                     }
+                    int bytesToRead = buffer.length;
+                    if (maxFileSize != -1) {
+                        bytesToRead = (int) Math.min(maxFileSize - out.size(), buffer.length);
+                    }
+                    int bytesRead = in.read(buffer, 0, bytesToRead);
+                    if (bytesRead == -1) {
+                        break;
+                    }
+                    out.write(buffer, 0, bytesRead);
                 }
 
                 entityContent = out.toByteArray();
@@ -462,16 +481,9 @@ public class HttpRetriever {
             Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
 
             // did we get redirected?
-            try {
-                Object attribute = context.getAttribute("http.request");
-                if (attribute != null && ((RequestWrapper) attribute).getOriginal() != null) {
-                    headers.put("Location", Arrays.asList(((RequestWrapper) attribute).getOriginal().getRequestLine().getUri()));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
 
-            result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes);
+            result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes, locations);
 
             addDownload(receivedBytes);
 

@@ -48,6 +48,35 @@ public class IntentParserTest {
         collector.checkThat(intentAction.getSort().getDirection(), Matchers.is(SortDirection.ASC));
         collector.checkThat(intentAction.getModifiedQuery(), Matchers.is("shoes"));
 
+        // intents with lookaheads and lookbehinds
+        intentJson = "[{\n" +
+                "    \"triggers\": [\n" +
+                "      {type: \"REGEX\", text: \"(?<=(?:^|[;. ]))(?:cheap(ish?))(?=($|[;. ]))\"}" +
+                "    ],\n" +
+                "    \"action\": {\n" +
+                "      \"filters\": [\n" +
+                "        {\n" +
+                "          \"key\": \"price\",\n" +
+                "          \"min\": \"50\",\n" +
+                "          \"max\": \"100\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"type\": \"DEFINITION\",\n" +
+                "      \"sorts\": [\n" +
+                "        {\n" +
+                "          \"key\": \"price\",\n" +
+                "          \"direction\": \"DESC\"\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "  }]";
+        intentParser = new SearchIntentParser(new JsonArray(intentJson));
+        intentActions = intentParser.parse("cheapish shoes");
+        intentAction = CollectionHelper.getFirst(intentActions);
+
+        collector.checkThat(intentAction.getModifiedQuery(), Matchers.is("shoes"));
+
+        // contains
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
                 "      {type: \"CONTAINS\", text: \"cheap\"}" +
@@ -117,6 +146,21 @@ public class IntentParserTest {
         intentAction = CollectionHelper.getFirst(intentActions);
 
         collector.checkThat(intentAction.getRewrite(), Matchers.is("ps4 grand theft auto 6"));
+
+        intentJson = "[{\n" +
+                "    \"triggers\": [\n" +
+                "      {type: \"PHRASE_MATCH\", text: \"mtb\"}," +
+                "    ],\n" +
+                "    \"action\": {\n" +
+                "      \"type\": \"REWRITE\"," +
+                "      \"rewrite\": \"mountain bike\"" +
+                "    },\n" +
+                "  }]";
+        intentParser = new SearchIntentParser(new JsonArray(intentJson));
+        intentActions = intentParser.parse("mtb shoes");
+        intentAction = CollectionHelper.getFirst(intentActions);
+
+        collector.checkThat(intentAction.getRewrite(), Matchers.is("mountain bike shoes"));
 
         // test regex redirects
         intentJson = "[{\n" +

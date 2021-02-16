@@ -305,6 +305,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     @Override
     public void getWebDocuments(Collection<String> urls, Consumer<Document> callback, ProgressMonitor progressMonitor) {
         for (String url : urls) {
+            getRequestThrottle().hold();
             // react file fileTypeConsumer?
             boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
 
@@ -326,6 +327,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
         Set<Document> documents = new HashSet<>();
 
         for (String url : urls) {
+            getRequestThrottle().hold();
             Document document = getWebDocument(url);
             documents.add(document);
         }
