@@ -38,10 +38,10 @@ public class UnitNormalizer {
         for (UnitType unitType : UnitType.values()) {
             ALL_UNITS.addAll(unitType.getUnitNames());
         }
-        Collections.sort(ALL_UNITS, StringLengthComparator.INSTANCE);
+        ALL_UNITS.sort(StringLengthComparator.INSTANCE);
 
         for (String unit : ALL_UNITS) {
-            PATTERNS.put(unit, Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|[-.,;*]|\\s)", Pattern.CASE_INSENSITIVE));
+            PATTERNS.put(unit, Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|[-.,;:*)]|\\s)", Pattern.CASE_INSENSITIVE));
         }
     }
 
