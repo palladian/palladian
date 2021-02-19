@@ -68,8 +68,11 @@ public class Scheduler {
                     toRemove.add(task);
                 }
             }
-            tasks.removeAll(toRemove);
+            synchronized (tasks) {
+                tasks.removeAll(toRemove);
+            }
         }
+        taggedTasks.remove(tag);
     }
 
     private void runPeriodicTimeCheck() {
