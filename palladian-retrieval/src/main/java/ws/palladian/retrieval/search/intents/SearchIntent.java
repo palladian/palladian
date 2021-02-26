@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.intents;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class SearchIntent {
@@ -16,10 +17,16 @@ public class SearchIntent {
 
     public void setIntentTriggers(List<SearchIntentTrigger> intentTriggers) {
         this.triggers = intentTriggers;
+        sortTriggers();
     }
 
     public void addIntentTrigger(SearchIntentTrigger intentTrigger) {
         this.triggers.add(intentTrigger);
+        sortTriggers();
+    }
+
+    private void sortTriggers() {
+        triggers.sort((o1, o2) -> Integer.compare(o2.getText().length(), o1.getText().length()));
     }
 
     public SearchIntentAction<SearchIntentFilter> getIntentAction() {

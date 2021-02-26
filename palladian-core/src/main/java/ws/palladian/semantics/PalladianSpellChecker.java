@@ -37,6 +37,7 @@ public class PalladianSpellChecker {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianSpellChecker.class);
     private static final Pattern SPLIT = Pattern.compile("\\s");
+    private static final Collection<String> EMPTY_SET = new HashSet<>();
 
     /**
      * Support for correcting German compounds.
@@ -250,6 +251,9 @@ public class PalladianSpellChecker {
     public String autoCorrect(String text) {
         return autoCorrect(text, false);
     }
+    public String autoCorrect(String text, Collection<String> ignoreWords) {
+        return autoCorrect(text, false, ignoreWords);
+    }
 
     /**
      * <p>
@@ -260,6 +264,9 @@ public class PalladianSpellChecker {
      * @return The auto-corrected text.
      */
     public String autoCorrect(String text, boolean caseSensitive) {
+        return autoCorrect(text, caseSensitive, EMPTY_SET);
+    }
+    public String autoCorrect(String text, boolean caseSensitive, Collection<String> ignoreWords) {
         StringBuilder correctedText = new StringBuilder();
 
         String s = StringHelper.containsWhichWord(manualPhraseMappings.keySet(), text);
@@ -280,7 +287,7 @@ public class PalladianSpellChecker {
             }
 
             int length = word.length();
-            if (length < minWordLength || length > maxWordLength || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
+            if (length < minWordLength || length > maxWordLength || ignoreWords.contains(word) || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
                 correctedText.append(word).append(" ");
                 continue;
             }
