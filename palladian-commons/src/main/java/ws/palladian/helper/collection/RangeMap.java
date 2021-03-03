@@ -1,11 +1,6 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * <p>
@@ -103,7 +98,7 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
     public void put(K key, V c) {
         Collection<V> vs = get(key);
         if (vs == null) {
-            vs = new HashSet<>();
+            vs = Collections.synchronizedSet(new HashSet<>());
             put(key, vs);
         }
         vs.add(c);
