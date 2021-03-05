@@ -46,6 +46,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 
     protected RemoteWebDriver driver;
     private int timeoutSeconds = 10;
+    private Consumer<WaitException> waitExceptionCallback;
 
     /**
      * We can configure the retriever to wait for certain elements on certain URLs that match the given pattern.
@@ -173,9 +174,12 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
                 final String cssSelector = selector;
                 new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> webDriver.findElement(By.cssSelector(cssSelector)));
             } else {
-                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor)webDriver).executeScript("return document.readyState").equals("complete"));
+                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
             }
         } catch (Exception e) {
+            if (getWaitExceptionCallback() != null) {
+                getWaitExceptionCallback().accept(new WaitException(url, e, selector));
+            }
             LOGGER.error("problem with waiting", e);
         }
     }
@@ -183,7 +187,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     /**
      * Go to a certain page and wait until a condition is fulfilled (up to x seconds).
      *
-     * @param url The url of the document
+     * @param url       The url of the document
      * @param condition The condition to check
      */
     public void goTo(String url, ExpectedCondition<Boolean> condition) {
@@ -193,8 +197,8 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     /**
      * Go to a certain page and wait until a condition is fulfilled.
      *
-     * @param url The url of the document
-     * @param condition The condition to check
+     * @param url              The url of the document
+     * @param condition        The condition to check
      * @param timeoutInSeconds The maximum time to wait in seconds
      */
     public void goTo(String url, ExpectedCondition<Boolean> condition, Integer timeoutInSeconds) {
@@ -212,6 +216,9 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             new WebDriverWait(driver, timeoutInSeconds).until(condition);
         } catch (Exception e) {
             LOGGER.error("problem with waiting for condition", e);
+            if (getWaitExceptionCallback() != null) {
+                getWaitExceptionCallback().accept(new WaitException(url, e, null));
+            }
         }
     }
 
@@ -243,7 +250,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     /**
      * Go to a certain page, wait until a condition is fulfilled and retrieve the document
      *
-     * @param url The url of the document
+     * @param url       The url of the document
      * @param condition The condition to check
      * @return The document
      */
@@ -349,7 +356,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Find a DOM node.
      *
      * @param preselector The CSS selector of the context to search
-     * @param selector The CSS selector
+     * @param selector    The CSS selector
      * @return The queried node
      */
     public WebElement find(String preselector, String selector) {
@@ -371,7 +378,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Find all DOM nodes matching the given selector in a specific context.
      *
      * @param preSelector The CSS selector of the context to search.
-     * @param selector The CSS selector.
+     * @param selector    The CSS selector.
      * @return List of queried nodes.
      */
     public List<WebElement> findAll(String preSelector, String selector) {
@@ -421,6 +428,40 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 
     public void setWaitForElementMap(Map<Pattern, String> waitForElementMap) {
         this.waitForElementMap = waitForElementMap;
+    }
+
+
+    public Consumer<WaitException> getWaitExceptionCallback() {
+        return waitExceptionCallback;
+    }
+
+    public void setWaitExceptionCallback(Consumer<WaitException> waitExceptionCallback) {
+        this.waitExceptionCallback = waitExceptionCallback;
+    }
+
+    public static class WaitException {
+
+        private final String selector;
+        private final String url;
+        private final Exception exception;
+
+        private WaitException(String url, Exception e, String selector) {
+            this.url = url;
+            this.exception = e;
+            this.selector = selector;
+        }
+
+        public String getSelector() {
+            return selector;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public Exception getException() {
+            return exception;
+        }
     }
 
     public static void main(String... args) throws HttpException {
