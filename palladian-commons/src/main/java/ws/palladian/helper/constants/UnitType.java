@@ -632,6 +632,15 @@ public enum UnitType {
         UnitType.AREA.units.add(Pair.of(unitList, 10000.));
 
         unitList = new ArrayList<>();
+        unitList.add("square foot");
+        unitList.add("square feet");
+        unitList.add("sq. ft.");
+        unitList.add("square ft");
+        unitList.add("sqft");
+        unitList.add("ft²");
+        UnitType.AREA.units.add(Pair.of(unitList, 0.092903));
+
+        unitList = new ArrayList<>();
         unitList.add("square meters");
         unitList.add("square meter");
         unitList.add("square metres");
