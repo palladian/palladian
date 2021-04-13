@@ -1,20 +1,18 @@
 package ws.palladian.helper.normalization;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.UnitType;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -24,7 +22,6 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  */
 public class UnitNormalizer {
-
     /**
      * The logger for this class.
      */
@@ -80,6 +77,7 @@ public class UnitNormalizer {
     private static boolean isAreaDensityUnit(String unit) {
         return UnitType.AREA_DENSITY.contains(unit);
     }
+
     private static boolean isDensityUnit(String unit) {
         return UnitType.DENSITY.contains(unit);
     }
@@ -120,6 +118,10 @@ public class UnitNormalizer {
         return UnitType.CURRENT.contains(unit);
     }
 
+    private static boolean isLuminanceUnit(String unit) {
+        return UnitType.LUMINANCE.contains(unit);
+    }
+
     private static boolean isElectricChargeUnit(String unit) {
         return UnitType.ELECTRIC_CHARGE.contains(unit);
     }
@@ -127,7 +129,6 @@ public class UnitNormalizer {
     private static boolean isCurrencyUnit(String unit) {
         return UnitType.CURRENCY.contains(unit);
     }
-
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
@@ -198,6 +199,9 @@ public class UnitNormalizer {
         }
         if (isPressureUnit(unit)) {
             return UnitType.PRESSURE.getUnitNames();
+        }
+        if (isLuminanceUnit(unit)) {
+            return UnitType.LUMINANCE.getUnitNames();
         }
         if (isVoltageUnit(unit)) {
             return UnitType.VOLTAGE.getUnitNames();
@@ -291,6 +295,11 @@ public class UnitNormalizer {
             return true;
         }
 
+        // luminance
+        if (isLuminanceUnit(unit1) && isLuminanceUnit(unit2)) {
+            return true;
+        }
+
         // volume
         if (isVolumeUnit(unit1) && isVolumeUnit(unit2)) {
             return true;
@@ -347,7 +356,8 @@ public class UnitNormalizer {
         // a result)
         double multiplier = -1.0;
 
-        ol: for (UnitType unitType : UnitType.values()) {
+        ol:
+        for (UnitType unitType : UnitType.values()) {
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                 for (String unitTypeUnit : pair.getLeft()) {
                     if (unit.equals(unitTypeUnit)) {
@@ -365,7 +375,8 @@ public class UnitNormalizer {
         // nothing found? try case insensive
         if (multiplier < 0) {
             unit = unit.toLowerCase();
-            ol: for (UnitType unitType : UnitType.values()) {
+            ol:
+            for (UnitType unitType : UnitType.values()) {
                 for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                     for (String unitTypeUnit : pair.getLeft()) {
                         if (unit.equals(unitTypeUnit)) {
@@ -389,7 +400,7 @@ public class UnitNormalizer {
      * Find special formats for combined values (well formed as "1 min 4 sec" are handled by getNormalizedNumber).
      * </p>
      * <p/>
-     * 
+     *
      * <pre>
      * 1m20s => 80s
      * 1h2m20s => 3740s (1m:20s => 80s)
@@ -399,7 +410,7 @@ public class UnitNormalizer {
      * 5'9'' => 175.26cm
      * </pre>
      *
-     * @param number The number.
+     * @param number   The number.
      * @param unitText The text after the unit.
      * @return The combined value or -1 if number is not part of special format.
      */
@@ -426,7 +437,7 @@ public class UnitNormalizer {
                 combinedValue = number * 3600; // hours to seconds
                 int minutesIndex = unitText.indexOf("m");
                 combinedValue += Double.parseDouble(matcher.group().substring(1, minutesIndex)) * 60; // minutes to
-                                                                                                      // seconds
+                // seconds
                 int secondsIndex = unitText.indexOf("s");
                 if (secondsIndex > -1) {
                     combinedValue += Double.parseDouble(matcher.group().substring(minutesIndex + 1, secondsIndex));
@@ -493,7 +504,7 @@ public class UnitNormalizer {
      * </p>
      *
      * @param unitTo The unit to transform.
-     * @param value The value to transform.
+     * @param value  The value to transform.
      * @return The transformed value.
      */
     public static double transorm(String unitTo, double value) {
@@ -548,6 +559,9 @@ public class UnitNormalizer {
             if (isPressureUnit(word)) {
                 unitType = UnitType.PRESSURE;
             }
+            if (isLuminanceUnit(word)) {
+                unitType = UnitType.LUMINANCE;
+            }
             if (isCurrentUnit(word)) {
                 unitType = UnitType.CURRENT;
             }
@@ -574,7 +588,6 @@ public class UnitNormalizer {
     }
 
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
-
         // add space in case it's missing "2.4Ghz" => "2.4 Ghz"
         unitText = unitText.replaceAll("(\\d)([A-Za-z\"])", "$1 $2").trim();
         String words[] = unitText.split(" ");
@@ -601,7 +614,6 @@ public class UnitNormalizer {
     }
 
     public static double getNormalizedNumber(double number, String unitText, int decimals, String combinedSearchPreviousUnit) {
-
         boolean combinedSearch = false;
         if (combinedSearchPreviousUnit.length() > 0) {
             combinedSearch = true;
@@ -701,11 +713,10 @@ public class UnitNormalizer {
      * </p>
      *
      * @param normalizedValue The value, normalized to its base value in its unit type.
-     * @param unitType The unit type of the normalized value.
+     * @param unitType        The unit type of the normalized value.
      * @return A pair with the transformed value and the used unit.
      */
     public static Pair<Double, List<String>> smartTransform(Double normalizedValue, UnitType unitType) {
-
         double smallestReadableValue = normalizedValue;
         Pair<List<String>, Double> bestMatchingTransformation = null;
         for (Pair<List<String>, Double> entry : unitType.getUnits()) {
@@ -726,7 +737,6 @@ public class UnitNormalizer {
      * @param args
      */
     public static void main(String[] args) {
-
         StopWatch stopWatch = new StopWatch();
 
         // 4.736s / 4.665s / 5.373s / 4.956s
@@ -842,5 +852,4 @@ public class UnitNormalizer {
         // }
         // }
     }
-
 }

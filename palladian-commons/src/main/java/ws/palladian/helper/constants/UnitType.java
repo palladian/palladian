@@ -38,6 +38,7 @@ public enum UnitType {
     ELECTRIC_CHARGE("ampere-hour"), //
     TORQUE("Nm"), //
     PIXEL("pixel"), //
+    LUMINANCE("nit"), //
     CURRENCY(null),
     OTHER(null);
 
@@ -494,6 +495,15 @@ public enum UnitType {
         unitList.add("kn/m2");
         UnitType.PRESSURE.units.add(Pair.of(unitList, 1000.0));
 
+        // LUMINANCE units are normalized to nits
+        unitList = new ArrayList<>();
+        unitList.add("cd/m2");
+        unitList.add("cd/m²");
+        unitList.add("cd/m^2");
+        unitList.add("nits");
+        unitList.add("nt");
+        UnitType.LUMINANCE.units.add(Pair.of(unitList, 1.));
+
         // LENGTH units are normalized to centimeter
         unitList = new ArrayList<>();
         unitList.add("miles");
@@ -863,14 +873,11 @@ public enum UnitType {
             unitType.sortedUnitNames = new ArrayList<>();
 
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
-                for (String unit : pair.getLeft()) {
-                    unitType.sortedUnitNames.add(unit);
-                }
+                unitType.sortedUnitNames.addAll(pair.getLeft());
             }
 
-            Collections.sort(unitType.sortedUnitNames, StringLengthComparator.INSTANCE);
+            unitType.sortedUnitNames.sort(StringLengthComparator.INSTANCE);
         }
-
     }
 
     public boolean contains(String unit) {
@@ -896,5 +903,4 @@ public enum UnitType {
     public List<String> getUnitNames() {
         return sortedUnitNames;
     }
-
 }
