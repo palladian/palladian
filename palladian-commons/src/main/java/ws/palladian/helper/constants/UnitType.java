@@ -75,14 +75,6 @@ public enum UnitType {
         unitList.add("k");
         UnitType.NONE.units.add(Pair.of(unitList, 1000.0));
 
-        unitList = new ArrayList<>();
-        unitList.add("percents");
-        unitList.add("per cent");
-        unitList.add("percent");
-        unitList.add("perc");
-        unitList.add("%");
-        UnitType.NONE.units.add(Pair.of(unitList, 1.));
-
         // BANDWIDTH units are normalized to 1 bit/s
         unitList = new ArrayList<>();
         unitList.add("bit/s");
@@ -309,9 +301,7 @@ public enum UnitType {
         // TEMPERATURE units will not be normalized as there are non-linear projections
         for (TemperatureUnit tUnit : TemperatureUnit.values()) {
             unitList = new ArrayList<>();
-            for (String name : tUnit.getNames()) {
-                unitList.add(name);
-            }
+            unitList.addAll(tUnit.getNames());
             UnitType.TEMPERATURE.units.add(Pair.<List<String>, Double>of(unitList, null));
         }
 
@@ -461,6 +451,12 @@ public enum UnitType {
         unitList.add("pascal");
         unitList.add("pa");
         UnitType.PRESSURE.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("hectopascals");
+        unitList.add("hectopascal");
+        unitList.add("hPa");
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 100.0));
 
         unitList = new ArrayList<>();
         unitList.add("N/m²");
