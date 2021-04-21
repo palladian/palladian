@@ -154,7 +154,22 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * @param processName      The name of the process, for identification purposes when outputting the bar.
      */
     public ProgressMonitor(long totalSteps, double showEveryPercent, String processName) {
+        this(totalSteps, showEveryPercent, processName, null);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link ProgressMonitor}.
+     * </p>
+     *
+     * @param totalSteps       The total iterations to perform, greater/equal zero.
+     * @param showEveryPercent Step size for outputting the progress in range [0,100].
+     * @param processName      The name of the process, for identification purposes when outputting the bar.
+     * @param logger           The logger to use instead of printing to the console.
+     */
+    public ProgressMonitor(long totalSteps, double showEveryPercent, String processName, Logger logger) {
         this(showEveryPercent);
+        setLogger(logger);
         Validate.isTrue(totalSteps >= 0, "totalSteps must be greater/equal zero");
         startTask(processName, totalSteps);
     }
