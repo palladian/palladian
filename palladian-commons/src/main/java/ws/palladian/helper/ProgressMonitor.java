@@ -10,6 +10,7 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import org.slf4j.Logger;
 import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.date.DateHelper;
 
@@ -17,7 +18,7 @@ import ws.palladian.helper.date.DateHelper;
  * <p>
  * The ProgressMonitor eases the progress visualization needed in many long-running processes. Usage example:
  * <p>
- * 
+ *
  * <pre>
  * ProgressMonitor pm = new ProgressMonitor();
  * pm.startTask(&quot;fancy calculation&quot;, 10);
@@ -35,7 +36,6 @@ import ws.palladian.helper.date.DateHelper;
  * @author Philipp Katz
  */
 public final class ProgressMonitor extends AbstractProgressReporter {
-
     private static final int PROGRESS_BAR_LENGTH = 50;
 
     private static final char PROGRESS_CHAR = '■';
@@ -71,6 +71,8 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     private long currentSteps;
 
     private double currentProgress;
+
+    private Logger logger = null;
 
     /**
      * Keep track of the last 3 iterations
@@ -135,7 +137,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Create a new {@link ProgressMonitor}.
      * </p>
      *
-     * @param totalSteps The total iterations to perform, greater/equal zero.
+     * @param totalSteps       The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
      */
     public ProgressMonitor(long totalSteps, double showEveryPercent) {
@@ -147,12 +149,27 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * Create a new {@link ProgressMonitor}.
      * </p>
      *
-     * @param totalSteps The total iterations to perform, greater/equal zero.
+     * @param totalSteps       The total iterations to perform, greater/equal zero.
      * @param showEveryPercent Step size for outputting the progress in range [0,100].
-     * @param processName The name of the process, for identification purposes when outputting the bar.
+     * @param processName      The name of the process, for identification purposes when outputting the bar.
      */
     public ProgressMonitor(long totalSteps, double showEveryPercent, String processName) {
+        this(totalSteps, showEveryPercent, processName, null);
+    }
+
+    /**
+     * <p>
+     * Create a new {@link ProgressMonitor}.
+     * </p>
+     *
+     * @param totalSteps       The total iterations to perform, greater/equal zero.
+     * @param showEveryPercent Step size for outputting the progress in range [0,100].
+     * @param processName      The name of the process, for identification purposes when outputting the bar.
+     * @param logger           The logger to use instead of printing to the console.
+     */
+    public ProgressMonitor(long totalSteps, double showEveryPercent, String processName, Logger logger) {
         this(showEveryPercent);
+        setLogger(logger);
         Validate.isTrue(totalSteps >= 0, "totalSteps must be greater/equal zero");
         startTask(processName, totalSteps);
     }
@@ -190,7 +207,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     public void increment(long steps) {
         synchronized (this) {
             currentSteps += steps;
-            currentProgress = totalSteps > 0 ? (double)currentSteps / totalSteps : -1;
+            currentProgress = totalSteps > 0 ? (double) currentSteps / totalSteps : -1;
             printProgress();
 
             // call the callback if it is set
@@ -228,7 +245,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      * </p>
      */
     private void printProgress() {
-        int output = (int)Math.floor(currentProgress * (100 / showEveryPercent));
+        int output = (int) Math.floor(currentProgress * (100 / showEveryPercent));
         if (showEveryPercent == 0 || output != lastOutput) {
             long elapsedTime = System.currentTimeMillis() - startTime;
             double percentLeft = 1.0 - currentProgress;
@@ -253,7 +270,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
                 }
                 if (currentProgress >= 0 && iterationsLeft > 0) {
                     double remainingTime = getAverageIterationTime() * iterationsLeft;
-                    statistics.add("~remaining: " + DateHelper.formatDuration(0, (long)remainingTime, true).replaceAll(":\\d+ms", ""));
+                    statistics.add("~remaining: " + DateHelper.formatDuration(0, (long) remainingTime, true).replaceAll(":\\d+ms", ""));
                 }
             }
             StringBuilder progressString = new StringBuilder();
@@ -264,7 +281,11 @@ public final class ProgressMonitor extends AbstractProgressReporter {
             progressString.append(progressBar);
             progressString.append(' ');
             progressString.append(StringUtils.join(statistics, " | "));
-            System.out.println(progressString);
+            if (logger != null) {
+                logger.info(progressString.toString());
+            } else {
+                System.out.println(progressString);
+            }
             lastOutput = output;
             lastPrintTime = elapsedTime;
 
@@ -299,7 +320,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     private static String createProgressBar(double progress) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
-        int scaledPercent = progress >= 0 ? (int)Math.round(progress * PROGRESS_BAR_LENGTH) : 0;
+        int scaledPercent = progress >= 0 ? (int) Math.round(progress * PROGRESS_BAR_LENGTH) : 0;
         stringBuilder.append(StringUtils.repeat(PROGRESS_CHAR, scaledPercent));
         stringBuilder.append(StringUtils.repeat(' ', Math.max(PROGRESS_BAR_LENGTH - scaledPercent, 0)));
         stringBuilder.append(']');
@@ -317,8 +338,17 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     public void setCallback(ProgressCallback callback) {
         this.callback = callback;
     }
+
     public void setIncrementCallback(ProgressCallback callback) {
         this.incrementCallback = callback;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
     }
 
     public static void main(String[] args) {
@@ -337,5 +367,4 @@ public final class ProgressMonitor extends AbstractProgressReporter {
             ThreadHelper.deepSleep(250);
         }
     }
-
 }

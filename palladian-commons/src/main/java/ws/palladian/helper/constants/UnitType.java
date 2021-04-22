@@ -38,6 +38,7 @@ public enum UnitType {
     ELECTRIC_CHARGE("ampere-hour"), //
     TORQUE("Nm"), //
     PIXEL("pixel"), //
+    LUMINANCE("nit"), //
     CURRENCY(null),
     OTHER(null);
 
@@ -73,14 +74,6 @@ public enum UnitType {
         unitList.add("thousand");
         unitList.add("k");
         UnitType.NONE.units.add(Pair.of(unitList, 1000.0));
-
-        unitList = new ArrayList<>();
-        unitList.add("percents");
-        unitList.add("per cent");
-        unitList.add("percent");
-        unitList.add("perc");
-        unitList.add("%");
-        UnitType.NONE.units.add(Pair.of(unitList, 1.));
 
         // BANDWIDTH units are normalized to 1 bit/s
         unitList = new ArrayList<>();
@@ -308,9 +301,7 @@ public enum UnitType {
         // TEMPERATURE units will not be normalized as there are non-linear projections
         for (TemperatureUnit tUnit : TemperatureUnit.values()) {
             unitList = new ArrayList<>();
-            for (String name : tUnit.getNames()) {
-                unitList.add(name);
-            }
+            unitList.addAll(tUnit.getNames());
             UnitType.TEMPERATURE.units.add(Pair.<List<String>, Double>of(unitList, null));
         }
 
@@ -462,6 +453,12 @@ public enum UnitType {
         UnitType.PRESSURE.units.add(Pair.of(unitList, 1.0));
 
         unitList = new ArrayList<>();
+        unitList.add("hectopascals");
+        unitList.add("hectopascal");
+        unitList.add("hPa");
+        UnitType.PRESSURE.units.add(Pair.of(unitList, 100.0));
+
+        unitList = new ArrayList<>();
         unitList.add("N/m²");
         unitList.add("N/m^2");
         unitList.add("N/m2");
@@ -493,6 +490,15 @@ public enum UnitType {
         unitList.add("kn/m^2");
         unitList.add("kn/m2");
         UnitType.PRESSURE.units.add(Pair.of(unitList, 1000.0));
+
+        // LUMINANCE units are normalized to nits
+        unitList = new ArrayList<>();
+        unitList.add("cd/m2");
+        unitList.add("cd/m²");
+        unitList.add("cd/m^2");
+        unitList.add("nits");
+        unitList.add("nt");
+        UnitType.LUMINANCE.units.add(Pair.of(unitList, 1.));
 
         // LENGTH units are normalized to centimeter
         unitList = new ArrayList<>();
@@ -630,6 +636,15 @@ public enum UnitType {
         unitList.add("hectares");
         unitList.add("hectare");
         UnitType.AREA.units.add(Pair.of(unitList, 10000.));
+
+        unitList = new ArrayList<>();
+        unitList.add("square foot");
+        unitList.add("square feet");
+        unitList.add("sq. ft.");
+        unitList.add("square ft");
+        unitList.add("sqft");
+        unitList.add("ft²");
+        UnitType.AREA.units.add(Pair.of(unitList, 0.092903));
 
         unitList = new ArrayList<>();
         unitList.add("square meters");
@@ -854,14 +869,11 @@ public enum UnitType {
             unitType.sortedUnitNames = new ArrayList<>();
 
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
-                for (String unit : pair.getLeft()) {
-                    unitType.sortedUnitNames.add(unit);
-                }
+                unitType.sortedUnitNames.addAll(pair.getLeft());
             }
 
-            Collections.sort(unitType.sortedUnitNames, StringLengthComparator.INSTANCE);
+            unitType.sortedUnitNames.sort(StringLengthComparator.INSTANCE);
         }
-
     }
 
     public boolean contains(String unit) {
@@ -887,5 +899,4 @@ public enum UnitType {
     public List<String> getUnitNames() {
         return sortedUnitNames;
     }
-
 }
