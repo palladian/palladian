@@ -1415,7 +1415,6 @@ public final class FileHelper {
      * @return <tt>True</tt> if zipping and saving was successfully, <tt>false</tt> otherwise.
      */
     public static boolean gzip(CharSequence text, String filenameOutput) {
-
         boolean success = true;
 
         OutputStream os = null;
