@@ -14,7 +14,6 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -29,7 +28,7 @@ import java.util.regex.Pattern;
  */
 public class SitemapRetriever {
     private boolean parseXml = false;
-    private DocumentRetriever documentRetriever;
+    private final DocumentRetriever documentRetriever;
     private final static Pattern LOC_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</loc)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern PRIORITY_PATTERN = Pattern.compile("(?<=>)[0-9.]+?(?=</priority)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern ALL = Pattern.compile(".");
@@ -91,8 +90,10 @@ public class SitemapRetriever {
             return pageUrls;
         }
 
+        boolean needsCleaning = true;
         if (!parseXml) {
             sitemapContent = cleanUpSitemap(sitemapContent);
+            needsCleaning = false;
         }
         SitemapType sitemapType = getSitemapType(sitemapContent);
         if (sitemapType == null) {
@@ -105,14 +106,14 @@ public class SitemapRetriever {
                 if (parseXml) {
                     cleanListUrls = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include);
                 } else {
-                    cleanListUrls = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include);
+                    cleanListUrls = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include, needsCleaning);
                 }
 
                 pageUrls.addAll(cleanListUrls);
                 break;
             case INDEX:
                 List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapContent);
-                ProgressMonitor sitemapRetriever = new ProgressMonitor(urls.size(), 0.1, "SitemapRetriever ("+sitemapUrl+")");
+                ProgressMonitor sitemapRetriever = new ProgressMonitor(urls.size(), 0.1, "SitemapRetriever (" + sitemapUrl + ")");
                 for (String sitemapLinkUrl : urls) {
                     // clean url
                     sitemapLinkUrl = normalizeUrl(sitemapLinkUrl);
@@ -173,8 +174,8 @@ public class SitemapRetriever {
         // remove <![CDATA[ and ]]
         sitemapText = sitemapText.replace("<![CDATA[", "").replace("]]>", "");
 
-        sitemapText = PatternHelper.compileOrGet("\\n</loc>", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("</loc>");
-        sitemapText = PatternHelper.compileOrGet("<loc>\\n", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("<loc>");
+        sitemapText = PatternHelper.compileOrGet("(\\n+\\s*)</loc>", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("</loc>");
+        sitemapText = PatternHelper.compileOrGet("<loc>(\\n+\\s*)", Pattern.CASE_INSENSITIVE).matcher(sitemapText).replaceAll("<loc>");
 
         return sitemapText;
     }
@@ -214,7 +215,13 @@ public class SitemapRetriever {
     }
 
     private List<String> getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
-        sitemapText = cleanUpSitemap(sitemapText);
+        return getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include, true);
+    }
+
+    private List<String> getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, boolean needsCleaning) {
+        if (needsCleaning) {
+            sitemapText = cleanUpSitemap(sitemapText);
+        }
 
         String[] lines = sitemapText.split("\n");
         List<String> sitemapUrls = new ArrayList<>();
@@ -228,8 +235,15 @@ public class SitemapRetriever {
 
         // clean and check for include
         LinkedHashSet<String> cleanSitemapUrls = new LinkedHashSet<>();
+        boolean skipMatching = false;
+        if (goalNodePattern.pattern().equals(".*")) {
+            skipMatching = true;
+        }
         for (String url : sitemapUrls) {
-            boolean matchedPattern = goalNodePattern.matcher(url).find();
+            boolean matchedPattern = true;
+            if (!skipMatching) {
+                matchedPattern = goalNodePattern.matcher(url).find();
+            }
             if ((matchedPattern && include) || (!matchedPattern && !include)) {
                 cleanSitemapUrls.add(normalizeUrl(url));
             }
@@ -250,7 +264,7 @@ public class SitemapRetriever {
     }
 
     /**
-     * Normalize a URL by taking care of CDATA text and HTML entity escaping.
+     * Normalize a URL by taking care of CDATA text, HTML entity escaping, and trimming.
      *
      * @param url A sitemap conform URL.
      * @return The normalized URL.
