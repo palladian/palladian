@@ -140,5 +140,15 @@
 			<id>JBoss Repository</id>
 			<url>http://repository.jboss.org/nexus/content/groups/public-jboss</url>
 		</repository>
+		<repository>
+			<!-- JAI dependencies -->
+			<id>JBoss Third Party Repository</id>
+			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+		</repository>
+		<repository>
+			<!-- JAI dependencies -->
+			<id>ICM</id>
+			<url>http://maven.icm.edu.pl/artifactory/repo/</url>
+		</repository>
 	</repositories>
 </project>
