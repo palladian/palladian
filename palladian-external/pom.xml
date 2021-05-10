@@ -143,6 +143,11 @@
 			<name>CogcompSoftware</name>
 			<url>http://cogcomp.cs.illinois.edu/m2repo/</url>
 		</repository>
+		<repository>
+			<id>CogcompSoftware2</id>
+			<name>CogcompSoftware2</name>
+			<url>http://cogcomp.org/m2repo/</url>
+		</repository>
 		<!-- <repository>
 			<id>boilerpipe</id>
 			<url>http://boilerpipe.googlecode.com/svn/repo/</url>
