@@ -7,7 +7,6 @@ import ws.palladian.helper.date.ExtractedDate;
  * 
  */
 public final class ContentDate extends AbstractBodyDate {
-
     /** Position of datestring in text of found tag. */
     public static final int DATEPOS_IN_TAGTEXT = 201;
     /** Position of datestring in text of whole document. */
