@@ -90,11 +90,11 @@
 			<artifactId>stanford-corenlp</artifactId>
 			<version>3.4.1</version>
 		</dependency>
-		<dependency>
-			<groupId>com.aliasi</groupId>
-			<artifactId>lingpipe</artifactId>
-			<version>4.1.0</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.aliasi</groupId>-->
+<!--			<artifactId>lingpipe</artifactId>-->
+<!--			<version>4.1.0</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-tools</artifactId>
@@ -152,10 +152,10 @@
 			<id>boilerpipe</id>
 			<url>http://boilerpipe.googlecode.com/svn/repo/</url>
 		</repository> -->
-		<repository>
-			<id>aksw</id>
-			<url>http://maven.aksw.org/archiva/repository/internal</url>
-		</repository>
+<!--		<repository>-->
+<!--			<id>aksw</id>-->
+<!--			<url>http://maven.aksw.org/archiva/repository/internal</url>-->
+<!--		</repository>-->
 		<repository>
 			<!-- QuickMl -->
 			<id>jitpack.io</id>
