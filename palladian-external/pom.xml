@@ -80,11 +80,11 @@
 			<artifactId>clavin</artifactId>
 			<version>2.0.0</version>
 		</dependency>
-		<dependency>
-			<groupId>edu.illinois.cs.cogcomp</groupId>
-			<artifactId>illinois-ner</artifactId>
-			<version>2.8.2</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>edu.illinois.cs.cogcomp</groupId>-->
+<!--			<artifactId>illinois-ner</artifactId>-->
+<!--			<version>2.8.2</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>edu.stanford.nlp</groupId>
 			<artifactId>stanford-corenlp</artifactId>
@@ -138,16 +138,16 @@
 			<name>JLangDetect Maven repository</name>
 			<url>https://jlangdetect.googlecode.com/svn/repo</url>
 		</repository>-->
-		<repository>
-			<id>CogcompSoftware</id>
-			<name>CogcompSoftware</name>
-			<url>http://cogcomp.cs.illinois.edu/m2repo/</url>
-		</repository>
-		<repository>
-			<id>CogcompSoftware2</id>
-			<name>CogcompSoftware2</name>
-			<url>http://cogcomp.org/m2repo/</url>
-		</repository>
+<!--		<repository>-->
+<!--			<id>CogcompSoftware</id>-->
+<!--			<name>CogcompSoftware</name>-->
+<!--			<url>http://cogcomp.cs.illinois.edu/m2repo/</url>-->
+<!--		</repository>-->
+<!--		<repository>-->
+<!--			<id>CogcompSoftware2</id>-->
+<!--			<name>CogcompSoftware2</name>-->
+<!--			<url>http://cogcomp.org/m2repo/</url>-->
+<!--		</repository>-->
 		<!-- <repository>
 			<id>boilerpipe</id>
 			<url>http://boilerpipe.googlecode.com/svn/repo/</url>
