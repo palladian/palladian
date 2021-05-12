@@ -4,10 +4,12 @@ import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
@@ -202,7 +204,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
         if (globalHeaders != null) {
             requestBuilder.addHeaders(globalHeaders);
         }
-        
+
         if (jsonBody != null) {
             HttpEntity entity;
             if (asFormParams) {
@@ -488,7 +490,12 @@ public class DocumentRetriever extends WebDocumentRetriever {
     }
 
     private Document parse(HttpResult httpResult, boolean xml) throws ParserException {
-        return getParser(xml).parse(httpResult);
+        Document doc = getParser(xml).parse(httpResult);
+        if (addHttpEquivHeaders(doc, httpResult)) {
+            // parse again, e.g. content-type header (charset) might have been modified
+            doc = getParser(xml).parse(httpResult);
+        }
+        return doc;
     }
 
     /**
@@ -502,6 +509,40 @@ public class DocumentRetriever extends WebDocumentRetriever {
      */
     private Document parse(InputStream inputStream, boolean xml) throws ParserException {
         return getParser(xml).parse(inputStream);
+    }
+
+    /**
+     * <p>
+     * Reads http-equiv meta tags and adds them to {@link HttpResult} headers.
+     * </p>
+     *
+     * @param doc the document to process.
+     * @param httpResult the http result to enhance.
+     * @return <code>true</code> if http-equiv meta tags were extracted and added to headers, <code>false</code> otherwise.
+     */
+
+    private boolean addHttpEquivHeaders(Document doc, HttpResult httpResult) {
+        boolean result = false;
+        List<Node> httpEquivMeta = XPathHelper.getXhtmlNodes(doc,"//meta[@http-equiv]");
+        if (!httpEquivMeta.isEmpty()) {
+            for (Node node : httpEquivMeta) {
+                if (node.getAttributes() == null) continue;
+                Node headerNameAttr = node.getAttributes().getNamedItem("http-equiv");
+                Node headerContentAttr = node.getAttributes().getNamedItem("content");
+                String headerName = headerNameAttr != null ? headerNameAttr.getTextContent() : null;
+                String headerValue = headerContentAttr != null ? headerContentAttr.getTextContent() : null;
+                if (headerName != null && headerValue != null) {
+                    List<String> headerValues = httpResult.getHeader(headerName);
+                    if (headerValues == null) {
+                        headerValues = new ArrayList<>();
+                    }
+                    headerValues.add(headerValue);
+                    httpResult.getHeaders().put(headerName, headerValues);
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 
     private void initializeAgents() {
