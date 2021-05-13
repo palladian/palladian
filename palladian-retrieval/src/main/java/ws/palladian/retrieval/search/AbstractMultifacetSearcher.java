@@ -17,12 +17,15 @@ import ws.palladian.retrieval.resources.WebContent;
  * @param <R>
  */
 public abstract class AbstractMultifacetSearcher<R extends WebContent> extends AbstractSearcher<R> {
-
     @Override
     public final List<R> search(String query, int resultCount, Language language) throws SearcherException {
         MultifacetQuery.Builder builder = new MultifacetQuery.Builder();
         builder.setText(query);
-        builder.setResultCount(resultCount);
+        if (defaultResultCount != null) {
+            builder.setResultCount(defaultResultCount);
+        } else {
+            builder.setResultCount(resultCount);
+        }
         builder.setLanguage(language);
         return search(builder.create()).getResultList();
     }

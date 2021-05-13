@@ -67,6 +67,7 @@ public class TenorSearcher extends AbstractSearcher<WebImage> {
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
+        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         int resultsPerPage = Math.min(50, resultCount);
 
         DocumentRetriever documentRetriever = new DocumentRetriever();

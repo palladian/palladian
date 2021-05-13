@@ -62,6 +62,11 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
+    public PexelsSearcher(Configuration config, int defaultResultCount) {
+        this(config);
+        this.defaultResultCount = defaultResultCount;
+    }
+
     @Override
     /**
      * @param language Supported languages are English.
@@ -69,6 +74,7 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
+        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(100, resultCount);
         int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);

@@ -1,10 +1,16 @@
 package ws.palladian.retrieval.search.images;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Predicates;
@@ -23,11 +29,6 @@ import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 /**
  * <p>
  * Search for images on <a href="http://www.flickr.com/">Flickr</a>.
@@ -39,7 +40,6 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="http://www.flickr.com/services/api/misc.api_keys.html">Obtaining an API key</a>
  */
 public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
-
     /**
      * The logger for this class.
      */
@@ -72,11 +72,11 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         private final Set<License> licenses;
 
         public Licenses(License... licenses) {
-            this.licenses = new HashSet<License>(Arrays.asList(licenses));
+            this.licenses = new HashSet<>(Arrays.asList(licenses));
         }
 
         public Licenses(Collection<License> licenses) {
-            this.licenses = new HashSet<License>(licenses);
+            this.licenses = new HashSet<>(licenses);
         }
 
         @Override
@@ -217,10 +217,15 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing Flickr, which must be provided
-     *                      as string via key {@value FlickrSearcher#CONFIG_API_KEY} in the configuration.
+     *            as string via key {@value FlickrSearcher#CONFIG_API_KEY} in the configuration.
      */
     public FlickrSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
+    }
+
+    public FlickrSearcher(Configuration config, int defaultResultCount) {
+        this(config);
+        this.defaultResultCount = defaultResultCount;
     }
 
     @Override
@@ -234,11 +239,11 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      */
     @Override
     public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
-        List<WebImage> result = new ArrayList<WebImage>();
+        List<WebImage> result = new ArrayList<>();
 
-        int resultCount = query.getResultCount();
+        int resultCount = defaultResultCount == null ? query.getResultCount() : defaultResultCount;
         int resultsPerPage = Math.min(resultCount, 500); // max. 500 per page
-        int neccessaryPages = (int) Math.ceil((double) resultCount / resultsPerPage);
+        int neccessaryPages = (int)Math.ceil((double)resultCount / resultsPerPage);
 
         long availableResults = 0;
 
@@ -250,17 +255,16 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             try {
                 httpResult = retriever.httpGet(requestUrl);
             } catch (HttpException e) {
-                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                        + e.getMessage() + ", request URL was \"" + requestUrl + "\"", e);
+                throw new SearcherException(
+                        "HTTP error while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage() + ", request URL was \"" + requestUrl + "\"", e);
             }
             if (httpResult.errorStatus()) {
-                throw new SearcherException("Encountered HTTP error status: " + httpResult.getStatusCode() + " ("
-                        + httpResult.getStringContent() + ").");
+                throw new SearcherException("Encountered HTTP error status: " + httpResult.getStatusCode() + " (" + httpResult.getStringContent() + ").");
             }
             String jsonString = httpResult.getStringContent();
 
             try {
-                JsonObject resultJson = new JsonObject(jsonString);
+                JsonObject resultJson = JsonObject.tryParse(jsonString);
                 JsonObject photosJson = resultJson.getJsonObject("photos");
                 if (photosJson != null) { // result list (search)
                     if (photosJson.get("total") != null) {
@@ -276,8 +280,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
                     result.add(parseWebImage(photoJson));
                 }
             } catch (JsonException e) {
-                throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName()
-                        + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
+                throw new SearcherException("Parse error while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
             }
         }
         return new SearchResults<WebImage>(result, availableResults);
@@ -323,13 +326,13 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         Object tagsElement = photoJson.get("tags");
         Set<String> tags;
         if (tagsElement instanceof String) {
-            tags = new HashSet<String>(Arrays.asList(((String) tagsElement).split("\\s")));
+            tags = new HashSet<>(Arrays.asList(((String)tagsElement).split("\\s")));
         } else {
-            JsonObject tagsObject = (JsonObject) tagsElement;
+            JsonObject tagsObject = (JsonObject)tagsElement;
             JsonArray tagsArray = tagsObject.getJsonArray("tag");
             tags = new HashSet<>();
             for (Object tagContent : tagsArray) {
-                tags.add(((JsonObject) tagContent).getString("_content"));
+                tags.add(((JsonObject)tagContent).getString("_content"));
             }
         }
         // remove "vision:" tags; http://stackoverflow.com/questions/21287302/flickr-api-what-are-the-vision-tags
@@ -344,7 +347,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * @param photoJson The JSON of the photo.
      * @return The parsed {@link GeoCoordinate}, or <code>null</code>.
      */
-    private static final GeoCoordinate parseCoordinate(JsonObject photoJson) {
+    private static GeoCoordinate parseCoordinate(JsonObject photoJson) {
         Double lat = photoJson.tryGetDouble("latitude");
         Double lng = photoJson.tryGetDouble("longitude");
         if (lat == null || lng == null) {
@@ -381,9 +384,9 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     }
 
     /**
-     * @param query   The {@link MultifacetQuery} to process.
+     * @param query The {@link MultifacetQuery} to process.
      * @param perPage Number of results to return per page.
-     * @param page    The page to return.
+     * @param page The page to return.
      * @return The query URL.
      */
     private String buildRequestUrl(MultifacetQuery query, int perPage, int page) {
@@ -415,14 +418,14 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             }
             Facet facet = query.getFacet(Licenses.LICENSES_IDENTIFIER);
             if (facet != null) {
-                Licenses licensesFacet = (Licenses) facet;
+                Licenses licensesFacet = (Licenses)facet;
                 if (licensesFacet.licenses.size() > 0) {
                     urlBuilder.append("&license=").append(licensesFacet.getLicensesString());
                 }
             }
             facet = query.getFacet(OrderBy.ORDER_BY_IDENTIFIER);
             if (facet != null) {
-                OrderBy orderByFacet = (OrderBy) facet;
+                OrderBy orderByFacet = (OrderBy)facet;
                 urlBuilder.append("&sort=").append(orderByFacet.orderByValue);
             }
             urlBuilder.append("&per_page=").append(perPage);
@@ -440,10 +443,10 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * Transforms the given parts back to an image URL.
      * </p>
      *
-     * @param farmId   The farm ID, not <code>null</code> or empty.
+     * @param farmId The farm ID, not <code>null</code> or empty.
      * @param serverId The server ID, not <code>null</code> or empty.
-     * @param id       The image ID, not <code>null</code> or empty.
-     * @param secret   The secret, not <code>null</code> or empty.
+     * @param id The image ID, not <code>null</code> or empty.
+     * @param secret The secret, not <code>null</code> or empty.
      * @return A URL pointing to the image.
      * @see <a href="http://www.flickr.com/services/api/misc.urls.html">URLs</a>
      */
@@ -456,7 +459,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
      * Transforms the given parts to a page URL which gives details about the image.
      * </p>
      *
-     * @param id     The image ID, not <code>null</code> or empty.
+     * @param id The image ID, not <code>null</code> or empty.
      * @param userId The user ID, not <code>null</code> or empty.
      * @return A URL pointing to the page with the image.
      */

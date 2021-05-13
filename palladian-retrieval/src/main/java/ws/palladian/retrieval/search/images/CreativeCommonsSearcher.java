@@ -36,6 +36,14 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     /** If null, search all sources. */
     private String sources = null;
 
+    public CreativeCommonsSearcher() {
+
+    }
+    public CreativeCommonsSearcher(int defaultResultCount) {
+        super();
+        this.defaultResultCount = defaultResultCount;
+    }
+
     @Override
     /**
      * @param language Supported languages are English.
@@ -43,6 +51,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
+        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         resultCount = Math.min(10000, resultCount);
         int resultsPerPage = Math.min(MAX_PER_PAGE, resultCount);
         int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);

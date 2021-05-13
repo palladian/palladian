@@ -2,6 +2,7 @@ package ws.palladian.retrieval.search.images;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
@@ -28,17 +29,11 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="http://pixabay.com/api/docs/">Pixabay API</a>
  */
 public class PixabaySearcher extends AbstractSearcher<WebImage> {
-
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "Pixabay";
 
-    /** Identifier for the API user when supplied via {@link Configuration}. */
-    public static final String CONFIG_API_USER = "api.pixabay.user";
-
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.pixabay.key";
-
-    private final String apiUser;
 
     private final String apiKey;
 
@@ -47,13 +42,10 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
      * Creates a new Pixabay searcher.
      * </p>
      * 
-     * @param apiUser The API user for accessing Pixabay, not <code>null</code> or empty.
      * @param apiKey The API key for accessing Pixabay, not <code>null</code> or empty.
      */
-    public PixabaySearcher(String apiUser, String apiKey) {
-        Validate.notEmpty(apiUser, "apiUser must not be empty");
+    public PixabaySearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
-        this.apiUser = apiUser;
         this.apiKey = apiKey;
     }
 
@@ -66,7 +58,12 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
      *            provided as string via key {@value PixabaySearcher#CONFIG_API_KEY} in the configuration.
      */
     public PixabaySearcher(Configuration configuration) {
-        this(configuration.getString(CONFIG_API_USER), configuration.getString(CONFIG_API_KEY));
+        this(configuration.getString(CONFIG_API_KEY));
+    }
+
+    public PixabaySearcher(Configuration config, int defaultResultCount) {
+        this(config);
+        this.defaultResultCount = defaultResultCount;
     }
 
     @Override
@@ -80,6 +77,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
             language = DEFAULT_SEARCHER_LANGUAGE;
         }
 
+        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(100, resultCount);
         int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);
@@ -88,14 +86,14 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
 
         for (int page = 1; page <= pagesNeeded; page++) {
 
-            String requestUrl = buildRequest(query, page, Math.min(100, resultCount - results.size()), language);
+            String requestUrl = buildRequest(query, page, Math.max(3, Math.min(200, resultCount - results.size())), language);
             try {
                 String textResponse = documentRetriever.getText(requestUrl);
                 if (textResponse == null) {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
                 }
-                JsonObject json = new JsonObject(textResponse);
-                JsonArray jsonArray = json.getJsonArray("hits");
+                JsonObject json = JsonObject.tryParse(textResponse);
+                JsonArray jsonArray = Optional.ofNullable(json).orElse(new JsonObject()).tryGetJsonArray("hits");
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
@@ -106,8 +104,8 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
                     builder.setHeight(resultHit.getInt("imageHeight"));
                     builder.setImageType(getImageType(resultHit.getString("type")));
                     builder.setThumbnailUrl(resultHit.getString("previewURL"));
-                    builder.setLicense(License.PUBLIC_DOMAIN);
-                    builder.setLicenseLink("http://creativecommons.org/publicdomain/zero/1.0/deed.en");
+                    builder.setLicense(License.FREE);
+                    builder.setLicenseLink("https://pixabay.com/service/license/");
                     results.add(builder.create());
                     if (results.size() >= resultCount) {
                         break;
@@ -136,8 +134,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
 
     private String buildRequest(String searchTerms, int page, int resultsPerPage, Language language) {
         return String.format(
-                "http://pixabay.com/api/?username=%s&key=%s&search_term=%s&image_type=all&page=%s&per_page=%s&lang=%s",
-                apiUser, apiKey, UrlHelper.encodeParameter(searchTerms), page, resultsPerPage, language.getIso6391());
+                "http://pixabay.com/api/?key=%s&search_term=%s&image_type=all&page=%s&per_page=%s&lang=%s", apiKey, UrlHelper.encodeParameter(searchTerms), page, resultsPerPage, language.getIso6391());
     }
 
     @Override
@@ -146,7 +143,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
     }
 
     public static void main(String[] args) throws SearcherException {
-        PixabaySearcher pixabaySearcher = new PixabaySearcher("USER", "KEY");
+        PixabaySearcher pixabaySearcher = new PixabaySearcher("KEY");
         List<WebImage> results = pixabaySearcher.search("car", 101);
         CollectionHelper.print(results);
     }

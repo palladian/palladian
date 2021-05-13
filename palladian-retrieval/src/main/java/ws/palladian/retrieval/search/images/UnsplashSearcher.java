@@ -10,7 +10,6 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.json.JsonArray;
@@ -65,6 +64,11 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
+    public UnsplashSearcher(Configuration config, int defaultResultCount) {
+        this(config);
+        this.defaultResultCount = defaultResultCount;
+    }
+
     @Override
     /**
      * @param language Supported languages are English.
@@ -72,6 +76,7 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
+        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(MAX_PER_PAGE, resultCount);
         int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);

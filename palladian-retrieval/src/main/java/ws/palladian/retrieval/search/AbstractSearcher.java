@@ -19,6 +19,9 @@ import ws.palladian.retrieval.resources.WebContent;
  * @author Philipp Katz
  */
 public abstract class AbstractSearcher<R extends WebContent> implements Searcher<R> {
+    /** If no result count is set we take default. */
+    protected Integer defaultResultCount;
+
     @Override
     public final List<String> searchUrls(String query, int resultCount) throws SearcherException {
         return searchUrls(query, resultCount, DEFAULT_SEARCHER_LANGUAGE);
@@ -71,7 +74,7 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
         if (queryText == null || queryText.isEmpty()) {
             throw new SearcherException("For this searcher, the query must provide text.");
         }
-        return new SearchResults<R>(search(queryText, query.getResultCount(), query.getLanguage()));
+        return new SearchResults<>(search(queryText, query.getResultCount(), query.getLanguage()));
     }
 
     @Override

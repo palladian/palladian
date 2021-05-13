@@ -21,9 +21,19 @@ import java.util.List;
  * @see https://www.mediawiki.org/wiki/Extension:PageImages
  */
 public class WikimediaSearcher extends AbstractSearcher<WebImage> {
+    public WikimediaSearcher() {
+
+    }
+    public WikimediaSearcher(int defaultResultCount) {
+        super();
+        this.defaultResultCount = defaultResultCount;
+    }
+
     @Override
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> webImages = new ArrayList<>();
+
+//        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         String url = "https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles=" + UrlHelper.encodeParameter(StringHelper.upperCaseFirstLetters(query));
         JsonObject response = new DocumentRetriever().tryGetJsonObject(url);
         try {
