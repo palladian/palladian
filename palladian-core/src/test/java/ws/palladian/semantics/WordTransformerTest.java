@@ -34,6 +34,11 @@ public class WordTransformerTest {
         assertEquals(1, words.size());
         assertEquals("hadny", words.get(0));
 
+        words = WordTransformer.splitGermanCompoundWords("Fahrradschlösser", true);
+        assertEquals(2, words.size());
+        assertEquals("fahrrad", words.get(0));
+        assertEquals("schloss", words.get(1));
+
         words = WordTransformer.splitGermanCompoundWords("Teaktische");
         assertEquals(2, words.size());
         assertEquals("teak", words.get(0));

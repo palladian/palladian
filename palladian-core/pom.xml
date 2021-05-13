@@ -107,23 +107,6 @@
 			<artifactId>h2</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>quickdt</groupId>
-			<artifactId>quickdt</artifactId>
-			<version>0.0.8.10</version>
-			<!-- both dependencies are only used for testing in quickdt, so we do
-				not need them -->
-			<exclusions>
-				<exclusion>
-					<artifactId>gson</artifactId>
-					<groupId>com.google.code.gson</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>json-simple</artifactId>
-					<groupId>com.googlecode.json-simple</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.31</version>
@@ -145,6 +128,11 @@
 			<!--<artifactId>imageio</artifactId>-->
 			<!--<version>3.2.1</version>-->
 		<!--</dependency>-->
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
+        </dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -153,10 +141,14 @@
 			<url>http://repository.jboss.org/nexus/content/groups/public-jboss</url>
 		</repository>
 		<repository>
-			<!-- QuickDT -->
-			<id>sanity-maven-repo</id>
-			<name>Sanity's Maven repository on GitHub</name>
-			<url>http://sanity.github.com/maven-repo/repository/</url>
+			<!-- JAI dependencies -->
+			<id>JBoss Third Party Repository</id>
+			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+		</repository>
+		<repository>
+			<!-- JAI dependencies -->
+			<id>ICM</id>
+			<url>http://maven.icm.edu.pl/artifactory/repo/</url>
 		</repository>
 	</repositories>
 </project>

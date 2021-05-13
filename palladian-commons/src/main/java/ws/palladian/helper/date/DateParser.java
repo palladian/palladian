@@ -223,7 +223,6 @@ public final class DateParser {
         List<ExtractedDate> result = new ArrayList<>();
         Matcher matcher = format.getPattern().matcher(text);
         while (matcher.find()) {
-
             // Determine, if the found potential date string is directly surrounded by digits or periods.
             // In this case, we skip the pattern and advance to the next one.
             boolean digitNeighbor = false;

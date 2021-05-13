@@ -103,11 +103,11 @@ public class WordTransformer {
         } finally {
             FileHelper.close(inputStream);
         }
-        Collections.sort(GERMAN_WORDS, StringLengthComparator.INSTANCE);
+        GERMAN_WORDS.sort(StringLengthComparator.INSTANCE);
 
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.keySet());
         GERMAN_NOUNS.addAll(GERMAN_SINGULAR_PLURAL.values());
-        Collections.sort(GERMAN_NOUNS, StringLengthComparator.INSTANCE);
+        GERMAN_NOUNS.sort(StringLengthComparator.INSTANCE);
 
         // German stemming exceptions
         try {
@@ -307,15 +307,20 @@ public class WordTransformer {
         return lowerCasePluralForm;
     }
 
+    public static List<String> splitGermanCompoundWords(String word) {
+        return splitGermanCompoundWords(word, false);
+    }
+
     /**
      * <p>
      * Split german compound words, e.g. "Goldkette" becomes (Gold, Kette).
      * </p>
      *
      * @param word The compound word.
+     * @param forceSplit If force split, compound words from the dictionary are ignored, e.g. "Fahrradschloss" is in the dictionary but we'll try to break it to Fahrrad + Schloss
      * @return All words in its correct order that the compound is made out of.
      */
-    public static List<String> splitGermanCompoundWords(String word) {
+    public static List<String> splitGermanCompoundWords(String word, boolean forceSplit) {
         List<String> words = new ArrayList<>();
 
         word = word.toLowerCase();
@@ -328,6 +333,10 @@ public class WordTransformer {
         for (int i = 0; i < GERMAN_WORDS.size(); i++) {
             String word2 = GERMAN_WORDS.get(i);
             int word2Length = word2.length();
+
+            if (forceSplit && word2Length == wordLength) {
+                continue;
+            }
 
             if ((word2Length > 3 && (word2.length() <= wordLength || !words.isEmpty())) && lcSingular.endsWith(word2)) {
                 words.add(0, word2);

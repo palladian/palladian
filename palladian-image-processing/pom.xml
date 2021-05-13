@@ -133,7 +133,7 @@
         <dependency>
             <groupId>mpicbg</groupId>
             <artifactId>mpicbg</artifactId>
-            <version>1.2.0</version>
+            <version>1.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -280,6 +280,14 @@
     </dependencies>
     <repositories>
         <!-- NB: for project parent -->
+        <repository>
+            <id>SciJava</id>
+            <url>https://maven.scijava.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>imagej.releases</id>
+            <url>http://maven.imagej.net/content/repositories/releases/</url>
+        </repository>
         <repository>
             <id>imagej.public</id>
             <url>http://maven.imagej.net/content/groups/public</url>
