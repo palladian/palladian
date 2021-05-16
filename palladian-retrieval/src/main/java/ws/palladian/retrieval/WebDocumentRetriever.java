@@ -59,7 +59,11 @@ public abstract class WebDocumentRetriever {
     public abstract Document getWebDocument(String url);
 
     public String getText(String url) {
-        return HtmlHelper.getInnerXml(getWebDocument(url));
+        Document webDocument = getWebDocument(url);
+        if (webDocument == null) {
+            return null;
+        }
+        return HtmlHelper.getInnerXml(webDocument);
     }
 
     public Map<String, String> getGlobalHeaders() {
