@@ -31,6 +31,7 @@ import io.github.bonigarcia.wdm.DriverManagerType;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
@@ -190,6 +191,9 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
                 getWaitExceptionCallback().accept(new WaitException(url, e, selector));
             }
             LOGGER.error("problem with waiting", e);
+        } catch (Throwable e) {
+            LOGGER.error("problem with waiting", e);
+            ThreadHelper.deepSleep(500);
         }
     }
 
