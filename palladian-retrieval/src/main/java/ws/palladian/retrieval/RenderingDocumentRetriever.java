@@ -18,6 +18,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -107,6 +108,14 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             }
 
             driver = new ChromeDriver(options);
+        } else if (browser == DriverManagerType.PHANTOMJS) {
+            if (driverVersionCode != null) {
+                WebDriverManager.phantomjs().version(driverVersionCode).setup();
+            } else {
+                WebDriverManager.phantomjs().setup();
+            }
+
+            driver = new PhantomJSDriver();
         }
     }
 

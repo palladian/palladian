@@ -3,6 +3,7 @@ package ws.palladian.retrieval;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.functional.Predicates;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -56,6 +57,10 @@ public abstract class WebDocumentRetriever {
     Map<String, String> globalHeaders = null;
 
     public abstract Document getWebDocument(String url);
+
+    public String getText(String url) {
+        return HtmlHelper.getInnerXml(getWebDocument(url));
+    }
 
     public Map<String, String> getGlobalHeaders() {
         return globalHeaders;

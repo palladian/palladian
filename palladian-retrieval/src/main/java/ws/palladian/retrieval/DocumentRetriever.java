@@ -302,6 +302,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * @return The contents as a string, or <code>null</code> if contents could no be retrieved. See the error log for
      * possible errors.
      */
+    @Override
     public String getText(String url) {
         String contentString = null;
 
