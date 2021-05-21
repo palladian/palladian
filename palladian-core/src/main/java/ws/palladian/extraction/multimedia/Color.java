@@ -8,9 +8,9 @@ import java.util.Objects;
  * @author David Urbansky
  */
 public class Color {
-    String hexCode;
-    String mainColorName;
-    String fineColorName;
+    private String hexCode;
+    private String mainColorName;
+    private String fineColorName;
 
     public Color(String hexCode, String fineColorName, String mainColorName) {
         this.hexCode = hexCode;
@@ -65,5 +65,4 @@ public class Color {
 		}
 		return true;
 	}
-
 }
