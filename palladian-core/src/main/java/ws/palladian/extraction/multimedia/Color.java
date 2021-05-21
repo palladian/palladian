@@ -8,7 +8,6 @@ import java.util.Objects;
  * @author David Urbansky
  */
 public class Color {
-
     String hexCode;
     String mainColorName;
     String fineColorName;
