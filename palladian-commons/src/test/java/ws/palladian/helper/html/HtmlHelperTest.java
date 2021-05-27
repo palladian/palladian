@@ -10,6 +10,8 @@ import org.junit.Test;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
+import javax.swing.text.html.parser.DocumentParser;
+
 /**
  * <p>
  * Test cases for the {@link HtmlHelper} class.
@@ -20,7 +22,6 @@ import ws.palladian.helper.io.ResourceHelper;
  * @author Martin Werner
  */
 public class HtmlHelperTest {
-
     @Test
     public void testCountTags() {
         assertEquals(4, HtmlHelper.countTags("everybody is <b>here</b> to do some <p>work</p>"));
@@ -76,7 +77,7 @@ public class HtmlHelperTest {
         String stripped = HtmlHelper.stripHtmlTags(htmlContent);
         assertEquals("It weights <3 tons(bridge)", stripped);
     }
-
+    
     //    @Test
     //    public void testDocumentToReadableText() throws FileNotFoundException {
     //        DocumentParser htmlParser = ParserFactory.createHtmlParser();
@@ -84,6 +85,4 @@ public class HtmlHelperTest {
     //        String result = HtmlHelper.documentToReadableText(doc);
     //        Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
     //    }
-
-
 }

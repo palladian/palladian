@@ -49,7 +49,7 @@ public class Crawler {
     private boolean retryFailedRetrievals = true;
 
     /** Number of active threads. */
-    private AtomicInteger threadCount = new AtomicInteger(0);
+    private final AtomicInteger threadCount = new AtomicInteger(0);
 
     /** If true, we'll remember for each URL where we found a reference that linked to it. */
     private boolean trackLinks = false;
@@ -86,6 +86,9 @@ public class Crawler {
 
     /** Replace certain patterns in each retrieved URL. */
     private final LinkedHashMap<Pattern, String> urlModificationRegexps = new LinkedHashMap<>();
+
+    /** Add these attributes found in the link node to the URL. E.g. add "pdf-title='a title'" to the pdf link as query param */
+    private final Set<String> urlAttributeModification = new HashSet<>();
 
     /** Do not look for more URLs if visited stopCount pages already, -1 for infinity. */
     private int stopCount = -1;
@@ -149,11 +152,11 @@ public class Crawler {
         Document document = currentDocumentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
-            Set<String> links = HtmlHelper.getLinks(document, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain);
+            Set<String> links = HtmlHelper.getLinks(document, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain, urlAttributeModification);
 
             // check if we can get more links out of it
             if (!whiteListLinkDomains.isEmpty()) {
-                Set<String> outLinks = HtmlHelper.getLinks(document, document.getDocumentURI(), false, true, "", false, subDomain);
+                Set<String> outLinks = HtmlHelper.getLinks(document, document.getDocumentURI(), false, true, "", false, subDomain, urlAttributeModification);
                 for (String whiteListLinkDomain : whiteListLinkDomains) {
                     List<String> tmpList = outLinks.stream().filter(u -> u.contains(whiteListLinkDomain)).collect(Collectors.toList());
                     links.addAll(tmpList);
@@ -345,6 +348,13 @@ public class Crawler {
 
     public void addUrlModificationRegexps(LinkedHashMap<Pattern, String> urlModificationRegexps) {
         this.urlModificationRegexps.putAll(urlModificationRegexps);
+    }
+    public Set<String> getUrlAttributeModification() {
+        return urlAttributeModification;
+    }
+
+    public void addUrlAttributeModification(String attributeToAddToUrl) {
+        this.urlAttributeModification.add(attributeToAddToUrl);
     }
 
     private synchronized void addUrlsToStack(Set<String> urls, String sourceUrl) {
@@ -552,5 +562,4 @@ public class Crawler {
         crawler.startCrawl("http://www.dmoz.org/", true, true, true);
         // //////////////////////////////////////////////////
     }
-
 }
