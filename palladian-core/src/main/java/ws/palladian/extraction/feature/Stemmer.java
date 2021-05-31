@@ -27,7 +27,6 @@ import java.util.function.Function;
  * @author Philipp Katz
  */
 public final class Stemmer implements Function<String, String> {
-
     private final SnowballStemmer stemmer;
 
     /**
@@ -50,7 +49,7 @@ public final class Stemmer implements Function<String, String> {
      * @param language
      * @return
      */
-    private static final SnowballStemmer createStemmer(Language language) {
+    private static SnowballStemmer createStemmer(Language language) {
         switch (language) {
             case DANISH:
                 return new danishStemmer();

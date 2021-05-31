@@ -909,6 +909,22 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
+        // exclude image nodes that are links to other websites (e.g. partner logos)
+        List<Node> linkedImageNodes = XPathHelper.getXhtmlNodes(getDocument(), "//a/img");
+        String documentDomain = UrlHelper.getDomain(getDocument().getDocumentURI(), false, false);
+        for (Node linkedImageNode : linkedImageNodes) {
+            // check that link is really going to a different domain
+            try {
+                String link = linkedImageNode.getParentNode().getAttributes().getNamedItem("href").getTextContent();
+                link = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), link);
+                if (!UrlHelper.getDomain(link, false, false).equals(documentDomain)) {
+                    excludeImageNodes.add(linkedImageNode);
+                }
+            } catch (Exception e) {
+                // ccl
+            }
+        }
+
         // look for itemprop image
         xhtmlNode = XPathHelper.getXhtmlNode(getDocument(),
                 "//*[(translate(@itemprop,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'image' or translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'photo') and not(ancestor::header) and not(ancestor::footer)]");

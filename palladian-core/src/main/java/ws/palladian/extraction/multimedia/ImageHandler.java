@@ -4,10 +4,12 @@ import com.sun.media.jai.codec.SeekableStream;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import sun.misc.BASE64Decoder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.FatStats;
@@ -524,8 +526,6 @@ public class ImageHandler {
      * </p>
      *
      * @param bufferedImage The input image.
-     * @param boxWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
      * @return The scaled image.
      */
     private static BufferedImage scaleUp(BufferedImage bufferedImage, double scaleX, double scaleY) {
@@ -824,7 +824,6 @@ public class ImageHandler {
      * Save an image to disk. This methods wraps the ImageIO.write method and does error handling.
      *
      * @param image The image to save.
-     * @param fileType The image type (e.g. "jpg")
      * @param filePath The path where the image should be saved.
      * @return True if the image was saved successfully, false otherwise.
      */
@@ -974,6 +973,34 @@ public class ImageHandler {
         return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
+    public static List<ws.palladian.extraction.multimedia.Color> detectColors(String svgDocumentContent) {
+        List<String> colorCodes = StringHelper.getSubstringsBetween(svgDocumentContent, "fill=\"", "\"");
+        Bag<String> colorCodeBag = new Bag<>();
+        for (String colorCode : colorCodes) {
+            colorCodeBag.add(colorCode.toLowerCase());
+        }
+
+        Set<String> seenMainColors = new HashSet<>();
+        List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
+        for (String colorCode : colorCodeBag.createSorted(CollectionHelper.Order.DESCENDING).uniqueItems()) {
+            if (!colorCode.startsWith("#")) {
+                continue;
+            }
+            Color imageColor = hexToRgb(colorCode);
+
+            ws.palladian.extraction.multimedia.Color bestMatchColor = findBestMatchColor(imageColor, colorCode);
+
+            if (seenMainColors.add(bestMatchColor.getMainColorName())) {
+                colors.add(bestMatchColor);
+            }
+
+            if (seenMainColors.size() >= 3) {
+                break;
+            }
+        }
+
+        return colors;
+    }
     public static List<ws.palladian.extraction.multimedia.Color> detectColors(BufferedImage bufferedImage) {
         final double maxClusterDistance = 50;
 
@@ -1014,7 +1041,7 @@ public class ImageHandler {
             }
         }
 
-        Collections.sort(clusters, (o1, o2) -> o2.population - o1.population);
+        clusters.sort((o1, o2) -> o2.population - o1.population);
 
         List<ws.palladian.extraction.multimedia.Color> colors = new ArrayList<>();
         Set<String> seenMainColors = new HashSet<>();
@@ -1024,18 +1051,7 @@ public class ImageHandler {
             Color imageColor = cluster.getCenterColor();
             String hex = rgbToHex(imageColor);
 
-            Double bestMatchScore = null;
-            ws.palladian.extraction.multimedia.Color bestMatchColor = null;
-
-            for (ws.palladian.extraction.multimedia.Color currentColor : COLORS) {
-                Color color = hexToRgb(currentColor.getHexCode());
-                double distance = colorDistance(imageColor, color);
-                if (bestMatchColor == null || distance < bestMatchScore) {
-                    bestMatchColor = new ws.palladian.extraction.multimedia.Color(hex, currentColor.getSpecificColorName(), currentColor.getMainColorName());
-                    bestMatchScore = distance;
-                }
-
-            }
+            ws.palladian.extraction.multimedia.Color bestMatchColor = findBestMatchColor(imageColor, hex);
 
             if (seenMainColors.add(bestMatchColor.getMainColorName())) {
                 colors.add(bestMatchColor);
@@ -1047,6 +1063,22 @@ public class ImageHandler {
         }
 
         return colors;
+    }
+
+    private static ws.palladian.extraction.multimedia.Color findBestMatchColor(Color imageColor, String hex) {
+        Double bestMatchScore = null;
+        ws.palladian.extraction.multimedia.Color bestMatchColor = null;
+
+        for (ws.palladian.extraction.multimedia.Color currentColor : COLORS) {
+            Color color = hexToRgb(currentColor.getHexCode());
+            double distance = colorDistance(imageColor, color);
+            if (bestMatchColor == null || distance < bestMatchScore) {
+                bestMatchColor = new ws.palladian.extraction.multimedia.Color(hex, currentColor.getSpecificColorName(), currentColor.getMainColorName());
+                bestMatchScore = distance;
+            }
+        }
+
+        return bestMatchColor;
     }
 
     /**
@@ -1229,8 +1261,10 @@ public class ImageHandler {
     }
 
     public static void main(String[] args) throws Exception {
-        // BufferedImage loadedImage =
-        // load("http://de.mathworks.com/help/releases/R2015b/examples/images/DetectEdgesInImagesExample_01.png");
+         BufferedImage loadedImage1231231 =
+         load("https://i5.walmartimages.com/asr/46975692-1f75-42ba-bae0-d4cfb1869440_1.6337242a5864834d63f5ab757ac6333f.jpeg");
+        System.out.println(loadedImage1231231.getWidth());
+        System.exit(0);
         // BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
         // BufferedImage loadedImage =
         // load("https://www.baskinrobbins.com/content/dam/baskinrobbins/Product%20Images/Beverages,%20Mix-Ins,%20Novelties,%20Parfaits,%20Quarts%20and%20Sundaes/Novelties/Clown_Cone_000l.jpg");

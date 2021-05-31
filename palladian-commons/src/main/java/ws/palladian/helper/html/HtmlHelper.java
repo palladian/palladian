@@ -1,10 +1,17 @@
 package ws.palladian.helper.html;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
+import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,18 +25,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.nlp.PatternHelper;
+import java.io.File;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -692,7 +692,6 @@ public final class HtmlHelper {
      * @return A text representation of the node and its sub nodes without tags.
      */
     public static String documentToText(Node node) {
-
         // ignore css and script nodes
         if (node == null || node.getNodeName() == null || node.getNodeName().equalsIgnoreCase("script") || node.getNodeName().equalsIgnoreCase("style")
                 || node.getNodeName().equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta")
@@ -745,6 +744,9 @@ public final class HtmlHelper {
      * @return A collection of URLs.
      */
     public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow, boolean includeSubdomains) {
+        return getLinks(document, originalDocumentUrl, inDomain, outDomain, prefix, respectNoFollow, includeSubdomains, new HashSet<>());
+    }
+    public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow, boolean includeSubdomains, Set<String> urlAttributeModification) {
         Set<String> pageLinks = new HashSet<>();
 
         if (document == null) {
@@ -801,6 +803,19 @@ public final class HtmlHelper {
             // remove tel and mailto
             if (PatternHelper.compileOrGet("^(tel|mailto):").matcher(currentLink).find()) {
                 continue;
+            }
+
+            // check whether we have to add something to the URL
+            for (String attributeName : urlAttributeModification) {
+                Node namedItem = linkNode.getAttributes().getNamedItem(attributeName);
+                if (namedItem != null) {
+                    if (currentLink.contains("?")) {
+                        currentLink += "&";
+                    } else {
+                        currentLink += "?";
+                    }
+                    currentLink += attributeName + "=" + UrlHelper.encodeParameter(namedItem.getTextContent());
+                }
             }
 
             // normalize relative and absolute links
