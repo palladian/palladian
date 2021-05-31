@@ -2,10 +2,7 @@ package ws.palladian.helper.math;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -184,11 +181,15 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
+        assertEquals(17, MathHelper.parseStringNumber("17cm"), 0.001);
+        assertEquals(17, MathHelper.parseStringNumber("17ags"), 0.001);
+        assertEquals(2, MathHelper.parseStringNumber("casseroles 2 and something something 4 of something else"), 0.001);
+        assertEquals(2.4, MathHelper.parseStringNumber("casseroles 2,4 and something something 4 of something else"), 0.001);
+        assertEquals(2.4, MathHelper.parseStringNumber("casseroles 2,4 and something something 4.2 of something else"), 0.001);
         assertEquals(100000, MathHelper.parseStringNumber("100,000"), 0.001);
         assertEquals(0.36, MathHelper.parseStringNumber("0,36", 0.0), 0.01);
         assertEquals(0.36, MathHelper.parseStringNumber("0,36 whatever", 0.0), 0.01);
         assertEquals(0.0, MathHelper.parseStringNumber("no numbers here", 0.0), 0.01);
-        assertEquals(null, MathHelper.parseStringNumber("no numbers here"));
         assertEquals(60000000, MathHelper.parseStringNumber("6.0E7 mpix"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1.5 c. bowls"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("0.5 bla"), 0.001);
@@ -198,8 +199,7 @@ public class MathHelperTest {
         assertEquals(1.5, MathHelper.parseStringNumber("1½ bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
         assertEquals(1777, MathHelper.parseStringNumber("1,777"), 0.001);
-        assertEquals(17, MathHelper.parseStringNumber("17cm"), 0.001);
-        assertEquals(17, MathHelper.parseStringNumber("17ags"), 0.001);
+//        assertNull(MathHelper.parseStringNumber("no numbers here"));
     }
 
     @Test

@@ -53,7 +53,8 @@ public final class MathHelper {
 
     private static final Pattern FRACTION_PATTERN = Pattern.compile("(\\d+)/(\\d+)");
     private static final Pattern EX_PATTERN = Pattern.compile("\\d+\\.\\d+e\\d+");
-    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("[^0-9.,]");
+    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9.,]+?(?=\\d)");
+    private static final Pattern CLEAN_PATTERN1_AFTER = Pattern.compile("(?<=\\d)[^0-9., ]*( .*)?");
     private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
     private static final Pattern CLEAN_PATTERN4 = Pattern.compile("(?<=\\d),(?=\\d\\d?($|\\s))");
@@ -1050,7 +1051,7 @@ public final class MathHelper {
                 if (value == null) {
                     value = 0.;
                 }
-                value += Double.valueOf(exPattern.group(0));
+                value += Double.parseDouble(exPattern.group(0));
                 return value;
             } catch (Exception e) {
                 // ccl
@@ -1059,6 +1060,7 @@ public final class MathHelper {
 
         //// parse the rest
         stringNumber = CLEAN_PATTERN1.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
+        stringNumber = CLEAN_PATTERN1_AFTER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
 
         // comma to periods if there are commas for decimal separation
         stringNumber = CLEAN_PATTERN4.matcher(stringNumber).replaceAll(".");
