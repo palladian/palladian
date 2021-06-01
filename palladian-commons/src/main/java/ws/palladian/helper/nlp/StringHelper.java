@@ -1732,7 +1732,7 @@ public final class StringHelper {
 
     public static String getRegexpMatch(String regexp, String text, boolean caseInsensitive, boolean dotAll) {
         if (text == null) {
-            return "";
+            return StringUtils.EMPTY;
         }
 
         Pattern pattern;
@@ -1752,15 +1752,15 @@ public final class StringHelper {
         }
 
         Matcher matcher = pattern.matcher(text);
-        return matcher.find() ? matcher.group() : "";
+        return matcher.find() ? matcher.group() : StringUtils.EMPTY;
     }
 
     public static String getRegexpMatch(Pattern regexpPattern, String text) {
         if (text == null) {
-            return "";
+            return StringUtils.EMPTY;
         }
         Matcher matcher = regexpPattern.matcher(text);
-        return matcher.find() ? matcher.group() : "";
+        return matcher.find() ? matcher.group() : StringUtils.EMPTY;
     }
 
     /**

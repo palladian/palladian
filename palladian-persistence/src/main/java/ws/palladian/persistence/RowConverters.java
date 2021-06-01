@@ -65,7 +65,7 @@ public final class RowConverters {
     public final static RowConverter<Map<String, Object>> MAP = new RowConverter<Map<String, Object>>() {
         @Override
         public Map<String, Object> convert(ResultSet resultSet) throws SQLException {
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new HashMap<>();
             ResultSetMetaData metaData = resultSet.getMetaData();
             int numColumns = metaData.getColumnCount();
             for (int i = 1; i <= numColumns; i++) {
