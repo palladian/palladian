@@ -310,10 +310,8 @@ public class Experimenter {
 					// write the ROC curves
 					try {
 						evaluationResult.getRocCurves().saveCurves(new File(resultsDirectory, "roc-" + timestamp + ".png"));
-					} catch (IOException e) {
+					} catch (Exception e) {
 						throw new IllegalStateException("Could not save ROC curves", e);
-					} catch (Throwable t) {
-						LOGGER.warn("Could not save ROC curves", t);
 					}
 					
 					progress.increment();

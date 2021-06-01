@@ -423,7 +423,7 @@ public class DatasetCreator {
                             + seedEntity + "</" + conceptName.toUpperCase() + ">");
 
                 }
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 LOGGER.error("something went wrong marking up the page content with seed {}, {}", seedEntity,
                         t.getMessage());
             }
@@ -544,7 +544,7 @@ public class DatasetCreator {
             // remove empty line in the beginning
             // text = text.replaceAll("^\n", "");
 
-        } catch (Throwable t) {
+        } catch (Exception t) {
             LOGGER.error("Encountered {}", t.toString());
             text = "";
         }

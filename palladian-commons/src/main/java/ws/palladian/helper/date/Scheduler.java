@@ -87,12 +87,12 @@ public class Scheduler {
                         tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
                             try {
                                 task.getLeft().run();
-                            } catch (Throwable e) {
+                            } catch (Exception e) {
                                 errors.add(e);
                                 e.printStackTrace();
                             }
                         });
-                    } catch (Throwable e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
