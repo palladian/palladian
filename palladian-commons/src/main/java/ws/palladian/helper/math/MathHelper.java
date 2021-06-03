@@ -53,7 +53,7 @@ public final class MathHelper {
 
     private static final Pattern FRACTION_PATTERN = Pattern.compile("(\\d+)/(\\d+)");
     private static final Pattern EX_PATTERN = Pattern.compile("\\d+\\.\\d+e\\d+");
-    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9.,]+?(?=\\d)");
+    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9]+?(?=\\d|$)");
     private static final Pattern CLEAN_PATTERN1_AFTER = Pattern.compile("(?<=\\d)[^0-9., ]*( .*)?");
     private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");

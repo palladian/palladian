@@ -18,7 +18,6 @@ import ws.palladian.helper.constants.Language;
  * @author Philipp Katz
  */
 public class FeatureSetting implements Serializable {
-
     private static final long serialVersionUID = 8747272894244244525L;
 
     /** Name of the key for maxTermLength when creating a map. */
@@ -342,5 +341,4 @@ public class FeatureSetting implements Serializable {
         FeatureSetting other = (FeatureSetting)obj;
         return toMap().equals(other.toMap());
     }
-
 }
