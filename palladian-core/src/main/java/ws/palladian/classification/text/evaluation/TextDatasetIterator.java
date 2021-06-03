@@ -1,12 +1,6 @@
 package ws.palladian.classification.text.evaluation;
 
-import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
-
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.core.Instance;
@@ -20,16 +14,24 @@ import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.CloseableIteratorAdapter;
 import ws.palladian.helper.io.FileHelper;
 
+import java.util.Iterator;
+import java.util.List;
+
+import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
+
 /**
  * <p>
  * An {@link Iterator} over {@link Dataset}s.
  * </p>
- * 
+ *
  * @author Philipp Katz
+ * @author David Urbansky
+ *
  */
 public class TextDatasetIterator extends AbstractDataset {
-
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(TextDatasetIterator.class);
 
     private final String name;
@@ -37,6 +39,8 @@ public class TextDatasetIterator extends AbstractDataset {
     private final String separationString;
     private final boolean isFirstFieldLink;
     private final String datasetRootPath;
+    private final int learningIndex;
+    private final int classIndex;
 
     public TextDatasetIterator(Dataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
@@ -45,6 +49,8 @@ public class TextDatasetIterator extends AbstractDataset {
         this.separationString = dataset.getSeparationString();
         this.isFirstFieldLink = dataset.isFirstFieldLink();
         this.datasetRootPath = dataset.getRootPath();
+        this.learningIndex = dataset.getLearningIndex();
+        this.classIndex = dataset.getClassIndex();
     }
 
     public TextDatasetIterator(String filePath, String separator, boolean firstFieldLink) {
@@ -55,10 +61,12 @@ public class TextDatasetIterator extends AbstractDataset {
         this.isFirstFieldLink = firstFieldLink;
         this.datasetRootPath = FileHelper.getFilePath(filePath);
         this.name = FileHelper.getFileName(datasetRootPath);
+        this.learningIndex = 0;
+        this.classIndex = 1;
     }
-    
-	@Override
-	public CloseableIterator<Instance> iterator() {
+
+    @Override
+    public CloseableIterator<Instance> iterator() {
         final Iterator<String> lineIterator = fileLines.iterator();
         final int totalLines = fileLines.size();
         final ProgressMonitor progressMonitor = new ProgressMonitor();
@@ -75,7 +83,7 @@ public class TextDatasetIterator extends AbstractDataset {
             public Instance next() {
                 String nextLine = lineIterator.next();
                 String[] parts = nextLine.split(separationString);
-                if (parts.length != 2) {
+                if (parts.length < 2) {
                     // XXX how to handle?
                 }
 
@@ -83,14 +91,14 @@ public class TextDatasetIterator extends AbstractDataset {
                 if (isFirstFieldLink) {
                     learningText = FileHelper.tryReadFileToString(datasetRootPath + parts[0]);
                 } else {
-                    learningText = parts[0];
+                    learningText = parts[learningIndex];
                 }
-                String instanceCategory = parts[1];
+                String instanceCategory = parts[classIndex];
                 progressMonitor.increment();
                 Instance instance;
                 try {
                     instance = new InstanceBuilder().setText(learningText).create(instanceCategory);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     LOGGER.error("problem with line: " + parts[0] + " " + parts[1]);
                     throw e;
                 }
@@ -103,17 +111,15 @@ public class TextDatasetIterator extends AbstractDataset {
             }
         };
         return new CloseableIteratorAdapter<>(iterator);
-	}
+    }
 
-	@Override
-	public FeatureInformation getFeatureInformation() {
-		return new FeatureInformationBuilder().set(VECTOR_TEXT_IDENTIFIER, TextValue.class).create();
-	}
+    @Override
+    public FeatureInformation getFeatureInformation() {
+        return new FeatureInformationBuilder().set(VECTOR_TEXT_IDENTIFIER, TextValue.class).create();
+    }
 
-	@Override
-	public long size() {
-		return fileLines.size();
-	}
-
-
+    @Override
+    public long size() {
+        return fileLines.size();
+    }
 }

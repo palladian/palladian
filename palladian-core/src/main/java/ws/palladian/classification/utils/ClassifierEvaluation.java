@@ -30,12 +30,11 @@ import ws.palladian.helper.math.ThresholdAnalyzer;
  * @author David Urbansky
  */
 public final class ClassifierEvaluation {
-
     private ClassifierEvaluation() {
         // no instances.
     }
 
-    // XXX misleading; I thought that would test multiple models, but it acutally combines the models?
+    // XXX misleading; I thought that would test multiple models, but it actually combines the models?
     // document, and also have a look at comment in ClassificationUtils.classifyWithMultipleModels
     /** Use a concrete {@link ClassificationEvaluator} instead. */
     @Deprecated
@@ -49,6 +48,24 @@ public final class ClassifierEvaluation {
                     testInstance.getVector(), models);
             String classifiedCategory = classification.getMostLikelyCategory();
             String realCategory = testInstance.getCategory();
+            confusionMatrix.add(realCategory, classifiedCategory);
+        }
+
+        return confusionMatrix;
+    }
+    
+    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
+            Iterable<? extends Instance> testData, List<String> results, M model) {
+
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+
+        results.add("Vector###Correct Category###Classified Category");
+        for (Instance testInstance : testData) {
+            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier,
+                    testInstance.getVector(), model);
+            String classifiedCategory = classification.getMostLikelyCategory();
+            String realCategory = testInstance.getCategory();
+            results.add(testInstance.getVector().toString()+"###"+realCategory+"###"+classifiedCategory);
             confusionMatrix.add(realCategory, classifiedCategory);
         }
 
@@ -175,7 +192,5 @@ public final class ClassifierEvaluation {
             FileHelper.appendFile(outputFile, resultLine);
             reporter.increment();
         }
-
     }
-
 }
