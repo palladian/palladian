@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
@@ -11,7 +10,7 @@ import ws.palladian.helper.functional.Factory;
  * Convenience builder for creating a {@link FeatureSetting}, which is used for configuring the
  * {@link PalladianTextClassifier}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
@@ -28,12 +27,15 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     boolean removeStopwords = FeatureSetting.DEFAULT_REMOVE_STOPWORDS;
     Language language = FeatureSetting.DEFAULT_LANGUAGE;
     boolean createSkipGrams = FeatureSetting.DEFAULT_CREATE_SKIP_GRAMS;
+    boolean useTokenCombinations = FeatureSetting.DEFAULT_USE_TOKEN_COMBINATIONS;
+    int tokenCombinationMinNgram = FeatureSetting.DEFAULT_TOKEN_COMBINATIONS_MIN_NGRAM_LENGTH;
+    int tokenCombinationMaxNgram = FeatureSetting.DEFAULT_TOKEN_COMBINATIONS_MAX_NGRAM_LENGTH;
 
     /**
      * <p>
      * Create a new {@link FeatureSettingBuilder} for character n-grams.
      * </p>
-     * 
+     *
      * @return The builder.
      */
     public static FeatureSettingBuilder chars() {
@@ -44,7 +46,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * <p>
      * Create a new {@link FeatureSettingBuilder} for character n-grams.
      * </p>
-     * 
+     *
      * @param min The minimum n-gram length, must be greater zero.
      * @param max The maximum n-gram length, must be greater/equal min.
      * @return The builder.
@@ -57,7 +59,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * <p>
      * Create a new {@link FeatureSettingBuilder} for character n-grams.
      * </p>
-     * 
+     *
      * @param length The n-gram length, must be greater zero.
      * @return The builder.
      */
@@ -69,7 +71,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * <p>
      * Create a new {@link FeatureSettingBuilder} for word n-grams.
      * </p>
-     * 
+     *
      * @return The builder.
      */
     public static FeatureSettingBuilder words() {
@@ -80,7 +82,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * <p>
      * Create a new {@link FeatureSettingBuilder} for word n-grams.
      * </p>
-     * 
+     *
      * @param min The minimum n-gram length, must be greater zero.
      * @param max The maximum n-gram length, must be greater/equal min.
      * @return The builder.
@@ -93,7 +95,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * <p>
      * Create a new {@link FeatureSettingBuilder} for word n-grams.
      * </p>
-     * 
+     *
      * @param length The n-gram length, must be greater zero.
      * @return The builder.
      */
@@ -105,7 +107,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * <p>
      * Copy all settings of an existing {@link FeatureSetting}, so that it can be altered afterwards.
      * </p>
-     * 
+     *
      * @param other The setting to copy, not <code>null</code>.
      * @return The builder.
      */
@@ -131,13 +133,16 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         this.removeStopwords = other.isRemoveStopwords();
         this.language = other.getLanguage();
         this.createSkipGrams = other.isCreateSkipGrams();
+        this.useTokenCombinations = other.isUseTokenCombinations();
+        this.tokenCombinationMinNgram = other.getTokenCombinationMinNgram();
+        this.tokenCombinationMaxNgram = other.getTokenCombinationMaxNgram();
     }
 
     /**
      * <p>
      * Set the maximum number of terms to extract per document.
      * </p>
-     * 
+     *
      * @param maxTerms The maximum number of terms to extract, greater zero.
      * @return The builder, to allow method chaining.
      */
@@ -152,7 +157,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * Set the lengths of n-grams which are extracted (depending on the feature type, the length is either in characters
      * or words).
      * </p>
-     * 
+     *
      * @param min The minimum n-gram length, must be greater zero.
      * @param max The maximum n-gram length, must be greater/equal min.
      * @return The builder, to allow method chaining.
@@ -171,7 +176,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * Set the length of n-grams which are extracted (depending on the feature type, the length is either in characters
      * or words).
      * </p>
-     * 
+     *
      * @param length The n-gram length, must be greater zero.
      * @return The builder, to allow method chaining.
      * @see #nGramLength(int, int)
@@ -183,18 +188,16 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         return this;
     }
 
-	/**
-	 * <p>
-	 * Set the minimum and maximum length of entire terms to extract. This is
-	 * only effective in case of word-n-grams.
-	 * </p>
-	 * 
-	 * @param min
-	 *            The minimum term length, must be greater zero.
-	 * @param max
-	 *            The maximum term length, must be greater/equal min.
-	 * @return The builder, to allow method chaining.
-	 */
+    /**
+     * <p>
+     * Set the minimum and maximum length of entire terms to extract. This is
+     * only effective in case of word-n-grams.
+     * </p>
+     *
+     * @param min The minimum term length, must be greater zero.
+     * @param max The maximum term length, must be greater/equal min.
+     * @return The builder, to allow method chaining.
+     */
     public FeatureSettingBuilder termLength(int min, int max) {
         if (featureType != TextFeatureType.WORD_NGRAMS) {
             throw new UnsupportedOperationException("This is only supported for " + TextFeatureType.WORD_NGRAMS
@@ -210,7 +213,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     /**
      * <p>
      * Make the feature extraction case sensitive (as opposed to the default setting, where case does not matter).
-     * 
+     *
      * @return The builder, to allow method chaining.
      */
     public FeatureSettingBuilder caseSensitive() {
@@ -224,7 +227,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * additional features which explicitly model the text boundaries. (e.g. for a token 'The' occurring at the
      * documents beginning and n-gram length 3, we additionally create features the '##T', ''#Th') This setting can
      * improve accuracy when classifying very short phrases. This only works in case of character n-grams.
-     * 
+     *
      * @return The builder, to allow method chaining.
      */
     public FeatureSettingBuilder characterPadding() {
@@ -239,7 +242,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     /**
      * <p>
      * Enable stemming, only in case, word n-grams are selected. Specify language using {@link #language(Language)}.
-     * 
+     *
      * @return The builder, to allow method chaining.
      */
     public FeatureSettingBuilder stem() {
@@ -255,7 +258,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * <p>
      * Enable stop word removal, only in case, word n-grams are selected. Specify language using
      * {@link #language(Language)}.
-     * 
+     *
      * @return The builder, to allow method chaining.
      */
     public FeatureSettingBuilder removeStopwords() {
@@ -270,7 +273,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     /**
      * <p>
      * Select the language for stemming/stop word removal.
-     * 
+     *
      * @param language The language, not <code>null</code>.
      * @return The builder, to allow method chaining.
      */
@@ -282,26 +285,53 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
         this.language = language;
         return this;
     }
-    
-	/**
-	 * Enable to extract skip grams. This is relevant when using the
-	 * {@link #words()} mode and an n-gram length greater/equal three. This
-	 * means, that a text which contains the 3-gram "the quick brown", a feature
-	 * "the $skip$ brown" will be extacted additionally.
-	 * 
-	 * @return The builder to allow method chaining.
-	 */
-	public FeatureSettingBuilder createSkipGrams() {
-		if (featureType != TextFeatureType.WORD_NGRAMS) {
-			throw new UnsupportedOperationException(
-					"Skip grams are only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
-		}
-		if (maxNGramLength <= 2) {
-			throw new UnsupportedOperationException("n-gram length must be > 2 for skip grams.");
-		}
-		this.createSkipGrams = true;
-		return this;
-	}
+
+    /**
+     * Enable to extract skip grams. This is relevant when using the
+     * {@link #words()} mode and an n-gram length greater/equal three. This
+     * means, that a text which contains the 3-gram "the quick brown", a feature
+     * "the $skip$ brown" will be extacted additionally.
+     *
+     * @return The builder to allow method chaining.
+     */
+    public FeatureSettingBuilder createSkipGrams() {
+        if (featureType != TextFeatureType.WORD_NGRAMS) {
+            throw new UnsupportedOperationException(
+                    "Skip grams are only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
+        }
+        if (maxNGramLength <= 2) {
+            throw new UnsupportedOperationException("n-gram length must be > 2 for skip grams.");
+        }
+        this.createSkipGrams = true;
+        return this;
+    }
+
+    public FeatureSettingBuilder useTokenCombinations() {
+        this.useTokenCombinations = true;
+        return this;
+    }
+
+    public void setUseTokenCombinations(boolean useTokenCombinations) {
+        this.useTokenCombinations = useTokenCombinations;
+    }
+
+    public int getTokenCombinationMinNgram() {
+        return tokenCombinationMinNgram;
+    }
+
+    public FeatureSettingBuilder tokenCombinationMinNgram(int tokenCombinationMinNgram) {
+        this.tokenCombinationMinNgram = tokenCombinationMinNgram;
+        return this;
+    }
+
+    public int getTokenCombinationMaxNgram() {
+        return tokenCombinationMaxNgram;
+    }
+
+    public FeatureSettingBuilder tokenCombinationMaxNgram(int tokenCombinationMaxNgram) {
+        this.tokenCombinationMaxNgram = tokenCombinationMaxNgram;
+        return this;
+    }
 
     @Override
     public FeatureSetting create() {

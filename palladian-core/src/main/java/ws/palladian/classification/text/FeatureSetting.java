@@ -3,6 +3,7 @@ package ws.palladian.classification.text;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.Validate;
 
@@ -54,6 +55,10 @@ public class FeatureSetting implements Serializable {
     public static final String PROPERTY_LANGUAGE = "language";
     
     public static final String PROPERTY_CREATE_SKIP_GRAMS = "createSkipGrams";
+    
+    public static final String PROPERTY_USE_TOKEN_COMBINATIONS = "useTokenCombinations";
+    public static final String PROPERTY_TOKEN_COMBINATIONS_MIN_TERM_LENGTH = "tokenCombinationsMinNGramLength";
+    public static final String PROPERTY_TOKEN_COMBINATIONS_MAX_TERM_LENGTH = "tokenCombinationsMaxNGramLength";
 
     /** The default maximum term length. */
     static final int DEFAULT_MIN_TERM_LENGTH = 3;
@@ -83,6 +88,10 @@ public class FeatureSetting implements Serializable {
     public static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
     
     static final boolean DEFAULT_CREATE_SKIP_GRAMS = false;
+    
+    static final boolean DEFAULT_USE_TOKEN_COMBINATIONS = false;
+    static final int DEFAULT_TOKEN_COMBINATIONS_MIN_NGRAM_LENGTH = 1;
+    static final int DEFAULT_TOKEN_COMBINATIONS_MAX_NGRAM_LENGTH = 1;
 
     public enum TextFeatureType {
         /** Use n-Grams on a character level. */
@@ -131,7 +140,12 @@ public class FeatureSetting implements Serializable {
     private Language language = DEFAULT_LANGUAGE;
     
     /** Whether to create skip grams, e.g. for "the quick brown", a skip gram would be "the brown". */
-    private boolean createSkipGrams = false;
+    private boolean createSkipGrams = DEFAULT_CREATE_SKIP_GRAMS;
+
+    /** Whether to use token combinations, e.g. "the quick brown" with min/max=1/1 would create [the#quick, the#brown, quick#brown] */
+    private boolean useTokenCombinations = DEFAULT_USE_TOKEN_COMBINATIONS;
+    private int tokenCombinationMinNgram = 1;
+    private int tokenCombinationMaxNgram = 1;
 
     /**
      * @deprecated Consider using the {@link FeatureSettingBuilder} for better readability.
@@ -178,6 +192,9 @@ public class FeatureSetting implements Serializable {
         this.removeStopwords = builder.removeStopwords;
         this.language = builder.language;
         this.createSkipGrams = builder.createSkipGrams;
+        this.useTokenCombinations = builder.useTokenCombinations;
+        this.tokenCombinationMinNgram = builder.tokenCombinationMinNgram;
+        this.tokenCombinationMaxNgram = builder.tokenCombinationMaxNgram;
     }
 
     /**
@@ -206,6 +223,10 @@ public class FeatureSetting implements Serializable {
         this.language = langValue != null ? Language.valueOf(langValue) : DEFAULT_LANGUAGE;
         String skipGramsValue = properties.get(PROPERTY_CREATE_SKIP_GRAMS);
         this.createSkipGrams = skipGramsValue != null ? Boolean.parseBoolean(skipGramsValue) : DEFAULT_CREATE_SKIP_GRAMS;
+        String useTokenCombinationsValue = properties.get(PROPERTY_USE_TOKEN_COMBINATIONS);
+        this.useTokenCombinations = useTokenCombinationsValue != null ? Boolean.parseBoolean(useTokenCombinationsValue) : DEFAULT_USE_TOKEN_COMBINATIONS;
+        this.tokenCombinationMinNgram = Integer.parseInt(Optional.ofNullable(properties.get(PROPERTY_TOKEN_COMBINATIONS_MIN_TERM_LENGTH)).orElse("1"));
+        this.tokenCombinationMaxNgram = Integer.parseInt(Optional.ofNullable(properties.get(PROPERTY_TOKEN_COMBINATIONS_MAX_TERM_LENGTH)).orElse("1"));
     }
 
     public TextFeatureType getTextFeatureType() {
@@ -262,6 +283,30 @@ public class FeatureSetting implements Serializable {
     public boolean isCreateSkipGrams() {
 		return createSkipGrams;
 	}
+
+    public boolean isUseTokenCombinations() {
+        return useTokenCombinations;
+    }
+
+    public void setUseTokenCombinations(boolean useTokenCombinations) {
+        this.useTokenCombinations = useTokenCombinations;
+    }
+
+    public int getTokenCombinationMinNgram() {
+        return tokenCombinationMinNgram;
+    }
+
+    public void setTokenCombinationMinNgram(int tokenCombinationMinNgram) {
+        this.tokenCombinationMinNgram = tokenCombinationMinNgram;
+    }
+
+    public int getTokenCombinationMaxNgram() {
+        return tokenCombinationMaxNgram;
+    }
+
+    public void setTokenCombinationMaxNgram(int tokenCombinationMaxNgram) {
+        this.tokenCombinationMaxNgram = tokenCombinationMaxNgram;
+    }
 
     @Override
     public String toString() {

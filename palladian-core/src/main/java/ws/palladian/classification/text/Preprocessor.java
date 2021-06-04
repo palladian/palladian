@@ -1,5 +1,6 @@
 package ws.palladian.classification.text;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.lang3.Validate;
@@ -11,8 +12,13 @@ import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.token.CharacterNGramTokenizer;
 import ws.palladian.extraction.token.NGramWrapperIterator;
+import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.extraction.token.WordTokenizer;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -58,7 +64,40 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
         }
         tokenIterator = CollectionHelper.filter(tokenIterator, (Predicate<Token>) t -> t != REMOVED_TOKEN);
-        return CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
+        Iterator<String> stringTokens = CollectionHelper.convert(tokenIterator, Token.VALUE_CONVERTER);
+
+        if (featureSetting.isUseTokenCombinations()) {
+            Iterator<Token> combinationTokenIterator = new WordTokenizer().iterateTokens(content);
+            combinationTokenIterator = new NGramWrapperIterator(combinationTokenIterator, featureSetting.getTokenCombinationMinNgram(), featureSetting.getTokenCombinationMaxNgram());
+            List<String> list = new ArrayList<>();
+            while (combinationTokenIterator.hasNext()) {
+                list.add(combinationTokenIterator.next().getValue());
+            }
+            List<String> listCombos = new ArrayList<>();
+
+            for (int i = 0; i < list.size(); i++) {
+                for (int j = i + 1; j < list.size(); j++) {
+                    listCombos.add(list.get(i) + "#" + list.get(j));
+                }
+            }
+
+            final Iterator<String> comboIterator = listCombos.stream().iterator();
+            return new AbstractIterator2<String>() {
+
+                @Override
+                protected String getNext() {
+                    if (stringTokens.hasNext()) {
+                        return stringTokens.next();
+                    }
+                    if (comboIterator.hasNext()) {
+                        return comboIterator.next();
+                    }
+                    return finished();
+                }
+            };
+        }
+
+        return stringTokens;
     }
 
     private Iterator<Token> applyStemming(Iterator<Token> tokenIterator) {
