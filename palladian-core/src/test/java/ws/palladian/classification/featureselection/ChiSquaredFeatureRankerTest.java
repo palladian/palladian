@@ -14,7 +14,6 @@ import ws.palladian.core.Instance;
 import ws.palladian.helper.ProgressMonitor;
 
 public class ChiSquaredFeatureRankerTest {
-
     private static final double DELTA = 0.001;
 
     @Test
@@ -27,7 +26,7 @@ public class ChiSquaredFeatureRankerTest {
         assertEquals(125.9867, result.getFeature("od280/od315ofDilutedWines").getScore(), DELTA);
         assertEquals(128.5980, result.getFeature("colorIntensity").getScore(), DELTA);
         assertEquals(124.7087, result.getFeature("proline").getScore(), DELTA);
-        assertEquals(160.0524, result.getFeature("flavanoids").getScore(), DELTA);
+        assertEquals(160.0524, result.getFeature("flavonoids").getScore(), DELTA);
         assertEquals(105.8876, result.getFeature("alcohol").getScore(), DELTA);
         assertEquals(95.2166, result.getFeature("hue").getScore(), DELTA);
         assertEquals(97.2884, result.getFeature("totalPhenols").getScore(), DELTA);
@@ -36,7 +35,7 @@ public class ChiSquaredFeatureRankerTest {
         assertEquals(56.2174, result.getFeature("magnesium").getScore(), DELTA);
         assertEquals(60.1322, result.getFeature("proanthocyanins").getScore(), DELTA);
         assertEquals(35.6311, result.getFeature("ash").getScore(), DELTA);
-        assertEquals(46.9911, result.getFeature("nonflavanoidPhenols").getScore(), DELTA);
+        assertEquals(46.9911, result.getFeature("nonflavonoidPhenols").getScore(), DELTA);
     }
 
     @Test
@@ -49,7 +48,7 @@ public class ChiSquaredFeatureRankerTest {
         assertEquals(37, result.getFeature("od280/od315ofDilutedWines").getScore(), DELTA);
         assertEquals(37, result.getFeature("colorIntensity").getScore(), DELTA);
         assertEquals(37, result.getFeature("proline").getScore(), DELTA);
-        assertEquals(36, result.getFeature("flavanoids").getScore(), DELTA);
+        assertEquals(36, result.getFeature("flavonoids").getScore(), DELTA);
         assertEquals(36, result.getFeature("alcohol").getScore(), DELTA);
         assertEquals(35, result.getFeature("hue").getScore(), DELTA);
         assertEquals(35, result.getFeature("totalPhenols").getScore(), DELTA);
@@ -58,7 +57,7 @@ public class ChiSquaredFeatureRankerTest {
         assertEquals(32, result.getFeature("magnesium").getScore(), DELTA);
         assertEquals(30, result.getFeature("proanthocyanins").getScore(), DELTA);
         assertEquals(28, result.getFeature("ash").getScore(), DELTA);
-        assertEquals(23, result.getFeature("nonflavanoidPhenols").getScore(), DELTA);
+        assertEquals(23, result.getFeature("nonflavonoidPhenols").getScore(), DELTA);
     }
 
 }

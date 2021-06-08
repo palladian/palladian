@@ -960,7 +960,6 @@ public final class StringHelper {
     }
 
     public static String trim(String inputString, boolean trimLeft, boolean trimRight, String keepCharacters) {
-
         if (inputString == null) {
             return null;
         }

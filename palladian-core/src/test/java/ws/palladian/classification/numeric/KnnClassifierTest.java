@@ -133,8 +133,8 @@ public class KnnClassifierTest {
         instanceBuilder.set("alcalinityOfAsh", 14d);
         instanceBuilder.set("magnesium", 111d);
         instanceBuilder.set("totalPhenols", 3.88);
-        instanceBuilder.set("flavanoids", 3.74);
-        instanceBuilder.set("nonflavanoidPhenols", .32);
+        instanceBuilder.set("flavonoids", 3.74);
+        instanceBuilder.set("nonflavonoidPhenols", .32);
         instanceBuilder.set("proanthocyanins", 1.87);
         instanceBuilder.set("colorIntensity", 7.05);
         instanceBuilder.set("hue", 1.01);

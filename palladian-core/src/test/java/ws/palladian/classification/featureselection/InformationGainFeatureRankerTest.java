@@ -34,7 +34,7 @@ public class InformationGainFeatureRankerTest {
         File testFile = getResourceFile("/classifier/wineData.csv");
         List<Instance> dataset = new CsvDatasetReader(testFile).readAll();
         FeatureRanking result = new InformationGainFeatureRanker().rankFeatures(dataset, new ProgressMonitor());
-        assertEquals(1.0151, result.getFeature("flavanoids").getScore(), DELTA);
+        assertEquals(1.0151, result.getFeature("flavonoids").getScore(), DELTA);
         assertEquals(0.8278, result.getFeature("proline").getScore(), DELTA);
         assertEquals(0.7438, result.getFeature("colorIntensity").getScore(), DELTA);
         assertEquals(0.7221, result.getFeature("od280/od315ofDilutedWines").getScore(), DELTA);
@@ -45,7 +45,7 @@ public class InformationGainFeatureRankerTest {
         assertEquals(0.2772, result.getFeature("alcalinityOfAsh").getScore(), DELTA);
         assertEquals(0.2653, result.getFeature("proanthocyanins").getScore(), DELTA);
         assertEquals(0.2614, result.getFeature("magnesium").getScore(), DELTA);
-        assertEquals(0.2198, result.getFeature("nonflavanoidPhenols").getScore(), DELTA);
+        assertEquals(0.2198, result.getFeature("nonflavonoidPhenols").getScore(), DELTA);
         assertEquals(0.1649, result.getFeature("ash").getScore(), DELTA);
     }
 

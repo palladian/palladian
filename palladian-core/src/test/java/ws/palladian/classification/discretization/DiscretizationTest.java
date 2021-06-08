@@ -56,8 +56,8 @@ public class DiscretizationTest {
         assertFuzzyEquals(asList(17.9), discretization.getBinner("alcalinityOfAsh").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(88.5), discretization.getBinner("magnesium").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(1.84, 2.335), discretization.getBinner("totalPhenols").getBoundaries(), DELTA);
-        assertFuzzyEquals(asList(0.975, 1.575, 2.31), discretization.getBinner("flavanoids").getBoundaries(), DELTA);
-        assertFuzzyEquals(asList(0.395), discretization.getBinner("nonflavanoidPhenols").getBoundaries(), DELTA);
+        assertFuzzyEquals(asList(0.975, 1.575, 2.31), discretization.getBinner("flavonoids").getBoundaries(), DELTA);
+        assertFuzzyEquals(asList(0.395), discretization.getBinner("nonflavonoidPhenols").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(1.27), discretization.getBinner("proanthocyanins").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(3.46, 7.55), discretization.getBinner("colorIntensity").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(0.785, 0.975, 1.295), discretization.getBinner("hue").getBoundaries(), DELTA);
