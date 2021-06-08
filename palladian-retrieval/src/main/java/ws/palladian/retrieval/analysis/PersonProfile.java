@@ -67,6 +67,23 @@ public class PersonProfile {
         this.imageUrl = imageUrl;
     }
 
+    public String getFullName() {
+        String fullName = "";
+        if (firstName != null) {
+            fullName = firstName;
+        }
+        if (middleName != null) {
+            fullName += " " + middleName;
+        }
+        if (lastName != null) {
+            fullName += " " + lastName;
+        }
+
+        fullName = StringHelper.clean(fullName);
+
+        return fullName;
+    }
+
     public void setFullName(String fullName) {
         String[] parts = fullName.trim().split(" ");
         if (parts.length == 3) {
