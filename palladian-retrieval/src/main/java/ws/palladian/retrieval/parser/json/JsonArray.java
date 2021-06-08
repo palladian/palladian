@@ -118,6 +118,24 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
 
     /**
      * <p>
+     * Try to construct a {@link JsonArray} from a source JSON text string. Instead of the constructor, this method
+     * does not throw a {@link JsonException} in case the JsonArray cannot be constructed.
+     * </p>
+     *
+     * @param source A string beginning with <code>[</code>&nbsp;<small>(left bracket)</small> and ending with
+     *            <code>]</code>&nbsp;<small>(right bracket)</small>.
+     * @return The {@link JsonArray}, or <code>null</code> in case it could not be parsed.
+     */
+    public static JsonArray tryParse(String source) {
+        try {
+            return new JsonArray(source);
+        } catch (JsonException e) {
+            return null;
+        }
+    }
+
+    /**
+     * <p>
      * Construct a {@link JsonArray} from a source JSON text.
      * </p>
      * 
