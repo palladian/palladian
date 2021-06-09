@@ -36,7 +36,7 @@ class JsonUtil {
         }
     }
 
-    public static JsonArray parseJSONArray(Object object) throws JsonException {
+    public static JsonArray parseJsonArray(Object object) throws JsonException {
         if (object == null || object instanceof JsonArray) {
             return (JsonArray)object;
         }
@@ -48,7 +48,7 @@ class JsonUtil {
 //        }
     }
 
-    public static JsonObject parseJSONObject(Object object) throws JsonException {
+    public static JsonObject parseJsonObject(Object object) throws JsonException {
         if (object == null || object instanceof JsonObject) {
             return (JsonObject)object;
         }

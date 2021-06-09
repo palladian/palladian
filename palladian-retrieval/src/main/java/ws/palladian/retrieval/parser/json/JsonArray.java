@@ -269,7 +269,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @throws JsonException
      */
     public JsonArray getJsonArray(int index) throws JsonException {
-        return JsonUtil.parseJSONArray(this.get(index));
+        return JsonUtil.parseJsonArray(this.get(index));
     }
 
     public JsonArray tryGetJsonArray(int index) {
@@ -291,7 +291,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @throws JsonException
      */
     public JsonObject getJsonObject(int index) throws JsonException {
-        return JsonUtil.parseJSONObject(this.get(index));
+        return JsonUtil.parseJsonObject(this.get(index));
     }
 
     public JsonObject tryGetJsonObject(int index) {
@@ -493,12 +493,12 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
 
     @Override
     public JsonArray queryJsonArray(String jPath) throws JsonException {
-        return JsonUtil.parseJSONArray(query(jPath));
+        return JsonUtil.parseJsonArray(query(jPath));
     }
 
     @Override
     public JsonObject queryJsonObject(String jPath) throws JsonException {
-        return JsonUtil.parseJSONObject(query(jPath));
+        return JsonUtil.parseJsonObject(query(jPath));
     }
 
     @Override

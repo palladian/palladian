@@ -300,7 +300,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonArray getJsonArray(String key) throws JsonException {
-        return JsonUtil.parseJSONArray(this.get(key));
+        return JsonUtil.parseJsonArray(this.get(key));
     }
 
     public JsonArray tryGetJsonArray(String key) {
@@ -322,7 +322,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonObject getJsonObject(String key) throws JsonException {
-        return JsonUtil.parseJSONObject(this.get(key));
+        return JsonUtil.parseJsonObject(this.get(key));
     }
 
     public JsonObject tryGetJsonObject(String key) {
@@ -512,6 +512,49 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
     }
 
+    public String tryQueryJsonPathString(String jPath) {
+        try {
+            return JsonUtil.parseString(queryJsonPath(jPath));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public Double tryQueryJsonPathDouble(String jPath) {
+        try {
+            return JsonUtil.parseDouble(queryJsonPath(jPath));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public Boolean tryQueryJsonPathBoolean(String jPath) {
+        try {
+            return JsonUtil.parseBoolean(queryJsonPath(jPath));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public Integer tryQueryJsonPathInt(String jPath) {
+        try {
+            return JsonUtil.parseInt(queryJsonPath(jPath));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public JsonArray tryQueryJsonPathJsonArray(String jPath) {
+        try {
+            return JsonUtil.parseJsonArray(queryJsonPath(jPath));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public JsonObject tryQueryJsonPathJsonObject(String jPath) {
+        try {
+            return JsonUtil.parseJsonObject(queryJsonPath(jPath));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public Object queryJsonPath(String jPath) {
         net.minidev.json.JSONArray jsa = JsonPath.read(this, jPath);
         if (jsa == null || jsa.isEmpty()) {
@@ -561,7 +604,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public JsonArray queryJsonArray(String jPath) throws JsonException {
-        return JsonUtil.parseJSONArray(query(jPath));
+        return JsonUtil.parseJsonArray(query(jPath));
     }
 
     public JsonArray tryQueryJsonArray(String jPath) {
@@ -574,7 +617,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public JsonObject queryJsonObject(String jPath) throws JsonException {
-        return JsonUtil.parseJSONObject(query(jPath));
+        return JsonUtil.parseJsonObject(query(jPath));
     }
 
     public JsonObject tryQueryJsonObject(String jPath) {
