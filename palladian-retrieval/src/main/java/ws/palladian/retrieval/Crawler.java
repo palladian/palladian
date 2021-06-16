@@ -9,6 +9,7 @@ import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -367,7 +369,19 @@ public class Crawler {
         url = UrlHelper.removeSessionId(url);
         url = UrlHelper.removeAnchors(url);
         if (isStripQueryParams()) {
+            // preserve urlAttributeModifications
+            StringBuilder preserve = new StringBuilder();
+            for (String urlModificationToPreserve : urlAttributeModification) {
+                Matcher matcher = PatternHelper.compileOrGet("[?&]" + urlModificationToPreserve + "=[^&]+").matcher(url);
+                if (matcher.find()) {
+                    preserve.append(matcher.group());
+                }
+            }
             url = url.replaceAll("\\?.*", "");
+            url += preserve;
+            if (!url.contains("?")) {
+                url = url.replaceFirst("&", "?");
+            }
         }
         for (Map.Entry<Pattern, String> entry : urlModificationRegexps.entrySet()) {
             try {
