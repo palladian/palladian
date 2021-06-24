@@ -26,11 +26,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.AbstractMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
@@ -561,6 +557,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return null;
         }
         return jsa.get(0);
+    }
+
+    public List<Object> queryJsonPathArray(String jPath) {
+        net.minidev.json.JSONArray jsa = JsonPath.read(this, jPath);
+        if (jsa == null || jsa.isEmpty()) {
+            return null;
+        }
+        return new ArrayList<>(jsa);
     }
 
     @Override
