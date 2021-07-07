@@ -181,7 +181,9 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
-        assertEquals(37, MathHelper.parseStringNumber("gr. 37"), 0.001);
+        assertEquals(-15, MathHelper.parseStringNumber("-15 °C"), 0.001);
+        assertEquals(15, MathHelper.parseStringNumber("-abcl 15 °C"), 0.001);
+        assertEquals(37, MathHelper.parseStringNumber("-gr. 37"), 0.001);
         assertNull(MathHelper.parseStringNumber("no numbers here"));
         assertEquals(17, MathHelper.parseStringNumber("17cm"), 0.001);
         assertEquals(17, MathHelper.parseStringNumber("17ags"), 0.001);
