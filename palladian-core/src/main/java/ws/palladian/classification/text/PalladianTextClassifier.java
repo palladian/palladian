@@ -197,7 +197,9 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         for (Instance instance : dataset) {
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
-            Iterator<String> iterator = preprocessor.apply(textValue.getText());
+            String text = textValue.getText();
+
+            Iterator<String> iterator = preprocessor.apply(text);
             Collection<String> terms = new HashSet<>();
             while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
                 terms.add(iterator.next());

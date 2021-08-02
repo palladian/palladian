@@ -14,7 +14,6 @@ import ws.palladian.helper.io.CloseableIterator;
  * @author pk
  */
 public interface Dataset extends Iterable<Instance> {
-	
 	/**
 	 * Overridden to return a {@link CloseableIterator}, in order to indicate
 	 * that the iterator usually needs to be closed.
@@ -90,5 +89,4 @@ public interface Dataset extends Iterable<Instance> {
 	 * @return The transformed dataset.
 	 */
 	Dataset transform(DatasetTransformer transformer);
-	
 }

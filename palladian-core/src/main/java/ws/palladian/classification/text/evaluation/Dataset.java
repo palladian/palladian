@@ -69,6 +69,11 @@ public class Dataset {
      */
     private int classIndex = 1;
 
+    /**
+     * Mark the beginning and end of the input (e.g. for words the beginning and end matters)
+     */
+    private boolean markBeginningAndEnd = false;
+
     public Dataset() {
     }
 
@@ -76,8 +81,9 @@ public class Dataset {
         setName(Optional.ofNullable(datasetJson.tryGetString("name")).orElse("NONAME"));
         setSeparationString(datasetJson.tryGetString("separator"));
         setPath(datasetJson.tryGetString("train_path"));
-        setLearningIndex(Optional.ofNullable(datasetJson.tryGetInt("learningIndex")).orElse(0));
-        setClassIndex(Optional.ofNullable(datasetJson.tryGetInt("classIndex")).orElse(1));
+        setLearningIndex(Optional.ofNullable(datasetJson.tryGetInt("learningIndex")).orElse(learningIndex));
+        setClassIndex(Optional.ofNullable(datasetJson.tryGetInt("classIndex")).orElse(classIndex));
+        setMarkBeginningAndEnd(Optional.ofNullable(datasetJson.tryGetBoolean("markBeginningAndEnd")).orElse(markBeginningAndEnd));
 
         // some datasets might point to files
         String source = datasetJson.tryGetString("source");
@@ -102,6 +108,7 @@ public class Dataset {
         this.firstFieldLink = dataset.firstFieldLink;
         this.learningIndex = dataset.learningIndex;
         this.classIndex = dataset.classIndex;
+        this.markBeginningAndEnd = dataset.markBeginningAndEnd;
     }
 
     public Dataset(String name) {
@@ -188,6 +195,14 @@ public class Dataset {
 
     public void setClassIndex(int classIndex) {
         this.classIndex = classIndex;
+    }
+
+    public boolean isMarkBeginningAndEnd() {
+        return markBeginningAndEnd;
+    }
+
+    public void setMarkBeginningAndEnd(boolean markBeginningAndEnd) {
+        this.markBeginningAndEnd = markBeginningAndEnd;
     }
 
     @Override
