@@ -4,7 +4,6 @@ import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
@@ -56,7 +55,9 @@ public class ProxyCrawlDocumentRetriever extends WebDocumentRetriever {
     public Document getWebDocument(String url) {
         THROTTLE.hold();
         String requestUrl = "https://api.proxycrawl.com/?token=" + getActiveToken() + "&url=" + UrlHelper.encodeParameter(url);
-        return documentRetriever.getWebDocument(requestUrl);
+        Document d = documentRetriever.getWebDocument(requestUrl);
+        d.setDocumentURI(url);
+        return d;
     }
 
     private String getActiveToken() {
