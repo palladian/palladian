@@ -307,7 +307,7 @@ public class SearchIntentParser {
                                     if (margin == null) {
                                         margin = 0.05;
                                     }
-                                    if (unit != null) {
+                                    if (unit != null && unit.contains("$")) {
                                         int unitPosition = Integer.parseInt(unit.replace("$", ""));
                                         String unitGroup = matcher.group(unitPosition);
                                         if (unitGroup != null) {
