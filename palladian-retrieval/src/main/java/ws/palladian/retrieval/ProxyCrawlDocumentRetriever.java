@@ -2,15 +2,11 @@ package ws.palladian.retrieval;
 
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
-import java.util.Collection;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /**
  * <p>
@@ -19,7 +15,7 @@ import java.util.function.Consumer;
  *
  * @author David Urbansky
  * @see <a href="https://proxycrawl.com/docs/crawling-api/#your-first-api-call">Proxy Crawl API Docs</a>
- *      18.05.2021
+ * 18.05.2021
  */
 public class ProxyCrawlDocumentRetriever extends WebDocumentRetriever {
     private final String apiKeyPlain;
@@ -27,7 +23,9 @@ public class ProxyCrawlDocumentRetriever extends WebDocumentRetriever {
 
     private boolean useJsRendering = false;
 
-    /** Identifier for the API key when supplied via {@link Configuration}. */
+    /**
+     * Identifier for the API key when supplied via {@link Configuration}.
+     */
     public static final String CONFIG_TOKEN_PLAIN = "api.proxycrawl.tokenplain";
     public static final String CONFIG_TOKEN_JS = "api.proxycrawl.tokenjs";
 
@@ -62,15 +60,5 @@ public class ProxyCrawlDocumentRetriever extends WebDocumentRetriever {
 
     private String getActiveToken() {
         return isUseJsRendering() ? apiKeyJs : apiKeyPlain;
-    }
-
-    @Override
-    public void getWebDocuments(Collection<String> urls, Consumer<Document> callback, ProgressMonitor progressMonitor) {
-        throw new UnsupportedOperationException("Can't do that yet.");
-    }
-
-    @Override
-    public Set<Document> getWebDocuments(Collection<String> urls) {
-        throw new UnsupportedOperationException("Can't do that yet.");
     }
 }
