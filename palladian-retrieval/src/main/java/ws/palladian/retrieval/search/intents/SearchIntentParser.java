@@ -295,7 +295,7 @@ public class SearchIntentParser {
                         Collection<String> values = filledFilter.getValues();
                         List<String> replacedValues = new ArrayList<>();
                         for (String value : values) {
-                            if (value.contains("$1")) {
+                            if (value.contains("$")) {
                                 int position = MathHelper.parseStringNumber(value).intValue();
                                 String group = matcher.group(position);
 
@@ -310,7 +310,7 @@ public class SearchIntentParser {
                                     if (unit != null) {
                                         int unitPosition = Integer.parseInt(unit.replace("$", ""));
                                         String unitGroup = matcher.group(unitPosition);
-                                        if(unitGroup != null) {
+                                        if (unitGroup != null) {
                                             String translatedUnit = UnitTranslator.translate(unitGroup, intentTrigger.getLanguage());
                                             aDouble = UnitNormalizer.getNormalizedNumber(aDouble, translatedUnit);
                                         }
@@ -320,7 +320,7 @@ public class SearchIntentParser {
                                     filledFilter.setMin(min);
                                     filledFilter.setMax(max);
                                 } else {
-                                    replacedValues.add(value.replace("$1", group));
+                                    replacedValues.add(value.replace("$" + position, group));
                                 }
                             } else {
                                 replacedValues.add(value);
