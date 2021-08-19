@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * A generic intent parser. For example, query = "under 100€" + intent is "under \d+€" => action sort price < 100€.
@@ -222,16 +223,21 @@ public class SearchIntentParser {
                     if (intent.getIntentAction().getRedirect() != null) {
                         regex = ".*" + regex + ".*";
                     }
-                    Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
-                    if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
-                        intentMatchFound = true;
-                        ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
-                        intentActions.add(im);
-                        query = im.getModifiedQuery();
-                        if (im.getRedirect() != null) {
-                            return intentActions;
+                    try {
+                        Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
+                        if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
+                            intentMatchFound = true;
+                            ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
+                            intentActions.add(im);
+                            query = im.getModifiedQuery();
+                            if (im.getRedirect() != null) {
+                                return intentActions;
+                            }
+                            continue ol;
                         }
-                        continue ol;
+                    } catch (PatternSyntaxException e) {
+                        e.printStackTrace();
+                        continue;
                     }
                 }
             }
