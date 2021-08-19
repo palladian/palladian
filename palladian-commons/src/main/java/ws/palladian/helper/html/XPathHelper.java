@@ -53,7 +53,6 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public final class XPathHelper {
-
     /**
      * The logger for this class.
      */
@@ -345,11 +344,27 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNodes(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
+    public static List<Node> tryGetXhtmlNodes(Document document, String xPath) {
+        try {
+            return getXhtmlNodes(document, xPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return new ArrayList<>();
+    }
 
     public static List<Node> getXhtmlNodes(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNodes(node, addXhtmlNsToXPath(xPath));
+    }
+    public static List<Node> tryGetXhtmlNodes(Node node, String xPath) {
+        try {
+            return getXhtmlNodes(node, xPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -368,11 +383,27 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNode(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
+    public static Node tryGetXhtmlNode(Document document, String xPath) {
+        try {
+            return getXhtmlNode(document, xPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return null;
+    }
 
     public static Node getXhtmlNode(Node node, String xPath) {
         Validate.notNull(node, "node must not be null.");
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNode(node, addXhtmlNsToXPath(xPath));
+    }
+    public static Node tryGetXhtmlNode(Node node, String xPath) {
+        try {
+            return getXhtmlNode(node, xPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     /**
