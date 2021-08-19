@@ -16,7 +16,6 @@ import ws.palladian.helper.UrlHelper;
  * @author Philipp Katz
  */
 public class HttpRetrieverHttpBinTest {
-
 	/**
 	 * Test for “Invalid cookie header”, “Invalid 'expires' attribute”.
 	 * 
@@ -92,5 +91,4 @@ public class HttpRetrieverHttpBinTest {
 				result.getLocations());
 		assertNull(result.getHeader("location"));
 	}
-
 }
