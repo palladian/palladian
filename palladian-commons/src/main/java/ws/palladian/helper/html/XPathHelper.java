@@ -276,6 +276,14 @@ public final class XPathHelper {
 
         return textContent;
     }
+    public static String tryGetXhtmlNodeTextContent(Node node, String xPath) {
+        try {
+            return getXhtmlNodeTextContent(node, xPath);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        return "";
+    }
 
     /**
      * <p>
