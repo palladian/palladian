@@ -8,13 +8,12 @@ import java.util.Map;
 import ws.palladian.core.Category;
 
 public abstract class AbstractSentimentClassifier {
-    
     /** Only sentences above this confidence threshold are taken into account for later calculations. */
     protected double confidenceThreshold = 0.5;
-    
+
     /** Store a list of all opinionated sentences. */
-    private Map<String,List<String>> opinionatedSentences = new HashMap<String,List<String>>();
-    
+    private Map<String, List<String>> opinionatedSentences = new HashMap<>();
+
     /**
      * <p>
      * Classify a text as rather positive or negative.
@@ -31,9 +30,9 @@ public abstract class AbstractSentimentClassifier {
         opinionatedSentences = new HashMap<>();
         return getPolarity(text, null);
     }
-    
+
     public abstract Category getPolarity(String text, String query);
-    
+
     public void setConfidenceThreshold(double confidenceThreshold) {
         this.confidenceThreshold = confidenceThreshold;
     }
@@ -42,20 +41,19 @@ public abstract class AbstractSentimentClassifier {
         return confidenceThreshold;
     }
 
-    public Map<String,List<String>> getOpinionatedSentences() {
+    public Map<String, List<String>> getOpinionatedSentences() {
         return opinionatedSentences;
     }
 
     protected void addOpinionatedSentence(String sentiment, String opinionatedSentence) {
         List<String> sentimentSentences = this.opinionatedSentences.get(sentiment);
-        
+
         if (sentimentSentences == null) {
-            sentimentSentences = new ArrayList<String>();
+            sentimentSentences = new ArrayList<>();
         }
-        
+
         sentimentSentences.add(opinionatedSentence);
-        
+
         opinionatedSentences.put(sentiment, sentimentSentences);
     }
-    
 }
