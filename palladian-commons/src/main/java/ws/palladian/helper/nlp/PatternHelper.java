@@ -12,7 +12,6 @@ import ws.palladian.helper.collection.LruMap;
  * @author David Urbansky
  */
 public class PatternHelper {
-
     private static final Map<String, Pattern> PATTERN_CACHE = Collections.synchronizedMap(LruMap.accessOrder(10000));
 
     public static Pattern compileOrGet(String string) {
@@ -27,5 +26,4 @@ public class PatternHelper {
         }
         return pattern;
     }
-
 }
