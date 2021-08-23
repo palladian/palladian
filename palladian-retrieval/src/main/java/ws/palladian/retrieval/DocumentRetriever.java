@@ -9,6 +9,9 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MapBuilder;
+import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
@@ -198,8 +201,35 @@ public class DocumentRetriever extends WebDocumentRetriever {
     // methods for retrieving + parsing JSON data
     // ////////////////////////////////////////////////////////////////
     public String postJsonObject(String url, JsonObject jsonBody, boolean asFormParams) throws HttpException {
+        return sendJsonObject(url, jsonBody, HttpMethod.POST, asFormParams);
+    }
+
+    public String tryPostJsonObject(String url, JsonObject jsonBody, boolean asFormParams) {
+        try {
+            return postJsonObject(url, jsonBody, asFormParams);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+    public String putJsonObject(String url, JsonObject jsonBody, boolean asFormParams) throws HttpException {
+        return sendJsonObject(url, jsonBody, HttpMethod.PUT, asFormParams);
+    }
+
+    public String tryPutJsonObject(String url, JsonObject jsonBody, boolean asFormParams) {
+        try {
+            return putJsonObject(url, jsonBody, asFormParams);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    public String sendJsonObject(String url, JsonObject jsonBody, HttpMethod method, boolean asFormParams) throws HttpException {
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, url);
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(method, url);
 
         if (globalHeaders != null) {
             requestBuilder.addHeaders(globalHeaders);
@@ -221,16 +251,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
         HttpResult result = httpRetriever.execute(requestBuilder.create());
         return result.getStringContent();
-    }
-
-    public String tryPostJsonObject(String url, JsonObject jsonBody, boolean asFormParams) {
-        try {
-            return postJsonObject(url, jsonBody, asFormParams);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "";
     }
 
     /**
@@ -598,7 +618,10 @@ public class DocumentRetriever extends WebDocumentRetriever {
      */
     public static void main(String[] args) {
         DocumentRetriever retriever = new DocumentRetriever();
-
+        retriever.setGlobalHeaders(MapBuilder.createPut("Accept","*/*").create());
+        Document webDocument = retriever.getWebDocument("https://www.tenthousandvillages.com/kitchen-dining/bouquet-bowl");
+        System.out.println(HtmlHelper.getInnerXml(webDocument));
+        System.exit(0);
         Set<String> urls1 = new HashSet<>();
         urls1.add("http://cinefreaks.com");
         urls1.add("http://webknox.com");

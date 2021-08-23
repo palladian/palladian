@@ -93,7 +93,7 @@ public final class UrlHelper {
                 }
             }
         });
-        Collections.sort(slds, StringLengthComparator.INSTANCE);
+        slds.sort(StringLengthComparator.INSTANCE);
 
         DOMAIN_SUFFIXES = slds;
         String[] split = TOP_LEVEL_DOMAINS.split("\\|");

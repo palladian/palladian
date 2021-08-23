@@ -44,6 +44,11 @@ public class PalladianContentExtractorTest {
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
 
+        // Greek
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://socialobservatory.crete.gov.gr/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.GREEK));
+
         // Norwegian
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.visma.no/"));
         language = palladianContentExtractor.detectLanguage();

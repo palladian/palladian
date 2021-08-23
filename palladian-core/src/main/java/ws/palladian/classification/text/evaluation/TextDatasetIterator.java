@@ -41,6 +41,7 @@ public class TextDatasetIterator extends AbstractDataset {
     private final String datasetRootPath;
     private final int learningIndex;
     private final int classIndex;
+    private final boolean markBeginningAndEnd;
 
     public TextDatasetIterator(Dataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
@@ -51,6 +52,7 @@ public class TextDatasetIterator extends AbstractDataset {
         this.datasetRootPath = dataset.getRootPath();
         this.learningIndex = dataset.getLearningIndex();
         this.classIndex = dataset.getClassIndex();
+        this.markBeginningAndEnd = dataset.isMarkBeginningAndEnd();
     }
 
     public TextDatasetIterator(String filePath, String separator, boolean firstFieldLink) {
@@ -63,6 +65,7 @@ public class TextDatasetIterator extends AbstractDataset {
         this.name = FileHelper.getFileName(datasetRootPath);
         this.learningIndex = 0;
         this.classIndex = 1;
+        this.markBeginningAndEnd = false;
     }
 
     @Override
@@ -93,6 +96,11 @@ public class TextDatasetIterator extends AbstractDataset {
                 } else {
                     learningText = parts[learningIndex];
                 }
+
+                if (markBeginningAndEnd) {
+                    learningText = "_" + learningText + "_";
+                }
+
                 String instanceCategory = parts[classIndex];
                 progressMonitor.increment();
                 Instance instance;

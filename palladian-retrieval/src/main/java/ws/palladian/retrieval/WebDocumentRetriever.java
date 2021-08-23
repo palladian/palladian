@@ -119,7 +119,24 @@ public abstract class WebDocumentRetriever {
         getWebDocuments(urls, callback,  new ProgressMonitor(urls.size(), 1., "DocumentRetriever"));
     }
 
-    public abstract void getWebDocuments(Collection<String> urls, final Consumer<Document> callback,final ProgressMonitor progressMonitor);
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback,final ProgressMonitor progressMonitor) {
+        for (String url : urls) {
+            getRequestThrottle().hold();
+            // react file fileTypeConsumer?
+            boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
+
+            if (!consumerFound) {
+                if (getRetrieverCallbacks().isEmpty()) {
+                    addRetrieverCallback(callback);
+                }
+                getWebDocument(url);
+            }
+
+            if (progressMonitor != null) {
+                progressMonitor.incrementAndPrintProgress();
+            }
+        }
+    }
 
     /**
      * <p>
@@ -131,7 +148,17 @@ public abstract class WebDocumentRetriever {
      * @return Set with the downloaded documents, documents which could not be downloaded or parsed successfully, are
      *         not included.
      */
-    public abstract Set<Document> getWebDocuments(Collection<String> urls);
+    public Set<Document> getWebDocuments(Collection<String> urls) {
+        Set<Document> documents = new HashSet<>();
+
+        for (String url : urls) {
+            getRequestThrottle().hold();
+            Document document = getWebDocument(url);
+            documents.add(document);
+        }
+
+        return documents;
+    }
 
     boolean reactToFileTypeConsumer(String url, Map<String, Consumer<String>> fileTypeConsumers) {
         if (fileTypeConsumers != null) {

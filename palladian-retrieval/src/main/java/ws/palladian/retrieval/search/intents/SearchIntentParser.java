@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * A generic intent parser. For example, query = "under 100€" + intent is "under \d+€" => action sort price < 100€.
@@ -222,16 +223,21 @@ public class SearchIntentParser {
                     if (intent.getIntentAction().getRedirect() != null) {
                         regex = ".*" + regex + ".*";
                     }
-                    Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
-                    if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
-                        intentMatchFound = true;
-                        ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
-                        intentActions.add(im);
-                        query = im.getModifiedQuery();
-                        if (im.getRedirect() != null) {
-                            return intentActions;
+                    try {
+                        Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
+                        if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
+                            intentMatchFound = true;
+                            ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
+                            intentActions.add(im);
+                            query = im.getModifiedQuery();
+                            if (im.getRedirect() != null) {
+                                return intentActions;
+                            }
+                            continue ol;
                         }
-                        continue ol;
+                    } catch (PatternSyntaxException e) {
+                        e.printStackTrace();
+                        continue;
                     }
                 }
             }
@@ -295,7 +301,7 @@ public class SearchIntentParser {
                         Collection<String> values = filledFilter.getValues();
                         List<String> replacedValues = new ArrayList<>();
                         for (String value : values) {
-                            if (value.contains("$1")) {
+                            if (value.contains("$")) {
                                 int position = MathHelper.parseStringNumber(value).intValue();
                                 String group = matcher.group(position);
 
@@ -307,10 +313,10 @@ public class SearchIntentParser {
                                     if (margin == null) {
                                         margin = 0.05;
                                     }
-                                    if (unit != null) {
+                                    if (unit != null && unit.contains("$")) {
                                         int unitPosition = Integer.parseInt(unit.replace("$", ""));
                                         String unitGroup = matcher.group(unitPosition);
-                                        if(unitGroup != null) {
+                                        if (unitGroup != null) {
                                             String translatedUnit = UnitTranslator.translate(unitGroup, intentTrigger.getLanguage());
                                             aDouble = UnitNormalizer.getNormalizedNumber(aDouble, translatedUnit);
                                         }
@@ -320,7 +326,7 @@ public class SearchIntentParser {
                                     filledFilter.setMin(min);
                                     filledFilter.setMax(max);
                                 } else {
-                                    replacedValues.add(value.replace("$1", group));
+                                    replacedValues.add(value.replace("$" + position, group));
                                 }
                             } else {
                                 replacedValues.add(value);

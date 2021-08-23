@@ -215,9 +215,12 @@ public enum UnitType {
         unitList.add("mah");
         UnitType.ELECTRIC_CHARGE.units.add(Pair.of(unitList, 0.001));
 
-        // TORQUE units are normalized to 1 Volt
+        // TORQUE units are normalized to 1 Newton Meter
         unitList = new ArrayList<>();
         unitList.add("Nm");
+        unitList.add("nm");
+        unitList.add("newton meters");
+        unitList.add("newton meter");
         unitList.add("nm");
         UnitType.TORQUE.units.add(Pair.of(unitList, 1.0));
 
@@ -242,6 +245,19 @@ public enum UnitType {
         unitList.add("ft lbf");
         unitList.add("ftlbf");
         unitList.add("ft-lbf");
+        unitList.add("ft-lb");
+        unitList.add("ft-lbs");
+        unitList.add("foot pounds");
+        unitList.add("foot-pounds");
+        unitList.add("pound feet");
+        unitList.add("pound-feet");
+        unitList.add("foot pound");
+        unitList.add("foot-pound");
+        unitList.add("lbs.-ft");
+        unitList.add("lb.-ft");
+        unitList.add("lb/ft");
+        unitList.add("lb ft");
+        unitList.add("lb-ft");
         UnitType.TORQUE.units.add(Pair.of(unitList, 1.3558179483314004));
 
         // VOLTAGE units are normalized to 1 Volt
@@ -840,29 +856,6 @@ public enum UnitType {
         unitList.add("chf");
         unitList.add("swiss francs");
         UnitType.CURRENCY.units.add(Pair.of(unitList, 1.));
-
-        // OTHER units are normalized to different values
-        unitList = new ArrayList<>();
-        unitList.add("foot pounds");
-        unitList.add("foot-pounds");
-        unitList.add("pound feet");
-        unitList.add("pound-feet");
-        unitList.add("foot pound");
-        unitList.add("foot-pound");
-        unitList.add("lbs.-ft");
-        unitList.add("lb.-ft");
-        unitList.add("lb/ft");
-        unitList.add("lb ft");
-        unitList.add("lb-ft");
-        unitList.add("ft-lb");
-        unitList.add("ft-lbs");
-        UnitType.OTHER.units.add(Pair.of(unitList, 1.355817952));
-
-        unitList = new ArrayList<>();
-        unitList.add("newton meters");
-        unitList.add("newton meter");
-        unitList.add("nm");
-        UnitType.OTHER.units.add(Pair.of(unitList, 1.));
 
         // sort all unit names
         for (UnitType unitType : values()) {
