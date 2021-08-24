@@ -54,7 +54,9 @@ public class ProxyCrawlDocumentRetriever extends WebDocumentRetriever {
         THROTTLE.hold();
         String requestUrl = "https://api.proxycrawl.com/?token=" + getActiveToken() + "&url=" + UrlHelper.encodeParameter(url);
         Document d = documentRetriever.getWebDocument(requestUrl);
-        d.setDocumentURI(url);
+        if (d != null) {
+            d.setDocumentURI(url);
+        }
         return d;
     }
 
