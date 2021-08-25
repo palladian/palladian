@@ -130,7 +130,6 @@ public final class HttpHelper {
             }
 
             if (includeHttpResponseHeaders) {
-
                 StringBuilder headerBuilder = new StringBuilder();
                 headerBuilder.append("Status Code").append(":");
                 headerBuilder.append(httpResult.getStatusCode()).append("\n");

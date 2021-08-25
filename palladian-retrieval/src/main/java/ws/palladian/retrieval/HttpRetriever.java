@@ -3,8 +3,8 @@ package ws.palladian.retrieval;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.*;
 import org.apache.http.HttpEntity;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -16,7 +16,10 @@ import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.DecompressingHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.*;
 import org.apache.http.protocol.BasicHttpContext;
@@ -57,7 +60,6 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="http://hc.apache.org/">Apache HttpComponents</a>
  */
 public class HttpRetriever {
-
     /**
      * The logger for this class.
      */
@@ -400,9 +402,6 @@ public class HttpRetriever {
      * the specified limit in maxFileSize.
      * </p>
      *
-     * @param url
-     * @param request
-     * @return
      * @throws HttpException
      */
     private HttpResult execute(String url, HttpUriRequest request) throws HttpException {
@@ -414,7 +413,6 @@ public class HttpRetriever {
         Proxy proxyUsed = setProxy(url, request, backend);
 
         try {
-
             HttpContext context = new BasicHttpContext();
 
 //                SSLContext sslContext = SSLContext.getInstance("SSL");
@@ -439,18 +437,18 @@ public class HttpRetriever {
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
-
+            boolean maxFileSizeReached = false;
             if (entity != null) {
-
                 in = entity.getContent();
 
                 // read the payload, stop if a download size limitation has been set
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];
-                for (;;) {
+                for (; ; ) {
                     if (maxFileSize != -1 && out.size() >= maxFileSize) {
                         LOGGER.debug("Cancel transfer of {}, as max. file size limit of {} bytes was reached", url,
                                 maxFileSize);
+                        maxFileSizeReached = true;
                         break;
                     }
                     int bytesToRead = buffer.length;
@@ -465,7 +463,6 @@ public class HttpRetriever {
                 }
 
                 entityContent = out.toByteArray();
-
             } else {
                 entityContent = new byte[0];
             }
@@ -484,7 +481,7 @@ public class HttpRetriever {
             List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
 
             result = new HttpResult(url, entityContent, headers, statusCode, receivedBytes, locations);
-
+            result.setMaxFileSizeReached(maxFileSizeReached);
             addDownload(receivedBytes);
 
             if (proxyRemoveStatusCodes.contains(statusCode)
@@ -661,13 +658,16 @@ public class HttpRetriever {
      */
     public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders,
                                    boolean includeHttpResponseHeaders) {
-
         boolean result = false;
         try {
             HttpResult httpResult = execute(new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(requestHeaders)
                     .create());
             if (httpResult.getStatusCode() != 200) {
                 throw new HttpException("status code != 200 (code: " + httpResult.getStatusCode() + ") for " + url);
+            }
+            if (httpResult.isMaxFileSizeReached()) {
+                LOGGER.error("downloading aborted due to file size limitations (limit: " + maxFileSize + ") for " + url);
+                return false;
             }
             result = HttpHelper.saveToFile(httpResult, filePath, includeHttpResponseHeaders);
         } catch (HttpException e) {
