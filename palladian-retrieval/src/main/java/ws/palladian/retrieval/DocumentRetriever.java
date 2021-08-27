@@ -5,12 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapBuilder;
-import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -26,7 +24,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 /**
@@ -65,7 +64,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
     private final HttpRetriever httpRetriever;
 
     public static final String HTTP_RESULT_KEY = "httpResult";
-    public static final String ORIGINAL_REQUEST_URL = "requestUrl";
 
     private List<String> userAgents;
 
@@ -85,8 +83,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * Instantiate a new {@link DocumentRetriever} using the specified {@link HttpRetriever}. This way, you can
      * configure the {@link HttpRetriever} to you specific needs.
      * </p>
-     *
-     * @param httpRetriever
      */
     public DocumentRetriever(HttpRetriever httpRetriever) {
         this.httpRetriever = httpRetriever;
@@ -108,66 +104,6 @@ public class DocumentRetriever extends WebDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         return getDocument(url, false);
-    }
-
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final ProgressMonitor progressMonitor) {
-        List<String> urlsList = new ArrayList<>(urls);
-        List<String> sublist;
-        int num = 10000;
-        for (int i = 0; i < urls.size(); i += num) {
-            sublist = CollectionHelper.getSublist(urlsList, i, num);
-
-            final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>(sublist);
-
-            ExecutorService executor = Executors.newFixedThreadPool(getNumThreads());
-
-            while (!urlQueue.isEmpty()) {
-                final String url = urlQueue.poll();
-
-                Thread ct = new Thread("Retrieving: " + url) {
-                    @Override
-                    public void run() {
-                        Thread.currentThread().setName("Retrieving: " + url);
-
-                        getRequestThrottle().hold();
-
-                        // react file fileTypeConsumer?
-                        boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
-
-                        if (!consumerFound) {
-                            Document document = getWebDocument(url);
-                            if (document != null) {
-                                document.setUserData(ORIGINAL_REQUEST_URL, url, null);
-                                callback.accept(document);
-                            }
-                        }
-
-                        if (progressMonitor != null) {
-                            progressMonitor.incrementAndPrintProgress();
-                        }
-                    }
-                };
-
-                if (!executor.isShutdown()) {
-                    executor.submit(ct);
-                }
-            }
-
-            // wait for the threads to finish
-            executor.shutdown();
-
-            // wait until all threads are finish
-            LOGGER.info("waiting for all " + num + " threads to finish...");
-            StopWatch sw = new StopWatch();
-            try {
-                while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    LOGGER.debug("wait crawling");
-                }
-            } catch (InterruptedException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-            LOGGER.info("...all threads finished in " + sw.getTotalElapsedTimeString());
-        }
     }
 
     @Override
@@ -213,6 +149,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
         return "";
     }
+
     public String putJsonObject(String url, JsonObject jsonBody, boolean asFormParams) throws HttpException {
         return sendJsonObject(url, jsonBody, HttpMethod.PUT, asFormParams);
     }
@@ -369,11 +306,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
                     while (urlQueue.size() > 0) {
                         String url = urlQueue.poll();
                         if (url == null) {
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                LOGGER.warn("Encountered InterruptedException");
-                            }
+                            ThreadHelper.deepSleep(1000);
                             continue;
                         }
                         String text = getText(url);
@@ -440,7 +373,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
             try {
                 if (isFile(cleanUrl)) {
                     File file = new File(cleanUrl);
-                    inputStream = new BufferedInputStream(new FileInputStream(new File(cleanUrl)));
+                    inputStream = new BufferedInputStream(new FileInputStream(cleanUrl));
                     document = parse(inputStream, xml);
                     document.setDocumentURI(file.toURI().toString());
                 } else {
@@ -491,11 +424,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     }
 
     private static boolean isFile(String url) {
-        boolean isFile = false;
-        if (!url.contains("http://") && !url.contains("https://")) {
-            isFile = true;
-        }
-        return isFile;
+        return !url.contains("http://") && !url.contains("https://");
     }
 
     private DocumentParser getParser(boolean xml) {
@@ -537,14 +466,14 @@ public class DocumentRetriever extends WebDocumentRetriever {
      * Reads http-equiv meta tags and adds them to {@link HttpResult} headers.
      * </p>
      *
-     * @param doc the document to process.
+     * @param doc        the document to process.
      * @param httpResult the http result to enhance.
      * @return <code>true</code> if http-equiv meta tags were extracted and added to headers, <code>false</code> otherwise.
      */
 
     private boolean addHttpEquivHeaders(Document doc, HttpResult httpResult) {
         boolean result = false;
-        List<Node> httpEquivMeta = XPathHelper.getXhtmlNodes(doc,"//meta[@http-equiv]");
+        List<Node> httpEquivMeta = XPathHelper.getXhtmlNodes(doc, "//meta[@http-equiv]");
         if (!httpEquivMeta.isEmpty()) {
             for (Node node : httpEquivMeta) {
                 if (node.getAttributes() == null) continue;
@@ -618,7 +547,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
      */
     public static void main(String[] args) {
         DocumentRetriever retriever = new DocumentRetriever();
-        retriever.setGlobalHeaders(MapBuilder.createPut("Accept","*/*").create());
+        retriever.setGlobalHeaders(MapBuilder.createPut("Accept", "*/*").create());
         Document webDocument = retriever.getWebDocument("https://www.tenthousandvillages.com/kitchen-dining/bouquet-bowl");
         System.out.println(HtmlHelper.getInnerXml(webDocument));
         System.exit(0);

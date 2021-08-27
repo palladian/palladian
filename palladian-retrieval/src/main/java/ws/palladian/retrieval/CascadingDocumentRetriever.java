@@ -218,21 +218,6 @@ public class CascadingDocumentRetriever extends WebDocumentRetriever {
         return integers[2];
     }
 
-    @Override
-    public void getWebDocuments(Collection<String> urls, Consumer<Document> callback, ProgressMonitor progressMonitor) {
-        throw new NotImplementedException("getWebDocuments is not implemented");
-    }
-
-    @Override
-    public Set<Document> getWebDocuments(Collection<String> urls) {
-        Set<Document> documents = new HashSet<>();
-        for (String url : urls) {
-            documents.add(getWebDocument(url));
-        }
-
-        return documents;
-    }
-
     private boolean isGoodDocument(Document document) {
         if (document == null) {
             return false;

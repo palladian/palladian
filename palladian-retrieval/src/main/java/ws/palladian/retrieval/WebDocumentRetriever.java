@@ -1,7 +1,11 @@
 package ws.palladian.retrieval;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -10,6 +14,7 @@ import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -17,6 +22,11 @@ import java.util.function.Predicate;
  * Created by David Urbansky on 07.10.2017.
  */
 public abstract class WebDocumentRetriever {
+    /**
+     * The logger for this class.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebDocumentRetriever.class);
+
     /**
      * The filter for the retriever.
      */
@@ -31,6 +41,8 @@ public abstract class WebDocumentRetriever {
      * The maximum number of threads to use.
      */
     private int numThreads = DEFAULT_NUM_THREADS;
+
+    public static final String ORIGINAL_REQUEST_URL = "requestUrl";
 
     /**
      * The number of milliseconds each host gets between two requests.
@@ -119,22 +131,63 @@ public abstract class WebDocumentRetriever {
         getWebDocuments(urls, callback,  new ProgressMonitor(urls.size(), 1., "DocumentRetriever"));
     }
 
-    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback,final ProgressMonitor progressMonitor) {
-        for (String url : urls) {
-            getRequestThrottle().hold();
-            // react file fileTypeConsumer?
-            boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
+    public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final ProgressMonitor progressMonitor) {
+        List<String> urlsList = new ArrayList<>(urls);
+        List<String> sublist;
+        int num = 10000;
+        for (int i = 0; i < urls.size(); i += num) {
+            sublist = CollectionHelper.getSublist(urlsList, i, num);
 
-            if (!consumerFound) {
-                if (getRetrieverCallbacks().isEmpty()) {
-                    addRetrieverCallback(callback);
+            final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<>(sublist);
+
+            ExecutorService executor = Executors.newFixedThreadPool(getNumThreads());
+
+            while (!urlQueue.isEmpty()) {
+                final String url = urlQueue.poll();
+
+                Thread ct = new Thread("Retrieving: " + url) {
+                    @Override
+                    public void run() {
+                        Thread.currentThread().setName("Retrieving: " + url);
+
+                        getRequestThrottle().hold();
+
+                        // react file fileTypeConsumer?
+                        boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
+
+                        if (!consumerFound) {
+                            Document document = getWebDocument(url);
+                            if (document != null) {
+                                document.setUserData(ORIGINAL_REQUEST_URL, url, null);
+                                callback.accept(document);
+                            }
+                        }
+
+                        if (progressMonitor != null) {
+                            progressMonitor.incrementAndPrintProgress();
+                        }
+                    }
+                };
+
+                if (!executor.isShutdown()) {
+                    executor.submit(ct);
                 }
-                getWebDocument(url);
             }
 
-            if (progressMonitor != null) {
-                progressMonitor.incrementAndPrintProgress();
+            // wait for the threads to finish
+            executor.shutdown();
+
+            // wait until all threads are finish
+            LOGGER.info("waiting for all " + num + " threads to finish...");
+            StopWatch sw = new StopWatch();
+            try {
+                while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    LOGGER.debug("wait crawling");
+                }
+            } catch (InterruptedException e) {
+                LOGGER.error(e.getMessage(), e);
             }
+            LOGGER.info("...all threads finished in " + sw.getTotalElapsedTimeString());
         }
     }
 
