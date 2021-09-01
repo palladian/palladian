@@ -8,7 +8,7 @@ public abstract class ResourcePool<T> {
     private final BlockingQueue<T> pool;
     private final ReentrantLock lock = new ReentrantLock();
     private int createdObjects = 0;
-    private int size;
+    private final int size;
 
     protected ResourcePool(int size) {
         // enable the fairness; otherwise, some threads may wait forever.

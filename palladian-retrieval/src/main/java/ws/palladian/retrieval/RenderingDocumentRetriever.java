@@ -1,18 +1,7 @@
 package ws.palladian.retrieval;
 
-import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
-
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-
-import javax.imageio.ImageIO;
-
+import io.github.bonigarcia.wdm.DriverManagerType;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -26,15 +15,24 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
-import io.github.bonigarcia.wdm.DriverManagerType;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+
+import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
 
 /**
  * A selenium-based retriever for web documents that should be rendered (execute JS and CSS).
@@ -109,6 +107,31 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             }
 
             driver = new ChromeDriver(options);
+        } else if (browser == DriverManagerType.CHROMIUM) {
+            if (driverVersionCode != null) {
+                WebDriverManager.chromiumdriver().version(driverVersionCode).setup();
+            } else {
+                WebDriverManager.chromiumdriver().setup();
+            }
+            ChromeOptions options = new ChromeOptions();
+            options.setHeadless(true);
+            options.setAcceptInsecureCerts(true);
+
+            options.addArguments("--lang=en-US");
+            options.addArguments("--disable-gpu");
+            options.addArguments("--disable-extensions");
+            options.addArguments("--start-maximized");
+            options.addArguments("--window-size=1920,1080");
+            options.addArguments("--user-agent=" + userAgent);
+
+            if (proxy != null) {
+                options.setCapability(CapabilityType.PROXY, proxy);
+            } else {
+                options.addArguments("--proxy-server='direct://'");
+                options.addArguments("--proxy-bypass-list=*");
+            }
+
+            driver = new ChromeDriver(options);
         } else if (browser == DriverManagerType.PHANTOMJS) {
             if (driverVersionCode != null) {
                 WebDriverManager.phantomjs().version(driverVersionCode).setup();
@@ -126,6 +149,9 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             driver = new FirefoxDriver(options);
         } else if (browser == DriverManagerType.CHROME) {
             WebDriverManager.chromedriver().setup();
+            driver = new ChromeDriver(options);
+        } else if (browser == DriverManagerType.CHROMIUM) {
+            WebDriverManager.chromiumdriver().setup();
             driver = new ChromeDriver(options);
         }
     }
