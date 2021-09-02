@@ -2,11 +2,15 @@ package ws.palladian.retrieval;
 
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -15,13 +19,13 @@ import java.util.Optional;
  *
  * @author David Urbansky
  */
-public class PhantomJsDocumentRetriever extends WebDocumentRetriever {
+public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKey;
 
     /**
      * 424 means the source took too long to reply but we still might have the content we want.
      *
-     * @see https://phantomjscloud.com/docs/#:~:text=424%20%3A%20Failed%20Dependency%20The%20target,or%20make%20sure%20your%20requestSettings.&text=Extra%20Info%3A%20The%20424%20error,page%20URL%20does%20not%20load.
+     * @implNote https://phantomjscloud.com/docs/#:~:text=424%20%3A%20Failed%20Dependency%20The%20target,or%20make%20sure%20your%20requestSettings.&text=Extra%20Info%3A%20The%20424%20error,page%20URL%20does%20not%20load.
      */
     private boolean count424aSuccess = false;
 
@@ -41,7 +45,21 @@ public class PhantomJsDocumentRetriever extends WebDocumentRetriever {
 
     @Override
     public Document getWebDocument(String url) {
-        String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true%7D";
+        // any js wait for settings?
+        Map<Pattern, String> waitForElementMap = getWaitForElementMap();
+
+        String overseerScript = "";
+        for (Map.Entry<Pattern, String> patternStringEntry : waitForElementMap.entrySet()) {
+            if (patternStringEntry.getKey().matcher(url).find()) {
+                String selector = patternStringEntry.getValue();
+                overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait(); await page.waitForSelector(\"" + selector + "\"); page.done();'");
+                break;
+            }
+        }
+
+        String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + "%7D";
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         JsonObject response = new DocumentRetriever().tryGetJsonObject(requestUrl);
         if (response == null) {
             return null;

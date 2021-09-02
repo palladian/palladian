@@ -1,15 +1,16 @@
 package ws.palladian.retrieval;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.HtmlHelper;
 
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -18,7 +19,7 @@ import java.util.function.Consumer;
  *
  * @author David Urbansky
  */
-public class CascadingDocumentRetriever extends WebDocumentRetriever {
+public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * The logger for this class.
      */
@@ -131,6 +132,7 @@ public class CascadingDocumentRetriever extends WebDocumentRetriever {
             // try rendering retriever
             try {
                 RenderingDocumentRetriever renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
+                configure(renderingDocumentRetriever);
                 document = renderingDocumentRetriever.getWebDocument(url);
 
                 goodDocument = isGoodDocument(document);
@@ -146,6 +148,7 @@ public class CascadingDocumentRetriever extends WebDocumentRetriever {
         }
 
         if (!goodDocument && cloudDocumentRetriever != null && shouldMakeRequest(RETRIEVER_PHANTOM_JS_CLOUD)) {
+            configure(cloudDocumentRetriever);
             document = cloudDocumentRetriever.getWebDocument(url);
             goodDocument = isGoodDocument(document);
             String message = goodDocument ? "success" : "fail";
@@ -173,6 +176,13 @@ public class CascadingDocumentRetriever extends WebDocumentRetriever {
         }
 
         return document;
+    }
+
+    private void configure(JsEnabledDocumentRetriever renderingDocumentRetriever) {
+        renderingDocumentRetriever.getWaitForElementMap().clear();
+        renderingDocumentRetriever.setWaitForElementMap(getWaitForElementMap());
+        renderingDocumentRetriever.setTimeoutSeconds(getTimeoutSeconds());
+        renderingDocumentRetriever.setWaitExceptionCallback(getWaitExceptionCallback());
     }
 
     private void updateRequestTracker(String retrieverKey, boolean goodDocument) {
@@ -227,5 +237,11 @@ public class CascadingDocumentRetriever extends WebDocumentRetriever {
             return false;
         }
         return !(s.isEmpty());
+    }
+
+    @Override
+    public void setTimeoutSeconds(int timeoutSeconds) {
+        super.setTimeoutSeconds(timeoutSeconds);
+        documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
     }
 }

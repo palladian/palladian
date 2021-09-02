@@ -38,17 +38,10 @@ import java.util.regex.Pattern;
  *
  * @author David Urbansky, Jaroslav Vankat
  */
-public class RenderingDocumentRetriever extends WebDocumentRetriever {
+public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(RenderingDocumentRetriever.class);
 
     protected RemoteWebDriver driver;
-    private int timeoutSeconds = 10;
-    private Consumer<WaitException> waitExceptionCallback;
-
-    /**
-     * We can configure the retriever to wait for certain elements on certain URLs that match the given pattern.
-     */
-    private Map<Pattern, String> waitForElementMap = new HashMap<>();
 
     /**
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
@@ -440,56 +433,6 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
 
     public RemoteWebDriver getDriver() {
         return driver;
-    }
-
-    public int getTimeoutSeconds() {
-        return timeoutSeconds;
-    }
-
-    public void setTimeoutSeconds(int timeoutSeconds) {
-        this.timeoutSeconds = timeoutSeconds;
-    }
-
-    public Map<Pattern, String> getWaitForElementMap() {
-        return waitForElementMap;
-    }
-
-    public void setWaitForElementMap(Map<Pattern, String> waitForElementMap) {
-        this.waitForElementMap = waitForElementMap;
-    }
-
-
-    public Consumer<WaitException> getWaitExceptionCallback() {
-        return waitExceptionCallback;
-    }
-
-    public void setWaitExceptionCallback(Consumer<WaitException> waitExceptionCallback) {
-        this.waitExceptionCallback = waitExceptionCallback;
-    }
-
-    public static class WaitException {
-
-        private final String selector;
-        private final String url;
-        private final Exception exception;
-
-        private WaitException(String url, Exception e, String selector) {
-            this.url = url;
-            this.exception = e;
-            this.selector = selector;
-        }
-
-        public String getSelector() {
-            return selector;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public Exception getException() {
-            return exception;
-        }
     }
 
     public static void main(String... args) throws HttpException {

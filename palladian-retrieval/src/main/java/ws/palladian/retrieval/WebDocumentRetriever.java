@@ -63,7 +63,7 @@ public abstract class WebDocumentRetriever {
     private Map<String, Consumer<String>> fileTypeConsumers = new HashMap<>();
 
     /**
-     * Some APIs require to send headers such as the accept header, so we can specify that globally for all calls with
+     * Some APIs require sending headers such as the accept header, so we can specify that globally for all calls with
      * this retriever.
      */
     Map<String, String> globalHeaders = null;
