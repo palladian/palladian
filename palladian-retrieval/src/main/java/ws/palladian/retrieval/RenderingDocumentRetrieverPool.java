@@ -1,6 +1,6 @@
 package ws.palladian.retrieval;
 
-import io.github.bonigarcia.wdm.DriverManagerType;
+import io.github.bonigarcia.wdm.config.DriverManagerType;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ResourcePool;
 

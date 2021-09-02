@@ -1,13 +1,12 @@
 package ws.palladian.retrieval;
 
-import io.github.bonigarcia.wdm.DriverManagerType;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.github.bonigarcia.wdm.config.DriverManagerType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -32,8 +31,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import static io.github.bonigarcia.wdm.DriverManagerType.CHROME;
-
 /**
  * A selenium-based retriever for web documents that should be rendered (execute JS and CSS).
  * <p>
@@ -57,7 +54,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
      */
     public RenderingDocumentRetriever() {
-        this(CHROME, null, HttpRetriever.USER_AGENT, null);
+        this(DriverManagerType.CHROME, null, HttpRetriever.USER_AGENT, null);
     }
 
     public RenderingDocumentRetriever(DriverManagerType browser) {
@@ -67,7 +64,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
     public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
         if (browser == DriverManagerType.FIREFOX) {
             if (driverVersionCode != null) {
-                WebDriverManager.firefoxdriver().version(driverVersionCode).setup();
+                WebDriverManager.firefoxdriver().browserVersion(driverVersionCode).setup();
             } else {
                 WebDriverManager.firefoxdriver().setup();
             }
@@ -84,7 +81,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             driver = new FirefoxDriver(firefoxOptions);
         } else if (browser == DriverManagerType.CHROME) {
             if (driverVersionCode != null) {
-                WebDriverManager.chromedriver().version(driverVersionCode).setup();
+                WebDriverManager.chromedriver().browserVersion(driverVersionCode).setup();
             } else {
                 WebDriverManager.chromedriver().setup();
             }
@@ -109,7 +106,7 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             driver = new ChromeDriver(options);
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
-                WebDriverManager.chromiumdriver().version(driverVersionCode).setup();
+                WebDriverManager.chromiumdriver().browserVersion(driverVersionCode).setup();
             } else {
                 WebDriverManager.chromiumdriver().setup();
             }
@@ -132,14 +129,6 @@ public class RenderingDocumentRetriever extends WebDocumentRetriever {
             }
 
             driver = new ChromeDriver(options);
-        } else if (browser == DriverManagerType.PHANTOMJS) {
-            if (driverVersionCode != null) {
-                WebDriverManager.phantomjs().version(driverVersionCode).setup();
-            } else {
-                WebDriverManager.phantomjs().setup();
-            }
-
-            driver = new PhantomJSDriver();
         }
     }
 
