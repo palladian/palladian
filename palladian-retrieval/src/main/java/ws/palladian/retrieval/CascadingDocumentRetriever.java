@@ -242,6 +242,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public void setTimeoutSeconds(int timeoutSeconds) {
         super.setTimeoutSeconds(timeoutSeconds);
-        documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        if (documentRetriever != null) {
+            documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        }
     }
 }
