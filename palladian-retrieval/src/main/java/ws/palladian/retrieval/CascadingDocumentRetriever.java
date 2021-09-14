@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * <p>
@@ -132,8 +133,15 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             // try rendering retriever
             try {
                 RenderingDocumentRetriever renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
+
+                for (Consumer<Document> retrieverCallback : getRetrieverCallbacks()) {
+                    renderingDocumentRetriever.addRetrieverCallback(retrieverCallback);
+                }
+
                 configure(renderingDocumentRetriever);
                 document = renderingDocumentRetriever.getWebDocument(url);
+
+                renderingDocumentRetriever.getRetrieverCallbacks().clear();
 
                 goodDocument = isGoodDocument(document);
                 renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
@@ -242,6 +250,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public void setTimeoutSeconds(int timeoutSeconds) {
         super.setTimeoutSeconds(timeoutSeconds);
-        documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        if (documentRetriever != null) {
+            documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        }
     }
 }
