@@ -1,23 +1,21 @@
 package ws.palladian.semantics;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.collection.Trie;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.nlp.StringHelper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Trie;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -60,13 +58,13 @@ public class PalladianSpellChecker {
     /**
      * Manual spelling mappings. Word, e.g. "cov" => "cow" and phrase, e.g. "i pad" => "ipad"
      */
-    private Map<String, String> manualWordMappings = new HashMap<>();
-    private Map<String, String> manualPhraseMappings = new HashMap<>();
+    private final Map<String, String> manualWordMappings = new HashMap<>();
+    private final Map<String, String> manualPhraseMappings = new HashMap<>();
 
     /**
      * Keep track of the context around words and use it to improve decision when correcting words.
      */
-    private Bag<String> contextCounter = new Bag<>();
+    private final Bag<String> contextCounter = new Bag<>();
 
     /**
      * Do not correct words that contain any of these characters.
@@ -205,7 +203,7 @@ public class PalladianSpellChecker {
 
         // transpositions, n-1
         for (int i = 0; i < n - 1; ++i) {
-            result.add(zeroToNSubstrings.get(i) + word.substring(i + 1, i + 2) + word.substring(i, i + 1) + word.substring(i + 2));
+            result.add(zeroToNSubstrings.get(i) + word.charAt(i + 1) + word.charAt(i) + word.substring(i + 2));
         }
 
         // alternations, 29n
@@ -251,6 +249,7 @@ public class PalladianSpellChecker {
     public String autoCorrect(String text) {
         return autoCorrect(text, false);
     }
+
     public String autoCorrect(String text, Collection<String> ignoreWords) {
         return autoCorrect(text, false, ignoreWords);
     }
@@ -266,6 +265,7 @@ public class PalladianSpellChecker {
     public String autoCorrect(String text, boolean caseSensitive) {
         return autoCorrect(text, caseSensitive, EMPTY_SET);
     }
+
     public String autoCorrect(String text, boolean caseSensitive, Collection<String> ignoreWords) {
         StringBuilder correctedText = new StringBuilder();
 
