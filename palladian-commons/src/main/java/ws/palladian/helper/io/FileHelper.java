@@ -1545,7 +1545,6 @@ public final class FileHelper {
     }
 
     public static boolean ungzipFile(String filename, String targetFilename) {
-
         boolean success = false;
 
         GZIPInputStream zipIn = null;

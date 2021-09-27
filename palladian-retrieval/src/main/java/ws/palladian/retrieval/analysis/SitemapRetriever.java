@@ -79,6 +79,10 @@ public class SitemapRetriever {
             documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped");
             FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
             sitemapContent = documentRetriever.getText(tempPath);
+            if (sitemapContent == null) {
+                // sometimes websites call the file .gz but it's just a plain text file, in which case we can't unzip and simply read the "zipped" file
+                sitemapContent = documentRetriever.getText(tempPath+".gzipped");
+            }
             FileHelper.delete(tempPath);
             FileHelper.delete(tempPath + ".gzipped");
         } else {
