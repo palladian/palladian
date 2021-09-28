@@ -87,6 +87,16 @@ public class DocumentRetriever extends WebDocumentRetriever {
     public DocumentRetriever(HttpRetriever httpRetriever) {
         this.httpRetriever = httpRetriever;
         this.initializeAgents();
+
+        if (!globalHeaders.containsKey("Accept") && !globalHeaders.containsKey("accept")) {
+            globalHeaders.put("Accept", "*/*");
+        }
+        if (!globalHeaders.containsKey("Accept-Encoding") && !globalHeaders.containsKey("accept-encoding")) {
+            globalHeaders.put("Accept-Encoding", "gzip, deflate");
+        }
+        if (!globalHeaders.containsKey("User-Agent") && !globalHeaders.containsKey("user-agent")) {
+            globalHeaders.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36");
+        }
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -497,9 +507,10 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
     private void initializeAgents() {
         userAgents = new ArrayList<>();
-        userAgents.add("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+        userAgents.add("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36");
+        userAgents.add("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.3163.100 Safari/537.36");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0");
-        userAgents.add("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+        userAgents.add("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.2840.99 Safari/537.36");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.52.7 (KHTML, like Gecko) Version/5.1 Safari/534.50");
         userAgents.add("Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)");
         userAgents.add("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.56 Safari/536.5");

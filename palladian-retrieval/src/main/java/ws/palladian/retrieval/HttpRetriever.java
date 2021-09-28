@@ -380,8 +380,6 @@ public class HttpRetriever {
      * Converts the Header type from Apache to a more generic Map.
      * </p>
      *
-     * @param headers
-     * @return
      */
     private static Map<String, List<String>> convertHeaders(Header[] headers) {
         Map<String, List<String>> result = new HashMap<>();

@@ -66,7 +66,7 @@ public abstract class WebDocumentRetriever {
      * Some APIs require sending headers such as the accept header, so we can specify that globally for all calls with
      * this retriever.
      */
-    Map<String, String> globalHeaders = null;
+    Map<String, String> globalHeaders = new HashMap<>();;
 
     public abstract Document getWebDocument(String url);
 
