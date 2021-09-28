@@ -429,9 +429,8 @@ public class HttpRetriever {
 //                CloseableHttpClient client = HttpClientBuilder.create().setSSLHostnameVerifier(verifier).setSSLSocketFactory(sslSocketFactory).build();
             DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
-
             HttpResponse response = client.execute(request, context);
-            HttpConnectionMetrics metrics = metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
+            HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
             byte[] entityContent;
