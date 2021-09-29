@@ -9,13 +9,13 @@ public class SearchIntentTrigger {
 
     public SearchIntentTrigger(QueryMatchType queryMatchType, String text) {
         this.matchType = queryMatchType;
-        this.text = text;
+        this.text = text.trim();
         this.language = Language.ENGLISH;
     }
 
     public SearchIntentTrigger(QueryMatchType queryMatchType, String text, Language language) {
         this.matchType = queryMatchType;
-        this.text = text;
+        this.text = text.trim();
         this.language = language;
     }
 
@@ -38,4 +38,13 @@ public class SearchIntentTrigger {
     public Language getLanguage() {return language;}
 
     public void setLanguage(Language language) {this.language = language;}
+
+    @Override
+    public String toString() {
+        return "SearchIntentTrigger{" +
+                "matchType=" + matchType +
+                ", text='" + text + '\'' +
+                ", language=" + language +
+                '}';
+    }
 }
