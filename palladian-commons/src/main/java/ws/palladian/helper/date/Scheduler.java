@@ -86,7 +86,7 @@ public class Scheduler {
                     try {
                         tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
                             try {
-                                task.getLeft().run();
+                                new Thread(task.getLeft()).start();
                             } catch (Exception e) {
                                 errors.add(e);
                                 e.printStackTrace();
@@ -108,38 +108,46 @@ public class Scheduler {
 
     public static void main(String[] args) {
         Schedule schedule = new Schedule();
-        schedule.setHourOfDay(17);
-        schedule.setMinuteOfHour(12);
+        schedule.setHourOfDay(14);
+        schedule.setMinuteOfHour(8);
         Schedule schedule2 = new Schedule();
-        schedule2.setHourOfDay(17);
-        schedule2.setMinuteOfHour(10);
+        schedule2.setHourOfDay(14);
+        schedule2.setMinuteOfHour(8);
         Schedule schedule3 = new Schedule();
-        schedule3.setHourOfDay(17);
-        schedule3.setMinuteOfHour(11);
+        schedule3.setHourOfDay(14);
+        schedule3.setMinuteOfHour(9);
 
         Thread runnable = new Thread() {
             @Override
             public void run() {
-                System.out.println("I'm on schedule 1");
+                System.out.println("I'm on schedule 1 / " + System.currentTimeMillis());
             }
         };
         Thread runnable2 = new Thread() {
             @Override
             public void run() {
-                System.out.println("I'm on schedule 2");
+                System.out.println("I'm on schedule 2 / " + System.currentTimeMillis());
+                ThreadHelper.deepSleep(150000);
+                System.out.println("Schedule 2 finished / "  + System.currentTimeMillis());
             }
         };
         Thread runnable3 = new Thread() {
             @Override
             public void run() {
-                System.out.println("I'm on schedule 3");
+                System.out.println("I'm on schedule 3 / " + System.currentTimeMillis());
+            }
+        };
+        Thread runnable4 = new Thread() {
+            @Override
+            public void run() {
+                System.out.println("I'm on schedule 4 / " + System.currentTimeMillis());
             }
         };
 
         Scheduler.getInstance().addTask(runnable, schedule);
         Scheduler.getInstance().addTask(runnable2, schedule2);
         Scheduler.getInstance().addTask(runnable3, schedule3);
-        Scheduler.getInstance().addTask(runnable3, schedule3, "s3");
+        Scheduler.getInstance().addTask(runnable4, schedule3, "s3");
 
         Scheduler.getInstance().removeTasks("s3");
     }
