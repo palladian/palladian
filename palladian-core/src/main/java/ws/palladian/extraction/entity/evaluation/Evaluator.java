@@ -21,6 +21,7 @@ import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.FileNameMatchingType;
 import ws.palladian.helper.nlp.StringHelper;
 
 /**
@@ -395,7 +396,7 @@ public class Evaluator {
         StringBuilder results = new StringBuilder();
 
         // count the numer of text files for evaluation in the target folder
-        int maxNumberOfSeeds = FileHelper.getFiles(targetFolder, "seedsTest").length;
+        int maxNumberOfSeeds = FileHelper.getMatchingFiles(targetFolder, "seedsTest", FileNameMatchingType.REGEX).size();
 
         // write the result head
         results.append(";");

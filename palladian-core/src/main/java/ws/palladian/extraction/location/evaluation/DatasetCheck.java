@@ -1,12 +1,5 @@
 package ws.palladian.extraction.location.evaluation;
 
-import java.io.File;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -18,15 +11,24 @@ import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.FileNameMatchingType;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
  * Perform some simple integrity checks on the location dataset. Do opening tags match closing tags? Did we only use
  * allowed tags (as specified in {@link LocationType})?
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 final class DatasetCheck {
@@ -50,8 +52,8 @@ final class DatasetCheck {
                     + "' does not exist or is no directory.");
         }
 
-        File[] datasetFiles = FileHelper.getFiles(datasetDirectory.getPath(), "text");
-        if (datasetFiles.length == 0) {
+        Collection<File> datasetFiles = FileHelper.getMatchingFiles(datasetDirectory.getPath(), "text", FileNameMatchingType.REGEX);
+        if (datasetFiles.isEmpty()) {
             throw new IllegalStateException("No text files found in '" + datasetDirectory + "'");
         }
 
@@ -179,14 +181,14 @@ final class DatasetCheck {
         System.out.println("# unique: " + totalUniqueTags);
         System.out.println("# tokens: " + tokenCount);
         System.out.println();
-        System.out.println("# texts: " + datasetFiles.length);
+        System.out.println("# texts: " + datasetFiles.size());
         System.out.println();
         System.out.println("# text with role=\"main\": " + scopedDocCount);
     }
 
     /**
      * Get statistics about non/disambiguated annotations in the dataset.
-     * 
+     *
      * @param datasetPath
      */
     static void getNonDisambiguatedStatistics(File datasetPath) {
@@ -222,14 +224,14 @@ final class DatasetCheck {
         for (String tag : disambiguatedTypeCounts.uniqueItems()) {
             int count = totalTypeCounts.count(tag);
             int disambiguatedCount = disambiguatedTypeCounts.count(tag);
-            float disambiguatedPercentage = (float)disambiguatedCount / count * 100;
+            float disambiguatedPercentage = (float) disambiguatedCount / count * 100;
             System.out.println(tag + " total: " + count + ", disambiguated: " + disambiguatedCount + ", percentage: "
                     + MathHelper.round(disambiguatedPercentage, 2));
         }
         System.out.println();
         System.out.println("# total disambiguated: " + disambiguatedTypeCounts.size());
         System.out.println("% total disambiguated: "
-                + MathHelper.round((float)disambiguatedTypeCounts.size() / totalTypeCounts.size() * 100, 2));
+                + MathHelper.round((float) disambiguatedTypeCounts.size() / totalTypeCounts.size() * 100, 2));
         System.out.println("# role='main' annotations: " + mainRoleCount);
     }
 

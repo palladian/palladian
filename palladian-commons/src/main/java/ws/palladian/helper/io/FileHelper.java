@@ -1,55 +1,29 @@
 package ws.palladian.helper.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.AbstractFileFilter;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Collector;
 import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.MathHelper;
 
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.zip.*;
+
 // TODO Remove all functionalities that are provided by Apache commons.
+
 /**
  * <p>
  * The FileHelper helps with file concerning tasks. If you add methods to this class, make sure under all circumstances
@@ -57,41 +31,56 @@ import ws.palladian.helper.math.MathHelper;
  * provided convenience method {@link #close(Closeable...)} which closes all objects implementing the {@link Closeable}
  * interface.
  * </p>
- * 
+ *
  * <p>
  * <b>Note on encoding:</b> All methods assume UTF-8 as encoding when reading or writing text files; the System's
  * default encoding is ignored.
  * </p>
- * 
- * @see <a href="http://www.javapractices.com/topic/TopicAction.do?Id=42">Reading and writing text files</a>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
+ * @see <a href="http://www.javapractices.com/topic/TopicAction.do?Id=42">Reading and writing text files</a>
  */
 public final class FileHelper {
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
-    /** The encoding used by this class, instead of relying on the System's default encoding. */
+    /**
+     * The encoding used by this class, instead of relying on the System's default encoding.
+     */
     public static final String DEFAULT_ENCODING = "UTF-8";
 
-    /** Constant for new line character. */
+    /**
+     * Constant for new line character.
+     */
     public static final String NEWLINE_CHARACTER = "\n";
 
-    /** Constant for image file extensions. */
+    /**
+     * Constant for image file extensions.
+     */
     public static final List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("png", "jpg", "jpeg", "gif", "svg", "psd", "ai", "indd", "eps");
 
-    /** Constant for video file extensions. */
+    /**
+     * Constant for video file extensions.
+     */
     public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid", "wmv");
 
-    /** Constant for audio file extensions. */
+    /**
+     * Constant for audio file extensions.
+     */
     public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
 
-    /** Constant for general binary file extensions, including. */
+    /**
+     * Constant for general binary file extensions, including.
+     */
     public static final List<String> BINARY_FILE_EXTENSIONS;
 
-    /** The Palladian-specific temporary directory. */
+    /**
+     * The Palladian-specific temporary directory.
+     */
     private static volatile File tempDirectory = null;
 
     static {
@@ -125,7 +114,9 @@ public final class FileHelper {
         BINARY_FILE_EXTENSIONS = Collections.unmodifiableList(binaryFileExtensions);
     }
 
-    /** A no-operation {@link LineAction}. Used for getting the number of lines. */
+    /**
+     * A no-operation {@link LineAction}. Used for getting the number of lines.
+     */
     private static final LineAction NOP_LINE_ACTION = new LineAction() {
         @Override
         public void performAction(String line, int lineNumber) {
@@ -138,7 +129,7 @@ public final class FileHelper {
 
     /**
      * Checks if is file name.
-     * 
+     *
      * @param name the name
      * @return true, if is file name
      */
@@ -151,7 +142,7 @@ public final class FileHelper {
      * Gets the file path.<br>
      * data/models/model1.ser => data/models/<br>
      * data/models/ => data/models/<br>
-     * 
+     *
      * @param path The full path.
      * @return The folder part of the path without the filename.
      */
@@ -170,7 +161,7 @@ public final class FileHelper {
 
     /**
      * Gets the file name without the file type.
-     * 
+     *
      * @param path The path to the file.
      * @return The file name part of the path.
      */
@@ -179,7 +170,7 @@ public final class FileHelper {
         int lastDot = path.lastIndexOf(".");
         int lastSeparator;
         if (lastDot > -1) {
-            lastSeparator = path.substring(0,lastDot).lastIndexOf("/") + 1;
+            lastSeparator = path.substring(0, lastDot).lastIndexOf("/") + 1;
         } else {
             lastSeparator = path.lastIndexOf("/") + 1;
         }
@@ -196,7 +187,7 @@ public final class FileHelper {
 
     /**
      * Gets the folder name.
-     * 
+     *
      * @param path The path to the file or folder.
      * @return The folder name of the path.
      */
@@ -218,10 +209,9 @@ public final class FileHelper {
 
     /**
      * Append a string to a file.
-     * 
+     *
      * @param filePath The file to which the string should be appended to.
      * @param appendix The string to append.
-     * @return
      */
     public static String appendToFileName(String filePath, String appendix) {
         return getFilePath(filePath) + getFileName(filePath) + appendix + "." + getFileType(filePath);
@@ -231,7 +221,7 @@ public final class FileHelper {
      * <p>
      * Gets the file type of a URI.
      * </p>
-     * 
+     *
      * @param path The path of the file
      * @return The file type without the period. E.g. abc.jpg => "jpg".
      */
@@ -305,7 +295,7 @@ public final class FileHelper {
      * <p>
      * Read file to string.
      * </p>
-     * 
+     *
      * @param path The path to the file that should be read.
      * @return The string content of the file.
      * @throws IOException
@@ -324,7 +314,7 @@ public final class FileHelper {
 
     /**
      * Read file to string.
-     * 
+     *
      * @param file The file that should be read.
      * @return The string content of the file.
      * @throws IOException
@@ -362,14 +352,13 @@ public final class FileHelper {
 
     /**
      * Mimic the UNIX "tail" command.
-     * 
-     * @param path The path of the file.
+     *
+     * @param path          The path of the file.
      * @param numberOfLines The number of lines from the end of the file that should be returned.
      * @return A string with text lines from the specified file.
      */
     public static List<String> tail(String path, final int numberOfLines) {
-
-        final List<String> list = new ArrayList<String>();
+        final List<String> list = new ArrayList<>();
         final int totalNumberOfLines = getNumberOfLines(path);
 
         performActionOnEveryLine(path, new LineAction() {
@@ -388,7 +377,7 @@ public final class FileHelper {
      * <p>
      * Create a list with each line of the given file as an element.
      * </p>
-     * 
+     *
      * @param path The path of the file.
      * @return A list with the lines as elements.
      */
@@ -400,8 +389,8 @@ public final class FileHelper {
      * <p>
      * Create a list with each line of the given file as an element.
      * </p>
-     * 
-     * @param path The path of the file.
+     *
+     * @param path          The path of the file.
      * @param numberOfLines The number of lines to read.
      * @return A list with the lines as elements.
      */
@@ -413,9 +402,9 @@ public final class FileHelper {
      * <p>
      * Create a list with each line of the given file as an element. Skip all lines to start line.
      * </p>
-     * 
-     * @param path The path of the file.
-     * @param startLine The first line to read.
+     *
+     * @param path          The path of the file.
+     * @param startLine     The first line to read.
      * @param numberOfLines The number of lines to read.
      * @return A list with the lines as elements.
      */
@@ -425,7 +414,7 @@ public final class FileHelper {
 
     /**
      * Create a list with each line of the given file as an element.
-     * 
+     *
      * @param contentFile the content file
      * @return A list with the lines as elements.
      */
@@ -435,8 +424,8 @@ public final class FileHelper {
 
     /**
      * Create a list with each line of the given file as an element.
-     * 
-     * @param file The file.
+     *
+     * @param file          The file.
      * @param numberOfLines The number of lines to read. Use -1 to read whole file.
      * @return A list with the lines as elements.
      */
@@ -445,7 +434,6 @@ public final class FileHelper {
         InputStream inputStream = null;
 
         try {
-
             inputStream = new FileInputStream(file);
 
             if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
@@ -454,8 +442,6 @@ public final class FileHelper {
 
             list = readFileToArray(inputStream, startLine, numberOfLines);
 
-        } catch (FileNotFoundException e) {
-            LOGGER.error(file.getPath() + ", " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error(file.getPath() + ", " + e.getMessage());
         } finally {
@@ -500,12 +486,11 @@ public final class FileHelper {
      * <p>
      * Remove identical lines for the given input file and save it to the output file.
      * </p>
-     * 
-     * @param inputFilePath The input file.
+     *
+     * @param inputFilePath  The input file.
      * @param outputFilePath Where the transformed file should be saved.
      */
     public static void removeDuplicateLines(String inputFilePath, String outputFilePath) {
-
         if (inputFilePath.equalsIgnoreCase(outputFilePath)) {
             removeDuplicateLines(inputFilePath);
             return;
@@ -537,25 +522,22 @@ public final class FileHelper {
 
             close(writer);
 
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
-        } catch (UnsupportedEncodingException e) {
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
             LOGGER.error(e.getMessage());
         }
-
     }
 
     /**
      * <p>
      * Remove identical lines for the given input file and save it to the same file.
      * </p>
-     * 
+     *
      * @param inputFilePath The input file which is overwritten.
      */
     public static void removeDuplicateLines(String inputFilePath) {
         List<String> lines = readFileToArray(inputFilePath, -1);
 
-        Set<String> lineSet = new HashSet<String>();
+        Set<String> lineSet = new HashSet<>();
 
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
@@ -571,8 +553,8 @@ public final class FileHelper {
      * <p>
      * Perform an action on every line of the provided input file.
      * </p>
-     * 
-     * @param file The File which should be processed line by line, not <code>null</code>.
+     *
+     * @param file       The File which should be processed line by line, not <code>null</code>.
      * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
      * @return The number of lines processed, <code>-1</code> in case of errors.
      */
@@ -585,8 +567,8 @@ public final class FileHelper {
      * <p>
      * Perform an action on every line of the provided input file.
      * </p>
-     * 
-     * @param filePath The path to the file which should be processed line by line, not <code>null</code>.
+     *
+     * @param filePath   The path to the file which should be processed line by line, not <code>null</code>.
      * @param lineAction The line action that should be triggered on each line, not <code>null</code>.
      * @return The number of lines processed, <code>-1</code> in case of errors.
      */
@@ -617,9 +599,9 @@ public final class FileHelper {
      * Perform an action on every line of the provided {@link InputStream}. The input stream is <b>not</b> closed after
      * it has been read; it is your responsibility to take care of that!
      * </p>
-     * 
+     *
      * @param inputStream The input stream which should be processed line by line, not <code>null</code>.
-     * @param lineAction The {@link LineAction} that should be triggered on each line, not <code>null</code>.
+     * @param lineAction  The {@link LineAction} that should be triggered on each line, not <code>null</code>.
      * @return The number of lines processed, <code>-1</code> in case of errors.
      */
     public static int performActionOnEveryLine(InputStream inputStream, LineAction lineAction) {
@@ -647,14 +629,13 @@ public final class FileHelper {
      * <p>
      * If the file does not exist, it is created. If the path to the file does not exist, it is created as well.
      * </p>
-     * 
+     *
      * @param filePath The file path.
-     * @param lines the lines
+     * @param lines    the lines
      * @return <code>false</code> if any error occurred. It is likely that line has not been written, or only parts have
-     *         been written. See error log for details (Exceptions).
+     * been written. See error log for details (Exceptions).
      */
     public static boolean writeToFile(String filePath, Iterable<?> lines) {
-
         boolean success = false;
 
         File file = new File(filePath);
@@ -689,15 +670,14 @@ public final class FileHelper {
      * <p>
      * If the file does not exist, it is created. If the path to the file does not exist, it is created as well.
      * </p>
-     * 
+     *
      * @param filePath The file path where the contents should be saved to.
-     * @param string The string to save.
+     * @param string   The string to save.
      * @param encoding The encoding in which the file should be written.
      * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
-     *         {@link filePath}. See error log for details (Exceptions).
+     * {@link filePath}. See error log for details (Exceptions).
      */
     public static boolean writeToFile(String filePath, CharSequence string, String encoding) {
-
         String fileType = getFileType(filePath);
         if (fileType.equalsIgnoreCase("gz") || fileType.equalsIgnoreCase("gzip")) {
             return gzip(string, filePath);
@@ -729,7 +709,6 @@ public final class FileHelper {
     }
 
     public static void writeToFile(String filePath, InputStream inputStream) {
-
         OutputStream out = null;
         try {
             out = new FileOutputStream(new File(filePath));
@@ -755,8 +734,8 @@ public final class FileHelper {
      * Appends (i. e. inserts a the end) a string to the specified file. Attention: A new line is <b>not</b> added
      * automatically!
      * </p>
-     * 
-     * @param filePath the file path
+     *
+     * @param filePath       the file path
      * @param stringToAppend the string to append
      * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
@@ -779,14 +758,14 @@ public final class FileHelper {
      * <p>
      * Appends a line to the specified text file if it does not already exist within the file.
      * </p>
-     * 
-     * @param filePath the file path; file will be created if it does not exist
+     *
+     * @param filePath       the file path; file will be created if it does not exist
      * @param stringToAppend the string to append
      * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
     public static boolean appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
         boolean added = false;
-        final boolean[] add = new boolean[] {true};
+        final boolean[] add = new boolean[]{true};
 
         // if file exists already, check if it contains specified line
         if (fileExists(filePath)) {
@@ -812,24 +791,23 @@ public final class FileHelper {
      * <p>
      * Prepends (i. e. inserts a the beginning) a String to the specified File.
      * </p>
-     * 
+     *
      * <p>
      * Inspired by <a href="http://stackoverflow.com/questions/2537944/prepend-lines-to-file-in-java">Stack Overflow
      * Thread</a>
      * </p>
-     * 
+     *
      * <p>
      * <b>Note: Prepending is much slower than appending, so do not use this if you need high performance!</b>
      * </p>
-     * 
-     * @param filePath the file path
+     *
+     * @param filePath        the file path
      * @param stringToPrepend the string to prepend
+     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
      * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
-     * @return <tt>True</tt>, if there were no errors, <tt>false</tt> otherwise.
      */
     public static boolean prependFile(String filePath, String stringToPrepend) {
-
         boolean success = false;
         RandomAccessFile randomAccessFile = null;
 
@@ -850,7 +828,6 @@ public final class FileHelper {
             int writeBytes = writeBuffer.length;
 
             do {
-
                 byte[] readBuffer = new byte[bufferSize];
 
                 // read chunk, starting at current position to the readBuffer
@@ -867,7 +844,6 @@ public final class FileHelper {
                 readPosition += bufferSize;
                 writePosition += writeBytes;
                 writeBytes = readBytes;
-
             } while (writeBytes != -1);
 
             success = true;
@@ -887,8 +863,8 @@ public final class FileHelper {
      * method does the cast for you, just deserialize to the appropriate type, like
      * <tt>Foo foo = FileHelper.deserialize("foo.ser");</tt>.
      * </p>
-     * 
-     * @param <T> Type of the object to deserialize.
+     *
+     * @param <T>      Type of the object to deserialize.
      * @param filePath The path to the file with the serialized object, not <code>null</code> or empty.
      * @return The deserialized object.
      * @throws IOException In case of any I/O error.
@@ -909,7 +885,7 @@ public final class FileHelper {
                 stream = new GZIPInputStream(stream);
             }
             in = new ObjectInputStream(stream);
-            return (T)in.readObject();
+            return (T) in.readObject();
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         } finally {
@@ -919,7 +895,7 @@ public final class FileHelper {
 
     public static <T extends Serializable> T tryDeserialize(String filePath) {
         try {
-            return FileHelper.<T> deserialize(filePath);
+            return FileHelper.<T>deserialize(filePath);
         } catch (IOException e) {
             return null;
         }
@@ -930,10 +906,10 @@ public final class FileHelper {
      * Serialize a serializable object. If the given path ends with <code>.gz</code> it is automatically saved using
      * GZIP compression.
      * </p>
-     * 
-     * @param object The {@link Serializable} object to serialize, not <code>null</code>.
+     *
+     * @param object   The {@link Serializable} object to serialize, not <code>null</code>.
      * @param filePath The file path where the object should be serialized to, not <code>null</code> or empty. In case,
-     *            the directories do not exist, they are created automatically.
+     *                 the directories do not exist, they are created automatically.
      * @throws IOException In case of any I/O error.
      */
     public static void serialize(Serializable object, String filePath) throws IOException {
@@ -969,9 +945,9 @@ public final class FileHelper {
 
     /**
      * Rename a file name and return it. If you really want to rename the file, use FileHelper#renameFile(File, String).
-     * 
+     *
      * @param inputFile The path to an input file which should be renamed.
-     * @param newName The new name.
+     * @param newName   The new name.
      * @return The name of the new path.
      * @see FileHelper#renameFile(File, String)
      */
@@ -984,8 +960,8 @@ public final class FileHelper {
 
     /**
      * Rename a file in the file system.
-     * 
-     * @param source The original file.
+     *
+     * @param source      The original file.
      * @param destination The new filename.
      * @return <code>true</code> if and only if the file has been renamed.
      */
@@ -1003,9 +979,9 @@ public final class FileHelper {
      * Copy a file.
      * </p>
      *
-     * @deprecated use FileUtils.copyFile instead
-     * @param sourceFile Path to the file to copy.
+     * @param sourceFile      Path to the file to copy.
      * @param destinationFile The destination path of the file.
+     * @deprecated use FileUtils.copyFile instead
      */
     public static boolean copyFile(String sourceFile, String destinationFile) {
         InputStream in = null;
@@ -1040,10 +1016,10 @@ public final class FileHelper {
      * <p>
      * Copy a file to the specified directory, keep the original name.
      * </p>
-     * 
-     * @param source That path to the source file, not <code>null</code>.
+     *
+     * @param source               That path to the source file, not <code>null</code>.
      * @param destinationDirectory The path to the destination directory, not <code>null</code>. In case the directory
-     *            does not exist, it will be created.
+     *                             does not exist, it will be created.
      * @return <code>true</code> in case copying worked, <code>false</code> otherwise.
      */
     public static boolean copyFileToDirectory(File source, File destinationDirectory) {
@@ -1061,7 +1037,7 @@ public final class FileHelper {
 
     /**
      * Copy directory.
-     * 
+     *
      * @param srcPath the src path
      * @param dstPath the dst path
      */
@@ -1071,7 +1047,7 @@ public final class FileHelper {
 
     /**
      * Copy directory.
-     * 
+     *
      * @param srcPath the src path
      * @param dstPath the dst path
      */
@@ -1116,8 +1092,8 @@ public final class FileHelper {
 
     /**
      * Delete a file or a directory.
-     * 
-     * @param filename The name of the file or directory.
+     *
+     * @param filename                The name of the file or directory.
      * @param deleteNonEmptyDirectory If true, and filename is a directory, it will be deleted with all its contents.
      * @return <tt>True</tt> if the deletion was successful, <tt>false</tt> otherwise.
      */
@@ -1154,7 +1130,7 @@ public final class FileHelper {
      * <p>
      * Delete a file.
      * </p>
-     * 
+     *
      * @param filename The filename.
      * @return <tt>True</tt> if the deletion was successful, <tt>false</tt> otherwise.
      */
@@ -1168,7 +1144,7 @@ public final class FileHelper {
 
     /**
      * Delete all files inside a directory.
-     * 
+     *
      * @param dirPath the directoryPath
      * @return <tt>True</tt> if there were no errors, <tt>false</tt> otherwise.
      */
@@ -1191,8 +1167,8 @@ public final class FileHelper {
 
     /**
      * Move a file to a new path, preserving the filename.
-     * 
-     * @param file The file to move.
+     *
+     * @param file    The file to move.
      * @param newPath The new path.
      * @return <tt>True</tt> if there were no errors, <tt>false</tt> otherwise.
      */
@@ -1203,7 +1179,7 @@ public final class FileHelper {
 
     /**
      * Get all files from a certain folder.
-     * 
+     *
      * @param folderPath The path to the folder.
      * @return An array of files that are in that folder.
      */
@@ -1213,7 +1189,7 @@ public final class FileHelper {
 
     /**
      * Get all files from a certain folder and all files in all subfolders.
-     * 
+     *
      * @param folderPath The path to the folder.
      * @return An array of files that are in that folder or in any subfolder.
      */
@@ -1227,10 +1203,11 @@ public final class FileHelper {
 
     /**
      * Gets the files.
-     * 
+     *
      * @param folderPath The folder path.
-     * @param substring The substring which should appear in the filename.
+     * @param substring  The substring which should appear in the filename.
      * @return The files which contain the substring.
+     * @deprecated use #getMatchingFiles instead (about 6x faster)
      */
     public static File[] getFiles(String folderPath, String substring) {
         return getFiles(folderPath, substring, false);
@@ -1238,6 +1215,24 @@ public final class FileHelper {
 
     public static File[] getFiles(String folderPath, String substring, boolean recursive) {
         return getFiles(folderPath, substring, recursive, false);
+    }
+
+    public static Collection<File> getMatchingFiles(String folderPath, String substring, FileNameMatchingType fileNameMatchingType) {
+        AbstractFileFilter fileFilter;
+        switch (fileNameMatchingType) {
+            case PREFIX:
+                fileFilter = new PrefixFileFilter(substring);
+                break;
+            case SUFFIX:
+                fileFilter = new SuffixFileFilter(substring);
+                break;
+            default:
+            case REGEX:
+                fileFilter = new RegexFileFilter(".*" + substring + ".*");
+                break;
+        }
+        return FileUtils.listFiles(new File(folderPath), fileFilter, null);
+
     }
 
     public static File[] getFilesAndDirectories(String folderPath) {
@@ -1285,7 +1280,7 @@ public final class FileHelper {
      * <p>
      * Get the number of lines in an ASCII document.
      * </p>
-     * 
+     *
      * @param fileName The name of the file.
      * @return The number of lines.
      */
@@ -1297,7 +1292,7 @@ public final class FileHelper {
      * <p>
      * Get the number of lines in an ASCII document.
      * </p>
-     * 
+     *
      * @param file The file.
      * @return The number of lines.
      */
@@ -1352,8 +1347,8 @@ public final class FileHelper {
      * <p>
      * Zip a number of files to one file. The list of files may contain directories as well.
      * </p>
-     * 
-     * @param files The files to zip.
+     *
+     * @param files          The files to zip.
      * @param targetFilename The name of the target zip file.
      */
     public static void zipFiles(File[] files, String targetFilename) {
@@ -1409,8 +1404,8 @@ public final class FileHelper {
      * <p>
      * Zip some text and save to a file. http://www.java2s.com/Tutorial/Java/0180__File/ZipafilewithGZIPOutputStream.htm
      * </p>
-     * 
-     * @param text The text to be zipped.
+     *
+     * @param text           The text to be zipped.
      * @param filenameOutput The name of the zipped file.
      * @return <tt>True</tt> if zipping and saving was successfully, <tt>false</tt> otherwise.
      */
@@ -1439,7 +1434,7 @@ public final class FileHelper {
 
     /**
      * Zip a string.
-     * 
+     *
      * @param text The text to zip.
      * @return The zipped string.
      */
@@ -1455,7 +1450,7 @@ public final class FileHelper {
 
             int c = 0;
             while ((c = in.read()) != -1) {
-                zipout.write((byte)c);
+                zipout.write((byte) c);
             }
 
         } catch (IOException e) {
@@ -1470,8 +1465,8 @@ public final class FileHelper {
 
     /**
      * Unzip file using the command line cmd.
-     * 
-     * @param filenameInput the filename input
+     *
+     * @param filenameInput  the filename input
      * @param consoleCommand the console command
      */
     public static void unzipFileCmd(String filenameInput, String consoleCommand) {
@@ -1493,7 +1488,7 @@ public final class FileHelper {
 
     /**
      * Unzip a file and return the unzipped string.
-     * 
+     *
      * @param filename The name of the zipped file.
      * @return The unzipped content of the file.
      */
@@ -1513,7 +1508,7 @@ public final class FileHelper {
 
     /**
      * Unzip a input stream to string.
-     * 
+     *
      * @param in The input stream with the zipped content.
      * @return The unzipped string.
      */
@@ -1580,13 +1575,14 @@ public final class FileHelper {
 
     /**
      * Extracts a zip file specified by the zipFilePath to the current working directory.
-     * 
+     *
      * @param zipFilePath The path to the zipped file.
      * @throws IOException
      */
     public static void unzip(String zipFilePath) throws IOException {
         unzip(zipFilePath, null);
     }
+
     public static boolean tryUnzip(String zipFilePath) {
         try {
             unzip(zipFilePath, null);
@@ -1601,8 +1597,8 @@ public final class FileHelper {
     /**
      * Extracts a zip file specified by the zipFilePath to a directory specified by
      * destDirectory (will be created if does not exists).
-     * 
-     * @param zipFilePath The path to the zipped file.
+     *
+     * @param zipFilePath   The path to the zipped file.
      * @param destDirectory The target directory (if null, current working dirctory)
      * @throws IOException
      */
@@ -1640,6 +1636,7 @@ public final class FileHelper {
 
     /**
      * Extracts a zip entry (file entry)
+     *
      * @param zipIn
      * @param filePath
      * @throws IOException
@@ -1658,10 +1655,10 @@ public final class FileHelper {
      * <p>
      * Check whether a file exists.
      * </p>
-     * 
+     *
      * @param filePath The path to the file to check.
      * @return <code>true</code> if the given path points to a file, <code>false</code> otherwise or in case path was
-     *         <code>null</code>.
+     * <code>null</code>.
      */
     public static boolean fileExists(String filePath) {
         return filePath != null ? new File(filePath).isFile() : false;
@@ -1671,10 +1668,10 @@ public final class FileHelper {
      * <p>
      * Check whether a directory exists.
      * </p>
-     * 
+     *
      * @param filePath The path to the directory to check.
      * @return <code>true</code> if the given path points to a directory, <code>false</code> otherwise or in case path
-     *         was <code>null</code>.
+     * was <code>null</code>.
      */
     public static boolean directoryExists(String directoryPath) {
         return directoryPath != null ? new File(directoryPath).isDirectory() : false;
@@ -1682,7 +1679,7 @@ public final class FileHelper {
 
     /**
      * Create a dicrectory.
-     * 
+     *
      * @param directoryPath The path to the directory.
      * @return <tt>True</tt> if no errors occurred, <tt>false</tt> otherwise.
      */
@@ -1694,10 +1691,10 @@ public final class FileHelper {
      * <p>
      * Creates the file and its directories if do not exist yet.
      * </p>
-     * 
+     *
      * @param filePath The file to create.
      * @return <code>true</code> if file and directories have been created, <code>false</code> otherwise or on every
-     *         error.
+     * error.
      */
     public static boolean createDirectoriesAndFile(String filePath) {
         boolean success = false;
@@ -1741,7 +1738,7 @@ public final class FileHelper {
 
     /**
      * Concatenates file2 to the end of file1.
-     * 
+     *
      * @param file1 The first file.
      * @param file2 The file that is appended to the end of file1.
      * @return <tt>True</tt>, if concatenation worked, <tt>false</tt> otherwise.
@@ -1780,10 +1777,9 @@ public final class FileHelper {
      * {@link IOException}s. Note: With Java 7, make use of the
      * <i>try-with-resources</i> construct, if possible.
      * </p>
-     * 
-     * @param closeables
-     *            All objects which are closeable, <code>null</code> values will
-     *            be ignored.
+     *
+     * @param closeables All objects which are closeable, <code>null</code> values will
+     *                   be ignored.
      */
     public static void close(Closeable... closeables) {
         for (Closeable closeable : closeables) {
@@ -1799,7 +1795,7 @@ public final class FileHelper {
 
     /**
      * Add a trailing slash if it does not exist.
-     * 
+     *
      * @param path The path to the directory.
      * @return The path including the trailing slash.
      */
@@ -1851,7 +1847,7 @@ public final class FileHelper {
      * <p>
      * Splits a given text file into evenly sized (if possible) files each named with the original name + "_splitX".
      * </p>
-     * 
+     *
      * @param filePath The file to be split.
      * @param numParts The number of evenly sized parts the file should be split into.
      */
@@ -1859,7 +1855,7 @@ public final class FileHelper {
 
         int totalLines = FileHelper.getNumberOfLines(filePath);
 
-        int linesPerSplit = (int)Math.ceil((totalLines / (double)numParts));
+        int linesPerSplit = (int) Math.ceil((totalLines / (double) numParts));
 
         BufferedReader reader = null;
         BufferedWriter writer = null;
@@ -1906,7 +1902,7 @@ public final class FileHelper {
      * <p>
      * Shuffles the order of lines in a given file.
      * </p>
-     * 
+     *
      * @param filePath The path of the file which lines should be shuffled.
      */
     public static void shuffleLines(String filePath) {
@@ -1922,7 +1918,7 @@ public final class FileHelper {
      * directory and all its contents are deleted upon VM termination. The temp directory should be used for storing all
      * intermediate data.
      * </p>
-     * 
+     *
      * @return The {@link File} representing the temp directory.
      */
     public static File getTempDir() {
@@ -1959,12 +1955,12 @@ public final class FileHelper {
     /**
      * <p>
      * Get a file object which points to a (non existent) temporary file within the temp directory.
-     * 
+     *
      * @return A file in the temp directory, which will be deleted upon VM termination.
      * @see #getTempDir()
      */
     public static File getTempFile() {
-        for (;;) {
+        for (; ; ) {
             String fileName = UUID.randomUUID().toString();
             File tempFile = new File(getTempDir(), fileName);
             if (tempFile.exists()) { // should never happen, as UUIDs are unique, but never say never
@@ -1977,11 +1973,11 @@ public final class FileHelper {
     /**
      * <p>
      * Traverse a directory, and (optionally) its subdirectories and process each item using a {@link Consumer}.
-     * 
-     * @param path The starting path, not <code>null</code>.
-     * @param fileFilter A filter which determines which files to process, not <code>null</code>.
+     *
+     * @param path            The starting path, not <code>null</code>.
+     * @param fileFilter      A filter which determines which files to process, not <code>null</code>.
      * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
-     * @param consumer A consumer to process the matching items, not <code>null</code>.
+     * @param consumer        A consumer to process the matching items, not <code>null</code>.
      * @return The number of processed files.
      */
     public static int traverseFiles(File path, Predicate<? super File> fileFilter, Predicate<? super File> directoryFilter, Consumer<? super File> consumer) {
@@ -2009,10 +2005,10 @@ public final class FileHelper {
     /**
      * <p>
      * Traverse a directory, including its subdirectories and process each file using a {@link Consumer}.
-     * 
-     * @param path The starting path, not <code>null</code>.
+     *
+     * @param path       The starting path, not <code>null</code>.
      * @param fileFilter A filter which determines which files to process, not <code>null</code>.
-     * @param consumer A consumer to process the matching files, not <code>null</code>.
+     * @param consumer   A consumer to process the matching files, not <code>null</code>.
      * @return The number of processed files.
      */
     public static int traverseFiles(File path, Predicate<? super File> fileFilter, Consumer<? super File> consumer) {
@@ -2022,9 +2018,9 @@ public final class FileHelper {
     /**
      * <p>
      * Get the files in a given directory, and (optionally) its subdirectories.
-     * 
-     * @param path The starting path, not <code>null</code>.
-     * @param fileFilter A filter which determines which files to get, not <code>null</code>.
+     *
+     * @param path            The starting path, not <code>null</code>.
+     * @param fileFilter      A filter which determines which files to get, not <code>null</code>.
      * @param directoryFilter A filter which determines which directories to follow, not <code>null</code>.
      * @return A list with matched files, or an empty list, never <code>null</code>.
      */
@@ -2040,8 +2036,8 @@ public final class FileHelper {
     /**
      * <p>
      * Get the files in a given directory, including its subdirectories.
-     * 
-     * @param path The starting path, not <code>null</code>.
+     *
+     * @param path       The starting path, not <code>null</code>.
      * @param fileFilter A filter which determines which files to get, not <code>null</code>.
      * @return A list with matched files, or an empty list, never <code>null</code>.
      */
@@ -2138,7 +2134,7 @@ public final class FileHelper {
         // FileHelper.addFileHeader("data/temp/src/tud/iir/web/test", sb);
         // System.exit(0);
         // ////////////////////////add license to every file //////////////////////////
-        writeToFile("temp/test.txt", Arrays.asList(new String[] {"one", "two", "three", "four"}));
+        writeToFile("temp/test.txt", Arrays.asList(new String[]{"one", "two", "three", "four"}));
         System.exit(0);
 
         FileHelper.move(new File("abc.txt"), "data");
