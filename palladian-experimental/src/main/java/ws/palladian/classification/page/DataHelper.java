@@ -1,27 +1,22 @@
 package ws.palladian.classification.page;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.FileNameMatchingType;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.retrieval.DocumentRetriever;
 
-final class DataHelper {
+import java.io.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
+final class DataHelper {
     private static final String XML_PART_NAME = "part";
     private static final String URL_PART_NAME = "urls";
 
@@ -108,7 +103,7 @@ final class DataHelper {
 
     /**
      * Read ODP RDF dump and create a file for classification. Format: URL Class1/Class2[/ClassX]* Save URLs in several files that can be merged later.
-     * 
+     *
      * @param language If set to something other than "english", the Top/World/X categories are used.
      */
     public void parseODP(String language) {
@@ -209,7 +204,7 @@ final class DataHelper {
 
     /**
      * Create a random sample of URLs.
-     * 
+     *
      * @param sourceFile The file with the URLs to sample from.
      * @param sampleSize The size of the sample.
      */
@@ -251,25 +246,22 @@ final class DataHelper {
 
     /**
      * Delete helper files.
-     * 
+     *
      * @param deleteXMLParts If true, the xml parts will be deleted as well.
      */
     public void cleanup(boolean deleteXMLParts) {
         if (deleteXMLParts) {
-            File[] files = FileHelper.getFiles("data/temp/odp/", XML_PART_NAME);
+            Collection<File> files = FileHelper.getMatchingFiles("data/temp/odp/", XML_PART_NAME, FileNameMatchingType.REGEX);
             for (File file : files) {
                 file.delete();
             }
         }
-        File[] files2 = FileHelper.getFiles("data/temp/odp/", URL_PART_NAME);
+        Collection<File> files2 = FileHelper.getMatchingFiles("data/temp/odp/", URL_PART_NAME, FileNameMatchingType.REGEX);
         for (File file : files2) {
             file.delete();
         }
     }
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         DataHelper dh = new DataHelper();
         // dh.breakODPFile();
@@ -277,5 +269,4 @@ final class DataHelper {
         dh.createRandomSample("list_german.txt", 20000);
         dh.cleanup(false);
     }
-
 }

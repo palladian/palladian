@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Sending emails via SendGrid.
  * </p>
  *
- * @created 24.01.2018
+ * Created 24.01.2018
  * @author David Urbansky
  */
 public class SendGridMailer {

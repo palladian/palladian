@@ -1,10 +1,7 @@
 package ws.palladian.extraction.location.evaluation;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -28,6 +25,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.FileNameMatchingType;
 
 /**
  * <p>
@@ -213,7 +211,7 @@ class LocalGlobalLexiconConverter {
      * @param datasetPath
      */
     public static final void cleanClust(File datasetPath) {
-        File[] files = FileHelper.getFiles(datasetPath.getPath(), "text_");
+        Collection<File> files = FileHelper.getMatchingFiles(datasetPath.getPath(), "text_", FileNameMatchingType.REGEX);
         File destinationDirectory = new File(datasetPath, "0-all");
         Set<Integer> deduplication = new HashSet<>();
         int annotated = 0;
@@ -227,7 +225,7 @@ class LocalGlobalLexiconConverter {
                 }
             }
         }
-        System.out.println("# files: " + files.length);
+        System.out.println("# files: " + files.size());
         System.out.println("# unique: " + deduplication.size());
         System.out.println("# annotated: " + annotated);
     }
