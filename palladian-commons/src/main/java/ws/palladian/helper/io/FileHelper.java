@@ -1003,7 +1003,6 @@ public final class FileHelper {
      * Copy a file.
      * </p>
      *
-     * @deprecated use FileUtils.copyFile instead
      * @param sourceFile Path to the file to copy.
      * @param destinationFile The destination path of the file.
      */
