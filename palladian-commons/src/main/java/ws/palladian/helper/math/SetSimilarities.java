@@ -12,7 +12,6 @@ import ws.palladian.helper.collection.CollectionHelper;
  * @author Philipp Katz
  */
 public final class SetSimilarities {
-
     private SetSimilarities() {
         // no instance.
     }
