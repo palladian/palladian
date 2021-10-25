@@ -724,6 +724,7 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("liters");
         unitList.add("liter");
+        unitList.add("ltrs");
         unitList.add("l");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1000.));
 
