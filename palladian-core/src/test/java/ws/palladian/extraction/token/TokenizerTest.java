@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
  * @author Philipp Katz
  */
 public class TokenizerTest {
-
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
@@ -148,6 +147,11 @@ public class TokenizerTest {
         // http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html
         String inputText = "";
         List<String> sentences;
+
+        inputText = "Whatever (eye irrit. 2), you say. Sentence number 2.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.ENGLISH);
+        CollectionHelper.print(sentences);
+        assertEquals(2, sentences.size());
 
         inputText = "Covers approximately 150 sq. ft. per kit. Such a great place.";
         sentences = Tokenizer.getSentences(inputText, false, Language.ENGLISH);

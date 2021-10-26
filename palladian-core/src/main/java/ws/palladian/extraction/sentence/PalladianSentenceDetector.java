@@ -12,6 +12,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
+import ws.palladian.extraction.entity.BracketTagger;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
 import ws.palladian.extraction.entity.SmileyTagger;
 import ws.palladian.extraction.entity.UrlTagger;
@@ -74,6 +75,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         maskAnnotations.addAll(UrlTagger.INSTANCE.getAnnotations(text));
         maskAnnotations.addAll(DATE_TAGGER.getAnnotations(text));
         maskAnnotations.addAll(SmileyTagger.INSTANCE.getAnnotations(text));
+        maskAnnotations.addAll(BracketTagger.INSTANCE.getAnnotations(text));
 
         // replace recognized entities with mask placeholder
         StringBuilder maskedTextBuilder = new StringBuilder(text);

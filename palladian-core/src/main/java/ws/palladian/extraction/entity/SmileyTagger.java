@@ -6,14 +6,15 @@ import java.util.regex.Pattern;
  * <p>
  * Tag Smileys in a text.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see http://factoryjoe.com/projects/emoticons/
  * @see http://bscw.rediris.es/pub/bscw.cgi/d3323568/impactoemoticones.pdf
  */
 public class SmileyTagger extends RegExTagger {
-
-    /** The tag name for smileys. */
+    /**
+     * The tag name for smileys.
+     */
     public static final String SMILEY_TAG_NAME = "SMILEY";
 
     private static final String S_HAPPY = ":)";
@@ -39,11 +40,10 @@ public class SmileyTagger extends RegExTagger {
         smileyPatternRegEx.append(Pattern.quote(S_CRY2));
         return Pattern.compile(smileyPatternRegEx.toString());
     }
-    
+
     public static SmileyTagger INSTANCE = new SmileyTagger();
 
     private SmileyTagger() {
         super(SMILEY_PATTERN, SMILEY_TAG_NAME);
     }
-
 }

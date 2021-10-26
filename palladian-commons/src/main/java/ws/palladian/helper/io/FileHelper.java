@@ -324,7 +324,6 @@ public final class FileHelper {
     }
 
     public static String readFileToString(File file, String encoding) throws IOException {
-
         StringBuilder contents = new StringBuilder();
         BufferedReader reader = null;
         InputStream stream = null;
@@ -441,7 +440,6 @@ public final class FileHelper {
             }
 
             list = readFileToArray(inputStream, startLine, numberOfLines);
-
         } catch (IOException e) {
             LOGGER.error(file.getPath() + ", " + e.getMessage());
         } finally {
@@ -461,7 +459,6 @@ public final class FileHelper {
         BufferedReader reader = null;
 
         try {
-
             reader = new BufferedReader(new InputStreamReader(inputStream, DEFAULT_ENCODING));
 
             long lineNumber = 1;
@@ -472,7 +469,6 @@ public final class FileHelper {
                 }
                 lineNumber++;
             }
-
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         } finally {
