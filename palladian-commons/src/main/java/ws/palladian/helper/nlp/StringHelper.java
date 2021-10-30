@@ -100,6 +100,7 @@ public final class StringHelper {
         safeName = safeName.replace("]", "");
         safeName = safeName.replace("{", "");
         safeName = safeName.replace("}", "");
+        safeName = safeName.replace("+", "");
         safeName = safeName.replace("ä", "ae");
         safeName = safeName.replace("Ä", "Ae");
         safeName = safeName.replace("ö", "oe");

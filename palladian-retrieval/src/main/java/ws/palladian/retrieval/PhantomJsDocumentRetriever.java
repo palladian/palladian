@@ -57,9 +57,10 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             }
         }
 
-        String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + "%7D";
+        String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true"
+                + overseerScript + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        httpRetriever.setConnectionTimeout((int)TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         JsonObject response = new DocumentRetriever().tryGetJsonObject(requestUrl);
         if (response == null) {
             return null;
@@ -69,6 +70,10 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
         int statusCode = Optional.ofNullable(response.tryQueryInt("content/statusCode")).orElse(200);
 
         if (statusCode >= 400 && !(count424aSuccess && statusCode == 424)) {
+            return null;
+        }
+
+        if (Optional.ofNullable(response.tryGetString("message")).orElse("").contains("OUT OF CREDITS")) {
             return null;
         }
 
