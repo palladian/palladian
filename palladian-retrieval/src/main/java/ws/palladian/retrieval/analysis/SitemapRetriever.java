@@ -123,10 +123,7 @@ public class SitemapRetriever {
                     sitemapLinkUrl = normalizeUrl(sitemapLinkUrl);
 
                     // is it gzipped?
-                    boolean gzipped = false;
-                    if (FileHelper.getFileType(sitemapLinkUrl).equalsIgnoreCase("gz")) {
-                        gzipped = true;
-                    }
+                    boolean gzipped = FileHelper.getFileType(sitemapLinkUrl).equalsIgnoreCase("gz");
 
                     // download
                     String downloadPath = "data/temp/sitemap" + System.currentTimeMillis() + ".xml.gzipped";

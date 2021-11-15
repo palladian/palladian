@@ -31,6 +31,7 @@ public enum UnitType {
     SPEED("km/h"), //
     TEMPERATURE(null), //
     PRESSURE("pascal"), //
+    ELECTRICAL_RESISTANCE("ohm"), //
     POWER("watt"), //
     VOLTAGE("volt"), //
     ENERGY("kilojoule"), //
@@ -460,6 +461,13 @@ public enum UnitType {
         unitList.add("rounds per minute");
         unitList.add("beats per minute");
         UnitType.ROTATION_SPEED.units.add(Pair.of(unitList, 1.0));
+
+        // ELECTRICAL RESISTANCE in 1 Ohm
+        unitList = new ArrayList<>();
+        unitList.add("ohms");
+        unitList.add("ohm");
+        unitList.add("Ω");
+        UnitType.ELECTRICAL_RESISTANCE.units.add(Pair.of(unitList, 1.0));
 
         // PRESSURE units are normalized to pascal
         unitList = new ArrayList<>();
