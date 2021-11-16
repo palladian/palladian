@@ -76,12 +76,12 @@ public class SitemapRetriever {
         // is the sitemap gzipped?
         if (FileHelper.getFileType(sitemapUrl).equalsIgnoreCase("gz")) {
             String tempPath = "data/temp/sitemapIndex.xml";
-            documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped");
+            documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped", Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
             FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
             sitemapContent = documentRetriever.getText(tempPath);
             if (sitemapContent == null) {
                 // sometimes websites call the file .gz but it's just a plain text file, in which case we can't unzip and simply read the "zipped" file
-                sitemapContent = documentRetriever.getText(tempPath+".gzipped");
+                sitemapContent = documentRetriever.getText(tempPath + ".gzipped");
             }
             FileHelper.delete(tempPath);
             FileHelper.delete(tempPath + ".gzipped");
@@ -128,7 +128,7 @@ public class SitemapRetriever {
                     // download
                     String downloadPath = "data/temp/sitemap" + System.currentTimeMillis() + ".xml.gzipped";
                     String unzippedPath = downloadPath.replace(".gzipped", "");
-                    documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath);
+                    documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath, Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
 
                     // unzip
                     if (gzipped) {
