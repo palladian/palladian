@@ -199,8 +199,18 @@ public class SitemapRetriever {
     private List<String> getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
         List<String> urls = new ArrayList<>();
         try {
-            Document xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
-            List<Node> locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+            Document xmlDocument;
+            List<Node> locationNodes = Collections.emptyList();
+            try {
+                xmlDocument = ParserFactory.createXmlParser().parse(new StringInputStream(sitemapText));
+                locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+            } catch (Exception e) {
+                // ccl
+            }
+            if (locationNodes.isEmpty()) { // fallback to forgiving html parser
+                xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
+                locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+            }
             for (Node locationNode : locationNodes) {
                 String url = locationNode.getTextContent();
                 boolean matchedPattern = goalNodePattern.matcher(url).find();
