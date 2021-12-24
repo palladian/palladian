@@ -4,7 +4,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.helper.collection.StringLengthComparator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -734,6 +733,9 @@ public enum UnitType {
         unitList.add("liter");
         unitList.add("ltrs");
         unitList.add("l");
+        unitList.add("cubic decimeter");
+        unitList.add("dm3");
+        unitList.add("dm³");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1000.));
 
         unitList = new ArrayList<>();
