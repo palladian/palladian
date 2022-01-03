@@ -71,6 +71,8 @@ public class UrlHelperTest {
 
     @Test
     public void testMakeFullUrl() {
+        assertEquals("https://www.software-express.de/hersteller/microsoft/microsoft-365/add-ons/e5-compliance/", UrlHelper.makeFullUrl("https://www.software-express.de", null, "/hersteller/microsoft/microsoft-365/add-ons/10-year-audit-log-retention/../e5-compliance/"));
+        assertEquals("https://www.software-express.de/hersteller/microsoft/microsoft-365/e5-compliance/", UrlHelper.makeFullUrl("https://www.software-express.de", null, "/hersteller/microsoft/microsoft-365/add-ons/10-year-audit-log-retention/../../e5-compliance/"));
         assertEquals("http://big-planet.biz/vacancies.php?d=aaa", UrlHelper.makeFullUrl("http://big-planet.biz/vacancies.php?d=123&b=whatever", null, "?d=aaa"));
         assertEquals("http://big-planet.biz/vacancies.php?d=314", UrlHelper.makeFullUrl("http://big-planet.biz/vacancies.php", null, "?d=314"));
         assertEquals("http://www.xyz.de/page.html", UrlHelper.makeFullUrl("http://www.xyz.de", "", "page.html"));
