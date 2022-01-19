@@ -650,7 +650,7 @@ public final class StringHelper {
      *
      * @param string The input string.
      * @return The input string removed from non-ascii characters.
-     * @see http://forums.sun.com/thread.jspa?threadID=5370865
+     * see http://forums.sun.com/thread.jspa?threadID=5370865
      */
     public static String removeNonAsciiCharacters(String string) {
         string = PATTERN_NON_ASCII_SPACE.matcher(string).replaceAll(" ");
@@ -1087,7 +1087,7 @@ public final class StringHelper {
 
     public static String cleanKeepFormat(String text, String keepCharacters) {
         text = HtmlHelper.stripHtmlTags(text);
-        text = StringEscapeUtils.unescapeHtml(text);
+        text = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(text);
         text = replaceProtectedSpace(text);
         text = removeDoubleWhitespaces(text);
         // text = removeNonAsciiCharacters(text);
@@ -1559,7 +1559,7 @@ public final class StringHelper {
      *
      * @param in The String whose non-valid characters we want to remove.
      * @return The in String, stripped of non-valid characters.
-     * @see http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
+     * see http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
      */
     // TODO move this method to HtmlHelper
     public static String stripNonValidXMLCharacters(String in) {
@@ -2150,7 +2150,7 @@ public final class StringHelper {
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
 
         System.out.println(removeNonAsciiCharacters("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
-        System.out.println(StringEscapeUtils.unescapeHtml("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
+        System.out.println(org.apache.commons.lang.StringEscapeUtils.unescapeHtml("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
         // System.out.println(StringHelper.numberCount("123abcdefg"));
 
         // System.out.println(WordTransformer.wordToSingular("yves"));
