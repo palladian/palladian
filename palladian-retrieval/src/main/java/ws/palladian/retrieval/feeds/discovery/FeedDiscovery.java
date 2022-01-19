@@ -1,26 +1,11 @@
 package ws.palladian.retrieval.feeds.discovery;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
@@ -36,6 +21,13 @@ import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * <p>
  * FeedDiscovery works like the following:
@@ -46,18 +38,19 @@ import ws.palladian.retrieval.search.SearcherException;
  * <li>Write the discovered feed URLs to file</li>
  * </ol>
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
- * 
  * @see <a href="http://tools.ietf.org/id/draft-snell-atompub-autodiscovery-00.txt">Atom Feed Autodiscovery</a>
  * @see <a
- *      href="http://web.archive.org/web/20110608053313/http://diveintomark.org/archives/2003/12/19/atom-autodiscovery">Notes
- *      on Atom autodiscovery</a>
+ * href="http://web.archive.org/web/20110608053313/http://diveintomark.org/archives/2003/12/19/atom-autodiscovery">Notes
+ * on Atom autodiscovery</a>
  */
 public final class FeedDiscovery {
 
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedDiscovery.class);
 
     /**
@@ -67,52 +60,76 @@ public final class FeedDiscovery {
             + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
             + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]";
 
-    /** DocumentRetriever for downloading pages. */
+    /**
+     * DocumentRetriever for downloading pages.
+     */
     private static final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 
-    /** Define which search engine to use, see {@link WebSearcherManager} for available constants. */
+    /**
+     * Define which search engine to use, see {@link WebSearcherManager} for available constants.
+     */
     private final Searcher<?> searcher;
 
-    /** The parser used for parsing HTML pages. */
+    /**
+     * The parser used for parsing HTML pages.
+     */
     private static final DocumentParser parser = ParserFactory.createHtmlParser();
 
     private final int numThreads;
 
-    /** Store all urls for which we will do the autodiscovery. */
+    /**
+     * Store all urls for which we will do the autodiscovery.
+     */
     private final BlockingQueue<String> urlQueue = new LinkedBlockingQueue<String>();
 
-    /** The path of the file where the discovered feeds should be written to. */
+    /**
+     * The path of the file where the discovered feeds should be written to.
+     */
     private final File resultFilePath;
 
-    /** Store a collection of all queries that are used to retrieve urlQueue from a search engine. */
+    /**
+     * Store a collection of all queries that are used to retrieve urlQueue from a search engine.
+     */
     private final BlockingQueue<String> queryQueue = new LinkedBlockingQueue<String>();
 
-    /** The numver of feeds we discovered. */
+    /**
+     * The numver of feeds we discovered.
+     */
     private final AtomicInteger feedCounter = new AtomicInteger();
 
-    /** The number of pages we checked. */
+    /**
+     * The number of pages we checked.
+     */
     private final AtomicInteger pageCounter = new AtomicInteger();
 
-    /** The number of errors, i.e. unreachable and unparsable pages. */
+    /**
+     * The number of errors, i.e. unreachable and unparsable pages.
+     */
     private final AtomicInteger errorCounter = new AtomicInteger();
 
-    /** Track the time of the discovery process. */
+    /**
+     * Track the time of the discovery process.
+     */
     private StopWatch stopWatch;
 
-    /** Number of search engine results to retrieve for each query. */
+    /**
+     * Number of search engine results to retrieve for each query.
+     */
     private final int numResults;
 
-    /** Whether to output full CSVs with feeds' meta data, instead of only URLs. */
+    /**
+     * Whether to output full CSVs with feeds' meta data, instead of only URLs.
+     */
     private final boolean csvOutput;
 
     /**
-     * @param searcher The searcher to use, not <code>null</code>.
+     * @param searcher       The searcher to use, not <code>null</code>.
      * @param resultFilePath The path for the result file. If file already exists, new entries will be appended. The
-     *            result file will be written continuously. If <code>null</code>, no result file will be written.
-     * @param numThreads The maximum number of concurrent autodiscovery requests.
-     * @param numResults The number of results to retrieve for each query.
-     * @param csvOutput <code>true</code> to output full CSVs with additional information, like feed title, type, page
-     *            link, <code>false</code> to only write feed URL.
+     *                       result file will be written continuously. If <code>null</code>, no result file will be written.
+     * @param numThreads     The maximum number of concurrent autodiscovery requests.
+     * @param numResults     The number of results to retrieve for each query.
+     * @param csvOutput      <code>true</code> to output full CSVs with additional information, like feed title, type, page
+     *                       link, <code>false</code> to only write feed URL.
      */
     public FeedDiscovery(Searcher<?> searcher, File resultFilePath, int numThreads, int numResults, boolean csvOutput) {
         Validate.notNull(searcher, "webSearcher must not be null");
@@ -129,7 +146,7 @@ public final class FeedDiscovery {
      * <p>
      * Search for Sites by specified query.
      * </p>
-     * 
+     *
      * @param query
      * @param totalResults
      * @return
@@ -151,13 +168,12 @@ public final class FeedDiscovery {
      * <p>
      * Discovers feed links in supplied page URL.
      * </p>
-     * 
+     *
      * @param pageUrl
      * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if page could not
-     *         be parsed.
+     * be parsed.
      */
     public static List<DiscoveredFeed> discoverFeeds(String pageUrl) {
-
         List<DiscoveredFeed> result = null;
         Document document = null;
 
@@ -176,17 +192,16 @@ public final class FeedDiscovery {
         }
 
         return result;
-
     }
 
     /**
      * <p>
      * Discovers feed links in the supplied HTML file.
      * </p>
-     * 
+     *
      * @param file
      * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if the document could
-     *         not be parsed.
+     * not be parsed.
      */
     public static List<DiscoveredFeed> discoverFeeds(File file) {
         List<DiscoveredFeed> result = null;
@@ -204,12 +219,11 @@ public final class FeedDiscovery {
      * Uses autodiscovery feature with MIME types "application/atom+xml" and "application/rss+xml" to find linked feeds
      * in the specified Document.
      * </p>
-     * 
+     *
      * @param document
      * @return list of discovered feed URLs or empty list.
      */
     public static List<DiscoveredFeed> discoverFeeds(Document document) {
-
         List<DiscoveredFeed> result = new LinkedList<DiscoveredFeed>();
 
         String pageUrl = document.getDocumentURI();
@@ -316,7 +330,7 @@ public final class FeedDiscovery {
                     urlQueue.addAll(foundSites);
 
                     currentQuery++;
-                    float percentage = (float)100 * currentQuery / totalQueries;
+                    float percentage = (float) 100 * currentQuery / totalQueries;
                     float querySpeed = TimeUnit.MINUTES.toMillis(currentQuery / stopWatch.getElapsedTime());
                     LOGGER.info("Queried {}/{}: '{}'; # results: {}; progress: {}%; query speed: {} queries/min",
                             currentQuery, totalQueries, query, foundSites.size(), percentage, querySpeed);
@@ -372,7 +386,7 @@ public final class FeedDiscovery {
 
                             // log the current status each 1000 checked pages
                             if (pageCounter.incrementAndGet() % 1000 == 0) {
-                                float elapsedMinutes = (float)stopWatch.getElapsedTime() / TimeUnit.MINUTES.toMillis(1);
+                                float elapsedMinutes = (float) stopWatch.getElapsedTime() / TimeUnit.MINUTES.toMillis(1);
                                 float pageThroughput = pageCounter.get() / elapsedMinutes;
                                 float feedThroughput = feedCounter.get() / elapsedMinutes;
                                 LOGGER.info(
@@ -416,7 +430,7 @@ public final class FeedDiscovery {
      * <p>
      * Add a query for the search engine.
      * </p>
-     * 
+     *
      * @param query The query to add.
      */
     public void addQuery(String query) {
@@ -427,7 +441,7 @@ public final class FeedDiscovery {
      * <p>
      * Add multiple queries for the search engine.
      * </p>
-     * 
+     *
      * @param queries A collection of queries.
      */
     public void addQueries(Collection<String> queries) {
@@ -438,7 +452,7 @@ public final class FeedDiscovery {
      * <p>
      * Add multiple queries from a newline separeted query file.
      * </p>
-     * 
+     *
      * @param filePath
      */
     public void addQueries(String filePath) {
@@ -450,13 +464,13 @@ public final class FeedDiscovery {
      * <p>
      * Use the given queries and combine them, to get the specified targetCount of queries.
      * </p>
-     * 
+     *
      * <ul>
      * <li>If targetCount is smaller than existing queries, existing queries are reduced to a random subset.</li>
      * <li>If targetCount is bigger than possible tuples or -1, all posible combinations are calculated.</li>
      * <li>Else, as many tuples as necessary are calculated, to get specified targetCount of queries.</li>
      * </ul>
-     * 
+     * <p>
      * For example:
      * queries: A, B, C
      * after combining: A, B, C, A B, A C, B C

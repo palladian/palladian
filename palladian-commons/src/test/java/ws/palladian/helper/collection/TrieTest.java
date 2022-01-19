@@ -1,15 +1,14 @@
 package ws.palladian.helper.collection;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import org.junit.Test;
-
 public class TrieTest {
-
     @Test
     public void testTrie() {
-        Trie<Integer> trie = new Trie<Integer>();
+        Trie<Integer> trie = new Trie<>();
         trie.put("to", 1);
         trie.put("tea", 2);
         trie.put("ted", 3);
@@ -22,14 +21,13 @@ public class TrieTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInsertEmptyKey() {
-        Trie<Integer> trie = new Trie<Integer>();
+        Trie<Integer> trie = new Trie<>();
         trie.put("", 1);
     }
 
     @Test(expected = NullPointerException.class)
     public void testInsertNullKey() {
-        Trie<Integer> trie = new Trie<Integer>();
+        Trie<Integer> trie = new Trie<>();
         trie.put(null, 1);
     }
-
 }
