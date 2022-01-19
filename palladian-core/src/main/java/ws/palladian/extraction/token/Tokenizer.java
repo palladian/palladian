@@ -1,6 +1,5 @@
 package ws.palladian.extraction.token;
 
-import btree4j.BTreeException;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.core.Token;
@@ -530,7 +529,7 @@ public final class Tokenizer {
         return string.substring(0, endIndex);
     }
 
-    public static void main(String[] args) throws IOException, BTreeException {
+    public static void main(String[] args) throws IOException {
         StopWatch stopWatch1 = new StopWatch();
 
         ////////////////// load structure //////////////////
