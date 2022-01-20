@@ -1,25 +1,25 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.Timer;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.retrieval.HttpRetriever;
+
+import java.util.Timer;
 
 /**
  * <p>
  * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
 public final class FeedReader {
-
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedReader.class);
 
     private final FeedReaderSettings settings;
@@ -35,7 +35,7 @@ public final class FeedReader {
     /**
      * <p>
      * Create a new FeedReader with the specified settings.
-     * 
+     *
      * @param settings The configuration, not <code>null</code>.
      */
     public FeedReader(FeedReaderSettings settings) {
@@ -65,5 +65,4 @@ public final class FeedReader {
         LOGGER.info("Cancelled all scheduled readings, total size downloaded ({}): {} MB",
                 settings.getUpdateStrategy(), HttpRetriever.getTraffic(SizeUnit.MEGABYTES));
     }
-
 }

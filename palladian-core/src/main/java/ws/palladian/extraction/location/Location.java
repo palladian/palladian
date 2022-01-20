@@ -1,12 +1,12 @@
 package ws.palladian.extraction.location;
 
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
@@ -44,6 +44,7 @@ public interface Location {
      * @see #collectAlternativeNames()
      */
     Collection<AlternativeName> getAlternativeNames();
+    Collection<String> getAlternativeNameStrings();
 
     /**
      * @return The type of this location. {@link LocationType#UNDETERMINED} if no type was specified, but never

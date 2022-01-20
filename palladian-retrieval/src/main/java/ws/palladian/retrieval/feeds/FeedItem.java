@@ -1,12 +1,12 @@
 package ws.palladian.retrieval.feeds;
 
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.retrieval.resources.WebContent;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
@@ -18,7 +18,6 @@ import ws.palladian.retrieval.resources.WebContent;
  * @author Sandro Reichert
  */
 public class FeedItem implements WebContent {
-    
     private static final String SOURCE_NAME = "Feed";
 
     private int id = -1;

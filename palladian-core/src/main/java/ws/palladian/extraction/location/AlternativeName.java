@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location;
 
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.constants.Language;
 
 /**
@@ -9,11 +8,10 @@ import ws.palladian.helper.constants.Language;
  * An alternative name, usually in a specific language. For example, we might have the alternative name "Vienna" with
  * English {@link Language} for the city "Wien".
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class AlternativeName {
-
     private final String name;
     private final Language language;
 
@@ -21,8 +19,8 @@ public final class AlternativeName {
      * <p>
      * Create a new AlternativeName.
      * </p>
-     * 
-     * @param name The name, not <code>null</code> or empty.
+     *
+     * @param name     The name, not <code>null</code> or empty.
      * @param language The language, may be null if not specified.
      */
     public AlternativeName(String name, Language language) {
@@ -35,7 +33,7 @@ public final class AlternativeName {
      * <p>
      * Create a new AlternativeName without specified language.
      * </p>
-     * 
+     *
      * @param name The name, not <code>null</code> or empty.
      */
     public AlternativeName(String name) {
@@ -77,7 +75,7 @@ public final class AlternativeName {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        AlternativeName other = (AlternativeName)obj;
+        AlternativeName other = (AlternativeName) obj;
         if (language != other.language)
             return false;
         if (name == null) {
@@ -87,5 +85,4 @@ public final class AlternativeName {
             return false;
         return true;
     }
-
 }

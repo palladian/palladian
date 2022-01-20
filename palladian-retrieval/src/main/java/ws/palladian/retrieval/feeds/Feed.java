@@ -1,20 +1,14 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
 import ws.palladian.retrieval.feeds.meta.FeedMetaInformation;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
+
+import java.util.*;
 
 /**
  * <p>
@@ -27,7 +21,6 @@ import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
  * @author Sandro Reichert
  */
 public class Feed {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Feed.class);
 
