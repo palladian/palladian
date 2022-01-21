@@ -120,6 +120,10 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
         return node != null ? node.value : null;
     }
 
+    public boolean isDataWrittenToDisk() {
+        return dataWrittenToDisk;
+    }
+
     public V getOrPut(String key, V value) {
         Validate.notEmpty(key, "key must not be empty");
         return getOrPut(key, Factories.constant(value));
