@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -55,17 +56,25 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
+        String downloadFilePath = "/data/selenium-downloads";
         if (browser == DriverManagerType.FIREFOX) {
             if (driverVersionCode != null) {
                 WebDriverManager.firefoxdriver().browserVersion(driverVersionCode).setup();
             } else {
                 WebDriverManager.firefoxdriver().setup();
             }
+
+            FirefoxProfile profile = new FirefoxProfile();
+            profile.setPreference("browser.download.dir", downloadFilePath);
+            profile.setPreference("browser.download.folderList", 2);
+            profile.setPreference("browser.download.manager.showWhenStarting", false);
+
             FirefoxOptions firefoxOptions = new FirefoxOptions();
             firefoxOptions.setHeadless(true);
             firefoxOptions.setAcceptInsecureCerts(true);
             firefoxOptions.addPreference("general.useragent.override", userAgent);
             firefoxOptions.addPreference("intl.accept_languages", "en-US");
+            firefoxOptions.setProfile(profile);
 
             if (proxy != null) {
                 firefoxOptions.setCapability(CapabilityType.PROXY, proxy);
@@ -78,6 +87,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             } else {
                 WebDriverManager.chromedriver().setup();
             }
+
+            Map<String, Object> prefs = new HashMap<>();
+            prefs.put("download.default_directory", downloadFilePath);
+            prefs.put("download.prompt_for_download", false);
+
             ChromeOptions options = new ChromeOptions();
             options.setHeadless(true);
             options.setAcceptInsecureCerts(true);
@@ -88,6 +102,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+            options.setExperimentalOption("prefs", prefs);
 
             if (proxy != null) {
                 options.setCapability(CapabilityType.PROXY, proxy);
@@ -103,6 +118,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             } else {
                 WebDriverManager.chromiumdriver().setup();
             }
+
+            Map<String, Object> prefs = new HashMap<>();
+            prefs.put("download.default_directory", downloadFilePath);
+            prefs.put("download.prompt_for_download", false);
+
             ChromeOptions options = new ChromeOptions();
             options.setHeadless(true);
             options.setAcceptInsecureCerts(true);
@@ -113,6 +133,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+            options.setExperimentalOption("prefs", prefs);
 
             if (proxy != null) {
                 options.setCapability(CapabilityType.PROXY, proxy);
