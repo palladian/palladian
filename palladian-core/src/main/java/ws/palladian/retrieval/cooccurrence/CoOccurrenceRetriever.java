@@ -1,12 +1,7 @@
 package ws.palladian.retrieval.cooccurrence;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
@@ -15,60 +10,66 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
 /**
  * <p>
  * The Co-Occurrence Retriever takes two terms as input and finds how often they occur together in
  * documents/sentences/phrases that can be found in the given searchers.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class CoOccurrenceRetriever {
-    
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(CoOccurrenceRetriever.class);
-    
+
     public enum CoOccurrenceContext {
         DOCUMENT, SENTENCE, CONTEXT_200_CHARS
     }
 
-    /** Specify how far or close the terms must be to count the co-occurrence. */
+    /**
+     * Specify how far or close the terms must be to count the co-occurrence.
+     */
     private final CoOccurrenceContext coOccurrenceContext;
 
-    /** The number of results to analyze per searcher. */
+    /**
+     * The number of results to analyze per searcher.
+     */
     private int numberOfResults = 10;
-    
+
     private final Language language;
 
     public CoOccurrenceRetriever(CoOccurrenceContext coOccurrenceContext, int numberOfResults,
-            Language language) {
+                                 Language language) {
         this.coOccurrenceContext = coOccurrenceContext;
         this.numberOfResults = numberOfResults;
         this.language = language;
     }
 
     public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2,
-            Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
-
-        return getCoOccurrenceStatistics(term1, term2, new HashSet<String>(), searchers, caseInsensitive);
-
+                                                            Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
+        return getCoOccurrenceStatistics(term1, term2, new HashSet<>(), searchers, caseInsensitive);
     }
 
     public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2,
-            Collection<String> contextTerms, Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
+                                                            Collection<String> contextTerms, Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
 
         CoOccurrenceStatistics coOccurrenceStatistics = new CoOccurrenceStatistics(term1, term2);
 
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
         String query = buildQuery(term1, term2, contextTerms);
-        
+
         for (Searcher<WebContent> searcher : searchers) {
-            
+
             try {
                 List<WebContent> webResults = searcher.search(query, numberOfResults, language);
-                
+
                 for (WebContent webResult : webResults) {
 
                     String pageText = webResult.getSummary();
@@ -101,8 +102,8 @@ public class CoOccurrenceRetriever {
     }
 
     private void findCoOccurrences(String pageText, CoOccurrenceStatistics stats, Searcher<WebContent> searcher,
-            boolean caseInsensitive) {
-        
+                                   boolean caseInsensitive) {
+
         String term1 = stats.getTerm1();
         String term2 = stats.getTerm2();
 
@@ -113,27 +114,21 @@ public class CoOccurrenceRetriever {
         }
 
         if (coOccurrenceContext.equals(CoOccurrenceContext.DOCUMENT)) {
-            
+
             if (pageText.contains(term1) && pageText.contains(term2)) {
                 stats.addCoOccurrence(searcher.getName(), pageText);
             }
-            
+
         } else if (coOccurrenceContext.equals(CoOccurrenceContext.SENTENCE)) {
-            
             pageText = StringHelper.clean(pageText);
-            
+
             List<String> sentences = Tokenizer.getSentences(pageText);
             for (String sentence : sentences) {
-
                 if (sentence.contains(term1) && sentence.contains(term2)) {
                     stats.addCoOccurrence(searcher.getName(), sentence);
                 }
-
             }
-            
-
         } else if (coOccurrenceContext.equals(CoOccurrenceContext.CONTEXT_200_CHARS)) {
-            
             pageText = StringHelper.clean(pageText);
 
             String regexp = term1 + ".{0,200}" + term2;
@@ -148,9 +143,7 @@ public class CoOccurrenceRetriever {
             for (String match : matches) {
                 stats.addCoOccurrence(searcher.getName(), match);
             }
-        
         }
-        
     }
 
     /**
@@ -161,11 +154,11 @@ public class CoOccurrenceRetriever {
     public static void main(String[] args) {
         CoOccurrenceRetriever coOccurrenceRetriever = new CoOccurrenceRetriever(CoOccurrenceContext.CONTEXT_200_CHARS,
                 10, Language.GERMAN);
-        
+
         Collection<Searcher<WebContent>> searchers = new HashSet<Searcher<WebContent>>();
         // searchers.add(new GoogleSearcher());
         // searchers.add(new TwitterSearcher());
-        
+
         // CoOccurrenceStatistics stats = coOccurrenceRetriever.getCoOccurrenceStatistics("Hugo Cabret", "oscar",
         // searchers, true);
 

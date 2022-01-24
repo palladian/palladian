@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import it.unimi.dsi.fastutil.ints.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 

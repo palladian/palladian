@@ -19,7 +19,6 @@ public final class FeedRowConverter implements RowConverter<Feed> {
 
     @Override
     public Feed convert(ResultSet resultSet) throws SQLException {
-
         Feed feed = new Feed();
         feed.setId(resultSet.getInt("id"));
         feed.setFeedUrl(resultSet.getString("feedUrl"));

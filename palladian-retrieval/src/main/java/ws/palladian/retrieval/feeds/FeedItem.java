@@ -1,12 +1,12 @@
 package ws.palladian.retrieval.feeds;
 
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.retrieval.resources.WebContent;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>

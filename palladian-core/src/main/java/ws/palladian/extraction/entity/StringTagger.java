@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
  * @author Philipp Katz
  */
 public final class StringTagger extends RegExTagger {
-
     public static final String CANDIDATE_TAG = "CANDIDATE";
 
     private static final Pattern PATTERN = compilePattern();
@@ -75,5 +74,4 @@ public final class StringTagger extends RegExTagger {
 
         return Pattern.compile(regexp);
     }
-
 }

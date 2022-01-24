@@ -1,18 +1,12 @@
 package ws.palladian.helper.math;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.lang.Validate;
-
+import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.functional.Factory;
+
+import java.util.*;
 import java.util.function.Function;
 
 /**

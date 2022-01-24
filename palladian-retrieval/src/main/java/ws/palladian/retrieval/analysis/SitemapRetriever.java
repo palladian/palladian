@@ -76,12 +76,12 @@ public class SitemapRetriever {
         // is the sitemap gzipped?
         if (FileHelper.getFileType(sitemapUrl).equalsIgnoreCase("gz")) {
             String tempPath = "data/temp/sitemapIndex.xml";
-            documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped");
+            documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped", Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
             FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
             sitemapContent = documentRetriever.getText(tempPath);
             if (sitemapContent == null) {
                 // sometimes websites call the file .gz but it's just a plain text file, in which case we can't unzip and simply read the "zipped" file
-                sitemapContent = documentRetriever.getText(tempPath+".gzipped");
+                sitemapContent = documentRetriever.getText(tempPath + ".gzipped");
             }
             FileHelper.delete(tempPath);
             FileHelper.delete(tempPath + ".gzipped");
@@ -123,15 +123,12 @@ public class SitemapRetriever {
                     sitemapLinkUrl = normalizeUrl(sitemapLinkUrl);
 
                     // is it gzipped?
-                    boolean gzipped = false;
-                    if (FileHelper.getFileType(sitemapLinkUrl).equalsIgnoreCase("gz")) {
-                        gzipped = true;
-                    }
+                    boolean gzipped = FileHelper.getFileType(sitemapLinkUrl).equalsIgnoreCase("gz");
 
                     // download
                     String downloadPath = "data/temp/sitemap" + System.currentTimeMillis() + ".xml.gzipped";
                     String unzippedPath = downloadPath.replace(".gzipped", "");
-                    documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath);
+                    documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath, Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
 
                     // unzip
                     if (gzipped) {
@@ -202,8 +199,18 @@ public class SitemapRetriever {
     private List<String> getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
         List<String> urls = new ArrayList<>();
         try {
-            Document xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
-            List<Node> locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+            Document xmlDocument;
+            List<Node> locationNodes = Collections.emptyList();
+            try {
+                xmlDocument = ParserFactory.createXmlParser().parse(new StringInputStream(sitemapText));
+                locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+            } catch (Exception e) {
+                // ccl
+            }
+            if (locationNodes.isEmpty()) { // fallback to forgiving html parser
+                xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
+                locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+            }
             for (Node locationNode : locationNodes) {
                 String url = locationNode.getTextContent();
                 boolean matchedPattern = goalNodePattern.matcher(url).find();

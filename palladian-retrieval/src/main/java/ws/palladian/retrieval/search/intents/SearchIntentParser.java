@@ -224,16 +224,18 @@ public class SearchIntentParser {
                         regex = ".*" + regex + ".*";
                     }
                     try {
-                        Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
-                        if (intentTrigger.getMatchType() == QueryMatchType.REGEX && matcher.find()) {
-                            intentMatchFound = true;
-                            ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
-                            intentActions.add(im);
-                            query = im.getModifiedQuery();
-                            if (im.getRedirect() != null) {
-                                return intentActions;
+                        if (intentTrigger.getMatchType() == QueryMatchType.REGEX) {
+                            Matcher matcher = PatternHelper.compileOrGet(regex, Pattern.CASE_INSENSITIVE).matcher(query);
+                            if (matcher.find()) {
+                                intentMatchFound = true;
+                                ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
+                                intentActions.add(im);
+                                query = im.getModifiedQuery();
+                                if (im.getRedirect() != null) {
+                                    return intentActions;
+                                }
+                                continue ol;
                             }
-                            continue ol;
                         }
                     } catch (PatternSyntaxException e) {
                         e.printStackTrace();
@@ -249,6 +251,7 @@ public class SearchIntentParser {
 
     private ActivatedSearchIntentAction processMatch(QueryMatchType qmt, SearchIntent intent, String query, Matcher matcher, SearchIntentTrigger intentTrigger) {
         ActivatedSearchIntentAction intentAction = new ActivatedSearchIntentAction(intent.getIntentAction(), query);
+        intentAction.setIntentTrigger(intentTrigger);
 
         switch (intentAction.getType()) {
             case REWRITE:
@@ -337,7 +340,11 @@ public class SearchIntentParser {
                 }
                 intentAction.setFilters(filledFilters);
                 if (intentAction.isRemoveTrigger()) {
-                    String replace = "[^ ]*" + intentTrigger.getText() + "[^ ]*";
+                    String text = intentTrigger.getText();
+                    if (!qmt.equals(QueryMatchType.REGEX)) {
+                        text = Pattern.quote(text);
+                    }
+                    String replace = "[^ ]*" + text + "[^ ]*";
                     if (matcher != null) {
                         replace = "[^ ]*" + Pattern.quote(matcher.group()) + "[^ ]*";
                     }

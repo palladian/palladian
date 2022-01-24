@@ -1,13 +1,10 @@
 package ws.palladian.extraction.location;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.geo.GeoCoordinate;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -133,6 +130,13 @@ public final class ImmutableLocation extends AbstractLocation {
     @Override
     public Collection<AlternativeName> getAlternativeNames() {
         return Collections.unmodifiableCollection(alternativeNames);
+    }
+    @Override
+    public Collection<String> getAlternativeNameStrings() {
+        if (alternativeNames == null) {
+            return new HashSet<>();
+        }
+        return alternativeNames.stream().map(AlternativeName::getName).collect(Collectors.toSet());
     }
 
     @Override

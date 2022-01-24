@@ -1,16 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.AbstractLocation;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
@@ -19,6 +10,9 @@ import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -133,6 +127,13 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
         @Override
         public Collection<AlternativeName> getAlternativeNames() {
             return alternativeNames;
+        }
+        @Override
+        public Collection<String> getAlternativeNameStrings() {
+            if (alternativeNames == null) {
+                return new HashSet<>();
+            }
+            return alternativeNames.stream().map(AlternativeName::getName).collect(Collectors.toSet());
         }
 
         @Override

@@ -12,6 +12,9 @@ public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSea
     /** Actions might modify the query, e.g. remove parts so we need to get the updated query. */
     private String modifiedQuery = null;
 
+    /** who triggered me? */
+    private SearchIntentTrigger intentTrigger;
+
     public ActivatedSearchIntentAction(SearchIntentAction<SearchIntentFilter> ia, String modifiedQuery) {
         try {
             ConvertUtilsBean convertUtilsBean = BeanUtilsBean2.getInstance().getConvertUtils();
@@ -41,5 +44,12 @@ public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSea
         return "ActivatedSearchIntentAction{" +
                 "modifiedQuery='" + modifiedQuery + '\'' +
                 '}';
+    }
+
+    public void setIntentTrigger(SearchIntentTrigger intentTrigger) {
+        this.intentTrigger=intentTrigger;
+    }
+    public SearchIntentTrigger getIntentTrigger() {
+        return intentTrigger;
     }
 }

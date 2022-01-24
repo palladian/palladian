@@ -1,18 +1,7 @@
 package ws.palladian.retrieval.feeds.persistence;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
@@ -21,6 +10,11 @@ import ws.palladian.persistence.helper.SqlHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * <p>
@@ -34,7 +28,6 @@ import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
  * 
  */
 public class FeedDatabase extends DatabaseManager implements FeedStore {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedDatabase.class);
 

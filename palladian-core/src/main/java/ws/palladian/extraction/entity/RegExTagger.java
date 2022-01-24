@@ -1,19 +1,17 @@
 package ws.palladian.extraction.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
 import ws.palladian.helper.nlp.StringHelper;
 
-public class RegExTagger implements Tagger {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+public class RegExTagger implements Tagger {
     private final Pattern pattern;
     private final String tagName;
 
@@ -49,5 +47,4 @@ public class RegExTagger implements Tagger {
         builder.append("]");
         return builder.toString();
     }
-
 }

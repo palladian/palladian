@@ -1,31 +1,30 @@
 package ws.palladian.extraction.token;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ErrorCollector;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ErrorCollector;
-
-import ws.palladian.helper.constants.Language;
-
 /**
  * <p>
  * Test cases for the Tokenizer class.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
 public class TokenizerTest {
-
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
@@ -144,11 +143,20 @@ public class TokenizerTest {
 
     @Test
     public void testGetSentences() {
-
         // this is the LingPipe example (last sentence ends with "!" to make it more difficult:
         // http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html
         String inputText = "";
         List<String> sentences;
+
+        inputText = "Whatever (eye irrit. 2), you say. Sentence number 2.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.ENGLISH);
+        CollectionHelper.print(sentences);
+        assertEquals(2, sentences.size());
+
+        inputText = "Covers approximately 150 sq. ft. per kit. Such a great place.";
+        sentences = Tokenizer.getSentences(inputText, false, Language.ENGLISH);
+        CollectionHelper.print(sentences);
+        assertEquals(2, sentences.size());
 
         inputText = "Inkl. Wettervorhersage (Thermometer, Hygrometer) und Wetterindikator.";
         sentences = Tokenizer.getSentences(inputText, false, Language.GERMAN);

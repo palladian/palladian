@@ -4,7 +4,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.helper.collection.StringLengthComparator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,6 +30,7 @@ public enum UnitType {
     SPEED("km/h"), //
     TEMPERATURE(null), //
     PRESSURE("pascal"), //
+    ELECTRICAL_RESISTANCE("ohm"), //
     POWER("watt"), //
     VOLTAGE("volt"), //
     ENERGY("kilojoule"), //
@@ -461,6 +461,13 @@ public enum UnitType {
         unitList.add("beats per minute");
         UnitType.ROTATION_SPEED.units.add(Pair.of(unitList, 1.0));
 
+        // ELECTRICAL RESISTANCE in 1 Ohm
+        unitList = new ArrayList<>();
+        unitList.add("ohms");
+        unitList.add("ohm");
+        unitList.add("Ω");
+        UnitType.ELECTRICAL_RESISTANCE.units.add(Pair.of(unitList, 1.0));
+
         // PRESSURE units are normalized to pascal
         unitList = new ArrayList<>();
         unitList.add("pascals");
@@ -724,7 +731,11 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("liters");
         unitList.add("liter");
+        unitList.add("ltrs");
         unitList.add("l");
+        unitList.add("cubic decimeter");
+        unitList.add("dm3");
+        unitList.add("dm³");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1000.));
 
         unitList = new ArrayList<>();

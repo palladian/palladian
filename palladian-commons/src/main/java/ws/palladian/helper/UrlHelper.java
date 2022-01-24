@@ -12,6 +12,7 @@ import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 import java.io.InputStream;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -214,8 +216,19 @@ public final class UrlHelper {
                     result = URL_PARAM.matcher(contextUrl).replaceAll("") + linkUrl;
                 } else {
                     result = new URL(new URL(contextUrl), linkUrl).toString();
-                    result = result.replace("../", "");
-                    result = result.replace("./", "");
+                    if (linkUrl.startsWith(".")) {
+                        result = result.replace("../", "");
+                        result = result.replace("./", "");
+                    } else if (linkUrl.contains("/../")) {
+                        int pathJumps = StringHelper.countOccurrences(linkUrl, "../");
+                        for (int i = 0; i < pathJumps; i++) {
+                            Pattern pathPattern = PatternHelper.compileOrGet("[^/]+/../");
+                            Matcher matcher = pathPattern.matcher(result);
+                            if (matcher.find()) {
+                                result = matcher.replaceAll("");
+                            }
+                        }
+                    }
                 }
             } catch (MalformedURLException e) {
                 // don't care
