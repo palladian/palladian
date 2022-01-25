@@ -1,31 +1,18 @@
 package ws.palladian.helper.math;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -36,7 +23,6 @@ import ws.palladian.helper.io.LineAction;
  * @author Philipp Katz
  */
 public final class MathHelper {
-
     /**
      * The logger for this class.
      */
@@ -1205,5 +1191,17 @@ public final class MathHelper {
             atan = PI_2 - z / (z * z + 0.28f);
             return (y < 0.0f) ? atan - PI : atan;
         }
+    }
+
+    /**
+     * Limit a value to a range. E.g. for offset you want the value between 0 and 100. -x becomes 0 and 101 becomes 100.
+     *
+     * @param value The value to limit.
+     * @param min   The minimally allowed value.
+     * @param max   The maximally allowed value.
+     * @return The limited number.
+     */
+    public static int limitToRange(int value, int min, int max) {
+        return Math.min(max, Math.max(min, value));
     }
 }
