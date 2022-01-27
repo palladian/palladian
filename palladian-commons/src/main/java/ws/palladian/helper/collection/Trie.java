@@ -110,7 +110,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
         Validate.notEmpty(key, "key must not be empty");
         if (dataWrittenToDisk) {
             try {
-                Serializable deserialize = FileHelper.deserialize(dataFolder.getPath() + "/node-" + StringHelper.sha1(key) + ".gz");
+                Serializable deserialize = FileHelper.deserialize(getSerializationPath(key));
                 return (V) deserialize;
             } catch (Exception e) {
                 LOGGER.error("could not deserialize " + key + " from " + dataFolder.getPath(), e);
@@ -122,6 +122,12 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
 
     public boolean isDataWrittenToDisk() {
         return dataWrittenToDisk;
+    }
+
+    private String getSerializationPath(String key) {
+        String shaKey = StringHelper.sha1(key);
+        String subFolder = shaKey.substring(0, 3);
+        return dataFolder.getPath() + "/" + subFolder + "/node-" + shaKey + ".gz";
     }
 
     public V getOrPut(String key, V value) {
@@ -224,6 +230,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
      * @throws IOException
      */
     public void writeValuesToDisk(File folder) throws IOException {
+        dataFolder = folder;
         int size = size();
         ProgressMonitor pm = new ProgressMonitor(size, 1., "Serializing values from Trie");
         Iterator<Map.Entry<String, V>> iterator = iterator();
@@ -231,7 +238,7 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
             Map.Entry<String, V> entry = iterator.next();
             String key = entry.getKey();
             try {
-                FileHelper.serialize((Serializable) entry.getValue(), folder.getPath() + "/node-" + StringHelper.sha1(key) + ".gz");
+                FileHelper.serialize((Serializable) entry.getValue(), getSerializationPath(key));
             } catch (Exception e) {
                 LOGGER.error("could not serialize " + key + " to " + folder.getPath(), e);
             }
@@ -241,7 +248,6 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
             }
         }
         dataWrittenToDisk = true;
-        dataFolder = folder;
     }
 
     // iterator over all entries
