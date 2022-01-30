@@ -456,46 +456,45 @@ public final class CollectionHelper {
     public static <T> Iterable<T> filter(final Iterable<? extends T> iterable, final Predicate<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
-//        return new Iterable<T>() {
-//            @Override
-//            public Iterator<T> iterator() {
-//                return filter(iterable.iterator(), filter);
-//            }
-//        };
+        // return new Iterable<T>() {
+        // @Override
+        // public Iterator<T> iterator() {
+        // return filter(iterable.iterator(), filter);
+        // }
+        // };
         return filter(iterable, new Factory<Predicate<? super T>>() {
-			@Override
-			public Predicate<? super T> create() {
-				return filter;
-			}
+            @Override
+            public Predicate<? super T> create() {
+                return filter;
+            }
         });
     }
 
-	/**
-	 * <p>
-	 * Apply a {@link Predicate} to an {@link Iterable}. This method takes a
-	 * factory, which produces the filter, thus allowing stateful filters which
-	 * need to be re-created for each newly produced iterator.
-	 * 
-	 * @param iterable
-	 *            The iterable to filter, not <code>null</code>.
-	 * @param filter
-	 *            The filter to apply, supplied via {@link Factory}, not
-	 *            <code>null</code>.
-	 * @return A new iterator, where the given filter is applied, thus
-	 *         eliminating the entries in the iterator, which are not accepted
-	 *         by the filter.
-	 */
-	public static <T> Iterable<T> filter(final Iterable<? extends T> iterable,
-			final Factory<? extends Predicate<? super T>> filter) {
-		Validate.notNull(iterable, "iterable must not be null");
-		Validate.notNull(filter, "filter must not be null");
-		return new Iterable<T>() {
-			@Override
-			public Iterator<T> iterator() {
-				return filter(iterable.iterator(), filter.create());
-			}
-		};
-	}
+    /**
+     * <p>
+     * Apply a {@link Predicate} to an {@link Iterable}. This method takes a
+     * factory, which produces the filter, thus allowing stateful filters which
+     * need to be re-created for each newly produced iterator.
+     * 
+     * @param iterable
+     *            The iterable to filter, not <code>null</code>.
+     * @param filter
+     *            The filter to apply, supplied via {@link Factory}, not
+     *            <code>null</code>.
+     * @return A new iterator, where the given filter is applied, thus
+     *         eliminating the entries in the iterator, which are not accepted
+     *         by the filter.
+     */
+    public static <T> Iterable<T> filter(final Iterable<? extends T> iterable, final Factory<? extends Predicate<? super T>> filter) {
+        Validate.notNull(iterable, "iterable must not be null");
+        Validate.notNull(filter, "filter must not be null");
+        return new Iterable<T>() {
+            @Override
+            public Iterator<T> iterator() {
+                return filter(iterable.iterator(), filter.create());
+            }
+        };
+    }
 
     /**
      * <p>
@@ -594,7 +593,7 @@ public final class CollectionHelper {
      * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The sub set.
      */
-    public static IntSortedSet getSubset(AbstractIntSortedSet set, int offset, int num) {
+    public static IntSortedSet getSubset(IntSortedSet set, int offset, int num) {
         Validate.notNull(set, "set must not be null");
         Validate.isTrue(offset >= 0, "offset must be greater/equal zero");
         Validate.isTrue(num >= 0, "num must be greater/equal zero");
@@ -631,23 +630,23 @@ public final class CollectionHelper {
         Validate.notNull(list, "list must not be null");
         return list.isEmpty() ? null : list.get(list.size() - 1);
     }
-    
-	/**
-	 * Get the last element in an {@link Iterable}.
-	 * 
-	 * @param iterable
-	 *            The iterable from which to get the element, not
-	 *            <code>null</code>.
-	 * @return The last element, or <code>null</code> if the iterable was empty.
-	 */
-	public static <T> T getLast(Iterable<T> iterable) {
-		Validate.notNull(iterable, "iterable must not be null");
-		T last = null;
-		for (T item : iterable) {
-			last = item;
-		}
-		return last;
-	}
+
+    /**
+     * Get the last element in an {@link Iterable}.
+     * 
+     * @param iterable
+     *            The iterable from which to get the element, not
+     *            <code>null</code>.
+     * @return The last element, or <code>null</code> if the iterable was empty.
+     */
+    public static <T> T getLast(Iterable<T> iterable) {
+        Validate.notNull(iterable, "iterable must not be null");
+        T last = null;
+        for (T item : iterable) {
+            last = item;
+        }
+        return last;
+    }
 
     /**
      * <p>
@@ -698,8 +697,7 @@ public final class CollectionHelper {
      * @see #convertList(Iterable, Function)
      * @see #convertSet(Iterable, Function)
      */
-    public static <I, O, C extends Collection<O>> C convert(Iterable<I> iterable, Function<? super I, O> function,
-            C output) {
+    public static <I, O, C extends Collection<O>> C convert(Iterable<I> iterable, Function<? super I, O> function, C output) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(function, "function must not be null");
         Validate.notNull(output, "output must not be null");
@@ -1030,15 +1028,17 @@ public final class CollectionHelper {
         return count;
     }
 
-
     /**
-     * <p>Check whether a list contains a specific item.</p>
+     * <p>
+     * Check whether a list contains a specific item.
+     * </p>
+     * 
      * @param items The list of items.
      * @param item The item.
      * @param <T> The item type.
      * @return True if the list contains the item already.
      */
-    public static  <T> boolean contains(T[] items, T item) {
+    public static <T> boolean contains(T[] items, T item) {
         for (T i : items) {
             if (i.equals(item)) {
                 return true;
@@ -1086,6 +1086,7 @@ public final class CollectionHelper {
     /**
      * Use divide and conquer to find the index in a sorted list that has <= the query number.
      * E.g. num = 10 and list [2,8,11,88] => return 1 (index of 8 because it is <= 10)
+     * 
      * @param num The query number.
      * @param list The <b>sorted</b> list of numbers.
      * @param <T> Type of number.
@@ -1110,26 +1111,26 @@ public final class CollectionHelper {
 
         return findIndexBefore(num, list, globalIndex);
     }
-    
-	/**
-	 * Create a map with running index as values for the given list. This avoids
-	 * calling the costly {@link List#indexOf(Object)} to get occurrence
-	 * indices. In case the given list contains any duplicates, the
-	 * <em>first</em> occurrence index is added to the result.
-	 * 
-	 * @param list The list, not <code>null</code>.
-	 * @return Map with keys from the list, and associated index as values.
-	 */
-	public static <T> Map<T, Integer> createIndexMap(List<T> list) {
-		Validate.notNull(list, "list must not be null");
-		Map<T, Integer> map = new HashMap<>();
-		for (int index = 0; index < list.size(); index++) {
-			T item = list.get(index);
-			if (!map.containsKey(item)) {
-				map.put(item, index);
-			}
-		}
-		return map;
-	}
+
+    /**
+     * Create a map with running index as values for the given list. This avoids
+     * calling the costly {@link List#indexOf(Object)} to get occurrence
+     * indices. In case the given list contains any duplicates, the
+     * <em>first</em> occurrence index is added to the result.
+     * 
+     * @param list The list, not <code>null</code>.
+     * @return Map with keys from the list, and associated index as values.
+     */
+    public static <T> Map<T, Integer> createIndexMap(List<T> list) {
+        Validate.notNull(list, "list must not be null");
+        Map<T, Integer> map = new HashMap<>();
+        for (int index = 0; index < list.size(); index++) {
+            T item = list.get(index);
+            if (!map.containsKey(item)) {
+                map.put(item, index);
+            }
+        }
+        return map;
+    }
 
 }

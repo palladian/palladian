@@ -36,7 +36,6 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
         double v = seed.doubleValue();
         boolean startCollecting = false;
         for (Map.Entry<K, Collection<V>> entry : this.entrySet()) {
-
             if (startCollecting) {
                 values.addAll(entry.getValue());
                 continue;
@@ -59,7 +58,6 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
                 if (comparisonType == ComparisonType.MORE || comparisonType == ComparisonType.MORE_EQUALS) {
                     startCollecting = true;
                 }
-
             }
         }
 
