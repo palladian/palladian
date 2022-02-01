@@ -671,7 +671,6 @@ public final class FileHelper {
      * @param string   The string to save.
      * @param encoding The encoding in which the file should be written.
      * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
-     * {@link filePath}. See error log for details (Exceptions).
      */
     public static boolean writeToFile(String filePath, CharSequence string, String encoding) {
         String fileType = getFileType(filePath);
@@ -1657,7 +1656,7 @@ public final class FileHelper {
      * <code>null</code>.
      */
     public static boolean fileExists(String filePath) {
-        return filePath != null ? new File(filePath).isFile() : false;
+        return filePath != null && new File(filePath).isFile();
     }
 
     /**
@@ -1665,12 +1664,12 @@ public final class FileHelper {
      * Check whether a directory exists.
      * </p>
      *
-     * @param filePath The path to the directory to check.
+     * @param directoryPath The path to the directory to check.
      * @return <code>true</code> if the given path points to a directory, <code>false</code> otherwise or in case path
      * was <code>null</code>.
      */
     public static boolean directoryExists(String directoryPath) {
-        return directoryPath != null ? new File(directoryPath).isDirectory() : false;
+        return directoryPath != null && new File(directoryPath).isDirectory();
     }
 
     /**
@@ -1848,7 +1847,6 @@ public final class FileHelper {
      * @param numParts The number of evenly sized parts the file should be split into.
      */
     public static void splitAsciiFile(String filePath, int numParts) {
-
         int totalLines = FileHelper.getNumberOfLines(filePath);
 
         int linesPerSplit = (int) Math.ceil((totalLines / (double) numParts));
@@ -1858,7 +1856,6 @@ public final class FileHelper {
         OutputStream out = null;
 
         try {
-
             out = new FileOutputStream(appendToFileName(filePath, "_split1"));
             writer = new BufferedWriter(new OutputStreamWriter(out, DEFAULT_ENCODING));
 

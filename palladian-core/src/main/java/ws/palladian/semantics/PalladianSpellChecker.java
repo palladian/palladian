@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author David Urbansky
- * @see https://norvig.com/spell-correct.html
+ * https://norvig.com/spell-correct.html
  */
 public class PalladianSpellChecker {
     /**
@@ -43,7 +43,7 @@ public class PalladianSpellChecker {
     private boolean germanCompoundSupport = false;
 
     /**
-     * The longer the words, the longer it takes to created the variations (edits). This is the maxium word length we
+     * The longer the words, the longer it takes to create the variations (edits). This is the maxium word length we
      * allow for correction.
      */
     private int maxWordLength = 20;
@@ -64,6 +64,7 @@ public class PalladianSpellChecker {
     /**
      * Keep track of the context around words and use it to improve decision when correcting words.
      */
+    private final boolean useContext;
     private final Bag<String> contextCounter = new Bag<>();
 
     /**
@@ -74,21 +75,28 @@ public class PalladianSpellChecker {
     private Trie<Integer> words = new Trie<>();
 
     public PalladianSpellChecker() {
+        this.useContext = true;
     }
 
     public PalladianSpellChecker(String file) {
         this(file, false);
     }
 
+    public PalladianSpellChecker(String file, boolean ignoreDiacritics) {
+        this(file, ignoreDiacritics, true);
+    }
+
     /**
      * Create the object.
      *
      * @param file             The text file from which to create a dictionary.
-     * @param ignoreDiacritics If true, diacritics will be ignored, e.g. "uber" will not try to be corrected to "über"
+     * @param ignoreDiacritics If true, diacritics will be ignored, e.g. "uber" will not try to be corrected to "über".
+     * @param useContext       Takes more space but makes corrections more precise.
      */
-    public PalladianSpellChecker(String file, boolean ignoreDiacritics) {
+    public PalladianSpellChecker(String file, boolean ignoreDiacritics, boolean useContext) {
         StopWatch stopWatch = new StopWatch();
 
+        this.useContext = useContext;
         int lines = FileHelper.getNumberOfLines(file);
         final ProgressMonitor progressMonitor = new ProgressMonitor(lines, 1, "Spell Checker Loading Dictionary");
 
@@ -112,7 +120,7 @@ public class PalladianSpellChecker {
                     }
                     words.put(match, count + 1);
                     uniqueWords.add(match);
-                    if (lastMatch != null) {
+                    if (lastMatch != null && useContext) {
                         contextCounter.add(lastMatch + "_" + match);
                     }
                     lastMatch = match;
@@ -389,10 +397,10 @@ public class PalladianSpellChecker {
             Integer count = words.get(s);
             if (count != null) {
                 // look at the context
-                if (leftContext != null) {
+                if (leftContext != null && useContext) {
                     count += 100 * contextCounter.count(leftContext + "_" + s);
                 }
-                if (rightContext != null) {
+                if (rightContext != null && useContext) {
                     count += 100 * contextCounter.count(s + "_" + rightContext);
                 }
                 candidates.put(count, s);

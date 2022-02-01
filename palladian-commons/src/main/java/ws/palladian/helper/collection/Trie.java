@@ -18,10 +18,10 @@ import java.util.*;
  * <p>
  * A trie data structure. This can make string-based retrieval faster and more space efficient than using e.g. a
  * HashMap. This implementations does <i>not</i> allow <code>null</code> or empty values as keys.
+ * See <a href="http://en.wikipedia.org/wiki/Trie">Wikipedia: Trie</a>
  *
  * @author Philipp Katz
  * @author David Urbansky
- * @see <a href="http://en.wikipedia.org/wiki/Trie">Wikipedia: Trie</a>
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String, V>>, Serializable {
@@ -109,13 +109,19 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
     public V get(String key) {
         Validate.notEmpty(key, "key must not be empty");
         if (dataWrittenToDisk) {
-            try {
-                Serializable deserialize = FileHelper.deserialize(getSerializationPath(key));
-                return (V) deserialize;
-            } catch (Exception e) {
-                LOGGER.error("could not deserialize " + key + " from " + dataFolder.getPath(), e);
+            String serializationPath = getSerializationPath(key);
+            if (FileHelper.fileExists(serializationPath)) {
+                try {
+                    Serializable deserialize = FileHelper.deserialize(serializationPath);
+                    return (V) deserialize;
+                } catch (Exception e) {
+                    LOGGER.error("could not deserialize " + key + " from " + dataFolder.getPath(), e);
+                }
+            } else {
+                return null;
             }
         }
+
         Trie<V> node = getNode(key);
         return node != null ? node.value : null;
     }
@@ -227,7 +233,6 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
      * Values can take up a tremendous amount of memory. This function allows us to write it to disk while keeping the keys in memory. That allows still for quick access while having a fraction of the memory footprint.
      *
      * @param folder The folder to which we store the data.
-     * @throws IOException
      */
     public void writeValuesToDisk(File folder) throws IOException {
         dataFolder = folder;

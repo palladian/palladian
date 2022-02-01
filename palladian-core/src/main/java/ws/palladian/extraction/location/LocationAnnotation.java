@@ -14,7 +14,6 @@ import ws.palladian.helper.math.MathHelper;
  * @author Philipp Katz
  */
 public class LocationAnnotation extends ImmutableAnnotation {
-
     private final Location location;
 
     private final double trust;
