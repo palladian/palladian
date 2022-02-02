@@ -247,10 +247,17 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
             } catch (Exception e) {
                 LOGGER.error("could not serialize " + key + " to " + folder.getPath(), e);
             }
-            put(entry.getKey(), null);
             if (size > 10) {
                 pm.incrementAndPrintProgress();
             }
+        }
+
+        // now that everything is serialized, we can remove the values from memory
+        // we must not do this before because get() calls might fail while the trie is being serialized
+        iterator = iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, V> entry = iterator.next();
+            put(entry.getKey(), null);
         }
         dataWrittenToDisk = true;
     }
