@@ -1,9 +1,9 @@
 package ws.palladian.helper.constants;
 
-import java.util.*;
-
 import org.apache.commons.lang3.StringUtils;
 import ws.palladian.helper.StopWatch;
+
+import java.util.*;
 
 /**
  * <p>
@@ -17,119 +17,119 @@ import ws.palladian.helper.StopWatch;
  */
 public enum Language {
     AFRIKAANS("af", "afr", "Afrikaans"), //
-    ALBANIAN("sq", "sqi", "Albanian"), //
+    ALBANIAN("sq", "sqi", "Albanian", Script.LATIN), //
     AMHARIC("am", "amh", "Amharic"), //
-    ARABIC("ar", "ara", "Arabic"), //
+    ARABIC("ar", "ara", "Arabic", Script.ARABIC), //
     ARAGONESE("an", "arg", "Aragonese"), //
-    ARMENIAN("hy", "hye", "Armenian"), //
-    AZERBAIJANI("az", "aze", "Azerbaijani"), //
-    BASQUE("eu", "eus", "Basque"), //
-    BELARUSIAN("be", "bel", "Belarusian"), //
+    ARMENIAN("hy", "hye", "Armenian", Script.ARMENIAN), //
+    AZERBAIJANI("az", "aze", "Azerbaijani", Script.LATIN), //
+    BASQUE("eu", "eus", "Basque", Script.LATIN), //
+    BELARUSIAN("be", "bel", "Belarusian", Script.CYRILLIC), //
     BENGALI("bn", "ben", "Bengali"), //
-    BOSNIAN("bs", "bos", "Bosnian"), //
-    BRETON("br", "bre", "Breton"), //
-    BULGARIAN("bg", "bul", "Bulgarian"), //
+    BOSNIAN("bs", "bos", "Bosnian", Script.LATIN), //
+    BRETON("br", "bre", "Breton", Script.LATIN), //
+    BULGARIAN("bg", "bul", "Bulgarian", Script.CYRILLIC), //
     CATALAN("ca", "cat", "Catalan"), //
     CEBUANO(null, "ceb", "Cebuano"), //
     CHAMORRO(null, "cha", "Chamorro"), //
     CHEROKEE(null, "chr", "Cherokee"), //
-    CHINESE("zh", "zho", "Chinese"), //
+    CHINESE("zh", "zho", "Chinese", Script.CHINESE), //
     CHUVASH("cv", "chv", "Chuvash"), //
-    CROATIAN("hr", "hrv", "Croatian"), //
-    CZECH("cs", "ces", "Czech"), //
+    CROATIAN("hr", "hrv", "Croatian", Script.LATIN), //
+    CZECH("cs", "ces", "Czech", Script.LATIN), //
     DAKOTA(null, "dak", "Dakota"), //
-    DANISH("da", "dan", "Danish"), //
-    DUTCH("nl", "nld", "Dutch"), //
-    ENGLISH("en", "eng", "English"), //
-    ESPERANTO("eo", "epo", "Esperanto"), //
-    ESTONIAN("et", "est", "Estonian"), //
+    DANISH("da", "dan", "Danish", Script.LATIN), //
+    DUTCH("nl", "nld", "Dutch", Script.LATIN), //
+    ENGLISH("en", "eng", "English", Script.LATIN), //
+    ESPERANTO("eo", "epo", "Esperanto", Script.LATIN), //
+    ESTONIAN("et", "est", "Estonian", Script.LATIN), //
     FAROESE("fo", "fao", "Faroese"), //
     FIJIAN("fj", "fij", "Fijian"), //
-    FINNISH("fi", "fin", "Finnish"), //
-    FRENCH("fr", "fra", "French"), //
+    FINNISH("fi", "fin", "Finnish", Script.LATIN), //
+    FRENCH("fr", "fra", "French", Script.LATIN), //
     FULFULDE("ff", "ful", "Fulfulde"), //
     GALICIAN("gl", "glg", "Galician"), //
-    GEORGIAN("ka", "kat", "Georgian"), //
-    GERMAN("de", "deu", "German"), //
-    GREEK("el", "ell", "Greek"), //
+    GEORGIAN("ka", "kat", "Georgian", Script.GEORGIAN), //
+    GERMAN("de", "deu", "German", Script.LATIN), //
+    GREEK("el", "ell", "Greek", Script.GREEK), //
     GUERRERO_AMUZGO(null, "amu", "Guerrero Amuzgo"), //
     GUJARATI("gu", "guj", "Gujarati"), //
     HAITIAN_CREOLE("ht", "hat", "Haitian Creole"), //
     HAUSA("ha", "hau", "Hausa"), //
     HAWAIIAN(null, "haw", "Hawaiian"), //
-    HEBREW("he", "heb", "Hebrew"), //
+    HEBREW("he", "heb", "Hebrew", Script.HEBREW), //
     HILIGAYNON(null, "hil", "Hiligaynon"), //
-    HINDI("hi", "hin", "Hindi"), //
-    HUNGARIAN("hu", "hun", "Hungarian"), //
-    ICELANDIC("is", "isl", "Icelandic"), //
+    HINDI("hi", "hin", "Hindi", Script.DEVANGARI), //
+    HUNGARIAN("hu", "hun", "Hungarian", Script.LATIN), //
+    ICELANDIC("is", "isl", "Icelandic", Script.LATIN), //
     IDO("io", "ido", "Ido"), //
     INDONESIAN("id", "ind", "Indonesian"), //
-    IRISH("ga", "gle", "Irish"), //
-    ITALIAN("it", "ita", "Italian"), //
+    IRISH("ga", "gle", "Irish", Script.LATIN), //
+    ITALIAN("it", "ita", "Italian", Script.LATIN), //
     JAKALTEK(null, "jac", "Jakaltek"), //
-    JAPANESE("ja", "jpn", "Japanese"), //
+    JAPANESE("ja", "jpn", "Japanese", Script.KANA), //
     JAVANESE("jv", "jav", "Javanese"), //
     KABYLE(null, "kab", "Kabyle"), //
     KAQCHIKEL(null, "cak", "Kaqchikel"), //
     KEKCHI(null, "kek", "Q’eqchi’"), //
-    KOREAN("ko", "kor", "Korean"), //
-    KURDISH("ku", "kur", "Kurdish"), //
+    KOREAN("ko", "kor", "Korean", Script.HANGEUL), //
+    KURDISH("ku", "kur", "Kurdish", Script.ARABIC), //
     KYRGYZ("ky", "kir", "Kyrgyz"), //
-    LATIN("la", "lat", "Latin"), //
+    LATIN("la", "lat", "Latin", Script.LATIN), //
     LATVIAN("lv", "lav", "Latvian"), //
-    LITHUANIAN("lt", "lit", "Lithuanian"), //
-    LOW_GERMAN(null, "nds", "Low German"), //
-    LUXEMBOURGISH("lb", "ltz", "Luxembourgish"), //
-    MACEDONIAN("mk", "mkd", "Macedonian"), //
-    MALAY("ms", "msa", "Malay"), //
-    MALAYALAM("ml", "mal", "Malayalam"), //
+    LITHUANIAN("lt", "lit", "Lithuanian", Script.LATIN), //
+    LOW_GERMAN(null, "nds", "Low German", Script.LATIN), //
+    LUXEMBOURGISH("lb", "ltz", "Luxembourgish", Script.LATIN), //
+    MACEDONIAN("mk", "mkd", "Macedonian", Script.CYRILLIC), //
+    MALAY("ms", "msa", "Malay", Script.LATIN), //
+    MALAYALAM("ml", "mal", "Malayalam", Script.LATIN), //
     MALTESE("mt", "mlt", "Maltese"), //
     MAORI("mi", "mri", "Māori"), //
-    MARATHI("mr", "mar", "Marathi"), //
+    MARATHI("mr", "mar", "Marathi", Script.DEVANGARI), //
     MICMAC(null, "mic", "Mi'kmaq"), //
     MOSSI(null, "mos", "Mossi"), //
-    NEPALI("ne", "nep", "Nepali"), //
+    NEPALI("ne", "nep", "Nepali", Script.DEVANGARI), //
     NORTHERN_NDEBELE("nd", "nde", "Northern Ndebele"), //
     NORWEGIAN("no", "nor", "Norwegian"), //
     NORWEGIAN_BOKMAL("nb", "nob", "Norwegian"), //
     NORWEGIAN_NYNORSK("nn", "nno", "Norwegian"), //
     OCCITAN("oc", "oci", "Occitan"), //
     OJIBWE("oj", "oji", "Ojibwe"), //
-    PASHTO("ps", "pus", "Pashto"), //
-    PERSIAN("fa", "fas", "Persian"), //
-    POLISH("pl", "pol", "Polish"), //
-    PORTUGUESE("pt", "por", "Portuguese"), //
-    PUNJABI("pa", "pan", "Punjabi"), //
+    PASHTO("ps", "pus", "Pashto", Script.ARABIC), //
+    PERSIAN("fa", "fas", "Persian", Script.ARABIC), //
+    POLISH("pl", "pol", "Polish", Script.LATIN), //
+    PORTUGUESE("pt", "por", "Portuguese", Script.LATIN), //
+    PUNJABI("pa", "pan", "Punjabi", Script.ARABIC), //
     QUECHUA("qu", "que", "Quechua"), //
     ROMANI(null, "rom", "Romani"), //
-    ROMANIAN("ro", "ron", "Romanian"), //
-    RUSSIAN("ru", "rus", "Russian"), //
-    SERBIAN("sr", "srp", "Serbian"), //
+    ROMANIAN("ro", "ron", "Romanian", Script.LATIN), //
+    RUSSIAN("ru", "rus", "Russian", Script.CYRILLIC), //
+    SERBIAN("sr", "srp", "Serbian", Script.CYRILLIC), //
     SHONA("sn", "sna", "Shona"), //
     SHUAR(null, "jiv", "Shuar"), //
-    SLOVAK("sk", "slk", "Slovak"), //
-    SLOVENE("sl", "slv", "Slovene"), //
-    SOMALI("so", "som", "Somali"), //
+    SLOVAK("sk", "slk", "Slovak", Script.LATIN), //
+    SLOVENE("sl", "slv", "Slovene", Script.LATIN), //
+    SOMALI("so", "som", "Somali", Script.LATIN), //
     SONGE(null, "sop", "Songe"), //
     SOUTHERN_NDEBELE("nr", "nbl", "Southern Ndebele"), //
-    SPANISH("es", "spa", "Spanish"), //
+    SPANISH("es", "spa", "Spanish", Script.LATIN), //
     SUNDANESE("su", "sun", "Sundanese"), //
-    SWAHILI("sw", "swa", "Swahili"), //
-    SWEDISH("sv", "swe", "Swedish"), //
+    SWAHILI("sw", "swa", "Swahili", Script.LATIN), //
+    SWEDISH("sv", "swe", "Swedish", Script.LATIN), //
     TAGALOG("tl", "tgl", "Tagalog"), //
     TAMIL("ta", "tam", "Tamil"), //
     TELUGU("te", "tel", "Telugu"), //
-    THAI("th", "tha", "Thai"), //
-    TIBETAN("bo", "bod", "Standard Tibetan"), //
-    TURKISH("tr", "tur", "Turkish"), //
-    UKRAINIAN("uk", "ukr", "Ukrainian"), //
-    URDU("ur", "urd", "Urdu"), //
+    THAI("th", "tha", "Thai", Script.THAI), //
+    TIBETAN("bo", "bod", "Standard Tibetan", Script.TIBETAN), //
+    TURKISH("tr", "tur", "Turkish", Script.LATIN), //
+    UKRAINIAN("uk", "ukr", "Ukrainian", Script.CYRILLIC), //
+    URDU("ur", "urd", "Urdu", Script.ARABIC), //
     USPANTEK(null, "usp", "Uspantek"), //
-    VIETNAMESE("vi", "vie", "Vietnamese"), //
+    VIETNAMESE("vi", "vie", "Vietnamese", Script.LATIN), //
     VOLAPUEK("vo", "vol", "Volapük"), //
     WALLOON("wa", "wln", "Walloon"), //
-    WELSH("cy", "cym", "Welsh"), //
-    WEST_FRISIAN("fy", "fry", "West Frisian"), //
+    WELSH("cy", "cym", "Welsh", Script.LATIN), //
+    WEST_FRISIAN("fy", "fry", "West Frisian", Script.LATIN), //
     WOLOF("wo", "wol", "Wolof"), //
     XHOSA("xh", "xho", "Xhosa"), //
     ZARMA(null, "dje", "Zarma"); //
@@ -145,6 +145,7 @@ public enum Language {
     private final String iso6391;
     private final String iso6392;
     private final String name;
+    private final Script script;
 
     /** Getting the language by iso 6391 is slow due to iterating through all values. Keep them in a map instead. */
     private static final Map<String, Language> iso6391Map = new HashMap<>();
@@ -156,9 +157,13 @@ public enum Language {
     }
 
     Language(String iso6391, String iso6392, String name) {
+        this(iso6391, iso6392, name, null);
+    }
+    Language(String iso6391, String iso6392, String name, Script script) {
         this.iso6391 = iso6391;
         this.iso6392 = iso6392;
         this.name = name;
+        this.script = script;
     }
 
     /**
@@ -231,6 +236,14 @@ public enum Language {
             }
         }
         return null;
+    }
+
+    public Script getScript() {
+        return script;
+    }
+
+    public boolean isLatin() {
+        return script != null && script == Script.LATIN;
     }
 
     public static void main(String[] args) {
