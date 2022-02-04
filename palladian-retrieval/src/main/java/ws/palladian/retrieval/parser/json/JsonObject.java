@@ -36,12 +36,12 @@ import java.util.*;
  * {@link #getDouble(int)}) allow retrieving values for the corresponding type, in case, the type in the JSON is
  * incompatible to the requested type, <code>null</code> is returned.
  * </p>
- * 
+ *
  * <p>
  * A {@link JsonObject} constructor can be used to convert an external form JSON text into an internal form, or to
  * convert values into a JSON text using the <code>put</code> and <code>toString</code> methods.
  * </p>
- * 
+ *
  * <p>
  * The texts produced by the <code>toString</code> methods strictly conform to the JSON syntax rules. The constructors
  * are more forgiving in the texts they will accept:
@@ -53,7 +53,7 @@ import java.util.*;
  * <code>{ } [ ] / \ : , #</code> and if they do not look like numbers and if they are not the reserved words
  * <code>true</code>, <code>false</code>, or <code>null</code>.</li>
  * </ul>
- * 
+ *
  * <p>
  * This implementation is based on <a href="http://json.org/java/">JSON-java</a>, but it has been simplified to provide
  * more convenience, and unnecessary functionality has been stripped to keep the API clear. The most important changes
@@ -65,7 +65,7 @@ import java.util.*;
  * methods. The JPath is inspired from XPath (much less expressive though) and allows digging into JSON structures using
  * one method call, thus avoiding chained method invocations and tedious <code>null</code> checks.
  * </p>
- * 
+ *
  * @author JSON.org
  * @author Philipp Katz
  * @version 2013-06-17
@@ -92,7 +92,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         if (x.nextClean() != '{') {
             throw x.syntaxError("A JSON object text must begin with '{'");
         }
-        for (;;) {
+        for (; ; ) {
             c = x.nextClean();
             switch (c) {
                 case 0:
@@ -134,7 +134,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Construct a {@link JsonObject} from a {@link Map}.
      * </p>
-     * 
+     *
      * @param map A map object that can be used to initialize the contents of the JsonObject.
      * @throws JsonException
      */
@@ -157,13 +157,13 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * </p>
      *
      * @param source A string beginning with <code>{</code>&nbsp;<small>(left brace)</small> and ending with
-     *            <code>}</code>&nbsp;<small>(right brace)</small>.
+     *               <code>}</code>&nbsp;<small>(right brace)</small>.
      * @return The {@link JsonObject}, or <code>null</code> in case it could not be parsed.
      */
     public static JsonObject tryParse(String source) {
         try {
             return new JsonObject(source);
-        } catch (JsonException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -175,8 +175,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * </p>
      *
      * @param source A string beginning with <code>{</code>&nbsp;<small>(left brace)</small> and ending with
-     *            <code>}</code>&nbsp;<small>(right brace)</small>.
-     * @exception JsonException If there is a syntax error in the source string or a duplicated key.
+     *               <code>}</code>&nbsp;<small>(right brace)</small>.
+     * @throws JsonException If there is a syntax error in the source string or a duplicated key.
      */
     public JsonObject(String source) throws JsonException {
         this(new JsonTokener(source));
@@ -186,7 +186,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the value object associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return An object value, or <code>null</code> in case there is no value with specified key.
      */
@@ -199,10 +199,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the {@link Boolean} value associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return The boolean value, or <code>null</code> in case there is no value with specified key, or the value cannot
-     *         be parsed as boolean.
+     * be parsed as boolean.
      * @throws JsonException
      */
     public boolean getBoolean(String key) throws JsonException {
@@ -229,10 +229,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the {@link Double} value associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return The double value, or <code>null</code> in case there is no value with specified key, or the value cannot
-     *         be parsed as Double.
+     * be parsed as Double.
      * @throws JsonException
      */
     public double getDouble(String key) throws JsonException {
@@ -259,10 +259,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the {@link Integer} value associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return The integer value, or <code>null</code> in case there is no value with specified key, or the value cannot
-     *         be parsed as Integer.
+     * be parsed as Integer.
      * @throws JsonException
      */
     public int getInt(String key) throws JsonException {
@@ -289,10 +289,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the {@link JsonArray} value associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return A JsonArray value, or <code>null</code> in case there is no value with specified key, or the value is no
-     *         {@link JsonArray}.
+     * {@link JsonArray}.
      * @throws JsonException
      */
     public JsonArray getJsonArray(String key) throws JsonException {
@@ -311,10 +311,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the {@link JsonObject} value associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return A JsonObject value, or <code>null</code> in case there is no value with specified key, or the value is no
-     *         {@link JsonObject} .
+     * {@link JsonObject} .
      * @throws JsonException
      */
     public JsonObject getJsonObject(String key) throws JsonException {
@@ -333,10 +333,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the {@link Long} value associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return The long value, or <code>null</code> in case there is no value with specified key, or the value cannot be
-     *         parsed as Long.
+     * parsed as Long.
      * @throws JsonException
      */
     public long getLong(String key) throws JsonException {
@@ -363,7 +363,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * <p>
      * Get the {@link String} associated with a key.
      * </p>
-     * 
+     *
      * @param key A key string.
      * @return A string value, or <code>null</code> in case there is no value with specified key.
      * @throws JsonException
@@ -411,10 +411,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * syntactically correct JSON text, then null will be returned instead. <b>Warning:</b> This method assumes that the
      * data structure is acyclical.
      * </p>
-     * 
+     *
      * @return a printable, displayable, portable, transmittable representation of the object, beginning with
-     *         <code>{</code>&nbsp;<small>(left brace)</small> and ending with <code>}</code>&nbsp;<small>(right
-     *         brace)</small>.
+     * <code>{</code>&nbsp;<small>(left brace)</small> and ending with <code>}</code>&nbsp;<small>(right
+     * brace)</small>.
      */
     @Override
     public String toString() {
@@ -499,7 +499,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         Object value = get(key);
         String remainingPath = pathSplit[1];
         if (value instanceof Json) {
-            Json child = (Json)value;
+            Json child = (Json) value;
             return child.query(remainingPath);
         } else if (remainingPath.isEmpty()) {
             return value;
@@ -515,6 +515,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return null;
         }
     }
+
     public Double tryQueryJsonPathDouble(String jPath) {
         try {
             return JsonUtil.parseDouble(queryJsonPath(jPath));
@@ -522,6 +523,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return null;
         }
     }
+
     public Boolean tryQueryJsonPathBoolean(String jPath) {
         try {
             return JsonUtil.parseBoolean(queryJsonPath(jPath));
@@ -529,6 +531,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return null;
         }
     }
+
     public Integer tryQueryJsonPathInt(String jPath) {
         try {
             return JsonUtil.parseInt(queryJsonPath(jPath));
@@ -536,6 +539,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return null;
         }
     }
+
     public JsonArray tryQueryJsonPathJsonArray(String jPath) {
         try {
             return JsonUtil.parseJsonArray(queryJsonPath(jPath));
@@ -543,6 +547,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return null;
         }
     }
+
     public JsonObject tryQueryJsonPathJsonObject(String jPath) {
         try {
             return JsonUtil.parseJsonObject(queryJsonPath(jPath));
