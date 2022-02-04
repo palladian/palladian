@@ -58,9 +58,9 @@ public class EmailAnalyzer {
                 quickHttpRetriever.setSocketTimeoutRedirects(500);
                 DocumentRetriever quickRetriever = new DocumentRetriever(quickHttpRetriever);
 
-                JsonObject parsedEmailJson = quickRetriever
-                        .getJsonObject("http://api.nameapi.org/rest/v5.3/email/emailnameparser?apiKey=7aa3665e0091c46d78249c7ca9883cbf-user1&emailAddress="
-                                + UrlHelper.encodeParameter(emailAddress));
+                JsonObject parsedEmailJson = quickRetriever.getJsonObject(
+                        "http://api.nameapi.org/rest/v5.3/email/emailnameparser?apiKey=7aa3665e0091c46d78249c7ca9883cbf-user1&emailAddress=" + UrlHelper.encodeParameter(
+                                emailAddress));
 
                 JsonArray nameMatches = Optional.ofNullable(parsedEmailJson.tryGetJsonArray("nameMatches")).orElse(new JsonArray());
                 if (!nameMatches.isEmpty()) {
@@ -83,13 +83,14 @@ public class EmailAnalyzer {
 
     /**
      * Verify an email.
-     * @param email The email to verify.
+     * http://docs.quickemailverification.com/email-verification-api/verify-an-email-address
+     *
+     * @param email  The email to verify.
      * @param apiKey The api key for quickemailverification.com.
-     * @see http://docs.quickemailverification.com/email-verification-api/verify-an-email-address
-     * @return
      */
     public static EmailVerificationResult verify(String email, String apiKey) {
-        JsonObject response = new DocumentRetriever().tryGetJsonObject("http://api.quickemailverification.com/v1/verify?email=" + UrlHelper.encodeParameter(email) + "&apikey=" + apiKey);
+        JsonObject response = new DocumentRetriever().tryGetJsonObject(
+                "http://api.quickemailverification.com/v1/verify?email=" + UrlHelper.encodeParameter(email) + "&apikey=" + apiKey);
         if (response == null || response.tryGetString("success").equals("false")) {
             return null;
         }

@@ -102,16 +102,7 @@ public class EmailVerificationResult {
 
     @Override
     public String toString() {
-        return "EmailVerificationResult{" +
-                "result=" + result +
-                ", reason='" + reason + '\'' +
-                ", disposable=" + disposable +
-                ", acceptAll=" + acceptAll +
-                ", free=" + free +
-                ", user='" + user + '\'' +
-                ", domain='" + domain + '\'' +
-                ", safeToSend=" + safeToSend +
-                ", message='" + message + '\'' +
-                '}';
+        return "EmailVerificationResult{" + "result=" + result + ", reason='" + reason + '\'' + ", disposable=" + disposable + ", acceptAll=" + acceptAll + ", free=" + free + ", user='"
+                + user + '\'' + ", domain='" + domain + '\'' + ", safeToSend=" + safeToSend + ", message='" + message + '\'' + '}';
     }
 }
