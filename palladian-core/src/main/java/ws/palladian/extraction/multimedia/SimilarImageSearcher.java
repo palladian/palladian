@@ -81,9 +81,13 @@ public class SimilarImageSearcher {
             return null;
         }
 
+        String imageIdentifier = identifier;
+        if (identifier == null) {
+            imageIdentifier = UUID_PREFIX;
+        }
         // process the image
         //        BufferedImage smallImage = ImageHandler.boxCrop(image, 100, 100);
-        String greyImagePath = tempLinkPath.replace("/" + identifier, "/" + PROCESSED_PREFIX + identifier);
+        String greyImagePath = tempLinkPath.replace("/" + imageIdentifier, "/" + PROCESSED_PREFIX + imageIdentifier);
 
         BufferedImage grayscaleImage;
         if (!FileHelper.fileExists(greyImagePath)) {
