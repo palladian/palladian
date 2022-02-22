@@ -28,3 +28,4 @@ log4j.properties
 /data
 *.iml
 .idea/
+vscws.code-workspace
