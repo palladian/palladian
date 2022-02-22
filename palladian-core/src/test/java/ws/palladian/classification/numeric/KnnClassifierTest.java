@@ -1,17 +1,6 @@
 package ws.palladian.classification.numeric;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import org.junit.Test;
-
 import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.classification.utils.MinMaxNormalizer;
@@ -26,11 +15,21 @@ import ws.palladian.core.dataset.split.RandomSplit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
+
 /**
  * <p>
  * Tests for the numerical KNN classifier.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
@@ -85,38 +84,70 @@ public class KnnClassifierTest {
 
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
-    	Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt")).readHeader(false).create();
-    	RandomSplit split = new RandomSplit(instances, 0.5, new Random(123));
+        Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt")).readHeader(false).create();
+        RandomSplit split = new RandomSplit(instances, 0.5, new Random(123));
         KnnLearner learner = new KnnLearner(new NoNormalizer());
-        ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(),split.getTest());
-        // System.out.println(confusionMatrix.getAccuracy());
+        ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(), split.getTest());
+        //        System.out.println(confusionMatrix.getAccuracy());
         assertTrue(confusionMatrix.getAccuracy() > 0.7);
 
         learner = new KnnLearner(new MinMaxNormalizer());
-        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(),split.getTest());
-        // System.out.println(confusionMatrix.getAccuracy());
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(), split.getTest());
+        //        System.out.println(confusionMatrix.getAccuracy());
         assertTrue(confusionMatrix.getAccuracy() > 0.75);
 
         learner = new KnnLearner(new ZScoreNormalizer());
-        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(),split.getTest());
-        // System.out.println(confusionMatrix.getAccuracy());
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3), split.getTrain(), split.getTest());
+        //        System.out.println(confusionMatrix.getAccuracy());
         assertTrue(confusionMatrix.getAccuracy() > 0.76);
     }
 
     @Test
-    public void testWithDiabetesData() throws FileNotFoundException {
-    	Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/diabetesData.txt")).readHeader(false).create();
-    	RandomSplit split = new RandomSplit(instances, 0.5, new Random(123));
-    	
-    	ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new NoNormalizer()), new KnnClassifier(3), split.getTrain(),split.getTest());
-    	// System.out.println(confusionMatrix.getAccuracy());
-        assertTrue(confusionMatrix.getAccuracy() > 0.72);
+    public void testWithAdultIncomeDataAndTextualFeatures() throws FileNotFoundException {
+        Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/adultData.txt")).readHeader(false).create();
+        RandomSplit split = new RandomSplit(instances, 0.5, new Random(123));
+        KnnLearner learner = new KnnLearner(new NoNormalizer());
+        ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3, true), split.getTrain(), split.getTest());
+        System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.71);
 
-        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new MinMaxNormalizer()), new KnnClassifier(3), split.getTrain(),split.getTest());
+        learner = new KnnLearner(new MinMaxNormalizer());
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3, true), split.getTrain(), split.getTest());
+        System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.758);
+
+        learner = new KnnLearner(new ZScoreNormalizer());
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(learner, new KnnClassifier(3, true), split.getTrain(), split.getTest());
+        System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.77);
+    }
+
+    @Test
+    public void testGetNeighbors() throws FileNotFoundException {
+        KnnLearner knnLearner = new KnnLearner(new NoNormalizer());
+        Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/wineData.csv")).readHeader(false).create();
+        KnnModel model = knnLearner.train(instances);
+        KnnClassifier classifier = new KnnClassifier(3, true);
+        int numNeighbors = 2;
+        List<String> neighbors = classifier.getNeighbors(createTestInstance(), model, numNeighbors);
+        //        CollectionHelper.print(neighbors);
+        assertEquals(numNeighbors, neighbors.size());
+    }
+
+    @Test
+    public void testWithDiabetesData() throws FileNotFoundException {
+        Dataset instances = CsvDatasetReaderConfig.filePath(getResourceFile("/classifier/diabetesData.txt")).readHeader(false).create();
+        RandomSplit split = new RandomSplit(instances, 0.5, new Random(123));
+
+        ConfusionMatrix confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new NoNormalizer()), new KnnClassifier(3), split.getTrain(), split.getTest());
         // System.out.println(confusionMatrix.getAccuracy());
         assertTrue(confusionMatrix.getAccuracy() > 0.72);
 
-        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new ZScoreNormalizer()), new KnnClassifier(3), split.getTrain(),split.getTest());
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new MinMaxNormalizer()), new KnnClassifier(3), split.getTrain(), split.getTest());
+        // System.out.println(confusionMatrix.getAccuracy());
+        assertTrue(confusionMatrix.getAccuracy() > 0.72);
+
+        confusionMatrix = new ConfusionMatrixEvaluator().evaluate(new KnnLearner(new ZScoreNormalizer()), new KnnClassifier(3), split.getTrain(), split.getTest());
         // System.out.println(confusionMatrix.getAccuracy());
         assertTrue(confusionMatrix.getAccuracy() > 0.72);
     }
