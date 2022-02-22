@@ -1,56 +1,14 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static ws.palladian.core.Annotation.TAG_CONVERTER;
-import static ws.palladian.core.Token.VALUE_CONVERTER;
-import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
-import static ws.palladian.helper.functional.Predicates.not;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ws.palladian.classification.text.DictionaryBuilder;
-import ws.palladian.classification.text.DictionaryModel;
+import ws.palladian.classification.text.*;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
-import ws.palladian.classification.text.DictionaryTrieModel;
-import ws.palladian.classification.text.ExperimentalScorers;
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
-import ws.palladian.classification.text.PruningStrategies;
-import ws.palladian.core.Annotation;
-import ws.palladian.core.AnnotationFilters;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.ClassifyingTagger;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.Tagger;
-import ws.palladian.core.Token;
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.DateAndTimeTagger;
-import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.RegExTagger;
-import ws.palladian.extraction.entity.StringTagger;
-import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
-import ws.palladian.extraction.entity.UrlTagger;
+import ws.palladian.core.*;
+import ws.palladian.extraction.entity.*;
 import ws.palladian.extraction.entity.dataset.DatasetCreator;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
@@ -61,32 +19,45 @@ import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.RegExp;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static ws.palladian.core.Annotation.TAG_CONVERTER;
+import static ws.palladian.core.Token.VALUE_CONVERTER;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
+import static ws.palladian.helper.functional.Predicates.not;
 
 /**
  * <p>
  * Palladian's Named Entity Recognizer. It is based on rule-based entity delimitation (for English texts), a text
  * classification approach, and analyzes the contexts around annotations. The major difference to other NERs is that it
  * can be learned on seed entities (just the names) or classically using supervised learning on a tagged dataset.
- * 
+ *
  * <p>
  * Palladian NER provides two language modes:
- * 
+ *
  * <ol>
  * <li>{@link LanguageMode#LanguageIndependent}: token-based, that is you can learn any language, the performance is
  * rather poor though. Consider using another recognizer.
  * <li>{@link LanguageMode#English}: NED + NEC, English only, this recognizer has shown to reach similar performance on
  * the CoNLL 2003 dataset as the state-of-the-art. It works on English texts only.
  * </ol>
- * 
+ *
  * <p>
  * Palladian NER provides two learning modes:
- * 
+ *
  * <ol>
  * <li>{@link TrainingMode#Complete}: You must have a tagged corpus in column format where the first column is the token
  * and the second column (separated by a tabstop) is the entity type.
@@ -95,7 +66,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * can also learn on the seed entities alone but no context information can be learned which results in a slightly worse
  * performance.
  * </ol>
- * 
+ *
  * <p>
  * Parameters for performance tuning:
  * <ul>
@@ -103,7 +74,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * <li>n-gram size of the context classifier (4-6 seems good)
  * <li>window size of the Annotation: {@link #WINDOW_SIZE}
  * </ul>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -122,19 +93,18 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Create a new {@link PalladianNer} for training.
-     * 
+     *
      * @param trainingSettings The training settings, not <code>null</code>.
      */
     public PalladianNer(PalladianNerTrainingSettings trainingSettings) {
         Validate.notNull(trainingSettings, "trainingSettings must not be null");
         this.trainingSettings = trainingSettings;
-        this.taggingSettings = new PalladianNerTaggingSettings(trainingSettings.getLanguageMode(),
-                trainingSettings.getTrainingMode());
+        this.taggingSettings = new PalladianNerTaggingSettings(trainingSettings.getLanguageMode(), trainingSettings.getTrainingMode());
     }
 
     /**
      * Create a new {@link PalladianNer} instance by loading a given model.
-     * 
+     *
      * @param modelFilePath The path to the existing model, not <code>null</code>.
      */
     public PalladianNer(String modelFilePath) {
@@ -167,9 +137,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Save the tagger to the specified file.
-     * 
+     *
      * @param modelFilePath The file where the tagger should be saved to. You do not need to add the file ending but if
-     *            you do, it should be "model.gz".
+     *                      you do, it should be "model.gz".
      */
     private void saveModel(String modelFilePath) {
         LOGGER.info(model.toString());
@@ -184,7 +154,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     /**
      * Build a case dictionary. For the giving training text, the upper/lowercase statistics of all tokens within
      * sentences (i.e. of all tokens not at sentence beginning) are analyzed.
-     * 
+     *
      * @param text The text from which to build the case dictionary.
      * @return The dictionary model with categories <code>A</code> and <code>a</code> for each token.
      */
@@ -204,8 +174,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 if (trimmedToken.length() > 1) {
                     String caseSignature = StringHelper.getCaseSignature(trimmedToken);
                     if (caseSignature.toLowerCase().startsWith("a")) {
-                        builder.addDocument(Collections.singleton(trimmedToken.toLowerCase()),
-                                caseSignature.substring(0, 1));
+                        builder.addDocument(Collections.singleton(trimmedToken.toLowerCase()), caseSignature.substring(0, 1));
                     }
                 }
             }
@@ -223,7 +192,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
-        train(trainingFilePath, Collections.<Annotation> emptyList(), modelFilePath);
+        train(trainingFilePath, Collections.<Annotation>emptyList(), modelFilePath);
         return true;
     }
 
@@ -232,11 +201,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * Similar to {@link train(String trainingFilePath, String modelFilePath)} method but an additional set of
      * annotations can be given to learn the classifier.
      * </p>
-     * 
+     *
      * @param trainingFilePath The file of the training file.
-     * @param annotations A set of annotations which are used for learning: Improving the text classifier AND adding
-     *            them to the entity dictionary.
-     * @param modelFilePath The path where the model should be saved to.
+     * @param annotations      A set of annotations which are used for learning: Improving the text classifier AND adding
+     *                         them to the entity dictionary.
+     * @param modelFilePath    The path where the model should be saved to.
      */
     public void train(String trainingFilePath, List<Annotation> annotations, String modelFilePath) {
         LOGGER.info("Training with settings: {}", trainingSettings);
@@ -253,27 +222,27 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * Replace the trained entity dictionary with the one from the file. The file must contain a header with information
      * about the concept importance as follows:
      * </p>
-     * 
+     *
      * <pre>
      * CONCEPT1>CONCEPT2>CONCEPT3>CONCEPT4>CONCEPT5>...
      * per>org>country>city>loc
      * </pre>
-     * 
+     *
      * <p>
      * The concept importance is used when a candidate is ambiguous. For example, "Buddha" is usually used to refer to
      * the person but it is also the name of a city. Increasing the importance of the person concept above the city
      * concept we can make sure it will not be tagged incorrectly.
      * </p>
-     * 
+     *
      * <p>
      * All subsequent lines must contain one entity and concept in the following format:
      * </p>
-     * 
+     *
      * <pre>
      *   CONCEPT###ENTITY
      *   City###Dresden
      * </pre>
-     * 
+     *
      * @param filePath The path to the dictionary file.
      */
     public void setEntityDictionary(String filePath) {
@@ -313,8 +282,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * Use only a set of annotations to learn, that is, no training file is required. Use this mostly in the English
      * language mode and do not expect great performance.
      * </p>
-     * 
-     * @param annotations A set of annotations which are used for learning.
+     *
+     * @param annotations   A set of annotations which are used for learning.
      * @param modelFilePath The path where the model should be saved to.
      */
     public void train(List<Annotation> annotations, String modelFilePath) {
@@ -335,7 +304,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     private DictionaryModel buildAnnotationDictionary(Iterable<Annotation> annotations) {
         LOGGER.info("Building annotation dictionary");
         DictionaryBuilder builder = createDictionaryBuilder();
-        PalladianTextClassifier textClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.ANNOTATION_FEATURE_SETTING, builder );
+        PalladianTextClassifier textClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.ANNOTATION_FEATURE_SETTING, builder);
         Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
             @Override
             public Instance apply(Annotation input) {
@@ -347,16 +316,15 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Train the tagger in language independent mode.
-     * 
-     * @param trainingFilePath The path of the training file.
+     *
+     * @param trainingFilePath              The path of the training file.
      * @param additionalTrainingAnnotations Additional annotations that can be used for training.
      */
     private void trainLanguageIndependent(String trainingFilePath, List<Annotation> additionalTrainingAnnotations) {
         String text = FileFormatParser.getText(trainingFilePath, COLUMN);
 
         // get all training annotations
-        Annotations<Annotation> tokenAnnotations = FileFormatParser
-                .getAnnotationsFromColumnTokenBased(trainingFilePath);
+        Annotations<Annotation> tokenAnnotations = FileFormatParser.getAnnotationsFromColumnTokenBased(trainingFilePath);
         tokenAnnotations.addAll(additionalTrainingAnnotations);
 
         // get annotations combined, e.g. "Phil Simmons", not "Phil" and "Simmons"
@@ -374,8 +342,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Train the tagger in English mode.
-     * 
-     * @param trainingFilePath The path of the training file.
+     *
+     * @param trainingFilePath              The path of the training file.
      * @param additionalTrainingAnnotations Additional annotations that can be used for training.
      */
     private void trainEnglish(String trainingFilePath, List<Annotation> additionalTrainingAnnotations) {
@@ -393,13 +361,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             int minCount = typeCounts.getMin().getValue();
             Annotations<Annotation> equalizedSampling = new Annotations<Annotation>();
             for (String type : typeCounts.uniqueItems()) {
-                Iterable<Annotation> currentType = CollectionHelper
-                        .filter(fileAnnotations, AnnotationFilters.tag(type));
+                Iterable<Annotation> currentType = CollectionHelper.filter(fileAnnotations, AnnotationFilters.tag(type));
                 Collection<Annotation> sampled = MathHelper.sample(currentType, minCount);
                 equalizedSampling.addAll(new HashSet<>(sampled));
             }
-            LOGGER.info("Original distribution {}; reduced from {} to {} for equalization", typeCounts,
-                    fileAnnotations.size(), equalizedSampling.size());
+            LOGGER.info("Original distribution {}; reduced from {} to {} for equalization", typeCounts, fileAnnotations.size(), equalizedSampling.size());
             fileAnnotations = equalizedSampling;
         }
 
@@ -439,7 +405,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Classify candidate annotations.
-     * 
+     *
      * @param entityCandidates The annotations to be classified.
      * @return Classified annotations.
      */
@@ -460,12 +426,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         Annotations<ClassifiedAnnotation> annotations = getAnnotationsInternal(inputText);
         // recognize and add URLs, remove annotations that were part of a URL
         if (taggingSettings.isTagUrls()) {
-            LOGGER.info("Tagging URLs");
+            //            LOGGER.info("Tagging URLs");
             annotations.addAll(getAnnotations(UrlTagger.INSTANCE, inputText));
         }
         // recognize and add dates, remove annotations that were part of a date
         if (taggingSettings.isTagDates()) {
-            LOGGER.info("Tagging dates");
+            //            LOGGER.info("Tagging dates");
             annotations.addAll(getAnnotations(DateAndTimeTagger.DEFAULT, inputText));
         }
         annotations.removeNested();
@@ -485,13 +451,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * <p>
      * Here all classified annotations are processed again. Depending on the learning settings different actions are
      * performed: Entities are re-classified by their contexts or by a dictionary.
-     * 
-     * @param text The text.
+     *
+     * @param text        The text.
      * @param annotations The classified annotations to process
      * @return The processed (and potentially re-classified) annotations.
      */
-    private Annotations<ClassifiedAnnotation> postProcessAnnotations(String text,
-            Annotations<ClassifiedAnnotation> annotations) {
+    private Annotations<ClassifiedAnnotation> postProcessAnnotations(String text, Annotations<ClassifiedAnnotation> annotations) {
         LOGGER.debug("Start post processing annotations");
         NumberFormat format = NumberFormat.getNumberInstance(Locale.US);
         // switch using pattern information
@@ -501,8 +466,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             for (ClassifiedAnnotation annotation : annotations) {
                 ClassifiedAnnotation result = applyContextAnalysis(annotation, text);
                 if (!result.sameTag(annotation)) {
-                    LOGGER.debug("Changed {} from {} to {}, context: {}", annotation.getValue(), annotation.getTag(),
-                            result.getTag(), NerHelper.getCharacterContext(annotation, text, PalladianNerTrainingSettings.WINDOW_SIZE));
+                    LOGGER.debug("Changed {} from {} to {}, context: {}", annotation.getValue(), annotation.getTag(), result.getTag(),
+                            NerHelper.getCharacterContext(annotation, text, PalladianNerTrainingSettings.WINDOW_SIZE));
                     changed++;
                 }
                 switched.add(result);
@@ -529,8 +494,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                         }
                     }
                     if (!annotation.getTag().equals(categoryEntries.getMostLikelyCategory())) {
-                        LOGGER.debug("Changed {} from {} to {} with dictionary", annotation.getValue(),
-                                annotation.getTag(), categoryEntries.getMostLikelyCategory());
+                        LOGGER.debug("Changed {} from {} to {} with dictionary", annotation.getValue(), annotation.getTag(), categoryEntries.getMostLikelyCategory());
                         changed++;
                     }
                     annotation = new ClassifiedAnnotation(annotation, categoryEntries);
@@ -550,7 +514,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             // get the candidates, every token is potentially a (part of) an entity
             tagger = new RegExTagger(Tokenizer.TOKEN_SPLIT_REGEX, StringTagger.CANDIDATE_TAG);
         } else {
-            // use the the string tagger to tag entities in English mode
+            // use the string tagger to tag entities in English mode
             tagger = StringTagger.INSTANCE;
         }
         Set<Annotation> annotations = new HashSet<>(tagger.getAnnotations(inputText));
@@ -566,12 +530,12 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Combine annotations that are right next to each other having the same tag.
-     * 
+     *
      * @param annotations The annotations to combine.
      * @return The combined annotations.
      */
     private static Annotations<ClassifiedAnnotation> combineAnnotations(Annotations<ClassifiedAnnotation> annotations) {
-        Annotations<ClassifiedAnnotation> combinedAnnotations = new Annotations<ClassifiedAnnotation>();
+        Annotations<ClassifiedAnnotation> combinedAnnotations = new Annotations<>();
         annotations.sort();
         ClassifiedAnnotation previous = null;
         ClassifiedAnnotation previousCombined = null;
@@ -579,15 +543,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             if (current.getTag().equalsIgnoreCase("o")) {
                 continue;
             }
-            if (previous != null && current.sameTag(previous)
-                    && current.getStartPosition() == previous.getEndPosition() + 1) {
+            if (previous != null && current.sameTag(previous) && current.getStartPosition() == previous.getEndPosition() + 1) {
                 if (previousCombined == null) {
                     previousCombined = previous;
                 }
                 int startPosition = previousCombined.getStartPosition();
                 String value = previousCombined.getValue() + " " + current.getValue();
-                ClassifiedAnnotation combined = new ClassifiedAnnotation(startPosition, value,
-                        previous.getCategoryEntries());
+                ClassifiedAnnotation combined = new ClassifiedAnnotation(startPosition, value, previous.getCategoryEntries());
                 combinedAnnotations.add(combined);
                 previousCombined = combined;
                 combinedAnnotations.remove(previousCombined);
@@ -642,8 +604,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                     break;
                 }
                 if (!model.lowerCaseDictionary.contains(token.toLowerCase())) {
-                    LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}", new Object[] {value,
-                            newValue, model.lowerCaseDictionary.contains(token.toLowerCase())});
+                    LOGGER.trace("Stop correcting '{}' at '{}' because of lc/uc ratio of {}",
+                            new Object[]{value, newValue, model.lowerCaseDictionary.contains(token.toLowerCase())});
                     break;
                 }
                 offsetCut += token.length() + 1;
@@ -742,7 +704,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * Use a learned case dictionary to remove possibly incorrectly tagged sentence starts. For example ". This" is
      * removed since "this" is usually spelled using lowercase characters only. This is done NOT only for words at
      * sentence start but all single token words.
-     * 
+     *
      * @param annotations The annotations.
      */
     private void removeSentenceStartErrors(Set<Annotation> annotations) {
@@ -805,7 +767,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Check whether the given text is a date fragment, e.g. "June".
-     * 
+     *
      * @param value The value to check.
      * @return <code>true</code> in case the text is a date fragment.
      */
@@ -820,10 +782,10 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     /**
      * Try to remove date fragments from the given annotation, e.g. "June John Hiatt" becomes "John Hiatt".
-     * 
+     *
      * @param annotation The annotation to process.
      * @return A new annotation with removed date fragments and fixed offsets, or <code>null</code> in case the given
-     *         annotation did not contain a date fragment.
+     * annotation did not contain a date fragment.
      */
     static Annotation removeDateFragment(Annotation annotation) {
         String newValue = annotation.getValue();
@@ -853,7 +815,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * "President Barack Obama". From the available annotations we determine, whether "President" belongs to the entity,
      * or to the context. This information can be used later, to fix the boundaries of an annotation.
      *
-     * @param text The text.
+     * @param text        The text.
      * @param annotations The annotations.
      * @return A set with tokens which appear more often in the context, than within an entity (e.g. "President").
      */
@@ -881,7 +843,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
                 int outside = entry.getValue();
                 int inside = insideAnnotationCounts.count(leftContext);
                 if (outside + inside >= minCount) {
-                    double ratio = (double)inside / outside;
+                    double ratio = (double) inside / outside;
                     if (ratio < 1 && outside >= 2) {
                         leftContexts.add(leftContext);
                     }
@@ -894,12 +856,11 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     private DictionaryModel buildContextDictionary(final String text, Iterable<Annotation> annotations) {
         LOGGER.info("Building context dictionary");
         DictionaryBuilder builder = createDictionaryBuilder();
-        PalladianTextClassifier contextClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.CONTEXT_FEATURE_SETTING, builder );
+        PalladianTextClassifier contextClassifier = new PalladianTextClassifier(PalladianNerTrainingSettings.CONTEXT_FEATURE_SETTING, builder);
         Iterable<Instance> instances = CollectionHelper.convert(annotations, new Function<Annotation, Instance>() {
             @Override
             public Instance apply(Annotation input) {
-                return new InstanceBuilder().setText(NerHelper.getCharacterContext(input, text, PalladianNerTrainingSettings.WINDOW_SIZE)).create(
-                        input.getTag());
+                return new InstanceBuilder().setText(NerHelper.getCharacterContext(input, text, PalladianNerTrainingSettings.WINDOW_SIZE)).create(input.getTag());
             }
         });
         return contextClassifier.train(instances);
@@ -914,8 +875,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * If the annotation is completely upper case, like "NEW YORK CITY AND DRESDEN", try to find which of the given
      * annotation are part of this entity. The given example contains two entities that might be in the given annotation
      * set. If so, we return the found annotations.
-     * 
-     * @param annotation The annotation to check.
+     *
+     * @param annotation  The annotation to check.
      * @param annotations The annotations we are searching for in this entity.
      * @return A set of annotations found in this annotation.
      */
@@ -951,5 +912,4 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     public PalladianNerTaggingSettings getTaggingSettings() {
         return taggingSettings;
     }
-
 }
