@@ -1,32 +1,24 @@
-
 package ws.palladian.extraction.entity.evaluation;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.extraction.entity.TaggingFormat;
-import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
+import ws.palladian.extraction.entity.*;
 import ws.palladian.extraction.entity.dataset.DatasetProcessor;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.tagger.PalladianNer;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.FileNameMatchingType;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author David Urbansky
- * 
  */
 public class Evaluator {
 
@@ -40,16 +32,16 @@ public class Evaluator {
      * Seed-only evaluation. In this evaluation scenario, the NER is only trained on a set of seed entities per concept.
      * Most NERs can not be trained in this fashion so we only evaluate {@link PalladianNer}.
      * </p>
-     * 
+     *
      * <p>
      * We evaluate on the complete test set and once more only on entities which were not used for the training (direct
      * name comparison, e.g. when we used "Jim Carrey (PER)" as a training seed we do not evaluate on "Jim Carrey (X)"
      * for all X.).
      * </p>
-     * 
+     *
      * <p>
      * This evaluation method will generate two csv files in the following format:
-     * 
+     *
      * <pre>
      *                 |                     Complete Test Set                                     |                           Unseen entities only
      * Number of Seeds | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1 | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1
@@ -57,20 +49,19 @@ public class Evaluator {
      * ...             |
      * maxNumberOfSeeds|
      * </pre>
-     * 
+     *
      * One file is for the TUDNER in English mode and the other one for language independent mode. The result file will
      * be written to EVALUATION_PATH.
      * </p>
-     * 
-     * @param trainingFilePath The path to the training file. The file must be in a tab (\t) separated column column
-     *            format where the first column is the term and the second column is the concept.
-     * @param testFilePath The path to the test file. The file must be in a tab (\t) separated column column
-     *            format where the first column is the term and the second column is the concept.
+     *
+     * @param trainingFilePath           The path to the training file. The file must be in a tab (\t) separated column column
+     *                                   format where the first column is the term and the second column is the concept.
+     * @param testFilePath               The path to the test file. The file must be in a tab (\t) separated column column
+     *                                   format where the first column is the term and the second column is the concept.
      * @param minNumberOfSeedsPerConcept The minimal number of training seeds per concept.
      * @param maxNumberOfSeedsPerConcept The maximal number of training seeds per concept.
      */
-    public void evaluateSeedInputOnly(String trainingFilePath, String testFilePath, int minNumberOfSeedsPerConcept,
-            int maxNumberOfSeedsPerConcept) {
+    public void evaluateSeedInputOnly(String trainingFilePath, String testFilePath, int minNumberOfSeedsPerConcept, int maxNumberOfSeedsPerConcept) {
 
         StopWatch stopWatch = new StopWatch();
 
@@ -89,7 +80,8 @@ public class Evaluator {
 
             results.append("TUDNER, mode = ").append(trainingSettings.getLanguageMode()).append("\n");
             results.append(";All;;;;;;Unseen only;;;;;;\n");
-            results.append("Number of Seeds;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;\n");
+            results.append(
+                    "Number of Seeds;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;Exact Precision;Exact Recall;Exact F1;MUC Precision;MUC Recall;MUC F1;\n");
 
             for (int j = minNumberOfSeedsPerConcept; j <= maxNumberOfSeedsPerConcept; j++) {
 
@@ -97,14 +89,13 @@ public class Evaluator {
 
                 PalladianNer tagger = new PalladianNer(trainingSettings);
 
-                Annotations<Annotation> annotations = FileFormatParser
-                        .getSeedAnnotations(trainingFilePath, j);
+                Annotations<Annotation> annotations = FileFormatParser.getSeedAnnotations(trainingFilePath, j);
 
                 LOGGER.info("train on these annotations: " + annotations);
 
                 // train the tagger using seed annotations only
-                String modelPath = EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + trainingSettings.getLanguageMode() + "."
-                        + tagger.getModelFileEndingIfNotSetAutomatically();
+                String modelPath =
+                        EVALUATION_PATH + "tudner_seedOnlyEvaluation_" + j + "Seeds_" + trainingSettings.getLanguageMode() + "." + tagger.getModelFileEndingIfNotSetAutomatically();
                 tagger.train(annotations, modelPath);
 
                 // evaluate over complete test set (k=0) and on unseen entities only (k=1)
@@ -164,7 +155,7 @@ public class Evaluator {
      * </p>
      * <p>
      * This evaluation method will generate one csv file in the following format:
-     * 
+     *
      * <pre>
      *                      |                     Complete Test Set                                     |                           Unseen entities only
      * Number of Documents  | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1 | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1
@@ -172,30 +163,28 @@ public class Evaluator {
      * ...                  |
      * maxDocuments         |
      * </pre>
-     * 
+     *
      * The result file will be written to EVALUATION_PATH.
      * </p>
-     * 
-     * @param tagger The named entity recognizer that should be evaluated.
-     * @param trainingFilePath The path to the training file that contains all documents.
-     * @param testFilePath The path to the test file on which the NER should be tested on.
+     *
+     * @param tagger            The named entity recognizer that should be evaluated.
+     * @param trainingFilePath  The path to the training file that contains all documents.
+     * @param testFilePath      The path to the test file on which the NER should be tested on.
      * @param documentSeparator The separator for the documents in the given file.
-     * @param minDocuments The minimal number of documents to consider.
-     * @param maxDocuments The maximal number of documents to consider.
-     * @param stepSize The size of the steps between minDocuments and maxDocuments.
+     * @param minDocuments      The minimal number of documents to consider.
+     * @param maxDocuments      The maximal number of documents to consider.
+     * @param stepSize          The size of the steps between minDocuments and maxDocuments.
      */
-    public void evaluateDependencyOnTrainingSetSize(TrainableNamedEntityRecognizer tagger, String trainingFilePath,
-            String testFilePath, String documentSeparator, int minDocuments, int maxDocuments, int stepSize) {
+    public void evaluateDependencyOnTrainingSetSize(TrainableNamedEntityRecognizer tagger, String trainingFilePath, String testFilePath, String documentSeparator, int minDocuments,
+            int maxDocuments, int stepSize) {
 
         StopWatch stopWatch = new StopWatch();
 
-        LOGGER.info("evaluate " + tagger.getName() + " on " + testFilePath + " with " + minDocuments + " to "
-                + maxDocuments + " documents with step size" + stepSize);
+        LOGGER.info("evaluate " + tagger.getName() + " on " + testFilePath + " with " + minDocuments + " to " + maxDocuments + " documents with step size" + stepSize);
 
         // split the training set in a number of files containing the documents
         DatasetProcessor processor = new DatasetProcessor();
-        List<String> splitFilePaths = processor.splitFile(trainingFilePath, documentSeparator, minDocuments,
-                maxDocuments, stepSize);
+        List<String> splitFilePaths = processor.splitFile(trainingFilePath, documentSeparator, minDocuments, maxDocuments, stepSize);
 
         StringBuilder results = new StringBuilder();
 
@@ -210,8 +199,7 @@ public class Evaluator {
             // get the annotations
             Annotations<Annotation> annotations = FileFormatParser.getSeedAnnotations(filePath, -1);
 
-            String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "."
-                    + tagger.getModelFileEndingIfNotSetAutomatically();
+            String modelFilePath = EVALUATION_PATH + tagger.getName() + "_nerModel_" + numberOfDocuments + "." + tagger.getModelFileEndingIfNotSetAutomatically();
             tagger.train(filePath, modelFilePath);
 
             // evaluate over complete test set (k=0) and on unseen entities only (k=1)
@@ -244,11 +232,9 @@ public class Evaluator {
 
             }
 
-            LOGGER.info("evaluated " + tagger.getName() + " on " + numberOfDocuments + " documents in "
-                    + stopWatch.getTotalElapsedTimeString());
+            LOGGER.info("evaluated " + tagger.getName() + " on " + numberOfDocuments + " documents in " + stopWatch.getTotalElapsedTimeString());
 
-            FileHelper.writeToFile(EVALUATION_PATH + "dependencyOnTrainingSetSize_" + tagger.getName() + ".csv",
-                    results);
+            FileHelper.writeToFile(EVALUATION_PATH + "dependencyOnTrainingSetSize_" + tagger.getName() + ".csv", results);
 
             // er.
             // FileHelper.writeToFile(EVALUATION_PATH + "evaluatePerConcept_" + tagger.getName() + "_" +
@@ -265,7 +251,7 @@ public class Evaluator {
      * </p>
      * <p>
      * This evaluation method will generate one csv file in the following format:
-     * 
+     *
      * <pre>
      *                      |                     Complete Test Set                                     |                           Unseen entities only
      * Concept              | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1 | Ex. Precision | Ex. Recall | Ex. F1 | MUC Precision | MUC Recall | MUC F1
@@ -273,25 +259,22 @@ public class Evaluator {
      * ..                   |
      * Averaged             |
      * </pre>
-     * 
+     *
      * The result file will be written to EVALUATION_PATH.
      * </p>
-     * 
-     * @param tagger The named entity recognizer that should be evaluated.
+     *
+     * @param tagger           The named entity recognizer that should be evaluated.
      * @param trainingFilePath The path to the training file that contains all documents.
-     * @param testFilePath The path to the test file on which the NER should be tested on.
+     * @param testFilePath     The path to the test file on which the NER should be tested on.
      * @return Return the average performance for the given tagger on the given dataset.
      */
-    public String evaluatePerConceptPerformance(TrainableNamedEntityRecognizer tagger, String trainingFilePath,
-            String testFilePath, int numberOfSeeds) {
+    public String evaluatePerConceptPerformance(TrainableNamedEntityRecognizer tagger, String trainingFilePath, String testFilePath, int numberOfSeeds) {
 
         StopWatch stopWatch = new StopWatch();
 
-        LOGGER.info("start evaluating per concept performance for " + tagger.getName() + " on " + numberOfSeeds
-                + " seeds");
+        LOGGER.info("start evaluating per concept performance for " + tagger.getName() + " on " + numberOfSeeds + " seeds");
 
-        String modelFilePath = EVALUATION_PATH + "evaluatePerConceptModel_" + tagger.getName() + "_" + numberOfSeeds
-        + "." + tagger.getModelFileEndingIfNotSetAutomatically();
+        String modelFilePath = EVALUATION_PATH + "evaluatePerConceptModel_" + tagger.getName() + "_" + numberOfSeeds + "." + tagger.getModelFileEndingIfNotSetAutomatically();
         tagger.train(trainingFilePath, modelFilePath);
         LOGGER.info("training " + tagger.getName() + " took " + stopWatch.getElapsedTimeString());
 
@@ -374,29 +357,25 @@ public class Evaluator {
             averagedLine.append(er.getRecall(EvaluationMode.MUC)).append(";");
             averagedLine.append(er.getF1(EvaluationMode.MUC)).append(";");
 
-
         }
 
         results.append(averagedLine);
 
-        FileHelper.writeToFile(EVALUATION_PATH + "evaluatePerConcept_" + tagger.getName() + "_" + numberOfSeeds
-                + ".csv", results);
+        FileHelper.writeToFile(EVALUATION_PATH + "evaluatePerConcept_" + tagger.getName() + "_" + numberOfSeeds + ".csv", results);
 
-        LOGGER.info("evaluated " + tagger.getName() + " on " + trainingFilePath + " in "
-                + stopWatch.getTotalElapsedTimeString());
+        LOGGER.info("evaluated " + tagger.getName() + " on " + trainingFilePath + " in " + stopWatch.getTotalElapsedTimeString());
 
         return averagedLine.toString();
     }
 
-    public void evaluateOnGeneratedTrainingset(List<TrainableNamedEntityRecognizer> taggers, String targetFolder,
-            String testFilePath) {
+    public void evaluateOnGeneratedTrainingset(List<TrainableNamedEntityRecognizer> taggers, String targetFolder, String testFilePath) {
 
         StopWatch stopWatch = new StopWatch();
 
         StringBuilder results = new StringBuilder();
 
         // count the numer of text files for evaluation in the target folder
-        int maxNumberOfSeeds = FileHelper.getMatchingFiles(targetFolder, "seedsTest", FileNameMatchingType.REGEX).size();
+        int maxNumberOfSeeds = FileHelper.getFiles(targetFolder, "seedsTest").length;
 
         // write the result head
         results.append(";");
@@ -423,8 +402,7 @@ public class Evaluator {
 
         FileHelper.writeToFile(EVALUATION_PATH + "autoGeneratedTests.txt", results);
 
-        LOGGER.info("finished evaluating " + taggers.size() + " NERs using generated training data in "
-                + stopWatch.getTotalElapsedTimeString());
+        LOGGER.info("finished evaluating " + taggers.size() + " NERs using generated training data in " + stopWatch.getTotalElapsedTimeString());
     }
 
     /**
@@ -446,7 +424,7 @@ public class Evaluator {
         List<TrainableNamedEntityRecognizer> taggerList = new ArrayList<TrainableNamedEntityRecognizer>();
         // taggerList.add(new StanfordNER());
         // IllinoisLbjNer lbjNer = new IllinoisLbjNer();
-        
+
         taggerList.add(new PalladianNer(PalladianNerTrainingSettings.Builder.english().create()));
         taggerList.add(new PalladianNer(PalladianNerTrainingSettings.Builder.languageIndependent().create()));
         // lbjNer.setConllEvaluation(true); // you have to set conllEvaluation to true if used for conll
@@ -499,8 +477,7 @@ public class Evaluator {
         taggerList.add(new PalladianNer(PalladianNerTrainingSettings.Builder.languageIndependent().create()));
         for (TrainableNamedEntityRecognizer tagger : taggerList) {
             // evaluator.evaluatePerConceptPerformance(tagger, tud2011TrainingPath, tud2011TestPath, 0);
-            evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath,
-                    "=-DOCSTART-\tO", 1, 61, 5);
+            evaluator.evaluateDependencyOnTrainingSetSize(tagger, tud2011TrainingPath, tud2011TestPath, "=-DOCSTART-\tO", 1, 61, 5);
         }
         System.exit(0);
 

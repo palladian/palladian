@@ -223,8 +223,7 @@ public final class Tokenizer {
         return splits;
     }
 
-    private static void computeSplits(Set<List<String>> splits, List<String> currentSplit, String string, int n1,
-                                      int n2, int maxSplits) {
+    private static void computeSplits(Set<List<String>> splits, List<String> currentSplit, String string, int n1, int n2, int maxSplits) {
 
         if (string.isEmpty()) {
             splits.add(new ArrayList<>(currentSplit));
@@ -240,7 +239,7 @@ public final class Tokenizer {
 
         for (String ngram : ngrams) {
             currentSplit.add(ngram);
-//            computeSplits(splits, currentSplit, string.replaceAll("^" + ngram, "").trim(), n1, n2, maxSplits);
+            //            computeSplits(splits, currentSplit, string.replaceAll("^" + ngram, "").trim(), n1, n2, maxSplits);
             computeSplits(splits, currentSplit, string.startsWith(ngram) ? string.substring(ngram.length()).trim() : string, n1, n2, maxSplits);
         }
         if (!currentSplit.isEmpty()) {
@@ -335,8 +334,7 @@ public final class Tokenizer {
             for (String sentence : sentences) {
                 String[] parts = sentence.split("\n");
                 sentence = parts[parts.length - 1];
-                if (sentence.endsWith(".") || sentence.endsWith("?") || sentence.endsWith("!")
-                        || sentence.endsWith(".”") || sentence.endsWith(".\"")) {
+                if (sentence.endsWith(".") || sentence.endsWith("?") || sentence.endsWith("!") || sentence.endsWith(".”") || sentence.endsWith(".\"")) {
 
                     String cleanSentence = StringHelper.trim(sentence, "“”\"");
                     int wordCount = StringHelper.countWhitespaces(cleanSentence) + 1;
@@ -398,18 +396,15 @@ public final class Tokenizer {
             }
 
             if (startIndex > 0) {
-                pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(startIndex - 1))
-                        && Character.isUpperCase(string.charAt(startIndex + 1));
+                pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(startIndex - 1)) && Character.isUpperCase(string.charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2))
-                        || string.charAt(startIndex + 2) == '-' || string.charAt(startIndex + 2) == '=')
+                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) || string.charAt(startIndex + 2) == '-' || string.charAt(startIndex + 2) == '=')
                         && string.charAt(startIndex + 1) == ' ';
             }
 
             // break after period
-            if (!pointIsSentenceDelimiter
-                    && (string.charAt(startIndex + 1) == '\n' || string.charAt(startIndex) == '\n')) {
+            if (!pointIsSentenceDelimiter && (string.charAt(startIndex + 1) == '\n' || string.charAt(startIndex) == '\n')) {
                 pointIsSentenceDelimiter = true;
             }
 
@@ -477,16 +472,15 @@ public final class Tokenizer {
             }
             // one digit after period
             if (endIndex < string.length() - 1) {
-                pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
-                        && Character.isUpperCase(string.charAt(endIndex + 1))
-                        || StringHelper.isBracket(string.charAt(endIndex + 1))
-                        || (endIndex > 0 && string.charAt(endIndex - 1) == '"');
+                pointIsSentenceDelimiter =
+                        !StringHelper.isNumber(string.charAt(endIndex + 1)) && Character.isUpperCase(string.charAt(endIndex + 1)) || StringHelper.isBracket(string.charAt(endIndex + 1))
+                                || (endIndex > 0 && string.charAt(endIndex - 1) == '"');
             }
             // two digits after period
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 2))
-                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
-                        .charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
+                pointIsSentenceDelimiter =
+                        !StringHelper.isNumber(string.charAt(endIndex + 2)) && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string.charAt(
+                                endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
             }
             // break after period
             if (!pointIsSentenceDelimiter && (string.length() == (endIndex + 1) || string.charAt(endIndex + 1) == '\n')) {
@@ -529,22 +523,36 @@ public final class Tokenizer {
         return string.substring(0, endIndex);
     }
 
+    private static String getSerializationPath(String key) {
+        String shaKey = StringHelper.sha1(key);
+        String subFolder = shaKey.substring(0, 3);
+        return "data/trie3/" + subFolder + "/node-" + shaKey + ".gz";
+    }
+
     public static void main(String[] args) throws IOException {
         StopWatch stopWatch1 = new StopWatch();
+        //        for (int i = 0; i < 10000; i++) {
+        //            String serializationPath = getSerializationPath("asdfasdf"+i);
+        //            Path path = Paths.get(serializationPath);
+        //            Files.exists(path);
+        ////            FileHelper.fileExists(serializationPath);
+        //        }
+        //        System.out.println(stopWatch1.getElapsedTimeString());
+        //        System.exit(0);
 
         ////////////////// load structure //////////////////
-//        DB db = DBMaker.tempFileDB().closeOnJvmShutdown().make();
-//        DB db = DBMaker.fileDB("tmp2.db").closeOnJvmShutdown().fileMmapEnableIfSupported() // Only enable mmap on supported platforms
-//                .fileMmapPreclearDisable()   // Make mmap file faster
-//                // Unmap (release resources) file when its closed.
-//                // That can cause JVM crash if file is accessed after it was unmapped
-//                // (there is possible race condition).
-//                .cleanerHackEnable().make();
-//        BTreeMap<String, IntOpenHashSet> map = db.treeMap("map")
-//                .keySerializer(Serializer.STRING)
-//                .valueSerializer(new SerializerJava())
-//                .createOrOpen();
-        File dataFolder = new File("data/trie2/");
+        //        DB db = DBMaker.tempFileDB().closeOnJvmShutdown().make();
+        //        DB db = DBMaker.fileDB("tmp2.db").closeOnJvmShutdown().fileMmapEnableIfSupported() // Only enable mmap on supported platforms
+        //                .fileMmapPreclearDisable()   // Make mmap file faster
+        //                // Unmap (release resources) file when its closed.
+        //                // That can cause JVM crash if file is accessed after it was unmapped
+        //                // (there is possible race condition).
+        //                .cleanerHackEnable().make();
+        //        BTreeMap<String, IntOpenHashSet> map = db.treeMap("map")
+        //                .keySerializer(Serializer.STRING)
+        //                .valueSerializer(new SerializerJava())
+        //                .createOrOpen();
+        File dataFolder = new File("data/trie3/");
         Trie<IntOpenHashSet> map = new Trie<>();
         System.out.println("structure created " + stopWatch1.getElapsedTimeStringAndIncrement());
 
@@ -573,7 +581,7 @@ public final class Tokenizer {
 
         System.out.println("structure filled " + stopWatch1.getElapsedTimeStringAndIncrement());
         System.out.println(ProcessHelper.getHeapUtilization());
-//        map = null;
+        //        map = null;
         words = "";
         words = null;
         strings = null;
@@ -581,18 +589,18 @@ public final class Tokenizer {
         strings1 = null;
         System.gc();
         System.out.println(ProcessHelper.getHeapUtilization());
-//        btree.flush(true, true);
-//        btree.close();
+        //        btree.flush(true, true);
+        //        btree.close();
         System.gc();
         System.out.println(ProcessHelper.getHeapUtilization());
-//        btree = new BTreeIndex(new File("data/btree5.idx"));
-//        btree.init(false);
-//        System.gc();
-//        System.out.println(ProcessHelper.getHeapUtilization());
-//        IntOpenHashSet value = new IntOpenHashSet();
-//        value.add(1);
-//        map.put("my string", value);
-//        map.put("my string", new int[]{1, 2, 3});
+        //        btree = new BTreeIndex(new File("data/btree5.idx"));
+        //        btree.init(false);
+        //        System.gc();
+        //        System.out.println(ProcessHelper.getHeapUtilization());
+        //        IntOpenHashSet value = new IntOpenHashSet();
+        //        value.add(1);
+        //        map.put("my string", value);
+        //        map.put("my string", new int[]{1, 2, 3});
 
         System.out.println("starting interactive mode:");
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
@@ -605,24 +613,24 @@ public final class Tokenizer {
                 String[] s = query.split(" ");
                 s[0] = s[0].substring(1);
                 String[] numbers = s[1].split(",");
-//                int[] newNumbers = new int[numbers.length];
-//                for (int i = 0; i < numbers.length; i++) {
-//                    newNumbers[i] = Integer.valueOf(numbers[i]);
-//                }
-//                map.put(s[0], newNumbers);
+                //                int[] newNumbers = new int[numbers.length];
+                //                for (int i = 0; i < numbers.length; i++) {
+                //                    newNumbers[i] = Integer.valueOf(numbers[i]);
+                //                }
+                //                map.put(s[0], newNumbers);
                 IntOpenHashSet newNumbers = new IntOpenHashSet();
                 for (int i = 0; i < numbers.length; i++) {
                     newNumbers.add(Integer.valueOf(numbers[i]));
                 }
                 map.put(s[0], newNumbers);
             } else if (query.equals("flush")) {
-//                btree.flush();
-//            } else if (query.equals("close")) {
-////                db.close();
-//                btree.flush();
-//                btree.close();
+                //                btree.flush();
+                //            } else if (query.equals("close")) {
+                ////                db.close();
+                //                btree.flush();
+                //                btree.close();
             } else {
-//                int[] ints = map.get(query);
+                //                int[] ints = map.get(query);
                 IntOpenHashSet ints = Optional.ofNullable(map).orElse(new Trie<>()).get(query);
                 if (ints == null) {
                     System.out.println("-");
@@ -637,34 +645,34 @@ public final class Tokenizer {
                     }
                     System.out.print("\n");
                 }
-//                Value value = btree.getValue(new Value(query));
-//                if (value == null) {
-//                    System.out.println("-");
-//                } else {
-//                    String s = new String(value.getData());
-//                    System.out.print("btree (" + s.split(",").length + "): " + s.substring(0, Math.min(100, s.length())) + "\n");
-//                }
+                //                Value value = btree.getValue(new Value(query));
+                //                if (value == null) {
+                //                    System.out.println("-");
+                //                } else {
+                //                    String s = new String(value.getData());
+                //                    System.out.print("btree (" + s.split(",").length + "): " + s.substring(0, Math.min(100, s.length())) + "\n");
+                //                }
 
                 // Open a read-only Txn. It only sees data that existed at Txn creation time.
-//                final ByteBuffer key = ByteBuffer.allocateDirect(env.getMaxKeySize());
-//                key.put(query.getBytes(StandardCharsets.UTF_8)).flip();
-//                // Our read Txn can fetch key1 without problem, as it existed at Txn creation.
-//
-//                // To fetch any data from LMDB we need a Txn. A Txn is very important in
-//                // LmdbJava because it offers ACID characteristics and internally holds a
-//                // read-only key buffer and read-only value buffer. These read-only buffers
-//                // are always the same two Java objects, but point to different LMDB-managed
-//                // memory as we use Dbi (and Cursor) methods. These read-only buffers remain
-//                // valid only until the Txn is released or the next Dbi or Cursor call. If
-//                // you need data afterwards, you should copy the bytes to your own buffer.
-//                try (Txn<ByteBuffer> txn = env.txnRead()) {
-//                    final ByteBuffer found = db.get(txn, key);
-//                    // The fetchedVal is read-only and points to LMDB memory
-//                    final ByteBuffer fetchedVal = txn.val();
-//                    String list = StandardCharsets.UTF_8.decode(fetchedVal).toString();
-//                    String[] split = list.split(",");
-//                    System.out.println("lmdb (" + split.length + "): " + list);
-//                }
+                //                final ByteBuffer key = ByteBuffer.allocateDirect(env.getMaxKeySize());
+                //                key.put(query.getBytes(StandardCharsets.UTF_8)).flip();
+                //                // Our read Txn can fetch key1 without problem, as it existed at Txn creation.
+                //
+                //                // To fetch any data from LMDB we need a Txn. A Txn is very important in
+                //                // LmdbJava because it offers ACID characteristics and internally holds a
+                //                // read-only key buffer and read-only value buffer. These read-only buffers
+                //                // are always the same two Java objects, but point to different LMDB-managed
+                //                // memory as we use Dbi (and Cursor) methods. These read-only buffers remain
+                //                // valid only until the Txn is released or the next Dbi or Cursor call. If
+                //                // you need data afterwards, you should copy the bytes to your own buffer.
+                //                try (Txn<ByteBuffer> txn = env.txnRead()) {
+                //                    final ByteBuffer found = db.get(txn, key);
+                //                    // The fetchedVal is read-only and points to LMDB memory
+                //                    final ByteBuffer fetchedVal = txn.val();
+                //                    String list = StandardCharsets.UTF_8.decode(fetchedVal).toString();
+                //                    String[] split = list.split(",");
+                //                    System.out.println("lmdb (" + split.length + "): " + list);
+                //                }
             }
             System.out.println(sw.getElapsedTimeString());
         }

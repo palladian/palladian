@@ -7,12 +7,10 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.FileNameMatchingType;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.retrieval.DocumentRetriever;
 
 import java.io.*;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -142,8 +140,8 @@ final class DataHelper {
                     }
 
                     // add to file if the language is english and category not world or category is world and language matches
-                    if (!categories[1].equalsIgnoreCase("world") && !useTopWorldCategories
-                            || useTopWorldCategories && categories.length > 2 && categories[2].equalsIgnoreCase(language)) {
+                    if (!categories[1].equalsIgnoreCase("world") && !useTopWorldCategories || useTopWorldCategories && categories.length > 2 && categories[2].equalsIgnoreCase(
+                            language)) {
 
                         // remove "Top" category
                         categoryString = categoryString.substring(4);
@@ -240,8 +238,7 @@ final class DataHelper {
 
         // FileHelper.writeToFile("data/temp/odp/" + FileHelper.getFilePath(sourceFile) + "_sample" + sampleSize +
         // ".txt", sampleFile);
-        FileHelper.writeToFile("data/temp/odp/" + FileHelper.appendToFileName(sourceFile, "_sample" + sampleSize),
-                sampleFile);
+        FileHelper.writeToFile("data/temp/odp/" + FileHelper.appendToFileName(sourceFile, "_sample" + sampleSize), sampleFile);
     }
 
     /**
@@ -251,12 +248,12 @@ final class DataHelper {
      */
     public void cleanup(boolean deleteXMLParts) {
         if (deleteXMLParts) {
-            Collection<File> files = FileHelper.getMatchingFiles("data/temp/odp/", XML_PART_NAME, FileNameMatchingType.REGEX);
+            File[] files = FileHelper.getFiles("data/temp/odp/", XML_PART_NAME);
             for (File file : files) {
                 file.delete();
             }
         }
-        Collection<File> files2 = FileHelper.getMatchingFiles("data/temp/odp/", URL_PART_NAME, FileNameMatchingType.REGEX);
+        File[] files2 = FileHelper.getFiles("data/temp/odp/", URL_PART_NAME);
         for (File file : files2) {
             file.delete();
         }

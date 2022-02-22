@@ -1,16 +1,9 @@
 package ws.palladian.extraction.location.evaluation;
 
-import java.io.File;
-import java.util.*;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -25,14 +18,21 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.FileNameMatchingType;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
  * Converts Local Global Lexicon corpus to XML files. See 'Geotagging with Local Lexicons to Build Indexes for
  * Textually-Specified', Michael D. Lieberman and Hanan Samet and Jagan Sankaranarayanan, 2010.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 class LocalGlobalLexiconConverter {
@@ -71,16 +71,13 @@ class LocalGlobalLexiconConverter {
             List<LocationAnnotation> annotations = new ArrayList<>();
 
             @Override
-            public void startElement(String uri, String localName, String qName, Attributes attributes)
-                    throws SAXException {
+            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
                 if (qName.equals("article")) {
                     docId = attributes.getValue("docid");
                 } else if (qName.equals("toponyms")) {
-                    topCount = Integer.valueOf(CollectionHelper.coalesce(attributes.getValue("count"),
-                            attributes.getValue("toponymcount")));
+                    topCount = Integer.valueOf(CollectionHelper.coalesce(attributes.getValue("count"), attributes.getValue("toponymcount")));
                 } else if (qName.equals("gaztag")) {
-                    geonameId = Integer.valueOf(CollectionHelper.coalesce(attributes.getValue("geonameid"),
-                            attributes.getValue("gazid")));
+                    geonameId = Integer.valueOf(CollectionHelper.coalesce(attributes.getValue("geonameid"), attributes.getValue("gazid")));
                 }
                 clearBuffer();
             }
@@ -89,8 +86,7 @@ class LocalGlobalLexiconConverter {
             public void endElement(String uri, String localName, String qName) throws SAXException {
                 if (qName.equals("article")) {
                     if (topCount != null && annotations.size() != topCount) {
-                        throw new IllegalStateException("Count mismatch; should be " + topCount + ", but is "
-                                + annotations.size());
+                        throw new IllegalStateException("Count mismatch; should be " + topCount + ", but is " + annotations.size());
                     }
                     writeArticle(text, annotations, docId, outputDirectory);
                     appendCoordinatesFile(annotations, docId, coordinateFile);
@@ -173,8 +169,7 @@ class LocalGlobalLexiconConverter {
 
     }
 
-    private static void writeArticle(String text, List<LocationAnnotation> annotations, String docId,
-            File outputDirectory) {
+    private static void writeArticle(String text, List<LocationAnnotation> annotations, String docId, File outputDirectory) {
         String taggedText = NerHelper.tag(text, annotations, TaggingFormat.XML);
         File outputFile = new File(outputDirectory, "text_" + docId + ".txt");
         FileHelper.writeToFile(outputFile.getPath(), taggedText);
@@ -207,11 +202,11 @@ class LocalGlobalLexiconConverter {
      * <p>
      * Clean the CLUST dataset; ignore duplicate texts, ignore texts which were no annotated.
      * </p>
-     * 
+     *
      * @param datasetPath
      */
     public static final void cleanClust(File datasetPath) {
-        Collection<File> files = FileHelper.getMatchingFiles(datasetPath.getPath(), "text_", FileNameMatchingType.REGEX);
+        File[] files = FileHelper.getFiles(datasetPath.getPath(), "text_");
         File destinationDirectory = new File(datasetPath, "0-all");
         Set<Integer> deduplication = new HashSet<>();
         int annotated = 0;
@@ -225,7 +220,7 @@ class LocalGlobalLexiconConverter {
                 }
             }
         }
-        System.out.println("# files: " + files.size());
+        System.out.println("# files: " + files.length);
         System.out.println("# unique: " + deduplication.size());
         System.out.println("# annotated: " + annotated);
     }

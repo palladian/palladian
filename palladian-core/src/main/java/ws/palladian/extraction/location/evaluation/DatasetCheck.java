@@ -11,12 +11,10 @@ import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.FileNameMatchingType;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -48,12 +46,11 @@ final class DatasetCheck {
 
     static void performCheck(File datasetDirectory) {
         if (!datasetDirectory.isDirectory()) {
-            throw new IllegalStateException("Specified path '" + datasetDirectory
-                    + "' does not exist or is no directory.");
+            throw new IllegalStateException("Specified path '" + datasetDirectory + "' does not exist or is no directory.");
         }
 
-        Collection<File> datasetFiles = FileHelper.getMatchingFiles(datasetDirectory.getPath(), "text", FileNameMatchingType.REGEX);
-        if (datasetFiles.isEmpty()) {
+        File[] datasetFiles = FileHelper.getFiles(datasetDirectory.getPath(), "text");
+        if (datasetFiles.length == 0) {
             throw new IllegalStateException("No text files found in '" + datasetDirectory + "'");
         }
 
@@ -137,24 +134,20 @@ final class DatasetCheck {
             // necessarily an error, as there might be different meanings (e.g. Mississippi, New York, ...)
             for (String value : valueTags.keySet()) {
                 if (valueTags.get(value).size() > 1) {
-                    System.out.println("[warn] ambiguous annotations for " + value + ": " + valueTags.get(value)
-                            + " in " + fileName);
+                    System.out.println("[warn] ambiguous annotations for " + value + ": " + valueTags.get(value) + " in " + fileName);
                 }
             }
 
             // check for potentially missed annotations
             for (String value : valueTags.keySet()) {
                 for (String tag : valueTags.get(value)) {
-                    Pattern pattern = Pattern.compile(String.format("(?<!<%s>)(?<=[\\s\"])%s(?!</%s>)(?=[\\s.,:;?!])",
-                            tag, Pattern.quote(value), tag));
+                    Pattern pattern = Pattern.compile(String.format("(?<!<%s>)(?<=[\\s\"])%s(?!</%s>)(?=[\\s.,:;?!])", tag, Pattern.quote(value), tag));
                     Matcher matcher2 = pattern.matcher(stringContent);
                     while (matcher2.find()) {
                         int start = matcher2.start();
                         int end = matcher2.end();
-                        String context = stringContent.substring(Math.max(0, start - 15),
-                                Math.min(stringContent.length(), end + 15)).replace('\n', ' ');
-                        System.out.println("[warn] potentially missed annotation for '" + value + "' (context '"
-                                + context + "' in " + fileName);
+                        String context = stringContent.substring(Math.max(0, start - 15), Math.min(stringContent.length(), end + 15)).replace('\n', ' ');
+                        System.out.println("[warn] potentially missed annotation for '" + value + "' (context '" + context + "' in " + fileName);
                     }
                 }
             }
@@ -181,7 +174,7 @@ final class DatasetCheck {
         System.out.println("# unique: " + totalUniqueTags);
         System.out.println("# tokens: " + tokenCount);
         System.out.println();
-        System.out.println("# texts: " + datasetFiles.size());
+        System.out.println("# texts: " + datasetFiles.length);
         System.out.println();
         System.out.println("# text with role=\"main\": " + scopedDocCount);
     }
@@ -193,8 +186,7 @@ final class DatasetCheck {
      */
     static void getNonDisambiguatedStatistics(File datasetPath) {
         File coordinatesFile = new File(datasetPath, "coordinates.csv");
-        Map<String, Map<Integer, GeoCoordinate>> coordinates = TudLoc2013DatasetIterable
-                .readCoordinates(coordinatesFile);
+        Map<String, Map<Integer, GeoCoordinate>> coordinates = TudLoc2013DatasetIterable.readCoordinates(coordinatesFile);
         Bag<String> totalTypeCounts = Bag.create();
         Bag<String> disambiguatedTypeCounts = Bag.create();
         int mainRoleCount = 0;
@@ -225,13 +217,11 @@ final class DatasetCheck {
             int count = totalTypeCounts.count(tag);
             int disambiguatedCount = disambiguatedTypeCounts.count(tag);
             float disambiguatedPercentage = (float) disambiguatedCount / count * 100;
-            System.out.println(tag + " total: " + count + ", disambiguated: " + disambiguatedCount + ", percentage: "
-                    + MathHelper.round(disambiguatedPercentage, 2));
+            System.out.println(tag + " total: " + count + ", disambiguated: " + disambiguatedCount + ", percentage: " + MathHelper.round(disambiguatedPercentage, 2));
         }
         System.out.println();
         System.out.println("# total disambiguated: " + disambiguatedTypeCounts.size());
-        System.out.println("% total disambiguated: "
-                + MathHelper.round((float) disambiguatedTypeCounts.size() / totalTypeCounts.size() * 100, 2));
+        System.out.println("% total disambiguated: " + MathHelper.round((float) disambiguatedTypeCounts.size() / totalTypeCounts.size() * 100, 2));
         System.out.println("# role='main' annotations: " + mainRoleCount);
     }
 
