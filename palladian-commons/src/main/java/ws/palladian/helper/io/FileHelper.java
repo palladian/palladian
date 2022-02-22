@@ -1,14 +1,10 @@
 package ws.palladian.helper.io;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.AbstractFileFilter;
-import org.apache.commons.io.filefilter.PrefixFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Collector;
 import ws.palladian.helper.functional.Predicates;
@@ -16,6 +12,7 @@ import ws.palladian.helper.math.MathHelper;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -670,7 +667,7 @@ public final class FileHelper {
      * @param filePath The file path where the contents should be saved to.
      * @param string   The string to save.
      * @param encoding The encoding in which the file should be written.
-     * @return <tt>False</tt> if any IOException occurred. It is likely that {@link string} has not been written to
+     * @return <tt>False</tt> if any IOException occurred. It is likely that string has not been written to
      */
     public static boolean writeToFile(String filePath, CharSequence string, String encoding) {
         String fileType = getFileType(filePath);
@@ -1202,32 +1199,37 @@ public final class FileHelper {
      * @param folderPath The folder path.
      * @param substring  The substring which should appear in the filename.
      * @return The files which contain the substring.
-     * @deprecated use #getMatchingFiles instead (about 6x faster)
      */
     public static File[] getFiles(String folderPath, String substring) {
         return getFiles(folderPath, substring, false);
     }
 
-    public static File[] getFiles(String folderPath, String substring, boolean recursive) {
-        return getFiles(folderPath, substring, recursive, false);
+    /**
+     * Gets the files by pattern match. Only files in the given folder will be found, not any files in subdirectories.
+     *
+     * @param folderPath The folder path.
+     * @param pattern    The regular expression pattern which should appear in the filename.
+     * @return The files which match the pattern.
+     */
+    public static List<File> getFiles(String folderPath, Pattern pattern) {
+        List<File> matchingFiles = new ArrayList<>();
+        File folder = new File(folderPath);
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+
+            if (files != null) {
+                for (File file : files) {
+                    if (pattern.matcher(file.getName()).find()) {
+                        matchingFiles.add(file);
+                    }
+                }
+            }
+        }
+        return matchingFiles;
     }
 
-    public static Collection<File> getMatchingFiles(String folderPath, String substring, FileNameMatchingType fileNameMatchingType) {
-        AbstractFileFilter fileFilter;
-        switch (fileNameMatchingType) {
-            case PREFIX:
-                fileFilter = new PrefixFileFilter(substring);
-                break;
-            case SUFFIX:
-                fileFilter = new SuffixFileFilter(substring);
-                break;
-            default:
-            case REGEX:
-                fileFilter = new RegexFileFilter(".*" + substring + ".*");
-                break;
-        }
-        return FileUtils.listFiles(new File(folderPath), fileFilter, null);
-
+    public static File[] getFiles(String folderPath, String substring, boolean recursive) {
+        return getFiles(folderPath, substring, recursive, false);
     }
 
     public static File[] getFilesAndDirectories(String folderPath) {
@@ -1246,13 +1248,9 @@ public final class FileHelper {
 
             if (files != null) {
                 for (File file : files) {
-                    if (file.isDirectory()) {
+                    if ((includeDirectories || recursive) && file.isDirectory()) {
                         if (recursive) {
                             matchingFiles.addAll(Arrays.asList(getFilesRecursive(file.getPath(), substring)));
-                        } else {
-                            if (!includeDirectories) {
-                                continue;
-                            }
                         }
                     }
                     if (file.getName().contains(substring)) {
@@ -2038,19 +2036,31 @@ public final class FileHelper {
         return getFiles(path, fileFilter, Predicates.ALL);
     }
 
-    /*
-     * The main method.
-     * @param a The arguments.
-     */
-    public static void main(String[] a) {
+    public static void main(String[] a) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
-        String filePath = "/Users/pk/Uni/feeddataset/gathering_TUDCS5/finalQueries.txt";
-        List<String> tail = tail(filePath, 50000);
-        CollectionHelper.print(tail);
-
-        // List<String> list = readFileToArray(filePath, -1);
-        // CollectionHelper.print(list);
-        System.exit(0);
+        while (true) {
+            System.out.println("query:");
+            String query = in.readLine();
+            if (query.equals("1")) {
+                StopWatch stopWatch = new StopWatch();
+                File[] files = FileHelper.getFiles("imagepath", ".jpg");
+                System.out.println(files.length + " in " + stopWatch.getElapsedTimeString());
+            } else if (query.equals("2")) {
+                StopWatch stopWatch = new StopWatch();
+                Collection<File> files = FileHelper.getFiles("imagepath", Pattern.compile("a8[0-9]+"));
+                System.out.println(files.size() + " in " + stopWatch.getElapsedTimeString());
+            }
+        }
+        //        System.exit(0);
+        //
+        //        String filePath = "/Users/pk/Uni/feeddataset/gathering_TUDCS5/finalQueries.txt";
+        //        List<String> tail = tail(filePath, 50000);
+        //        CollectionHelper.print(tail);
+        //
+        //        // List<String> list = readFileToArray(filePath, -1);
+        //        // CollectionHelper.print(list);
+        //        System.exit(0);
 
         // FileHelper.concatenateFiles(new File("/home/pk/Desktop/FeedDiscovery/foundFeedsMerged.txt"), new
         // File("/home/pk/Desktop/FeedDiscovery/2011-04-03_foundFeeds_philipp_PRISMA.txt"));
@@ -2127,33 +2137,33 @@ public final class FileHelper {
         // FileHelper.addFileHeader("data/temp/src/tud/iir/web/test", sb);
         // System.exit(0);
         // ////////////////////////add license to every file //////////////////////////
-        writeToFile("temp/test.txt", Arrays.asList(new String[]{"one", "two", "three", "four"}));
-        System.exit(0);
-
-        FileHelper.move(new File("abc.txt"), "data");
-        System.exit(0);
-
-        FileHelper.gzip("abc -1 sdf sdjfosd fs- 12\\n-1\\abc", "test.txt.gz");
-
-        String unzippedText = FileHelper.ungzipFileToString("test.txt.gz");
-        System.out.println(unzippedText);
-
-        String zippedString = FileHelper.gzipString("abc -1 def");
-        System.out.println(zippedString);
-
-        FileHelper.ungzipFile("test.txt.gz", "unzipped.txt");
-
-        // System.out.println(FileHelper.unzipString(zippedString));
-
-        System.exit(0);
-
-        isFileName("asdsf sd fs. afjh jerk.");
-        isFileName("abc.com");
-        isFileName("all.html");
-        isFileName("ab.ai");
-        isFileName("  abasdf.mpeg2 ");
-
-        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
+        //        writeToFile("temp/test.txt", Arrays.asList(new String[]{"one", "two", "three", "four"}));
+        //        System.exit(0);
+        //
+        //        FileHelper.move(new File("abc.txt"), "data");
+        //        System.exit(0);
+        //
+        //        FileHelper.gzip("abc -1 sdf sdjfosd fs- 12\\n-1\\abc", "test.txt.gz");
+        //
+        //        String unzippedText = FileHelper.ungzipFileToString("test.txt.gz");
+        //        System.out.println(unzippedText);
+        //
+        //        String zippedString = FileHelper.gzipString("abc -1 def");
+        //        System.out.println(zippedString);
+        //
+        //        FileHelper.ungzipFile("test.txt.gz", "unzipped.txt");
+        //
+        //        // System.out.println(FileHelper.unzipString(zippedString));
+        //
+        //        System.exit(0);
+        //
+        //        isFileName("asdsf sd fs. afjh jerk.");
+        //        isFileName("abc.com");
+        //        isFileName("all.html");
+        //        isFileName("ab.ai");
+        //        isFileName("  abasdf.mpeg2 ");
+        //
+        //        System.out.println(getRenamedFilename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
 
     }
 
