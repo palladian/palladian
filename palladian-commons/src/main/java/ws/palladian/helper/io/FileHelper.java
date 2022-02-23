@@ -13,6 +13,7 @@ import ws.palladian.helper.math.MathHelper;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -1762,6 +1763,45 @@ public final class FileHelper {
         }
 
         return concatenated;
+    }
+
+    /**
+     * Get the SHA1 hash of the file's content.
+     * @param file The file.
+     * @return sha1 of file content
+     */
+    public static String getSha1(File file) {
+        FileInputStream fis = null;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+
+            fis = new FileInputStream(file);
+
+            int n = 0;
+            byte[] buffer = new byte[8192];
+            while (n != -1) {
+                n = fis.read(buffer);
+                if (n > 0) {
+                    digest.update(buffer, 0, n);
+                }
+            }
+
+            // sha1 as byte array
+            byte[] bytes = digest.digest();
+
+            // convert byte array to string
+            String result = "";
+            for (int i = 0; i < bytes.length; i++) {
+                result += Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1);
+            }
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            close(fis);
+        }
+
+        return "";
     }
 
     /**
