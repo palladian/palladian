@@ -32,13 +32,13 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author Felix Pistorius, David Urbansky
  * @since 07.11.2017
  */
-public class BackblazeStorage {
+public class BackBlazeStorage {
     /**
      * The logger for this class.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(BackblazeStorage.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BackBlazeStorage.class);
 
-    private final BackblazeConfig config;
+    private final BackBlazeConfig config;
 
     /** Thread pool to run UploadConnections */
     private final ThreadPoolExecutor executor;
@@ -145,19 +145,19 @@ public class BackblazeStorage {
         }
     }
 
-    private static final Map<BackblazeConfig, BackblazeStorage> instances = new HashMap<>();
+    private static final Map<BackBlazeConfig, BackBlazeStorage> instances = new HashMap<>();
 
-    public static BackblazeStorage getInstance(BackblazeConfig config) {
-        BackblazeStorage instance = instances.get(config);
+    public static BackBlazeStorage getInstance(BackBlazeConfig config) {
+        BackBlazeStorage instance = instances.get(config);
         if (instance == null) {
-            instance = new BackblazeStorage(config);
+            instance = new BackBlazeStorage(config);
             instances.put(config, instance);
         }
 
         return instance;
     }
 
-    private BackblazeStorage(BackblazeConfig config) {
+    private BackBlazeStorage(BackBlazeConfig config) {
         this.config = config;
 
         int numberOfUploadConnections = config.getNumberOfThreads();
@@ -227,7 +227,7 @@ public class BackblazeStorage {
      * Add a file to the upload queue and delete it locally once the upload is complete.
      */
     public void uploadAndDelete(File file) {
-        BackblazeStorage.UploadCallback uploadCallback = (state, errorMessage) -> FileHelper.delete(file);
+        BackBlazeStorage.UploadCallback uploadCallback = (state, errorMessage) -> FileHelper.delete(file);
         upload(file.getName(), file, uploadCallback);
     }
 
@@ -291,7 +291,7 @@ public class BackblazeStorage {
     /**
      * Wait until the upload task queue are empty and then call closeAll()
      *
-     * @see BackblazeStorage#closeAll()
+     * @see BackBlazeStorage#closeAll()
      */
     public void closeAllSafely() {
         int size = getNumberOfWaitingUploads();
@@ -412,8 +412,8 @@ public class BackblazeStorage {
     }
 
     public static void main(String[] args) {
-        BackblazeConfig config = new BackblazeConfig("", "", "", 10);
-        BackblazeStorage storage = BackblazeStorage.getInstance(config);
+        BackBlazeConfig config = new BackBlazeConfig("", "", "", 10);
+        BackBlazeStorage storage = BackBlazeStorage.getInstance(config);
 
         StopWatch stopWatch = new StopWatch();
         File[] files = FileHelper.getFiles("path-to-files", ".jpg");

@@ -8,13 +8,13 @@ import java.util.Objects;
  * @author David Urbansky
  * @since 23-Feb-22 at 11:48
  **/
-public class BackblazeConfig {
+public class BackBlazeConfig {
     private final String accountId;
     private final String applicationKey;
     private final String bucketId;
     private final int numberOfThreads;
 
-    public BackblazeConfig(String accountId, String applicationKey, String bucketId, int numberOfThreads) {
+    public BackBlazeConfig(String accountId, String applicationKey, String bucketId, int numberOfThreads) {
         this.accountId = accountId;
         this.applicationKey = applicationKey;
         this.bucketId = bucketId;
@@ -43,7 +43,7 @@ public class BackblazeConfig {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        BackblazeConfig that = (BackblazeConfig) o;
+        BackBlazeConfig that = (BackBlazeConfig) o;
         return accountId.equals(that.accountId) && applicationKey.equals(that.applicationKey) && bucketId.equals(that.bucketId);
     }
 
