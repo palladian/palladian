@@ -382,7 +382,16 @@ public class ImageHandler {
             return null;
         }
 
-        return Scalr.resize(bufferedImage, Scalr.Method.ULTRA_QUALITY, boxWidth, boxHeight);
+        Scalr.Mode scalingMode;
+        double boxRatio = boxWidth / (double) boxHeight;
+        double imageRatio = bufferedImage.getWidth() / (double) bufferedImage.getHeight();
+        if (boxRatio > imageRatio) {
+            scalingMode = Scalr.Mode.FIT_TO_HEIGHT;
+        } else {
+            scalingMode = Scalr.Mode.FIT_TO_WIDTH;
+        }
+
+        return Scalr.resize(bufferedImage, Scalr.Method.ULTRA_QUALITY, scalingMode, boxWidth, boxHeight);
     }
 
     private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
