@@ -2,6 +2,7 @@ package ws.palladian.extraction.multimedia;
 
 import com.sun.media.jai.codec.SeekableStream;
 import org.apache.commons.lang.Validate;
+import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
@@ -28,7 +29,6 @@ import javax.media.jai.*;
 import javax.media.jai.operator.ColorQuantizerDescriptor;
 import javax.media.jai.operator.ErodeDescriptor;
 import javax.media.jai.operator.GradientMagnitudeDescriptor;
-import javax.swing.*;
 import java.awt.Color;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -146,7 +146,6 @@ public class ImageHandler {
      *
      * @param imageFile The image file on disk.
      * @return The buffered image.
-     * @throws IOException
      */
     public static BufferedImage load(File imageFile) throws IOException {
         return ImageIO.read(imageFile);
@@ -205,7 +204,7 @@ public class ImageHandler {
                 try {
                     bufferedImage = ImageIO.read(new File(url));
                 } catch (Exception e) {
-                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new FileInputStream(new File(url)), true)).getAsBufferedImage();
+                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new FileInputStream(url), true)).getAsBufferedImage();
                 }
             }
         } catch (Exception e) {
@@ -224,9 +223,7 @@ public class ImageHandler {
     }
 
     public static String[] getMatchingImageUrls(Collection<WebImage> images, int matchingNumber) {
-
         try {
-
             // normalize all images to fixed width
             List<ExtractedImage> normalizedImages = new ArrayList<>();
 
@@ -272,7 +269,7 @@ public class ImageHandler {
             duplicateImages.clear();
 
             // order images by ranking and collect urls
-            Collections.sort(normalizedImages, (image1, image2) -> Double.compare(image2.getRanking(), image1.getRanking()));
+            normalizedImages.sort((image1, image2) -> Double.compare(image2.getRanking(), image1.getRanking()));
             // CollectionHelper.print(normalizedImages);
 
             int matchingImages = Math.min(normalizedImages.size(), matchingNumber);
@@ -309,27 +306,19 @@ public class ImageHandler {
      * @return The transformed buffered image.
      */
     public static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight) {
-        return boxFit(image, boxWidth, boxHeight, true);
-    }
-
-    private static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight, boolean toFit) {
         Validate.notNull(image);
-        return rescaleImage(image, boxWidth, boxHeight, toFit);
+        return rescaleImage(image, boxWidth, boxHeight);
     }
 
     /**
-     * <p>
      * Rescale an image to completely so that the image's shorter side fills the box's side. The image is then centered
      * and everything outside of the box is cropped.
-     * </p>
-     * <p>
+     *
      * Example 1: a 600x200 image is transformed to 300x100 to fit a 200x100 box. 50px to the left and right will be
      * cropped (300-200/2).
-     * </p>
-     * <p>
+     *
      * Example 2: a 100x400 image is transformed to 200x800 to fit a 200x100 box. 200px at the top and bottom will be
      * cropped (800-400/2).
-     * </p>
      *
      * @param image     The buffered image which should be transformed.
      * @param boxWidth  The width of the box in which the image should be positioned.
@@ -345,7 +334,7 @@ public class ImageHandler {
         int targetWidth = Math.max((int) (image.getWidth() * scale), boxWidth);
         int targetHeight = Math.max((int) (image.getHeight() * scale), boxHeight);
 
-        image = boxFit(image, targetWidth, targetHeight, false);
+        image = boxFit(image, targetWidth, targetHeight);
 
         int iWidth = image.getWidth();
         int iHeight = image.getHeight();
@@ -373,7 +362,6 @@ public class ImageHandler {
      * @param imageWidth  The target image width.
      * @param imageHeight The target image height.
      * @param fit         Whether images should be fit to the box or cropped to match the imageWidth and imageHeight.
-     * @throws IOException
      */
     public static void rescaleAllImages(String imageFolder, int imageWidth, int imageHeight, boolean fit) throws IOException {
         File[] imageFiles = FileHelper.getFiles(imageFolder);
@@ -386,69 +374,20 @@ public class ImageHandler {
             }
             saveImage(image, FileHelper.getFileType(file.getAbsolutePath()), file.getAbsolutePath());
         }
-
     }
 
-    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean toFit) {
+    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
             return null;
         }
 
-        int iWidth = bufferedImage.getWidth();
-        int iHeight = bufferedImage.getHeight();
-
-        double scaleX = (double) boxWidth / (double) iWidth;
-        double scaleY = (double) boxHeight / (double) iHeight;
-        double scale = Math.min(scaleX, scaleY);
-
-        if (toFit) {
-            scaleX = scale;
-            scaleY = scale;
-        }
-
-        BufferedImage rescaledImage;
-
-        if (scale >= 1.0) {
-            rescaledImage = scaleUp(bufferedImage, scaleX, scaleY);
-        } else {
-            rescaledImage = scaleDown(bufferedImage, scaleX, scaleY);
-        }
-
-        return rescaledImage;
-    }
-
-    private static BufferedImage scaleDown(BufferedImage bufferedImage, double scaleX, double scaleY) {
-        ParameterBlock pb = new ParameterBlock();
-        pb.addSource(bufferedImage); // The source image
-        // x scale
-        pb.add(scaleX);
-        // y scale
-        pb.add(scaleY);
-        // x translation
-        pb.add(0.0f);
-        // y translation
-        pb.add(0.0f);
-        pb.add(new InterpolationBicubic(4));
-        pb.add(bufferedImage);
-
-        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-        // results in exactly the same as above (tested only for downscaling)
-        // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
-        // RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-
-        RenderedOp resizedImage = JAI.create("SubsampleAverage", pb, qualityHints1);
-
-        return resizedImage.getAsBufferedImage();
+        return Scalr.resize(bufferedImage, Scalr.Method.ULTRA_QUALITY, boxWidth, boxHeight);
     }
 
     private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
         // "SubsampleAverage" is smooth but does only work for downscaling. If upscaling, we need to use "Scale".
-        boolean upscale = false;
-        if (scale > 1.0) {
-            upscale = true;
-        }
+        boolean upscale = scale > 1.0;
 
         ParameterBlock pb = new ParameterBlock();
         // the source image
@@ -487,72 +426,6 @@ public class ImageHandler {
         }
 
         return resizedImage.getAsBufferedImage();
-    }
-
-    /**
-     * <p>
-     * Rescaling an image using JAI SubsampleAverage. The image looks smooth after rescaling.
-     * </p>
-     *
-     * @param bufferedImage The input image.
-     * @param newWidth      The desired new width (size) of the image.
-     * @param fit           If true, the newWidth will be the maximum side length of the image. Default is false.
-     * @return The scaled image.
-     */
-    private static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
-        if (bufferedImage == null) {
-            LOGGER.warn("given image was NULL");
-            return null;
-        }
-
-        int iWidth = bufferedImage.getWidth();
-        int iHeight = bufferedImage.getHeight();
-
-        double scale = (double) newWidth / (double) iWidth;
-
-        if (fit && iWidth < iHeight) {
-            scale = (double) newWidth / (double) iHeight;
-        }
-
-        return rescaleImage(bufferedImage, scale);
-    }
-
-    private static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth) {
-        return rescaleImage(bufferedImage, newWidth, false);
-    }
-
-    /**
-     * <p>
-     * Rescaling an image using java.awt.Image.getScaledInstance. The image looks smooth after rescaling.
-     * </p>
-     *
-     * @param bufferedImage The input image.
-     * @return The scaled image.
-     */
-    private static BufferedImage scaleUp(BufferedImage bufferedImage, double scaleX, double scaleY) {
-        ImageIcon imageIcon = new ImageIcon(bufferedImage);
-        Image image = imageIcon.getImage();
-        Image resizedImage;
-
-        int width = (int) (Math.round(scaleX * bufferedImage.getWidth()));
-        int height = (int) (Math.round(scaleY * bufferedImage.getHeight()));
-        resizedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-
-        // ensure that all the pixels in the image are loaded.
-        Image temp = new ImageIcon(resizedImage).getImage();
-
-        bufferedImage = new BufferedImage(temp.getWidth(null), temp.getHeight(null), BufferedImage.TYPE_INT_RGB);
-
-        // copy image to buffered image.
-        Graphics g = bufferedImage.createGraphics();
-
-        // clear background and paint the image.
-        g.setColor(Color.white);
-        g.fillRect(0, 0, temp.getWidth(null), temp.getHeight(null));
-        g.drawImage(temp, 0, 0, null);
-        g.dispose();
-
-        return bufferedImage;
     }
 
     /**
@@ -739,7 +612,7 @@ public class ImageHandler {
             for (int j = 0; j < Math.min(image1.getHeight(), image2.getHeight()); j++) {
                 Color color1 = new Color(image1.getRGB(i, j));
                 Color color2 = new Color(image2.getRGB(i, j));
-                squaredError += Math.pow((color1.getRed() - color2.getRed()) / 255, 2);
+                squaredError += Math.pow((color1.getRed() - color2.getRed()) / 255., 2);
             }
         }
 
@@ -805,7 +678,6 @@ public class ImageHandler {
     //    }
 
     public static boolean isDuplicate(BufferedImage image1, BufferedImage image2) {
-
         if (image1 == null || image2 == null) {
             return true;
         }
@@ -835,6 +707,10 @@ public class ImageHandler {
      */
     public static boolean saveImage(BufferedImage image, String filePath) {
         return saveImage(image, FileHelper.getFileType(filePath), filePath);
+    }
+
+    public static boolean saveImage(BufferedImage image, String filePath, float quality) {
+        return saveImage(image, FileHelper.getFileType(filePath), filePath, quality);
     }
 
     public static boolean saveImage(BufferedImage image, String fileType, String filePath) {
@@ -1122,9 +998,9 @@ public class ImageHandler {
 
     public static Color getNearestColor(Color color, Collection<Color> colorPalette) {
         Color nearestColor = null;
-        Double nearestDistance = Double.MAX_VALUE;
+        double nearestDistance = Double.MAX_VALUE;
         for (Color color1 : colorPalette) {
-            Double distance = colorDistance(color, color1);
+            double distance = colorDistance(color, color1);
             if (nearestColor == null || nearestDistance > distance) {
                 nearestColor = color1;
                 nearestDistance = distance;
@@ -1139,7 +1015,6 @@ public class ImageHandler {
     }
 
     public static BufferedImage pixelate(BufferedImage image, int boxSize, Collection<Color> colorPalette) {
-
         for (int w = 0; w < image.getWidth(); w += boxSize) {
             for (int h = 0; h < image.getHeight(); h += boxSize) {
                 Color color = new Color(image.getRGB(w, h));
@@ -1159,7 +1034,6 @@ public class ImageHandler {
     }
 
     public static LinkedHashMap<Color, Integer> getColorFrequencies(BufferedImage image) {
-
         Bag<Color> colorCounter = new Bag<>();
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {

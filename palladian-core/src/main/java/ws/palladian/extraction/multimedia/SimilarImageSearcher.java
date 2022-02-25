@@ -91,7 +91,7 @@ public class SimilarImageSearcher {
 
         BufferedImage grayscaleImage;
         if (!FileHelper.fileExists(greyImagePath)) {
-            BufferedImage smallImage = ImageHandler.rescaleImage(image, 20, 20, false);
+            BufferedImage smallImage = ImageHandler.rescaleImage(image, 20, 20);
             grayscaleImage = ImageHandler.toGrayScale(smallImage);
             ImageHandler.saveImage(grayscaleImage, greyImagePath);
         } else {
