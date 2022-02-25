@@ -1,13 +1,7 @@
 package ws.palladian.semantics;
 
-import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.pos.AbstractPosTagger;
@@ -16,6 +10,10 @@ import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.InputStream;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -190,7 +188,7 @@ public class WordTransformer {
      * </p>
      *
      * @param pluralForm The plural form of the word.
-     * @param language The language (either "en" for English or "de" for German)
+     * @param language   The language (either "en" for English or "de" for German)
      * @return The singular form of the word.
      */
     public static String wordToSingular(String pluralForm, Language language) {
@@ -249,8 +247,7 @@ public class WordTransformer {
         if (plural.toLowerCase().endsWith("ves")) {
             char letterBeforeVES = plural.substring(plural.length() - 3, plural.length() - 2).charAt(0);
             plural = plural.substring(0, plural.length() - 3) + "f";
-            if (!StringHelper.isVowel(letterBeforeVES)
-                    && StringHelper.isVowel(plural.substring(plural.length() - 2, plural.length() - 1).charAt(0))) {
+            if (!StringHelper.isVowel(letterBeforeVES) && StringHelper.isVowel(plural.substring(plural.length() - 2, plural.length() - 1).charAt(0))) {
                 plural += "e";
             }
             return plural;
@@ -260,8 +257,7 @@ public class WordTransformer {
         if (plural.toLowerCase().endsWith("es") && plural.length() >= 5) {
             String lettersBeforeES = plural.substring(plural.length() - 4, plural.length() - 2);
             String letterBeforeES = lettersBeforeES.substring(1);
-            if (lettersBeforeES.equalsIgnoreCase("ss") || lettersBeforeES.equalsIgnoreCase("ch")
-                    || lettersBeforeES.equalsIgnoreCase("sh") || letterBeforeES.equalsIgnoreCase("x")
+            if (lettersBeforeES.equalsIgnoreCase("ss") || lettersBeforeES.equalsIgnoreCase("ch") || lettersBeforeES.equalsIgnoreCase("sh") || letterBeforeES.equalsIgnoreCase("x")
                     || StringHelper.isVowel(letterBeforeES.charAt(0))) {
                 return plural.substring(0, plural.length() - 2);
             }
@@ -316,7 +312,7 @@ public class WordTransformer {
      * Split german compound words, e.g. "Goldkette" becomes (Gold, Kette).
      * </p>
      *
-     * @param word The compound word.
+     * @param word       The compound word.
      * @param forceSplit If force split, compound words from the dictionary are ignored, e.g. "Fahrradschloss" is in the dictionary but we'll try to break it to Fahrrad + Schloss
      * @return All words in its correct order that the compound is made out of.
      */
@@ -384,6 +380,7 @@ public class WordTransformer {
 
         throw new IllegalArgumentException("Language must be English or German.");
     }
+
     public static String wordToPluralCaseSensitive(String lowercaseSingular, Language language) {
         if (language.equals(Language.ENGLISH)) {
             return wordToPluralEnglishCaseSensitive(lowercaseSingular);
@@ -454,8 +451,7 @@ public class WordTransformer {
         String lastTwoLetters = secondLastLetter + lastLetter;
 
         // if word ends in a vowel plus -y (-ay, -ey, -iy, -oy, -uy), add an -s
-        if (lastTwoLetters.equalsIgnoreCase("ay") || lastTwoLetters.equalsIgnoreCase("ey")
-                || lastTwoLetters.equalsIgnoreCase("iy") || lastTwoLetters.equalsIgnoreCase("oy")
+        if (lastTwoLetters.equalsIgnoreCase("ay") || lastTwoLetters.equalsIgnoreCase("ey") || lastTwoLetters.equalsIgnoreCase("iy") || lastTwoLetters.equalsIgnoreCase("oy")
                 || lastTwoLetters.equalsIgnoreCase("uy")) {
             return prefix + lowercaseSingular + "s";
         }
@@ -472,8 +468,8 @@ public class WordTransformer {
         }
 
         // if word ends on -s, -z, -x, -ch or -sh end add an -es
-        if (lastLetter.equalsIgnoreCase("s") || lastLetter.equalsIgnoreCase("z") || lastLetter.equalsIgnoreCase("x")
-                || lastTwoLetters.equalsIgnoreCase("ch") || lastTwoLetters.equalsIgnoreCase("sh")) {
+        if (lastLetter.equalsIgnoreCase("s") || lastLetter.equalsIgnoreCase("z") || lastLetter.equalsIgnoreCase("x") || lastTwoLetters.equalsIgnoreCase("ch")
+                || lastTwoLetters.equalsIgnoreCase("sh")) {
             return prefix + lowercaseSingular + "es";
         }
 
@@ -494,7 +490,7 @@ public class WordTransformer {
      *
      * @param singular The singular form of the word.
      * @return The plural form of the word.
-     * @see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
+     * see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      */
     public static String wordToPluralGerman(String singular) {
         if (singular == null) {
@@ -606,7 +602,6 @@ public class WordTransformer {
      * @return The third person singular in the tense of the verb.
      */
     public static String getThirdPersonSingular(String verb) {
-
         if (verb.isEmpty()) {
             return verb;
         }
@@ -626,8 +621,7 @@ public class WordTransformer {
             return "has";
         }
 
-        Set<String> stay = new HashSet<>(Arrays.asList("can", "could", "will", "would", "may", "might", "shall",
-                "should", "must"));
+        Set<String> stay = new HashSet<>(Arrays.asList("can", "could", "will", "would", "may", "might", "shall", "should", "must"));
         if (stay.contains(verb)) {
             return verb;
         }
@@ -765,8 +759,8 @@ public class WordTransformer {
         string = string.toLowerCase();
 
         // check signal words
-        if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string)
-                || StringHelper.containsWord("does", string) || StringHelper.containsWord("doesn't", string)) {
+        if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string) || StringHelper.containsWord("does", string) || StringHelper.containsWord(
+                "doesn't", string)) {
             return EnglishTense.SIMPLE_PRESENT;
         }
 
@@ -809,12 +803,12 @@ public class WordTransformer {
         StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < 1000; i++) {
             String word = WordTransformer.wordToPluralCaseSensitive("schuhbox", Language.GERMAN);
-//            System.out.println(word);
+            //            System.out.println(word);
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
-//        System.out.println(WordTransformer.stemGermanWord("Strassen"));
-//        System.out.println(WordTransformer.stemGermanWord("straße"));
+        //        System.out.println(WordTransformer.stemGermanWord("Strassen"));
+        //        System.out.println(WordTransformer.stemGermanWord("straße"));
         // System.out.println(WordTransformer.stemEnglishWord("bleed"));
         // System.out.println(WordTransformer.getThirdPersonSingular("cross"));
         // System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
