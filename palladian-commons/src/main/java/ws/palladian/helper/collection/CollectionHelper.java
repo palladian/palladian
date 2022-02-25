@@ -1,18 +1,17 @@
 package ws.palladian.helper.collection;
 
-import java.util.*;
-import java.util.Map.Entry;
-
 import it.unimi.dsi.fastutil.ints.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
-
 import ws.palladian.helper.functional.Factory;
-import java.util.function.Predicate;
 import ws.palladian.helper.functional.Predicates;
-import java.util.function.Function;
 import ws.palladian.helper.math.MathHelper;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * <p>
@@ -20,7 +19,7 @@ import ws.palladian.helper.math.MathHelper;
  * functionality which is not provided here, look in {@link Collections}, {@link Arrays} first, before adding new,
  * redundant methods here!
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -38,10 +37,9 @@ public final class CollectionHelper {
      * <p>
      * Iterator, which stops after the specified limit.
      * </p>
-     * 
-     * @author Philipp Katz
-     * 
+     *
      * @param <T>
+     * @author Philipp Katz
      */
     private static final class LimitIterator<T> implements Iterator<T> {
 
@@ -87,10 +85,10 @@ public final class CollectionHelper {
      * <p>
      * Sort a {@link Map} by value.
      * </p>
-     * 
-     * @param <K> Type of the keys.
-     * @param <V> Type of the values, must implement {@link Comparable}.
-     * @param map The {@link Map} to sort, not <code>null</code>.
+     *
+     * @param <K>       Type of the keys.
+     * @param <V>       Type of the values, must implement {@link Comparable}.
+     * @param map       The {@link Map} to sort, not <code>null</code>.
      * @param ascending {@link Order#ASCENDING} or {@link Order#DESCENDING}, not <code>null</code>.
      * @return A sorted map.
      */
@@ -111,7 +109,7 @@ public final class CollectionHelper {
      * <p>
      * Sort a {@link Map} by value.
      * </p>
-     * 
+     *
      * @param <K> Type of the keys.
      * @param <V> Type of the values, must implement {@link Comparable}.
      * @param map The {@link Map} to sort.
@@ -125,14 +123,14 @@ public final class CollectionHelper {
      * <p>
      * Sort a {@link HashMap} by length of the key string.
      * </p>
-     * 
-     * @param <K> Type of the keys.
-     * @param <V> Type of the values.
-     * @param map The entry set.
+     *
+     * @param <K>       Type of the keys.
+     * @param <V>       Type of the values.
+     * @param map       The entry set.
      * @param ascending {@link Order#ASCENDING} or {@link Order#DESCENDING}.
      * @return A sorted map.
      * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
-     *             {@link Pair}s, sorted as required.
+     * {@link Pair}s, sorted as required.
      */
     @Deprecated
     public static <V extends Comparable<V>> Map<String, V> sortByStringKeyLength(Map<String, V> map, final Order order) {
@@ -157,7 +155,7 @@ public final class CollectionHelper {
      * <p>
      * Print a human readable, line separated output of an Array.
      * </p>
-     * 
+     *
      * @param array The array to print, not <code>null</code>.
      */
     public static void print(Object[] array) {
@@ -169,7 +167,7 @@ public final class CollectionHelper {
      * <p>
      * Print a human readable, line separated output of a {@link Map}.
      * </p>
-     * 
+     *
      * @param map The map to print, not <code>null</code>.
      */
     public static void print(Map<?, ?> map) {
@@ -181,7 +179,7 @@ public final class CollectionHelper {
      * <p>
      * Print a human readable, line separated output of an {@link Iterator}.
      * </p>
-     * 
+     *
      * @param iterator The iterator to print, not <code>null</code>.
      */
     public static void print(Iterator<?> iterator) {
@@ -198,7 +196,7 @@ public final class CollectionHelper {
      * <p>
      * Print a human readable, line separated output of an {@link Iterable}.
      * </p>
-     * 
+     *
      * @param iterable The iterable to print, not <code>null</code>.
      */
     public static void print(Iterable<?> iterable) {
@@ -210,7 +208,7 @@ public final class CollectionHelper {
      * <p>
      * Create a new {@link ArrayList} and fill it with the contents of the given {@link Iterable}.
      * </p>
-     * 
+     *
      * @param iterable The {@link Iterable} providing the content for the {@link List}.
      * @return The {@link List} with items from the {@link Iterable}.
      */
@@ -223,7 +221,7 @@ public final class CollectionHelper {
      * <p>
      * Create a new {@link ArrayList} and fill it with the content of the given {@link Iterator}.
      * </p>
-     * 
+     *
      * @param iterator The {@link Iterator} providing the content for the {@link List}, not <code>null</code>.
      * @return The {@link List} with items from the {@link Iterator}.
      */
@@ -242,7 +240,7 @@ public final class CollectionHelper {
      * {@link Arrays#asList(Object...)}, which creates an immutable {@link List} (and therefore should be used for
      * constant lists), the result can be further modified and further elements can be added, removed, ....
      * </p>
-     * 
+     *
      * @param elements The elements to add to the {@link ArrayList}, not <code>null</code>.
      * @return A new {@link ArrayList} containing the given elements.
      */
@@ -257,7 +255,7 @@ public final class CollectionHelper {
      * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
      * <code>Set&lt;String&gt; set = new HashSet<>();</code>.
      * </p>
-     * 
+     *
      * @return A new {@link HashSet}.
      * @deprecated since Java 7
      */
@@ -270,7 +268,7 @@ public final class CollectionHelper {
      * <p>
      * Create a new {@link HashSet} and fill it with the given elements.
      * </p>
-     * 
+     *
      * @param elements The elements to add to the {@link HashSet}, not <code>null</code>.
      * @return A new {@link HashSet} containing the given elements.
      */
@@ -284,7 +282,7 @@ public final class CollectionHelper {
      * <p>
      * Create a new {@link HashSet} and fill it with the content of the given {@link Iterable}.
      * </p>
-     * 
+     *
      * @param iterable The {@link Iterable} providing the content for the {@link Set}, not <code>null</code>.
      * @return The {@link Set} with items from the {@link Iterator}.
      */
@@ -297,8 +295,8 @@ public final class CollectionHelper {
      * <p>
      * Create a new {@link HashSet} and fill it with the content of the given {@link Iterator}.
      * </p>
-     * 
-     * @param iterator The {@link Iterator} providing the content for the {@link Set}, not <code>null</code>.
+     *
+     * @param elements The {@link Iterator} providing the content for the {@link Set}, not <code>null</code>.
      * @return The {@link Set} with items from the {@link Iterator}.
      */
     public static <E> HashSet<E> newHashSet(Iterator<? extends E> elements) {
@@ -314,8 +312,8 @@ public final class CollectionHelper {
      * <p>
      * Remove all <code>null</code> elements in the supplied {@link Iterable}.
      * </p>
-     * 
-     * @param collection The iterable from which to remove <code>null</code> elements.
+     *
+     * @param iterable The iterable from which to remove <code>null</code> elements.
      * @return The number of items which were removed, <code>0</code> in case no items were removed.
      */
     public static <T> int removeNulls(Iterable<T> iterable) {
@@ -328,9 +326,9 @@ public final class CollectionHelper {
      * Apply a {@link Predicate} to an {@link Iterable} and remove non-matching items; after applying this method, the
      * Iterable only contains the items which matched the filter.
      * </p>
-     * 
+     *
      * @param iterable The Iterable to filter, not <code>null</code>.
-     * @param filter The Filter to apply, not <code>null</code>.
+     * @param filter   The Filter to apply, not <code>null</code>.
      * @return The number of items which were removed, <code>0</code> in case no items were removed.
      */
     public static <T> int remove(Iterable<T> iterable, Predicate<? super T> filter) {
@@ -353,11 +351,11 @@ public final class CollectionHelper {
      * <p>
      * Apply a {@link Predicate} to an {@link Iterable} and return the filtered result as new {@link Collection}.
      * </p>
-     * 
+     *
      * @param iterable The Iterable to filter, not <code>null</code>.
-     * @param filter The filter to apply, not <code>null</code>.
-     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
-     *            {@link HashSet}, not <code>null</code>.
+     * @param filter   The filter to apply, not <code>null</code>.
+     * @param output   The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *                 {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the filter.
      */
     public static <T, C extends Collection<T>> C filter(Iterable<T> iterable, Predicate<? super T> filter, C output) {
@@ -377,9 +375,9 @@ public final class CollectionHelper {
      * <p>
      * Apply a {@link Predicate} to an {@link Iterable} and return the filtered result as new {@link List}.
      * </p>
-     * 
-     * @param list The Iterable to filter, not <code>null</code>.
-     * @param filter The filter to apply, not <code>null</code>.
+     *
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param filter   The filter to apply, not <code>null</code>.
      * @return A List with the items that passed the filter.
      * @see #filter(Iterable, Predicate, Collection)
      */
@@ -391,9 +389,9 @@ public final class CollectionHelper {
      * <p>
      * Apply a {@link Predicate} to an {@link Iterable} and return the filtered result as new {@link Set}.
      * </p>
-     * 
-     * @param list The Iterable to filter, not <code>null</code>.
-     * @param filter The filter to apply, not <code>null</code>.
+     *
+     * @param iterable The Iterable to filter, not <code>null</code>.
+     * @param filter   The filter to apply, not <code>null</code>.
      * @return A Set with the items that passed the filter.
      * @see #filter(Iterable, Predicate, Collection)
      */
@@ -407,11 +405,11 @@ public final class CollectionHelper {
      * scenario for this method might be a Collection of {@link Number}s, from which you only want to obtain
      * {@link Double} values.
      * </p>
-     * 
+     *
      * @param iterable The Iterable to filter, not <code>null</code>.
-     * @param type The type which should be filtered, not <code>null</code>.
-     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
-     *            {@link HashSet}, not <code>null</code>.
+     * @param type     The type which should be filtered, not <code>null</code>.
+     * @param output   The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *                 {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the items that passed the type filter.
      */
     public static <O, C extends Collection<O>> C filter(Iterable<?> iterable, Class<O> type, C output) {
@@ -431,11 +429,11 @@ public final class CollectionHelper {
      * <p>
      * Apply a {@link Predicate} to an {@link Iterator}.
      * </p>
-     * 
+     *
      * @param iterator The iterator to filter, not <code>null</code>.
-     * @param filter The filter to apply, not <code>null</code>.
+     * @param filter   The filter to apply, not <code>null</code>.
      * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
-     *         are not accepted by the filter.
+     * are not accepted by the filter.
      */
     public static <T> Iterator<T> filter(Iterator<? extends T> iterator, Predicate<? super T> filter) {
         Validate.notNull(iterator, "iterator must not be null");
@@ -447,11 +445,11 @@ public final class CollectionHelper {
      * <p>
      * Apply a {@link Predicate} to an {@link Iterable}.
      * </p>
-     * 
+     *
      * @param iterable The iterable to filter, not <code>null</code>.
-     * @param filter The filter to apply, not <code>null</code>.
+     * @param filter   The filter to apply, not <code>null</code>.
      * @return A new iterator, where the given filter is applied, thus eliminating the entries in the iterator, which
-     *         are not accepted by the filter.
+     * are not accepted by the filter.
      */
     public static <T> Iterable<T> filter(final Iterable<? extends T> iterable, final Predicate<? super T> filter) {
         Validate.notNull(iterable, "iterable must not be null");
@@ -462,12 +460,7 @@ public final class CollectionHelper {
         // return filter(iterable.iterator(), filter);
         // }
         // };
-        return filter(iterable, new Factory<Predicate<? super T>>() {
-            @Override
-            public Predicate<? super T> create() {
-                return filter;
-            }
-        });
+        return filter(iterable, () -> filter);
     }
 
     /**
@@ -475,32 +468,25 @@ public final class CollectionHelper {
      * Apply a {@link Predicate} to an {@link Iterable}. This method takes a
      * factory, which produces the filter, thus allowing stateful filters which
      * need to be re-created for each newly produced iterator.
-     * 
-     * @param iterable
-     *            The iterable to filter, not <code>null</code>.
-     * @param filter
-     *            The filter to apply, supplied via {@link Factory}, not
-     *            <code>null</code>.
+     *
+     * @param iterable The iterable to filter, not <code>null</code>.
+     * @param filter   The filter to apply, supplied via {@link Factory}, not
+     *                 <code>null</code>.
      * @return A new iterator, where the given filter is applied, thus
-     *         eliminating the entries in the iterator, which are not accepted
-     *         by the filter.
+     * eliminating the entries in the iterator, which are not accepted
+     * by the filter.
      */
     public static <T> Iterable<T> filter(final Iterable<? extends T> iterable, final Factory<? extends Predicate<? super T>> filter) {
         Validate.notNull(iterable, "iterable must not be null");
         Validate.notNull(filter, "filter must not be null");
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return filter(iterable.iterator(), filter.create());
-            }
-        };
+        return () -> filter(iterable.iterator(), filter.create());
     }
 
     /**
      * <p>
      * Get the first element in an {@link Iterable}.
      * </p>
-     * 
+     *
      * @param list The Iterable from which to get the element, not <code>null</code>.
      * @return The first element, or <code>null</code> if the iterable was empty.
      */
@@ -514,13 +500,11 @@ public final class CollectionHelper {
      * <p>
      * Get the first X elements in an {@link Iterable}.
      * </p>
-     * 
+     *
      * @param list The Iterable from which to get the element, not <code>null</code>.
-     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @param num  The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The first X elements, or an empty list if the iterable was empty.
-     * @deprecated Use {@link #limit(Iterable, int)} instead.
      */
-    @Deprecated
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
         return newArrayList(limit(iterable, num));
     }
@@ -529,10 +513,10 @@ public final class CollectionHelper {
      * <p>
      * Get a sublist of elements of a {@link List}.
      * </p>
-     * 
-     * @param list The list from which to get the element, not <code>null</code>.
+     *
+     * @param list   The list from which to get the element, not <code>null</code>.
      * @param offset The number of elements to skip.
-     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @param num    The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The sublist.
      */
     public static <T> List<T> getSublist(List<T> list, int offset, int num) {
@@ -553,9 +537,9 @@ public final class CollectionHelper {
      * Get a sub set of elements of an ordered {@link LinkedHashSet}.
      * </p>
      *
-     * @param set The set from which to get the element, not <code>null</code>.
+     * @param set    The set from which to get the element, not <code>null</code>.
      * @param offset The number of elements to skip.
-     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @param num    The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The sub set.
      */
     public static <T> LinkedHashSet<T> getSubset(LinkedHashSet<T> set, int offset, int num) {
@@ -588,9 +572,9 @@ public final class CollectionHelper {
      * Get a sub set of elements of an ordered set of integers.
      * </p>
      *
-     * @param set The set from which to get the element, not <code>null</code>.
+     * @param set    The set from which to get the element, not <code>null</code>.
      * @param offset The number of elements to skip.
-     * @param num The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @param num    The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The sub set.
      */
     public static IntSortedSet getSubset(IntSortedSet set, int offset, int num) {
@@ -622,7 +606,7 @@ public final class CollectionHelper {
      * <p>
      * Get the last element in a {@link List}.
      * </p>
-     * 
+     *
      * @param list The List from which to get the element, not <code>null</code>.
      * @return The last element, or <code>null</code> if the list was empty.
      */
@@ -633,10 +617,9 @@ public final class CollectionHelper {
 
     /**
      * Get the last element in an {@link Iterable}.
-     * 
-     * @param iterable
-     *            The iterable from which to get the element, not
-     *            <code>null</code>.
+     *
+     * @param iterable The iterable from which to get the element, not
+     *                 <code>null</code>.
      * @return The last element, or <code>null</code> if the iterable was empty.
      */
     public static <T> T getLast(Iterable<T> iterable) {
@@ -653,7 +636,7 @@ public final class CollectionHelper {
      * SQL like group by functionality. The returned {@link MultiMap} contains the groups, a specified {@link Function}
      * supplies the values for grouping.
      * </p>
-     * 
+     *
      * @param iterable The Iterable to group, not <code>null</code>.
      * @param function The Function which returns the value which is used for grouping, not <code>null</code>.
      * @return A MultiMap representing the groups.
@@ -676,7 +659,7 @@ public final class CollectionHelper {
      * the Numbers (a predefined Function for this specific use case is available as {@link Function#TO_STRING_FUNCTION}
      * ).
      * </p>
-     * 
+     *
      * <pre>
      * // list with numbers
      * List&lt;Integer&gt; numbers = Arrays.asList(0, 1, 1, 2, 3, 5);
@@ -688,11 +671,11 @@ public final class CollectionHelper {
      *     }
      * }, new ArrayList&lt;String&gt;());
      * </pre>
-     * 
+     *
      * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
      * @param function The Function which converts the values in the iterable, not <code>null</code>.
-     * @param output The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
-     *            {@link HashSet}, not <code>null</code>.
+     * @param output   The output {@link Collection} in which to put the result. Usually an {@link ArrayList} or
+     *                 {@link HashSet}, not <code>null</code>.
      * @return The supplied output Collection with the converted items.
      * @see #convertList(Iterable, Function)
      * @see #convertSet(Iterable, Function)
@@ -715,7 +698,7 @@ public final class CollectionHelper {
      * <code>toString()</code> method to the Numbers (a predefined Function for this specific use case is available as
      * {@link Function#TO_STRING_FUNCTION}).
      * </p>
-     * 
+     *
      * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
      * @param function The Function which converts the values in the iterable, not <code>null</code>.
      * @return A {@link Set} with the field elements from the given objects.
@@ -733,7 +716,7 @@ public final class CollectionHelper {
      * <code>toString()</code> method to the Numbers (a predefined Function for this specific use case is available as
      * {@link Function#TO_STRING_FUNCTION}).
      * </p>
-     * 
+     *
      * @param iterable The Iterable supplying the data to be converted, not <code>null</code>.
      * @param function The Function which converts the values in the iterable, not <code>null</code>.
      * @return A {@link List} with the field elements from the given objects.
@@ -749,7 +732,7 @@ public final class CollectionHelper {
      * Create a wrapper for a given {@link Iterator} which converts the iterator's items using a provided
      * {@link Function}.
      * </p>
-     * 
+     *
      * @param iterator The iterator to wrap, not <code>null</code>.
      * @param function The {@link Function} which performs the conversion, not <code>null</code>.
      * @return An iterator wrapping the given iterator.
@@ -780,7 +763,7 @@ public final class CollectionHelper {
      * Create a wrapper for a given {@link Iterable} which converts the iterable's items using a provided
      * {@link Function}.
      * </p>
-     * 
+     *
      * @param iterator The iterator to wrap, not <code>null</code>.
      * @param function The {@link Function} which performs the conversion, not <code>null</code>.
      * @return An iterable wrapping the given iterable.
@@ -800,7 +783,7 @@ public final class CollectionHelper {
      * <p>
      * Join elements of a collection in a readable form.
      * </p>
-     * 
+     *
      * @param entries The entries that should be joined.
      * @return The joined string.
      */
@@ -826,8 +809,8 @@ public final class CollectionHelper {
      * <p>
      * Get a value from a {@link Map} by trying multiple keys.
      * </p>
-     * 
-     * @param map The map, not <code>null</code>.
+     *
+     * @param map  The map, not <code>null</code>.
      * @param keys The keys.
      * @return The value if any of the keys matches, or <code>null</code>.
      */
@@ -848,10 +831,10 @@ public final class CollectionHelper {
      * <p>
      * Get the first non-null value from the given items.
      * </p>
-     * 
+     *
      * @param items The items.
      * @return The first non-null item from the given, or <code>null</code> in case the only <code>null</code> or no
-     *         values were given.
+     * values were given.
      */
     @SafeVarargs
     public static <T> T coalesce(T... items) {
@@ -868,9 +851,9 @@ public final class CollectionHelper {
      * Limit the specified {@link Iterable} to the specified size, i.e. effectively get the first specified elements,
      * then stop.
      * </p>
-     * 
+     *
      * @param iterable The iterable, not <code>null</code>.
-     * @param limit The number of elements which can be retrieved from the given iterable, greater/equal zero.
+     * @param limit    The number of elements which can be retrieved from the given iterable, greater/equal zero.
      * @return An iterable which limits to the specified number of items, in case it contains more.
      */
     public static <T> Iterable<T> limit(final Iterable<T> iterable, final int limit) {
@@ -884,9 +867,9 @@ public final class CollectionHelper {
      * Limit the specified {@link Iterator} to the specified size, i.e. effectively get the first specified elements,
      * then stop.
      * </p>
-     * 
+     *
      * @param iterator The iterator, not <code>null</code>.
-     * @param limit The number of elements which can be retrieved from the given iterator, greater/equal zero.
+     * @param limit    The number of elements which can be retrieved from the given iterator, greater/equal zero.
      * @return An iterator which limits to the specified number of items, in case it contains more.
      */
     public static <T> Iterator<T> limit(Iterator<T> iterator, int limit) {
@@ -899,7 +882,7 @@ public final class CollectionHelper {
      * <p>
      * Get a set with distinct values from all given collections.
      * </p>
-     * 
+     *
      * @param collections The collections, not <code>null</code>.
      * @return A {@link Set} with distinct values from the given collections.
      */
@@ -918,7 +901,7 @@ public final class CollectionHelper {
      * Get a set with the intersection from two given sets (this method is faster than the common idiom
      * <code>Set intersection = new HashSet(setA); intersection.retainAll(setB);</code>).
      * </p>
-     * 
+     *
      * @param setA The first set, not <code>null</code>.
      * @param setB The second set, not <code>null</code>.
      * @return A new set which contains only elements occurring in both given sets.
@@ -975,7 +958,7 @@ public final class CollectionHelper {
      * <p>
      * Shuffle the content of the given array.
      * </p>
-     * 
+     *
      * @param array The array to shuffle, not <code>null</code>.
      */
     public static void shuffle(Object[] array) {
@@ -994,9 +977,9 @@ public final class CollectionHelper {
      * <p>
      * Check, if the provided {@link Predicate} accepts all items from given {@link Iterable}.
      * </p>
-     * 
+     *
      * @param iterable The iterable, not <code>null</code>.
-     * @param filter The filter, not <code>null</code>.
+     * @param filter   The filter, not <code>null</code>.
      * @return <code>true</code> in case the filter accepted all items from the iterable, <code>false</code> otherwise.
      */
     public static <T> boolean acceptAll(Iterable<T> iterable, Predicate<? super T> filter) {
@@ -1014,7 +997,7 @@ public final class CollectionHelper {
      * <p>
      * Count the number of elements in an {@link Iterator}.
      * </p>
-     * 
+     *
      * @param iterator The iterator, not <code>null</code>.
      * @return The number of elements.
      */
@@ -1032,10 +1015,10 @@ public final class CollectionHelper {
      * <p>
      * Check whether a list contains a specific item.
      * </p>
-     * 
+     *
      * @param items The list of items.
-     * @param item The item.
-     * @param <T> The item type.
+     * @param item  The item.
+     * @param <T>   The item type.
      * @return True if the list contains the item already.
      */
     public static <T> boolean contains(T[] items, T item) {
@@ -1051,7 +1034,7 @@ public final class CollectionHelper {
      * <p>
      * Make a given {@link Iterator} read-only. Invoking {@link Iterator#remove()} will trigger an
      * {@link UnsupportedOperationException}.
-     * 
+     *
      * @param iterator The iterator, not <code>null</code>.
      * @return An iterator wrapping the given one, whithout the possibility for modifications.
      */
@@ -1086,10 +1069,10 @@ public final class CollectionHelper {
     /**
      * Use divide and conquer to find the index in a sorted list that has <= the query number.
      * E.g. num = 10 and list [2,8,11,88] => return 1 (index of 8 because it is <= 10)
-     * 
-     * @param num The query number.
+     *
+     * @param num  The query number.
      * @param list The <b>sorted</b> list of numbers.
-     * @param <T> Type of number.
+     * @param <T>  Type of number.
      * @return
      */
     public static <T extends Number> int findIndexBefore(T num, List<T> list) {
@@ -1117,7 +1100,7 @@ public final class CollectionHelper {
      * calling the costly {@link List#indexOf(Object)} to get occurrence
      * indices. In case the given list contains any duplicates, the
      * <em>first</em> occurrence index is added to the result.
-     * 
+     *
      * @param list The list, not <code>null</code>.
      * @return Map with keys from the list, and associated index as values.
      */
