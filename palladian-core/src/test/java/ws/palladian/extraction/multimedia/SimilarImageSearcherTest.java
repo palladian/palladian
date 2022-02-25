@@ -1,6 +1,7 @@
 package ws.palladian.extraction.multimedia;
 
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -21,6 +22,11 @@ import java.util.List;
 public class SimilarImageSearcherTest {
     @Rule
     public ErrorCollector collector = new ErrorCollector();
+
+    @After
+    public void tearDown() {
+        FileHelper.delete("data/temp/images/similar-test/", true);
+    }
 
     @Test
     public void testSimilarImageSearch() {

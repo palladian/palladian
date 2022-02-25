@@ -25,14 +25,16 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import javax.media.jai.*;
+import javax.media.jai.JAI;
+import javax.media.jai.KernelJAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ColorQuantizerDescriptor;
 import javax.media.jai.operator.ErodeDescriptor;
 import javax.media.jai.operator.GradientMagnitudeDescriptor;
 import java.awt.Color;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.renderable.ParameterBlock;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -232,7 +234,7 @@ public class ImageHandler {
                 try {
                     bufferedImage = load(image.getUrl());
                     if (bufferedImage != null) {
-                        bufferedImage = rescaleImage(bufferedImage, 200);
+                        bufferedImage = rescaleImage(bufferedImage, 200, 200, false);
                         normalizedImages.add(new ExtractedImage(image, bufferedImage));
                     }
                 } catch (Exception e) {
@@ -307,7 +309,11 @@ public class ImageHandler {
      */
     public static BufferedImage boxFit(BufferedImage image, int boxWidth, int boxHeight) {
         Validate.notNull(image);
-        return rescaleImage(image, boxWidth, boxHeight);
+        return rescaleImage(image, boxWidth, boxHeight, true);
+    }
+
+    public static BufferedImage boxFit(BufferedImage image, int boxWidth) {
+        return boxFit(image, boxWidth, 99999);
     }
 
     /**
@@ -376,65 +382,26 @@ public class ImageHandler {
         }
     }
 
-    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
+    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean fitWithoutDistortion) {
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
             return null;
         }
 
         Scalr.Mode scalingMode;
-        double boxRatio = boxWidth / (double) boxHeight;
-        double imageRatio = bufferedImage.getWidth() / (double) bufferedImage.getHeight();
-        if (boxRatio > imageRatio) {
-            scalingMode = Scalr.Mode.FIT_TO_HEIGHT;
+        if (fitWithoutDistortion) {
+            double boxRatio = boxWidth / (double) boxHeight;
+            double imageRatio = bufferedImage.getWidth() / (double) bufferedImage.getHeight();
+            if (boxRatio > imageRatio) {
+                scalingMode = Scalr.Mode.FIT_TO_HEIGHT;
+            } else {
+                scalingMode = Scalr.Mode.FIT_TO_WIDTH;
+            }
         } else {
-            scalingMode = Scalr.Mode.FIT_TO_WIDTH;
+            scalingMode = Scalr.Mode.FIT_EXACT;
         }
 
         return Scalr.resize(bufferedImage, Scalr.Method.ULTRA_QUALITY, scalingMode, boxWidth, boxHeight);
-    }
-
-    private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
-        // "SubsampleAverage" is smooth but does only work for downscaling. If upscaling, we need to use "Scale".
-        boolean upscale = scale > 1.0;
-
-        ParameterBlock pb = new ParameterBlock();
-        // the source image
-        pb.addSource(bufferedImage);
-        // x scale
-        if (upscale) {
-            pb.add((float) scale);
-        } else {
-            pb.add(scale);
-        }
-        // y scale
-        if (upscale) {
-            pb.add((float) scale);
-        } else {
-            pb.add(scale);
-        }
-        // x translation
-        pb.add(0.0f);
-        // y translation
-        pb.add(0.0f);
-        pb.add(new InterpolationBicubic(4));
-        pb.add(bufferedImage);
-
-        RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-        // results in exactly the same as above (tested only for downscaling)
-        // RenderingHints qualityHints1 = new RenderingHints(RenderingHints.KEY_INTERPOLATION,
-        // RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-
-        RenderedOp resizedImage;
-
-        if (upscale) {
-            resizedImage = JAI.create("scale", pb, qualityHints1);
-        } else {
-            resizedImage = JAI.create("SubsampleAverage", pb, qualityHints1);
-        }
-
-        return resizedImage.getAsBufferedImage();
     }
 
     /**
@@ -609,8 +576,8 @@ public class ImageHandler {
     private static double getMeanSquareError(BufferedImage image1, BufferedImage image2) {
         // normalize size if not done already
         if (image1.getWidth() != image2.getWidth()) {
-            image1 = rescaleImage(image1, 200);
-            image2 = rescaleImage(image2, 200);
+            image1 = rescaleImage(image1, 200, 200, false);
+            image2 = rescaleImage(image2, 200, 200, false);
         }
 
         image1 = toGrayScale(image1);
@@ -631,8 +598,8 @@ public class ImageHandler {
     private static double getMinkowskiSimilarity(BufferedImage image1, BufferedImage image2) {
         // normalize size if not done already
         if (image1.getWidth() != image2.getWidth()) {
-            image1 = rescaleImage(image1, 200);
-            image2 = rescaleImage(image2, 200);
+            image1 = rescaleImage(image1, 200, 200, false);
+            image2 = rescaleImage(image2, 200, 200, false);
         }
 
         image1 = toGrayScale(image1);
@@ -657,8 +624,8 @@ public class ImageHandler {
     private static double getGrayDifference(BufferedImage image1, BufferedImage image2) {
         // normalize size if not done already
         if (image1.getWidth() != image2.getWidth()) {
-            image1 = rescaleImage(image1, 200);
-            image2 = rescaleImage(image2, 200);
+            image1 = rescaleImage(image1, 200, 200, false);
+            image2 = rescaleImage(image2, 200, 200, false);
         }
 
         BufferedImage substractedImage = substractImages(image1, image2);
@@ -773,7 +740,6 @@ public class ImageHandler {
      * @return A set of image URLs that all represent different images (the highest resolving images per cluster).
      */
     public static Set<String> clusterImagesAndPickRepresentatives(Collection<String> imageUrls) {
-
         Set<String> selectedImages = new HashSet<>();
 
         // keep the index of the loaded image and tie it to the image URL
@@ -794,7 +760,6 @@ public class ImageHandler {
         Set<Integer> clusteredImageIds = new HashSet<>();
 
         for (int i = 0; i < loadedImages.size(); i++) {
-
             BufferedImage image1 = loadedImages.get(i);
 
             boolean image1ClusteredAlready = !clusteredImageIds.add(i);
@@ -809,7 +774,6 @@ public class ImageHandler {
             // int image1PixelCount = getPixelCount(image1);
 
             for (int j = i + 1; j < loadedImages.size(); j++) {
-
                 boolean image2ClusteredAlready = clusteredImageIds.contains(j);
                 if (image2ClusteredAlready) {
                     continue;
@@ -827,14 +791,12 @@ public class ImageHandler {
 
         // pick highest resolving representative
         for (Entry<Integer, List<Integer>> cluster : representatives.entrySet()) {
-
             // System.out.println(cluster.getKey());
             // CollectionHelper.print(cluster.getValue());
 
             int highestPixelCount = 0;
             String highestResolutionImageUrl = "";
             for (Integer imageId : cluster.getValue()) {
-
                 BufferedImage loadedImage = loadedImages.get(imageId);
 
                 int pixelCount = getPixelCount(loadedImage);
@@ -842,11 +804,9 @@ public class ImageHandler {
                     highestResolutionImageUrl = indexUrlMap.get(imageId);
                     highestPixelCount = pixelCount;
                 }
-
             }
 
             selectedImages.add(highestResolutionImageUrl);
-
         }
 
         return selectedImages;
@@ -1395,10 +1355,6 @@ public class ImageHandler {
 
         saveImage(bufferedImage, "jpg", "data/test/images/1_tdk1.jpg");
 
-        bufferedImage = rescaleImage(bufferedImage, 200);
-        System.out.println(bufferedImage.getWidth());
-        saveImage(bufferedImage, "jpg", "data/test/images/1_tdk1_rescaled.jpg");
-
         System.exit(0);
 
         bufferedImage.getScaledInstance(200, -1, Image.SCALE_SMOOTH);
@@ -1424,8 +1380,6 @@ public class ImageHandler {
 
         // urlLocation = new URL("http://entimg.msn.com/i/gal/ScaryCelebs/JimCarrey_400.jpg");
         BufferedImage bufferedImage2 = ImageIO.read(new File("data/multimedia/jc2g.jpg"));
-        bufferedImage2 = rescaleImage(bufferedImage2, 200);
-
         BufferedImage substractedImage = ImageHandler.substractImages(bufferedImage, bufferedImage2);
         ImageHandler.getAverageGray(substractedImage);
 

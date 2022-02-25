@@ -1,16 +1,7 @@
 package ws.palladian.extraction.date.rater;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
@@ -25,6 +16,14 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.io.FileHelper;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+
 /**
  * <p>
  * This class evaluates content-dates. Doing this by dividing dates in three parts: Keyword in attribute, in text and no
@@ -32,12 +31,11 @@ import ws.palladian.helper.io.FileHelper;
  * {@link KeyWords#getKeywordPriority(String)} and age. Part two by distance of keyword an date, keyword classes and
  * age. Part three by age.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
 public class ContentDateRater extends TechniqueDateRater<ContentDate> {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentDateRater.class);
 
@@ -57,7 +55,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     private QuickDtModel loadModel(String classifierModel) {
-        QuickDtModel model = (QuickDtModel)Cache.getInstance().getDataObject(classifierModel);
+        QuickDtModel model = (QuickDtModel) Cache.getInstance().getDataObject(classifierModel);
         if (model == null) {
             InputStream inputStream = this.getClass().getResourceAsStream(CLASSIFIER_MODEL_PUB);
             if (inputStream == null) {
@@ -66,14 +64,10 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
             try {
                 ObjectInputStream objectInputStream = new ObjectInputStream(new GZIPInputStream(inputStream));
-                model = (QuickDtModel)objectInputStream.readObject();
+                model = (QuickDtModel) objectInputStream.readObject();
                 Cache.getInstance().putDataObject(classifierModel, model);
-            } catch (IOException e) {
-                throw new IllegalStateException("Error loading the model file \"" + classifierModel + "\": "
-                        + e.getMessage(), e);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException("Error loading the model file \"" + classifierModel + "\": "
-                        + e.getMessage(), e);
+            } catch (IOException | ClassNotFoundException e) {
+                throw new IllegalStateException("Error loading the model file \"" + classifierModel + "\": " + e.getMessage(), e);
             }
         }
         return model;
@@ -104,23 +98,20 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
      * <p>
      * Build the model files for the classifier from the training CSV.
      * </p>
-     * 
-     * @param inputCsv The path to the CSV file.
+     *
+     * @param inputCsv   The path to the CSV file.
      * @param outputPath The path and filename for the model file.
-     * @throws IOException 
+     * @throws IOException
      */
     private static void buildModel(String inputCsv, String outputPath) throws IOException {
-    	CsvDatasetReader instances = CsvDatasetReaderConfig.filePath(new File(inputCsv)).readHeader(true).create();
+        CsvDatasetReader instances = CsvDatasetReaderConfig.filePath(new File(inputCsv)).readHeader(true).create();
         QuickDtLearner learner = QuickDtLearner.randomForest(10);
         QuickDtModel model = learner.train(instances);
         FileHelper.serialize(model, outputPath);
     }
 
     public static void main(String[] args) throws IOException {
-        buildModel("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_mod.csv",
-                "src/main/resources/dates_mod_model.gz");
-        buildModel("/Users/pk/Dropbox/Uni/Datasets/DateDatasetMartinGregor/dates_pub.csv",
-                "src/main/resources/dates_pub_model.gz");
+        buildModel("D:\\Dates_Pub_Mod\\dates_mod.csv", "src/main/resources/dates_mod_model.gz");
+        buildModel("D:\\Dates_Pub_Mod\\dates_pub.csv", "src/main/resources/dates_pub_model.gz");
     }
-
 }

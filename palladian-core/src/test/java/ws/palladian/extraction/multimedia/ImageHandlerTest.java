@@ -1,6 +1,10 @@
 package ws.palladian.extraction.multimedia;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Assume;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
@@ -9,22 +13,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assume;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test cases for the image handler.
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
 public class ImageHandlerTest {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandlerTest.class);
 
@@ -32,7 +30,7 @@ public class ImageHandlerTest {
      * Some of these tests fail when run under Mac OS X. In contrast to other platforms where the JAI implementation is
      * supplied directly by Sun, Apple provides its own version of JAI, which i suspect contains a bug or behaves
      * somehow differently. Therefore, we check the platform here and simply skip this test if run under Mac OS X.
-     * 
+     *
      * Philipp, 2010-06-28.
      */
     // @Before
@@ -46,7 +44,7 @@ public class ImageHandlerTest {
 
     @Test
     public void testClusterImages() throws FileNotFoundException {
-    	checkOperatingSystem();
+        checkOperatingSystem();
 
         Collection<String> imageUrls = new ArrayList<>();
         imageUrls.add(ResourceHelper.getResourcePath("/images/imageA1.jpg"));
@@ -69,8 +67,8 @@ public class ImageHandlerTest {
 
     @Test
     public void testRescaleImage() throws FileNotFoundException {
-    	checkOperatingSystem();
-    	
+        checkOperatingSystem();
+
         BufferedImage bufferedImage;
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
@@ -115,7 +113,7 @@ public class ImageHandlerTest {
 
     @Test
     public void testIsDuplicate() throws FileNotFoundException {
-    	checkOperatingSystem();
+        checkOperatingSystem();
 
         BufferedImage image1;
         BufferedImage image2;
@@ -158,14 +156,14 @@ public class ImageHandlerTest {
         // image2 = ImageHandler.load("data/test/images/nzf1.jpg");
         // assertEquals(false, ImageHandler.isDuplicate(image1,image2));
     }
-    
+
     @Test
     public void testDetectColors() throws FileNotFoundException {
-    	BufferedImage image = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
-    	List<Color> detectedColors = ImageHandler.detectColors(image);
-    	assertEquals(3, detectedColors.size());
-    	assertEquals(new Color("#273e7a", "Congress Blue", "Blue"), detectedColors.get(0));
-    	assertEquals(new Color("#cc1b36", "crimson", "Red"), detectedColors.get(1));
-    	assertEquals(new Color("#eddfeb", "Carousel Pink", "Pink"), detectedColors.get(2));
+        BufferedImage image = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
+        List<Color> detectedColors = ImageHandler.detectColors(image);
+        assertEquals(3, detectedColors.size());
+        assertEquals(new Color("#273e7a", "Congress Blue", "Blue"), detectedColors.get(0));
+        assertEquals(new Color("#cc1b36", "crimson", "Red"), detectedColors.get(1));
+        assertEquals(new Color("#eddfeb", "Carousel Pink", "Pink"), detectedColors.get(2));
     }
 }
