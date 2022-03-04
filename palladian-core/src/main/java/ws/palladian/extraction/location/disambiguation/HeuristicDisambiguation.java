@@ -1,46 +1,29 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
-import static ws.palladian.extraction.location.LocationFilters.coordinate;
-import static ws.palladian.extraction.location.LocationFilters.type;
-import static ws.palladian.extraction.location.LocationType.CITY;
-import static ws.palladian.extraction.location.LocationType.CONTINENT;
-import static ws.palladian.extraction.location.LocationType.COUNTRY;
-import static ws.palladian.extraction.location.LocationType.UNIT;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
-import ws.palladian.extraction.location.ClassifiedAnnotation;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationSet;
-import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.*;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 
+import java.util.*;
+
+import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
+import static ws.palladian.extraction.location.LocationFilters.coordinate;
+import static ws.palladian.extraction.location.LocationFilters.type;
+import static ws.palladian.extraction.location.LocationType.*;
+
 /**
  * <p>
  * Heuristic disambiguation strategy based on anchor locations, and proximities.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class HeuristicDisambiguation implements LocationDisambiguation {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(HeuristicDisambiguation.class);
 
@@ -79,27 +62,26 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private final int tokenThreshold;
 
     public HeuristicDisambiguation() {
-        this(ANCHOR_DISTANCE_THRESHOLD, LOWER_POPULATION_THRESHOLD, ANCHOR_POPULATION_THRESHOLD,
-                SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD, LOWER_UNLIKELY_POPULATION_THRESHOLD, TOKEN_THRESHOLD);
+        this(ANCHOR_DISTANCE_THRESHOLD, LOWER_POPULATION_THRESHOLD, ANCHOR_POPULATION_THRESHOLD, SAME_DISTANCE_THRESHOLD, LASSO_DISTANCE_THRESHOLD,
+                LOWER_UNLIKELY_POPULATION_THRESHOLD, TOKEN_THRESHOLD);
     }
 
     /**
      * <p>
      * Create a new {@link HeuristicDisambiguation} with the specified settings.
      * </p>
-     * 
-     * @param anchorDistanceThreshold The maximum distance for a location to be "catched" by an anchor.
-     * @param lowerPopulationThreshold The minimum population threshold to be "catched " as child of an anchor.
-     * @param anchorPopulationThreshold The minimum population threshold for a location to become an anchor.
-     * @param sameDistanceThreshold The maximum distance between two locations with the same names to assume, that they
-     *            are actually the same.
-     * @param lassoDistanceThreshold The distance threshold, when the lasso heuristic stops.
+     *
+     * @param anchorDistanceThreshold          The maximum distance for a location to be "catched" by an anchor.
+     * @param lowerPopulationThreshold         The minimum population threshold to be "catched " as child of an anchor.
+     * @param anchorPopulationThreshold        The minimum population threshold for a location to become an anchor.
+     * @param sameDistanceThreshold            The maximum distance between two locations with the same names to assume, that they
+     *                                         are actually the same.
+     * @param lassoDistanceThreshold           The distance threshold, when the lasso heuristic stops.
      * @param lowerUnlikelyPopulationThreshold The threshold below which locations will be removed, which have been
-     *            classified as "unlikely" anyways (like person names, ...)
+     *                                         classified as "unlikely" anyways (like person names, ...)
      * @param tokenThreshold
      */
-    public HeuristicDisambiguation(int anchorDistanceThreshold, int lowerPopulationThreshold,
-            int anchorPopulationThreshold, int sameDistanceThreshold, int lassoDistanceThreshold,
+    public HeuristicDisambiguation(int anchorDistanceThreshold, int lowerPopulationThreshold, int anchorPopulationThreshold, int sameDistanceThreshold, int lassoDistanceThreshold,
             int lowerUnlikelyPopulationThreshold, int tokenThreshold) {
         this.anchorDistanceThreshold = anchorDistanceThreshold;
         this.lowerPopulationThreshold = lowerPopulationThreshold;
@@ -112,7 +94,6 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
     @Override
     public List<LocationAnnotation> disambiguate(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
-
         Set<Annotation> unlikelyLocations = getUnlikelyLocations(locations);
         locations.keySet().removeAll(unlikelyLocations);
 
@@ -227,25 +208,25 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
     private Set<Location> getAnchors(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> anchorLocations = new HashSet<>();
-        
-//        // check if one is contained in the other
-//        for (Annotation currentAnnotation : locations.keySet()) {
-//            Collection<Location> currentLocations = locations.get(currentAnnotation);
-//            // iterate through other locations
-//            for (Annotation otherAnnotation : locations.keySet()) {
-//                if (otherAnnotation.equals(currentAnnotation)) {
-//                    continue;
-//                }
-//                Collection<Location> otherLocations = locations.get(otherAnnotation);
-//                for (Location currentLocation : currentLocations) {
-//                    for (Location otherLocation : otherLocations) {
-//                        if (currentLocation.descendantOf(otherLocation)) {
-//                            LOGGER.debug("{} is descendant of {}", currentLocation, otherLocation);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+
+        //        // check if one is contained in the other
+        //        for (Annotation currentAnnotation : locations.keySet()) {
+        //            Collection<Location> currentLocations = locations.get(currentAnnotation);
+        //            // iterate through other locations
+        //            for (Annotation otherAnnotation : locations.keySet()) {
+        //                if (otherAnnotation.equals(currentAnnotation)) {
+        //                    continue;
+        //                }
+        //                Collection<Location> otherLocations = locations.get(otherAnnotation);
+        //                for (Location currentLocation : currentLocations) {
+        //                    for (Location otherLocation : otherLocations) {
+        //                        if (currentLocation.descendantOf(otherLocation)) {
+        //                            LOGGER.debug("{} is descendant of {}", currentLocation, otherLocation);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
 
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
@@ -312,8 +293,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private Set<Location> getLassoLocations(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> lassoLocations = new HashSet<Location>(locations.allValues());
         while (lassoLocations.size() > 1) {
-            List<GeoCoordinate> coordinates = CollectionHelper
-                    .convertList(lassoLocations, LOCATION_COORDINATE_FUNCTION);
+            List<GeoCoordinate> coordinates = CollectionHelper.convertList(lassoLocations, LOCATION_COORDINATE_FUNCTION);
             CollectionHelper.removeNulls(coordinates);
             if (coordinates.isEmpty()) {
                 break;
@@ -335,7 +315,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             }
             lassoLocations.remove(farthestLocation);
             if (LOGGER.isDebugEnabled()) {
-                Object[] logArgs = new Object[] {farthestLocation, midpoint, maxDistance, lassoLocations.size()};
+                Object[] logArgs = new Object[]{farthestLocation, midpoint, maxDistance, lassoLocations.size()};
                 LOGGER.debug("Removed {}, distance to center {}: {}, {} items left", logArgs);
             }
         }
@@ -382,5 +362,4 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         builder.append("]");
         return builder.toString();
     }
-
 }
