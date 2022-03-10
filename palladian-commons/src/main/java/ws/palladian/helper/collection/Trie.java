@@ -242,6 +242,9 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
         while (iterator.hasNext()) {
             Map.Entry<String, V> entry = iterator.next();
             String key = entry.getKey();
+            if (entry.getValue() == null) {
+                continue;
+            }
             try {
                 FileHelper.serialize((Serializable) entry.getValue(), getSerializationPath(key));
             } catch (Exception e) {
