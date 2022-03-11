@@ -98,8 +98,8 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
         node.value = value;
         if (dataWrittenToDisk && value != null) {
             try {
-                writeValuesToDisk();
-            } catch (IOException e) {
+                FileHelper.serialize((Serializable) value, getSerializationPath(key));
+            } catch (Exception e) {
                 LOGGER.error("could not serialize " + key + " to " + dataFolder.getPath(), e);
             }
         }
