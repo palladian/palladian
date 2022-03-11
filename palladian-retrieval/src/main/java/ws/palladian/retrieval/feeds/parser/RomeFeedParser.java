@@ -1,17 +1,16 @@
 package ws.palladian.retrieval.feeds.parser;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.rometools.rome.feed.rss.Guid;
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.feed.synd.SyndPerson;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
@@ -24,13 +23,8 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.XmlParser;
 
-import com.rometools.rome.feed.rss.Guid;
-import com.rometools.rome.feed.synd.SyndContent;
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.feed.synd.SyndPerson;
-import com.rometools.rome.io.FeedException;
-import com.rometools.rome.io.SyndFeedInput;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * <p>
@@ -38,15 +32,13 @@ import com.rometools.rome.io.SyndFeedInput;
  * downloading the feeds and ROME in conjunctions with Palladian's {@link XmlParser} for parsing the XML formats. This
  * class implements various fallback mechanisms for parsing problems caused by ROME or invalid feeds.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann
- * 
  * @see <a href="http://rometools.org/">The ROME Project</a>
  */
 public class RomeFeedParser extends AbstractFeedParser {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(RomeFeedParser.class);
 
@@ -96,8 +88,7 @@ public class RomeFeedParser extends AbstractFeedParser {
         try {
             DocumentParser xmlParser = ParserFactory.createXmlParser();
             Document document = xmlParser.parse(inputStream);
-            SyndFeed syndFeed = buildSyndFeed(document);
-            return syndFeed;
+            return buildSyndFeed(document);
         } catch (ParserException e) {
             throw new FeedParserException(e);
         }
@@ -105,14 +96,8 @@ public class RomeFeedParser extends AbstractFeedParser {
 
     /**
      * Get feed information about a Atom/RSS feed, using ROME library.
-     * 
-     * @param feedUrl
-     * @return
-     * @throws FeedParserException
-     * 
      */
-    private Feed getFeed(SyndFeed syndFeed, String feedUrl) throws FeedParserException {
-
+    private Feed getFeed(SyndFeed syndFeed, String feedUrl) {
         Feed result = new Feed();
 
         // URL of the feed itself
@@ -139,13 +124,8 @@ public class RomeFeedParser extends AbstractFeedParser {
 
     /**
      * Add {@link FeedItem}s to the {@link Feed} from the specified {@link SyndFeed}.
-     * 
-     * @param feed
-     * @param syndFeed
-     * @return
      */
     private void addFeedItems(Feed feed, SyndFeed syndFeed) {
-
         List<SyndEntry> syndEntries = syndFeed.getEntries();
 
         int dateRetries = 0;
@@ -193,10 +173,6 @@ public class RomeFeedParser extends AbstractFeedParser {
     /**
      * Get link from {@link SyndEntry}, some feeds provide relative URLs, which we need to convert.
      * TODO also consider feed's URL here?
-     * 
-     * @param syndFeed
-     * @param syndEntry
-     * @return
      */
     private String getEntryLink(SyndFeed syndFeed, SyndEntry syndEntry) {
         String entryLink = syndEntry.getLink();
@@ -209,9 +185,6 @@ public class RomeFeedParser extends AbstractFeedParser {
 
     /**
      * Get title from {@link SyndEntry}, remove HTML tags and unescape HTML entities from title.
-     * 
-     * @param syndEntry
-     * @return
      */
     private String getEntryTitle(SyndEntry syndEntry) {
         String title = syndEntry.getTitle();
@@ -223,8 +196,7 @@ public class RomeFeedParser extends AbstractFeedParser {
 
     /**
      * Get text description from {@link SyndEntry}.
-     * 
-     * @param syndEntry
+     *
      * @return description, or <code>null</code> if no description.
      */
     private String getEntryDescription(SyndEntry syndEntry) {
@@ -241,14 +213,11 @@ public class RomeFeedParser extends AbstractFeedParser {
 
     /**
      * Get text content from {@link SyndEntry}. ROME also considers RSS content module.
-     * 
-     * @see http://web.resource.org/rss/1.0/modules/content/
-     * 
-     * @param syndEntry
+     *
      * @return text content or <code>null</code> if no content found.
+     * see http://web.resource.org/rss/1.0/modules/content/
      */
     private String getEntryText(SyndEntry syndEntry) {
-
         // I modified this method to return the *longest* text fragment which we can retrieve
         // from the feed item. -- Philipp, 2011-01-28.
 
@@ -271,20 +240,18 @@ public class RomeFeedParser extends AbstractFeedParser {
     /**
      * Get ID from {@link SyndEntry}. This is the "raw" ID which is assigned in the feed itself, either as
      * <code>guid</code> element in RSS or as <code>id</code> element in Atom.
-     * 
-     * @param syndEntry
+     *
      * @return raw id or <code>null</code> if no id found
      */
     private String getEntryRawId(SyndEntry syndEntry) {
-
         String rawId = null;
         Object wireEntry = syndEntry.getWireEntry();
 
         if (wireEntry instanceof com.rometools.rome.feed.atom.Entry) {
-            com.rometools.rome.feed.atom.Entry atomEntry = (com.rometools.rome.feed.atom.Entry)wireEntry;
+            com.rometools.rome.feed.atom.Entry atomEntry = (com.rometools.rome.feed.atom.Entry) wireEntry;
             rawId = atomEntry.getId();
         } else if (wireEntry instanceof com.rometools.rome.feed.rss.Item) {
-            com.rometools.rome.feed.rss.Item rssItem = (com.rometools.rome.feed.rss.Item)wireEntry;
+            com.rometools.rome.feed.rss.Item rssItem = (com.rometools.rome.feed.rss.Item) wireEntry;
             Guid guid = rssItem.getGuid();
             if (guid != null) {
                 rawId = guid.getValue();
@@ -311,13 +278,8 @@ public class RomeFeedParser extends AbstractFeedParser {
      * Get the publish or updated (Atom) date from {@link SyndEntry}. First, try to get published date from
      * {@link SyndEntry}, if there is none (or it couldn't be parsed), try to get the publish date. If ROME fails to
      * get either, try to get a date using Palladian's sophisticated date recognition techniques.
-     * 
-     * @param syndEntry
-     * @param item
-     * @return
      */
     private Date getEntryPublishDate(SyndEntry syndEntry, FeedItem item) {
-
         Date publishDate = syndEntry.getPublishedDate();
 
         // try to get updated date before entering the expensive search via XPath and DateGetterHelper
@@ -331,7 +293,7 @@ public class RomeFeedParser extends AbstractFeedParser {
         // see FeedDownloaderTest for a list of test cases.
         if (publishDate == null && useDateRecognition) {
 
-            RawDateModule rawDateModule = (RawDateModule)syndEntry.getModule(RawDateModule.URI);
+            RawDateModule rawDateModule = (RawDateModule) syndEntry.getModule(RawDateModule.URI);
             String rawDate = null;
             if (rawDateModule != null) {
                 rawDate = rawDateModule.getRawDate();
@@ -346,8 +308,7 @@ public class RomeFeedParser extends AbstractFeedParser {
                         LOGGER.debug("found publish date in original feed file: " + publishDate);
                     }
                 } catch (Throwable th) {
-                    LOGGER.warn("date format could not be parsed correctly: " + rawDate + ", feed: "
-                            + item.getFeedUrl() + ", " + th.getMessage());
+                    LOGGER.warn("date format could not be parsed correctly: " + rawDate + ", feed: " + item.getFeedUrl() + ", " + th.getMessage());
                 }
             }
         }
@@ -359,14 +320,11 @@ public class RomeFeedParser extends AbstractFeedParser {
      * Get author information from the supplied {@link SyndEntry}. If multiple authors are provided, all of them are
      * concatenated together using semicolons as separator. If the {@link SyndEntry} has no authors, the author data
      * from the {@link SyndFeed} is considered instead.
-     * 
-     * @param syndFeed
-     * @param syndEntry
+     *
      * @return authors, or <code>null</code> if no authors provided.
      */
     private String getEntryAuthors(SyndFeed syndFeed, SyndEntry syndEntry) {
-
-        List<String> authors = new ArrayList<String>();
+        List<String> authors = new ArrayList<>();
 
         // try to get authors as list
         List<SyndPerson> syndPersons = syndEntry.getAuthors();
@@ -409,35 +367,23 @@ public class RomeFeedParser extends AbstractFeedParser {
 
     /**
      * Possibility for subclasses to retrieve additional data from the {@link SyndEntry}. Override if necessary.
-     * 
-     * @param syndEntry
-     * @return
      */
     protected Map<String, Object> getAdditionalData(SyndEntry syndEntry) {
-        return new HashMap<String, Object>();
+        return new HashMap<>();
     }
 
     /**
      * Possibility for subclasses to retrieve additional data from the {@link SyndFeed}. Override if necessary.
-     * 
-     * @param syndFeed
-     * @return
      */
     protected Map<String, Object> getAdditionalData(SyndFeed syndFeed) {
-        return new HashMap<String, Object>();
+        return new HashMap<>();
     }
 
     /**
      * Builds a {@link SyndFeed} with ROME from the supplied {@link Document}.
-     * 
-     * @param feedDocument
-     * @return
-     * @throws FeedParserException
      */
     private SyndFeed buildSyndFeed(Document feedDocument) throws FeedParserException {
-
         try {
-
             SyndFeedInput feedInput = new SyndFeedInput();
 
             // this preserves the "raw" feed data and gives direct access to RSS/Atom specific elements see
@@ -449,14 +395,9 @@ public class RomeFeedParser extends AbstractFeedParser {
 
             return syndFeed;
 
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
-            throw new FeedParserException(e);
-        } catch (FeedException e) {
+        } catch (IllegalArgumentException | FeedException e) {
             LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
             throw new FeedParserException(e);
         }
-
     }
-
 }

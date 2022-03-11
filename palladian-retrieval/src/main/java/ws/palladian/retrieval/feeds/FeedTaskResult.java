@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
 public enum FeedTaskResult {
-
     /** The {@link FeedTask} has not been completed yet. */
     OPEN,
 
@@ -25,5 +24,4 @@ public enum FeedTaskResult {
 
     /** An Error occurred processing this {@link FeedTask}. */
     ERROR
-
 }

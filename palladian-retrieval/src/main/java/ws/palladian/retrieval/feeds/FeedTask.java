@@ -1,12 +1,13 @@
 package ws.palladian.retrieval.feeds;
 
-import static ws.palladian.retrieval.feeds.FeedTaskResult.ERROR;
-import static ws.palladian.retrieval.feeds.FeedTaskResult.EXECUTION_TIME_WARNING;
-import static ws.palladian.retrieval.feeds.FeedTaskResult.MISS;
-import static ws.palladian.retrieval.feeds.FeedTaskResult.OPEN;
-import static ws.palladian.retrieval.feeds.FeedTaskResult.SUCCESS;
-import static ws.palladian.retrieval.feeds.FeedTaskResult.UNPARSABLE;
-import static ws.palladian.retrieval.feeds.FeedTaskResult.UNREACHABLE;
+import org.apache.http.impl.cookie.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.helper.HttpHelper;
 
 import java.net.HttpURLConnection;
 import java.util.Arrays;
@@ -15,35 +16,20 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import org.apache.http.impl.cookie.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.StopWatch;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.feeds.parser.FeedParser;
-import ws.palladian.retrieval.feeds.parser.FeedParserException;
-import ws.palladian.retrieval.helper.HttpHelper;
+import static ws.palladian.retrieval.feeds.FeedTaskResult.*;
 
 /**
  * <p>
  * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
  * the feed is checked and also performs all set {@link FeedProcessingAction}s.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Sandro Reichert
  * @see FeedReader
  */
 class FeedTask implements Callable<FeedTaskResult> {
-
     /** The logger for this class. */
     private final static Logger LOGGER = LoggerFactory.getLogger(FeedTask.class);
 
@@ -51,15 +37,15 @@ class FeedTask implements Callable<FeedTaskResult> {
     private final Feed feed;
 
     /** A collection of all intermediate results that can happen, e.g. when updating meta information or a data base. */
-    private final Set<FeedTaskResult> resultSet = new HashSet<FeedTaskResult>();
+    private final Set<FeedTaskResult> resultSet = new HashSet<>();
 
     private final FeedReaderSettings settings;
 
     /**
      * Creates a new retrieval task for a provided feed.
-     * 
+     *
      * @param settings The configuration.
-     * @param feed The feed retrieved by this task.
+     * @param feed     The feed retrieved by this task.
      */
     FeedTask(FeedReaderSettings settings, Feed feed) {
         this.settings = settings;
@@ -73,7 +59,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             LOGGER.debug("Start processing of feed id " + feed.getId() + " (" + feed.getFeedUrl() + ")");
             int recentMisses = feed.getMisses();
 
-            HttpResult httpResult = null;
+            HttpResult httpResult;
             try {
                 HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
                 httpRetriever.setMaxFileSize(settings.getMaximumFeedSize());
@@ -94,8 +80,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             // process the returned header first
             // case 1: client or server error, statuscode >= 400
             if (httpResult.getStatusCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
-                LOGGER.error("Could not get Document for feed id " + feed.getId()
-                        + ". Server returned HTTP status code " + httpResult.getStatusCode());
+                LOGGER.error("Could not get Document for feed id " + feed.getId() + ". Server returned HTTP status code " + httpResult.getStatusCode());
                 feed.incrementUnreachableCount();
                 resultSet.add(UNREACHABLE);
 
@@ -106,7 +91,6 @@ class FeedTask implements Callable<FeedTaskResult> {
                 }
 
             } else {
-
                 // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
 
@@ -126,7 +110,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                     feed.setHttpLastModified(HttpHelper.getDateFromHeader(httpResult, "Last-Modified", false));
 
                     FeedParser feedParser = settings.getParserFactory().create();
-                    Feed downloadedFeed = null;
+                    Feed downloadedFeed;
                     try {
                         // parse the feed and get all its entries, do that here since that takes some time and this is a
                         // thread so it can be done in parallel
@@ -135,8 +119,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                         LOGGER.error("update items of feed id " + feed.getId() + " didn't work well, " + e.getMessage());
                         feed.incrementUnparsableCount();
                         resultSet.add(UNPARSABLE);
-                        LOGGER.debug("Performing action on exception on feed: " + feed.getId() + "("
-                                + feed.getFeedUrl() + ")");
+                        LOGGER.debug("Performing action on exception on feed: " + feed.getId() + "(" + feed.getFeedUrl() + ")");
                         try {
                             settings.getAction().onException(feed, httpResult);
                         } catch (Exception e2) {
@@ -149,7 +132,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                     feed.setItems(downloadedFeed.getItems());
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     feed.setWindowSize(downloadedFeed.getItems().size());
-
+                    feed.setFeedMetaInformation(downloadedFeed.getMetaInformation());
                     // if (LOGGER.isDebugEnabled()) {
                     // LOGGER.debug("Activity Pattern: " + feed.getActivityPattern());
                     // LOGGER.debug("Current time: " + System.currentTimeMillis());
@@ -194,9 +177,8 @@ class FeedTask implements Callable<FeedTaskResult> {
     /**
      * Sets the feed task result and processing time of this task, saves the feed to database, does the final logging
      * and frees the feed's memory.
-     * 
+     *
      * @param timer The {@link StopWatch} to estimate processing time
-     * @param storeMetadata Specify whether metadata should be updated in database.
      */
     private void doFinalStuff(StopWatch timer) {
         if (timer.getElapsedTime() > settings.getExecutionWarnTime()) {
@@ -236,7 +218,7 @@ class FeedTask implements Callable<FeedTaskResult> {
 
     /**
      * Decide the status of this FeedTask. This is done here to have a fixed ranking on the values.
-     * 
+     *
      * @return The (current) result of the feed task.
      */
     private FeedTaskResult getResult() {
@@ -259,13 +241,12 @@ class FeedTask implements Callable<FeedTaskResult> {
 
     /**
      * Do final logging of result to error or debug log, depending on the FeedTaskResult.
-     * 
+     *
      * @param timer the {@link StopWatch} started when started processing the feed.
      */
     private void doFinalLogging(StopWatch timer) {
         FeedTaskResult result = getResult();
-        String msg = "Finished processing of feed id " + feed.getId() + ". Result: " + result + ". Processing took "
-                + timer.getElapsedTimeString();
+        String msg = "Finished processing of feed id " + feed.getId() + ". Result: " + result + ". Processing took " + timer.getElapsedTimeString();
         if (result == FeedTaskResult.ERROR) {
             LOGGER.error(msg);
         } else if (LOGGER.isDebugEnabled()) {
@@ -285,12 +266,11 @@ class FeedTask implements Callable<FeedTaskResult> {
 
     /**
      * Update the check interval depending on the chosen approach. Update the feed accordingly and return it.
-     * 
+     *
      * @param feed The feed to update.
      */
     private void updateCheckIntervals(Feed feed) {
         settings.getUpdateStrategy().update(feed, new FeedPostStatistics(feed), false);
         feed.increaseChecks();
     }
-
 }

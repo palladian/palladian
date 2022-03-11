@@ -51,9 +51,7 @@ public final class FeedReader {
     public void start() {
         SchedulerTask schedulerTask = new SchedulerTask(settings);
         checkScheduler.schedule(schedulerTask, 0, settings.getWakeUpInterval());
-        LOGGER.debug(
-                "Scheduled task, wake up every {} milliseconds to check all feeds whether they need to be read or not",
-                settings.getWakeUpInterval());
+        LOGGER.debug("Scheduled task, wake up every {} milliseconds to check all feeds whether they need to be read or not", settings.getWakeUpInterval());
     }
 
     /**
@@ -62,7 +60,6 @@ public final class FeedReader {
      */
     public void stop() {
         checkScheduler.cancel();
-        LOGGER.info("Cancelled all scheduled readings, total size downloaded ({}): {} MB",
-                settings.getUpdateStrategy(), HttpRetriever.getTraffic(SizeUnit.MEGABYTES));
+        LOGGER.info("Cancelled all scheduled readings, total size downloaded ({}): {} MB", settings.getUpdateStrategy(), HttpRetriever.getTraffic(SizeUnit.MEGABYTES));
     }
 }
