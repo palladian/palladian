@@ -69,7 +69,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
         String htmlContentString = response.tryQueryString("pageResponses[0]/frameData/content");
         int statusCode = Optional.ofNullable(response.tryQueryInt("content/statusCode")).orElse(200);
 
-        if (statusCode >= 400 && !(count424aSuccess && statusCode == 424)) {
+        if (htmlContentString == null || (statusCode >= 400 && !(count424aSuccess && statusCode == 424))) {
             return null;
         }
 

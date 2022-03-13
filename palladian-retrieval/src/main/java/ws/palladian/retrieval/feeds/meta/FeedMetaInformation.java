@@ -366,6 +366,12 @@ public class FeedMetaInformation {
     public String getLanguage() {
         return language;
     }
+    public String getLanguageIso6391() {
+        if (language != null) {
+            return language.replaceAll("-.*","").trim();
+        }
+        return language;
+    }
 
     /**
      * @param language The feed's language.

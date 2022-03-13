@@ -40,7 +40,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
-    private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, language = ?, feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
+    private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, `language` = COALESCE(`language`, ?), feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
     private static final String ADD_FEED_POLL = "INSERT IGNORE INTO feed_polls SET id = ?, pollTimestamp = ?, httpETag = ?, httpDate = ?, httpLastModified = ?, httpExpires = ?, newestItemTimestamp = ?, numberNewItems = ?, windowSize = ?, httpStatusCode = ?, responseSize = ?";
     private static final String ADD_CACHE_ITEMS = "INSERT IGNORE INTO feed_item_cache SET id = ?, itemHash = ?, correctedPollTime = ?";
@@ -211,7 +211,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      */
     @Override
     public boolean updateFeed(Feed feed, boolean replaceCachedItems) {
-
         if (feed.getId() == -1) {
             LOGGER.debug("feed does not exist and is added therefore");
             return addFeed(feed);
@@ -304,7 +303,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(truncateToVarchar255(feed.getMetaInformation().getSiteUrl(), "siteUrl", feed.getId() + ""));
         parameters.add(feed.getMetaInformation().getAddedSQLTimestamp());
         parameters.add(truncateToVarchar255(feed.getMetaInformation().getTitle(), "title", feed.getId() + ""));
-        parameters.add(truncateToVarchar255(feed.getMetaInformation().getLanguage(), "language", feed.getId() + ""));
+        parameters.add(truncateToVarchar255(feed.getMetaInformation().getLanguageIso6391(), "language", feed.getId() + ""));
         parameters.add(feed.getMetaInformation().getByteSize());
         parameters.add(feed.getMetaInformation().getCgHeaderSize());
         parameters.add(feed.getMetaInformation().isSupportsPubSubHubBub());

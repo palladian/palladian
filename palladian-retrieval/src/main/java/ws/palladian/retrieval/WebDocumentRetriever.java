@@ -70,6 +70,10 @@ public abstract class WebDocumentRetriever {
 
     public abstract Document getWebDocument(String url);
 
+    public Document getWebDocument(String url, Thread thread) {
+        return getWebDocument(url);
+    }
+
     public String getText(String url) {
         Document webDocument = getWebDocument(url);
         if (webDocument == null) {
@@ -156,7 +160,7 @@ public abstract class WebDocumentRetriever {
                         boolean consumerFound = reactToFileTypeConsumer(url, getFileTypeConsumers());
 
                         if (!consumerFound) {
-                            Document document = getWebDocument(url);
+                            Document document = getWebDocument(url, Thread.currentThread());
                             if (document != null) {
                                 document.setUserData(ORIGINAL_REQUEST_URL, url, null);
                                 callback.accept(document);

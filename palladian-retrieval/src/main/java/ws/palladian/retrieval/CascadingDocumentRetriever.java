@@ -50,7 +50,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private final ScrapingBeeDocumentRetriever cloudDocumentRetriever3;
 
     public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, PhantomJsDocumentRetriever cloudDocumentRetriever,
-                                      ProxyCrawlDocumentRetriever cloudDocumentRetriever2, ScrapingBeeDocumentRetriever cloudDocumentRetriever3) {
+            ProxyCrawlDocumentRetriever cloudDocumentRetriever2, ScrapingBeeDocumentRetriever cloudDocumentRetriever3) {
         this.documentRetriever = documentRetriever;
         this.renderingDocumentRetrieverPool = retrieverPool;
         this.cloudDocumentRetriever = cloudDocumentRetriever;
@@ -58,19 +58,19 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         this.cloudDocumentRetriever3 = cloudDocumentRetriever3;
 
         if (this.documentRetriever != null) {
-            requestTracker.put(RETRIEVER_PLAIN, new Integer[]{0, 0, 0});
+            requestTracker.put(RETRIEVER_PLAIN, new Integer[] {0, 0, 0});
         }
         if (this.renderingDocumentRetrieverPool != null) {
-            requestTracker.put(RETRIEVER_RENDERING_POOL, new Integer[]{0, 0, 0});
+            requestTracker.put(RETRIEVER_RENDERING_POOL, new Integer[] {0, 0, 0});
         }
         if (this.cloudDocumentRetriever != null) {
-            requestTracker.put(RETRIEVER_PHANTOM_JS_CLOUD, new Integer[]{0, 0, 0});
+            requestTracker.put(RETRIEVER_PHANTOM_JS_CLOUD, new Integer[] {0, 0, 0});
         }
         if (this.cloudDocumentRetriever2 != null) {
-            requestTracker.put(RETRIEVER_PROXY_CRAWL, new Integer[]{0, 0, 0});
+            requestTracker.put(RETRIEVER_PROXY_CRAWL, new Integer[] {0, 0, 0});
         }
         if (this.cloudDocumentRetriever3 != null) {
-            requestTracker.put(RETRIEVER_SCRAPING_BEE, new Integer[]{0, 0, 0});
+            requestTracker.put(RETRIEVER_SCRAPING_BEE, new Integer[] {0, 0, 0});
         }
     }
 
@@ -83,7 +83,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public String getText(String url, List<String> resolvingExplanation) {
-        Document webDocument = getWebDocument(url, resolvingExplanation);
+        Document webDocument = getWebDocument(url, resolvingExplanation, null);
         if (webDocument == null) {
             return null;
         }
@@ -93,19 +93,24 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * Do not use a certain retriever for numberOfRequestsToSkip requests if it failed more than failingThreshold times.
      *
-     * @param failingThreshold       The number of requests to fail before ignoring.
+     * @param failingThreshold The number of requests to fail before ignoring.
      * @param numberOfRequestsToSkip The number of requests to skip before trying that retriever again.
      */
     public void pauseFailingRetriever(String retrieverKey, Integer failingThreshold, Integer numberOfRequestsToSkip) {
-        failingThresholdAndNumberOfRequestsToSkip.put(retrieverKey, new Integer[]{failingThreshold, numberOfRequestsToSkip});
+        failingThresholdAndNumberOfRequestsToSkip.put(retrieverKey, new Integer[] {failingThreshold, numberOfRequestsToSkip});
     }
 
     @Override
     public Document getWebDocument(String url) {
-        return getWebDocument(url, null);
+        return getWebDocument(url, null, null);
     }
 
-    public Document getWebDocument(String url, List<String> resolvingExplanation) {
+    @Override
+    public Document getWebDocument(String url, Thread thread) {
+        return getWebDocument(url, null, thread);
+    }
+
+    public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread) {
         if (resolvingExplanation == null) {
             resolvingExplanation = new ArrayList<>();
         }
@@ -117,6 +122,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         boolean goodDocument = false;
         if (documentRetriever != null && shouldMakeRequest(RETRIEVER_PLAIN)) {
             try {
+                if (thread != null) {
+                    thread.setName("Retrieving (plain): " + url);
+                }
                 document = documentRetriever.getWebDocument(url);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
@@ -132,6 +140,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RETRIEVER_RENDERING_POOL)) {
             // try rendering retriever
             try {
+                if (thread != null) {
+                    thread.setName("Retrieving (rendering): " + url);
+                }
                 RenderingDocumentRetriever renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
 
                 for (Consumer<Document> retrieverCallback : getRetrieverCallbacks()) {
@@ -156,6 +167,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         if (!goodDocument && cloudDocumentRetriever != null && shouldMakeRequest(RETRIEVER_PHANTOM_JS_CLOUD)) {
+            if (thread != null) {
+                thread.setName("Retrieving (phantomjs): " + url);
+            }
             configure(cloudDocumentRetriever);
             document = cloudDocumentRetriever.getWebDocument(url);
             goodDocument = isGoodDocument(document);
@@ -166,6 +180,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         if (!goodDocument && cloudDocumentRetriever2 != null && shouldMakeRequest(RETRIEVER_PROXY_CRAWL)) {
+            if (thread != null) {
+                thread.setName("Retrieving (proxycrawl): " + url);
+            }
             document = cloudDocumentRetriever2.getWebDocument(url);
             goodDocument = isGoodDocument(document);
             String message = goodDocument ? "success" : "fail";
@@ -175,6 +192,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         if (!goodDocument && cloudDocumentRetriever3 != null && shouldMakeRequest(RETRIEVER_SCRAPING_BEE)) {
+            if (thread != null) {
+                thread.setName("Retrieving (scrapingbee): " + url);
+            }
             document = cloudDocumentRetriever3.getWebDocument(url);
             goodDocument = isGoodDocument(document);
             String message = goodDocument ? "success" : "fail";
@@ -251,7 +271,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     public void setTimeoutSeconds(int timeoutSeconds) {
         super.setTimeoutSeconds(timeoutSeconds);
         if (documentRetriever != null) {
-            documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+            documentRetriever.getHttpRetriever().setConnectionTimeout((int)TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         }
     }
 }
