@@ -192,7 +192,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
-        train(trainingFilePath, Collections.<Annotation>emptyList(), modelFilePath);
+        train(trainingFilePath, Collections.emptyList(), modelFilePath);
         return true;
     }
 
@@ -359,7 +359,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             // XXX also add to trainLanguageIndependent?
             Bag<String> typeCounts = Bag.create(CollectionHelper.convert(fileAnnotations, TAG_CONVERTER));
             int minCount = typeCounts.getMin().getValue();
-            Annotations<Annotation> equalizedSampling = new Annotations<Annotation>();
+            Annotations<Annotation> equalizedSampling = new Annotations<>();
             for (String type : typeCounts.uniqueItems()) {
                 Iterable<Annotation> currentType = CollectionHelper.filter(fileAnnotations, AnnotationFilters.tag(type));
                 Collection<Annotation> sampled = MathHelper.sample(currentType, minCount);
@@ -372,7 +372,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         model.leftContexts = buildLeftContexts(text, fileAnnotations);
         model.contextDictionary = buildContextDictionary(text, fileAnnotations);
 
-        Annotations<Annotation> annotations = new Annotations<Annotation>(fileAnnotations);
+        Annotations<Annotation> annotations = new Annotations<>(fileAnnotations);
         if (additionalTrainingAnnotations.size() > 0) {
             annotations.addAll(additionalTrainingAnnotations);
             LOGGER.info("Add {} additional training annotations", additionalTrainingAnnotations.size());
@@ -400,7 +400,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             LOGGER.info("{} annotations need to be completely removed", model.removeAnnotations.size());
             model.annotationDictionary = buildAnnotationDictionary(annotations);
         }
-
     }
 
     /**
@@ -411,7 +410,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      */
     private Annotations<ClassifiedAnnotation> classifyCandidates(Collection<Annotation> entityCandidates) {
         PalladianTextClassifier classifier = new PalladianTextClassifier(model.annotationDictionary.getFeatureSetting());
-        Annotations<ClassifiedAnnotation> annotations = new Annotations<ClassifiedAnnotation>();
+        Annotations<ClassifiedAnnotation> annotations = new Annotations<>();
         for (Annotation annotation : entityCandidates) {
             CategoryEntries categoryEntries = classifier.classify(annotation.getValue(), model.annotationDictionary);
             if (categoryEntries.getProbability(NO_ENTITY) < 0.5) {
@@ -478,7 +477,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         }
         // switch annotations that are in the dictionary
         if (taggingSettings.isSwitchTagAnnotationsUsingDictionary()) {
-            Annotations<ClassifiedAnnotation> switched = new Annotations<ClassifiedAnnotation>();
+            Annotations<ClassifiedAnnotation> switched = new Annotations<>();
             int changed = 0;
             for (ClassifiedAnnotation annotation : annotations) {
                 CategoryEntries categoryEntries = model.entityDictionary.getCategoryEntries(annotation.getValue());
