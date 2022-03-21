@@ -11,6 +11,7 @@ public class SearchIntentFilter {
     private Double margin;
     private Boolean booleanValue;
     private String unit;
+    private Boolean without;
 
     public String getKey() {
         return key;
@@ -68,6 +69,14 @@ public class SearchIntentFilter {
         this.unit = unit;
     }
 
+    public Boolean getWithout() {
+        return without;
+    }
+
+    public void setWithout(Boolean without) {
+        this.without = without;
+    }
+
     @Override
     public String toString() {
         return "SearchIntentFilter{" +
@@ -78,6 +87,7 @@ public class SearchIntentFilter {
                 ", margin='" + margin + '\'' +
                 ", unit='" + unit + '\'' +
                 ", booleanValue=" + booleanValue +
+                ", without=" + without +
                 '}';
     }
 }
