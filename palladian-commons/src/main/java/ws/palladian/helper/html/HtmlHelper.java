@@ -505,6 +505,9 @@ public final class HtmlHelper {
      * @return
      */
     public static String getInnerXml(Node node) {
+        if (node == null) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {

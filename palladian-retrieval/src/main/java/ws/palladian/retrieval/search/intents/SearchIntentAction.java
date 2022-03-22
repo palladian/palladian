@@ -42,6 +42,11 @@ public class SearchIntentAction<T> {
     private List<String> mixInQueries = new ArrayList<>();
 
     /**
+     * A list of queries that should be excluded from the search result.
+     */
+    private List<String> excludeQueries = new ArrayList<>();
+
+    /**
      * A list of specific placements in the search results.
      */
     private List<SearchResultPlacement> placements = new ArrayList<>();
@@ -146,5 +151,13 @@ public class SearchIntentAction<T> {
 
     public void setMetaData(Map<String, Object> metaData) {
         this.metaData = metaData;
+    }
+
+    public List<String> getExcludeQueries() {
+        return excludeQueries;
+    }
+
+    public void setExcludeQueries(List<String> excludeQueries) {
+        this.excludeQueries = excludeQueries;
     }
 }
