@@ -14,6 +14,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -274,14 +275,21 @@ public class PalladianSpellChecker {
         return autoCorrect(text, caseSensitive, EMPTY_SET);
     }
 
-    public String autoCorrect(String text, boolean caseSensitive, Collection<String> ignoreWords) {
-        StringBuilder correctedText = new StringBuilder();
+    public CorrectedText autoCorrectText(String text) {
+        return autoCorrectText(text, false, EMPTY_SET);
+
+    }
+
+    public CorrectedText autoCorrectText(String text, boolean caseSensitive, Collection<String> ignoreWords) {
+        CorrectedText correctedText = new CorrectedText();
+        StringBuilder correctedTextBuilder = new StringBuilder();
 
         String s = StringHelper.containsWhichWord(manualPhraseMappings.keySet(), text);
         if (s != null) {
             text = text.replace(s, manualPhraseMappings.get(s));
         }
 
+        boolean allWordsKnown = true;
         String[] textWords = SPLIT.split(text);
         for (int i = 0; i < textWords.length; i++) {
             String word = textWords[i];
@@ -296,7 +304,7 @@ public class PalladianSpellChecker {
 
             int length = word.length();
             if (length < minWordLength || length > maxWordLength || ignoreWords.contains(word) || !StringHelper.getRegexpMatch(NO_CORRECTION_PATTERN, word).isEmpty()) {
-                correctedText.append(word).append(" ");
+                correctedTextBuilder.append(word).append(" ");
                 continue;
             }
             char startOfWord = word.charAt(0);
@@ -304,21 +312,33 @@ public class PalladianSpellChecker {
             word = StringHelper.trim(word);
             int type = Character.getType(startOfWord);
             if (type == Character.OTHER_PUNCTUATION) {
-                correctedText.append(startOfWord);
+                correctedTextBuilder.append(startOfWord);
             }
-            if (caseSensitive) {
-                correctedText.append(correctWordCaseSensitive(word, leftContext, rightContext));
-            } else {
-                correctedText.append(correctWord(word, leftContext, rightContext));
+            AtomicBoolean corrected = new AtomicBoolean(false);
+            AtomicBoolean wordKnown = new AtomicBoolean(false);
+            correctedTextBuilder.append(correctWord(word, caseSensitive, leftContext, rightContext, corrected, wordKnown));
+
+            if (!wordKnown.get()) {
+                allWordsKnown = false;
+            }
+            if (corrected.get()) {
+                correctedText.setCorrected(true);
             }
             type = Character.getType(endOfWord);
             if (type == Character.OTHER_PUNCTUATION) {
-                correctedText.append(endOfWord);
+                correctedTextBuilder.append(endOfWord);
             }
-            correctedText.append(" ");
+            correctedTextBuilder.append(" ");
         }
 
-        return correctedText.toString().trim();
+        correctedText.setAllWordsKnown(allWordsKnown);
+        correctedText.setCorrectedText(correctedTextBuilder.toString().trim());
+
+        return correctedText;
+    }
+
+    public String autoCorrect(String text, boolean caseSensitive, Collection<String> ignoreWords) {
+        return autoCorrectText(text, caseSensitive, ignoreWords).getCorrectedText();
     }
 
     /**
@@ -350,6 +370,11 @@ public class PalladianSpellChecker {
     }
 
     public String correctWord(String word, boolean caseSensitive, String leftContext, String rightContext) {
+        return correctWord(word, caseSensitive, leftContext, rightContext, new AtomicBoolean(), new AtomicBoolean());
+    }
+
+    private String correctWord(String word, boolean caseSensitive, String leftContext, String rightContext, AtomicBoolean correction, AtomicBoolean wordKnown) {
+        correction.set(false);
         boolean uppercase = false;
         int uppercaseCount = 0;
         if (!caseSensitive) {
@@ -362,6 +387,7 @@ public class PalladianSpellChecker {
         // check whether a manual mapping exists
         String s1 = manualWordMappings.get(word);
         if (s1 != null) {
+            wordKnown.set(true);
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(s1);
             }
@@ -374,14 +400,17 @@ public class PalladianSpellChecker {
 
         // don't correct words with uppercase letters in the middle
         if (!caseSensitive && uppercaseCount > 1) {
+            wordKnown.set(true);
             return word;
         }
 
         // correct words don't need to be corrected
         if (word.isEmpty()) {
+            wordKnown.set(true);
             return word;
         }
         if (words.get(word) != null) {
+            wordKnown.set(true);
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(word);
             }
@@ -430,6 +459,9 @@ public class PalladianSpellChecker {
                         }
                     }
                 }
+                if (compoundCorrect) {
+                    wordKnown.set(true);
+                }
             }
         }
 
@@ -451,6 +483,7 @@ public class PalladianSpellChecker {
         String corrected = word;
         if (!candidates.isEmpty() && !compoundCorrect) {
             corrected = candidates.get(Collections.max(candidates.keySet()));
+            correction.set(true);
         }
 
         if (uppercase) {
