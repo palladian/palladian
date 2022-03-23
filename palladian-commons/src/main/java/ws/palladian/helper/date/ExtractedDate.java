@@ -14,17 +14,12 @@ public interface ExtractedDate {
 
     /**
      * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values.
-     * 
-     * @param dateParts
-     * @return
      */
     String getNormalizedDateString();
 
     /**
      * Converts this extracted-date in a {@link Date}. <br>
      * Be careful, if a datepart is not given, it will be set to 0. (Except day will be set to 1). <br>
-     * 
-     * @return
      */
     Date getNormalizedDate();
 
@@ -35,24 +30,16 @@ public interface ExtractedDate {
      * Constructs a normalized date string in a format from <code>YYYY-MM-DD HH:MM:SS</code> to <code>YYYY-MM</code>
      * depending of given values.
      * </p>
-     * 
+     *
      * @param time <code>true</code> to include time (the time is only included, if time values are actually given, i.e.
-     *            in an {@link ExtractedDate} where time parts are not set, they will not be returned, altough this
-     *            parameter might be set to <code>true</code>).
+     *             in an {@link ExtractedDate} where time parts are not set, they will not be returned, altough this
+     *             parameter might be set to <code>true</code>).
      * @return A normalized date string as described above.
      */
     String getNormalizedDateString(boolean time);
 
-    /**
-     * 
-     * @return
-     */
     String getDateString();
 
-    /**
-     * 
-     * @return
-     */
     String getFormat();
 
     /**
@@ -61,9 +48,6 @@ public interface ExtractedDate {
      * <br>
      * Only for date properties. For date-technique use getType(). <br>
      * Use this static fields to define a property.
-     * 
-     * @param field
-     * @return
      */
     int get(int field);
 
@@ -73,7 +57,7 @@ public interface ExtractedDate {
      * <p>
      * Get the {@link DateExactness} of this {@link ExtractedDate}.
      * </p>
-     * 
+     *
      * @return The {@link DateExactness} for this {@link ExtractedDate}.
      */
     DateExactness getExactness();
@@ -85,7 +69,7 @@ public interface ExtractedDate {
      * (year—month—day—hour—minute—second), and as absolute, positive value. The measure of the result can be set using
      * the {@link TimeUnit} parameter.
      * </p>
-     * 
+     *
      * @param date The other date for which to calculate the difference from this one, not <code>null</code>.
      * @param unit The time unit for the result.
      * @return A positive difference, or <code>-1</code> in case of any error.

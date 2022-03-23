@@ -1,5 +1,7 @@
 package ws.palladian.helper.date;
 
+import ws.palladian.helper.constants.RegExp;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -8,8 +10,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import ws.palladian.helper.constants.RegExp;
 
 /**
  * <p>
@@ -120,30 +120,66 @@ public class DateHelper {
         month = month.replaceAll(" ", "");
         month = month.toLowerCase();
         int monthNumber = -1;
-        if (month.equals("january") || month.equals("januar") || month.equals("jan")) {
-            monthNumber = 1;
-        } else if (month.equals("february") || month.equals("februar") || month.equals("feb")) {
-            monthNumber = 2;
-        } else if (month.equals("march") || month.equals("märz") || month.equals("mär") || month.equals("mar")) {
-            monthNumber = 3;
-        } else if (month.equals("april") || month.equals("apr")) {
-            monthNumber = 4;
-        } else if (month.equals("may") || month.equals("mai") || month.equals("may")) {
-            monthNumber = 5;
-        } else if (month.equals("june") || month.equals("juni") || month.equals("jun")) {
-            monthNumber = 6;
-        } else if (month.equals("july") || month.equals("juli") || month.equals("jul")) {
-            monthNumber = 7;
-        } else if (month.equals("august") || month.equals("aug")) {
-            monthNumber = 8;
-        } else if (month.equals("september") || month.equals("sep") || month.equals("sept")) {
-            monthNumber = 9;
-        } else if (month.equals("october") || month.equals("oktober") || month.equals("oct") || month.equals("okt")) {
-            monthNumber = 10;
-        } else if (month.equals("november") || month.equals("nov")) {
-            monthNumber = 11;
-        } else if (month.equals("december") || month.equals("dezember") || month.equals("dec") || month.equals("dez")) {
-            monthNumber = 12;
+        switch (month) {
+            case "january":
+            case "januar":
+            case "jan":
+                monthNumber = 1;
+                break;
+            case "february":
+            case "februar":
+            case "feb":
+                monthNumber = 2;
+                break;
+            case "march":
+            case "märz":
+            case "mär":
+            case "mar":
+                monthNumber = 3;
+                break;
+            case "april":
+            case "apr":
+                monthNumber = 4;
+                break;
+            case "may":
+            case "mai":
+                monthNumber = 5;
+                break;
+            case "june":
+            case "juni":
+            case "jun":
+                monthNumber = 6;
+                break;
+            case "july":
+            case "juli":
+            case "jul":
+                monthNumber = 7;
+                break;
+            case "august":
+            case "aug":
+                monthNumber = 8;
+                break;
+            case "september":
+            case "sep":
+            case "sept":
+                monthNumber = 9;
+                break;
+            case "october":
+            case "oktober":
+            case "oct":
+            case "okt":
+                monthNumber = 10;
+                break;
+            case "november":
+            case "nov":
+                monthNumber = 11;
+                break;
+            case "december":
+            case "dezember":
+            case "dec":
+            case "dez":
+                monthNumber = 12;
+                break;
         }
         return monthNumber;
     }
@@ -191,7 +227,7 @@ public class DateHelper {
             } else {
                 if (days > 1) {
                     sb.append(days).append(" days ");
-                } else if (days == 1) {
+                } else {
                     sb.append(days).append(" day ");
                 }
             }
@@ -308,7 +344,7 @@ public class DateHelper {
     }
 
     public static void main(String[] t) {
-        System.out.println(getDatetime(2832837283728l));
+        System.out.println(getDatetime(2832837283728L));
         // without LocalizeHelper: 2059-10-08 13:14:43
         // with LocalizeHelper: 2059-10-08 13:14:43
         System.exit(666);
@@ -321,11 +357,10 @@ public class DateHelper {
         System.out.println(getTimeString(-1));
         System.out.println(getCurrentDatetime("yyyy-MM-dd HH:mm:ss"));
         System.out.println(getCurrentDatetime());
-        System.out.println(getDatetime("dd.MM.yyyy", 1274313600000l));
+        System.out.println(getDatetime("dd.MM.yyyy", 1274313600000L));
         /*
          * long t1 = System.currentTimeMillis(); for (int i = 0; i < 94353; i++) { System.out.println("."); }
          * DateHelper.getRuntime(t1,true);
          */
     }
-
 }

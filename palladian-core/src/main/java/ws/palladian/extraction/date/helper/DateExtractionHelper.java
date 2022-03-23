@@ -1,8 +1,5 @@
 package ws.palladian.extraction.date.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -11,16 +8,17 @@ import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
-import java.util.function.Predicate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
 public final class DateExtractionHelper {
-
     private DateExtractionHelper() {
         // utility class, no instances.
     }
@@ -30,22 +28,12 @@ public final class DateExtractionHelper {
     }
 
     public static <T extends ExtractedDate> List<T> filterByRange(List<T> dates) {
-        return CollectionHelper.filter(dates, new Predicate<T>() {
-            @Override
-            public boolean test(T date) {
-                return isDateInRange(date);
-            }
-        }, new ArrayList<T>());
+        return CollectionHelper.filter(dates, DateExtractionHelper::isDateInRange, new ArrayList<T>());
     }
 
     public static <T extends ExtractedDate> List<T> filterFullDate(List<T> dates) {
-        return CollectionHelper.filter(dates, new Predicate<T>() {
-            @Override
-            public boolean test(T date) {
-                return date.get(ExtractedDate.YEAR) != -1 && date.get(ExtractedDate.MONTH) != -1
-                        && date.get(ExtractedDate.DAY) != -1;
-            }
-        }, new ArrayList<T>());
+        return CollectionHelper.filter(dates, date -> date.get(ExtractedDate.YEAR) != -1 && date.get(ExtractedDate.MONTH) != -1 && date.get(ExtractedDate.DAY) != -1,
+                new ArrayList<T>());
     }
 
     /**
@@ -54,14 +42,13 @@ public final class DateExtractionHelper {
      * (d3&d4). <br>
      * Every date can be only in one group.<br>
      * A group is a array list of dates.
-     * 
+     *
      * @param <T>
-     * @param dates
-     *            Arraylist of dates.
+     * @param dates Arraylist of dates.
      * @return A arraylist of groups, that are arraylists too.
      */
     public static <T extends ExtractedDate> List<List<T>> cluster(List<T> dates, DateExactness compareDepth) {
-        List<List<T>> clusters = new ArrayList<List<T>>();
+        List<List<T>> clusters = new ArrayList<>();
         DateComparator dc = new DateComparator(compareDepth);
         for (T date : dates) {
             boolean sameDatestamp = false;
@@ -91,11 +78,6 @@ public final class DateExtractionHelper {
      * <br>
      * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
      * Look up for date1, the returning value will be 1 and not 2!
-     * 
-     * @param <T>
-     * @param date
-     * @param dates
-     * @return
      */
     public static int countDates(ExtractedDate date, List<? extends ExtractedDate> dates, DateExactness exactness) {
         int count = 0;
@@ -117,11 +99,6 @@ public final class DateExtractionHelper {
 
     /**
      * Returns an array of dates, that have a given rate.
-     * 
-     * @param <T>
-     * @param dates
-     * @param rate
-     * @return
      */
     public static <E extends ExtractedDate> List<E> getRatedDates(List<RatedDate<E>> dates, double rate) {
         List<E> result = new ArrayList<E>();
@@ -162,7 +139,7 @@ public final class DateExtractionHelper {
      * <p>
      * Checks if an {@link ExtractedDate} is between 13th of November 1990, time 0:00 and now.
      * </p>
-     * 
+     *
      * @param date The date to check.
      * @return <code>true</code> if date is between 1990-11-13 and now, <code>false</code> otherwise.
      */
@@ -183,10 +160,10 @@ public final class DateExtractionHelper {
      * <p>
      * Create {@link RatedDate}s for all supplied {@link ExtractedDate}s with the specified weights.
      * </p>
-     * 
-     * @param <T> The specific type of the {@link ExtractedDate}s.
+     *
+     * @param <T>   The specific type of the {@link ExtractedDate}s.
      * @param dates The dates for which to create {@link RatedDate}s.
-     * @param rate The rate with which to initialize the {@link RatedDate}s.
+     * @param rate  The rate with which to initialize the {@link RatedDate}s.
      * @return A list with the {@link RatedDate}s.
      */
     public static <T extends ExtractedDate> List<RatedDate<T>> setRate(List<T> dates, double rate) {
@@ -196,5 +173,4 @@ public final class DateExtractionHelper {
         }
         return result;
     }
-
 }

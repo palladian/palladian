@@ -1,20 +1,10 @@
 package ws.palladian.extraction.date.getter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.comparators.ContentDateComparator;
 import ws.palladian.extraction.date.comparators.DateComparator;
@@ -31,18 +21,19 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+
 /**
  * <p>
  * This class extracts all dates out of the content of webpages.
  * </p>
- * 
+ *
  * @author Martin Gregor
- * 
  */
 public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
-
     private final MetaDateGetter metaDateGetter = new MetaDateGetter();
-
     private final UrlDateGetter urlDateGetter = new UrlDateGetter();
 
     @Override
@@ -53,7 +44,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     }
 
     private void setFeatures(List<ContentDate> dates, Document document) {
-
         List<ContentDate> posOrder = new ArrayList<>();
         List<ContentDate> ageOrder = new ArrayList<>();
         for (ContentDate date : dates) {
@@ -63,14 +53,13 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             ageOrder.add(date);
         }
 
-        Collections.sort(posOrder, ContentDateComparator.INSTANCE);
-        Collections.sort(ageOrder, new DateComparator());
+        posOrder.sort(ContentDateComparator.INSTANCE);
+        ageOrder.sort(new DateComparator());
 
         List<MetaDate> metaDates = metaDateGetter.getDates(document);
         List<UrlDate> urlDates = urlDateGetter.getDates(document.getDocumentURI());
 
         for (ContentDate date : dates) {
-
             date.setRelSize(1.0 / dates.size());
 
             date.setOrdDocPos(MathHelper.round((posOrder.indexOf(date) + 1.0) / posOrder.size(), 3));
@@ -84,18 +73,15 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 date.setInUrl(true);
             }
 
-            double relCntSame = MathHelper.round(
-                    (double)(DateExtractionHelper.countDates(date, dates, DateExactness.DAY) + 1) / dates.size(), 3);
+            double relCntSame = MathHelper.round((double) (DateExtractionHelper.countDates(date, dates, DateExactness.DAY) + 1) / dates.size(), 3);
             date.setRelCntSame(relCntSame);
 
             int datePosOrderAbs = posOrder.indexOf(date);
             if (datePosOrderAbs > 0) {
-                date.setDistPosBefore(date.get(ContentDate.DATEPOS_IN_DOC)
-                        - posOrder.get(datePosOrderAbs - 1).get(ContentDate.DATEPOS_IN_DOC));
+                date.setDistPosBefore(date.get(ContentDate.DATEPOS_IN_DOC) - posOrder.get(datePosOrderAbs - 1).get(ContentDate.DATEPOS_IN_DOC));
             }
             if (datePosOrderAbs < posOrder.size() - 1) {
-                date.setDistPosAfter(posOrder.get(datePosOrderAbs + 1).get(ContentDate.DATEPOS_IN_DOC)
-                        - date.get(ContentDate.DATEPOS_IN_DOC));
+                date.setDistPosAfter(posOrder.get(datePosOrderAbs + 1).get(ContentDate.DATEPOS_IN_DOC) - date.get(ContentDate.DATEPOS_IN_DOC));
             }
             int dateAgeOrderAbs = ageOrder.indexOf(date);
             if (dateAgeOrderAbs > 0) {
@@ -109,9 +95,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
     /**
      * Get dates of text-nodes of body part of document.
-     * 
-     * @param document
-     *            Document to be searched.
+     *
+     * @param document Document to be searched.
      * @return List of dates.
      */
     private List<ContentDate> getContentDates(Document document) {
@@ -124,8 +109,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         }
 
         Node bodyNode = XPathHelper.getXhtmlNode(document, "//body");
-        String documentString = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper
-                .documentToReadableText(bodyNode)));
+        String documentString = StringHelper.removeDoubleWhitespaces(replaceHtmlSymbols(HtmlHelper.documentToReadableText(bodyNode)));
         // TODO: Check if an element is visible
         // checkVisiblityOfAllNodes(body.item(0));
         // Get webpage as text (for finding position).
@@ -137,7 +121,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                 Node parent = textNode.getParentNode();
                 String parentName = parent.getNodeName().toLowerCase();
                 if (parent.getNodeType() != Node.COMMENT_NODE && !Arrays.asList("script", "style").contains(parentName)) {
-                    dates.addAll(checkTextNode((Text)textNode, documentString, contentKeywords));
+                    dates.addAll(checkTextNode((Text) textNode, documentString, contentKeywords));
                 }
             }
         }
@@ -149,9 +133,9 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * <p>
      * Find {@link ContentDate}s in a {@link Text} {@link Node}.
      * </p>
-     * 
-     * @param textNode The Text Node which to check, not <code>null</code>.
-     * @param documentString The String representation of the document.
+     *
+     * @param textNode        The Text Node which to check, not <code>null</code>.
+     * @param documentString  The String representation of the document.
      * @param contentKeywords {@link Map} with keywords and occurrence indices, not <code>null</code>.
      * @return {@link List} of {@link ContentDate}s extracted from the Node, or an empty List. Never <code>null</code>.
      */
@@ -176,7 +160,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
             boolean hasStructureDate = StructureDateGetter.getDate(tag) != null;
             if (!hasStructureDate && tag != parent) {
-                hasStructureDate |= StructureDateGetter.getDate(parent) != null;
+                hasStructureDate = StructureDateGetter.getDate(parent) != null;
             }
 
             date.setHasStructureDate(hasStructureDate);
@@ -191,7 +175,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             if (index != -1) {
                 int absDocPos = index + date.get(ContentDate.DATEPOS_IN_TAGTEXT);
                 date.setAbsDocPos(absDocPos);
-                date.setRelDocPos(MathHelper.round((double)absDocPos / documentString.length(), 3));
+                date.setRelDocPos(MathHelper.round((double) absDocPos / documentString.length(), 3));
             }
 
             String keyword = getNodeKeyword(tag);
@@ -225,7 +209,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * <p>
      * Find all content keywords in a text.
      * </p>
-     * 
+     *
      * @param text The text which to search for keywords, not <code>null</code>.
      * @return A {@link Map} with indices of the keywords as keys and their text values.
      */
@@ -247,9 +231,9 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * <p>
      * Find the keyword closest to the date.
      * </p>
-     * 
-     * @param date The {@link ContentDate} for which to determine the closest keyword, not <code>null</code>.
-     * @param documentString The document as String representation, not <code>null</code>.
+     *
+     * @param date            The {@link ContentDate} for which to determine the closest keyword, not <code>null</code>.
+     * @param documentString  The document as String representation, not <code>null</code>.
      * @param contentKeywords {@link Map} with keywords and occurrence indices, not <code>null</code>.
      */
     private void setClosestKeyword(ContentDate date, String documentString, Map<Integer, String> contentKeywords) {
@@ -301,7 +285,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * <p>
      * Check a {@link Node} for a date keyword (see {@link KeyWords#BODY_CONTENT_KEYWORDS_ALL}).
      * </p>
-     * 
+     *
      * @param node The node which to check for a keyword, not <code>null</code>.
      * @return The keyword if found, or an empty String if no keyword was found.
      */
@@ -342,13 +326,9 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * Sometimes texts in webpages have special code for character. E.g. <i>&ampuuml;</i> or whitespace. To evaluate
      * this text reasonably you need to convert this code.
      * </p>
-     * 
-     * @param text
-     * @return
      */
     private static String replaceHtmlSymbols(String text) {
-
-        String result = StringEscapeUtils.unescapeHtml4(text);
+        String result = StringEscapeUtils.unescapeHtml(text);
         result = StringHelper.replaceProtectedSpace(result);
         result = StringHelper.removeDoubleWhitespaces(result);
 
@@ -361,5 +341,4 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
         return result;
     }
-
 }

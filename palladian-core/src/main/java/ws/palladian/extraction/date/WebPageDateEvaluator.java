@@ -34,7 +34,6 @@ import java.util.List;
  * @author Philipp Katz
  */
 public final class WebPageDateEvaluator {
-
     private WebPageDateEvaluator() {
         // helper class, prevent instantiation.
     }
