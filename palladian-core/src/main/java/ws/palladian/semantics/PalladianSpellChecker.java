@@ -115,7 +115,7 @@ public class PalladianSpellChecker {
                 String lastMatch = null;
                 while (m.find()) {
                     String match = m.group();
-                    Integer count = words.get(match);
+                    Integer count = getWordCount(match);
                     if (count == null) {
                         count = 0;
                     }
@@ -409,7 +409,7 @@ public class PalladianSpellChecker {
             wordKnown.set(true);
             return word;
         }
-        if (words.get(word) != null) {
+        if (getWordCount(word) != null) {
             wordKnown.set(true);
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(word);
@@ -423,7 +423,7 @@ public class PalladianSpellChecker {
             if (s.isEmpty()) {
                 continue;
             }
-            Integer count = words.get(s);
+            Integer count = getWordCount(s);
             if (count != null) {
                 // look at the context
                 if (leftContext != null && useContext) {
@@ -448,12 +448,12 @@ public class PalladianSpellChecker {
                         compoundCorrect = false;
                         break;
                     }
-                    if (words.get(string) == null) {
+                    if (getWordCount(string) == null) {
                         String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
                         // if (words.get(key) == null && strings.size() > 1) {
                         // key = autoCorrect(key, true);
                         // }
-                        if (words.get(key) == null) {
+                        if (getWordCount(key) == null) {
                             compoundCorrect = false;
                             break;
                         }
@@ -472,7 +472,7 @@ public class PalladianSpellChecker {
                     continue;
                 }
                 for (String w : edits(s)) {
-                    Integer count = words.get(w);
+                    Integer count = getWordCount(w);
                     if (count != null && firstCharacterSame(w, word)) {
                         candidates.put(count, w);
                     }
@@ -543,6 +543,10 @@ public class PalladianSpellChecker {
 
     public void setGermanCompoundStopCount(int germanCompoundStopCount) {
         this.germanCompoundStopCount = germanCompoundStopCount;
+    }
+
+    protected Integer getWordCount(String word) {
+        return words.get(word);
     }
 
     public static void main(String[] args) throws IOException {
