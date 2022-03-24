@@ -59,13 +59,13 @@ public class PalladianSpellChecker {
     /**
      * Manual spelling mappings. Word, e.g. "cov" => "cow" and phrase, e.g. "i pad" => "ipad"
      */
-    private final Map<String, String> manualWordMappings = new HashMap<>();
-    private final Map<String, String> manualPhraseMappings = new HashMap<>();
+    private Map<String, String> manualWordMappings = new HashMap<>();
+    private Map<String, String> manualPhraseMappings = new HashMap<>();
 
     /**
      * Keep track of the context around words and use it to improve decision when correcting words.
      */
-    private final boolean useContext;
+    private boolean useContext;
     private final Bag<String> contextCounter = new Bag<>();
 
     /**
@@ -162,7 +162,34 @@ public class PalladianSpellChecker {
                 manualWordMappings.put(split[0].toLowerCase(), split[1]);
             }
         }
+    }
 
+    public void setManualMappings(Map<String, String> manualWordMappings) {
+        this.manualWordMappings = manualWordMappings;
+    }
+
+    public void setManualPhraseMappings(Map<String, String> manualPhraseMappings) {
+        this.manualPhraseMappings = manualPhraseMappings;
+    }
+
+    public Map<String, String> getManualWordMappings() {
+        return manualWordMappings;
+    }
+
+    public void setManualWordMappings(Map<String, String> manualWordMappings) {
+        this.manualWordMappings = manualWordMappings;
+    }
+
+    public Map<String, String> getManualPhraseMappings() {
+        return manualPhraseMappings;
+    }
+
+    public void setUseContext(boolean useContext) {
+        this.useContext = useContext;
+    }
+
+    public boolean isUseContext() {
+        return useContext;
     }
 
     public void addManualMapping(String source, String target) {
@@ -286,6 +313,7 @@ public class PalladianSpellChecker {
 
         String s = StringHelper.containsWhichWord(manualPhraseMappings.keySet(), text);
         if (s != null) {
+            correctedText.setCorrected(true);
             text = text.replace(s, manualPhraseMappings.get(s));
         }
 
@@ -388,6 +416,7 @@ public class PalladianSpellChecker {
         String s1 = manualWordMappings.get(word);
         if (s1 != null) {
             wordKnown.set(true);
+            correction.set(true);
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(s1);
             }
