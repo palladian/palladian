@@ -35,7 +35,7 @@ public class WebPageDateEvaluatorTest {
         file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit1.htm");
         document = htmlParser.parse(file);
         date = WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
-        assertEquals("2010-08-22", date.getDate().getNormalizedDateString());
+        assertEquals("2010-08-22 13:37:15", date.getDate().getNormalizedDateString());
 
         // url = ResourceHelper.getResourcePath("/webPages/dateExtraction/kullin.htm");
         // wpde.setUrl(url);
@@ -74,12 +74,12 @@ public class WebPageDateEvaluatorTest {
         File file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm");
         Document document = htmlParser.parse(file);
         List<RatedDate<ExtractedDate>> dates = WebPageDateEvaluator.getDates(document, PageDateType.PUBLISH);
-        assertEquals(2, dates.size());
+        assertEquals(6, dates.size());
 
         file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit1.htm");
         document = htmlParser.parse(file);
         dates = WebPageDateEvaluator.getDates(document, PageDateType.PUBLISH);
-        assertEquals(5, dates.size());
+        assertEquals(9, dates.size());
 
         file = ResourceHelper.getResourceFile("/webPages/dateExtraction/kullin.htm");
         document = htmlParser.parse(file);
@@ -201,7 +201,7 @@ public class WebPageDateEvaluatorTest {
 
         document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/website105.html"));
         date = WebPageDateEvaluator.getBestPubDateHtml5(document);
-        assertEquals("2012-12-09 15:45", date.getNormalizedDateString());
+        assertEquals("2012-12-09 15:45:00", date.getNormalizedDateString());
     }
 
 }

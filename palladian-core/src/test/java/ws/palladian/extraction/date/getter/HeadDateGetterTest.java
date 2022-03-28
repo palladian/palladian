@@ -1,22 +1,20 @@
 package ws.palladian.extraction.date.getter;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.FileNotFoundException;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
-
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
-public class HeadDateGetterTest {
+import java.io.FileNotFoundException;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
+public class HeadDateGetterTest {
     private final DocumentParser htmlParser = ParserFactory.createHtmlParser();
     private HeadDateGetter headDateGetter;
 
@@ -32,7 +30,7 @@ public class HeadDateGetterTest {
 
         assertEquals(3, headDates.size());
         assertEquals("2009-01-15", headDates.get(0).getNormalizedDateString());
-        assertEquals("2009-01-15 20:39", headDates.get(1).getNormalizedDateString());
+        assertEquals("2009-01-15 20:39:00", headDates.get(1).getNormalizedDateString());
         assertEquals("2009-01-16", headDates.get(2).getNormalizedDateString());
     }
 
@@ -70,5 +68,4 @@ public class HeadDateGetterTest {
         assertEquals("2012-10-07 18:14:03", dates.get(0).getNormalizedDateString());
         assertEquals("2012-10-07 17:44:34", dates.get(1).getNormalizedDateString());
     }
-
 }
