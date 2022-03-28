@@ -1,13 +1,5 @@
 package ws.palladian.extraction.location;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import ws.palladian.core.Annotation;
 import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
@@ -21,16 +13,17 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
+import java.util.*;
+
 /**
  * <p>
  * Given a text, the LocationDetector finds mentioned locations and returns annotations.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
 public class PalladianLocationExtractor extends LocationExtractor {
-
     private final LocationSource locationSource;
 
     private final ClassifyingTagger tagger;
@@ -41,8 +34,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     private static final CoordinateTagger coordinateTagger = CoordinateTagger.INSTANCE;
 
-    public PalladianLocationExtractor(LocationSource locationSource, ClassifyingTagger tagger,
-            LocationDisambiguation disambiguation) {
+    public PalladianLocationExtractor(LocationSource locationSource, ClassifyingTagger tagger, LocationDisambiguation disambiguation) {
         this.locationSource = locationSource;
         this.tagger = tagger;
         this.disambiguation = disambiguation;
@@ -71,7 +63,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // workflow. We should use the CITY annotations, to search for neighboring ZIP codes.
         List<LocationAnnotation> annotatedStreets = addressTagger.getAnnotations(text);
         result.addAll(annotatedStreets);
-        
+
         // extract explicit coordinate mentions in the text
         List<LocationAnnotation> annotatedCoordinates = coordinateTagger.getAnnotations(text);
         result.addAll(annotatedCoordinates);
@@ -82,21 +74,21 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return result;
     }
 
-    public static <A extends Annotation> MultiMap<A, Location> fetchLocations(LocationSource source, List<A> annotations) {
+    public static MultiMap<ClassifiedAnnotation, Location> fetchLocations(LocationSource source, List<ClassifiedAnnotation> annotations) {
         Set<String> valuesToRetrieve = new HashSet<>();
-        for (Annotation annotation : annotations) {
+        for (ClassifiedAnnotation annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             valuesToRetrieve.add(entityValue);
         }
         MultiMap<String, Location> lookup = source.getLocations(valuesToRetrieve, EnumSet.of(Language.ENGLISH));
-        MultiMap<A, Location> result = DefaultMultiMap.createWithSet();
-        for (A annotation : annotations) {
+        MultiMap<ClassifiedAnnotation, Location> result = DefaultMultiMap.createWithSet();
+        for (ClassifiedAnnotation annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             Collection<Location> locations = lookup.get(entityValue);
             if (locations.size() > 0) {
                 result.addAll(annotation, locations);
             } else {
-                result.addAll(annotation, Collections.<Location> emptySet());
+                result.addAll(annotation, Collections.emptySet());
             }
         }
         return result;
@@ -110,8 +102,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public static void main(String[] args) {
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper
-                .tryReadFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text64.txt");
+        String rawText = FileHelper.tryReadFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text64.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_44026163.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38765806.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38812825.txt");

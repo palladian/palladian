@@ -4,8 +4,7 @@ import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableAnnotation;
 
-public final class ClassifiedAnnotation extends ImmutableAnnotation {
-
+public class ClassifiedAnnotation extends ImmutableAnnotation {
     private final CategoryEntries categoryEntries;
 
     public ClassifiedAnnotation(int startPosition, String value, CategoryEntries categoryEntries) {

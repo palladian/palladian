@@ -1,28 +1,14 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.extraction.location.ClassifiedAnnotation;
-import ws.palladian.extraction.location.DefaultCandidateExtractor;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.*;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -33,11 +19,15 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
 /**
  * <p>
  * This class is responsible for training models which can be used by the {@link FeatureBasedDisambiguation}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class FeatureBasedDisambiguationLearner {
@@ -56,8 +46,7 @@ public class FeatureBasedDisambiguationLearner {
 
     private final ClassifyingTagger tagger;
 
-    public FeatureBasedDisambiguationLearner(LocationSource locationSource, ClassifyingTagger tagger, int numTrees,
-            LocationFeatureExtractor featureExtractor) {
+    public FeatureBasedDisambiguationLearner(LocationSource locationSource, ClassifyingTagger tagger, int numTrees, LocationFeatureExtractor featureExtractor) {
         Validate.notNull(locationSource, "locationSource must not be null");
         this.locationSource = locationSource;
         this.tagger = tagger;
@@ -73,7 +62,7 @@ public class FeatureBasedDisambiguationLearner {
      * <p>
      * Learn from multiple data sets.
      * </p>
-     * 
+     *
      * @param datasetDirectories The directories to the training data sets, not <code>null</code>.
      * @return The model.
      * @throws IOException
@@ -99,8 +88,7 @@ public class FeatureBasedDisambiguationLearner {
             String text = trainDocument.getText();
             List<LocationAnnotation> trainAnnotations = trainDocument.getAnnotations();
             List<ClassifiedAnnotation> classifiedEntities = tagger.getAnnotations(text);
-            MultiMap<ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(
-                    locationSource, classifiedEntities);
+            MultiMap<? extends ClassifiedAnnotation, Location> locations = PalladianLocationExtractor.fetchLocations(locationSource, classifiedEntities);
 
             Set<ClassifiableLocation> classifiableLocations = featureExtraction.extract(text, locations);
             Set<Instance> trainInstances = createTrainData(classifiableLocations, trainAnnotations);
@@ -109,8 +97,7 @@ public class FeatureBasedDisambiguationLearner {
         return trainingData;
     }
 
-    private Set<Instance> createTrainData(Set<ClassifiableLocation> classifiableLocations,
-            List<LocationAnnotation> positiveLocations) {
+    private Set<Instance> createTrainData(Set<ClassifiableLocation> classifiableLocations, List<LocationAnnotation> positiveLocations) {
         Set<Instance> result = new HashSet<>();
         int numPositive = 0;
         for (ClassifiableLocation classifiableLocation : classifiableLocations) {
@@ -124,8 +111,7 @@ public class FeatureBasedDisambiguationLearner {
                 Location trainLocation = trainAnnotation.getLocation();
                 GeoCoordinate trainCoordinate = trainLocation.getCoordinate();
                 // XXX offsets are not considered here; necessary?
-                boolean samePlace = trainCoordinate != null
-                        && actualLocation.getCoordinate().distance(trainCoordinate) < MAX_DISTANCE;
+                boolean samePlace = trainCoordinate != null && actualLocation.getCoordinate().distance(trainCoordinate) < MAX_DISTANCE;
                 boolean sameName = actualLocation.commonName(trainLocation);
                 boolean sameType = actualLocation.getType().equals(trainLocation.getType());
                 // consider locations as positive samples, if they have same name and have max. distance of 50 kms
@@ -137,15 +123,15 @@ public class FeatureBasedDisambiguationLearner {
             }
             result.add(new InstanceBuilder().add(classifiableLocation.getFeatureVector()).create(positiveClass));
         }
-        double positivePercentage = MathHelper.round((float)numPositive / classifiableLocations.size() * 100, 2);
+        double positivePercentage = MathHelper.round((float) numPositive / classifiableLocations.size() * 100, 2);
         LOGGER.debug("{} positive instances in {} ({}%)", numPositive, classifiableLocations.size(), positivePercentage);
         return result;
     }
 
     public static void main(String[] args) throws IOException {
         LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
-                DefaultCandidateExtractor.INSTANCE, 100, new ConfigurableFeatureExtractor());
+        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource, DefaultCandidateExtractor.INSTANCE, 100,
+                new ConfigurableFeatureExtractor());
         File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
         File datasetLgl = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
         File datasetClust = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/1-train");

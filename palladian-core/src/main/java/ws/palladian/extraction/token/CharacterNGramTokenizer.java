@@ -1,17 +1,15 @@
 package ws.palladian.extraction.token;
 
-import java.util.Iterator;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator2;
 
-public final class CharacterNGramTokenizer implements TextTokenizer {
+import java.util.Iterator;
 
+public final class CharacterNGramTokenizer implements TextTokenizer {
     /** Character used to fill up left/right padding. */
     private static final String PADDING_CHARACTER = "#";
 
@@ -41,7 +39,7 @@ public final class CharacterNGramTokenizer implements TextTokenizer {
 
             @Override
             protected Token getNext() {
-                for (;;) {
+                for (; ; ) {
                     if (offset + minLength > textForTokenization.length()) {
                         return finished();
                     }
@@ -52,7 +50,7 @@ public final class CharacterNGramTokenizer implements TextTokenizer {
                     } else {
                         length++;
                     }
-                    if (nGram.replace(PADDING_CHARACTER, "").length() == 0) {
+                    if (nGram.replace(PADDING_CHARACTER, "").isEmpty()) {
                         continue; // skip tokens which only consist of padding character
                     }
                     // System.out.println("offset=" + offset + ",ngram=" + nGram);
@@ -65,7 +63,7 @@ public final class CharacterNGramTokenizer implements TextTokenizer {
     /**
      * Fill up a string on the left/right with padding characters (this create additional features with explicit
      * "begin of text" and "end of text" markers.
-     * 
+     *
      * @param text The text.
      * @return The padded text.
      */

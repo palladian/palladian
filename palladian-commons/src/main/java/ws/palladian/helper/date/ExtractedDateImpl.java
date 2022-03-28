@@ -1,12 +1,12 @@
 package ws.palladian.helper.date;
 
+import org.apache.commons.lang3.Validate;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
@@ -15,12 +15,11 @@ import org.apache.commons.lang3.Validate;
  * to be set. Internally, unset properties are initialized with a value of <code>-1</code>. The amount of available data
  * (i.e. the exactness) can be determined using {@link #getExactness()}.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
 public class ExtractedDateImpl implements ExtractedDate {
-
     /** Found date as string. */
     private final String dateString;
 
@@ -59,7 +58,7 @@ public class ExtractedDateImpl implements ExtractedDate {
      * Copy constructor, to create a new {@link ExtractedDate} with the same properties of the supplied
      * {@link ExtractedDate}.
      * </p>
-     * 
+     *
      * @param date The date with the properties to copy. Not <code>null</code>.
      */
     protected ExtractedDateImpl(ExtractedDate date) {
@@ -80,7 +79,7 @@ public class ExtractedDateImpl implements ExtractedDate {
      * Constructor for the {@link DateParser} to create a new {@link ExtractedDate} after the input has been parsed.
      * Only intended for the parser, therefore package private.
      * </p>
-     * 
+     *
      * @param parseLogic The parse logic providing the input for initialization. Not <code>null</code>.
      */
     ExtractedDateImpl(DateParserLogic parseLogic) {
@@ -146,6 +145,8 @@ public class ExtractedDateImpl implements ExtractedDate {
                     normalizedDate.append(":").append(get2Digits(minute));
                     if (second != -1) {
                         normalizedDate.append(":").append(get2Digits(second));
+                    } else {
+                        normalizedDate.append(":00");
                     }
                 }
             }
@@ -161,7 +162,7 @@ public class ExtractedDateImpl implements ExtractedDate {
     /**
      * Adds a leading zero for numbers less then ten. <br>
      * E.g.: 3 ->"03"; 12 -> "12"; 386 -> "376" ...
-     * 
+     *
      * @param number The number of which we want two digits.
      * @return A minimum two digit number.
      */

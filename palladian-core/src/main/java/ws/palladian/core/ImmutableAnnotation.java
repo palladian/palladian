@@ -9,11 +9,10 @@ import org.apache.commons.lang3.Validate;
  * Make sure to preserve immutability in subclasses. If you need to implement mutable subclasses, do <b>not</b> inherit
  * from here, to avoid confusion!
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class ImmutableAnnotation extends AbstractAnnotation {
-
     /** The position of the first character of this {@code Annotation}. */
     private final int startPosition;
 
@@ -27,10 +26,10 @@ public class ImmutableAnnotation extends AbstractAnnotation {
      * <p>
      * Create a new {@link Annotation} at the given position, with the specified value and tag.
      * </p>
-     * 
+     *
      * @param startPosition The start offset in the text, greater or equal zero.
-     * @param value The value of the annotation, not <code>null</code> or empty.
-     * @param tag An (optional) tag.
+     * @param value         The value of the annotation, not <code>null</code> or empty.
+     * @param tag           An (optional) tag.
      */
     public ImmutableAnnotation(int startPosition, String value, String tag) {
         Validate.isTrue(startPosition >= 0, "startPosition cannot be negative.");
@@ -44,9 +43,9 @@ public class ImmutableAnnotation extends AbstractAnnotation {
      * <p>
      * Create a new {@link Annotation} at the given position, with the specified value and tag.
      * </p>
-     * 
+     *
      * @param startPosition The start offset in the text, greater or equal zero.
-     * @param value The value of the annotation, not <code>null</code> or empty.
+     * @param value         The value of the annotation, not <code>null</code> or empty.
      */
     public ImmutableAnnotation(int startPosition, String value) {
         this(startPosition, value, StringUtils.EMPTY);
@@ -67,5 +66,4 @@ public class ImmutableAnnotation extends AbstractAnnotation {
     public final String getValue() {
         return value;
     }
-
 }

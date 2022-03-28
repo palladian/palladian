@@ -14,7 +14,6 @@ import ws.palladian.helper.functional.Factory;
  * @author Philipp Katz
  */
 public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
-
     final TextFeatureType featureType;
     int maxTerms = FeatureSetting.DEFAULT_MAX_TERMS;
     int minNGramLength = FeatureSetting.DEFAULT_MIN_NGRAM_LENGTH;
@@ -200,8 +199,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      */
     public FeatureSettingBuilder termLength(int min, int max) {
         if (featureType != TextFeatureType.WORD_NGRAMS) {
-            throw new UnsupportedOperationException("This is only supported for " + TextFeatureType.WORD_NGRAMS
-                    + " mode.");
+            throw new UnsupportedOperationException("This is only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
         }
         Validate.isTrue(min > 0, "min must be greater zero");
         Validate.isTrue(max >= min, "max must be greater/equal min");
@@ -232,8 +230,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      */
     public FeatureSettingBuilder characterPadding() {
         if (featureType != TextFeatureType.CHAR_NGRAMS) {
-            throw new UnsupportedOperationException("Character padding is only supported for "
-                    + TextFeatureType.CHAR_NGRAMS + " mode.");
+            throw new UnsupportedOperationException("Character padding is only supported for " + TextFeatureType.CHAR_NGRAMS + " mode.");
         }
         this.characterPadding = true;
         return this;
@@ -247,8 +244,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      */
     public FeatureSettingBuilder stem() {
         if (featureType != TextFeatureType.WORD_NGRAMS) {
-            throw new UnsupportedOperationException("Stemming in only supported for " + TextFeatureType.WORD_NGRAMS
-                    + " mode.");
+            throw new UnsupportedOperationException("Stemming in only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
         }
         this.stem = true;
         return this;
@@ -263,8 +259,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      */
     public FeatureSettingBuilder removeStopwords() {
         if (featureType != TextFeatureType.WORD_NGRAMS) {
-            throw new UnsupportedOperationException("Stopword removal in only supported for "
-                    + TextFeatureType.WORD_NGRAMS + " mode.");
+            throw new UnsupportedOperationException("Stopword removal in only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
         }
         this.removeStopwords = true;
         return this;
@@ -296,8 +291,7 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      */
     public FeatureSettingBuilder createSkipGrams() {
         if (featureType != TextFeatureType.WORD_NGRAMS) {
-            throw new UnsupportedOperationException(
-                    "Skip grams are only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
+            throw new UnsupportedOperationException("Skip grams are only supported for " + TextFeatureType.WORD_NGRAMS + " mode.");
         }
         if (maxNGramLength <= 2) {
             throw new UnsupportedOperationException("n-gram length must be > 2 for skip grams.");

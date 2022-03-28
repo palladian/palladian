@@ -1,12 +1,10 @@
 package ws.palladian.core;
 
-import java.util.List;
-
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 
+import java.util.List;
+
 public interface ClassifyingTagger extends Tagger {
-
     @Override
-    public List<ClassifiedAnnotation> getAnnotations(String text);
-
+    List<ClassifiedAnnotation> getAnnotations(String text);
 }

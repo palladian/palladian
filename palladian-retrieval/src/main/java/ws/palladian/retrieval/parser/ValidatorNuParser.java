@@ -1,13 +1,12 @@
 package ws.palladian.retrieval.parser;
 
-import java.io.IOException;
-
 import nu.validator.htmlparser.dom.HtmlDocumentBuilder;
-
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -18,9 +17,9 @@ import org.xml.sax.SAXException;
  * document.write() with scripting. The parser core compiles on Google Web Toolkit and can be automatically translated
  * into C++. (The C++ translation capability is currently used for porting the parser for use in Gecko.)</i>
  * </p>
- * 
- * @see <a href="http://about.validator.nu/htmlparser/">The Validator.nu HTML Parser</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://about.validator.nu/htmlparser/">The Validator.nu HTML Parser</a>
  */
 public final class ValidatorNuParser extends BaseDocumentParser {
 
@@ -43,5 +42,4 @@ public final class ValidatorNuParser extends BaseDocumentParser {
             throw new ParserException(e);
         }
     }
-
 }

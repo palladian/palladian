@@ -6,10 +6,13 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.getter.ContentDateGetter;
+import ws.palladian.extraction.date.getter.HeadDateGetter;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.extraction.date.rater.ContentDateRater;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
@@ -24,6 +27,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Use this class to rate a webpage. <br>
@@ -42,8 +46,25 @@ public final class WebPageDateEvaluator {
         Validate.notNull(document, "document must not be null");
         Validate.notNull(type, "type must not be null");
 
+        List<ExtractedDate> dates = new ArrayList<>();
+
         ContentDateGetter contentDateGetter = new ContentDateGetter();
-        List<ContentDate> dates = contentDateGetter.getDates(document);
+        List<ContentDate> contentDates = contentDateGetter.getDates(document);
+        dates.addAll(contentDates);
+
+        HeadDateGetter headDateGetter = new HeadDateGetter();
+        List<MetaDate> headDates = headDateGetter.getDates(document);
+        if (type == PageDateType.PUBLISH) {
+            headDates = headDates.stream().filter(d -> !d.getKeyword().contains("modif")).collect(Collectors.toList());
+        } else if (type == PageDateType.LAST_MODIFIED) {
+            headDates = headDates.stream().filter(d -> d.getKeyword().contains("modif")).collect(Collectors.toList());
+        }
+        dates.addAll(headDates);
+
+        if (type == PageDateType.PUBLISH) {
+            dates.add(getBestPubDateHtml5(document));
+        }
+        CollectionHelper.removeNulls(dates);
 
         List<RatedDate<ExtractedDate>> ratedDates = rate(dates, type);
         ratedDates.sort(RatedDateComparator.INSTANCE);
@@ -144,6 +165,11 @@ public final class WebPageDateEvaluator {
         // currently, only ContentDates are considered
         List<ContentDate> contentDates = DateExtractionHelper.filter(filtered, ContentDate.class);
         List<ContentDate> fullContentDates = DateExtractionHelper.filterFullDate(contentDates);
+        List<MetaDate> metaDates = DateExtractionHelper.filter(filtered, MetaDate.class);
+        List<MetaDate> fullMetaDates = DateExtractionHelper.filterFullDate(metaDates);
+        for (MetaDate fullMetaDate : fullMetaDates) {
+            result.add(RatedDate.create(fullMetaDate, 1.0));
+        }
         List<RatedDate<ContentDate>> ratedContentDates = contentDateRater.rate(fullContentDates);
         result.addAll(ratedContentDates);
 

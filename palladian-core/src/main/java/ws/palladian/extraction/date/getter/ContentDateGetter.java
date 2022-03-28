@@ -100,7 +100,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @return List of dates.
      */
     private List<ContentDate> getContentDates(Document document) {
-
         List<ContentDate> dates = new ArrayList<>();
         List<Node> textNodes = XPathHelper.getNodes(document, "//text()");
 

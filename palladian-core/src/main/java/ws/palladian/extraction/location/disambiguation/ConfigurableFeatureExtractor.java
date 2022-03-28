@@ -1,36 +1,10 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import static ws.palladian.extraction.location.LocationFilters.ancestorOf;
-import static ws.palladian.extraction.location.LocationFilters.childOf;
-import static ws.palladian.extraction.location.LocationFilters.coordinate;
-import static ws.palladian.extraction.location.LocationFilters.descendantOf;
-import static ws.palladian.extraction.location.LocationFilters.parentOf;
-import static ws.palladian.extraction.location.LocationFilters.population;
-import static ws.palladian.extraction.location.LocationFilters.radius;
-import static ws.palladian.extraction.location.LocationFilters.siblingOf;
-import static ws.palladian.extraction.location.LocationFilters.type;
-import static ws.palladian.helper.collection.CollectionHelper.coalesce;
-import static ws.palladian.helper.functional.Predicates.equal;
-import static ws.palladian.helper.functional.Predicates.not;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
+import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.InstanceBuilder;
-import ws.palladian.extraction.location.ClassifiedAnnotation;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationSet;
-import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.*;
 import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
@@ -39,19 +13,26 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.*;
+import java.util.Map.Entry;
+
+import static ws.palladian.extraction.location.LocationFilters.*;
+import static ws.palladian.helper.collection.CollectionHelper.coalesce;
+import static ws.palladian.helper.functional.Predicates.equal;
+import static ws.palladian.helper.functional.Predicates.not;
+
 /**
  * <p>
  * Extracts features used by the {@link FeatureBasedDisambiguation} and {@link FeatureBasedDisambiguationLearner}.
- * 
+ *
  * @author Philipp Katz
  */
 public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
-
     private final FeatureExtractorSetting setting;
 
     /**
      * Create a new {@link ConfigurableFeatureExtractor}.
-     * 
+     *
      * @param settings The settings, not <code>null</code>.
      */
     public ConfigurableFeatureExtractor(FeatureExtractorSetting settings) {
@@ -68,7 +49,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
     }
 
     @Override
-    public Set<ClassifiableLocation> extract(String text, MultiMap<ClassifiedAnnotation, Location> locations) {
+    public Set<ClassifiableLocation> extract(String text, MultiMap<? extends ClassifiedAnnotation, Location> locations) {
         Set<ClassifiableLocation> instances = new HashSet<>();
         LocationSet allLocations = new LocationSet(locations.allValues());
         LocationSet uniqLocations = new LocationSet(getUniqueLocations(locations.values()));
@@ -80,7 +61,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
 
         Set<String> alreadyChecked = new HashSet<>();
 
-        for (Entry<ClassifiedAnnotation, Collection<Location>> entry : locations.entrySet()) {
+        for (Entry<? extends ClassifiedAnnotation, Collection<Location>> entry : locations.entrySet()) {
 
             ClassifiedAnnotation annotation = entry.getKey();
             Collection<Location> candidates = entry.getValue();
@@ -153,14 +134,11 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                     LocationSet allInDist = allLocations.where(radius(coordinate, d));
                     builder.set(String.format("numLocIn(%d)", d), otherInDist.size());
                     builder.set(String.format("popIn(%d,true)", d), allInDist.totalPopulation());
-                    builder.set(String.format("popIn(%d,false)", d), otherInDist.where(not(equal(location)))
-                            .totalPopulation());
-                    builder.set(String.format("uniqueIn(%d)", d),
-                            uniqLocations.where(radius(coordinate, d)).size() > 0);
+                    builder.set(String.format("popIn(%d,false)", d), otherInDist.where(not(equal(location))).totalPopulation());
+                    builder.set(String.format("uniqueIn(%d)", d), uniqLocations.where(radius(coordinate, d)).size() > 0);
                 }
                 for (int p : setting.getPopulationValues()) {
-                    double distOther = otherLocations.where(population(p)).where(not(equal(location)))
-                            .minDistance(coordinate);
+                    double distOther = otherLocations.where(population(p)).where(not(equal(location))).minDistance(coordinate);
                     double distAll = allLocations.where(population(p)).minDistance(coordinate);
                     builder.set(String.format("distLoc(%d,true)", p), distAll);
                     builder.set(String.format("distLoc(%d,false)", p), distOther);
@@ -190,7 +168,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                 for (Entry<String, Long> searcherCount : indexCounts.entrySet()) {
                     String indexName = searcherCount.getKey();
                     Long indexCount = searcherCount.getValue();
-                    double indexPopulationQuotient = (double)population / (indexCount + 1);
+                    double indexPopulationQuotient = (double) population / (indexCount + 1);
                     builder.set(String.format("indexCount(%s)", indexName), indexCount);
                     builder.set(String.format("indexPopulationQuotient(%s)", indexName), indexPopulationQuotient);
                 }
@@ -206,9 +184,9 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
         return instances;
     }
 
-    private MultiMap<Location, String> createMentionMap(MultiMap<ClassifiedAnnotation, Location> locations) {
+    private MultiMap<Location, String> createMentionMap(MultiMap<? extends Annotation, Location> locations) {
         MultiMap<Location, String> mentionMap = DefaultMultiMap.createWithSet();
-        for (Entry<ClassifiedAnnotation, Collection<Location>> candidateEntry : locations.entrySet()) {
+        for (Entry<? extends Annotation, Collection<Location>> candidateEntry : locations.entrySet()) {
             String mentionedValue = candidateEntry.getKey().getValue();
             for (Location location : candidateEntry.getValue()) {
                 mentionMap.add(location, mentionedValue);

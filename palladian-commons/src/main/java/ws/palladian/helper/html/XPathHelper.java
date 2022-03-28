@@ -1,32 +1,19 @@
 package ws.palladian.helper.html;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -276,6 +263,7 @@ public final class XPathHelper {
 
         return textContent;
     }
+
     public static String tryGetXhtmlNodeTextContent(Node node, String xPath) {
         try {
             return getXhtmlNodeTextContent(node, xPath);
@@ -352,6 +340,7 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNodes(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
+
     public static List<Node> tryGetXhtmlNodes(Document document, String xPath) {
         try {
             return getXhtmlNodes(document, xPath);
@@ -366,6 +355,7 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNodes(node, addXhtmlNsToXPath(xPath));
     }
+
     public static List<Node> tryGetXhtmlNodes(Node node, String xPath) {
         try {
             return getXhtmlNodes(node, xPath);
@@ -391,6 +381,7 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNode(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
     }
+
     public static Node tryGetXhtmlNode(Document document, String xPath) {
         try {
             return getXhtmlNode(document, xPath);
@@ -405,6 +396,7 @@ public final class XPathHelper {
         Validate.notEmpty(xPath, "xPath must not be empty.");
         return getNode(node, addXhtmlNsToXPath(xPath));
     }
+
     public static Node tryGetXhtmlNode(Node node, String xPath) {
         try {
             return getXhtmlNode(node, xPath);
@@ -496,7 +488,7 @@ public final class XPathHelper {
         int maskId = 0;
         Map<String, String> unmaskMap = new HashMap<>();
         for (String quoted : toMask) {
-            String mask = "_MASK_"+(maskId++);
+            String mask = "_MASK_" + (maskId++);
             xPath = xPath.replace(quoted, mask);
             unmaskMap.put(mask, quoted);
         }
