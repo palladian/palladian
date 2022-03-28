@@ -18,6 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.EntryKeyComparator;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.OAuthParams.SignatureMethod;
 
 /**
  * <p>
@@ -29,6 +30,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  * @see <a href="http://hueniverse.com/oauth/guide/authentication/">The OAuth 1.0 Guide</a>
  * @see <a href="https://dev.twitter.com/docs/auth/authorizing-request">Twitter: Authorizing a request</a>
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc5849">The OAuth 1.0 Protocol (RFC 5849)</a>
  */
 public class OAuthUtil {
 
@@ -87,7 +89,7 @@ public class OAuthUtil {
         List<Pair<String, String>> oAuthHeader = new ArrayList<>();
         oAuthHeader.add(Pair.of("oauth_consumer_key", oAuthParams.getConsumerKey()));
         oAuthHeader.add(Pair.of("oauth_nonce", createRandomString()));
-        oAuthHeader.add(Pair.of("oauth_signature_method", "HMAC-SHA1"));
+        oAuthHeader.add(Pair.of("oauth_signature_method", oAuthParams.getSignatureMethod().methodValue));
         oAuthHeader.add(Pair.of("oauth_timestamp", createTimestamp()));
         if (oAuthParams.getAccessToken() != null) {
             oAuthHeader.add(Pair.of("oauth_token", oAuthParams.getAccessToken()));
@@ -102,7 +104,7 @@ public class OAuthUtil {
 
         String sigBaseString = createSignatureBaseString(method, url, allParams);
         String sigKey = createSigningKey(oAuthParams.getConsumerSecret(), oAuthParams.getAccessTokenSecret());
-        oAuthHeader.add(Pair.of("oauth_signature", createSignature(sigBaseString, sigKey)));
+        oAuthHeader.add(Pair.of("oauth_signature", createSignature(sigBaseString, sigKey, oAuthParams.getSignatureMethod())));
         Collections.sort(oAuthHeader);
 
         StringBuilder authorization = new StringBuilder();
@@ -169,10 +171,10 @@ public class OAuthUtil {
         return signingKey.toString();
     }
 
-    static String createSignature(String signatureBaseString, String signingKey) {
+    static String createSignature(String signatureBaseString, String signingKey, SignatureMethod signatureMethod) {
         try {
-            SecretKey key = new SecretKeySpec(signingKey.getBytes(), "HmacSHA1");
-            Mac mac = Mac.getInstance("HmacSHA1");
+            SecretKey key = new SecretKeySpec(signingKey.getBytes(), signatureMethod.cryptoAlgorithm);
+            Mac mac = Mac.getInstance(signatureMethod.cryptoAlgorithm);
             mac.init(key);
             byte[] hmacBytes = mac.doFinal(signatureBaseString.getBytes());
             return new String(Base64.encodeBase64(hmacBytes));

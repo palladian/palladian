@@ -8,6 +8,8 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
+import ws.palladian.retrieval.OAuthParams.SignatureMethod;
+
 /**
  * @author Philipp Katz
  */
@@ -68,10 +70,10 @@ public class OAuthUtilTest {
     }
 
     @Test
-    public void testCreateSignature() {
+    public void testCreateSignature_HMAC_SHA1() {
         String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
         String signingKey = OAuthUtil.createSigningKey(CONSUMER_SECRET, TOKEN_SECRET);
-        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey);
+        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey, SignatureMethod.HMAC_SHA1);
         assertEquals("tnnArxj06cWHq44gCs1OSKk/jLY=", signature);
     }
 
