@@ -78,6 +78,22 @@ public class OAuthUtilTest {
     }
 
     @Test
+    public void testCreateSignature_HMAC_SHA256() {
+        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
+        String signingKey = OAuthUtil.createSigningKey(CONSUMER_SECRET, TOKEN_SECRET);
+        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey, SignatureMethod.HMAC_SHA256);
+        assertEquals("i+nW3DvAUWe8+hYVtoxTArQQRuPDVakw9OiA6OAantk=", signature);
+    }
+
+    @Test
+    public void testCreateSignature_HMAC_SHA512() {
+        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
+        String signingKey = OAuthUtil.createSigningKey(CONSUMER_SECRET, TOKEN_SECRET);
+        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey, SignatureMethod.HMAC_SHA512);
+        assertEquals("cd+L2As3TZ4rWziv25571PDqrt1uqQw4ti2inRFarukqI6F/W4XuXZflozqXdLMHVGSdaaQ/cUQz1OkskkAMLw==", signature);
+    }
+
+    @Test
     public void testCreateAuthorization() {
         String authorizationParam = OATH_UTIL_UNDER_TEST.createAuthorization(HTTP_METHOD, BASE_URL, null);
         assertEquals(EXPECTED_AUTHORIZATION_PARAM, authorizationParam);
