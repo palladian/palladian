@@ -16,7 +16,8 @@ public final class OAuthParams {
         // RSA_SHA1,
         // RSA_SHA256,
         // RSA_SHA512,
-        // PLAINTEXT
+        /** Note: Should only be used with SSL/TLS! */ 
+        PLAINTEXT("PLAINTEXT", null)
         ;
 
         /** OAuth spec. identifier of the signature method. */

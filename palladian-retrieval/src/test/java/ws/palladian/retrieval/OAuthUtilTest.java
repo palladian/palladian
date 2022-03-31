@@ -1,6 +1,7 @@
 package ws.palladian.retrieval;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +98,13 @@ public class OAuthUtilTest {
     public void testCreateAuthorization() {
         String authorizationParam = OATH_UTIL_UNDER_TEST.createAuthorization(HTTP_METHOD, BASE_URL, null);
         assertEquals(EXPECTED_AUTHORIZATION_PARAM, authorizationParam);
+    }
+    
+    @Test
+    public void testCreateAuthorization_PLAINTEXT() {
+    	OAuthParams params = new OAuthParams(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET, SignatureMethod.PLAINTEXT, null);
+    	String authorizationParam = new OAuthUtil(params).createAuthorization(HTTP_METHOD, BASE_URL, null);
+    	assertTrue(authorizationParam.contains("oauth_signature=\"kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw%26LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE\""));
     }
 
     @Test

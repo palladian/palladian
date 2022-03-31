@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -102,9 +103,17 @@ public class OAuthUtil {
         }
         allParams.addAll(oAuthHeader);
 
-        String sigBaseString = createSignatureBaseString(method, url, allParams);
-        String sigKey = createSigningKey(oAuthParams.getConsumerSecret(), oAuthParams.getAccessTokenSecret());
-        oAuthHeader.add(Pair.of("oauth_signature", createSignature(sigBaseString, sigKey, oAuthParams.getSignatureMethod())));
+        String oauthSignature;
+        if (this.oAuthParams.getSignatureMethod() == SignatureMethod.PLAINTEXT) {
+            // see https://datatracker.ietf.org/doc/html/rfc5849#section-3.4.4
+            oauthSignature = urlEncode(oAuthParams.getConsumerSecret()) + "&" +
+                             urlEncode(Optional.ofNullable(oAuthParams.getAccessTokenSecret()).orElse(""));
+        } else {
+            String sigBaseString = createSignatureBaseString(method, url, allParams);
+            String sigKey = createSigningKey(oAuthParams.getConsumerSecret(), oAuthParams.getAccessTokenSecret());
+            oauthSignature = createSignature(sigBaseString, sigKey, oAuthParams.getSignatureMethod());
+        }
+        oAuthHeader.add(Pair.of("oauth_signature", oauthSignature));
         Collections.sort(oAuthHeader);
 
         StringBuilder authorization = new StringBuilder();
