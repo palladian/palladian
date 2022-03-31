@@ -23,7 +23,7 @@ public final class OAuthParams {
         /** OAuth spec. identifier of the signature method. */
         public final String methodValue;
         /** javax.crypto algorithm identifier */
-        public final String cryptoAlgorithm;
+        /* package */ final String cryptoAlgorithm;
 
         private SignatureMethod(String methodValue, String cryptoAlgorithm) {
             this.methodValue = methodValue;
