@@ -118,6 +118,10 @@ public class OAuthUtil {
             }
             authorization.append(String.format("%s=\"%s\"", urlEncode(pair.getKey()), urlEncode(pair.getValue())));
         }
+
+        this.oAuthParams.getAdditionalParameters()
+            .ifPresent(additionalParams -> authorization.append(", ").append(additionalParams));
+
         return authorization.toString();
 
     }

@@ -1,5 +1,7 @@
 package ws.palladian.retrieval;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.Validate;
 
 public final class OAuthParams {
@@ -38,6 +40,7 @@ public final class OAuthParams {
     private final String accessToken;
     private final String accessTokenSecret;
     private final SignatureMethod signatureMethod;
+	private final String additionalParameters;
 
     /**
      * Create a {@link OAuthParams} instance.
@@ -47,9 +50,11 @@ public final class OAuthParams {
      * @param accessToken Optional access token.
      * @param accessTokenSecret Optional access token secret.
      * @param signatureMethod The signature method.
+     * @param additionalParameters Optionally arbitrary additional parameters which will be
+     * 		appended to the end of the `Authorization` header. Format: <code>foo="one", bar="2"</code>
      * @since 2.0
      */
-    public OAuthParams(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret, SignatureMethod signatureMethod) {
+    public OAuthParams(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret, SignatureMethod signatureMethod, String additionalParameters) {
         Validate.notEmpty(consumerKey, "consumerKey must not be empty");
         Validate.notEmpty(consumerSecret, "consumerSecret must not be empty");
 
@@ -58,6 +63,7 @@ public final class OAuthParams {
         this.accessToken = accessToken;
         this.accessTokenSecret = accessTokenSecret;
         this.signatureMethod = signatureMethod;
+        this.additionalParameters = additionalParameters;
     }
 
     /**
@@ -69,7 +75,7 @@ public final class OAuthParams {
      * @param accessTokenSecret Optional access token secret.
      */
     public OAuthParams(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
-        this(consumerKey, consumerSecret, accessToken, accessTokenSecret, SignatureMethod.HMAC_SHA1);
+        this(consumerKey, consumerSecret, accessToken, accessTokenSecret, SignatureMethod.HMAC_SHA1, null);
     }
 
     public String getConsumerKey() {
@@ -95,6 +101,13 @@ public final class OAuthParams {
         return signatureMethod;
     }
 
+    /** @return Additional parameters for the `Authorization` header if specified.
+     * @since 2.0
+     */
+    public Optional<String> getAdditionalParameters() {
+        return Optional.ofNullable(additionalParameters).map(value -> value.isEmpty() ? null : value);
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -112,6 +125,8 @@ public final class OAuthParams {
         }
         builder.append(", signatureMethod=");
         builder.append(getSignatureMethod());
+        getAdditionalParameters()
+                .ifPresent(addtlParams -> builder.append(", additionalParameters=").append(addtlParams));
         builder.append("]");
         return builder.toString();
     }
