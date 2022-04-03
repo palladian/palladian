@@ -214,7 +214,6 @@ public final class DatabaseManagerFactory {
 
     private static synchronized DataSource getDataSource(String jdbcConnectionUrl, String username, String password) {
         Validate.notEmpty(jdbcConnectionUrl, "jdbcConnectionUrl must not be empty");
-        Validate.notEmpty(username, "username must not be empty");
 
         DataSource dataSource = dataSourceRegistry.get(jdbcConnectionUrl);
         if (dataSource == null) {
