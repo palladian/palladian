@@ -4,15 +4,14 @@ import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
-import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.extraction.location.persistences.sqlite.SQLiteLocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -100,9 +99,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public static void main(String[] args) {
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        LocationSource database = SQLiteLocationSource.open(new File("/Users/pk/Desktop/locations_final.sqlite"));
         PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper.tryReadFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text64.txt");
+        String rawText = "Rio, New York, or Tokyo.";
+        // String rawText = FileHelper.tryReadFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text64.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_44026163.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38765806.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38812825.txt");
