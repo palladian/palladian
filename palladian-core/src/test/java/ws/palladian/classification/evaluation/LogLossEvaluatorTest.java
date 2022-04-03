@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ws.palladian.classification.evaluation.LogLossEvaluator;
-
 public class LogLossEvaluatorTest {
 
 	private static final double DELTA = 0.0001;

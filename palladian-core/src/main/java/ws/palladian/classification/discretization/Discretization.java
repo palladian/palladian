@@ -29,18 +29,6 @@ public final class Discretization extends AbstractDatasetFeatureVectorTransforme
 
     private final Map<String, Binner> binners = new HashMap<>();
 
-//    /** @deprecated Use {@link #Discretization(Dataset)}. */
-//    @Deprecated
-//    public Discretization(Iterable<? extends Instance> dataset) {
-//        this(dataset, NoProgress.INSTANCE);
-//    }
-    
-//    /** @deprecated Use {@link #Discretization(Dataset, ProgressReporter)}. */
-//    @Deprecated
-//    public Discretization(Iterable<? extends Instance> dataset, ProgressReporter progress) {
-//    	this(new DefaultDataset(dataset), progress);
-//    }
-
     public Discretization(Dataset dataset) {
     	this(dataset, NoProgress.INSTANCE);
     }
@@ -76,19 +64,6 @@ public final class Discretization extends AbstractDatasetFeatureVectorTransforme
         }
         return instanceBuilder.create();
     }
-
-//    /** @deprecated Use {@link Dataset#transform(ws.palladian.core.dataset.DatasetTransformer)} instead. */
-//    @Deprecated
-//    public Iterable<Instance> discretize(Iterable<? extends Instance> dataset) {
-//        Validate.notNull(dataset, "dataset must not be null");
-//        return CollectionHelper.convert(dataset, new Function<Instance, Instance>() {
-//            @Override
-//            public Instance compute(Instance input) {
-//                FeatureVector features = discretize(input.getVector());
-//                return new InstanceBuilder().add(features).create(input.getCategory());
-//            }
-//        });
-//    }
 
     public Binner getBinner(String featureName) {
         Validate.notEmpty(featureName, "featureName must not be empty");

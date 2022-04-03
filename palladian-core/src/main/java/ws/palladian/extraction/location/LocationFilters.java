@@ -151,27 +151,6 @@ public final class LocationFilters {
 
     }
     
-//    /**
-//     * <p>
-//     * Filter {@link Location}s by ID.
-//     * </p>
-//     * 
-//     * @author Philipp Katz
-//     */
-//    public static class LocationIdFilter implements Filter<Location> {
-//        private final int id;
-//
-//        public LocationIdFilter(int id) {
-//            this.id = id;
-//        }
-//
-//        @Override
-//        public boolean test(Location item) {
-//            return item.getId() == id;
-//        }
-//
-//    }
-    
     /**
      * <p>
      * A {@link Predicate} for {@link Location}s which only accepts those locations within a specified radius around a

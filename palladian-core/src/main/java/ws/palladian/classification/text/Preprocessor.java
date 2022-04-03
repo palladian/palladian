@@ -12,13 +12,11 @@ import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.feature.StopWordRemover;
 import ws.palladian.extraction.token.CharacterNGramTokenizer;
 import ws.palladian.extraction.token.NGramWrapperIterator;
-import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 

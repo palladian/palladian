@@ -2,10 +2,8 @@ package ws.palladian.helper.normalization;
 
 import java.util.*;
 
-import org.apache.commons.codec.language.bm.Lang;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.constants.UnitType;
 
 /**
  * Created by David on 30.01.2018.
