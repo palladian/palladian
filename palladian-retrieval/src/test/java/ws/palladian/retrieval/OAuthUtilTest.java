@@ -1,12 +1,15 @@
 package ws.palladian.retrieval;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
+
+import ws.palladian.retrieval.OAuthParams.SignatureMethod;
 
 /**
  * @author Philipp Katz
@@ -68,17 +71,40 @@ public class OAuthUtilTest {
     }
 
     @Test
-    public void testCreateSignature() {
+    public void testCreateSignature_HMAC_SHA1() {
         String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
         String signingKey = OAuthUtil.createSigningKey(CONSUMER_SECRET, TOKEN_SECRET);
-        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey);
+        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey, SignatureMethod.HMAC_SHA1);
         assertEquals("tnnArxj06cWHq44gCs1OSKk/jLY=", signature);
+    }
+
+    @Test
+    public void testCreateSignature_HMAC_SHA256() {
+        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
+        String signingKey = OAuthUtil.createSigningKey(CONSUMER_SECRET, TOKEN_SECRET);
+        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey, SignatureMethod.HMAC_SHA256);
+        assertEquals("i+nW3DvAUWe8+hYVtoxTArQQRuPDVakw9OiA6OAantk=", signature);
+    }
+
+    @Test
+    public void testCreateSignature_HMAC_SHA512() {
+        String signatureBaseString = OAuthUtil.createSignatureBaseString(HTTP_METHOD, BASE_URL, PARAMS);
+        String signingKey = OAuthUtil.createSigningKey(CONSUMER_SECRET, TOKEN_SECRET);
+        String signature = OAuthUtil.createSignature(signatureBaseString, signingKey, SignatureMethod.HMAC_SHA512);
+        assertEquals("cd+L2As3TZ4rWziv25571PDqrt1uqQw4ti2inRFarukqI6F/W4XuXZflozqXdLMHVGSdaaQ/cUQz1OkskkAMLw==", signature);
     }
 
     @Test
     public void testCreateAuthorization() {
         String authorizationParam = OATH_UTIL_UNDER_TEST.createAuthorization(HTTP_METHOD, BASE_URL, null);
         assertEquals(EXPECTED_AUTHORIZATION_PARAM, authorizationParam);
+    }
+    
+    @Test
+    public void testCreateAuthorization_PLAINTEXT() {
+    	OAuthParams params = new OAuthParams(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET, SignatureMethod.PLAINTEXT, null);
+    	String authorizationParam = new OAuthUtil(params).createAuthorization(HTTP_METHOD, BASE_URL, null);
+    	assertTrue(authorizationParam.contains("oauth_signature=\"kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw%26LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE\""));
     }
 
     @Test
