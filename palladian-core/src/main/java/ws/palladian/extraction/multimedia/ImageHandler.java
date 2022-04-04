@@ -5,7 +5,6 @@ import org.apache.commons.lang.Validate;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Decoder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -72,8 +71,7 @@ public class ImageHandler {
     }
 
     public static BufferedImage getImage(String base64EncodedImage) throws IOException {
-        BASE64Decoder decoder = new BASE64Decoder();
-        byte[] imageByte = decoder.decodeBuffer(base64EncodedImage);
+        byte[] imageByte = Base64.getDecoder().decode(base64EncodedImage);
         ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
         return ImageIO.read(bis);
     }

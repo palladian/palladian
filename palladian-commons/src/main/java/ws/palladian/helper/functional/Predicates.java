@@ -199,7 +199,7 @@ public final class Predicates {
     @SafeVarargs
     public static <T> Predicate<T> and(Predicate<? super T>... filters) {
         Validate.notNull(filters, "filters must not be null");
-        return new AndFilter<>(new LinkedHashSet<>(Arrays.asList(filters)));
+        return new AndFilter<T>(new LinkedHashSet<>(Arrays.asList(filters)));
     }
     
 	/**
@@ -228,7 +228,7 @@ public final class Predicates {
     @SafeVarargs
 	public static <T> Predicate<T> or(Predicate<? super T>... filters) {
     	Validate.notNull(filters, "filters must not be null");
-    	return new OrFilter<>(new LinkedHashSet<>(Arrays.asList(filters)));
+    	return new OrFilter<T>(new LinkedHashSet<>(Arrays.asList(filters)));
     }
 
     /**

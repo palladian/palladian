@@ -72,7 +72,8 @@ public final class XPathHelper {
 
         // This method isn't necessary for XPath processing either.
         @Override
-        public Iterator<?> getPrefixes(String uri) {
+        @SuppressWarnings("rawtypes") // DON'T parameterize Iterator, otherwise build fails on OpenJDK
+        public Iterator getPrefixes(String uri) {
             throw new UnsupportedOperationException();
         }
 
