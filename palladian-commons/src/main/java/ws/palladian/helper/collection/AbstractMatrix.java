@@ -131,22 +131,12 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
 
     @Override
     public Iterable<? extends MatrixVector<K, V>> rows() {
-        return new Iterable<MatrixVector<K, V>>() {
-            @Override
-            public Iterator<MatrixVector<K, V>> iterator() {
-                return new RowIterator();
-            }
-        };
+        return RowIterator::new;
     }
 
     @Override
     public Iterable<? extends MatrixVector<K, V>> columns() {
-        return new Iterable<MatrixVector<K, V>>() {
-            @Override
-            public Iterator<MatrixVector<K, V>> iterator() {
-                return new ColumnIterator();
-            }
-        };
+        return ColumnIterator::new;
     }
 
     @Override

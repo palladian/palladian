@@ -17,12 +17,8 @@ import ws.palladian.helper.geo.GeoCoordinate;
 public final class LocationFilters {
     
     /** {@link Predicate} for removing {@link Location}s without coordinates. */
-    private static final Predicate<Location> COORDINATE_FILTER = new Predicate<Location>() {
-        @Override
-        public boolean test(Location location) {
-            return location.getCoordinate() != null && location.getCoordinate() != GeoCoordinate.NULL;
-        }
-    };
+    private static final Predicate<Location> COORDINATE_FILTER = location -> 
+    	location.getCoordinate() != null && location.getCoordinate() != GeoCoordinate.NULL;
 
     private LocationFilters() {
         // no instance
@@ -30,52 +26,27 @@ public final class LocationFilters {
 
     public static Predicate<Location> childOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Predicate<Location>() {
-            @Override
-            public boolean test(Location item) {
-                return item.childOf(location);
-            }
-        };
+        return item -> item.childOf(location);
     }
 
     public static Predicate<Location> descendantOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Predicate<Location>() {
-            @Override
-            public boolean test(Location item) {
-                return item.descendantOf(location);
-            }
-        };
+        return item -> item.descendantOf(location);
     }
 
     public static Predicate<Location> ancestorOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Predicate<Location>() {
-            @Override
-            public boolean test(Location item) {
-                return location.descendantOf(item);
-            }
-        };
+        return item -> location.descendantOf(item);
     }
 
     public static Predicate<Location> siblingOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Predicate<Location>() {
-            @Override
-            public boolean test(Location item) {
-                return item.getAncestorIds().equals(location.getAncestorIds());
-            }
-        };
+        return item -> item.getAncestorIds().equals(location.getAncestorIds());
     }
 
     public static Predicate<Location> parentOf(final Location location) {
         Validate.notNull(location, "location must not be null");
-        return new Predicate<Location>() {
-            @Override
-            public boolean test(Location item) {
-                return location.childOf(item);
-            }
-        };
+        return item -> location.childOf(item);
     }
     
     /**
@@ -102,12 +73,7 @@ public final class LocationFilters {
      */
     public static Predicate<Location> population(final long minPopulation) {
         Validate.isTrue(minPopulation >= 0, "population must be greater/equal zero");
-        return new Predicate<Location>() {
-            @Override
-            public boolean test(Location item) {
-                return item.getPopulation() != null && item.getPopulation() >= minPopulation;
-            }
-        };
+        return item -> item.getPopulation() != null && item.getPopulation() >= minPopulation;
     }
 
     /**

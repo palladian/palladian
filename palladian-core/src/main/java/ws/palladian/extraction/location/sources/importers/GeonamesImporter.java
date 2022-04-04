@@ -158,15 +158,12 @@ public final class GeonamesImporter {
     private void establishHierarchyMap(int totalLines, ProgressReporter progress, InputStream inputStream) {
         LOGGER.info("Reading child-parent hierarchies");
         progress.startTask("Reading child-parent hierarchies", totalLines);
-        readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
-            @Override
-            public void accept(GeonameLocation item) {
-                Integer parentId = getParent(item);
-                if (parentId != null) {
-                    childParentIds.put(item.geonamesId, parentId);
-                }
-            }
-        });
+        readLocations(inputStream, progress, item -> {
+		    Integer parentId = getParent(item);
+		    if (parentId != null) {
+		        childParentIds.put(item.geonamesId, parentId);
+		    }
+		});
     }
 
     private static void checkIsFileOfType(File filePath, String fileType) {
@@ -189,24 +186,21 @@ public final class GeonamesImporter {
     private void importLocations(InputStream inputStream, final ProgressReporter progress, int numLines) {
         LOGGER.info("Inserting locations");
         progress.startTask("Inserting locations", numLines);
-        readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
-            @Override
-            public void accept(GeonameLocation geonameLocation) {
-                LocationBuilder builder = new LocationBuilder();
-                builder.setId(geonameLocation.geonamesId);
-                builder.setPrimaryName(geonameLocation.primaryName);
-                builder.setType(GeonamesUtil.mapType(geonameLocation.featureClass, geonameLocation.featureCode));
-                builder.setCoordinate(geonameLocation.coordinate);
-                builder.setPopulation(geonameLocation.population);
-                Integer childId = geonameLocation.geonamesId;
-                Integer parentId;
-                while ((parentId = childParentIds.get(childId)) != null) {
-                    builder.addAncestorId(parentId);
-                    childId = parentId;
-                }
-                locationStore.save(builder.create());
-            }
-        });
+        readLocations(inputStream, progress, geonameLocation -> {
+		    LocationBuilder builder = new LocationBuilder();
+		    builder.setId(geonameLocation.geonamesId);
+		    builder.setPrimaryName(geonameLocation.primaryName);
+		    builder.setType(GeonamesUtil.mapType(geonameLocation.featureClass, geonameLocation.featureCode));
+		    builder.setCoordinate(geonameLocation.coordinate);
+		    builder.setPopulation(geonameLocation.population);
+		    Integer childId = geonameLocation.geonamesId;
+		    Integer parentId;
+		    while ((parentId = childParentIds.get(childId)) != null) {
+		        builder.addAncestorId(parentId);
+		        childId = parentId;
+		    }
+		    locationStore.save(builder.create());
+		});
         LOGGER.info("Finished importing {} locations", numLines);
     }
 
@@ -275,44 +269,40 @@ public final class GeonamesImporter {
         
         final Set<Integer> mappingsToRemove = new HashSet<>();
         
-        readLocations(inputStream, progress, new Consumer<GeonameLocation>() {
-            @Override
-            public void accept(GeonameLocation geonameLocation) {
-                String codeCombined = geonameLocation.getCodeCombined();
+        readLocations(inputStream, progress, geonameLocation -> {
+		    String codeCombined = geonameLocation.getCodeCombined();
 
-                // remove historic locations from the hierarchy mapping again, as we do not want the DDR in the
-                // hierarchy list ... sorry, Erich.
-                if (geonameLocation.isHistoric()) {
-                    // XXX keep, but lower priority here?
-                    mappingsToRemove.add(geonameLocation.geonamesId);
-                    LOGGER.debug("Removed historic location {} with type {} from hierarchy mappings",
-                            geonameLocation.geonamesId, codeCombined);
-                    return;
-                }
+		    // remove historic locations from the hierarchy mapping again, as we do not want the DDR in the
+		    // hierarchy list ... sorry, Erich.
+		    if (geonameLocation.isHistoric()) {
+		        // XXX keep, but lower priority here?
+		        mappingsToRemove.add(geonameLocation.geonamesId);
+		        LOGGER.debug("Removed historic location {} with type {} from hierarchy mappings",
+		                geonameLocation.geonamesId, codeCombined);
+		        return;
+		    }
 
-                if (geonameLocation.isLowerOrderAdminDivision()) {
-                    // XXX keep, but lower priority here?
-                    mappingsToRemove.add(geonameLocation.geonamesId);
-                    LOGGER.debug("Remove second order relation {}", geonameLocation.geonamesId);
-                }
+		    if (geonameLocation.isLowerOrderAdminDivision()) {
+		        // XXX keep, but lower priority here?
+		        mappingsToRemove.add(geonameLocation.geonamesId);
+		        LOGGER.debug("Remove second order relation {}", geonameLocation.geonamesId);
+		    }
 
-                // FIXME priority needs to be determined based on the destination of relation
+		    // FIXME priority needs to be determined based on the destination of relation
 
-                if (!geonameLocation.isAdministrativeUnit() || codeCombined.isEmpty() || codeCombined.endsWith("*")) {
-                    return;
-                }
+		    if (!geonameLocation.isAdministrativeUnit() || codeCombined.isEmpty() || codeCombined.endsWith("*")) {
+		        return;
+		    }
 
-                Integer existingItem = administrativeMappings.get(codeCombined);
-                if (existingItem == null) {
-                    administrativeMappings.put(codeCombined, geonameLocation.geonamesId);
-                } else {
-                    LOGGER.warn(
-                            "There is already an item with code {} in the mappings, this will almost certainly lead to inconsistencies and should be fixed! (current {}, existing {})",
-                            codeCombined, geonameLocation.geonamesId, existingItem);
-                }
-            }
-
-        });
+		    Integer existingItem = administrativeMappings.get(codeCombined);
+		    if (existingItem == null) {
+		        administrativeMappings.put(codeCombined, geonameLocation.geonamesId);
+		    } else {
+		        LOGGER.warn(
+		                "There is already an item with code {} in the mappings, this will almost certainly lead to inconsistencies and should be fixed! (current {}, existing {})",
+		                codeCombined, geonameLocation.geonamesId, existingItem);
+		    }
+		});
 
         LOGGER.debug("Removing {} historic/second order relations from hierarchy mappings", mappingsToRemove.size());
         removeByValue(hierarchyMappings, mappingsToRemove);

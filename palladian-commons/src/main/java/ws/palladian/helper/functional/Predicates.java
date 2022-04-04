@@ -144,12 +144,7 @@ public final class Predicates {
     
 	public static Predicate<String> contains(final String substring) {
 		Validate.notNull(substring, "substring must not be null");
-		return new Predicate<String>() {
-			@Override
-			public boolean test(String item) {
-				return item.contains(substring);
-			}
-		};
+		return item -> item.contains(substring);
 	}
 
     /**
@@ -345,12 +340,7 @@ public final class Predicates {
      * @return A filter accepting directories.
      */
     public static Predicate<File> directory() {
-        return new Predicate<File>() {
-            @Override
-            public boolean test(File item) {
-                return item.isDirectory();
-            }
-        };
+        return item -> item.isDirectory();
     }
     
 	/**
@@ -359,12 +349,7 @@ public final class Predicates {
 	 * @return A filter accepting files.
 	 */
 	public static Predicate<File> file() {
-		return new Predicate<File>() {
-			@Override
-			public boolean test(File item) {
-				return item.isFile();
-			}
-		};
+		return item -> item.isFile();
 	}
 
     /**
