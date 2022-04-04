@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -24,18 +25,16 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.LocationBuilder;
-import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.extraction.location.persistences.sqlite.SQLiteLocationStore;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.constants.Language;
-import java.util.function.Consumer;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
-import ws.palladian.persistence.DatabaseManagerFactory;
 
 /**
  * <p>
@@ -623,14 +622,10 @@ public final class GeonamesImporter {
     }
 
     public static void main(String[] args) throws IOException {
-        // LocationStore locationStore = new CollectionLocationStore();
-        LocationDatabase locationStore = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        locationStore.truncate();
-
-        GeonamesImporter importer = new GeonamesImporter(locationStore, new ProgressMonitor());
-        File locationFile = new File("/Users/pk/Desktop/geonames.org/allCountries.zip");
-        File hierarchyFile = new File("/Users/pk/Desktop/geonames.org/hierarchy.zip");
-        File alternateNames = new File("/Users/pk/Desktop/geonames.org/alternateNames.zip");
+        GeonamesImporter importer = new GeonamesImporter(SQLiteLocationStore.create(new File("/Users/pk/Desktop/locations_final.sqlite")), new ProgressMonitor());
+        File locationFile = new File("/tmp/Geonames/allCountries.zip");
+        File hierarchyFile = new File("/tmp/Geonames/hierarchy.zip");
+        File alternateNames = new File("/tmp/Geonames/alternateNames.zip");
         importer.importLocationsZip(locationFile, hierarchyFile, alternateNames);
     }
 
