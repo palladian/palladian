@@ -24,9 +24,9 @@ import java.util.*;
  **/
 public class SimilarImageSearcher {
     protected final File folder;
-    private static final String PROCESSED_PREFIX = "prcssd-";
-    private static final String UUID_PREFIX = "uuid-";
-    private final List<ImageVector> imageVectors = new ArrayList<>();
+    protected static final String PROCESSED_PREFIX = "prcssd-";
+    protected static final String UUID_PREFIX = "uuid-";
+    protected final List<ImageVector> imageVectors = new ArrayList<>();
 
     public SimilarImageSearcher(File folder) {
         this.folder = folder;
@@ -63,11 +63,11 @@ public class SimilarImageSearcher {
         }
     }
 
-    private ImageVector createImageVector(BufferedImage image) {
+    protected ImageVector createImageVector(BufferedImage image) {
         return createImageVector(image, null);
     }
 
-    private ImageVector createImageVector(BufferedImage image, String identifier) {
+    protected ImageVector createImageVector(BufferedImage image, String identifier) {
         String tempLinkPath = getImagePath(identifier, false);
         BufferedImage existingImage = findImageByIdentifier(identifier);
 
@@ -207,5 +207,9 @@ public class SimilarImageSearcher {
             distance += value * value;
         }
         return distance;
+    }
+
+    public int getNumberOfIndexedImages() {
+        return imageVectors.size();
     }
 }
