@@ -5,6 +5,7 @@ import static ws.palladian.extraction.location.LocationFilters.radius;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -84,28 +85,8 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        String langPlaceholder = String.join(",", Collections.nCopies(languages.size(), "?"));
-        String sql = "SELECT " //
-                + "  l.*, " //
-                + "  GROUP_CONCAT(lan.alternativeName, '#') AS altNames, " //
-                + "  GROUP_CONCAT(IFNULL(lan.language, '_'), '#') as altLangs " //
-                + "FROM locations l " //
-                + "LEFT JOIN locations_alternative_names lan ON l.id = lan.locationId " //
-                + "WHERE " //
-                + "	 id IN (SELECT id FROM locations WHERE name = ? COLLATE NOCASE) OR " //
-                + "	 id IN ( " //
-                + "        SELECT locationId " //
-                + "        FROM locations_alternative_names " //
-                + "        WHERE " //
-                + "          alternativeName = ? COLLATE NOCASE AND " //
-                + "          language IN (" + langPlaceholder + ")" //
-                + "        ) " //
-                + "GROUP BY l.id";
-        List<Object> args = new ArrayList<>();
-        args.add(locationName);
-        args.add(locationName);
-        args.addAll(languages.stream().map(Language::getIso6391).collect(Collectors.toList()));
-        return runQuery(ROW_CONVERTER, sql, args);
+        MultiMap<String, Location> locations = getLocations(Arrays.asList(locationName), languages, null, 0);
+        return locations.get(locationName);
     }
 
     @Override
@@ -120,7 +101,47 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
     @Override
     public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
             GeoCoordinate coordinate, double distance) {
-        throw new UnsupportedOperationException("This query type is currently not implemented");
+        String langPlaceholder = String.join(",", Collections.nCopies(languages.size(), "?"));
+        String sql = "SELECT " //
+                + "  l.*, " //
+                + "  GROUP_CONCAT(lan.alternativeName, '#') AS altNames, " //
+                + "  GROUP_CONCAT(IFNULL(lan.language, '_'), '#') as altLangs " //
+                + "FROM locations l " //
+                + "LEFT JOIN locations_alternative_names lan ON l.id = lan.locationId " //
+                + "WHERE " //
+                + "	 (id IN (SELECT id FROM locations WHERE name = ? COLLATE NOCASE) OR " //
+                + "	  id IN ( " //
+                + "        SELECT locationId " //
+                + "        FROM locations_alternative_names " //
+                + "        WHERE " //
+                + "          alternativeName = ? COLLATE NOCASE AND " //
+                + "          language IN (" + langPlaceholder + ")" //
+                + "        ))" //
+                + "  AND latitude > ? AND latitude < ? AND longitude > ? AND longitude < ?" //
+                + "GROUP BY l.id";
+        MultiMap<String, Location> result = DefaultMultiMap.createWithList();
+        List<Number> boxArgs;
+        if (coordinate != null) {
+            double[] boundingBox = coordinate.getBoundingBox(distance);
+            boxArgs = Arrays.asList(boundingBox[0], boundingBox[2], boundingBox[1], boundingBox[3]);
+        } else {
+            boxArgs = Arrays.asList(-90, 90, -180, 180);
+        }
+        for (String locationName : locationNames) {
+            List<Object> args = new ArrayList<>();
+            args.add(locationName);
+            args.add(locationName);
+            args.addAll(languages.stream().map(Language::getIso6391).collect(Collectors.toList()));
+            args.addAll(boxArgs);
+            List<Location> locations = runQuery(ROW_CONVERTER, sql, args);
+            if (coordinate != null) {
+                locations = locations.stream() //
+                        .filter(radius(coordinate, distance)) //
+                        .sorted(distanceComparator(coordinate)).collect(Collectors.toList());
+            }
+            result.put(locationName, locations);
+        }
+        return result;
     }
 
     @Override

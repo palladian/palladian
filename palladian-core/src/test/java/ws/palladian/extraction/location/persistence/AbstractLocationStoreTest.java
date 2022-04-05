@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -127,6 +129,15 @@ public abstract class AbstractLocationStoreTest {
         assertEquals(2, locations.size());
         assertEqualLocations(LOCATION_1, locations.get(0));
         assertEqualLocations(LOCATION_2, locations.get(1));
+    }
+
+    @Test
+    public void testGetLocationByNameAndRadius() {
+        MultiMap<String, Location> locations = locationSource.getLocations(Arrays.asList("Flein"),
+                EnumSet.of(Language.ENGLISH), new ImmutableGeoCoordinate(49, 9), 20);
+        assertEquals(1, locations.entrySet().size());
+        assertEquals(1, locations.get("Flein").size());
+        assertEqualLocations(LOCATION_1, locations.getFirst("Flein"));
     }
 
     @Test
