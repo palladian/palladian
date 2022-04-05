@@ -115,7 +115,8 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 				+ "        FROM locations_alternative_names " //
 				+ "        WHERE " //
 				+ "          alternativeName = ? COLLATE NOCASE AND " //
-				+ "          language IN (" + langPlaceholder + ")" //
+				+ "          (language IS NULL OR " //
+				+ "           language IN (" + langPlaceholder + "))" //
 				+ "        ))" //
 				+ "  AND latitude > ? AND latitude < ? AND longitude > ? AND longitude < ?" //
 				+ "GROUP BY l.id";
