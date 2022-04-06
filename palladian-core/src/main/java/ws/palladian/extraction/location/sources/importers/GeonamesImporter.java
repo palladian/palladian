@@ -393,11 +393,16 @@ public final class GeonamesImporter {
                     int geonameid = Integer.parseInt(split[1]);
                     String isoLanguage = split[2];
                     String alternateName = split[3];
+                    // TODO there are further flags available:
+                    // preferred, short, historical, colloquial
                     Language language = null;
                     if (!isoLanguage.isEmpty() && !isoLanguage.equals("abbr")) {
                         language = Language.getByIso6391(isoLanguage);
                         if (language == null) {
                             // a language was specified, but not mapped in our enum. Thank you, we're not interested.
+                            // TODO actually there might be interesting stuff here, 
+                            //      especially the airport codes (icao, iata, faac, tcid)
+                            //      and postal codes!
                             return;
                         }
                     }
