@@ -126,7 +126,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     private static final String PROPERTY_NAME = "name";
 
     /** The Lucene version to use. */
-    private static final Version VERSION = Version.LUCENE_47;
+    private static final Version VERSION = Version.LUCENE_4_7;
 
     /** The Lucene Analyzer. */
     private static final Analyzer ANALYZER = new KeywordAnalyzer();
@@ -150,8 +150,8 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
         FSDirectory directory = null;
         IndexWriter writer = null;
         try {
-            directory = FSDirectory.open(directoryPath);
-            writer = new IndexWriter(directory, new IndexWriterConfig(VERSION, ANALYZER));
+            directory = FSDirectory.open(directoryPath.toPath());
+            writer = new IndexWriter(directory, new IndexWriterConfig(ANALYZER));
             ProgressMonitor progressMonitor = new ProgressMonitor();
             progressMonitor.startTask("Writing Lucene dict.", dictionary.getNumUniqTerms());
 
@@ -207,7 +207,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     private final int numEntries;
 
     public LuceneDictionaryModel(File directoryPath) throws IOException {
-        this(FSDirectory.open(directoryPath));
+        this(FSDirectory.open(directoryPath.toPath()));
     }
 
     public LuceneDictionaryModel(Directory directory) {
@@ -264,7 +264,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
      * @throws IOException In case something goes wrong.
      */
     private CategoryEntries getCategoryEntries(Terms terms) throws IOException {
-        TermsEnum termsEnum = terms.iterator(null);
+        TermsEnum termsEnum = terms.iterator();
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         BytesRef bytesRef;
         while ((bytesRef = termsEnum.next()) != null) {

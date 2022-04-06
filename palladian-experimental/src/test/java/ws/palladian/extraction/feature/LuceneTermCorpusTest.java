@@ -12,7 +12,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
@@ -20,7 +19,7 @@ import ws.palladian.helper.io.FileHelper;
 public class LuceneTermCorpusTest {
 
     private static Directory getSample() {
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_42, new StandardAnalyzer(Version.LUCENE_42));
+        IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
         Directory directory = new RAMDirectory();
         IndexWriter writer = null;
         try {

@@ -9,7 +9,6 @@ import static ws.palladian.extraction.location.persistence.LuceneLocationSource.
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_POPULATION;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_TYPE;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.HIERARCHY_SEPARATOR;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.LUCENE_VERSION;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.NAME_LANGUAGE_SEPARATOR;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.PRIMARY_NAME_MARKER;
 
@@ -87,8 +86,8 @@ public final class LuceneLocationStore implements LocationStore {
         this.tempIndexFile = FileHelper.getTempFile();
         LOGGER.debug("Temporary index = {}", tempIndexFile);
         try {
-            this.tempDirectory = FSDirectory.open(this.tempIndexFile);
-            this.tempIndexWriter = new IndexWriter(tempDirectory, new IndexWriterConfig(LUCENE_VERSION, ANALYZER));
+            this.tempDirectory = FSDirectory.open(this.tempIndexFile.toPath());
+            this.tempIndexWriter = new IndexWriter(tempDirectory, new IndexWriterConfig(ANALYZER));
         } catch (IOException e) {
             throw new IllegalStateException("IOException when creating IndexWriter.", e);
         }
@@ -175,8 +174,8 @@ public final class LuceneLocationStore implements LocationStore {
         tempIndexWriter.commit();
         tempIndexWriter.close();
 
-        IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION, ANALYZER);
-        try (FSDirectory resultDirectory = FSDirectory.open(indexFile);
+        IndexWriterConfig config = new IndexWriterConfig(ANALYZER);
+        try (FSDirectory resultDirectory = FSDirectory.open(indexFile.toPath());
                 IndexWriter resultWriter = new IndexWriter(resultDirectory, config);
                 IndexReader tempReader = DirectoryReader.open(tempDirectory)) {
 

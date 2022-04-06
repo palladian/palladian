@@ -70,7 +70,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
     private static final String FIELD_LNG = "lng";
 
-    private static final Version LUCENE_VERSION = Version.LUCENE_47;
+    private static final Version LUCENE_VERSION = Version.LUCENE_4_7;
 
     private final Analyzer analyzer;
 
@@ -100,7 +100,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         public static NearestNeighborScopeModel fromIndex(File indexPath) {
             Validate.notNull(indexPath, "indexPath must not be null");
             try {
-                return new NearestNeighborScopeModel(FSDirectory.open(indexPath));
+                return new NearestNeighborScopeModel(FSDirectory.open(indexPath.toPath()));
             } catch (IOException e) {
                 throw new IllegalStateException("Error while trying to open '" + indexPath + "'.");
             }
@@ -157,7 +157,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             Validate.notNull(featureSetting, "featureSetting must not be null");
             this.featureSetting = featureSetting;
             try {
-                this.directory = FSDirectory.open(indexFile);
+                this.directory = FSDirectory.open(indexFile.toPath());
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -174,7 +174,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         public NearestNeighborScopeModel train(Iterable<? extends LocationDocument> documentIterator) {
             Validate.notNull(documentIterator, "documentIterator must not be null");
             Analyzer analyzer = new FeatureSettingAnalyzer(featureSetting, LUCENE_VERSION);
-            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, analyzer);
+            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
             IndexWriter indexWriter = null;
             try {
                 indexWriter = new IndexWriter(directory, indexWriterConfig);
@@ -290,7 +290,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             moreLikeThis.setAnalyzer(analyzer);
             moreLikeThis.setMinTermFreq(1);
             moreLikeThis.setMinDocFreq(1);
-            return moreLikeThis.like(new StringReader(text), FIELD_TEXT);
+            return moreLikeThis.like(FIELD_TEXT, new StringReader(text));
         }
 
         @Override
