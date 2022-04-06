@@ -34,16 +34,14 @@ public class FeatureSettingAnalyzer extends Analyzer {
 
     private final FeatureSetting featureSetting;
 
-    private final Version luceneVersion;
-
     public FeatureSettingAnalyzer(FeatureSetting featureSetting) {
-        this(featureSetting, Version.LUCENE_6_6_5);
-    }
-
-    public FeatureSettingAnalyzer(FeatureSetting featureSetting, Version luceneVersion) {
         Validate.notNull(featureSetting, "featureSetting must not be null");
         this.featureSetting = featureSetting;
-        this.luceneVersion = luceneVersion;
+    }
+
+    /** @deprecated Use {@link FeatureSettingAnalyzer#FeatureSettingAnalyzer(FeatureSetting)}. */
+    public FeatureSettingAnalyzer(FeatureSetting featureSetting, Version luceneVersion) {
+        this(featureSetting);
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LegacyDoubleField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -33,7 +33,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +68,6 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
     private static final String FIELD_LAT = "lat";
 
     private static final String FIELD_LNG = "lng";
-
-    private static final Version LUCENE_VERSION = Version.LUCENE_6_6_5;
 
     private final Analyzer analyzer;
 
@@ -173,7 +170,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         @Override
         public NearestNeighborScopeModel train(Iterable<? extends LocationDocument> documentIterator) {
             Validate.notNull(documentIterator, "documentIterator must not be null");
-            Analyzer analyzer = new FeatureSettingAnalyzer(featureSetting, LUCENE_VERSION);
+            Analyzer analyzer = new FeatureSettingAnalyzer(featureSetting);
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
             IndexWriter indexWriter = null;
             try {
@@ -189,12 +186,12 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                     }
                     Document document = new Document();
                     document.add(new TextField(FIELD_TEXT, locationDocument.getText(), Field.Store.NO));
-                    document.add(new LegacyDoubleField(FIELD_LAT, coordinate.getLatitude(), LegacyDoubleField.TYPE_STORED));
-                    document.add(new LegacyDoubleField(FIELD_LNG, coordinate.getLongitude(), LegacyDoubleField.TYPE_STORED));
+                    document.add(new StoredField(FIELD_LAT, coordinate.getLatitude()));
+                    document.add(new StoredField(FIELD_LNG, coordinate.getLongitude()));
                     indexWriter.addDocument(document);
                 }
                 Map<String, String> featureSettingData = featureSetting.toMap();
-                indexWriter.setCommitData(featureSettingData);
+                indexWriter.setLiveCommitData(featureSettingData.entrySet());
                 indexWriter.commit();
             } catch (IOException e) {
                 throw new IllegalStateException(e);
