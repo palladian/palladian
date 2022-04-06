@@ -14,8 +14,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.LegacyDoubleField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -70,7 +70,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
     private static final String FIELD_LNG = "lng";
 
-    private static final Version LUCENE_VERSION = Version.LUCENE_4_7;
+    private static final Version LUCENE_VERSION = Version.LUCENE_6_6_5;
 
     private final Analyzer analyzer;
 
@@ -189,8 +189,8 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                     }
                     Document document = new Document();
                     document.add(new TextField(FIELD_TEXT, locationDocument.getText(), Field.Store.NO));
-                    document.add(new DoubleField(FIELD_LAT, coordinate.getLatitude(), DoubleField.TYPE_STORED));
-                    document.add(new DoubleField(FIELD_LNG, coordinate.getLongitude(), DoubleField.TYPE_STORED));
+                    document.add(new LegacyDoubleField(FIELD_LAT, coordinate.getLatitude(), LegacyDoubleField.TYPE_STORED));
+                    document.add(new LegacyDoubleField(FIELD_LNG, coordinate.getLongitude(), LegacyDoubleField.TYPE_STORED));
                     indexWriter.addDocument(document);
                 }
                 Map<String, String> featureSettingData = featureSetting.toMap();
@@ -253,7 +253,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
         @Override
         public Query createQuery(String text, IndexReader reader, Analyzer analyzer) throws IOException {
-            BooleanQuery query = new BooleanQuery();
+            BooleanQuery.Builder query = new BooleanQuery.Builder();
             TokenStream stream = analyzer.tokenStream(null, new StringReader(text));
             stream.reset();
             try {
@@ -268,7 +268,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             } finally {
                 stream.close();
             }
-            return query;
+            return query.build();
         }
 
         @Override

@@ -30,7 +30,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.LegacyNumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
@@ -105,7 +105,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     static final char HIERARCHY_SEPARATOR = '/';
 
     /** The used Lucene version. */
-    static final Version LUCENE_VERSION = Version.LUCENE_4_10_2;
+    static final Version LUCENE_VERSION = Version.LUCENE_6_6_5;
 
     /** The Lucene directory, supplied via class constructor. */
     private final Directory directory;
@@ -142,7 +142,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             // location name also needs to be processed by analyzer; after all we could just lowercase here,
             // but in case we change our analyzer, this method keeps it consistent
             String analyzedName = analyze(locationName);
-            BooleanQuery query = new BooleanQuery();
+            BooleanQuery.Builder query = new BooleanQuery.Builder();
             query.setMinimumNumberShouldMatch(1);
             // search for primary names
             query.add(new TermQuery(new Term(FIELD_NAME, analyzedName + PRIMARY_NAME_MARKER)), Occur.SHOULD);
@@ -153,7 +153,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
                 String nameLanguageString = analyzedName + NAME_LANGUAGE_SEPARATOR + language.getIso6391();
                 query.add(new TermQuery(new Term(FIELD_NAME, nameLanguageString)), Occur.SHOULD);
             }
-            return queryLocations(query, searcher, reader);
+            return queryLocations(query.build(), searcher, reader);
         } catch (IOException e) {
             throw new IllegalStateException("Encountered IOException while getting locations", e);
         }
@@ -283,12 +283,12 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     @Override
     public List<Location> getLocations(final GeoCoordinate coordinate, double distance) {
         double[] box = coordinate.getBoundingBox(distance);
-        BooleanQuery query = new BooleanQuery();
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
         // we're using floats here, see comment in
         // ws.palladian.extraction.location.persistence.LuceneLocationStore.save(Location)
-        query.add(NumericRangeQuery.newDoubleRange(FIELD_LAT, box[0], box[2], true, true), Occur.MUST);
-        query.add(NumericRangeQuery.newDoubleRange(FIELD_LNG, box[1], box[3], true, true), Occur.MUST);
-        Collection<Location> retrievedLocations = queryLocations(query, searcher, reader);
+        query.add(LegacyNumericRangeQuery.newDoubleRange(FIELD_LAT, box[0], box[2], true, true), Occur.MUST);
+        query.add(LegacyNumericRangeQuery.newDoubleRange(FIELD_LNG, box[1], box[3], true, true), Occur.MUST);
+        Collection<Location> retrievedLocations = queryLocations(query.build(), searcher, reader);
         // remove locations out of the box
         List<Location> filtered = CollectionHelper.filterList(retrievedLocations, radius(coordinate, distance));
         // sort them by distance to given coordinate

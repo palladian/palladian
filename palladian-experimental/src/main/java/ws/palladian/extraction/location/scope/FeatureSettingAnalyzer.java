@@ -37,7 +37,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
     private final Version luceneVersion;
 
     public FeatureSettingAnalyzer(FeatureSetting featureSetting) {
-        this(featureSetting, Version.LUCENE_4_7);
+        this(featureSetting, Version.LUCENE_6_6_5);
     }
 
     public FeatureSettingAnalyzer(FeatureSetting featureSetting, Version luceneVersion) {
@@ -107,7 +107,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
         // FeatureSetting featureSetting = FeatureSettingBuilder.words(2).maxTerms(10).create();
         // FeatureSetting featureSetting = FeatureSettingBuilder.words(3).maxTerms(10).create();
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).termLength(4, 10).maxTerms(10).create();
-        FeatureSettingAnalyzer analyzer = new FeatureSettingAnalyzer(featureSetting, Version.LUCENE_4_7);
+        FeatureSettingAnalyzer analyzer = new FeatureSettingAnalyzer(featureSetting, Version.LUCENE_6_6_5);
         List<String> tokens = analyzer.analyze("The quick brown fox jumps over the lazy dog.");
         System.out.println(analyzer);
         CollectionHelper.print(tokens);
