@@ -3,6 +3,7 @@ package ws.palladian.extraction.location;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
@@ -20,6 +22,11 @@ import ws.palladian.helper.constants.Language;
  * @author Philipp Katz
  */
 public abstract class AbstractLocation implements Location {
+
+    @Override
+    public Optional<GeoCoordinate> getCoords() {
+        return Optional.ofNullable(getCoordinate());
+    }
 
     @Override
     public final boolean descendantOf(Location other) {

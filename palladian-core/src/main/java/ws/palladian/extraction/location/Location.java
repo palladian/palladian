@@ -6,6 +6,7 @@ import ws.palladian.helper.geo.GeoCoordinate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -131,6 +132,11 @@ public interface Location {
      * @return The geographical coordinate for this location, or <code>null</code> in case no coordinates exist.
      */
     GeoCoordinate getCoordinate();
+
+    /**
+     * @return The geographical coordinate for this location if present.
+     */
+    Optional<GeoCoordinate> getCoords();
 
     /**
      * <p>
