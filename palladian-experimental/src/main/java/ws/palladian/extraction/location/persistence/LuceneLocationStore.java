@@ -4,7 +4,9 @@ import static ws.palladian.extraction.location.persistence.LuceneLocationSource.
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ANCESTOR_IDS;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ID;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT;
+import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_STORED;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LNG;
+import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LNG_STORED;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_NAME;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_POPULATION;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_TYPE;
@@ -22,8 +24,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LegacyDoubleField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
@@ -202,8 +205,8 @@ public final class LuceneLocationStore implements LocationStore {
                     // latitude/longitude, we intentionally use StringFields. The JavaDoc says, that those field are
                     // less space consuming. The numeric fields only need to be used, in case one wants sorting or range
                     // filtering of the values.
-                    convertToNumeric(document, FIELD_LAT);
-                    convertToNumeric(document, FIELD_LNG);
+                    convertToNumeric(document, FIELD_LAT, FIELD_LAT, FIELD_LAT_STORED);
+                    convertToNumeric(document, FIELD_LNG, FIELD_LNG, FIELD_LNG_STORED);
                     resultWriter.addDocument(document);
                     if (++resultModificationCount % COMMIT_INTERVAL == 0) {
                         resultWriter.commit();
@@ -222,15 +225,19 @@ public final class LuceneLocationStore implements LocationStore {
      * 
      * @param document The document.
      * @param fieldName The name of the field to convert.
+     * @param indexFieldName Name of the field to use for the indexation.
+     * @param storedFieldName Name of the field to use for storing.
      */
-    private static void convertToNumeric(Document document, String fieldName) {
+    private static void convertToNumeric(Document document, String fieldName, String indexFieldName, String storedFieldName) {
         String stringValue = document.get(fieldName);
         document.removeField(fieldName);
         // explicitly changed from DoubleField to a FloatField to save space;
         // when changing back to double, make sure to revert the range queries in
         // ws.palladian.extraction.location.persistence.LuceneLocationSource.getLocations(GeoCoordinate, double)
         if (stringValue != null) {
-            document.add(new LegacyDoubleField(fieldName, Double.parseDouble(stringValue), Field.Store.YES));
+            double doubleValue = Double.parseDouble(stringValue);
+			document.add(new DoublePoint(indexFieldName, doubleValue));
+            document.add(new StoredField(storedFieldName, doubleValue));
         }
     }
 

@@ -22,6 +22,7 @@ import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexableField;
@@ -30,12 +31,10 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.LegacyNumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Bits;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,11 +82,17 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /** Identifier for the field containing the location name. */
     static final String FIELD_NAME = "primaryName";
 
-    /** Identifier for the field containing the geo latitude. */
+    /** Identifier for the field which queries the latitude. */
     static final String FIELD_LAT = "lat";
+    
+    /** Identifier for the field which stores the latitude. */
+    static final String FIELD_LAT_STORED = "lat_stored";
 
-    /** Identifier for the field containing the geo longitude. */
+    /** Identifier for the field which queries the longitude. */
     static final String FIELD_LNG = "lng";
+    
+    /** Identifier for the field which stores the longitude. */
+    static final String FIELD_LNG_STORED = "lng_stored";
 
     /** Identifier for the field containing the population. */
     static final String FIELD_POPULATION = "population";
@@ -103,9 +108,6 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     /** Separator character between IDs in hierarchy. */
     static final char HIERARCHY_SEPARATOR = '/';
-
-    /** The used Lucene version. */
-    static final Version LUCENE_VERSION = Version.LUCENE_6_6_5;
 
     /** The Lucene directory, supplied via class constructor. */
     private final Directory directory;
@@ -256,8 +258,8 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         }
         builder.setId(Integer.parseInt(document.get(FIELD_ID)));
         builder.setType(LocationType.map(document.get(FIELD_TYPE)));
-        IndexableField latField = document.getField(FIELD_LAT);
-        IndexableField lngField = document.getField(FIELD_LNG);
+        IndexableField latField = document.getField(FIELD_LAT_STORED);
+        IndexableField lngField = document.getField(FIELD_LNG_STORED);
         if (latField != null && lngField != null) {
             double lat = latField.numericValue().doubleValue();
             double lng = lngField.numericValue().doubleValue();
@@ -286,8 +288,8 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         BooleanQuery.Builder query = new BooleanQuery.Builder();
         // we're using floats here, see comment in
         // ws.palladian.extraction.location.persistence.LuceneLocationStore.save(Location)
-        query.add(LegacyNumericRangeQuery.newDoubleRange(FIELD_LAT, box[0], box[2], true, true), Occur.MUST);
-        query.add(LegacyNumericRangeQuery.newDoubleRange(FIELD_LNG, box[1], box[3], true, true), Occur.MUST);
+        query.add(DoublePoint.newRangeQuery(FIELD_LAT, box[0], box[2]), Occur.MUST);
+        query.add(DoublePoint.newRangeQuery(FIELD_LNG, box[1], box[3]), Occur.MUST);
         Collection<Location> retrievedLocations = queryLocations(query.build(), searcher, reader);
         // remove locations out of the box
         List<Location> filtered = CollectionHelper.filterList(retrievedLocations, radius(coordinate, distance));

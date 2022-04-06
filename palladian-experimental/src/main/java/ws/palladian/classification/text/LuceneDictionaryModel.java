@@ -28,7 +28,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.Version;
 
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
@@ -125,9 +124,6 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     /** Property name for the name of the dictionary (stored in the commit user data). */
     private static final String PROPERTY_NAME = "name";
 
-    /** The Lucene version to use. */
-    private static final Version VERSION = Version.LUCENE_6_6_5;
-
     /** The Lucene Analyzer. */
     private static final Analyzer ANALYZER = new KeywordAnalyzer();
 
@@ -176,7 +172,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
             }
             commitUserData.put(PROPERTY_NUM_ENTRIES, String.valueOf(numEntries));
 
-            writer.setCommitData(commitUserData);
+            writer.setLiveCommitData(commitUserData.entrySet());
             writer.commit();
             writer.close();
             return new LuceneDictionaryModel(directory);
