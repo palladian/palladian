@@ -44,7 +44,6 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 		LocationBuilder builder = new LocationBuilder();
 		builder.setId(resultSet.getInt("id"));
 		builder.setType(LocationType.values()[resultSet.getInt("type")]);
-		builder.setPrimaryName(resultSet.getString("name"));
 		Double latitude = SqlHelper.getDouble(resultSet, "latitude");
 		Double longitude = SqlHelper.getDouble(resultSet, "longitude");
 		if (latitude != null && longitude != null) {
@@ -52,17 +51,26 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 		}
 		builder.setPopulation(SqlHelper.getLong(resultSet, "population"));
 		builder.setAncestorIds(resultSet.getString("ancestorIds"));
-		String altNamesStr = resultSet.getString("altNames");
-		if (altNamesStr != null) {
-			String[] altNames = altNamesStr.split("#");
-			String[] altLangs = resultSet.getString("altLangs").split("#");
-			if (altLangs.length != altNames.length) {
-				throw new IllegalStateException();
-			}
-			for (int i = 0; i < altNames.length; i++) {
-				String altLang = altLangs[i];
-				Language lang = altLang.equals("_") ? null : Language.getByIso6391(altLang);
-				builder.addAlternativeName(altNames[i], lang);
+		String namesStr = resultSet.getString("names");
+		if (namesStr == null) {
+			throw new IllegalStateException("names was null");
+		}
+		String[] names = namesStr.split("#");
+		String[] langs = resultSet.getString("nameLangs").split("#");
+		String[] primary = resultSet.getString("namePrimary").split("#");
+		if (langs.length != names.length || langs.length != primary.length) {
+			throw new IllegalStateException(
+					String.format("Expected names and namesLangs arrays to have same lengths (%s vs. %s vs. %s)",
+							names.length, langs.length, primary.length));
+		}
+		for (int i = 0; i < names.length; i++) {
+			String lang = langs[i];
+			if ("1".equals(primary[i])) {
+				builder.setPrimaryName(names[i]);
+			} else if ("_".equals(lang)) {
+				builder.addAlternativeName(names[i], null);
+			} else {
+				builder.addAlternativeName(names[i], Language.getByIso6391(lang));
 			}
 		}
 		return builder.create();
@@ -104,17 +112,17 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 		String langPlaceholder = String.join(",", Collections.nCopies(languages.size(), "?"));
 		String sql = "SELECT " //
 				+ "  l.*, " //
-				+ "  GROUP_CONCAT(lan.alternativeName, '#') AS altNames, " //
-				+ "  GROUP_CONCAT(IFNULL(lan.language, '_'), '#') as altLangs " //
+				+ "  GROUP_CONCAT(n.name, '#') AS names, " //
+				+ "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
+				+ "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
 				+ "FROM locations l " //
-				+ "LEFT JOIN locations_alternative_names lan ON l.id = lan.locationId " //
+				+ "LEFT JOIN location_names n ON l.id = n.locationId " //
 				+ "WHERE " //
-				+ "	 (id IN (SELECT id FROM locations WHERE name = ? COLLATE NOCASE) OR " //
-				+ "	  id IN ( " //
+				+ "	 (id IN ( " //
 				+ "        SELECT locationId " //
-				+ "        FROM locations_alternative_names " //
+				+ "        FROM location_names " //
 				+ "        WHERE " //
-				+ "          alternativeName = ? COLLATE NOCASE AND " //
+				+ "          name = ? COLLATE NOCASE AND " //
 				+ "          (language IS NULL OR " //
 				+ "           language IN (" + langPlaceholder + "))" //
 				+ "        ))" //
@@ -131,7 +139,6 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 		for (String locationName : locationNames) {
 			List<Object> args = new ArrayList<>();
 			args.add(locationName);
-			args.add(locationName);
 			args.addAll(languages.stream().map(Language::getIso6391).collect(Collectors.toList()));
 			args.addAll(boxArgs);
 			List<Location> locations = runQuery(ROW_CONVERTER, sql, args);
@@ -147,12 +154,15 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 
 	@Override
 	public Location getLocation(int locationId) {
-		return runSingleQuery(ROW_CONVERTER,
-				"SELECT l.*, GROUP_CONCAT(lan.alternativeName, '#') AS altNames, GROUP_CONCAT(IFNULL(lan.language, '_'), '#') as altLangs " //
-						+ "FROM locations l " //
-						+ "LEFT JOIN locations_alternative_names lan ON l.id = lan.locationId " //
-						+ "WHERE l.id = ? " //
-						+ "GROUP BY l.id", //
+		return runSingleQuery(ROW_CONVERTER, "SELECT " //
+				+ "  l.*, " //
+				+ "  GROUP_CONCAT(n.name, '#') AS names, " //
+				+ "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
+				+ "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
+				+ "FROM locations l " //
+				+ "LEFT JOIN location_names n ON l.id = n.locationId " //
+				+ "WHERE l.id = ? " //
+				+ "GROUP BY l.id", //
 				locationId);
 	}
 
@@ -164,12 +174,15 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 	@Override
 	public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
 		double[] boundingBox = coordinate.getBoundingBox(distance);
-		List<Location> locations = runQuery(ROW_CONVERTER,
-				"SELECT l.*, GROUP_CONCAT(lan.alternativeName, '#') AS altNames, GROUP_CONCAT(IFNULL(lan.language, '_'), '#') as altLangs " //
-						+ "FROM locations l " //
-						+ "LEFT JOIN locations_alternative_names lan ON l.id = lan.locationId " //
-						+ "WHERE latitude > ? AND latitude < ? AND longitude > ? AND longitude < ? " //
-						+ "GROUP BY l.id", //
+		List<Location> locations = runQuery(ROW_CONVERTER, "SELECT " //
+				+ "  l.*, " //
+				+ "  GROUP_CONCAT(n.name, '#') AS names, " //
+				+ "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
+				+ "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
+				+ "FROM locations l " //
+				+ "LEFT JOIN location_names n ON l.id = n.locationId " //
+				+ "WHERE latitude > ? AND latitude < ? AND longitude > ? AND longitude < ? " //
+				+ "GROUP BY l.id", //
 				boundingBox[0], boundingBox[2], boundingBox[1], boundingBox[3]);
 		// remove locations out of the circle and sort by distance
 		return locations.stream() //
@@ -179,10 +192,13 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 
 	@Override
 	public Iterator<Location> getLocations() {
-		return runQueryWithIterator(ROW_CONVERTER,
-				"SELECT l.*, GROUP_CONCAT(lan.alternativeName, '#') AS altNames, GROUP_CONCAT(IFNULL(lan.language, '_'), '#') as altLangs " //
-						+ "FROM locations l, locations_alternative_names lan " //
-						+ "GROUP BY l.id");
+		return runQueryWithIterator(ROW_CONVERTER, "SELECT " //
+				+ "  l.*, " //
+				+ "  GROUP_CONCAT(n.name, '#') AS names, " //
+				+ "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
+				+ "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
+				+ "FROM locations l, location_names n " //
+				+ "GROUP BY l.id");
 	}
 
 	@Override
