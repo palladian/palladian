@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,7 +21,9 @@ import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -42,21 +45,30 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
     private final Map<String, Map<Integer, GeoCoordinate>> coordinates;
     private final int numFiles;
     private final File datasetDirectory;
+    private final Supplier<ProgressReporter> progressReporterSupplier;
 
     public TudLoc2013DatasetIterable(File datasetDirectory) {
+        this(datasetDirectory, ProgressMonitor::new);
+    }
+
+    public TudLoc2013DatasetIterable(File datasetDirectory, Supplier<ProgressReporter> progressReporterSupplier) {
         Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
         files = Arrays.asList(FileHelper.getFiles(datasetDirectory.getPath(), "text"));
         final File coordinateFile = new File(datasetDirectory, "coordinates.csv");
         coordinates = readCoordinates(coordinateFile);
         numFiles = files.size();
         this.datasetDirectory = datasetDirectory;
+        this.progressReporterSupplier = progressReporterSupplier != null ? progressReporterSupplier
+                : () -> NoProgress.INSTANCE;
     }
 
     @Override
     public Iterator<LocationDocument> iterator() {
+        ProgressReporter monitor = progressReporterSupplier.get();
+        monitor.startTask("Reading", numFiles);
+
         return new Iterator<LocationDocument>() {
             Iterator<File> fileIterator = files.iterator();
-            ProgressMonitor monitor = new ProgressMonitor(numFiles, 0);
 
             @Override
             public boolean hasNext() {
@@ -65,7 +77,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
 
             @Override
             public LocationDocument next() {
-                monitor.incrementAndPrintProgress();
+                monitor.increment();
                 File currentFile = fileIterator.next();
                 String fileContent = FileHelper.tryReadFileToString(currentFile);
                 String rawText = fileContent.replace(" role=\"main\"", "");
