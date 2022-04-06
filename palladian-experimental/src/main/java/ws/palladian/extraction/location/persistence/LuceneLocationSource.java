@@ -4,7 +4,6 @@ import static ws.palladian.extraction.location.LocationFilters.radius;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,8 +63,8 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      */
     private static final class LowerCaseKeywordAnalyzer extends Analyzer {
         @Override
-        protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
-            Tokenizer tokenizer = new KeywordTokenizer(reader);
+        protected TokenStreamComponents createComponents(String fieldName) {
+            Tokenizer tokenizer = new KeywordTokenizer();
             TokenFilter tokenFilter = new LowerCaseFilter(tokenizer);
             tokenFilter = new ASCIIFoldingFilter(tokenFilter);
             return new TokenStreamComponents(tokenizer, tokenFilter);

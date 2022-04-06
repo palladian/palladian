@@ -21,7 +21,7 @@ public class LuceneLocationSourceTest extends AbstractLocationStoreTest {
     @Override
     public LocationSource createLocationSource() {
         try {
-            return new LuceneLocationSource(FSDirectory.open(indexFile));
+            return new LuceneLocationSource(FSDirectory.open(indexFile.toPath()));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
