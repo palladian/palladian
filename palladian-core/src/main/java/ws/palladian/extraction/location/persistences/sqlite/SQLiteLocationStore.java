@@ -64,11 +64,16 @@ public class SQLiteLocationStore extends DatabaseManager implements LocationStor
         Optional<GeoCoordinate> coordinate = Optional.ofNullable(location.getCoordinate());
         locationBatch.add(Arrays.asList(location.getId(), //
                 location.getType().ordinal(), //
-                location.getPrimaryName(), //
                 coordinate.map(GeoCoordinate::getLatitude).orElse(null), //
                 coordinate.map(GeoCoordinate::getLongitude).orElse(null), //
                 location.getPopulation(), //
                 hierarchyString //
+        ));
+        alternativeNameBatch.add(Arrays.asList( //
+                location.getId(), //
+                location.getPrimaryName(), //
+                null, //
+                true
         ));
         addAlternativeNames(location.getId(), location.getAlternativeNames());
         flush(false);
@@ -80,7 +85,8 @@ public class SQLiteLocationStore extends DatabaseManager implements LocationStor
             alternativeNameBatch.add(Arrays.asList( //
                     locationId, //
                     alternativeName.getName(), //
-                    Optional.ofNullable(alternativeName.getLanguage()).map(Language::getIso6391).orElse(null) //
+                    Optional.ofNullable(alternativeName.getLanguage()).map(Language::getIso6391).orElse(null), //
+                    false
             ));
         }
         flush(false);
@@ -96,36 +102,33 @@ public class SQLiteLocationStore extends DatabaseManager implements LocationStor
         runUpdateOrThrow("CREATE TABLE IF NOT EXISTS locations (" //
                 + "id INTEGER PRIMARY KEY NOT NULL," //
                 + "type INTEGER NOT NULL DEFAULT 0," //
-                + "name TEXT NOT NULL," //
                 + "latitude REAL DEFAULT NULL," //
                 + "longitude REAL DEFAULT NULL," //
                 + "population INTEGER DEFAULT NULL," //
                 + "ancestorIds TEXT DEFAULT NULL" //
                 + ")");
-        runUpdateOrThrow("CREATE TABLE IF NOT EXISTS locations_alternative_names (" //
+        runUpdateOrThrow("CREATE TABLE IF NOT EXISTS location_names (" //
                 + "locationId INTEGER NOT NULL," //
-                + "alternativeName TEXT NOT NULL DEFAULT ''," //
-                + "language TEXT DEFAULT NULL" + //
-                ")");
+                + "name TEXT NOT NULL DEFAULT ''," //
+                + "language TEXT DEFAULT NULL," //
+                + "isPrimary INTEGER DEFAULT 0" //
+                + ")");
     }
 
     @Override
     public void finishImport() {
         flush(true);
 
-        runUpdateOrThrow("CREATE INDEX IF NOT EXISTS name ON locations (name COLLATE NOCASE)");
         runUpdateOrThrow("CREATE INDEX IF NOT EXISTS latitudeLongitude ON locations (latitude, longitude)");
 
-//        runUpdateOrThrow(
-//                "CREATE UNIQUE INDEX IF NOT EXISTS idNameLangUnique ON locations_alternative_names (locationId, alternativeName, language)");
-        runUpdateOrThrow("CREATE INDEX IF NOT EXISTS locationId ON locations_alternative_names (locationId)");
-        runUpdateOrThrow("CREATE INDEX IF NOT EXISTS alternativeName ON locations_alternative_names (alternativeName COLLATE NOCASE)");
+        runUpdateOrThrow("CREATE INDEX IF NOT EXISTS locationId ON location_names (locationId)");
+        runUpdateOrThrow("CREATE INDEX IF NOT EXISTS name ON location_names (name COLLATE NOCASE)");
     }
 
     private void flush(boolean force) {
         if (force || locationBatch.size() + alternativeNameBatch.size() > BATCH_INSERT_SIZE) {
-            runBatchInsertReturnIds("INSERT INTO locations VALUES (?, ?, ?, ?, ?, ?, ?)", locationBatch);
-            runBatchInsertReturnIds("INSERT INTO locations_alternative_names VALUES(?, ?, ?)", alternativeNameBatch);
+            runBatchInsertReturnIds("INSERT INTO locations VALUES (?, ?, ?, ?, ?, ?)", locationBatch);
+            runBatchInsertReturnIds("INSERT INTO location_names VALUES(?, ?, ?, ?)", alternativeNameBatch);
             locationBatch.clear();
             alternativeNameBatch.clear();
         }
