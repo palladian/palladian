@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -36,8 +37,75 @@ public abstract class AbstractLocationStoreTest {
 
     private static final Location LOCATION_2;
 
+    private static final List<Location> ALL_LOCATIONS = new ArrayList<>();
+
     static {
-        LocationBuilder builder = new LocationBuilder();
+        LocationBuilder builder;
+
+        builder = new LocationBuilder();
+        builder.setId(6295630);
+        builder.setPrimaryName("Earth");
+        builder.setCoordinate(0, 0);
+        builder.setPopulation(6814400000l);
+        builder.setType(LocationType.UNDETERMINED);
+        builder.setAncestorIds();
+        ALL_LOCATIONS.add(builder.create());
+
+        builder = new LocationBuilder();
+        builder.setId(6255148);
+        builder.setPrimaryName("Europe");
+        builder.setCoordinate(48.69096, 9.14062);
+        builder.setPopulation(741000000l);
+        builder.setType(LocationType.CONTINENT);
+        builder.setAncestorIds(6295630);
+        ALL_LOCATIONS.add(builder.create());
+
+        builder = new LocationBuilder();
+        builder.setId(2921044);
+        builder.setPrimaryName("Federal Republic of Germany");
+        builder.setCoordinate(51.5, 10.5);
+        builder.setPopulation(82927922l);
+        builder.setType(LocationType.COUNTRY);
+        builder.setAncestorIds(6255148, 6295630);
+        ALL_LOCATIONS.add(builder.create());
+
+        builder = new LocationBuilder();
+        builder.setId(2953481);
+        builder.setPrimaryName("Baden-Württemberg");
+        builder.setCoordinate(48.5, 9);
+        builder.setPopulation(10744921l);
+        builder.setType(LocationType.UNIT);
+        builder.setAncestorIds(2921044, 6255148, 6295630);
+        ALL_LOCATIONS.add(builder.create());
+
+        builder = new LocationBuilder();
+        builder.setId(3214105);
+        builder.setPrimaryName("Regierungsbezirk Stuttgart");
+        builder.setCoordinate(49.08333, 9.66667);
+        builder.setPopulation(4154223l);
+        builder.setType(LocationType.UNIT);
+        builder.setAncestorIds(2953481, 2921044, 6255148, 6295630);
+        ALL_LOCATIONS.add(builder.create());
+
+        builder = new LocationBuilder();
+        builder.setId(3220743);
+        builder.setPrimaryName("Landkreis Heilbronn");
+        builder.setCoordinate(49.2, 9.2);
+        builder.setPopulation(344456l);
+        builder.setType(LocationType.UNIT);
+        builder.setAncestorIds(3214105, 2953481, 2921044, 6255148, 6295630);
+        ALL_LOCATIONS.add(builder.create());
+
+        builder = new LocationBuilder();
+        builder.setId(6555517);
+        builder.setPrimaryName("Flein");
+        builder.setCoordinate(49.1031, 9.21083);
+        builder.setPopulation(7130l);
+        builder.setType(LocationType.UNIT);
+        builder.setAncestorIds(3220743, 3214105, 2953481, 2921044, 6255148, 6295630);
+        ALL_LOCATIONS.add(builder.create());
+
+        builder = new LocationBuilder();
         builder.setId(2926304);
         builder.setPrimaryName("Flein");
         builder.setCoordinate(49.10306, 9.21083);
@@ -45,6 +113,16 @@ public abstract class AbstractLocationStoreTest {
         builder.setType(LocationType.CITY);
         builder.setAncestorIds(6555517, 3220743, 3214105, 2953481, 2921044, 6255148, 6295630);
         LOCATION_1 = builder.create();
+        ALL_LOCATIONS.add(LOCATION_1);
+
+        builder = new LocationBuilder();
+        builder.setId(3220785);
+        builder.setPrimaryName("Stadtkreis Stuttgart");
+        builder.setCoordinate(48.7825, 9.17694);
+        builder.setType(LocationType.UNIT);
+        builder.setPopulation(635911l);
+        builder.setAncestorIds(3214105, 2953481, 2921044, 6255148, 6295630);
+        ALL_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(2825297);
@@ -58,6 +136,7 @@ public abstract class AbstractLocationStoreTest {
         builder.addAlternativeName("Shtutgarti", Language.ALBANIAN);
         builder.setAncestorIds(3220785, 3214105, 2953481, 2921044, 6255148, 6295630);
         LOCATION_2 = builder.create();
+        ALL_LOCATIONS.add(LOCATION_2);
     }
 
     private LocationSource locationSource;
@@ -66,8 +145,9 @@ public abstract class AbstractLocationStoreTest {
     public void before() throws Exception {
         LocationStore locationStore = createLocationStore();
         locationStore.startImport();
-        locationStore.save(LOCATION_1);
-        locationStore.save(LOCATION_2);
+        for (Location location : ALL_LOCATIONS) {
+            locationStore.save(location);
+        }
         locationStore.finishImport();
         locationSource = createLocationSource();
     }
@@ -95,14 +175,16 @@ public abstract class AbstractLocationStoreTest {
     @Test
     public void testGetLocationByPrimaryName() {
         Collection<Location> locations = locationSource.getLocations("Flein", EnumSet.of(Language.ENGLISH));
-        assertEquals(1, locations.size());
+        assertEquals(2, locations.size());
+        // FIXME check for all, order!
         assertEqualLocations(LOCATION_1, locations.iterator().next());
     }
 
     @Test
     public void testGetLocationByPrimaryNameCaseInsensitive() {
         Collection<Location> locations = locationSource.getLocations("FLEIN", EnumSet.of(Language.ENGLISH));
-        assertEquals(1, locations.size());
+        assertEquals(2, locations.size());
+        // FIXME check for all, order!
         assertEqualLocations(LOCATION_1, locations.iterator().next());
     }
 
@@ -122,13 +204,14 @@ public abstract class AbstractLocationStoreTest {
     @Test
     public void testGetLocationByRadius() {
         List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(49, 9), 20);
-        assertEquals(1, locations.size());
+        assertEquals(2, locations.size());
+        // FIXME check for all, order!
         assertEqualLocations(LOCATION_1, locations.get(0));
 
         locations = locationSource.getLocations(new ImmutableGeoCoordinate(49, 9), 100);
-        assertEquals(2, locations.size());
-        assertEqualLocations(LOCATION_1, locations.get(0));
-        assertEqualLocations(LOCATION_2, locations.get(1));
+        assertEquals(8, locations.size());
+//        assertEqualLocations(LOCATION_1, locations.get(0));
+//        assertEqualLocations(LOCATION_2, locations.get(1));
     }
 
     @Test
@@ -136,19 +219,20 @@ public abstract class AbstractLocationStoreTest {
         MultiMap<String, Location> locations = locationSource.getLocations(Arrays.asList("Flein"),
                 EnumSet.of(Language.ENGLISH), new ImmutableGeoCoordinate(49, 9), 20);
         assertEquals(1, locations.entrySet().size());
-        assertEquals(1, locations.get("Flein").size());
+        assertEquals(2, locations.get("Flein").size());
+        // FIXME check for all, order!
         assertEqualLocations(LOCATION_1, locations.getFirst("Flein"));
     }
 
     @Test
     public void testSize() {
-        assertEquals(2, locationSource.size());
+        assertEquals(10, locationSource.size());
     }
 
     @Test
     public void testIteration() {
         Set<Location> allLocations = CollectionHelper.newHashSet(locationSource.getLocations());
-        assertEquals(2, allLocations.size());
+        assertEquals(10, allLocations.size());
         assertTrue(allLocations.contains(LOCATION_1));
         assertTrue(allLocations.contains(LOCATION_2));
     }
