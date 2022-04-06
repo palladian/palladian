@@ -22,9 +22,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FloatField;
+import org.apache.lucene.document.LegacyDoubleField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
@@ -231,7 +230,7 @@ public final class LuceneLocationStore implements LocationStore {
         // when changing back to double, make sure to revert the range queries in
         // ws.palladian.extraction.location.persistence.LuceneLocationSource.getLocations(GeoCoordinate, double)
         if (stringValue != null) {
-            document.add(new DoubleField(fieldName, Double.parseDouble(stringValue), Field.Store.YES));
+            document.add(new LegacyDoubleField(fieldName, Double.parseDouble(stringValue), Field.Store.YES));
         }
     }
 

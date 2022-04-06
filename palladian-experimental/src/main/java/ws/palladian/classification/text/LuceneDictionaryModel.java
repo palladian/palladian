@@ -126,7 +126,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     private static final String PROPERTY_NAME = "name";
 
     /** The Lucene version to use. */
-    private static final Version VERSION = Version.LUCENE_4_7;
+    private static final Version VERSION = Version.LUCENE_6_6_5;
 
     /** The Lucene Analyzer. */
     private static final Analyzer ANALYZER = new KeywordAnalyzer();
