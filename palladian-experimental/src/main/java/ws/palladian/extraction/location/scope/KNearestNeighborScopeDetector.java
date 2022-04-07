@@ -172,9 +172,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             Validate.notNull(documentIterator, "documentIterator must not be null");
             Analyzer analyzer = new FeatureSettingAnalyzer(featureSetting);
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
-            IndexWriter indexWriter = null;
-            try {
-                indexWriter = new IndexWriter(directory, indexWriterConfig);
+            try (IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig)) {
                 for (LocationDocument locationDocument : documentIterator) {
                     Location location = locationDocument.getMainLocation();
                     if (location == null) {
@@ -195,8 +193,6 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                 indexWriter.commit();
             } catch (IOException e) {
                 throw new IllegalStateException(e);
-            } finally {
-                FileHelper.close(indexWriter);
             }
             return new NearestNeighborScopeModel(directory);
         }

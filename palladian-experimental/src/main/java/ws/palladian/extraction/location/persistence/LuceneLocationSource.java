@@ -180,26 +180,13 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      * @throws IllegalStateException In case something goes wrong.
      */
     private static String analyze(String locationName) {
-        TokenStream stream = null;
-        try {
-            stream = ANALYZER.tokenStream(null, new StringReader(locationName));
+        try (TokenStream stream = ANALYZER.tokenStream(null, new StringReader(locationName))) {
             stream.reset();
             if (stream.incrementToken()) {
                 return stream.getAttribute(CharTermAttribute.class).toString();
             }
         } catch (IOException e) {
             throw new IllegalStateException("Encountered IOException while analyzing", e);
-        } finally {
-            try {
-                stream.end();
-            } catch (Exception e) {
-                // ignore
-            }
-            try {
-                stream.close();
-            } catch (Exception e) {
-                // ignore
-            }
         }
         return locationName;
     }
