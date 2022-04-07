@@ -8,7 +8,6 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -55,7 +54,7 @@ final class DatasetCheck {
         }
 
         // keep tag -> values
-        Map<String, Bag<String>> assignedTagCounts = LazyMap.create(new Bag.BagFactory<String>());
+        Map<String, Bag<String>> assignedTagCounts = new LazyMap<>(Bag::new);
 
         int tokenCount = 0;
         int scopedDocCount = 0;
@@ -67,12 +66,7 @@ final class DatasetCheck {
             Matcher matcher = TAG_REGEX.matcher(stringContent);
 
             // keep value -> assigned tags
-            Map<String, Set<String>> valueTags = LazyMap.create(new Factory<Set<String>>() {
-                @Override
-                public Set<String> create() {
-                    return new HashSet<>();
-                }
-            });
+            Map<String, Set<String>> valueTags = new LazyMap<>(HashSet::new);
 
             // get token count
             tokenCount += Tokenizer.tokenize(FileFormatParser.getText(filePath, TaggingFormat.XML)).size();
@@ -187,8 +181,8 @@ final class DatasetCheck {
     static void getNonDisambiguatedStatistics(File datasetPath) {
         File coordinatesFile = new File(datasetPath, "coordinates.csv");
         Map<String, Map<Integer, GeoCoordinate>> coordinates = TudLoc2013DatasetIterable.readCoordinates(coordinatesFile);
-        Bag<String> totalTypeCounts = Bag.create();
-        Bag<String> disambiguatedTypeCounts = Bag.create();
+        Bag<String> totalTypeCounts = new Bag<>();
+        Bag<String> disambiguatedTypeCounts = new Bag<>();
         int mainRoleCount = 0;
 
         File[] files = FileHelper.getFiles(datasetPath.getPath(), "text");

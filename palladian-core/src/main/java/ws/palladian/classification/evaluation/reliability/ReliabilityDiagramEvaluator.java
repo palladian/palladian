@@ -86,7 +86,7 @@ public class ReliabilityDiagramEvaluator extends AbstractClassificationEvaluator
 
 		Bag<Integer> binnedItemCounts = new Bag<>();
 		Bag<Integer> binnedPositiveCounts = new Bag<>();
-		Map<Integer, Stats> binnedPredictionStats = new LazyMap<>(SlimStats.FACTORY);
+		Map<Integer, Stats> binnedPredictionStats = new LazyMap<>(SlimStats::new);
 		int n = 0;
 		double logLoss = 0;
 

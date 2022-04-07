@@ -8,7 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -216,16 +216,16 @@ public final class GridCreator implements Iterable<GridCell> {
         
         final int numX = getNumCellsX();
 //        final int numY = getNumCellsY();
-        return new AbstractIterator<GridCell>() {
+        return new AbstractIterator2<GridCell>() {
             private int xId = 0;
 //            private int yId = 0;
             private int yId = getNumCellsY()-1;
 
             @Override
-            protected GridCell getNext() throws Finished {
+            protected GridCell getNext() {
 //                if (yId == numY) {
                 if (yId < 0 && xId == 0) {
-                    throw FINISHED;
+                    return finished();
                 }
                 GridCell cell = getCell(xId, yId);
                 if (++xId == numX) {

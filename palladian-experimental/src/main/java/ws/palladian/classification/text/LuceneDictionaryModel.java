@@ -32,7 +32,7 @@ import org.apache.lucene.util.Version;
 
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import java.util.function.Predicate;
 
 /**
@@ -311,13 +311,13 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
 
     @Override
     public Iterator<DictionaryEntry> iterator() {
-        return new AbstractIterator<DictionaryEntry>() {
+        return new AbstractIterator2<DictionaryEntry>() {
             int idx = -1;
 
             @Override
-            protected DictionaryEntry getNext() throws Finished {
+            protected DictionaryEntry getNext() {
                 if (idx >= reader.maxDoc()) {
-                    throw FINISHED;
+                    return finished();
                 }
                 try {
                     for (idx++; idx < reader.maxDoc(); idx++) {
@@ -327,7 +327,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
                             return new ImmutableDictionaryEntry(term, getCategoryEntries(termVector));
                         }
                     }
-                    throw FINISHED;
+                    return finished();
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }

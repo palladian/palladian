@@ -56,7 +56,9 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * @author Philipp Katz
      * 
      * @param <T>
+     * @deprecated No longer needed; with Java 8 just use <code>Bag::new</code>.
      */
+    @Deprecated
     public static final class BagFactory<T> implements Factory<Bag<T>> {
         @Override
         public Bag<T> create() {

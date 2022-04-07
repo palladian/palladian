@@ -80,7 +80,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
         public static final String UNDETERMINED = "## undetermined ##";
 
         private final GridCreator gridCreator;
-        private final Map<String, CoordinateStats> cellStatsMap = LazyMap.create(CoordinateStats.FACTORY);
+        private final Map<String, CoordinateStats> cellStatsMap = new LazyMap<>(CoordinateStats::new);
 
         GridConverter(GridCreator gridCreator) {
             this.gridCreator = gridCreator;
