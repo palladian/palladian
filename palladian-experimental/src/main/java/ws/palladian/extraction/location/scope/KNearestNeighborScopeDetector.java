@@ -209,7 +209,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             Query query = queryCreator.createQuery(text, reader, analyzer);
             LOGGER.trace("{} = {}", query.getClass().getSimpleName(), query);
             TopDocs searchResult = searcher.search(query, k);
-            if (searchResult.totalHits == 0) {
+            if (searchResult.totalHits.value == 0) {
                 return null;
             }
             List<GeoCoordinate> coordinates = new ArrayList<>();

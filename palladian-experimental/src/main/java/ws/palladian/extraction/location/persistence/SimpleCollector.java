@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.search.ScoreMode;
 
 /**
  * This class collects search results; we need no scoring and accept the documents in any order here, which yields
@@ -26,8 +27,8 @@ final class SimpleCollector extends org.apache.lucene.search.SimpleCollector {
     }
 
     @Override
-    public boolean needsScores() {
-        return false;
+    public ScoreMode scoreMode() {
+        return ScoreMode.TOP_DOCS;
     }
 
 }
