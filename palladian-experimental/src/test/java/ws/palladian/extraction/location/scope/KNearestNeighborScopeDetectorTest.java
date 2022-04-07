@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.junit.Test;
 
 import ws.palladian.classification.text.FeatureSetting;
@@ -35,7 +35,7 @@ public class KNearestNeighborScopeDetectorTest {
     public void testNearestNeighborScopeDetector() throws IOException {
         FeatureSetting featureSetting = FeatureSettingBuilder.words().create();
         List<LocationDocument> docs = getTestDocs();
-        NearestNeighborScopeModel model = new NearestNeighborScopeDetectorLearner(new RAMDirectory(), featureSetting)
+        NearestNeighborScopeModel model = new NearestNeighborScopeDetectorLearner(new ByteBuffersDirectory(), featureSetting)
                 .train(docs);
 
         ScopeDetector detector = new KNearestNeighborScopeDetector(model, 1, BOOLEAN_QUERY_CREATOR);
