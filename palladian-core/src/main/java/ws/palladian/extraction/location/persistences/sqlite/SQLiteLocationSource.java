@@ -197,7 +197,7 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
 				+ "  GROUP_CONCAT(n.name, '#') AS names, " //
 				+ "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
 				+ "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
-				+ "FROM locations l, location_names n " //
+				+ "FROM locations l, location_names n ON l.id = n.locationId " //
 				+ "GROUP BY l.id");
 	}
 
