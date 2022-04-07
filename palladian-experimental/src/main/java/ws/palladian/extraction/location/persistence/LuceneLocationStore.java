@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.lucene.codecs.lucene87.Lucene87Codec;
+import org.apache.lucene.codecs.lucene87.Lucene87Codec.Mode;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -181,6 +183,7 @@ public final class LuceneLocationStore implements LocationStore {
         tempIndexWriter.close();
 
         IndexWriterConfig config = new IndexWriterConfig(ANALYZER);
+        config.setCodec(new Lucene87Codec(Mode.BEST_COMPRESSION));
         try (FSDirectory resultDirectory = FSDirectory.open(indexFile.toPath());
                 IndexWriter resultWriter = new IndexWriter(resultDirectory, config);
                 IndexReader tempReader = DirectoryReader.open(tempDirectory)) {
