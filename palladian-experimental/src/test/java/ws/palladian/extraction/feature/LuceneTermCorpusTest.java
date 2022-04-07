@@ -14,16 +14,12 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
-import ws.palladian.helper.io.FileHelper;
-
 public class LuceneTermCorpusTest {
 
     private static Directory getSample() {
         IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
         Directory directory = new RAMDirectory();
-        IndexWriter writer = null;
-        try {
-            writer = new IndexWriter(directory, config);
+        try (IndexWriter writer = new IndexWriter(directory, config)) {
             writer.addDocument(createDoc("the quick brown fox"));
             writer.addDocument(createDoc("the fast red car"));
             writer.addDocument(createDoc("the lazy black cat"));
@@ -31,8 +27,6 @@ public class LuceneTermCorpusTest {
             writer.addDocument(createDoc("the brown fox sees a red and a black cat"));
         } catch (IOException e) {
             throw new IllegalStateException();
-        } finally {
-            FileHelper.close(writer);
         }
         return directory;
     }

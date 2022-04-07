@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 // http://stackoverflow.com/questions/19423889/getting-term-counts-in-lucene-4-index
@@ -37,16 +36,13 @@ public class LuceneTermCorpus extends AbstractTermCorpus {
     @Override
     public int getCount(String term) {
         StopWatch stopWatch = new StopWatch();
-        IndexReader reader = null;
-        try {
-            reader = DirectoryReader.open(directory);
+        try (IndexReader reader = DirectoryReader.open(directory)) {
             String lowerCase = term.toLowerCase();
             String upperCase = StringHelper.upperCaseFirstLetter(lowerCase);
             return reader.docFreq(new Term(FIELD_NAME, lowerCase)) + reader.docFreq(new Term(FIELD_NAME, upperCase));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } finally {
-            FileHelper.close(reader);
             LOGGER.debug("getCount query took {}", stopWatch);
         }
     }
@@ -65,14 +61,10 @@ public class LuceneTermCorpus extends AbstractTermCorpus {
      * @return The # of docs in the index.
      */
     private int fetchNumDocs() {
-        IndexReader indexReader = null;
-        try {
-            indexReader = DirectoryReader.open(directory);
+        try (IndexReader indexReader = DirectoryReader.open(directory)) {
             return indexReader.numDocs();
         } catch (IOException e) {
             throw new IllegalStateException(e);
-        } finally {
-            FileHelper.close(indexReader);
         }
     }
 

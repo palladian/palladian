@@ -22,7 +22,6 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
 
 /**
  * A Lucene {@link Analyzer} which can be configured using a Palladian {@link FeatureSetting}.
@@ -79,9 +78,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
 
     public List<String> analyze(String string) {
         List<String> result = new ArrayList<String>();
-        TokenStream stream = null;
-        try {
-            stream = tokenStream(null, new StringReader(string));
+        try (TokenStream stream = tokenStream(null, new StringReader(string))) {
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString());
@@ -89,8 +86,6 @@ public class FeatureSettingAnalyzer extends Analyzer {
         } catch (IOException e) {
             // not thrown b/c we're using a string reader...
             throw new RuntimeException(e);
-        } finally {
-            FileHelper.close(stream);
         }
         return result;
     }
