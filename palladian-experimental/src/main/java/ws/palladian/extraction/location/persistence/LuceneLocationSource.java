@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
@@ -46,7 +46,6 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.AbstractIterator2;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
@@ -274,7 +273,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     @Override
     public Location getLocation(int locationId) {
         Query query = new TermQuery(new Term(FIELD_ID, String.valueOf(locationId)));
-        return CollectionHelper.getFirst(queryLocations(query, searcher, reader));
+        return queryLocations(query, searcher, reader).stream().findFirst().orElse(null);
     }
 
     @Override
@@ -318,10 +317,12 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 		}
 		List<Location> locations = new ArrayList<>(queryLocations(query.build(), searcher, reader));
 		if (coordinate != null) {
-			// remove locations out of the box
-			locations = CollectionHelper.filterList(locations, radius(coordinate, distance));
-			// sort them by distance to given coordinate
-			Collections.sort(locations, LocationExtractorUtils.distanceComparator(coordinate));
+			locations = locations.stream() //
+					.filter(radius(coordinate, distance)) //
+					// remove locations out of the box
+					.sorted(LocationExtractorUtils.distanceComparator(coordinate)) //
+					// sort them by distance to given coordinate
+					.collect(Collectors.toList());
 		}
 		return locations;
 	}
