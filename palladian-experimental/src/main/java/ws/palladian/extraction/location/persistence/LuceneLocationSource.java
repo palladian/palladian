@@ -5,6 +5,7 @@ import static ws.palladian.extraction.location.LocationFilters.radius;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,6 +47,8 @@ import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.DefaultMultiMap;
+import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
@@ -140,25 +143,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        try {
-            // location name also needs to be processed by analyzer; after all we could just lowercase here,
-            // but in case we change our analyzer, this method keeps it consistent
-            String analyzedName = analyze(locationName);
-            BooleanQuery.Builder query = new BooleanQuery.Builder();
-            query.setMinimumNumberShouldMatch(1);
-            // search for primary names
-            query.add(new TermQuery(new Term(FIELD_NAME, analyzedName + PRIMARY_NAME_MARKER)), Occur.SHOULD);
-            // search for alternative names without language determiner
-            query.add(new TermQuery(new Term(FIELD_NAME, analyzedName)), Occur.SHOULD);
-            // search for alternative names in all specified languages
-            for (Language language : languages) {
-                String nameLanguageString = analyzedName + NAME_LANGUAGE_SEPARATOR + language.getIso6391();
-                query.add(new TermQuery(new Term(FIELD_NAME, nameLanguageString)), Occur.SHOULD);
-            }
-            return queryLocations(query.build(), searcher, reader);
-        } catch (IOException e) {
-            throw new IllegalStateException("Encountered IOException while getting locations", e);
-        }
+        return queryLocations(locationName, languages, null, 0);
     }
 
     @Override
@@ -193,9 +178,9 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      *
      * @param locationName The location name to process.
      * @return The processed location name (e.g. lower cased, depending on the actual {@link Analyzer} used.
-     * @throws IOException In case something goes wrong.
+     * @throws IllegalStateException In case something goes wrong.
      */
-    private static String analyze(String locationName) throws IOException {
+    private static String analyze(String locationName) {
         TokenStream stream = null;
         try {
             stream = ANALYZER.tokenStream(null, new StringReader(locationName));
@@ -203,9 +188,19 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             if (stream.incrementToken()) {
                 return stream.getAttribute(CharTermAttribute.class).toString();
             }
+        } catch (IOException e) {
+        	throw new IllegalStateException("Encountered IOException while analyzing", e);
         } finally {
-            stream.end();
-            stream.close();
+        	try {
+        		stream.end();
+        	} catch (Exception e) {
+        		// ignore
+        	}
+        	try {
+        		stream.close();
+        	} catch (Exception e) {
+        		// ignore
+        	}
         }
         return locationName;
     }
@@ -284,19 +279,52 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     @Override
     public List<Location> getLocations(final GeoCoordinate coordinate, double distance) {
-        double[] box = coordinate.getBoundingBox(distance);
-        BooleanQuery.Builder query = new BooleanQuery.Builder();
-        // we're using floats here, see comment in
-        // ws.palladian.extraction.location.persistence.LuceneLocationStore.save(Location)
-        query.add(DoublePoint.newRangeQuery(FIELD_LAT, box[0], box[2]), Occur.MUST);
-        query.add(DoublePoint.newRangeQuery(FIELD_LNG, box[1], box[3]), Occur.MUST);
-        Collection<Location> retrievedLocations = queryLocations(query.build(), searcher, reader);
-        // remove locations out of the box
-        List<Location> filtered = CollectionHelper.filterList(retrievedLocations, radius(coordinate, distance));
-        // sort them by distance to given coordinate
-        Collections.sort(filtered, LocationExtractorUtils.distanceComparator(coordinate));
-        return filtered;
+    	return queryLocations(null, null, coordinate, distance);
     }
+    
+	@Override
+	public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
+			GeoCoordinate coordinate, double distance) {
+		MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
+		for (String locationName : locationNames) {
+			result.put(locationName, queryLocations(locationName, languages, coordinate, distance));
+		}
+		return result;
+	}
+	
+	private List<Location> queryLocations(String locationName, Set<Language> languages, GeoCoordinate coordinate, double distance) {
+		BooleanQuery.Builder query = new BooleanQuery.Builder();
+		if (locationName != null) {
+			// location name also needs to be processed by analyzer; after all we could just lowercase here,
+			// but in case we change our analyzer, this method keeps it consistent
+			String analyzedName = analyze(locationName);
+			query.setMinimumNumberShouldMatch(1);
+			// search for primary names
+			query.add(new TermQuery(new Term(FIELD_NAME, analyzedName + PRIMARY_NAME_MARKER)), Occur.SHOULD);
+			// search for alternative names without language determiner
+			query.add(new TermQuery(new Term(FIELD_NAME, analyzedName)), Occur.SHOULD);
+			// search for alternative names in all specified languages
+			for (Language language : languages) {
+			    String nameLanguageString = analyzedName + NAME_LANGUAGE_SEPARATOR + language.getIso6391();
+			    query.add(new TermQuery(new Term(FIELD_NAME, nameLanguageString)), Occur.SHOULD);
+			}
+		}
+		if (coordinate != null) {
+			double[] box = coordinate.getBoundingBox(distance);
+			// we're using floats here, see comment in
+			// ws.palladian.extraction.location.persistence.LuceneLocationStore.save(Location)
+			query.add(DoublePoint.newRangeQuery(FIELD_LAT, box[0], box[2]), Occur.MUST);
+			query.add(DoublePoint.newRangeQuery(FIELD_LNG, box[1], box[3]), Occur.MUST);
+		}
+		List<Location> locations = new ArrayList<>(queryLocations(query.build(), searcher, reader));
+		if (coordinate != null) {
+			// remove locations out of the box
+			locations = CollectionHelper.filterList(locations, radius(coordinate, distance));
+			// sort them by distance to given coordinate
+			Collections.sort(locations, LocationExtractorUtils.distanceComparator(coordinate));
+		}
+		return locations;
+	}
 
     @Override
     public int size() {
