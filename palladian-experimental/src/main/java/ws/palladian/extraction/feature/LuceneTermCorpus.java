@@ -7,7 +7,7 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.NIOFSDirectory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +87,7 @@ public class LuceneTermCorpus extends AbstractTermCorpus {
     }
 
     public static void main(String[] args) throws IOException {
-        Directory directory = new NIOFSDirectory(new File("/Volumes/LaCie500/ClueWeb09").toPath());
+        Directory directory = new SimpleFSDirectory(new File("/Volumes/LaCie500/ClueWeb09").toPath());
         LuceneTermCorpus frequencies = new LuceneTermCorpus(directory);
         System.out.println(frequencies.getIdf("philipp", false));
         System.out.println(frequencies.getIdf("Philipp", false));
