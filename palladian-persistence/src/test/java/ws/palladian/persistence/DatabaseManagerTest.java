@@ -22,8 +22,8 @@ import org.junit.Test;
 public class DatabaseManagerTest {
 
     // test prepared statements
-    private static final String CREATE_TABLE = "CREATE TABLE test (id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, name VARCHAR(255), age INTEGER, weight REAL, cool BOOLEAN, PRIMARY KEY (id));";
-    private static final String CREATE_TABLE_2 = "CREATE TABLE test2 (name VARCHAR(255), age INTEGER, weight REAL, cool BOOLEAN, PRIMARY KEY (name));";
+    private static final String CREATE_TABLE = "CREATE TABLE test (id INTEGER NOT NULL AUTO_INCREMENT, name VARCHAR(255), age INTEGER, weight REAL, cool BOOLEAN, PRIMARY KEY (id));";
+    private static final String CREATE_TABLE_2 = "CREATE TABLE test2 (name VARCHAR(255) UNIQUE, age INTEGER, weight REAL, cool BOOLEAN);";
     private static final String DROP_TABLE = "DROP TABLE test";
     private static final String DROP_TABLE_2 = "DROP TABLE test2";
     private static final String INSERT_TEST = "INSERT INTO test (name, age, weight, cool) VALUES (?, ?, ?, ?)";
