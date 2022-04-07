@@ -126,14 +126,18 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 				+ "     language = ANY (?)" //
 				+ "    )" //
 				+ "  ))" //
-				+ "  AND coordinate && ? " //
+				+ "  AND (? IS NULL OR coordinate && ?) " //
 				+ "GROUP BY l.id";
 		MultiMap<String, Location> result = DefaultMultiMap.createWithList();
+		String polygon = Optional.ofNullable(coordinate) //
+				.map(c -> makeBoundingPolygon(coordinate, distance)) //
+				.orElse(null);
 		for (String locationName : locationNames) {
 			List<Object> args = new ArrayList<>();
 			args.add(locationName);
 			args.add(languages.stream().map(Language::getIso6391).toArray(String[]::new));
-			args.add(makeBoundingPolygon(coordinate, distance));
+			args.add(polygon);
+			args.add(polygon);
 			List<Location> locations = runQuery(ROW_CONVERTER, sql, args);
 			if (coordinate != null) {
 				locations = locations.stream() //
