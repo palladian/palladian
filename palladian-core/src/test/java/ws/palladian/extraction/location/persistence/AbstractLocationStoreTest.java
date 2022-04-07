@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.After;
@@ -33,11 +34,7 @@ public abstract class AbstractLocationStoreTest {
     
     private static final double EPSILON = 0.001;
 
-    private static final Location LOCATION_1;
-
-    private static final Location LOCATION_2;
-    
-    private static final List<Location> ALL_LOCATIONS = new ArrayList<>();
+    private static final List<Location> TEST_LOCATIONS = new ArrayList<>();
 
     static {
         LocationBuilder builder;
@@ -49,7 +46,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(6814400000l);
         builder.setType(LocationType.UNDETERMINED);
         builder.setAncestorIds();
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(6255148);
@@ -58,7 +55,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(741000000l);
         builder.setType(LocationType.CONTINENT);
         builder.setAncestorIds(6295630);
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(2921044);
@@ -67,7 +64,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(82927922l);
         builder.setType(LocationType.COUNTRY);
         builder.setAncestorIds(6255148, 6295630);
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(2953481);
@@ -76,7 +73,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(10744921l);
         builder.setType(LocationType.UNIT);
         builder.setAncestorIds(2921044, 6255148, 6295630);
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(3214105);
@@ -85,7 +82,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(4154223l);
         builder.setType(LocationType.UNIT);
         builder.setAncestorIds(2953481, 2921044, 6255148, 6295630);
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(3220743);
@@ -94,7 +91,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(344456l);
         builder.setType(LocationType.UNIT);
         builder.setAncestorIds(3214105, 2953481, 2921044, 6255148, 6295630);
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(6555517);
@@ -103,7 +100,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(7130l);
         builder.setType(LocationType.UNIT);
         builder.setAncestorIds(3220743, 3214105, 2953481, 2921044, 6255148, 6295630);
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(2926304);
@@ -112,8 +109,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setPopulation(6558l);
         builder.setType(LocationType.CITY);
         builder.setAncestorIds(6555517, 3220743, 3214105, 2953481, 2921044, 6255148, 6295630);
-        LOCATION_1 = builder.create();
-        ALL_LOCATIONS.add(LOCATION_1);
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(3220785);
@@ -122,7 +118,7 @@ public abstract class AbstractLocationStoreTest {
         builder.setType(LocationType.UNIT);
         builder.setPopulation(635911l);
         builder.setAncestorIds(3214105, 2953481, 2921044, 6255148, 6295630);
-        ALL_LOCATIONS.add(builder.create());
+        TEST_LOCATIONS.add(builder.create());
 
         builder = new LocationBuilder();
         builder.setId(2825297);
@@ -135,8 +131,7 @@ public abstract class AbstractLocationStoreTest {
         builder.addAlternativeName("Stuttgart", Language.SPANISH);
         builder.addAlternativeName("Shtutgarti", Language.ALBANIAN);
         builder.setAncestorIds(3220785, 3214105, 2953481, 2921044, 6255148, 6295630);
-        LOCATION_2 = builder.create();
-        ALL_LOCATIONS.add(LOCATION_2);
+        TEST_LOCATIONS.add(builder.create());
     }
 
     private LocationSource locationSource;
@@ -145,7 +140,7 @@ public abstract class AbstractLocationStoreTest {
     public void before() throws Exception {
         LocationStore locationStore = createLocationStore();
         locationStore.startImport();
-        for (Location location : ALL_LOCATIONS) {
+        for (Location location : TEST_LOCATIONS) {
             locationStore.save(location);
         }
         locationStore.finishImport();
@@ -159,7 +154,7 @@ public abstract class AbstractLocationStoreTest {
 
     @Test
     public void testGetLocationById() {
-        assertEqualLocations(LOCATION_1, locationSource.getLocation(2926304));
+        assertEqualLocations(byId(2926304, TEST_LOCATIONS), locationSource.getLocation(2926304));
     }
 
     @Test
@@ -169,30 +164,34 @@ public abstract class AbstractLocationStoreTest {
 
     @Test
     public void testGetLocationWithAlternativeNamesById() {
-        assertEqualLocations(LOCATION_2, locationSource.getLocation(2825297));
+        assertEqualLocations(byId(2825297, TEST_LOCATIONS), locationSource.getLocation(2825297));
     }
 
     @Test
     public void testGetLocationByPrimaryName() {
         Collection<Location> locations = locationSource.getLocations("Flein", EnumSet.of(Language.ENGLISH));
         assertEquals(2, locations.size());
-        // FIXME check for all, order!
-        assertEqualLocations(LOCATION_1, locations.iterator().next());
+        assertContainsLocation(6555517, locations);
+        assertContainsLocation(2926304, locations);
+        assertEqualLocations(byId(6555517, TEST_LOCATIONS), byId(6555517, locations));
+        assertEqualLocations(byId(2926304, TEST_LOCATIONS), byId(2926304, locations));
     }
 
     @Test
     public void testGetLocationByPrimaryNameCaseInsensitive() {
         Collection<Location> locations = locationSource.getLocations("FLEIN", EnumSet.of(Language.ENGLISH));
         assertEquals(2, locations.size());
-        // FIXME check for all, order!
-        assertEqualLocations(LOCATION_1, locations.iterator().next());
+        assertContainsLocation(6555517, locations);
+        assertContainsLocation(2926304, locations);
+        assertEqualLocations(byId(6555517, TEST_LOCATIONS), byId(6555517, locations));
+        assertEqualLocations(byId(2926304, TEST_LOCATIONS), byId(2926304, locations));
     }
 
     @Test
     public void testGetLocationByAlternativeName() {
         Collection<Location> locations = locationSource.getLocations("Shtutgarti", EnumSet.of(Language.ALBANIAN));
         assertEquals(1, locations.size());
-        assertEqualLocations(LOCATION_2, locations.iterator().next());
+        assertEqualLocations(byId(2825297, TEST_LOCATIONS), locations.iterator().next());
     }
 
     @Test
@@ -205,23 +204,42 @@ public abstract class AbstractLocationStoreTest {
     public void testGetLocationByRadius() {
         List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(49, 9), 20);
         assertEquals(2, locations.size());
-        // FIXME check for all, order!
-        assertEqualLocations(LOCATION_1, locations.get(0));
+        assertContainsLocation(2926304, locations);
+        assertContainsLocation(6555517, locations);
+        assertEqualLocations(byId(2926304, TEST_LOCATIONS), byId(2926304, locations));
+        assertEqualLocations(byId(6555517, TEST_LOCATIONS), byId(6555517, locations));
 
         locations = locationSource.getLocations(new ImmutableGeoCoordinate(49, 9), 100);
         assertEquals(8, locations.size());
-//		assertEqualLocations(LOCATION_1, locations.get(0));
-//		assertEqualLocations(LOCATION_2, locations.get(1));
+        assertContainsLocation(6255148, locations);
+        assertContainsLocation(2953481, locations);
+        assertContainsLocation(3214105, locations);
+        assertContainsLocation(3220743, locations);
+        assertContainsLocation(6555517, locations);
+        assertContainsLocation(2926304, locations);
+        assertContainsLocation(3220785, locations);
+        assertContainsLocation(2825297, locations);
+        assertEqualLocations(byId(6255148, TEST_LOCATIONS), byId(6255148, locations));
+        assertEqualLocations(byId(2953481, TEST_LOCATIONS), byId(2953481, locations));
+        assertEqualLocations(byId(3214105, TEST_LOCATIONS), byId(3214105, locations));
+        assertEqualLocations(byId(3220743, TEST_LOCATIONS), byId(3220743, locations));
+        assertEqualLocations(byId(6555517, TEST_LOCATIONS), byId(6555517, locations));
+        assertEqualLocations(byId(2926304, TEST_LOCATIONS), byId(2926304, locations));
+        assertEqualLocations(byId(3220785, TEST_LOCATIONS), byId(3220785, locations));
+        assertEqualLocations(byId(2825297, TEST_LOCATIONS), byId(2825297, locations));
     }
-    
+
     @Test
     public void testGetLocationByNameAndRadius() {
         MultiMap<String, Location> locations = locationSource.getLocations(Arrays.asList("Flein"),
-                EnumSet.of(Language.ENGLISH), new ImmutableGeoCoordinate(49, 9), 20_00000);
+                EnumSet.of(Language.ENGLISH), new ImmutableGeoCoordinate(49, 9), 20);
         assertEquals(1, locations.entrySet().size());
-        assertEquals(2, locations.get("Flein").size());
-        // FIXME check for all, order!
-        assertEqualLocations(LOCATION_1, locations.getFirst("Flein"));
+        Collection<Location> flein = locations.get("Flein");
+        assertEquals(2, flein.size());
+        assertContainsLocation(6555517, flein);
+        assertContainsLocation(2926304, flein);
+        assertEqualLocations(byId(6555517, TEST_LOCATIONS), byId(6555517, flein));
+        assertEqualLocations(byId(2926304, TEST_LOCATIONS), byId(2926304, flein));
     }
 
     @Test
@@ -233,12 +251,14 @@ public abstract class AbstractLocationStoreTest {
     public void testIteration() {
         Set<Location> allLocations = CollectionHelper.newHashSet(locationSource.getLocations());
         assertEquals(10, allLocations.size());
-        assertTrue(allLocations.contains(LOCATION_1));
-        assertTrue(allLocations.contains(LOCATION_2));
+        for (Location location : TEST_LOCATIONS) {
+            assertContainsLocation(location.getId(), allLocations);
+            assertEqualLocations(byId(location.getId(), allLocations), byId(location.getId(), TEST_LOCATIONS));
+        }
     }
 
     private static final void assertEqualLocations(Location expected, Location actual) {
-    	assertNotNull(actual);
+        assertNotNull(actual);
         assertEquals("different IDs", expected.getId(), actual.getId());
         assertEquals("different primary names", expected.getPrimaryName(), actual.getPrimaryName());
         Set<AlternativeName> altNames1 = new HashSet<>(expected.getAlternativeNames());
@@ -256,6 +276,15 @@ public abstract class AbstractLocationStoreTest {
             assertEquals("different latitudes", c1.getLatitude(), c2.getLatitude(), EPSILON);
             assertEquals("different longitudes", c1.getLongitude(), c2.getLongitude(), EPSILON);
         }
+    }
+
+    private static void assertContainsLocation(int expectedLocationId, Collection<Location> locations) {
+        Optional<Location> location = locations.stream().filter(l -> l.getId() == expectedLocationId).findFirst();
+        assertTrue("expected a location with ID " + expectedLocationId, location.isPresent());
+    }
+
+    private static Location byId(int locationId, Collection<? extends Location> locations) {
+        return locations.stream().filter(l -> l.getId() == locationId).findFirst().orElse(null);
     }
 
     protected abstract LocationStore createLocationStore() throws Exception;
