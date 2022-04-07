@@ -9,7 +9,7 @@ public class InMemoryLocationStoreTest extends AbstractLocationStoreTest {
 
     @Override
     public LocationStore createLocationStore() {
-        store = new InMemoryLocationStore(10);
+        store = new InMemoryLocationStore(100);
         return store;
     }
 
@@ -21,6 +21,11 @@ public class InMemoryLocationStoreTest extends AbstractLocationStoreTest {
     @Override
     public void testGetLocationByRadius() {
         // nop
+    }
+    
+    @Override
+    public void testGetLocationByNameAndRadius() {
+    	// nop
     }
 
 }
