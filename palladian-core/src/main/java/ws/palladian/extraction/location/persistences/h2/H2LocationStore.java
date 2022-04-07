@@ -12,7 +12,6 @@ import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverters;
 
@@ -42,11 +41,13 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
     @Override
     public void save(Location location) {
         Integer parentLocationId = location.getAncestorIds().size() > 0 ? location.getAncestorIds().get(0) : null;
-        runInsertReturnId("INSERT INTO locations VALUES (?, ?, ?, ?, ?, ?)", //
+        String point = location.getCoords() //
+                .map(c -> String.format("POINT(%s %s)", c.getLatitude(), c.getLongitude())) //
+                .orElse(null);
+        runInsertReturnId("INSERT INTO locations VALUES (?, ?, ?, ?, ?)", //
                 location.getId(), //
                 location.getType().ordinal(), //
-                location.getCoords().map(GeoCoordinate::getLatitude).orElse(null), //
-                location.getCoords().map(GeoCoordinate::getLongitude).orElse(null), //
+                point, //
                 location.getPopulation(), //
                 parentLocationId //
         );
@@ -82,8 +83,7 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
         runUpdateOrThrow("CREATE TABLE locations (" //
                 + "id integer NOT NULL" //
                 + ", type tinyint NOT NULL DEFAULT 0" //
-                + ", latitude float DEFAULT NULL" //
-                + ", longitude float DEFAULT NULL" //
+                + ", coordinate geometry DEFAULT NULL " //
                 + ", population bigint DEFAULT NULL" //
                 + ", parentId integer DEFAULT NULL" //
                 + ")");
@@ -98,7 +98,7 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
     @Override
     public void finishImport() {
         runUpdateOrThrow("CREATE UNIQUE INDEX id ON locations (id)");
-        runUpdateOrThrow("CREATE INDEX latitudeLongitude ON locations (latitude, longitude)");
+        runUpdateOrThrow("CREATE SPATIAL INDEX coordinate ON locations (coordinate)");
         runUpdateOrThrow("CREATE INDEX locationId ON location_names (locationId)");
         runUpdateOrThrow("CREATE INDEX name ON location_names (name)");
 
