@@ -24,11 +24,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LatLonPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -105,7 +106,7 @@ public final class LuceneLocationStore implements LocationStore {
         Document document = new Document();
         document.add(new StringField(FIELD_ID, String.valueOf(location.getId()), Field.Store.YES));
         document.add(new StringField(FIELD_TYPE, location.getType().toString(), Field.Store.YES));
-        document.add(new TextField(FIELD_NAME, location.getPrimaryName() + PRIMARY_NAME_MARKER, Field.Store.YES));
+        document.add(new NameField(FIELD_NAME, location.getPrimaryName() + PRIMARY_NAME_MARKER));
         location.getCoords().ifPresent(coordinate -> {
         	String latLng = coordinate.getLatitude() + LAT_LNG_SEPARATOR + coordinate.getLongitude();
         	document.add(new StringField(FIELD_LAT_LNG_TEMP, latLng, Field.Store.YES));
@@ -151,7 +152,7 @@ public final class LuceneLocationStore implements LocationStore {
             document.add(new StringField(FIELD_ALT_ID, String.valueOf(locationId), Field.Store.YES));
             String nameString = altName.getName()
                     + (altLang != null ? NAME_LANGUAGE_SEPARATOR + altLang.getIso6391() : "");
-            document.add(new TextField(FIELD_NAME, nameString, Field.Store.YES));
+            document.add(new NameField(FIELD_NAME, nameString));
             addDocument(document);
         }
     }
@@ -231,9 +232,27 @@ public final class LuceneLocationStore implements LocationStore {
         LOGGER.debug("Deleting temporary index: {}", tempIndexFile);
         FileHelper.delete(tempIndexFile.getPath(), true);
     }
+    
+    private static final class NameField extends Field {
+		private static final FieldType FIELD_TYPE = new FieldType();
+		static {
+			// we don't need frequencies, etc. b/c there's no scoring
+			FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+			FIELD_TYPE.setTokenized(true);
+			FIELD_TYPE.setStored(true);
+			// according to The Internet(tm) this saves some space
+			// https://stackoverflow.com/a/10081260
+			FIELD_TYPE.setOmitNorms(true);
+			FIELD_TYPE.freeze();
+		}
+
+		NameField(String name, String value) {
+			super(name, value, FIELD_TYPE);
+		}
+	}
 
 	public static void main(String[] args) throws IOException {
-		LuceneLocationStore store = new LuceneLocationStore(new File("/tmp/locations_lucene"));
+		LuceneLocationStore store = new LuceneLocationStore(new File("/tmp/locations_lucene_optimized"));
 		GeonamesImporter importer = new GeonamesImporter(store, new ProgressMonitor());
         File locationFile = new File("/tmp/Geonames/allCountries.zip");
         File hierarchyFile = new File("/tmp/Geonames/hierarchy.zip");
