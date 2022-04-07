@@ -13,6 +13,7 @@ import ws.palladian.extraction.location.persistences.sqlite.SQLiteLocationSource
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.StopWatch;
 
+@SuppressWarnings("unused")
 public class LocationSourceBenchmark {
 
 	private static final File DATASET = new File("/private/tmp/palladian_pk-tud-loc-2013-8528ef934a0a/0-all");
@@ -37,9 +38,11 @@ public class LocationSourceBenchmark {
 	private static void runWithTestData(LocationSource source) {
 		TudLoc2013DatasetIterable dataset = new TudLoc2013DatasetIterable(DATASET, () -> NoProgress.INSTANCE);
 		PalladianLocationExtractor extractor = new PalladianLocationExtractor(source);
+		int count = 0;
 		for (LocationDocument doc : dataset) {
-			extractor.getAnnotations(doc.getText());
+			count += extractor.getAnnotations(doc.getText()).size();
 		}
+		System.out.println("# annotations: " + count);
 	}
 
 }
