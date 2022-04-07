@@ -1,29 +1,24 @@
 package ws.palladian.extraction.entity;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.io.FileHelper;
+
+import java.io.File;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>
  * Named Entity Recognizers (NER) of this abstract class are can can be trained on input data.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
 public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecognizer {
-
     /**
      * The file ending of the model file.
-     * 
+     *
      * @return The file ending of the model/config file.
      */
     public abstract String getModelFileEnding();
@@ -38,7 +33,7 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
 
     /**
      * Whether or not the NER sets the model file ending itself after specifying the model name.
-     * 
+     *
      * @return True, if it does, false otherwise.
      */
     public abstract boolean setsModelFileEndingAutomatically();
@@ -46,7 +41,7 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
     /**
      * Whether the NER needs one model file per concept. Usually you can train and recognize several entities using only
      * one model.
-     * 
+     *
      * @return True, if you need to train each concept separately, false otherwise.
      */
     public boolean oneModelPerConcept() {
@@ -61,9 +56,9 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
      * training file must be given in tab (<code>\t</code>) separated column format where the first column is the term
      * and the second column is the concept.
      * </p>
-     * 
+     *
      * @param trainingFilePath The path where the training data can be found.
-     * @param modelFilePath The path where the trained model should be saved to.
+     * @param modelFilePath    The path where the trained model should be saved to.
      * @return <code>true</code>, if the training succeeded, false otherwise.
      */
     public abstract boolean train(String trainingFilePath, String modelFilePath);
@@ -141,8 +136,7 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
                 // transform file to tsv format
                 FileFormatParser.xmlToColumn(tempFilePath, tempColumnFilePath, "\t");
 
-                trainingComplete = train(tempColumnFilePath,
-                        FileHelper.appendToFileName(modelFilePath, "_" + partEntry.getKey().toUpperCase()));
+                trainingComplete = train(tempColumnFilePath, FileHelper.appendToFileName(modelFilePath, "_" + partEntry.getKey().toUpperCase()));
 
                 if (!trainingComplete) {
                     return false;

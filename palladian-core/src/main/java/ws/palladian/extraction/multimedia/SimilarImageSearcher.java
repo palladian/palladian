@@ -49,7 +49,7 @@ public class SimilarImageSearcher {
     public void buildIndex() {
         File[] files = FileHelper.getFiles(folder.getPath(), PROCESSED_PREFIX);
 
-        ProgressMonitor pm = new ProgressMonitor(files.length, 0.1, "Building Index");
+        ProgressMonitor pm = new ProgressMonitor(files.length, 0.1, "Building Index (" + folder.getPath() + ")");
         for (File file : files) {
             String identifier = file.getName().replace(PROCESSED_PREFIX, "");
             if (identifier.startsWith(UUID_PREFIX)) {

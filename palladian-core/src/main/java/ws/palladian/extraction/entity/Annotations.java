@@ -1,22 +1,17 @@
 package ws.palladian.extraction.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import ws.palladian.core.Annotation;
+
+import java.util.*;
 
 /**
  * <p>
  * A list of {@link Annotation}s.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class Annotations<T extends Annotation> extends ArrayList<T> implements List<T> {
-
     private static final long serialVersionUID = 1L;
 
     public Annotations() {
@@ -63,5 +58,4 @@ public class Annotations<T extends Annotation> extends ArrayList<T> implements L
     public void sort() {
         Collections.sort(this);
     }
-
 }

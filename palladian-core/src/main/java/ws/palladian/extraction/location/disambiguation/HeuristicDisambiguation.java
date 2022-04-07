@@ -111,7 +111,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             LOGGER.debug("'{}' has {} candidates", annotation.getValue(), candidates.size());
 
             // for distance checks below, only consider anchor locations, which are not in the current candidate set
-            Collection<Location> currentAnchors = new HashSet<Location>(anchors);
+            Collection<Location> currentAnchors = new HashSet<>(anchors);
             currentAnchors.removeAll(candidates);
 
             Set<Location> preselection = new HashSet<>();
@@ -132,7 +132,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                         }
                     }
                     if (Arrays.asList(CITY, UNIT, COUNTRY).contains(anchor.getType())) {
-                        Long population = CollectionHelper.coalesce(candidate.getPopulation(), 0l);
+                        Long population = CollectionHelper.coalesce(candidate.getPopulation(), 0L);
                         if (candidate.descendantOf(anchor) && population > lowerPopulationThreshold) {
                             LOGGER.debug("{} is child of anchor '{}'", candidate, anchor.getPrimaryName());
                             preselection.add(candidate);
@@ -175,33 +175,30 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             return CollectionHelper.getFirst(result);
         }
 
-        List<Location> temp = new ArrayList<Location>(selection);
-        Collections.sort(temp, new Comparator<Location>() {
-            @Override
-            public int compare(Location l1, Location l2) {
+        List<Location> temp = new ArrayList<>(selection);
+        temp.sort((l1, l2) -> {
 
-                // if locations are nested, take the "deepest" one
-                if (l2.descendantOf(l1)) {
-                    return 1;
-                } else if (l1.descendantOf(l2)) {
-                    return -1;
-                }
-
-                // as last step, compare by population
-                Long p1 = l1.getPopulation() != null ? l1.getPopulation() : 0;
-                Long p2 = l2.getPopulation() != null ? l2.getPopulation() : 0;
-
-                // XXX dirty hack; favor cities
-                if (l1.getType() == CITY) {
-                    p1 *= 2;
-                }
-                if (l2.getType() == CITY) {
-                    p2 *= 2;
-                }
-
-                return p2.compareTo(p1);
-
+            // if locations are nested, take the "deepest" one
+            if (l2.descendantOf(l1)) {
+                return 1;
+            } else if (l1.descendantOf(l2)) {
+                return -1;
             }
+
+            // as last step, compare by population
+            Long p1 = l1.getPopulation() != null ? l1.getPopulation() : 0;
+            Long p2 = l2.getPopulation() != null ? l2.getPopulation() : 0;
+
+            // XXX dirty hack; favor cities
+            if (l1.getType() == CITY) {
+                p1 *= 2;
+            }
+            if (l2.getType() == CITY) {
+                p2 *= 2;
+            }
+
+            return p2.compareTo(p1);
+
         });
         return CollectionHelper.getFirst(temp);
     }
@@ -231,7 +228,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
             LocationType type = location.getType();
-            Long population = CollectionHelper.coalesce(location.getPopulation(), 0l);
+            Long population = CollectionHelper.coalesce(location.getPopulation(), 0L);
             if (type == CONTINENT || type == COUNTRY || population > anchorPopulationThreshold) {
                 LOGGER.debug("Prominent anchor location: {}", location);
                 anchorLocations.add(location);
