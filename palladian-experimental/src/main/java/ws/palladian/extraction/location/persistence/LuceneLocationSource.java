@@ -1,17 +1,13 @@
 package ws.palladian.extraction.location.persistence;
 
-import static ws.palladian.extraction.location.LocationFilters.radius;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
@@ -23,7 +19,7 @@ import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoublePoint;
+import org.apache.lucene.document.LatLonPoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexableField;
@@ -41,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
-import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
 import ws.palladian.helper.StopWatch;
@@ -84,17 +79,14 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /** Identifier for the field containing the location name. */
     static final String FIELD_NAME = "primaryName";
 
-    /** Identifier for the field which queries the latitude. */
-    static final String FIELD_LAT = "lat";
+    /** LatLonPoint field (for queries, doesn't store the actual value). */
+    static final String FIELD_LAT_LNG = "latLngPoint";
 
     /** Identifier for the field which stores the latitude. */
-    static final String FIELD_LAT_STORED = "lat_stored";
-
-    /** Identifier for the field which queries the longitude. */
-    static final String FIELD_LNG = "lng";
+    static final String FIELD_LAT = "lat";
 
     /** Identifier for the field which stores the longitude. */
-    static final String FIELD_LNG_STORED = "lng_stored";
+    static final String FIELD_LNG = "lng";
 
     /** Identifier for the field containing the population. */
     static final String FIELD_POPULATION = "population";
@@ -199,12 +191,12 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      * @param reader The Lucene reader.
      * @return A {@link Collection} with matching {@link Location}s, or an empty Collection, never <code>null</code>.
      */
-    private static Collection<Location> queryLocations(Query query, IndexSearcher searcher, IndexReader reader) {
+    private static List<Location> queryLocations(Query query, IndexSearcher searcher, IndexReader reader) {
         StopWatch stopWatch = new StopWatch();
         try {
             SimpleCollector collector = new SimpleCollector();
             searcher.search(query, collector);
-            Collection<Location> locations = new HashSet<>();
+            List<Location> locations = new ArrayList<>();
             for (int docId : collector.docs) {
                 locations.add(parseLocation(searcher.doc(docId)));
             }
@@ -239,8 +231,8 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         }
         builder.setId(Integer.parseInt(document.get(FIELD_ID)));
         builder.setType(LocationType.map(document.get(FIELD_TYPE)));
-        IndexableField latField = document.getField(FIELD_LAT_STORED);
-        IndexableField lngField = document.getField(FIELD_LNG_STORED);
+        IndexableField latField = document.getField(FIELD_LAT);
+        IndexableField lngField = document.getField(FIELD_LNG);
         if (latField != null && lngField != null) {
             double lat = latField.numericValue().doubleValue();
             double lng = lngField.numericValue().doubleValue();
@@ -296,22 +288,14 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             }
         }
         if (coordinate != null) {
-            double[] box = coordinate.getBoundingBox(distance);
-            // we're using floats here, see comment in
-            // ws.palladian.extraction.location.persistence.LuceneLocationStore.save(Location)
-            query.add(DoublePoint.newRangeQuery(FIELD_LAT, box[0], box[2]), Occur.MUST);
-            query.add(DoublePoint.newRangeQuery(FIELD_LNG, box[1], box[3]), Occur.MUST);
+            query.add(LatLonPoint.newDistanceQuery( //
+                    FIELD_LAT_LNG, //
+                    coordinate.getLatitude(), //
+                    coordinate.getLongitude(), //
+                    distance * 1000 //
+            ), Occur.FILTER);
         }
-        List<Location> locations = new ArrayList<>(queryLocations(query.build(), searcher, reader));
-        if (coordinate != null) {
-            locations = locations.stream() //
-                    .filter(radius(coordinate, distance)) //
-                    // remove locations out of the box
-                    .sorted(LocationExtractorUtils.distanceComparator(coordinate)) //
-                    // sort them by distance to given coordinate
-                    .collect(Collectors.toList());
-        }
-        return locations;
+        return queryLocations(query.build(), searcher, reader);
     }
 
     @Override
