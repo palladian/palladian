@@ -26,7 +26,7 @@ import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.MultiBits;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -165,7 +165,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     public Iterator<Location> getLocations() {
         return new AbstractIterator2<Location>() {
             final int maxDoc = reader.maxDoc();
-            final Bits liveDocs = MultiFields.getLiveDocs(reader);
+            final Bits liveDocs = MultiBits.getLiveDocs(reader);
             int currentDoc = -1;
 
             @Override
