@@ -4,9 +4,8 @@ import static ws.palladian.extraction.location.persistence.LuceneLocationSource.
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ANCESTOR_IDS;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ID;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_STORED;
+import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_LNG;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LNG;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LNG_STORED;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_NAME;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_POPULATION;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_TYPE;
@@ -24,8 +23,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.LatLonPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
@@ -50,7 +49,6 @@ import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 
 public final class LuceneLocationStore implements LocationStore {
@@ -63,6 +61,12 @@ public final class LuceneLocationStore implements LocationStore {
 
     /** Name of the field in temporary alternative language documents which stores the foreign location ID. */
     private static final String FIELD_ALT_ID = "alternativeId";
+    
+    /** Temporary field for lat/lng pair during index building. */
+    private static final String FIELD_LAT_LNG_TEMP = "latLng";
+
+    /** Separator character between lat/lng value. */
+    private static final String LAT_LNG_SEPARATOR = "#";
 
     /** Path to the finally created index. */
     private final File indexFile;
@@ -102,11 +106,10 @@ public final class LuceneLocationStore implements LocationStore {
         document.add(new StringField(FIELD_ID, String.valueOf(location.getId()), Field.Store.YES));
         document.add(new StringField(FIELD_TYPE, location.getType().toString(), Field.Store.YES));
         document.add(new TextField(FIELD_NAME, location.getPrimaryName() + PRIMARY_NAME_MARKER, Field.Store.YES));
-        GeoCoordinate coordinate = location.getCoordinate();
-        if (coordinate != null) {
-            document.add(new StringField(FIELD_LAT, String.valueOf(coordinate.getLatitude()), Field.Store.YES));
-            document.add(new StringField(FIELD_LNG, String.valueOf(coordinate.getLongitude()), Field.Store.YES));
-        }
+        location.getCoords().ifPresent(coordinate -> {
+        	String latLng = coordinate.getLatitude() + LAT_LNG_SEPARATOR + coordinate.getLongitude();
+        	document.add(new StringField(FIELD_LAT_LNG_TEMP, latLng, Field.Store.YES));
+        });
         Long population = location.getPopulation();
         if (population != null) {
             document.add(new StringField(FIELD_POPULATION, population.toString(), Field.Store.YES));
@@ -206,8 +209,16 @@ public final class LuceneLocationStore implements LocationStore {
                     // latitude/longitude, we intentionally use StringFields. The JavaDoc says, that those field are
                     // less space consuming. The numeric fields only need to be used, in case one wants sorting or range
                     // filtering of the values.
-                    convertToNumeric(document, FIELD_LAT, FIELD_LAT, FIELD_LAT_STORED);
-                    convertToNumeric(document, FIELD_LNG, FIELD_LNG, FIELD_LNG_STORED);
+					String latLng = document.get(FIELD_LAT_LNG_TEMP);
+					if (latLng != null) {
+						String[] split = latLng.split(LAT_LNG_SEPARATOR);
+						double lat = Double.parseDouble(split[0]);
+						double lng = Double.parseDouble(split[1]);
+						document.add(new StoredField(FIELD_LAT, lat));
+						document.add(new StoredField(FIELD_LNG, lng));
+						document.add(new LatLonPoint(FIELD_LAT_LNG, lat, lng));
+					}
+					document.removeField(FIELD_LAT_LNG_TEMP);
                     resultWriter.addDocument(document);
                     if (++resultModificationCount % COMMIT_INTERVAL == 0) {
                         resultWriter.commit();
@@ -219,27 +230,6 @@ public final class LuceneLocationStore implements LocationStore {
 
         LOGGER.debug("Deleting temporary index: {}", tempIndexFile);
         FileHelper.delete(tempIndexFile.getPath(), true);
-    }
-
-    /**
-     * Replace a string field by a {@link FloatField}, which allows range queries.
-     * 
-     * @param document The document.
-     * @param fieldName The name of the field to convert.
-     * @param indexFieldName Name of the field to use for the indexation.
-     * @param storedFieldName Name of the field to use for storing.
-     */
-    private static void convertToNumeric(Document document, String fieldName, String indexFieldName, String storedFieldName) {
-        String stringValue = document.get(fieldName);
-        document.removeField(fieldName);
-        // explicitly changed from DoubleField to a FloatField to save space;
-        // when changing back to double, make sure to revert the range queries in
-        // ws.palladian.extraction.location.persistence.LuceneLocationSource.getLocations(GeoCoordinate, double)
-        if (stringValue != null) {
-            double doubleValue = Double.parseDouble(stringValue);
-			document.add(new DoublePoint(indexFieldName, doubleValue));
-            document.add(new StoredField(storedFieldName, doubleValue));
-        }
     }
 
 	public static void main(String[] args) throws IOException {
