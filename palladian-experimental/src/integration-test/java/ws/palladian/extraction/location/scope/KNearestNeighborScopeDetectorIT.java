@@ -3,8 +3,8 @@ package ws.palladian.extraction.location.scope;
 import java.io.File;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.RAMDirectory;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class KNearestNeighborScopeDetectorIT {
     public void testDictionaryScopeDetector_wikipedia40k() {
         FeatureSetting setting = FeatureSettingBuilder.words(1).create();
         int k = 1;
-        Directory directory = new ByteBuffersDirectory();
+        Directory directory = new RAMDirectory();
         NearestNeighborScopeDetectorLearner learner = new NearestNeighborScopeDetectorLearner(directory, setting);
         NearestNeighborScopeModel model = learner.train(trainingSet);
         ScopeDetector scopeDetector = new KNearestNeighborScopeDetector(model, k);
