@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.sources.LocationStore;
+import ws.palladian.extraction.location.sources.importers.GeonamesImporter;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
@@ -241,6 +242,13 @@ public final class LuceneLocationStore implements LocationStore {
         }
     }
 
-
+	public static void main(String[] args) throws IOException {
+		LuceneLocationStore store = new LuceneLocationStore(new File("/tmp/locations_lucene"));
+		GeonamesImporter importer = new GeonamesImporter(store, new ProgressMonitor());
+        File locationFile = new File("/tmp/Geonames/allCountries.zip");
+        File hierarchyFile = new File("/tmp/Geonames/hierarchy.zip");
+        File alternateNames = new File("/tmp/Geonames/alternateNames.zip");
+        importer.importLocationsZip(locationFile, hierarchyFile, alternateNames);
+	}
 
 }
