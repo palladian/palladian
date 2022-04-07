@@ -25,6 +25,7 @@ import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.RowConverters;
@@ -42,10 +43,9 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 		LocationBuilder builder = new LocationBuilder();
 		builder.setId(resultSet.getInt("id"));
 		builder.setType(LocationType.values()[resultSet.getInt("type")]);
-		Double latitude = SqlHelper.getDouble(resultSet, "latitude");
-		Double longitude = SqlHelper.getDouble(resultSet, "longitude");
-		if (latitude != null && longitude != null) {
-			builder.setCoordinate(latitude, longitude);
+		String coordinate = resultSet.getString("coordinate");
+		if (coordinate != null) {
+			builder.setCoordinate(parsePointToCoordinate(coordinate));
 		}
 		builder.setPopulation(SqlHelper.getLong(resultSet, "population"));
 		builder.setAncestorIds(resultSet.getString("ancestorIds"));
@@ -125,21 +125,14 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 				+ "     language = ANY (?)" //
 				+ "    )" //
 				+ "  ))" //
-				+ "  AND latitude > ? AND latitude < ? AND longitude > ? AND longitude < ? " //
+				+ "  AND coordinate && ? " //
 				+ "GROUP BY l.id";
 		MultiMap<String, Location> result = DefaultMultiMap.createWithList();
-		List<Number> boxArgs;
-		if (coordinate != null) {
-			double[] boundingBox = coordinate.getBoundingBox(distance);
-			boxArgs = Arrays.asList(boundingBox[0], boundingBox[2], boundingBox[1], boundingBox[3]);
-		} else {
-			boxArgs = Arrays.asList(-90, 90, -180, 180);
-		}
 		for (String locationName : locationNames) {
 			List<Object> args = new ArrayList<>();
 			args.add(locationName);
 			args.add(languages.stream().map(Language::getIso6391).toArray(size -> new String[size]));
-			args.addAll(boxArgs);
+			args.add(makeBoundingPolygon(coordinate, distance));
 			List<Location> locations = runQuery(ROW_CONVERTER, sql, args);
 			if (coordinate != null) {
 				locations = locations.stream() //
@@ -173,7 +166,6 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 
 	@Override
 	public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
-		double[] boundingBox = coordinate.getBoundingBox(distance);
 		List<Location> locations = runQuery(ROW_CONVERTER, "SELECT " //
 				+ "  l.* " //
 				+ ", getAncestorIds(l.id) as ancestorIds " //
@@ -182,9 +174,9 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 				+ ", LISTAGG(n.isPrimary, '#') AS namePrimary " //
 				+ "FROM locations l " //
 				+ "LEFT JOIN location_names n ON l.id = n.locationId " //
-				+ "WHERE latitude > ? AND latitude < ? AND longitude > ? AND longitude < ? " //
+				+ "WHERE coordinate && ? " //
 				+ "GROUP BY l.id", //
-				boundingBox[0], boundingBox[2], boundingBox[1], boundingBox[3]);
+				makeBoundingPolygon(coordinate, distance));
 		// remove locations out of the circle and sort by distance
 		return locations.stream() //
 				.filter(radius(coordinate, distance)) //
@@ -208,6 +200,47 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 	@Override
 	public int size() {
 		return runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM locations");
+	}
+
+	// utilities
+
+	/** Parses a <code>POINT (48.78232 9.17702)</code> into a GeoCoordinate. */
+	private static GeoCoordinate parsePointToCoordinate(String point) {
+		final String prefix = "POINT (";
+		final String suffix = ")";
+		if (!point.startsWith(prefix)) {
+			throw new IllegalArgumentException(String.format("Expected value to begin with '%s'", prefix));
+		}
+		if (!point.endsWith(suffix)) {
+			throw new IllegalArgumentException(String.format("Expected value to end with '%s'", suffix));
+		}
+		String[] split = point.substring(prefix.length(), point.length() - suffix.length()).split(" ");
+		if (split.length != 2) {
+			throw new IllegalArgumentException("Expected two parts, but got " + split.length);
+		}
+		double latitude = Double.parseDouble(split[0]);
+		double longitude = Double.parseDouble(split[1]);
+		return new ImmutableGeoCoordinate(latitude, longitude);
+	}
+
+	// https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+	// https://stackoverflow.com/questions/27943435/what-is-the-syntax-for-running-a-spatial-query-in-h2
+	private static String makeBoundingPolygon(GeoCoordinate coordinate, double distance) {
+		double[] bBox;
+		if (coordinate != null) {
+			bBox = coordinate.getBoundingBox(distance);
+		} else {
+			bBox = new double[] { -90, -180, 90, 180 };
+		}
+		return String.format("POLYGON((%s))", //
+				String.join(", ", //
+						Arrays.asList( //
+								bBox[0] + " " + bBox[1], //
+								bBox[0] + " " + bBox[3], //
+								bBox[2] + " " + bBox[3], //
+								bBox[2] + " " + bBox[1], //
+								bBox[0] + " " + bBox[1] //
+						)));
 	}
 
 }
