@@ -131,7 +131,7 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
         for (String locationName : locationNames) {
             List<Object> args = new ArrayList<>();
             args.add(locationName);
-            args.add(languages.stream().map(Language::getIso6391).toArray(size -> new String[size]));
+            args.add(languages.stream().map(Language::getIso6391).toArray(String[]::new));
             args.add(makeBoundingPolygon(coordinate, distance));
             List<Location> locations = runQuery(ROW_CONVERTER, sql, args);
             if (coordinate != null) {
@@ -161,7 +161,7 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 
     @Override
     public List<Location> getLocations(List<Integer> locationIds) {
-        return locationIds.stream().map(id -> getLocation(id)).collect(Collectors.toList());
+        return locationIds.stream().map(this::getLocation).collect(Collectors.toList());
     }
 
     @Override
