@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -199,7 +200,7 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
 
 	@Override
 	public int size() {
-		return runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM locations");
+		return Optional.ofNullable(runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM locations")).orElse(0);
 	}
 
 	// utilities
