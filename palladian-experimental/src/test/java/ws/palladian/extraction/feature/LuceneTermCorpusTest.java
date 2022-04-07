@@ -10,8 +10,8 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
@@ -20,7 +20,7 @@ public class LuceneTermCorpusTest {
 
     private static Directory getSample() {
         IndexWriterConfig config = new IndexWriterConfig(new StandardAnalyzer());
-        Directory directory = new RAMDirectory();
+        Directory directory = new ByteBuffersDirectory();
         IndexWriter writer = null;
         try {
             writer = new IndexWriter(directory, config);
