@@ -10,7 +10,6 @@ import static ws.palladian.extraction.location.persistence.LuceneLocationSource.
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_POPULATION;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_TYPE;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.NAME_LANGUAGE_SEPARATOR;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.PRIMARY_NAME_MARKER;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +101,7 @@ public final class LuceneLocationStore implements LocationStore {
         Document document = new Document();
         document.add(new StringField(FIELD_ID, String.valueOf(location.getId()), Field.Store.YES));
         document.add(new StringField(FIELD_TYPE, location.getType().toString(), Field.Store.YES));
-        document.add(new NameField(FIELD_NAME, location.getPrimaryName() + PRIMARY_NAME_MARKER));
+        document.add(new NameField(FIELD_NAME, location.getPrimaryName()));
         location.getCoords().ifPresent(coordinate -> {
             String latLng = coordinate.getLatitude() + LAT_LNG_SEPARATOR + coordinate.getLongitude();
             document.add(new StringField(FIELD_LAT_LNG_TEMP, latLng, Field.Store.YES));
@@ -143,8 +142,8 @@ public final class LuceneLocationStore implements LocationStore {
             Document document = new Document();
             Language altLang = altName.getLanguage();
             document.add(new StringField(FIELD_ALT_ID, String.valueOf(locationId), Field.Store.YES));
-            String nameString = altName.getName()
-                    + (altLang != null ? NAME_LANGUAGE_SEPARATOR + altLang.getIso6391() : "");
+            String nameString = altName.getName() + NAME_LANGUAGE_SEPARATOR
+                    + (altLang != null ? altLang.getIso6391() : "");
             document.add(new NameField(FIELD_NAME, nameString));
             addDocument(document);
         }
