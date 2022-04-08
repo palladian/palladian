@@ -97,9 +97,6 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /** Identifier for the field with the parent location id. */
     static final String FIELD_PARENT_ID = "parentId";
 
-    /** Primary location names in the database are appended with this marker (e.g. "Berlin$"). */
-    static final String PRIMARY_NAME_MARKER = "$";
-
     /** Alternative names with language determiner are separated with this marker (e.g. "Berlin#de"). */
     static final String NAME_LANGUAGE_SEPARATOR = "#";
 
@@ -219,11 +216,10 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         IndexableField[] nameFields = document.getFields(FIELD_NAME);
         for (IndexableField nameField : nameFields) {
             String value = nameField.stringValue();
-            if (value.endsWith(PRIMARY_NAME_MARKER)) {
-                // we have the primary name; strip the "$" marker
-                builder.setPrimaryName(value.substring(0, value.length() - 1));
+            if (!value.contains(NAME_LANGUAGE_SEPARATOR)) {
+                builder.setPrimaryName(value);
             } else {
-                // we have alternative names (either like "New York", or "New York#en")
+                // we have alternative names (either like "New York#", or "New York#en")
                 String[] split = value.split(NAME_LANGUAGE_SEPARATOR);
                 String name = split[0];
                 Language language = split.length == 2 ? Language.getByIso6391(split[1]) : null;
@@ -307,9 +303,9 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 			String analyzedName = analyze(locationName);
 			query.setMinimumNumberShouldMatch(1);
 			// search for primary names
-			query.add(new TermQuery(new Term(FIELD_NAME, analyzedName + PRIMARY_NAME_MARKER)), Occur.SHOULD);
-			// search for alternative names without language determiner
 			query.add(new TermQuery(new Term(FIELD_NAME, analyzedName)), Occur.SHOULD);
+			// search for alternative names without language determiner
+			query.add(new TermQuery(new Term(FIELD_NAME, analyzedName + NAME_LANGUAGE_SEPARATOR)), Occur.SHOULD);
 			// search for alternative names in all specified languages
 			for (Language language : languages) {
 			    String nameLanguageString = analyzedName + NAME_LANGUAGE_SEPARATOR + language.getIso6391();
