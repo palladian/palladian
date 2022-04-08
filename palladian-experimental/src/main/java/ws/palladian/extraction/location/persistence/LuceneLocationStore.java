@@ -184,7 +184,7 @@ public final class LuceneLocationStore implements LocationStore {
 
             // loop through all locations in index
             ProgressReporter progress = tempReader.numDocs() > 10000 ? new ProgressMonitor() : NoProgress.INSTANCE;
-            progress.startTask("Optimizing index", tempReader.numDocs());
+            progress.startTask("Building index", tempReader.numDocs());
             LOGGER.debug("Creating optimized index, # of documents in temporary index: {}", tempReader.numDocs());
             for (int docId = 0; docId < tempReader.maxDoc() - 1; docId++) {
                 Document document = tempReader.document(docId);
