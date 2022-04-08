@@ -107,7 +107,7 @@ public final class LuceneLocationStore implements LocationStore {
             document.add(new StringField(FIELD_LAT_LNG_TEMP, latLng, Field.Store.YES));
         });
         Long population = location.getPopulation();
-        if (population != null) {
+        if (population != null && population > 0) { // TODO set null values already in importer
             document.add(new StringField(FIELD_POPULATION, population.toString(), Field.Store.YES));
         }
         location.getAncestorIds().stream().findFirst().ifPresent(parentId -> {
