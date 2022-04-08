@@ -13,7 +13,7 @@ import org.apache.lucene.index.IndexableField;
 
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
 /**
  * <p>
@@ -56,7 +56,7 @@ class CategoryEntriesDoc implements Iterable<IndexableField> {
 
     @Override
     public Iterator<IndexableField> iterator() {
-        return new AbstractIterator<IndexableField>() {
+        return new AbstractIterator2<IndexableField>() {
 
             private final Iterator<IndexableField> additionalFieldsIterator = additionalFields.iterator();
 
@@ -69,7 +69,7 @@ class CategoryEntriesDoc implements Iterable<IndexableField> {
             private int currentCount;
 
             @Override
-            protected IndexableField getNext() throws Finished {
+            protected IndexableField getNext() {
                 if (additionalFieldsIterator.hasNext()) {
                     return additionalFieldsIterator.next();
                 }
@@ -79,7 +79,7 @@ class CategoryEntriesDoc implements Iterable<IndexableField> {
                         currentCount = 0;
                         currentField = new Field(fieldName, currentCategory.getName(), TERM_VECTOR_TYPE);
                     } else {
-                        throw FINISHED;
+                        return finished();
                     }
                 }
                 if (++currentCount >= currentCategory.getCount()) {

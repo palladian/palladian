@@ -18,7 +18,6 @@ import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.utils.CsvDatasetReaderConfig;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.NoProgress;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
 /**

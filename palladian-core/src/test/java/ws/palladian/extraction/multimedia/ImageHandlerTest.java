@@ -1,9 +1,6 @@
 package ws.palladian.extraction.multimedia;
 
-import org.junit.Assume;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ws.palladian.helper.io.ResourceHelper;
 
 import java.awt.image.BufferedImage;
@@ -23,29 +20,9 @@ import static org.junit.Assert.assertEquals;
  * @author Philipp Katz
  */
 public class ImageHandlerTest {
-    /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageHandlerTest.class);
-
-    /**
-     * Some of these tests fail when run under Mac OS X. In contrast to other platforms where the JAI implementation is
-     * supplied directly by Sun, Apple provides its own version of JAI, which i suspect contains a bug or behaves
-     * somehow differently. Therefore, we check the platform here and simply skip this test if run under Mac OS X.
-     *
-     * Philipp, 2010-06-28.
-     */
-    // @Before
-    public void checkOperatingSystem() {
-        boolean macOsX = System.getProperty("os.name").contains("Mac OS X");
-        if (macOsX) {
-            LOGGER.warn("skipping ImageHandlerTest due to bugs in Mac OS X.");
-        }
-        Assume.assumeTrue(!macOsX);
-    }
 
     @Test
     public void testClusterImages() throws FileNotFoundException {
-        checkOperatingSystem();
-
         Collection<String> imageUrls = new ArrayList<>();
         imageUrls.add(ResourceHelper.getResourcePath("/images/imageA1.jpg"));
         imageUrls.add(ResourceHelper.getResourcePath("/images/imageA2.jpg"));
@@ -67,8 +44,6 @@ public class ImageHandlerTest {
 
     @Test
     public void testRescaleImage() throws FileNotFoundException {
-        checkOperatingSystem();
-
         BufferedImage bufferedImage;
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
@@ -113,8 +88,6 @@ public class ImageHandlerTest {
 
     @Test
     public void testIsDuplicate() throws FileNotFoundException {
-        checkOperatingSystem();
-
         BufferedImage image1;
         BufferedImage image2;
 

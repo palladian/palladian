@@ -13,12 +13,7 @@ public final class Factories {
      * @return A new factory for the given object.
      */
     public static <T> Factory<T> constant(final T thing) {
-        return new Factory<T>() {
-            @Override
-            public T create() {
-                return thing;
-            }
-        };
+        return () -> thing;
     }
 
 }

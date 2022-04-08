@@ -73,32 +73,6 @@ public final class DatabaseManagerFactory {
         return configuration;
     }
 
-//    /**
-//     * <p>
-//     * Create a DatabaseManager with the configuration obtained from the Palladian configuration file. See
-//     * {@link ConfigHolder} for a documentation about the location of this configuration file. The configuration file
-//     * must supply the following fields:
-//     * </p>
-//     * <ul>
-//     * <li>db.driver</li>
-//     * <li>db.jdbcUrl</li>
-//     * <li>db.username</li>
-//     * <li>db.password</li>
-//     * </ul>
-//     * 
-//     * @param <D> Type of the DataManager (sub)class to create.
-//     * @param managerClass The fully qualified name of the DatabaseManager class.
-//     * @return A configured DatabaseManager with access to a connection pool
-//     * @deprecated Use one of the create methods which explicitly requires to supply a configuration.
-//     */
-//    @Deprecated
-//    public static <D extends DatabaseManager> D create(Class<D> managerClass) {
-//        // The configuration file can be found under
-//        // config/palladian.properties.
-//        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
-//        return create(managerClass, config);
-//    }
-
     /**
      * <p>
      * Create a DatabaseManager with the configuration obtained from a persistence configuration file (
@@ -179,24 +153,6 @@ public final class DatabaseManagerFactory {
 
         return create(managerClass, driver, jdbcUrl, username, password);
     }
-
-//    /**
-//     * <p>
-//     * Create a DatabaseManager with the supplied configuration.
-//     * </p>
-//     * 
-//     * @param <D> Type of the DataManager (sub)class to create.
-//     * @param managerClass The type of the DatabaseManager class.
-//     * @param jdbcDriverClassName The fully qualified name of the JDBC driver class.
-//     * @param jdbcConnectionUrl The JDBC connection URL.
-//     * @param username The user name for accessing the database.
-//     * @return A configured DatabaseManager with access to a connection pool
-//     * @throws IllegalStateException In case the initialization fails.
-//     */
-//    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
-//            String jdbcConnectionUrl, String username) {
-//        return create(managerClass, jdbcDriverClassName, jdbcConnectionUrl, username, "");
-//    }
 
     /**
      * <p>

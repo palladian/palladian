@@ -46,7 +46,7 @@ import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -162,13 +162,13 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     @Override
     public Iterator<Location> getLocations() {
-        return new AbstractIterator<Location>() {
+        return new AbstractIterator2<Location>() {
             final int maxDoc = reader.maxDoc();
             final Bits liveDocs = MultiFields.getLiveDocs(reader);
             int currentDoc = -1;
 
             @Override
-            protected Location getNext() throws Finished {
+            protected Location getNext() {
                 while (currentDoc < maxDoc - 1) {
                     currentDoc++;
                     if (liveDocs != null && liveDocs.get(currentDoc)) {
@@ -182,7 +182,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
                         throw new IllegalStateException("Could not retrieve document with ID " + currentDoc, e);
                     }
                 }
-                throw FINISHED;
+                return finished();
             }
         };
     }

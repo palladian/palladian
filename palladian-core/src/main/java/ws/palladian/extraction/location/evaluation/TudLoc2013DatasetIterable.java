@@ -22,7 +22,6 @@ import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.html.HtmlHelper;
@@ -124,13 +123,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
      */
     static Map<String, Map<Integer, GeoCoordinate>> readCoordinates(File coordinateFile) {
         Validate.notNull(coordinateFile, "coordinateFile must not be null");
-        final Map<String, Map<Integer, GeoCoordinate>> coordinateMap = LazyMap
-                .create(new Factory<Map<Integer, GeoCoordinate>>() {
-                    @Override
-                    public Map<Integer, GeoCoordinate> create() {
-                        return new TreeMap<>();
-                    }
-                });
+        final Map<String, Map<Integer, GeoCoordinate>> coordinateMap = new LazyMap<>(TreeMap::new);
         int lines = FileHelper.performActionOnEveryLine(coordinateFile, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {

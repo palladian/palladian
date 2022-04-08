@@ -21,7 +21,7 @@ import ws.palladian.core.value.AbstractValue;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 
 /**
  * @author Klemens Muthmann
@@ -215,13 +215,13 @@ public final class Binner implements Iterable<Binner.Interval> {
 
     @Override
     public Iterator<Interval> iterator() {
-        return new AbstractIterator<Binner.Interval>() {
+        return new AbstractIterator2<Binner.Interval>() {
             int idx = 0;
 
             @Override
-            protected Interval getNext() throws Finished {
+            protected Interval getNext() {
                 if (idx > getNumBoundaryPoints()) {
-                    throw FINISHED;
+                    return finished();
                 }
                 return getBinAtIdx(idx++);
             }

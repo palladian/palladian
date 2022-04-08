@@ -7,7 +7,6 @@ import ws.palladian.helper.collection.FixedSizeQueue;
 import ws.palladian.helper.functional.Factory;
 
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * <p>
@@ -24,13 +23,10 @@ public class FatStats extends AbstractStats {
      * <p>
      * A factory for producing {@link Stats} instances.
      * </p>
+     * @deprecated No longer needed; with Java 8 just use <code>FatStats::new</code>.
      */
-    public static final Factory<FatStats> FACTORY = new Factory<FatStats>() {
-        @Override
-        public FatStats create() {
-            return new FatStats();
-        }
-    };
+	@Deprecated
+    public static final Factory<FatStats> FACTORY = FatStats::new;
 
     private final List<Double> values;
     
@@ -196,12 +192,7 @@ public class FatStats extends AbstractStats {
 	}
 
     private static List<Double> getDoubleValues(Collection<? extends Number> values) {
-        return CollectionHelper.convertList(values, new Function<Number, Double>() {
-            @Override
-            public Double apply(Number input) {
-                return input.doubleValue();
-            }
-        });
+        return CollectionHelper.convertList(values, input -> input.doubleValue());
     }
 
     /* (non-Javadoc)

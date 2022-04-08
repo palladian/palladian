@@ -12,7 +12,9 @@ import ws.palladian.helper.math.Stats;
 
 public class CoordinateStats {
 
-    /** Factory for creating {@link CoordinateStats} instances. */
+    /** Factory for creating {@link CoordinateStats} instances. 
+     * @deprecated Use <dode>CoordinateStats::new</code> in Java 8. */
+	@Deprecated
     public static final Factory<CoordinateStats> FACTORY = new Factory<CoordinateStats>() {
         @Override
         public CoordinateStats create() {

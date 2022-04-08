@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import ws.palladian.classification.encode.LabelEncoder;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.Dataset;

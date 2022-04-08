@@ -19,24 +19,14 @@ public final class Functions {
      * A function which maps arbitrary {@link Object}s to their {@link Object#toString()} representation, or
      * <code>null</code> in case the input was <code>null</code>.
      */
-    public static final Function<Object, String> TO_STRING = new Function<Object, String>() {
-        @Override
-        public String apply(Object input) {
-            return input != null ? input.toString() : null;
-        }
-    };
+    public static final Function<Object, String> TO_STRING = input -> input != null ? input.toString() : null;
 
     /**
      * <p>
      * A function which converts {@link String}s to lowercase, or <code>null</code> in case the input was
      * <code>null</code>.
      */
-    public static final Function<String, String> LOWERCASE = new Function<String, String>() {
-        @Override
-        public String apply(String input) {
-            return input != null ? input.toLowerCase() : null;
-        }
-    };
+    public static final Function<String, String> LOWERCASE = input -> input != null ? input.toLowerCase() : null;
 
     public static <I, O> Function<I, O> map(Map<? extends I, ? extends O> map) {
         Validate.notNull(map, "map must not be null");
@@ -88,12 +78,7 @@ public final class Functions {
     public static <O, I extends O> Function<I, O> adapt(Class<I> input, Class<O> output) {
         Validate.notNull(input, "input must not be null");
         Validate.notNull(output, "output must not be null");
-        return new Function<I, O>() {
-            @Override
-            public I apply(I input) {
-                return input;
-            }
-        };
+        return input1 -> input1;
     }
 
     /**

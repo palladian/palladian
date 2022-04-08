@@ -3,8 +3,6 @@ package ws.palladian.classification.text;
 import java.util.Iterator;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator2;

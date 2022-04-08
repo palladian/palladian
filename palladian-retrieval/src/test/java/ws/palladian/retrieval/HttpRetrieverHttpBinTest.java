@@ -87,7 +87,7 @@ public class HttpRetrieverHttpBinTest {
 		HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/status/301").create();
 		HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
 		HttpResult result = httpRetriever.execute(request);
-		assertEquals(Arrays.asList("https://httpbin.org/status/301", "https://httpbin.org/redirect/1"),
+		assertEquals(Arrays.asList("https://httpbin.org/status/301", "https://httpbin.org/redirect/1", "https://httpbin.org/get"),
 				result.getLocations());
 		assertNull(result.getHeader("location"));
 	}

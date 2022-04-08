@@ -20,13 +20,10 @@ public class SlimStats extends AbstractStats {
      * <p>
      * A factory for producing {@link SlimStats} instances.
      * </p>
+     * @deprecated No longer needed; with Java 8 just use <code>SlimStats::new</code>.
      */
-    public static final Factory<Stats> FACTORY = new Factory<Stats>() {
-        @Override
-        public Stats create() {
-            return new SlimStats();
-        }
-    };
+	@Deprecated
+    public static final Factory<Stats> FACTORY = SlimStats::new;
 
     private int count = 0;
 
