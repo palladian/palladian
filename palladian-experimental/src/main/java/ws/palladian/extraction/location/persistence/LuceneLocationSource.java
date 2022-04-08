@@ -80,7 +80,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     static final String FIELD_TYPE = "type";
 
     /** Identifier for the field containing the location name. */
-    static final String FIELD_NAME = "primaryName";
+    static final String FIELD_NAME = "name";
 
     /** LatLonPoint field (for queries, doesn't store the actual value). */
     static final String FIELD_LAT_LNG = "latLngPoint";
