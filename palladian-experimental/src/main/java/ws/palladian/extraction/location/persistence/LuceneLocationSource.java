@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
@@ -32,7 +30,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Bits;
 import org.slf4j.Logger;
@@ -94,11 +91,14 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /** Identifier for the field containing the population. */
     static final String FIELD_POPULATION = "population";
 
-    /** Identifier for the field with the parent location id. */
-    static final String FIELD_PARENT_ID = "parentId";
+    /** Identifier for the field with the ancestor ids. */
+    static final String FIELD_ANCESTOR_IDS = "ancestorIds";
 
     /** Alternative names with language determiner are separated with this marker (e.g. "Berlin#de"). */
     static final String NAME_LANGUAGE_SEPARATOR = "#";
+
+    /** Separator character between IDs in hierarchy. */
+    static final char HIERARCHY_SEPARATOR = '/';
 
     /** The Lucene directory, supplied via class constructor. */
     private final Directory directory;
@@ -188,7 +188,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      * @param reader The Lucene reader.
      * @return A {@link Collection} with matching {@link Location}s, or an empty Collection, never <code>null</code>.
      */
-    private List<Location> queryLocations(Query query, IndexSearcher searcher, IndexReader reader) {
+    private static List<Location> queryLocations(Query query, IndexSearcher searcher, IndexReader reader) {
         StopWatch stopWatch = new StopWatch();
         try {
             SimpleCollector collector = new SimpleCollector();
@@ -209,9 +209,8 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      *
      * @param document The Lucene document to convert.
      * @return The location instance with data from the document.
-     * @throws IOException
      */
-    private Location parseLocation(Document document) throws IOException {
+    private static Location parseLocation(Document document) {
         LocationBuilder builder = new LocationBuilder();
         IndexableField[] nameFields = document.getFields(FIELD_NAME);
         for (IndexableField nameField : nameFields) {
@@ -239,39 +238,11 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         if (population != null) {
             builder.setPopulation(Long.valueOf(population));
         }
-        String parentId = document.get(FIELD_PARENT_ID);
-        if (parentId != null) {
-            builder.setAncestorIds(collectAncestorIds(parentId).stream() //
-                    .map(Integer::parseInt) //
-                    .collect(Collectors.toList()));
+        String ancestorIds = document.get(FIELD_ANCESTOR_IDS);
+        if (ancestorIds != null) {
+            builder.setAncestorIds(ancestorIds);
         }
         return builder.create();
-    }
-
-    /**
-     * Given a location ID, walk up the hierarchy and collect the ancestors' IDs.
-     *
-     * @param startId The location ID to start with.
-     * @return List with current location ID, and ancestor IDs
-     * @throws IOException
-     */
-    private List<String> collectAncestorIds(String startId) throws IOException {
-        String ancestorId = startId;
-        List<String> ancestorIds = new ArrayList<>(Collections.singleton(startId));
-        for (;;) {
-            TopDocs docs = searcher.search(new TermQuery(new Term(FIELD_ID, ancestorId)), 1);
-            if (docs.totalHits.value != 1) {
-                break; // shouldn't happen (referential consistency)
-            }
-            Document document = searcher.doc(docs.scoreDocs[0].doc);
-            String parentId = document.get(FIELD_PARENT_ID);
-            if (parentId == null) {
-                break;
-            }
-            ancestorId = parentId;
-            ancestorIds.add(parentId);
-        }
-        return ancestorIds;
     }
 
     @Override
