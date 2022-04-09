@@ -1,6 +1,5 @@
 package ws.palladian.classification.page;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ws.palladian.helper.UrlHelper;
@@ -69,11 +68,11 @@ final class DataHelper {
             br.close();
 
         } catch (FileNotFoundException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            System.out.println(e.getMessage());
         } catch (IOException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            System.out.println(e.getMessage());
         } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
@@ -94,7 +93,7 @@ final class DataHelper {
             fileWriter.close();
 
         } catch (IOException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            System.out.println(e.getMessage());
         }
 
     }

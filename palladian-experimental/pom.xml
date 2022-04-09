@@ -54,7 +54,7 @@
 			<artifactId>palladian-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>net.sourceforge</groupId>
 			<artifactId>jwbf</artifactId>
 			<version>1.3.3</version>
@@ -73,7 +73,7 @@
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
 			<version>1.26</version>
-		</dependency>
+		</dependency>  -->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
