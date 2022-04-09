@@ -1,20 +1,25 @@
 package ws.palladian.extraction.location.persistence;
 
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.ANALYZER;
+import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ANCESTOR_IDS;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ID;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_LNG;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LNG;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_NAME;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_PARENT_ID;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_POPULATION;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_TYPE;
+import static ws.palladian.extraction.location.persistence.LuceneLocationSource.HIERARCHY_SEPARATOR;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.NAME_LANGUAGE_SEPARATOR;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.codecs.lucene87.Lucene87Codec;
 import org.apache.lucene.codecs.lucene87.Lucene87Codec.Mode;
@@ -111,9 +116,12 @@ public final class LuceneLocationStore implements LocationStore {
         if (population != null && population > 0) { // TODO set null values already in importer
             document.add(new StringField(FIELD_POPULATION, population.toString(), Field.Store.YES));
         }
-        location.getAncestorIds().stream().findFirst().ifPresent(parentId -> {
-        	document.add(new StringField(FIELD_PARENT_ID, parentId.toString(), Field.Store.YES));
-        });
+        if (location.getAncestorIds() != null && !location.getAncestorIds().isEmpty()) {
+            List<Integer> tempHierarchyIds = new ArrayList<>(location.getAncestorIds());
+            Collections.reverse(tempHierarchyIds);
+            String ancestorString = StringUtils.join(tempHierarchyIds, HIERARCHY_SEPARATOR);
+            document.add(new StringField(FIELD_ANCESTOR_IDS, ancestorString, Field.Store.YES));
+        }
         addDocument(document);
         addAlternativeNames(location.getId(), location.getAlternativeNames());
     }
