@@ -94,5 +94,15 @@
 			<artifactId>lucene-analyzers-common</artifactId>
 			<version>${lucene-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.17</version>
+		</dependency>
 	</dependencies>
 </project>
