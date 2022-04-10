@@ -48,6 +48,7 @@ public final class DatabaseManagerFactory {
     /**
      * Specify the {@link DataSourceFactory} to use, if you need a custom one.
      */
+    // TODO replace with HikariCP
     public static DataSourceFactory dataSourceFactory = BoneCpDataSourceFactory.INSTANCE;
 
     private static HierarchicalConfiguration configuration;
