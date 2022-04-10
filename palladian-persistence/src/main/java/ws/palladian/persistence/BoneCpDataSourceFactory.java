@@ -11,8 +11,11 @@ import com.jolbox.bonecp.BoneCPDataSource;
  * </p>
  * 
  * @author Philipp Katz
- * @see <a href="http://jolbox.com/">BoneCP</p>.
+ * @see <a href="https://jolbox.com/">BoneCP</p>.
+ * @deprecated This is currently still the default unless overridden in {@link DatabaseManagerFactory#dataSourceFactory}. 
+ *             It's deprecated in favor of HikariCP; see {@link HikariCpDataSourceFactory}.
  */
+@Deprecated
 public final class BoneCpDataSourceFactory implements DataSourceFactory {
     public static final DataSourceFactory INSTANCE = new BoneCpDataSourceFactory();
 
