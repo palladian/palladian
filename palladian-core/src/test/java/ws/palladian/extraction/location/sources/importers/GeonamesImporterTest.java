@@ -239,11 +239,13 @@ public class GeonamesImporterTest {
 
         // the Alps have multiple parents, so the hierarchy should return an empty list
         hierarchy = locationStore.getLocation(2661786).getAncestorIds();
-        checkHierarchy(hierarchy);
+        //checkHierarchy(hierarchy);
+        checkHierarchy(hierarchy, 2658434, 6255148, 6295630);
 
         // A.ADMD > A.ADM1 > ...
         hierarchy = locationStore.getLocation(4147702).getAncestorIds();
-        checkHierarchy(hierarchy, 4155751, 6252001, 6255149, 6295630);
+        //checkHierarchy(hierarchy, 4155751, 6252001, 6255149, 6295630);
+        checkHierarchy(hierarchy, 4158392, 4155751, 6252001, 6255149, 6295630);
 
         // A.PCL > L.CONT > ...
         hierarchy = locationStore.getLocation(3042142).getAncestorIds();
@@ -279,11 +281,13 @@ public class GeonamesImporterTest {
 
         // P.PPLA2 > A.ADM2 > ...
         hierarchy = locationStore.getLocation(4049979).getAncestorIds();
-        checkHierarchy(hierarchy, 4069696, 4829764, 6252001, 6255149, 6295630);
+        // checkHierarchy(hierarchy, 4069696, 4829764, 6252001, 6255149, 6295630);
+        checkHierarchy(hierarchy, 4089551, 4829764, 6252001, 6255149, 6295630);
 
         // P.PPLX > A.ADM2 > ...
         hierarchy = locationStore.getLocation(4722244).getAncestorIds();
-        checkHierarchy(hierarchy, 4682500, 4736286, 6252001, 6255149, 6295630);
+        //checkHierarchy(hierarchy, 4682500, 4736286, 6252001, 6255149, 6295630);
+        checkHierarchy(hierarchy, 4684904, 4736286, 6252001, 6255149, 6295630);
 
         // A.PRSH > A.ADM3 > ...
         hierarchy = locationStore.getLocation(3126783).getAncestorIds();
@@ -403,7 +407,8 @@ public class GeonamesImporterTest {
 
         // H.STM > P.PCLI > L.CONT > ...
         hierarchy = locationStore.getLocation(7932547).getAncestorIds();
-        checkHierarchy(hierarchy, 6252001, 6255149, 6295630);
+        //checkHierarchy(hierarchy, 6252001, 6255149, 6295630);
+        checkHierarchy(hierarchy, 4099753, 6252001, 6255149, 6295630);
 
         // S.UNIV > A.ADM3 > ...
         hierarchy = locationStore.getLocation(8285544).getAncestorIds();

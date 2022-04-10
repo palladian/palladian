@@ -60,9 +60,6 @@ public final class GeonamesImporter {
     /** Mapping between the administrative/country codes and our internal numeric level. */
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
 
-    /** Denotes, that a hierarchy mapping was ambiguous (i.e. had multiple values). */
-    private static final Integer AMBIGUOUS = -1;
-
     static {
         Map<String, Integer> temp = new HashMap<>();
         temp.put("PCLI", 0);
@@ -336,6 +333,7 @@ public final class GeonamesImporter {
         }
         progress.startTask("Reading hierarchy", numLines);
         try (InputStream inputStream = hierarchyProvider.getInputStream()) {
+            int numAmbiguous[] = { 0 };
             FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
@@ -346,20 +344,25 @@ public final class GeonamesImporter {
                     int parentId = Integer.parseInt(split[0]);
                     int childId = Integer.parseInt(split[1]);
                     String type = split.length > 2 ? split[2] : null;
-                    if (type == null || type.equals("ADM")) {
-                        Integer existingParentId = hierarchyMappings.get(childId);
-                        if (existingParentId == null) {
-                            hierarchyMappings.put(childId, parentId);
-                        } else if (existingParentId.intValue() != parentId) {
-                            hierarchyMappings.put(childId, AMBIGUOUS);
-                        }
+                    Integer existingParentId = hierarchyMappings.get(childId);
+                    boolean ambiguous = existingParentId != null && existingParentId.intValue() != parentId;
+                    // this is rather blunt; if it's of type ADM prefer this
+                    // (overwriting previous values), if it's of type `null`
+                    // only take it if we don't have a value yet -- this misses
+                    // the case that there might be more then one ADM ancestor, etc.
+                    if ((type == null && !ambiguous) || "ADM".equals(type)) {
+                        hierarchyMappings.put(childId, parentId);
+                    }
+                    if (ambiguous) {
+                        numAmbiguous[0]++;
                     }
                     progress.increment();
                 }
             });
-            // only keep relation, if unambiguous
-            removeByValue(hierarchyMappings, Collections.singleton(AMBIGUOUS));
             LOGGER.info("Finished importing {} items into hierarchy.", hierarchyMappings.size());
+            float ambiguousPercentage = (float) 100 * numAmbiguous[0] / hierarchyMappings.size(); // ~ 2.7%
+            LOGGER.info("There were {} ({}%) ambiguous hierarchy mappings which were dropped.", numAmbiguous[0],
+                    ambiguousPercentage);
         }
     }
 
