@@ -11,15 +11,16 @@ public class Benchmark {
 
     public static void main(String[] args) throws Exception {
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/0-all");
-        evaluator.addDataset("/Users/pk/temp/LGL-converted/0-all");
-        evaluator.addDataset("/Users/pk/temp/CLUST-converted/0-all");
+        evaluator.addDataset("/Users/pk/Desktop/TUD-Loc-2013/0-all");
+        evaluator.addDataset("/Users/pk/Desktop/LGL-converted/0-all");
+        evaluator.addDataset("/Users/pk/Desktop/CLUST-converted/0-all");
 
         // QuickDtModel model = ModelCache.getInstance().getLocationModel();
         // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
         // Filter<String> filter = FileHelper.deserialize("/Users/pk/temp/bloomFilter.ser");
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        String url = "jdbc:mysql://localhost:3306/palladian?useServerPrepStmts=false&cachePrepStmts=false&useUnicode=true&characterEncoding=UTF-8&sessionVariables=group_concat_max_len=1048576&serverTimezone=UTC";
+        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, url, "root", "2.3Q_9oe");
         // Directory directory = new MMapDirectory(new File("/Users/pk/temp/luceneLocationDatabase"));
 
         // default MySQL database, no optimizations
@@ -67,11 +68,13 @@ public class Benchmark {
         // evaluator.addExtractor(new PalladianLocationExtractor(memoryBlocker, disambiguation));
 
         StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 3; i++) {
-            database.resetForPerformanceCheck();
+        for (int i = 0; i < 1; i++) {
+            // database.resetForPerformanceCheck();
             evaluator.runAll(false);
         }
-        System.out.println("took " + stopWatch);
+        // System.out.println("took " + stopWatch);
+        System.out.println("================================");
+        System.out.println(stopWatch.getElapsedTime() + "ms (" + stopWatch.toString() + ")");
     }
 
 
