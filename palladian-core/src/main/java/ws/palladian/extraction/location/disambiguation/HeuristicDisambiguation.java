@@ -167,7 +167,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return unlikelyLocations;
     }
 
-    private static Location selectLocation(Collection<Location> selection) {
+    /* package */ static Location selectLocation(Collection<Location> selection) {
 
         // if we have a continent, take the continent
         LocationSet result = new LocationSet(selection).whereConditionally(type(CONTINENT));
@@ -176,16 +176,21 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         }
 
         List<Location> temp = new ArrayList<>(selection);
-        temp.sort((l1, l2) -> {
-
-            // if locations are nested, take the "deepest" one
-            if (l2.descendantOf(l1)) {
-                return 1;
-            } else if (l1.descendantOf(l2)) {
-                return -1;
+        
+        // if locations are nested, take the "deepest" one
+        List<Location> toRemove = new ArrayList<>();
+        for (Location l1 : temp) {
+        	for (Location l2 : temp) {
+                if (l2.descendantOf(l1)) {
+                    toRemove.add(l1);
+                    break; // inner loop
+                }
             }
-
-            // as last step, compare by population
+        }
+        temp.removeAll(toRemove);
+        
+        // as last step, compare by population
+        temp.sort((l1, l2) -> {
             Long p1 = l1.getPopulation() != null ? l1.getPopulation() : 0;
             Long p2 = l2.getPopulation() != null ? l2.getPopulation() : 0;
 
