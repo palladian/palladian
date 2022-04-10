@@ -55,10 +55,10 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
     // ////////////////// location prepared statements ////////////////////
     private static final String ADD_LOCATION = "INSERT INTO locations SET id = ?, type = ?, name= ?, longitude = ?, latitude = ?, population = ?, ancestorIds = ?";
     private static final String ADD_ALTERNATIVE_NAME = "INSERT IGNORE INTO location_alternative_names SET locationId = ?, alternativeName = ?, language = ?";
-    private static final String GET_LOCATIONS_BY_ID = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN(%s) GROUP BY id;";
+    private static final String GET_LOCATIONS_BY_ID = "SELECT l.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId WHERE l.id IN(%s) GROUP BY id;";
     private static final String GET_HIGHEST_LOCATION_ID = "SELECT MAX(id) FROM locations";
     private static final String GET_LOCATIONS_UNIVERSAL = "{call search_locations(?,?,?,?,?)}";
-    private static final String GET_ALL_LOCATIONS = "SELECT l.*,lan.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
+    private static final String GET_ALL_LOCATIONS = "SELECT l.*,GROUP_CONCAT(alternativeName,'','#',IFNULL(language,'')) AS alternatives FROM locations l LEFT JOIN location_alternative_names lan ON l.id = lan.locationId GROUP BY id;";
     private static final String GET_LOCATION_COUNT = "SELECT COUNT(*) FROM locations";
 
     // //////////////////////////////////////////////////////////////////////
