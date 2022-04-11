@@ -10,14 +10,13 @@ import java.util.Objects;
  * </p>
  *
  * @author Jaroslav Vankat
+ * Created 11th of April, 2022
  * @link https://www.sitemaps.org/protocol.html
  */
 public class Sitemap {
-
     private LinkedHashSet<Entry> urlSet = new LinkedHashSet<>();
 
     public Sitemap() {
-
     }
 
     public Sitemap(LinkedHashSet<Entry> urlSet) {
@@ -85,7 +84,7 @@ public class Sitemap {
 
         @Override
         public String toString() {
-            return "SitemapEntry{" + "location='" + location + '\'' + ", lastModified=" + lastModified + ", priority=" + priority +  '}';
+            return "SitemapEntry{" + "location='" + location + '\'' + ", lastModified=" + lastModified + ", priority=" + priority + '}';
         }
     }
 }
