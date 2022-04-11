@@ -4,6 +4,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.MapBuilder;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringInputStream;
@@ -17,6 +19,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -31,6 +34,7 @@ public class SitemapRetriever {
     private final DocumentRetriever documentRetriever;
     private final static Pattern LOC_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</loc)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern PRIORITY_PATTERN = Pattern.compile("(?<=>)[0-9.]+?(?=</priority)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private final static Pattern LAST_MOD_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</lastmod)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern ALL = Pattern.compile(".");
 
     public SitemapRetriever() {
@@ -69,7 +73,11 @@ public class SitemapRetriever {
      * Get all urls from the sitemap that match the pattern (or exclude those). If it is a sitemap index, get all urls from all sitemaps linked in the index. Fill the url priority map.
      */
     public Set<String> getUrls(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
-        LinkedHashSet<String> pageUrls = new LinkedHashSet<>();
+        return getSitemap(sitemapUrl, urlToPriorityMap, goalNodePattern, include).getUrlSet().stream().map(Sitemap.Entry::getLocation).collect(Collectors.toSet());
+    }
+
+    public Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
+        Sitemap sitemap = new Sitemap();
 
         String sitemapContent;
 
@@ -91,7 +99,7 @@ public class SitemapRetriever {
         }
 
         if (sitemapContent == null) {
-            return pageUrls;
+            return sitemap;
         }
 
         boolean needsCleaning = true;
@@ -101,19 +109,19 @@ public class SitemapRetriever {
         }
         SitemapType sitemapType = getSitemapType(sitemapContent);
         if (sitemapType == null) {
-            return pageUrls;
+            return sitemap;
         }
 
         switch (sitemapType) {
             case LIST:
-                List<String> cleanListUrls;
+                Sitemap sitemap1;
                 if (parseXml) {
-                    cleanListUrls = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include);
+                    sitemap1 = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include);
                 } else {
-                    cleanListUrls = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include, needsCleaning);
+                    sitemap1 = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include, needsCleaning);
                 }
 
-                pageUrls.addAll(cleanListUrls);
+                sitemap.getUrlSet().addAll(sitemap1.getUrlSet());
                 break;
             case INDEX:
                 List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapContent);
@@ -142,13 +150,13 @@ public class SitemapRetriever {
                     if (sitemapText == null) {
                         continue;
                     }
-                    List<String> cleanUrls;
+                    Sitemap sitemap2;
                     if (parseXml) {
-                        cleanUrls = getUrlsFromSitemapParsed(sitemapText, goalNodePattern, include);
+                        sitemap2 = getUrlsFromSitemapParsed(sitemapText, goalNodePattern, include);
                     } else {
-                        cleanUrls = getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include);
+                        sitemap2 = getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include);
                     }
-                    pageUrls.addAll(cleanUrls);
+                    sitemap.getUrlSet().addAll(sitemap2.getUrlSet());
 
                     // clean up files
                     FileHelper.delete(downloadPath);
@@ -159,7 +167,7 @@ public class SitemapRetriever {
                 break;
         }
 
-        return pageUrls;
+        return sitemap;
     }
 
     private String cleanUpSitemap(String sitemapText) {
@@ -196,40 +204,74 @@ public class SitemapRetriever {
         }
     }
 
-    private List<String> getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
-        List<String> urls = new ArrayList<>();
+    private Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
+        List<Sitemap.Entry> entries = new ArrayList<>();
         try {
             Document xmlDocument;
-            List<Node> locationNodes = Collections.emptyList();
+            List<Node> urlNodes = Collections.emptyList();
             try {
                 xmlDocument = ParserFactory.createXmlParser().parse(new StringInputStream(sitemapText));
-                locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+                urlNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//url");
             } catch (Exception e) {
                 // ccl
             }
-            if (locationNodes.isEmpty()) { // fallback to forgiving html parser
+
+            if (urlNodes.isEmpty()) { // fallback to forgiving html parser
                 xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
-                locationNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//loc");
+                urlNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//url");
             }
-            for (Node locationNode : locationNodes) {
+
+
+            for (Node urlNode : urlNodes) {
+                Node locationNode = null;
+                Node lastModNode = null;
+                Node priorityNode = null;
+                for (int i = 0; i < urlNode.getChildNodes().getLength(); i++) {
+                    Node child = urlNode.getChildNodes().item(i);
+                    if (child.getNodeName().equalsIgnoreCase("loc")) {
+                        locationNode = child;
+                    } else if (child.getNodeName().equalsIgnoreCase("lastmod")) {
+                        lastModNode = child;
+                    } else if (child.getNodeName().equalsIgnoreCase("priority")) {
+                        priorityNode = child;
+                    }
+                }
+
+                if (locationNode == null) {
+                    continue;
+                }
+
                 String url = locationNode.getTextContent();
                 boolean matchedPattern = goalNodePattern.matcher(url).find();
                 if ((matchedPattern && include) || (!matchedPattern && !include)) {
-                    urls.add(normalizeUrl(url));
+                    String location = normalizeUrl(url);
+
+                    String lastModString = lastModNode != null ? lastModNode.getTextContent() : null;
+                    ExtractedDate lastMod = lastModString != null ? DateParser.findDate(lastModString) : null;
+
+                    Double priority = null;
+                    if (priorityNode != null) {
+                        try {
+                            priority = Double.valueOf(priorityNode.getTextContent());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    entries.add(new Sitemap.Entry(location, lastMod != null ? lastMod.getNormalizedDate() : null, priority));
                 }
             }
         } catch (ParserException e) {
             e.printStackTrace();
         }
 
-        return urls;
+        return new Sitemap(new LinkedHashSet<>(entries));
     }
 
-    private List<String> getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
+    private Sitemap getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
         return getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include, true);
     }
 
-    private List<String> getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, boolean needsCleaning) {
+    private Sitemap getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, boolean needsCleaning) {
         if (needsCleaning) {
             sitemapText = cleanUpSitemap(sitemapText);
         }
@@ -237,32 +279,51 @@ public class SitemapRetriever {
         String[] lines = sitemapText.split("\n");
         List<String> sitemapUrls = new ArrayList<>();
         List<String> priorityStrings = new ArrayList<>();
+        List<String> lastModStrings = new ArrayList<>();
         for (String line : lines) {
             List<String> regexpMatches = StringHelper.getRegexpMatches(LOC_PATTERN, line);
             sitemapUrls.addAll(regexpMatches);
             List<String> priorityMatches = StringHelper.getRegexpMatches(PRIORITY_PATTERN, line);
             priorityStrings.addAll(priorityMatches);
+            List<String> lastModMatches = StringHelper.getRegexpMatches(LAST_MOD_PATTERN, line);
+            lastModStrings.addAll(lastModMatches);
         }
 
         // clean and check for include
-        LinkedHashSet<String> cleanSitemapUrls = new LinkedHashSet<>();
+        LinkedHashSet<Sitemap.Entry> cleanSitemapEntries = new LinkedHashSet<>();
         boolean skipMatching = false;
         if (goalNodePattern.pattern().equals(".*")) {
             skipMatching = true;
         }
-        for (String url : sitemapUrls) {
+        boolean hasValidPriorities = priorityStrings.size() == sitemapUrls.size();
+        boolean hasValidLastMods = lastModStrings.size() == sitemapUrls.size();
+
+        for (int i = 0; i < sitemapUrls.size(); i++) {
+            String url = sitemapUrls.get(i);
             boolean matchedPattern = true;
             if (!skipMatching) {
                 matchedPattern = goalNodePattern.matcher(url).find();
             }
             if ((matchedPattern && include) || (!matchedPattern && !include)) {
-                cleanSitemapUrls.add(normalizeUrl(url));
+                String location = normalizeUrl(url);
+                String priorityString = hasValidPriorities ? priorityStrings.get(i) : null;
+                String lastModString = hasValidLastMods ? lastModStrings.get(i) : null;
+                ExtractedDate lastMod = lastModString != null ? DateParser.findDate(lastModString) : null;
+                Double priority = null;
+                if (priorityString != null) {
+                    try {
+                        priority = Double.valueOf(priorityString);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                cleanSitemapEntries.add(new Sitemap.Entry(location, lastMod != null ? lastMod.getNormalizedDate() : null, priority));
             }
         }
 
         // get all priority tags, only if number of priority tags = number of URLs we can map them
         try {
-            if (sitemapUrls.size() == priorityStrings.size()) {
+            if (hasValidPriorities) {
                 for (int k = 0; k < sitemapUrls.size(); k++) {
                     urlToPriorityMap.put(sitemapUrls.get(k), Double.valueOf(priorityStrings.get(k)));
                 }
@@ -271,7 +332,7 @@ public class SitemapRetriever {
             e.printStackTrace();
         }
 
-        return new ArrayList<>(cleanSitemapUrls);
+        return new Sitemap(cleanSitemapEntries);
     }
 
     /**
