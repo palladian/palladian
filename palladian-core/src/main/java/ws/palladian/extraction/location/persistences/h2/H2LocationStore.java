@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.persistences.h2;
 import java.io.File;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -74,7 +75,7 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
 
     @Override
     public int getHighestId() {
-        return runSingleQuery(RowConverters.INTEGER, "SELECT MAX(id) FROM locations");
+        return Optional.ofNullable(runSingleQuery(RowConverters.INTEGER, "SELECT MAX(id) FROM locations")).orElse(0);
     }
 
     @Override
