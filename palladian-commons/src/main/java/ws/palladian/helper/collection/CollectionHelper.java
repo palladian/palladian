@@ -1080,7 +1080,6 @@ public final class CollectionHelper {
     }
 
     private static <T extends Number> int findIndexBefore(T num, List<T> list, int globalIndex) {
-
         int i = list.size() / 2;
 
         if (Objects.equals(list.get(i), num) || list.size() == 1) {

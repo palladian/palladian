@@ -1,26 +1,20 @@
 package ws.palladian.helper.geo;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Distance;
 
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static java.lang.Math.*;
-import static java.lang.Math.sqrt;
 
 /**
  * <p>
  * Various utility functions and constants for geographic purposes.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class GeoUtils {
@@ -54,7 +48,7 @@ public final class GeoUtils {
      * heaviest part of the globe is pulled by gravity until it is facing downward. Then the lowest point on the globe
      * would be the geographic midpoint for all of the weighted locations.</i>.
      * </p>
-     * 
+     *
      * @param coordinates The {@link GeoCoordinate}s, not empty or <code>null</code>.
      * @return An array with the midpoint, first element is latitude, second element is longitude.
      */
@@ -95,7 +89,7 @@ public final class GeoUtils {
      * be calculated by a single formula but has to be determined iteratively. The algorithm employed here is described
      * on <a href="http://www.geomidpoint.com/calculation.html">GeoMidpoint</a>.
      * </p>
-     * 
+     *
      * @param coordinates The {@link GeoCoordinate}s, not empty or <code>null</code>.
      * @return A {@link GeoCoordinate} representing the center of minimum distance.
      * @see <a href="http://en.wikipedia.org/wiki/Geometric_median">Wikipedia: Geometric median</a>
@@ -161,9 +155,9 @@ public final class GeoUtils {
     /**
      * Get eight "test points" around the given coordinate, with the specified distance and bearings of [0, 45, 90, ...
      * 315].
-     * 
+     *
      * @param coordinate The center coordinate.
-     * @param distance The distance.
+     * @param distance   The distance.
      * @return An array with eight coordinates around the specified coordinate, each with the specified distance.
      */
     static GeoCoordinate[] getTestPoints(GeoCoordinate coordinate, double distance) {
@@ -178,7 +172,7 @@ public final class GeoUtils {
      * <p>
      * Convert a DMS coordinate (degrees, minutes, seconds) to decimal degree.
      * </p>
-     * 
+     *
      * @param dmsString The string with the DMS coordinate, not <code>null</code> or empty.
      * @return The double value with decimal degree.
      * @throws NumberFormatException in case the string could not be parsed.
@@ -209,10 +203,10 @@ public final class GeoUtils {
      * {@link GeoCoordinate#distance(GeoCoordinate)} but is less exact. For small distances, the discrepancy is
      * negligible.
      * </p>
-     * 
+     *
      * @param c1 First coordinate, not <code>null</code>.
      * @param c2 Second coordinate, not <code>null</code>.
-     * @return The approximate distance between the two coordinates.
+     * @return The approximate distance between the two coordinates in kilometers.
      */
     public static double approximateDistance(double lat1, double lng1, double lat2, double lng2) {
         double rlat1 = toRadians(lat1);
@@ -233,6 +227,7 @@ public final class GeoUtils {
 
     /**
      * Compute the exact distance between two coordinates.
+     *
      * @param lat1 Latitude Point 1.
      * @param lng1 Longitude Point 1.
      * @param lat2 Latitude Point 2.
@@ -255,11 +250,11 @@ public final class GeoUtils {
      * Check, if the given latitude and longitude pair are in valid coordinate range (i.e. -90 <= latitude <= 90 and
      * -180 <= longitude <= 180).
      * </p>
-     * 
+     *
      * @param lat The latitude.
      * @param lng The longitude.
      * @return <code>true</code> in case the latitude and longitude are valid for a coordinate, <code>false</code>
-     *         otherwise.
+     * otherwise.
      */
     public static boolean isValidCoordinateRange(double lat, double lng) {
         return -90 <= lat && lat <= 90 && -180 <= lng && lng <= 180;
@@ -270,7 +265,7 @@ public final class GeoUtils {
      * Check, if the given latitude and longitude pair are in valid coordinate range (i.e. -90 <= latitude <= 90 and
      * -180 <= longitude <= 180).
      * </p>
-     * 
+     *
      * @param lat The latitude.
      * @param lng The longitude.
      * @throws IllegalArgumentException In case the latitude and/or longitude are out of range.
@@ -286,7 +281,7 @@ public final class GeoUtils {
      * <p>
      * Normalizes a latitude value to a range of [-90 .. 90] capping it to the bounds, if necessary.
      * </p>
-     * 
+     *
      * @param lat The latitude value to normalize.
      * @return A latitude in the range of [-90 ... 90].
      */
@@ -304,7 +299,7 @@ public final class GeoUtils {
      * <p>
      * Normalizes a longitude value to a range of [-180 .. 180] by wrapping it, if necessary.
      * </p>
-     * 
+     *
      * @param lng The longitude value to normalize.
      * @return A latitude in the range of [-180 ... 180].
      */
@@ -324,10 +319,10 @@ public final class GeoUtils {
      * For each pair in the given Collection of {@link GeoCoordinate}s determine the distance, and return the highest
      * distance.
      * </p>
-     * 
+     *
      * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
      * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection was
-     *         empty.
+     * empty.
      * @see #largestDistanceBelow(double, Collection) is faster, if you just care about a maximum value.
      */
     public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {
