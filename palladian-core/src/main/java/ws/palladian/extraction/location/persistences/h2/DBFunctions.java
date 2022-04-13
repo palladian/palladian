@@ -16,19 +16,22 @@ import java.util.List;
  */
 public class DBFunctions {
     public static String getAncestorIds(Connection connection, int locationId) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("WITH RECURSIVE location_ancestors(id, parentId) AS (" //
-                + "  SELECT id, parentId FROM locations WHERE id = ? UNION ALL " //
-                + "  SELECT l.id, l.parentId FROM locations l JOIN location_ancestors p ON l.id = p.parentId" //
-                + ") " //
-                + "SELECT parentId FROM location_ancestors WHERE parentId IS NOT NULL");
-        statement.setInt(1, locationId);
-        ResultSet resultSet = statement.executeQuery();
-        List<String> ancestorIds = new ArrayList<>();
-        while (resultSet.next()) {
-            ancestorIds.add(resultSet.getString(1));
+        try (PreparedStatement statement = connection
+                .prepareStatement("WITH RECURSIVE location_ancestors(id, parentId) AS (" //
+                        + "  SELECT id, parentId FROM locations WHERE id = ? UNION ALL " //
+                        + "  SELECT l.id, l.parentId FROM locations l JOIN location_ancestors p ON l.id = p.parentId" //
+                        + ") " //
+                        + "SELECT parentId FROM location_ancestors WHERE parentId IS NOT NULL")) {
+            statement.setInt(1, locationId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<String> ancestorIds = new ArrayList<>();
+                while (resultSet.next()) {
+                    ancestorIds.add(resultSet.getString(1));
+                }
+                Collections.reverse(ancestorIds);
+                return "/" + String.join("/", ancestorIds) + "/";
+            }
         }
-        Collections.reverse(ancestorIds);
-        return "/" + String.join("/", ancestorIds) + "/";
     }
 
     private DBFunctions() {
