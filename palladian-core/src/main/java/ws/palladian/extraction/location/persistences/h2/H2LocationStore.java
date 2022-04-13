@@ -2,8 +2,11 @@ package ws.palladian.extraction.location.persistences.h2;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -41,7 +44,14 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
 
     @Override
     public void save(Location location) {
-        Integer parentLocationId = location.getAncestorIds().size() > 0 ? location.getAncestorIds().get(0) : null;
+        String hierarchyString = null;
+        if (!location.getAncestorIds().isEmpty()) {
+            List<String> reverseAncestorIds = location.getAncestorIds().stream() //
+                    .map(Object::toString) //
+                    .collect(Collectors.toList());
+            Collections.reverse(reverseAncestorIds);
+            hierarchyString = "/" + String.join("/", reverseAncestorIds) + "/";
+        }
         String point = location.getCoords() //
                 .map(c -> String.format("POINT(%s %s)", c.getLatitude(), c.getLongitude())) //
                 .orElse(null);
@@ -50,7 +60,7 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
                 location.getType().ordinal(), //
                 point, //
                 location.getPopulation(), //
-                parentLocationId //
+                hierarchyString //
         );
         runInsertReturnId("INSERT INTO location_names VALUES(?, ?, ?, ?)", //
                 location.getId(), //
@@ -86,7 +96,7 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
                 + ", type tinyint NOT NULL DEFAULT 0" //
                 + ", coordinate geometry DEFAULT NULL " //
                 + ", population bigint DEFAULT NULL" //
-                + ", parentId integer DEFAULT NULL" //
+                + ", ancestorIds varchar(100) DEFAULT NULL" //
                 + ")");
         runUpdateOrThrow("CREATE TABLE location_names (" //
                 + "locationId integer NOT NULL" //
@@ -102,9 +112,6 @@ public class H2LocationStore extends DatabaseManager implements LocationStore {
         runUpdateOrThrow("CREATE SPATIAL INDEX coordinate ON locations (coordinate)");
         runUpdateOrThrow("CREATE INDEX locationId ON location_names (locationId)");
         runUpdateOrThrow("CREATE INDEX name ON location_names (name)");
-
-        // register function
-        runUpdateOrThrow("CREATE ALIAS getAncestorIds FOR '" + DBFunctions.class.getName() + ".getAncestorIds'");
 
         // compactify the DB
         runUpdateOrThrow("SHUTDOWN DEFRAG");

@@ -111,7 +111,6 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
             GeoCoordinate coordinate, double distance) {
         String sql = "SELECT " //
                 + "  l.* " //
-                + ", getAncestorIds(l.id) as ancestorIds " //
                 + ", LISTAGG(n.name, '#') AS names " //
                 + ", LISTAGG(IFNULL(n.language, '_'), '#') as nameLangs " //
                 + ", LISTAGG(n.isPrimary, '#') AS namePrimary " //
@@ -153,7 +152,6 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
     public Location getLocation(int locationId) {
         return runSingleQuery(ROW_CONVERTER, "SELECT " //
                 + "  l.* " //
-                + ", getAncestorIds(l.id) as ancestorIds " //
                 + ", LISTAGG(n.name, '#') AS names " //
                 + ", LISTAGG(IFNULL(n.language, '_'), '#') as nameLangs " //
                 + ", LISTAGG(n.isPrimary, '#') AS namePrimary " //
@@ -173,7 +171,6 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         List<Location> locations = runQuery(ROW_CONVERTER, "SELECT " //
                 + "  l.* " //
-                + ", getAncestorIds(l.id) as ancestorIds " //
                 + ", LISTAGG(n.name, '#') AS names " //
                 + ", LISTAGG(IFNULL(n.language, '_'), '#') as nameLangs " //
                 + ", LISTAGG(n.isPrimary, '#') AS namePrimary " //
@@ -193,7 +190,6 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
     public Iterator<Location> getLocations() {
         return runQueryWithIterator(ROW_CONVERTER, "SELECT " //
                 + "  l.* " //
-                + ", getAncestorIds(l.id) as ancestorIds " //
                 + ", LISTAGG(n.name, '#') AS names " //
                 + ", LISTAGG(IFNULL(n.language, '_'), '#') as nameLangs " //
                 + ", LISTAGG(n.isPrimary, '#') AS namePrimary " //
