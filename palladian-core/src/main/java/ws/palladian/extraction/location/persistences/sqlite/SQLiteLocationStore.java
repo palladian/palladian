@@ -123,6 +123,9 @@ public class SQLiteLocationStore extends DatabaseManager implements LocationStor
 
         runUpdateOrThrow("CREATE INDEX IF NOT EXISTS locationId ON location_names (locationId)");
         runUpdateOrThrow("CREATE INDEX IF NOT EXISTS name ON location_names (name COLLATE NOCASE)");
+
+        // saves (very) few percent: https://www.sqlite.org/lang_vacuum.html
+        runUpdateOrThrow("VACUUM");
     }
 
     private void flush(boolean force) {
