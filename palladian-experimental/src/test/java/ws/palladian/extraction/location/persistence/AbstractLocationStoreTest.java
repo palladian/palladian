@@ -21,6 +21,7 @@ import org.junit.Test;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
+import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.LocationStore;
@@ -202,14 +203,17 @@ public abstract class AbstractLocationStoreTest {
 
     @Test
     public void testGetLocationByRadius() {
-        List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(49, 9), 20);
+        GeoCoordinate coordinate = new ImmutableGeoCoordinate(49, 9);
+
+        List<Location> locations = locationSource.getLocations(coordinate, 20);
         assertEquals(2, locations.size());
         assertContainsLocation(2926304, locations);
         assertContainsLocation(6555517, locations);
         assertEqualLocations(byId(2926304, TEST_LOCATIONS), byId(2926304, locations));
         assertEqualLocations(byId(6555517, TEST_LOCATIONS), byId(6555517, locations));
 
-        locations = locationSource.getLocations(new ImmutableGeoCoordinate(49, 9), 100);
+        locations = locationSource.getLocations(coordinate, 100);
+
         assertEquals(8, locations.size());
         assertContainsLocation(6255148, locations);
         assertContainsLocation(2953481, locations);
@@ -227,6 +231,11 @@ public abstract class AbstractLocationStoreTest {
         assertEqualLocations(byId(2926304, TEST_LOCATIONS), byId(2926304, locations));
         assertEqualLocations(byId(3220785, TEST_LOCATIONS), byId(3220785, locations));
         assertEqualLocations(byId(2825297, TEST_LOCATIONS), byId(2825297, locations));
+
+        // should be sorted by distance
+        List<Location> sortedLocations = new ArrayList<>(locations);
+        sortedLocations.sort(LocationExtractorUtils.distanceComparator(coordinate));
+        assertEquals(locations, sortedLocations);
     }
 
     @Test
