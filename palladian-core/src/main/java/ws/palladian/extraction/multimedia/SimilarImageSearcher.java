@@ -13,6 +13,7 @@ import ws.palladian.helper.io.FileHelper;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 import java.util.*;
 
@@ -30,7 +31,10 @@ public class SimilarImageSearcher {
 
     public SimilarImageSearcher(File folder) {
         this.folder = folder;
-        buildIndex();
+        boolean loaded = loadIndex();
+        if (!loaded) {
+            buildIndex();
+        }
     }
 
     public boolean index(String imageUrl, String identifier) {
@@ -44,6 +48,23 @@ public class SimilarImageSearcher {
         ImageVector imageVector = createImageVector(image, identifier);
         imageVectors.add(imageVector);
         return true;
+    }
+
+    private boolean loadIndex() {
+        String imageVectorsPath = folder.getPath() + "/image-vectors.gz";
+        if (FileHelper.fileExists(imageVectorsPath)) {
+            List<ImageVector> loadedImageVectors = FileHelper.tryDeserialize(imageVectorsPath);
+            if (loadedImageVectors != null) {
+                imageVectors.addAll(loadedImageVectors);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean saveIndex() {
+        String imageVectorsPath = folder.getPath() + "/image-vectors.gz";
+        return FileHelper.trySerialize((Serializable) imageVectors, imageVectorsPath);
     }
 
     public void buildIndex() {
@@ -60,6 +81,10 @@ public class SimilarImageSearcher {
             ImageVector imageVector = createImageVector(image, identifier);
             imageVectors.add(imageVector);
             pm.incrementAndPrintProgress();
+        }
+
+        if (!imageVectors.isEmpty()) {
+            saveIndex();
         }
     }
 
