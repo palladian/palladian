@@ -144,6 +144,9 @@ public final class LuceneLocationStore implements LocationStore {
 
     @Override
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
+        if (alternativeNames.isEmpty()) {
+            return;
+        }
         Document document = new Document();
         document.add(new StringField(FIELD_ALT_ID, String.valueOf(locationId), Field.Store.YES));
         for (AlternativeName altName : alternativeNames) {
