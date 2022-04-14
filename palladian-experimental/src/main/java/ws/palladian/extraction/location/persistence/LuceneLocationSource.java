@@ -19,6 +19,7 @@ import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.LatLonDocValuesField;
 import org.apache.lucene.document.LatLonPoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -29,7 +30,10 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Bits;
 import org.slf4j.Logger;
@@ -80,7 +84,10 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     static final String FIELD_NAME = "name";
 
     /** LatLonPoint field (for queries, doesn't store the actual value). */
-    static final String FIELD_LAT_LNG = "latLngPoint";
+    static final String FIELD_LAT_LNG_POINT = "latLngPoint";
+
+    /** LatLonDocValuesField for sorting results by distance. */
+    static final String FIELD_LAT_LNG_SORT = "latLngSort";
 
     /** Identifier for the field which stores the latitude. */
     static final String FIELD_LAT = "lat";
@@ -131,7 +138,8 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        return queryLocations(locationName, languages, null, 0);
+        BooleanQuery query = createQuery(locationName, languages, null, 0);
+        return queryLocations(query, searcher, reader);
     }
 
     @Override
@@ -253,7 +261,21 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
 
     @Override
     public List<Location> getLocations(final GeoCoordinate coordinate, double distance) {
-        return queryLocations(null, null, coordinate, distance);
+        BooleanQuery query = createQuery(null, null, coordinate, distance);
+        Sort sort = new Sort(LatLonDocValuesField.newDistanceSort(FIELD_LAT_LNG_SORT, coordinate.getLatitude(),
+                coordinate.getLongitude()));
+        StopWatch stopWatch = new StopWatch();
+        try {
+            TopFieldDocs result = searcher.search(query, Integer.MAX_VALUE, sort);
+            List<Location> locations = new ArrayList<>();
+            for (ScoreDoc scoreDoc : result.scoreDocs) {
+                locations.add(parseLocation(searcher.doc(scoreDoc.doc)));
+            }
+            LOGGER.trace("query {} took {}", query, stopWatch);
+            return locations;
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -261,12 +283,14 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             GeoCoordinate coordinate, double distance) {
         MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
         for (String locationName : locationNames) {
-            result.put(locationName, queryLocations(locationName, languages, coordinate, distance));
+            BooleanQuery query = createQuery(locationName, languages, coordinate, distance);
+            result.put(locationName, queryLocations(query, searcher, reader));
         }
         return result;
     }
 
-    private List<Location> queryLocations(String locationName, Set<Language> languages, GeoCoordinate coordinate, double distance) {
+    private static BooleanQuery createQuery(String locationName, Set<Language> languages, GeoCoordinate coordinate,
+            double distance) {
         BooleanQuery.Builder query = new BooleanQuery.Builder();
         if (locationName != null) {
             // location name also needs to be processed by analyzer; after all we could just lowercase here,
@@ -285,13 +309,13 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         }
         if (coordinate != null) {
             query.add(LatLonPoint.newDistanceQuery( //
-                    FIELD_LAT_LNG, //
+                    FIELD_LAT_LNG_POINT, //
                     coordinate.getLatitude(), //
                     coordinate.getLongitude(), //
                     distance * 1000 //
             ), Occur.FILTER);
         }
-        return queryLocations(query.build(), searcher, reader);
+        return query.build();
     }
 
     @Override

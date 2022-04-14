@@ -4,7 +4,8 @@ import static ws.palladian.extraction.location.persistence.LuceneLocationSource.
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ANCESTOR_IDS;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ID;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_LNG;
+import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_LNG_POINT;
+import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_LNG_SORT;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LNG;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_NAME;
 import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_POPULATION;
@@ -24,6 +25,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.LatLonDocValuesField;
 import org.apache.lucene.document.LatLonPoint;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
@@ -212,9 +214,13 @@ public final class LuceneLocationStore implements LocationStore {
                         String[] split = latLng.split(LAT_LNG_SEPARATOR);
                         double lat = Double.parseDouble(split[0]);
                         double lng = Double.parseDouble(split[1]);
+                        // these are used for storing, resp. retrieving lat/lon value
                         document.add(new StoredField(FIELD_LAT, lat));
                         document.add(new StoredField(FIELD_LNG, lng));
-                        document.add(new LatLonPoint(FIELD_LAT_LNG, lat, lng));
+                        // this is used for querying by lat/lon
+                        document.add(new LatLonPoint(FIELD_LAT_LNG_POINT, lat, lng));
+                        // this is used for sorting by lat/lon
+                        document.add(new LatLonDocValuesField(FIELD_LAT_LNG_SORT, lat, lng));
                     }
                     document.removeField(FIELD_LAT_LNG_TEMP);
                     resultWriter.addDocument(document);
