@@ -4,11 +4,10 @@ package ws.palladian.helper.geo;
  * <p>
  * Implementations of this interface represent geographic coordinates represented by latitude and longitude values.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface GeoCoordinate {
-
     /**
      * <p>
      * Null object, which makes it easier to work with non-present coordinates (latitude and longitude are zero, and all
@@ -29,11 +28,15 @@ public interface GeoCoordinate {
         @Override
         public double distance(GeoCoordinate other) {
             return GeoUtils.EARTH_MAX_DISTANCE_KM;
-        };
+        }
+
+        ;
 
         public GeoCoordinate getCoordinate(double distance, double bearing) {
             return NULL;
-        };
+        }
+
+        ;
 
     };
 
@@ -55,7 +58,7 @@ public interface GeoCoordinate {
      * {@link GeoUtils#approximateDistance(GeoCoordinate, GeoCoordinate)} which sacrifices accuracy, but which is
      * magnitudes faster.
      * </p>
-     * 
+     *
      * @param other The other location, not <code>null</code>.
      * @return The distance to the other location in kilometers.
      */
@@ -65,7 +68,7 @@ public interface GeoCoordinate {
      * <p>
      * Convert this {@link GeoCoordinate} to DMS coordinates.
      * </p>
-     * 
+     *
      * @return A DMS string representing the coordinate.
      */
     String toDmsString();
@@ -75,10 +78,10 @@ public interface GeoCoordinate {
      * Calculates a (quadratic) bounding box around this {@link GeoCoordinate} with the specified distance in
      * kilometers.
      * </p>
-     * 
+     *
      * @param distance The distance around the coordinate in kilometers, greater/equal zero.
      * @return An array with four elements specifying the coordinates of the bounding box in the following order:
-     *         [south, west, north, east].
+     * [south, west, north, east].
      */
     double[] getBoundingBox(double distance);
 
@@ -86,12 +89,11 @@ public interface GeoCoordinate {
      * <p>
      * Get a new point form this {@link GeoCoordinate} with the specified distance and bearing.
      * </p>
-     * 
+     *
      * @param distance The distance from this coordinate in kilometers, greater/equal zero.
-     * @param bearing The bearing (angle) in degrees, which determines in which direction to move. A bearing of 0°
-     *            denotes the direction north, 90° east, and so on.
+     * @param bearing  The bearing (angle) in degrees, which determines in which direction to move. A bearing of 0°
+     *                 denotes the direction north, 90° east, and so on.
      * @return A new {@link GeoCoordinate} with the specified distance and bearing.
      */
     GeoCoordinate getCoordinate(double distance, double bearing);
-
 }

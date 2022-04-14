@@ -43,6 +43,14 @@ public class Spatial2dIdMap {
         longitudeMatches = subList.stream().filter(latitudeMatches::contains).collect(Collectors.toSet());
         //        System.out.println("longitude matches stream in " + stopWatch.getElapsedTimeStringAndIncrement());
 
+        //        Set<IdCoordinate> latAndLongMatches = new HashSet<>();
+        //        for (IdCoordinate longitudeMatch : subList) {
+        //            if (latitudeMatches.contains(longitudeMatch)) {
+        //                latAndLongMatches.add(longitudeMatch);
+        //            }
+        //        }
+        //        return latAndLongMatches;
+
         return longitudeMatches;
     }
 
@@ -71,7 +79,7 @@ public class Spatial2dIdMap {
         ImmutableGeoCoordinate sourceCoordinate = new ImmutableGeoCoordinate(lat, lng);
 
         double[] boundingBox = sourceCoordinate.getBoundingBox(distanceMeters / 1000.);
-        List<IdCoordinate> inBox = new ArrayList<>(findInBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[2]));
+        List<IdCoordinate> inBox = new ArrayList<>(findInBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]));
 
         // now sort them by distance to given coordinate
         inBox.sort(Comparator.comparingDouble(o -> GeoUtils.approximateDistance(o.getCoordinate(), sourceCoordinate)));

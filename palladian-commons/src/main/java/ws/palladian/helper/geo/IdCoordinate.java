@@ -1,11 +1,13 @@
 package ws.palladian.helper.geo;
 
+import java.util.Objects;
+
 /**
  * Created by sky on 07.08.2016.
+ *
  * @author David Urbansky
  */
 public class IdCoordinate {
-
     private int id;
     private GeoCoordinate coordinate;
 
@@ -27,14 +29,16 @@ public class IdCoordinate {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         IdCoordinate that = (IdCoordinate) o;
-        return id == that.id;
+        return id == that.id && Objects.equals(coordinate, that.coordinate);
     }
 
     @Override
     public int hashCode() {
-        return id;
+        return Objects.hash(id, coordinate);
     }
 }
