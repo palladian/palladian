@@ -113,14 +113,14 @@ public final class LuceneLocationStore implements LocationStore {
 
     @Override
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
+        Document document = new Document();
+        document.add(new StringField(FIELD_ALT_ID, String.valueOf(locationId), Field.Store.YES));
         for (AlternativeName altName : alternativeNames) {
-            Document document = new Document();
             String langString = altName.getLang().map(Language::getIso6391).orElse("");
-            document.add(new StringField(FIELD_ALT_ID, String.valueOf(locationId), Field.Store.YES));
             String nameString = altName.getName() + NAME_LANGUAGE_SEPARATOR + langString;
             document.add(new NameField(FIELD_NAME, nameString));
-            tempAltNamesIndex.addDocument(document);
         }
+        tempAltNamesIndex.addDocument(document);
     }
 
     @Override
