@@ -145,6 +145,10 @@ public class MySQLLocationStore extends DatabaseManager implements LocationStore
     }
 
     private void checkAllowLoadLocalInfile() {
+        // TODO better test this with an actual LOAD DATA call,
+        // b/c it must be enabled on the server AND through the
+        // connection URL; forgot the latter and received:
+        // Caused by: java.sql.SQLSyntaxErrorException: Loading local data is disabled; this must be enabled on both the client and server sides
         String value = runSingleQuery( //
                 (RowConverter<String>) resultSet -> resultSet.getString("Value"), //
                 "SHOW VARIABLES WHERE variable_name = 'local_infile';"); //
