@@ -44,8 +44,6 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.sources.LocationStore;
-import ws.palladian.helper.NoProgress;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
@@ -168,15 +166,15 @@ public final class LuceneLocationStore implements LocationStore {
     }
 
     @Override
-    public void finishImport() {
+    public void finishImport(ProgressReporter progress) {
         try {
-            optimize();
+            optimize(progress);
         } catch (IOException e) {
             throw new IllegalStateException("Encountered IOException while optimizing the index", e);
         }
     }
 
-    private void optimize() throws IOException {
+    private void optimize(ProgressReporter progress) throws IOException {
         LOGGER.debug("Committing and closing temporary IndexWriter.");
         tempIndexWriter.commit();
         tempIndexWriter.close();
@@ -190,7 +188,6 @@ public final class LuceneLocationStore implements LocationStore {
             IndexSearcher tempSearcher = new IndexSearcher(tempReader);
 
             // loop through all locations in index
-            ProgressReporter progress = tempReader.numDocs() > 10000 ? new ProgressMonitor() : NoProgress.INSTANCE;
             progress.startTask("Building index", tempReader.numDocs());
             LOGGER.debug("Creating optimized index, # of documents in temporary index: {}", tempReader.numDocs());
             for (int docId = 0; docId < tempReader.maxDoc(); docId++) {

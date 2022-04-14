@@ -4,6 +4,8 @@ import java.util.Collection;
 
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.helper.NoProgress;
+import ws.palladian.helper.ProgressReporter;
 
 /**
  * <p>
@@ -56,6 +58,18 @@ public interface LocationStore {
     /**
      * Invoke after finishing import.
      */
-    void finishImport();
+    default void finishImport() {
+        finishImport(NoProgress.INSTANCE);
+    }
+
+    /**
+     * Invoke after finishing import.
+     *
+     * @param progress Progress reporter.
+     * @since 2.0
+     */
+    default void finishImport(ProgressReporter progress) {
+        // no op
+    }
 
 }

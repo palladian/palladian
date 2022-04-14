@@ -127,22 +127,23 @@ public final class GeonamesImporter {
             InputStreamProvider alternateNamesProvider) throws IOException {
         progressReporter.startTask(null, -1);
         locationStore.startImport();
-        readHierarchy(hierarchyProvider, progressReporter.createSubProgress(0.04));
+        readHierarchy(hierarchyProvider, progressReporter.createSubProgress(0));
         int totalLines;
         try (InputStream inputStream = locationProvider.getInputStream()) {
             totalLines = FileHelper.getNumberOfLines(inputStream);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.24), totalLines);
+            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.2), totalLines);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            establishHierarchyMap(totalLines, progressReporter.createSubProgress(0.24), inputStream);
+            establishHierarchyMap(totalLines, progressReporter.createSubProgress(0.2), inputStream);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            importLocations(inputStream, progressReporter.createSubProgress(0.24), totalLines);
+            importLocations(inputStream, progressReporter.createSubProgress(0.2), totalLines);
         }
-        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.24));
-        locationStore.finishImport();
+        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.2));
+        LOGGER.info("Finishing import");
+        locationStore.finishImport(progressReporter.createSubProgress(0.2));
     }
 
     /**
