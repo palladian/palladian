@@ -70,11 +70,17 @@ public final class LuceneLocationStore implements LocationStore {
     /** Path to the finally created index. */
     private final File indexFile;
 
-    /** Temporary builder index for locations */
-    private final TemporaryIndex tempLocationsIndex;
+    /** Path to the temporary index. */
+    private final File tempIndexFile;
 
-    /** Temporary builder index for alternative names */
-    private final TemporaryIndex tempAltNamesIndex;
+    /** Temporary directory. */
+    private final Directory tempDirectory;
+
+    /** The writer for the index. */
+    private final IndexWriter tempIndexWriter;
+
+    /** The number of modifications since the last commit. */
+    private int modificationCount;
 
     public LuceneLocationStore(File indexFile) {
         Validate.notNull(indexFile, "indexFile must not be null");
@@ -83,8 +89,14 @@ public final class LuceneLocationStore implements LocationStore {
                     + " already exists. Delete the index or specify a different path");
         }
         this.indexFile = indexFile;
-        tempLocationsIndex = new TemporaryIndex();
-        tempAltNamesIndex = new TemporaryIndex();
+        this.tempIndexFile = FileHelper.getTempFile();
+        LOGGER.debug("Temporary index = {}", tempIndexFile);
+        try {
+            this.tempDirectory = FSDirectory.open(this.tempIndexFile.toPath());
+            this.tempIndexWriter = new IndexWriter(tempDirectory, new IndexWriterConfig(ANALYZER));
+        } catch (IOException e) {
+            throw new IllegalStateException("IOException when creating IndexWriter.", e);
+        }
     }
 
     @Override
@@ -107,8 +119,27 @@ public final class LuceneLocationStore implements LocationStore {
             String ancestorString = StringUtils.join(tempHierarchyIds, HIERARCHY_SEPARATOR);
             document.add(new StringField(FIELD_ANCESTOR_IDS, ancestorString, Field.Store.YES));
         }
-        tempLocationsIndex.addDocument(document);
+        addDocument(document);
         addAlternativeNames(location.getId(), location.getAlternativeNames());
+    }
+
+    /**
+     * Add a {@link Document} to the index, and conditionally commit; in case the number of modifications have reached a
+     * modulus of {@value #COMMIT_INTERVAL}.
+     * 
+     * @param document The document to add, not <code>null</code>.
+     * @throws IllegalStateException In case, adding or committing fails.
+     */
+    private void addDocument(Document document) {
+        try {
+            tempIndexWriter.addDocument(document);
+            if (++modificationCount % COMMIT_INTERVAL == 0) {
+                LOGGER.trace("Added {} documents to index, committing ...", modificationCount);
+                tempIndexWriter.commit();
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Encountered IOException while adding document " + document, e);
+        }
     }
 
     @Override
@@ -120,7 +151,7 @@ public final class LuceneLocationStore implements LocationStore {
             String nameString = altName.getName() + NAME_LANGUAGE_SEPARATOR + langString;
             document.add(new NameField(FIELD_NAME, nameString));
         }
-        tempAltNamesIndex.addDocument(document);
+        addDocument(document);
     }
 
     @Override
@@ -143,58 +174,60 @@ public final class LuceneLocationStore implements LocationStore {
     }
 
     private void optimize() throws IOException {
-        tempLocationsIndex.closeAndCommit();
-        tempAltNamesIndex.closeAndCommit();
+        LOGGER.debug("Committing and closing temporary IndexWriter.");
+        tempIndexWriter.commit();
+        tempIndexWriter.close();
 
         IndexWriterConfig config = new IndexWriterConfig(ANALYZER);
         try (FSDirectory resultDirectory = FSDirectory.open(indexFile.toPath());
                 IndexWriter resultWriter = new IndexWriter(resultDirectory, config);
-                IndexReader tempLocationsReader = DirectoryReader.open(tempLocationsIndex.directory);
-                IndexReader tempAlternativeNamesReader = DirectoryReader.open(tempAltNamesIndex.directory)) {
+                IndexReader tempReader = DirectoryReader.open(tempDirectory)) {
 
             int resultModificationCount = 0;
-            IndexSearcher tempAlternativeNamesSearcher = new IndexSearcher(tempAlternativeNamesReader);
+            IndexSearcher tempSearcher = new IndexSearcher(tempReader);
 
             // loop through all locations in index
-            ProgressReporter progress = tempLocationsReader.numDocs() > 10000 ? new ProgressMonitor() : NoProgress.INSTANCE;
-            progress.startTask("Building index", tempLocationsReader.numDocs());
-            LOGGER.debug("Creating optimized index, # of documents in temporary index: {}", tempLocationsReader.numDocs());
-            for (int docId = 0; docId < tempLocationsReader.maxDoc(); docId++) {
-                Document document = tempLocationsReader.document(docId);
+            ProgressReporter progress = tempReader.numDocs() > 10000 ? new ProgressMonitor() : NoProgress.INSTANCE;
+            progress.startTask("Building index", tempReader.numDocs());
+            LOGGER.debug("Creating optimized index, # of documents in temporary index: {}", tempReader.numDocs());
+            for (int docId = 0; docId < tempReader.maxDoc(); docId++) {
+                Document document = tempReader.document(docId);
                 String locationId = document.get(FIELD_ID);
-                // get alternative names for the current location and add them directly into the location document
-                SimpleCollector nameCollector = new SimpleCollector();
-                tempAlternativeNamesSearcher.search(new TermQuery(new Term(FIELD_ALT_ID, locationId)), nameCollector);
-                for (int nameDocId : nameCollector.docs) {
-                    Document alternativeDocument = tempAlternativeNamesReader.document(nameDocId);
-                    for (IndexableField nameField : alternativeDocument.getFields(FIELD_NAME)) {
-                        document.add(nameField);
+                if (locationId != null) {
+                    // get alternative names for the current location and add them directly into the location document
+                    SimpleCollector nameCollector = new SimpleCollector();
+                    tempSearcher.search(new TermQuery(new Term(FIELD_ALT_ID, locationId)), nameCollector);
+                    for (int nameDocId : nameCollector.docs) {
+                        Document alternativeDocument = tempReader.document(nameDocId);
+                        for (IndexableField nameField : alternativeDocument.getFields(FIELD_NAME)) {
+                            document.add(nameField);
+                        }
                     }
-                }
-                // although Lucene offers numeric fields, e.g. IntField, in most cases, except for
-                // latitude/longitude, we intentionally use StringFields. The JavaDoc says, that those field are
-                // less space consuming. The numeric fields only need to be used, in case one wants sorting or range
-                // filtering of the values.
-                String latLng = document.get(FIELD_LAT_LNG_TEMP);
-                if (latLng != null) {
-                    String[] split = latLng.split(LAT_LNG_SEPARATOR);
-                    double lat = Double.parseDouble(split[0]);
-                    double lng = Double.parseDouble(split[1]);
-                    document.add(new StoredField(FIELD_LAT, lat));
-                    document.add(new StoredField(FIELD_LNG, lng));
-                    document.add(new LatLonPoint(FIELD_LAT_LNG, lat, lng));
-                }
-                document.removeField(FIELD_LAT_LNG_TEMP);
-                resultWriter.addDocument(document);
-                if (++resultModificationCount % COMMIT_INTERVAL == 0) {
-                    resultWriter.commit();
+                    // although Lucene offers numeric fields, e.g. IntField, in most cases, except for
+                    // latitude/longitude, we intentionally use StringFields. The JavaDoc says, that those field are
+                    // less space consuming. The numeric fields only need to be used, in case one wants sorting or range
+                    // filtering of the values.
+                    String latLng = document.get(FIELD_LAT_LNG_TEMP);
+                    if (latLng != null) {
+                        String[] split = latLng.split(LAT_LNG_SEPARATOR);
+                        double lat = Double.parseDouble(split[0]);
+                        double lng = Double.parseDouble(split[1]);
+                        document.add(new StoredField(FIELD_LAT, lat));
+                        document.add(new StoredField(FIELD_LNG, lng));
+                        document.add(new LatLonPoint(FIELD_LAT_LNG, lat, lng));
+                    }
+                    document.removeField(FIELD_LAT_LNG_TEMP);
+                    resultWriter.addDocument(document);
+                    if (++resultModificationCount % COMMIT_INTERVAL == 0) {
+                        resultWriter.commit();
+                    }
                 }
                 progress.increment();
             }
         }
 
-        tempLocationsIndex.delete();
-        tempAltNamesIndex.delete();
+        LOGGER.debug("Deleting temporary index: {}", tempIndexFile);
+        FileHelper.delete(tempIndexFile.getPath(), true);
     }
 
     private static final class NameField extends Field {
@@ -212,63 +245,6 @@ public final class LuceneLocationStore implements LocationStore {
 
         NameField(String name, String value) {
             super(name, value, FIELD_TYPE);
-        }
-    }
-
-    /** Temporary structure for a index. */
-    private static final class TemporaryIndex {
-
-        /** Path to the temporary index. */
-        private final File indexFile;
-
-        /** Temporary directory. */
-        private final Directory directory;
-
-        /** The writer for the index. */
-        private final IndexWriter indexWriter;
-
-        /** The number of modifications since the last commit. */
-        private int modificationCount;
-
-        TemporaryIndex() {
-            indexFile = FileHelper.getTempFile();
-            LOGGER.debug("Temporary index = {}", indexFile);
-            try {
-                directory = FSDirectory.open(indexFile.toPath());
-                indexWriter = new IndexWriter(directory, new IndexWriterConfig(ANALYZER));
-            } catch (IOException e) {
-                throw new IllegalStateException("IOException when creating IndexWriter.", e);
-            }
-        }
-
-        /**
-         * Add a {@link Document} to the index, and conditionally commit; in case the number of modifications have reached a
-         * modulus of {@value #COMMIT_INTERVAL}.
-         *
-         * @param document The document to add, not <code>null</code>.
-         * @throws IllegalStateException In case, adding or committing fails.
-         */
-        private void addDocument(Document document) {
-            try {
-                indexWriter.addDocument(document);
-                if (++modificationCount % COMMIT_INTERVAL == 0) {
-                    LOGGER.trace("Added {} documents to index, committing ...", modificationCount);
-                    indexWriter.commit();
-                }
-            } catch (IOException e) {
-                throw new IllegalStateException("Encountered IOException while adding document " + document, e);
-            }
-        }
-
-        private void closeAndCommit() throws IOException {
-            LOGGER.debug("Committing and closing temporary IndexWriter.");
-            indexWriter.commit();
-            indexWriter.close();
-        }
-
-        private void delete() {
-            LOGGER.debug("Deleting temporary index: {}", indexFile);
-            FileHelper.delete(indexFile.getPath(), true);
         }
     }
 
