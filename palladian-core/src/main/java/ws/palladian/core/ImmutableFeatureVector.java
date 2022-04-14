@@ -1,19 +1,17 @@
 package ws.palladian.core;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.value.NullValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryConverter;
 
-final class ImmutableFeatureVector extends AbstractFeatureVector {
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
+final class ImmutableFeatureVector extends AbstractFeatureVector {
     private static final EntryConverter<String, Value> CONVERTER = new EntryConverter<>();
 
     private final Map<String, Value> valueMap;
@@ -54,5 +52,4 @@ final class ImmutableFeatureVector extends AbstractFeatureVector {
     public String toString() {
         return valueMap.toString();
     }
-
 }
