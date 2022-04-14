@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -49,6 +50,14 @@ public class WikimediaApi {
             labels.add(labelJso.tryGetString("value"));
         }
         return labels;
+    }
+
+    public static String getImageUrl(String fileName) {
+        String md5 = DigestUtils.md5Hex(fileName.replace(" ", "_"));
+        String hash1 = md5.substring(0, 1);
+        String hash2 = md5.substring(0, 2);
+
+        return "https://upload.wikimedia.org/wikipedia/commons/" + hash1 + "/" + hash2 + "/" + fileName;
     }
 
     public static void main(String[] args) {
