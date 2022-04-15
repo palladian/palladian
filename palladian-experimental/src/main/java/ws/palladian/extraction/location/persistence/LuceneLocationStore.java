@@ -48,6 +48,7 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.io.FileHelper;
 
 public final class LuceneLocationStore implements LocationStore {
 
@@ -60,11 +61,20 @@ public final class LuceneLocationStore implements LocationStore {
     /** Name of the field in temporary alternative language documents which stores the foreign location ID. */
     private static final String FIELD_ALT_ID = "alternativeId";
 
+    /** Temporary field for lat/lng pair during index building. */
+    private static final String FIELD_LAT_LNG_TEMP = "latLng";
+
+    /** Separator character between lat/lng value. */
+    private static final String LAT_LNG_SEPARATOR = "#";
+
     /** Path to the finally created index. */
     private final File indexFile;
 
+    /** Path to the temporary index. */
+    private final File tempIndexFile;
+
     /** Temporary directory. */
-    private final Directory directory;
+    private final Directory tempDirectory;
 
     /** The writer for the index. */
     private final IndexWriter tempIndexWriter;
@@ -79,9 +89,11 @@ public final class LuceneLocationStore implements LocationStore {
                     + " already exists. Delete the index or specify a different path");
         }
         this.indexFile = indexFile;
+        this.tempIndexFile = FileHelper.getTempFile();
+        LOGGER.debug("Temporary index = {}", tempIndexFile);
         try {
-            this.directory = FSDirectory.open(this.indexFile.toPath());
-            this.tempIndexWriter = new IndexWriter(directory, new IndexWriterConfig(ANALYZER));
+            this.tempDirectory = FSDirectory.open(this.tempIndexFile.toPath());
+            this.tempIndexWriter = new IndexWriter(tempDirectory, new IndexWriterConfig(ANALYZER));
         } catch (IOException e) {
             throw new IllegalStateException("IOException when creating IndexWriter.", e);
         }
@@ -94,8 +106,8 @@ public final class LuceneLocationStore implements LocationStore {
         document.add(new StringField(FIELD_TYPE, location.getType().toString(), Field.Store.YES));
         document.add(new NameField(FIELD_NAME, location.getPrimaryName()));
         location.getCoords().ifPresent(coordinate -> {
-            document.add(new StoredField(FIELD_LAT, coordinate.getLatitude()));
-            document.add(new StoredField(FIELD_LNG, coordinate.getLongitude()));
+            String latLng = coordinate.getLatitude() + LAT_LNG_SEPARATOR + coordinate.getLongitude();
+            document.add(new StringField(FIELD_LAT_LNG_TEMP, latLng, Field.Store.YES));
         });
         Long population = location.getPopulation();
         if (population != null && population > 0) { // TODO set null values already in importer
@@ -158,21 +170,23 @@ public final class LuceneLocationStore implements LocationStore {
     @Override
     public void finishImport(ProgressReporter progress) {
         try {
-            build(progress);
+            optimize(progress);
         } catch (IOException e) {
             throw new IllegalStateException("Encountered IOException while optimizing the index", e);
         }
     }
 
-    private void build(ProgressReporter progress) throws IOException {
+    private void optimize(ProgressReporter progress) throws IOException {
         LOGGER.debug("Committing and closing temporary IndexWriter.");
         tempIndexWriter.commit();
         tempIndexWriter.close();
 
         IndexWriterConfig config = new IndexWriterConfig(ANALYZER);
-        try (IndexWriter resultWriter = new IndexWriter(directory, config);
-                IndexReader tempReader = DirectoryReader.open(directory)) {
+        try (FSDirectory resultDirectory = FSDirectory.open(indexFile.toPath());
+                IndexWriter resultWriter = new IndexWriter(resultDirectory, config);
+                IndexReader tempReader = DirectoryReader.open(tempDirectory)) {
 
+            int resultModificationCount = 0;
             IndexSearcher tempSearcher = new IndexSearcher(tempReader);
 
             // loop through all locations in index
@@ -184,28 +198,35 @@ public final class LuceneLocationStore implements LocationStore {
                 if (locationId != null) {
                     // get alternative names for the current location and add them directly into the location document
                     SimpleCollector nameCollector = new SimpleCollector();
-                    TermQuery altNamesQuery = new TermQuery(new Term(FIELD_ALT_ID, locationId));
-                    tempSearcher.search(altNamesQuery, nameCollector);
+                    tempSearcher.search(new TermQuery(new Term(FIELD_ALT_ID, locationId)), nameCollector);
                     for (int nameDocId : nameCollector.docs) {
                         Document alternativeDocument = tempReader.document(nameDocId);
                         for (IndexableField nameField : alternativeDocument.getFields(FIELD_NAME)) {
                             document.add(nameField);
                         }
                     }
-                    IndexableField latField = document.getField(FIELD_LAT);
-                    IndexableField lngField = document.getField(FIELD_LNG);
-                    if (latField != null && lngField != null) {
-                        double lat = latField.numericValue().doubleValue();
-                        double lng = lngField.numericValue().doubleValue();
+                    // although Lucene offers numeric fields, e.g. IntField, in most cases, except for
+                    // latitude/longitude, we intentionally use StringFields. The JavaDoc says, that those field are
+                    // less space consuming. The numeric fields only need to be used, in case one wants sorting or range
+                    // filtering of the values.
+                    String latLng = document.get(FIELD_LAT_LNG_TEMP);
+                    if (latLng != null) {
+                        String[] split = latLng.split(LAT_LNG_SEPARATOR);
+                        double lat = Double.parseDouble(split[0]);
+                        double lng = Double.parseDouble(split[1]);
+                        // these are used for storing, resp. retrieving lat/lon value
+                        document.add(new StoredField(FIELD_LAT, lat));
+                        document.add(new StoredField(FIELD_LNG, lng));
                         // this is used for querying by lat/lon
                         document.add(new LatLonPoint(FIELD_LAT_LNG_POINT, lat, lng));
                         // this is used for sorting by lat/lon
                         document.add(new LatLonDocValuesField(FIELD_LAT_LNG_SORT, lat, lng));
                     }
-                    // remove the intermediate alternative names document
-                    resultWriter.deleteDocuments(altNamesQuery);
-                    // update the current document
-                    resultWriter.updateDocument(new Term(FIELD_ID, locationId), document);
+                    document.removeField(FIELD_LAT_LNG_TEMP);
+                    resultWriter.addDocument(document);
+                    if (++resultModificationCount % COMMIT_INTERVAL == 0) {
+                        resultWriter.commit();
+                    }
                 }
                 progress.increment();
             }
@@ -213,6 +234,9 @@ public final class LuceneLocationStore implements LocationStore {
             LOGGER.debug("Merging index");
             resultWriter.forceMerge(1);
         }
+
+        LOGGER.debug("Deleting temporary index: {}", tempIndexFile);
+        FileHelper.delete(tempIndexFile.getPath(), true);
     }
 
     private static final class NameField extends Field {
