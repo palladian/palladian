@@ -386,6 +386,8 @@ public final class GeonamesImporter {
         }
         progress.startTask("Reading alternate names", numLines);
         try (InputStream inputStream = alternateNamesProvider.getInputStream()) {
+            final int lastId[] = { -1 };
+            final List<AlternativeName> namesBuffer = new ArrayList<>();
             FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
@@ -410,10 +412,17 @@ public final class GeonamesImporter {
                             return;
                         }
                     }
-                    AlternativeName name = new AlternativeName(alternateName, language);
-                    locationStore.addAlternativeNames(geonameid, Collections.singletonList(name));
+                    if (lineNumber > 0 && lastId[0] != geonameid) {
+                        locationStore.addAlternativeNames(geonameid, namesBuffer);
+                        namesBuffer.clear();
+                    }
+                    lastId[0] = geonameid;
+                    namesBuffer.add(new AlternativeName(alternateName, language));
                 }
             });
+            if (!namesBuffer.isEmpty()) {
+                locationStore.addAlternativeNames(lastId[0], namesBuffer);
+            }
         }
         LOGGER.info("Finished importing {} alternative names.", numLines);
     }
