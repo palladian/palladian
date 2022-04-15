@@ -173,7 +173,6 @@ public final class LuceneLocationStore implements LocationStore {
         try (IndexWriter resultWriter = new IndexWriter(directory, config);
                 IndexReader tempReader = DirectoryReader.open(directory)) {
 
-            int resultModificationCount = 0;
             IndexSearcher tempSearcher = new IndexSearcher(tempReader);
 
             // loop through all locations in index
@@ -207,9 +206,6 @@ public final class LuceneLocationStore implements LocationStore {
                     resultWriter.deleteDocuments(altNamesQuery);
                     // update the current document
                     resultWriter.updateDocument(new Term(FIELD_ID, locationId), document);
-                    if (++resultModificationCount % COMMIT_INTERVAL == 0) {
-                        resultWriter.commit();
-                    }
                 }
                 progress.increment();
             }
