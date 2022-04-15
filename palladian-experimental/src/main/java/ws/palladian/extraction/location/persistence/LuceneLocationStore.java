@@ -230,6 +230,9 @@ public final class LuceneLocationStore implements LocationStore {
                 }
                 progress.increment();
             }
+            // combine all segments into one
+            LOGGER.debug("Merging index");
+            resultWriter.forceMerge(1);
         }
 
         LOGGER.debug("Deleting temporary index: {}", tempIndexFile);
