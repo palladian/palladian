@@ -963,7 +963,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             // image as object, array, or simple string, all are possible
             // array
             JsonArray imagesArray = schemaJson.tryGetJsonArray("image");
-            if (imagesArray != null && !imagesArray.isEmpty()) {
+            if (imagesArray != null && !imagesArray.isEmpty() && imagesArray.tryGetString(0) != null) {
                 return new BasicWebImage.Builder().setImageUrl(imagesArray.tryGetString(0).trim()).create();
             }
 

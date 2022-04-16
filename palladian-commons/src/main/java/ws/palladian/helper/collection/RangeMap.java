@@ -15,7 +15,6 @@ import java.util.*;
  * @author David Urbansky
  */
 public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
-
     /**
      * <p>
      * Given a seed and a comparison type, get all values that adhere to the condition.

@@ -584,6 +584,6 @@ public class PalladianSpellChecker {
         // PalladianSpellChecker("en.txt").autoCorrect("This ls hoow the etxt is supossed to be"));
         // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("Ist das nichk enn schoner Tetx"));
         // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("blauess hadny"));
-        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("orankes Hadny"));
+//        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("orankes Hadny"));
     }
 }
