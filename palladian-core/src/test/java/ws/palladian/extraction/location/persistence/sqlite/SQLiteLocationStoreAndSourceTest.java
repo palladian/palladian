@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.persistence.AbstractLocationStoreTest;
-import ws.palladian.extraction.location.persistences.sqlite.SQLiteLocationSource;
-import ws.palladian.extraction.location.persistences.sqlite.SQLiteLocationStore;
+import ws.palladian.extraction.location.persistence.sqlite.SQLiteLocationSource;
+import ws.palladian.extraction.location.persistence.sqlite.SQLiteLocationStore;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.io.FileHelper;
 

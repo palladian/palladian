@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.persistences.h2;
+package ws.palladian.extraction.location.persistence.h2;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.distanceComparator;
 import static ws.palladian.extraction.location.LocationFilters.radius;

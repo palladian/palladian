@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.persistences.h2;
+package ws.palladian.extraction.location.persistence.h2;
 
 import java.io.File;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.persistences.sqlite;
+package ws.palladian.extraction.location.persistence.sqlite;
 
 import static ws.palladian.extraction.location.LocationExtractorUtils.distanceComparator;
 import static ws.palladian.extraction.location.LocationFilters.radius;

@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.persistences.sqlite;
+package ws.palladian.extraction.location.persistence.sqlite;
 
 import java.io.File;
 import java.util.ArrayList;
