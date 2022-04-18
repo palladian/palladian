@@ -413,7 +413,7 @@ public final class GeonamesImporter {
                         }
                     }
                     if (lineNumber > 0 && lastId[0] != geonameid) {
-                        locationStore.addAlternativeNames(geonameid, namesBuffer);
+                        locationStore.addAlternativeNames(lastId[0], namesBuffer);
                         namesBuffer.clear();
                     }
                     lastId[0] = geonameid;
