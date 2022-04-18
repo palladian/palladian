@@ -1,17 +1,17 @@
-package ws.palladian.extraction.location.persistence;
+package ws.palladian.extraction.location.persistence.lucene;
 
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.ANALYZER;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ANCESTOR_IDS;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_ID;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_LNG_POINT;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LAT_LNG_SORT;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_LNG;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_NAME;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_POPULATION;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.FIELD_TYPE;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.HIERARCHY_SEPARATOR;
-import static ws.palladian.extraction.location.persistence.LuceneLocationSource.NAME_LANGUAGE_SEPARATOR;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.ANALYZER;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_ANCESTOR_IDS;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_ID;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LAT;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LAT_LNG_POINT;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LAT_LNG_SORT;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LNG;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_NAME;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_POPULATION;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_TYPE;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.HIERARCHY_SEPARATOR;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.NAME_LANGUAGE_SEPARATOR;
 
 import java.io.File;
 import java.io.IOException;

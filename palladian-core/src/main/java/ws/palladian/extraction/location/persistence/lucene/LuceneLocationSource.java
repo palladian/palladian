@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.persistence;
+package ws.palladian.extraction.location.persistence.lucene;
 
 import java.io.Closeable;
 import java.io.IOException;
