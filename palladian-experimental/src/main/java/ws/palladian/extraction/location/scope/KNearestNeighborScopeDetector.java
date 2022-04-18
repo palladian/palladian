@@ -14,8 +14,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -33,7 +33,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +69,6 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
     private static final String FIELD_LNG = "lng";
 
-    private static final Version LUCENE_VERSION = Version.LUCENE_47;
-
     private final Analyzer analyzer;
 
     private final int k;
@@ -100,7 +97,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         public static NearestNeighborScopeModel fromIndex(File indexPath) {
             Validate.notNull(indexPath, "indexPath must not be null");
             try {
-                return new NearestNeighborScopeModel(FSDirectory.open(indexPath));
+                return new NearestNeighborScopeModel(FSDirectory.open(indexPath.toPath()));
             } catch (IOException e) {
                 throw new IllegalStateException("Error while trying to open '" + indexPath + "'.");
             }
@@ -157,7 +154,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             Validate.notNull(featureSetting, "featureSetting must not be null");
             this.featureSetting = featureSetting;
             try {
-                this.directory = FSDirectory.open(indexFile);
+                this.directory = FSDirectory.open(indexFile.toPath());
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
@@ -173,11 +170,9 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         @Override
         public NearestNeighborScopeModel train(Iterable<? extends LocationDocument> documentIterator) {
             Validate.notNull(documentIterator, "documentIterator must not be null");
-            Analyzer analyzer = new FeatureSettingAnalyzer(featureSetting, LUCENE_VERSION);
-            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(LUCENE_VERSION, analyzer);
-            IndexWriter indexWriter = null;
-            try {
-                indexWriter = new IndexWriter(directory, indexWriterConfig);
+            Analyzer analyzer = new FeatureSettingAnalyzer(featureSetting);
+            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+            try (IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig)) {
                 for (LocationDocument locationDocument : documentIterator) {
                     Location location = locationDocument.getMainLocation();
                     if (location == null) {
@@ -189,17 +184,15 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                     }
                     Document document = new Document();
                     document.add(new TextField(FIELD_TEXT, locationDocument.getText(), Field.Store.NO));
-                    document.add(new DoubleField(FIELD_LAT, coordinate.getLatitude(), DoubleField.TYPE_STORED));
-                    document.add(new DoubleField(FIELD_LNG, coordinate.getLongitude(), DoubleField.TYPE_STORED));
+                    document.add(new StoredField(FIELD_LAT, coordinate.getLatitude()));
+                    document.add(new StoredField(FIELD_LNG, coordinate.getLongitude()));
                     indexWriter.addDocument(document);
                 }
                 Map<String, String> featureSettingData = featureSetting.toMap();
-                indexWriter.setCommitData(featureSettingData);
+                indexWriter.setLiveCommitData(featureSettingData.entrySet());
                 indexWriter.commit();
             } catch (IOException e) {
                 throw new IllegalStateException(e);
-            } finally {
-                FileHelper.close(indexWriter);
             }
             return new NearestNeighborScopeModel(directory);
         }
@@ -212,7 +205,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             Query query = queryCreator.createQuery(text, reader, analyzer);
             LOGGER.trace("{} = {}", query.getClass().getSimpleName(), query);
             TopDocs searchResult = searcher.search(query, k);
-            if (searchResult.totalHits == 0) {
+            if (searchResult.totalHits.value == 0) {
                 return null;
             }
             List<GeoCoordinate> coordinates = new ArrayList<>();
@@ -253,7 +246,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
         @Override
         public Query createQuery(String text, IndexReader reader, Analyzer analyzer) throws IOException {
-            BooleanQuery query = new BooleanQuery();
+            BooleanQuery.Builder query = new BooleanQuery.Builder();
             TokenStream stream = analyzer.tokenStream(null, new StringReader(text));
             stream.reset();
             try {
@@ -268,7 +261,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             } finally {
                 stream.close();
             }
-            return query;
+            return query.build();
         }
 
         @Override
@@ -290,7 +283,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
             moreLikeThis.setAnalyzer(analyzer);
             moreLikeThis.setMinTermFreq(1);
             moreLikeThis.setMinDocFreq(1);
-            return moreLikeThis.like(new StringReader(text), FIELD_TEXT);
+            return moreLikeThis.like(FIELD_TEXT, new StringReader(text));
         }
 
         @Override

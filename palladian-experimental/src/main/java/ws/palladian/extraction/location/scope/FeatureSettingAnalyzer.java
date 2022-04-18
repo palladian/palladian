@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,6 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
 
 /**
  * A Lucene {@link Analyzer} which can be configured using a Palladian {@link FeatureSetting}.
@@ -35,34 +33,32 @@ public class FeatureSettingAnalyzer extends Analyzer {
 
     private final FeatureSetting featureSetting;
 
-    private final Version luceneVersion;
-
     public FeatureSettingAnalyzer(FeatureSetting featureSetting) {
-        this(featureSetting, Version.LUCENE_47);
-    }
-
-    public FeatureSettingAnalyzer(FeatureSetting featureSetting, Version luceneVersion) {
         Validate.notNull(featureSetting, "featureSetting must not be null");
         this.featureSetting = featureSetting;
-        this.luceneVersion = luceneVersion;
+    }
+
+    /** @deprecated Use {@link FeatureSettingAnalyzer#FeatureSettingAnalyzer(FeatureSetting)}. */
+    public FeatureSettingAnalyzer(FeatureSetting featureSetting, Version luceneVersion) {
+        this(featureSetting);
     }
 
     @Override
-    protected TokenStreamComponents createComponents(String fieldName, Reader reader) {
+    protected TokenStreamComponents createComponents(String fieldName) {
         int minNGramLength = featureSetting.getMinNGramLength();
         int maxNGramLength = featureSetting.getMaxNGramLength();
 
         Tokenizer tokenizer;
         if (featureSetting.getTextFeatureType() == TextFeatureType.CHAR_NGRAMS) {
-            tokenizer = new NGramTokenizer(luceneVersion, reader, minNGramLength, maxNGramLength);
+            tokenizer = new NGramTokenizer(minNGramLength, maxNGramLength);
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
-            tokenizer = new StandardTokenizer(luceneVersion, reader);
+            tokenizer = new StandardTokenizer();
         } else {
             throw new UnsupportedOperationException("Unsupported text feature type: "
                     + featureSetting.getTextFeatureType());
         }
 
-        TokenStream stream = new LowerCaseFilter(luceneVersion, tokenizer);
+        TokenStream stream = new LowerCaseFilter(tokenizer);
         if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS && maxNGramLength > 1) {
             @SuppressWarnings("resource")
             ShingleFilter shingleFilter = new ShingleFilter(stream, Math.max(2, minNGramLength), maxNGramLength);
@@ -74,7 +70,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
         stream = new LimitTokenCountFilter(stream, featureSetting.getMaxTerms());
 
         if (featureSetting.isWordUnigrams()) {
-            stream = new LengthFilter(luceneVersion, stream, featureSetting.getMinimumTermLength(),
+            stream = new LengthFilter(stream, featureSetting.getMinimumTermLength(),
                     featureSetting.getMaximumTermLength());
         }
         return new TokenStreamComponents(tokenizer, stream);
@@ -82,9 +78,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
 
     public List<String> analyze(String string) {
         List<String> result = new ArrayList<String>();
-        TokenStream stream = null;
-        try {
-            stream = tokenStream(null, new StringReader(string));
+        try (TokenStream stream = tokenStream(null, new StringReader(string))) {
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString());
@@ -92,8 +86,6 @@ public class FeatureSettingAnalyzer extends Analyzer {
         } catch (IOException e) {
             // not thrown b/c we're using a string reader...
             throw new RuntimeException(e);
-        } finally {
-            FileHelper.close(stream);
         }
         return result;
     }
@@ -108,7 +100,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
         // FeatureSetting featureSetting = FeatureSettingBuilder.words(2).maxTerms(10).create();
         // FeatureSetting featureSetting = FeatureSettingBuilder.words(3).maxTerms(10).create();
         FeatureSetting featureSetting = FeatureSettingBuilder.words(1).termLength(4, 10).maxTerms(10).create();
-        FeatureSettingAnalyzer analyzer = new FeatureSettingAnalyzer(featureSetting, Version.LUCENE_47);
+        FeatureSettingAnalyzer analyzer = new FeatureSettingAnalyzer(featureSetting);
         List<String> tokens = analyzer.analyze("The quick brown fox jumps over the lazy dog.");
         System.out.println(analyzer);
         CollectionHelper.print(tokens);

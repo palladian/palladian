@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexableField;
 
@@ -32,7 +33,7 @@ class CategoryEntriesDoc implements Iterable<IndexableField> {
 
     private static FieldType createTermVectorType() {
         FieldType fieldType = new FieldType();
-        fieldType.setIndexed(true);
+        fieldType.setIndexOptions(IndexOptions.DOCS_AND_FREQS);
         fieldType.setStored(true);
         fieldType.setStoreTermVectors(true);
         fieldType.freeze();

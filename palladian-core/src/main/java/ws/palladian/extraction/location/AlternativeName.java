@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.constants.Language;
 
@@ -46,6 +48,10 @@ public final class AlternativeName {
 
     public Language getLanguage() {
         return language;
+    }
+
+    public Optional<Language> getLang() {
+        return Optional.ofNullable(language);
     }
 
     @Override

@@ -167,7 +167,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return unlikelyLocations;
     }
 
-    private static Location selectLocation(Collection<Location> selection) {
+    /* package */ static Location selectLocation(Collection<Location> selection) {
 
         // if we have a continent, take the continent
         LocationSet result = new LocationSet(selection).whereConditionally(type(CONTINENT));
@@ -175,32 +175,28 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
             return CollectionHelper.getFirst(result);
         }
 
-        List<Location> temp = new ArrayList<>(selection);
-        temp.sort((l1, l2) -> {
-
-            // if locations are nested, take the "deepest" one
-            if (l2.descendantOf(l1)) {
-                return 1;
-            } else if (l1.descendantOf(l2)) {
-                return -1;
+        // if locations are nested, take the "deepest" one
+        List<Location> toRemove = new ArrayList<>();
+        for (Location l1 : selection) {
+            for (Location l2 : selection) {
+                if (l2.descendantOf(l1)) {
+                    toRemove.add(l1);
+                    break; // inner loop
+                }
             }
+        }
 
-            // as last step, compare by population
-            Long p1 = l1.getPopulation() != null ? l1.getPopulation() : 0;
-            Long p2 = l2.getPopulation() != null ? l2.getPopulation() : 0;
-
-            // XXX dirty hack; favor cities
-            if (l1.getType() == CITY) {
-                p1 *= 2;
-            }
-            if (l2.getType() == CITY) {
-                p2 *= 2;
-            }
-
-            return p2.compareTo(p1);
-
-        });
-        return CollectionHelper.getFirst(temp);
+        // as last step, compare by population
+        return selection.stream() //
+                .filter(location -> !toRemove.contains(location)) //
+                .sorted(Comparator.<Location, Long>comparing( //
+                        location -> Optional.ofNullable(location.getPopulation()) //
+                                // XXX dirty hack; favor cities
+                                .map(population -> location.getType() == CITY ? 2 * population : population) //
+                                .orElse(0l)) //
+                        .reversed()) //
+                .findFirst() //
+                .orElse(null);
     }
 
     private Set<Location> getAnchors(MultiMap<? extends Annotation, Location> locations) {

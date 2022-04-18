@@ -17,7 +17,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.MultiTerms;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -28,7 +28,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.Version;
 
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
@@ -125,9 +124,6 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     /** Property name for the name of the dictionary (stored in the commit user data). */
     private static final String PROPERTY_NAME = "name";
 
-    /** The Lucene version to use. */
-    private static final Version VERSION = Version.LUCENE_47;
-
     /** The Lucene Analyzer. */
     private static final Analyzer ANALYZER = new KeywordAnalyzer();
 
@@ -150,8 +146,8 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
         FSDirectory directory = null;
         IndexWriter writer = null;
         try {
-            directory = FSDirectory.open(directoryPath);
-            writer = new IndexWriter(directory, new IndexWriterConfig(VERSION, ANALYZER));
+            directory = FSDirectory.open(directoryPath.toPath());
+            writer = new IndexWriter(directory, new IndexWriterConfig(ANALYZER));
             ProgressMonitor progressMonitor = new ProgressMonitor();
             progressMonitor.startTask("Writing Lucene dict.", dictionary.getNumUniqTerms());
 
@@ -176,7 +172,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
             }
             commitUserData.put(PROPERTY_NUM_ENTRIES, String.valueOf(numEntries));
 
-            writer.setCommitData(commitUserData);
+            writer.setLiveCommitData(commitUserData.entrySet());
             writer.commit();
             writer.close();
             return new LuceneDictionaryModel(directory);
@@ -207,7 +203,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     private final int numEntries;
 
     public LuceneDictionaryModel(File directoryPath) throws IOException {
-        this(FSDirectory.open(directoryPath));
+        this(FSDirectory.open(directoryPath.toPath()));
     }
 
     public LuceneDictionaryModel(Directory directory) {
@@ -221,7 +217,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
             this.documentCounts = getCategoryEntries(new TermQuery(new Term(FIELD_COUNTS, VALUE_DOCUMENT_COUNTS)),
                     FIELD_DOC_CAT);
             this.termCounts = fetchTermCounts();
-            this.numUniqueTerms = (int)MultiFields.getTerms(reader, FIELD_TERM).size();
+            this.numUniqueTerms = (int)MultiTerms.getTerms(reader, FIELD_TERM).size();
             this.numEntries = Integer.parseInt(commitUserData.get(PROPERTY_NUM_ENTRIES));
         } catch (IOException e) {
             throw new IllegalStateException("Error while accessing the directory", e);
@@ -229,7 +225,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     }
 
     private CategoryEntries fetchTermCounts() throws IOException {
-        Terms terms = MultiFields.getTerms(reader, FIELD_TERM_CAT);
+        Terms terms = MultiTerms.getTerms(reader, FIELD_TERM_CAT);
         return getCategoryEntries(terms);
     }
 
@@ -249,7 +245,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
      */
     private CategoryEntries getCategoryEntries(Query query, String fieldName) throws IOException {
         TopDocs topDocsResult = searcher.search(query, 1);
-        if (topDocsResult.totalHits > 0) {
+        if (topDocsResult.totalHits.value > 0) {
             int docId = topDocsResult.scoreDocs[0].doc;
             return getCategoryEntries(reader.getTermVector(docId, fieldName));
         }
@@ -264,7 +260,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
      * @throws IOException In case something goes wrong.
      */
     private CategoryEntries getCategoryEntries(Terms terms) throws IOException {
-        TermsEnum termsEnum = terms.iterator(null);
+        TermsEnum termsEnum = terms.iterator();
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         BytesRef bytesRef;
         while ((bytesRef = termsEnum.next()) != null) {

@@ -63,7 +63,7 @@ public interface LocationSource {
      *            other languages than the specified one(s) are not retrieved, while names without explicitly defined
      *            language always match.
      * @param coordinate The {@link GeoCoordinate} representing the center around which to search.
-     * @param distance The maximum distance from the given coordinate, must be greater/equal zero.
+     * @param distance The maximum distance in kilometers from the given coordinate, must be greater/equal zero.
      * @return A map containing the given query names as keys and the found locations as value collections, or empty
      *         collections, if no matches were found, never <code>null</code>.
      */
@@ -100,7 +100,7 @@ public interface LocationSource {
      * </p>
      * 
      * @param coordinate The {@link GeoCoordinate} representing the center around which to search.
-     * @param distance The maximum distance from the given coordinate, must be greater/equal zero.
+     * @param distance The maximum distance in kilometers from the given coordinate, must be greater/equal zero.
      * @return A list of {@link Location}s which are within the given distance from the specified coordinate ordered by
      *         distance (closest first), or an empty list, if no locations are found, never <code>null</code>.
      */
