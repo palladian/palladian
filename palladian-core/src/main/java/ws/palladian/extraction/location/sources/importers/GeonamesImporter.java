@@ -51,13 +51,6 @@ public final class GeonamesImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
 
-    /** Name of the file in the ZIP archive containing all countries. */
-    private static final String COUNTRIES_FILE_NAME = "allCountries.txt";
-    /** Name of the file in the ZIP archive containing alternate namings. */
-    private static final String ALTERNATE_FILE_NAME = "alternateNames.txt";
-    /** Name of the file in the ZIP archive containing the hierarchy. */
-    private static final String HIERARCHY_FILE_NAME = "hierarchy.txt";
-
     /** Mapping between the administrative/country codes and our internal numeric level. */
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
 
@@ -116,9 +109,9 @@ public final class GeonamesImporter {
         checkIsFileOfType(locationFile, "zip");
         checkIsFileOfType(hierarchyFile, "zip");
         checkIsFileOfType(alternateNamesFile, "zip");
-        InputStreamProvider locationProvider = new ZipEntryInputStreamProvider(locationFile, COUNTRIES_FILE_NAME);
-        InputStreamProvider hierarchyProvider = new ZipEntryInputStreamProvider(hierarchyFile, HIERARCHY_FILE_NAME);
-        InputStreamProvider alternateNamesProvider = new ZipEntryInputStreamProvider(alternateNamesFile, ALTERNATE_FILE_NAME);
+        InputStreamProvider locationProvider = new ZipEntryInputStreamProvider(locationFile, "readme.txt");
+        InputStreamProvider hierarchyProvider = new ZipEntryInputStreamProvider(hierarchyFile);
+        InputStreamProvider alternateNamesProvider = new ZipEntryInputStreamProvider(alternateNamesFile, "readme.txt", "iso-languagecodes.txt");
         importLocations(locationProvider, hierarchyProvider, alternateNamesProvider);
     }
 
@@ -620,11 +613,11 @@ public final class GeonamesImporter {
 
     private static final class ZipEntryInputStreamProvider implements InputStreamProvider {
         private final File zipFile;
-        private final String fileName;
+        private final List<String> ignoredNames;
 
-        public ZipEntryInputStreamProvider(File zipFile, String fileName) {
+        public ZipEntryInputStreamProvider(File zipFile, String... ignoredNames) {
             this.zipFile = zipFile;
-            this.fileName = fileName;
+            this.ignoredNames = Arrays.asList(ignoredNames);
         }
 
         @Override
@@ -632,11 +625,14 @@ public final class GeonamesImporter {
             ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                if (fileName.equals(zipEntry.getName())) {
-                    return zipInputStream;
+                if (ignoredNames.contains(zipEntry.getName())) {
+                    LOGGER.debug("Ignoring {} in zip file", zipEntry.getName());
+                    continue; // ignore
                 }
+                LOGGER.debug("Using {} from {}", zipEntry.getName(), zipFile);
+                return zipInputStream;
             }
-            throw new IOException("No matching entry found for " + fileName + ".");
+            throw new IOException("No matching entry found.");
         }
     }
 
