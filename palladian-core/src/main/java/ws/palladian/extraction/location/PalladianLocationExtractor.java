@@ -61,7 +61,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
     public List<LocationAnnotation> getAnnotations(String text) {
         List<ClassifiedAnnotation> classifiedEntities = tagger.getAnnotations(text);
 
-        MultiMap<ClassifiedAnnotation, Location> locations = fetchLocations(locationSource, classifiedEntities);
+        MultiMap<ClassifiedAnnotation, Location> locations = fetchLocations(locationSource, classifiedEntities, languages);
 
         Annotations<LocationAnnotation> result = new Annotations<>();
 
@@ -84,6 +84,10 @@ public class PalladianLocationExtractor extends LocationExtractor {
     }
 
     public static MultiMap<ClassifiedAnnotation, Location> fetchLocations(LocationSource source, List<ClassifiedAnnotation> annotations) {
+    	return fetchLocations(source, annotations, EnumSet.of(Language.ENGLISH));
+    }
+
+    private static MultiMap<ClassifiedAnnotation, Location> fetchLocations(LocationSource source, List<ClassifiedAnnotation> annotations, Set<Language> languages) {
         Set<String> valuesToRetrieve = new HashSet<>();
         for (ClassifiedAnnotation annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
