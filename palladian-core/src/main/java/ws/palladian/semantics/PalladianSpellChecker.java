@@ -3,10 +3,10 @@ package ws.palladian.semantics;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
-import ws.palladian.helper.collection.Trie;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -73,7 +73,8 @@ public class PalladianSpellChecker {
      */
     private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+'&.") + "]");
 
-    private Trie<Integer> words = new Trie<>();
+    //    private Trie<Integer> words = new Trie<>();
+    private Map<String, Integer> words = new HashMap<>();
 
     public PalladianSpellChecker() {
         this.useContext = true;
@@ -526,11 +527,11 @@ public class PalladianSpellChecker {
         return !(a.isEmpty() || b.isEmpty()) && a.charAt(0) == b.charAt(0);
     }
 
-    public Trie<Integer> getWords() {
+    public Map<String, Integer> getWords() {
         return words;
     }
 
-    public void setWords(Trie<Integer> words) {
+    public void setWords(Map<String, Integer> words) {
         this.words = words;
     }
 
@@ -584,6 +585,8 @@ public class PalladianSpellChecker {
         // PalladianSpellChecker("en.txt").autoCorrect("This ls hoow the etxt is supossed to be"));
         // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("Ist das nichk enn schoner Tetx"));
         // System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("blauess hadny"));
-        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("orankes Hadny"));
+        System.out.println(ProcessHelper.getHeapUtilization());
+        System.out.println(new PalladianSpellChecker("data/models/de.txt").autoCorrect("orankes Hadny"));
+        System.out.println(ProcessHelper.getHeapUtilization());
     }
 }
