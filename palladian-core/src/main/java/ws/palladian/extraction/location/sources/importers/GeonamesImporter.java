@@ -51,18 +51,8 @@ public final class GeonamesImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GeonamesImporter.class);
 
-    /** Name of the file in the ZIP archive containing all countries. */
-    private static final String COUNTRIES_FILE_NAME = "allCountries.txt";
-    /** Name of the file in the ZIP archive containing alternate namings. */
-    private static final String ALTERNATE_FILE_NAME = "alternateNames.txt";
-    /** Name of the file in the ZIP archive containing the hierarchy. */
-    private static final String HIERARCHY_FILE_NAME = "hierarchy.txt";
-
     /** Mapping between the administrative/country codes and our internal numeric level. */
     private static final Map<String, Integer> ADMIN_LEVELS_MAPPING;
-
-    /** Denotes, that a hierarchy mapping was ambiguous (i.e. had multiple values). */
-    private static final Integer AMBIGUOUS = -1;
 
     static {
         Map<String, Integer> temp = new HashMap<>();
@@ -119,9 +109,9 @@ public final class GeonamesImporter {
         checkIsFileOfType(locationFile, "zip");
         checkIsFileOfType(hierarchyFile, "zip");
         checkIsFileOfType(alternateNamesFile, "zip");
-        InputStreamProvider locationProvider = new ZipEntryInputStreamProvider(locationFile, COUNTRIES_FILE_NAME);
-        InputStreamProvider hierarchyProvider = new ZipEntryInputStreamProvider(hierarchyFile, HIERARCHY_FILE_NAME);
-        InputStreamProvider alternateNamesProvider = new ZipEntryInputStreamProvider(alternateNamesFile, ALTERNATE_FILE_NAME);
+        InputStreamProvider locationProvider = new ZipEntryInputStreamProvider(locationFile, "readme.txt");
+        InputStreamProvider hierarchyProvider = new ZipEntryInputStreamProvider(hierarchyFile);
+        InputStreamProvider alternateNamesProvider = new ZipEntryInputStreamProvider(alternateNamesFile, "readme.txt", "iso-languagecodes.txt");
         importLocations(locationProvider, hierarchyProvider, alternateNamesProvider);
     }
 
@@ -130,22 +120,23 @@ public final class GeonamesImporter {
             InputStreamProvider alternateNamesProvider) throws IOException {
         progressReporter.startTask(null, -1);
         locationStore.startImport();
-        readHierarchy(hierarchyProvider, progressReporter.createSubProgress(0.04));
+        readHierarchy(hierarchyProvider, progressReporter.createSubProgress(0));
         int totalLines;
         try (InputStream inputStream = locationProvider.getInputStream()) {
             totalLines = FileHelper.getNumberOfLines(inputStream);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.24), totalLines);
+            readAdministrativeItems(inputStream, progressReporter.createSubProgress(0.2), totalLines);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            establishHierarchyMap(totalLines, progressReporter.createSubProgress(0.24), inputStream);
+            establishHierarchyMap(totalLines, progressReporter.createSubProgress(0.2), inputStream);
         }
         try (InputStream inputStream = locationProvider.getInputStream()) {
-            importLocations(inputStream, progressReporter.createSubProgress(0.24), totalLines);
+            importLocations(inputStream, progressReporter.createSubProgress(0.2), totalLines);
         }
-        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.24));
-        locationStore.finishImport();
+        importAlternativeNames(alternateNamesProvider, progressReporter.createSubProgress(0.2));
+        LOGGER.info("Finishing import");
+        locationStore.finishImport(progressReporter.createSubProgress(0.2));
     }
 
     /**
@@ -337,6 +328,7 @@ public final class GeonamesImporter {
         }
         progress.startTask("Reading hierarchy", numLines);
         try (InputStream inputStream = hierarchyProvider.getInputStream()) {
+            int numAmbiguous[] = { 0 };
             FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
@@ -347,20 +339,25 @@ public final class GeonamesImporter {
                     int parentId = Integer.parseInt(split[0]);
                     int childId = Integer.parseInt(split[1]);
                     String type = split.length > 2 ? split[2] : null;
-                    if (type == null || type.equals("ADM")) {
-                        Integer existingParentId = hierarchyMappings.get(childId);
-                        if (existingParentId == null) {
-                            hierarchyMappings.put(childId, parentId);
-                        } else if (existingParentId.intValue() != parentId) {
-                            hierarchyMappings.put(childId, AMBIGUOUS);
-                        }
+                    Integer existingParentId = hierarchyMappings.get(childId);
+                    boolean ambiguous = existingParentId != null && existingParentId.intValue() != parentId;
+                    // this is rather blunt; if it's of type ADM prefer this
+                    // (overwriting previous values), if it's of type `null`
+                    // only take it if we don't have a value yet -- this misses
+                    // the case that there might be more then one ADM ancestor, etc.
+                    if ((type == null && !ambiguous) || "ADM".equals(type)) {
+                        hierarchyMappings.put(childId, parentId);
+                    }
+                    if (ambiguous) {
+                        numAmbiguous[0]++;
                     }
                     progress.increment();
                 }
             });
-            // only keep relation, if unambiguous
-            removeByValue(hierarchyMappings, Collections.singleton(AMBIGUOUS));
             LOGGER.info("Finished importing {} items into hierarchy.", hierarchyMappings.size());
+            float ambiguousPercentage = (float) 100 * numAmbiguous[0] / hierarchyMappings.size(); // ~ 2.7%
+            LOGGER.info("There were {} ({}%) ambiguous hierarchy mappings which were dropped.", numAmbiguous[0],
+                    ambiguousPercentage);
         }
     }
 
@@ -382,6 +379,8 @@ public final class GeonamesImporter {
         }
         progress.startTask("Reading alternate names", numLines);
         try (InputStream inputStream = alternateNamesProvider.getInputStream()) {
+            final int lastId[] = { -1 };
+            final List<AlternativeName> namesBuffer = new ArrayList<>();
             FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
                 @Override
                 public void performAction(String line, int lineNumber) {
@@ -393,18 +392,30 @@ public final class GeonamesImporter {
                     int geonameid = Integer.parseInt(split[1]);
                     String isoLanguage = split[2];
                     String alternateName = split[3];
+                    // TODO there are further flags available:
+                    // preferred, short, historical, colloquial
                     Language language = null;
                     if (!isoLanguage.isEmpty() && !isoLanguage.equals("abbr")) {
                         language = Language.getByIso6391(isoLanguage);
                         if (language == null) {
                             // a language was specified, but not mapped in our enum. Thank you, we're not interested.
+                            // TODO actually there might be interesting stuff here, 
+                            //      especially the airport codes (icao, iata, faac, tcid)
+                            //      and postal codes!
                             return;
                         }
                     }
-                    AlternativeName name = new AlternativeName(alternateName, language);
-                    locationStore.addAlternativeNames(geonameid, Collections.singletonList(name));
+                    if (lineNumber > 0 && lastId[0] != geonameid) {
+                        locationStore.addAlternativeNames(lastId[0], namesBuffer);
+                        namesBuffer.clear();
+                    }
+                    lastId[0] = geonameid;
+                    namesBuffer.add(new AlternativeName(alternateName, language));
                 }
             });
+            if (!namesBuffer.isEmpty()) {
+                locationStore.addAlternativeNames(lastId[0], namesBuffer);
+            }
         }
         LOGGER.info("Finished importing {} alternative names.", numLines);
     }
@@ -602,11 +613,11 @@ public final class GeonamesImporter {
 
     private static final class ZipEntryInputStreamProvider implements InputStreamProvider {
         private final File zipFile;
-        private final String fileName;
+        private final List<String> ignoredNames;
 
-        public ZipEntryInputStreamProvider(File zipFile, String fileName) {
+        public ZipEntryInputStreamProvider(File zipFile, String... ignoredNames) {
             this.zipFile = zipFile;
-            this.fileName = fileName;
+            this.ignoredNames = Arrays.asList(ignoredNames);
         }
 
         @Override
@@ -614,11 +625,14 @@ public final class GeonamesImporter {
             ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                if (fileName.equals(zipEntry.getName())) {
-                    return zipInputStream;
+                if (ignoredNames.contains(zipEntry.getName())) {
+                    LOGGER.debug("Ignoring {} in zip file", zipEntry.getName());
+                    continue; // ignore
                 }
+                LOGGER.debug("Using {} from {}", zipEntry.getName(), zipFile);
+                return zipInputStream;
             }
-            throw new IOException("No matching entry found for " + fileName + ".");
+            throw new IOException("No matching entry found.");
         }
     }
 

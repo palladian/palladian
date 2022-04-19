@@ -588,5 +588,6 @@ public class PalladianSpellChecker {
         System.out.println(ProcessHelper.getHeapUtilization());
         System.out.println(new PalladianSpellChecker("data/models/de.txt").autoCorrect("orankes Hadny"));
         System.out.println(ProcessHelper.getHeapUtilization());
+//        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("orankes Hadny"));
     }
 }

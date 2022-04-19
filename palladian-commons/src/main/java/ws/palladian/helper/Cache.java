@@ -18,12 +18,11 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  */
 public class Cache {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Cache.class);
 
     /** List of objects in the cache. */
-    private Map<String, Object> dataObjects = new HashMap<>();
+    private final Map<String, Object> dataObjects = new HashMap<>();
 
     /**
      * Size of the objects in the cache. This is a lower estimate and only works if the sizes are given when a new
@@ -105,19 +104,16 @@ public class Cache {
     public long getCacheSize() {
         return cacheSize;
     }
-    
-    
+
     /**
      * <p>
-     * Explicit remove data object from cache
+     * Explicitly remove data object from cache
      * </p>
      * 
      * @param identifier The identifier of the object in the cache.
      * 
-     * @return 
      */
     public void removeDataObject(String cacheName) {
-        dataObjects.remove(cacheName);        
+        dataObjects.remove(cacheName);
     }
-
 }

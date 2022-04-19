@@ -21,7 +21,7 @@ import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.extraction.location.sources.SingleQueryLocationSource;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -106,18 +106,18 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
     @Override
     public Iterator<Location> getLocations() {
         // FIXME iterator gives duplicates; only return locations here, where hash key matches primary name?
-        return new AbstractIterator<Location>() {
+        return new AbstractIterator2<Location>() {
             int idx = 0;
 
             @Override
-            protected Location getNext() throws Finished {
+            protected Location getNext() {
                 for (; idx < locations.length;) {
                     LocationContainer locationContainer = locations[idx++];
                     if (locationContainer != null) {
                         return locationContainer.createLocation();
                     }
                 }
-                throw FINISHED;
+                return finished();
             }
         };
     }
@@ -142,7 +142,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
             LOGGER.debug("Encountered {} key for {}; object was not inserted", NULL, name);
             return;
         }
-        Validate.isTrue(size < keys.length, "map is full");
+        Validate.isTrue(size + 1 < keys.length, "map is full");
 
         int index = indexFor(hash);
         while (keys[index] != NULL) {

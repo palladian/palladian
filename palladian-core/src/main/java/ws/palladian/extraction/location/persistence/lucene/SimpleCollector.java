@@ -1,12 +1,11 @@
-package ws.palladian.extraction.location.persistence;
+package ws.palladian.extraction.location.persistence.lucene;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.lucene.index.AtomicReaderContext;
-import org.apache.lucene.search.Collector;
-import org.apache.lucene.search.Scorer;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.search.ScoreMode;
 
 /**
  * This class collects search results; we need no scoring and accept the documents in any order here, which yields
@@ -14,28 +13,22 @@ import org.apache.lucene.search.Scorer;
  * 
  * @author Philipp Katz
  */
-final class SimpleCollector extends Collector {
+final class SimpleCollector extends org.apache.lucene.search.SimpleCollector {
     final Set<Integer> docs = new HashSet<>();
     int docBase;
-
-    @Override
-    public void setScorer(Scorer scorer) throws IOException {
-        // no scoring
-    }
-
     @Override
     public void collect(int doc) throws IOException {
         docs.add(docBase + doc);
     }
 
     @Override
-    public void setNextReader(AtomicReaderContext context) throws IOException {
+    protected void doSetNextReader(LeafReaderContext context) throws IOException {
         this.docBase = context.docBase;
     }
 
     @Override
-    public boolean acceptsDocsOutOfOrder() {
-        return true;
+    public ScoreMode scoreMode() {
+        return ScoreMode.TOP_DOCS;
     }
 
 }

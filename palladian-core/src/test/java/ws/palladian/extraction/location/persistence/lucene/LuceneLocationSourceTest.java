@@ -1,4 +1,4 @@
-package ws.palladian.extraction.location.persistence;
+package ws.palladian.extraction.location.persistence.lucene;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.apache.lucene.store.FSDirectory;
 
 import ws.palladian.extraction.location.LocationSource;
+import ws.palladian.extraction.location.persistence.AbstractLocationStoreTest;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.io.FileHelper;
 
@@ -21,7 +22,7 @@ public class LuceneLocationSourceTest extends AbstractLocationStoreTest {
     @Override
     public LocationSource createLocationSource() {
         try {
-            return new LuceneLocationSource(FSDirectory.open(indexFile));
+            return new LuceneLocationSource(FSDirectory.open(indexFile.toPath()));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

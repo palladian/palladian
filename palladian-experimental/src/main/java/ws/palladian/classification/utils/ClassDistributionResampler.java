@@ -67,7 +67,7 @@ public class ClassDistributionResampler implements Iterable<Instance> {
         Validate.notNull(weights, "weights must not be null");
         ZeroRModel classDistribution = new ZeroRLearner().train(data);
         this.probabilities = classDistribution.getCategoryProbabilities();
-        this.weights = LazyMap.create(new HashMap<>(weights), Factories.constant(1.));
+        this.weights = new LazyMap<>(new HashMap<>(weights), Factories.constant(1.));
         LOGGER.info("Class probabilities : {}", probabilities);
         sampled = reSample(data);
     }
@@ -78,7 +78,7 @@ public class ClassDistributionResampler implements Iterable<Instance> {
             minProbability = Math.min(minProbability, value);
         }
         List<Instance> result = new ArrayList<>();
-        Bag<String> temp = Bag.create();
+        Bag<String> temp = new Bag<>();
         for (Instance trainable : data) {
             String targetClass = trainable.getCategory();
 			// XXX use reservoir sampling to obtain exactly same amounts? 

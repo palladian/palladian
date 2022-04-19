@@ -16,6 +16,7 @@ import java.util.*;
  * @author Philipp Katz, David Urbansky
  */
 public enum Language {
+    AFAR("aa", "aar", "Afar"), //
     AFRIKAANS("af", "afr", "Afrikaans"), //
     ALBANIAN("sq", "sqi", "Albanian", Script.LATIN), //
     AMHARIC("am", "amh", "Amharic"), //
@@ -29,6 +30,7 @@ public enum Language {
     BOSNIAN("bs", "bos", "Bosnian", Script.LATIN), //
     BRETON("br", "bre", "Breton", Script.LATIN), //
     BULGARIAN("bg", "bul", "Bulgarian", Script.CYRILLIC), //
+    BURMESE("my", "bur", "Burmese"), //
     CATALAN("ca", "cat", "Catalan"), //
     CEBUANO(null, "ceb", "Cebuano"), //
     CHAMORRO(null, "cha", "Chamorro"), //
@@ -75,6 +77,7 @@ public enum Language {
     KOREAN("ko", "kor", "Korean", Script.HANGEUL), //
     KURDISH("ku", "kur", "Kurdish", Script.ARABIC), //
     KYRGYZ("ky", "kir", "Kyrgyz"), //
+    LAO("lo", "lao", "Lao"), //
     LATIN("la", "lat", "Latin", Script.LATIN), //
     LATVIAN("lv", "lav", "Latvian"), //
     LITHUANIAN("lt", "lit", "Lithuanian", Script.LATIN), //
@@ -107,6 +110,7 @@ public enum Language {
     SERBIAN("sr", "srp", "Serbian", Script.CYRILLIC), //
     SHONA("sn", "sna", "Shona"), //
     SHUAR(null, "jiv", "Shuar"), //
+    SINHALESE("si", "sin", "Sinhalese"), //
     SLOVAK("sk", "slk", "Slovak", Script.LATIN), //
     SLOVENE("sl", "slv", "Slovene", Script.LATIN), //
     SOMALI("so", "som", "Somali", Script.LATIN), //
@@ -117,6 +121,7 @@ public enum Language {
     SWAHILI("sw", "swa", "Swahili", Script.LATIN), //
     SWEDISH("sv", "swe", "Swedish", Script.LATIN), //
     TAGALOG("tl", "tgl", "Tagalog"), //
+    TAJIK("tg", "tgk", "Tajik"), //
     TAMIL("ta", "tam", "Tamil"), //
     TELUGU("te", "tel", "Telugu"), //
     THAI("th", "tha", "Thai", Script.THAI), //

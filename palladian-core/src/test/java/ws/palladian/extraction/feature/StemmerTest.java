@@ -15,4 +15,12 @@ public class StemmerTest {
         assertEquals("walk", stemmer.stem("walking"));
     }
 
+    @Test
+    public void testStemmerGerman() {
+        Stemmer stemmer = new Stemmer(Language.GERMAN);
+        assertEquals("geh", stemmer.stem("gehen"));
+        assertEquals("gegang", stemmer.stem("gegangen"));
+        assertEquals("gehend", stemmer.stem("gehend"));
+    }
+
 }

@@ -82,6 +82,9 @@
             </plugins>
         </pluginManagement>
     </build>
+    <properties>
+        <lucene-version>8.11.1</lucene-version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ws.palladian</groupId>
@@ -92,11 +95,6 @@
             <groupId>ws.palladian</groupId>
             <artifactId>palladian-retrieval</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.rholder</groupId>
-            <artifactId>snowball-stemmer</artifactId>
-            <version>1.3.0.581.1</version>
         </dependency>
         <dependency>
             <groupId>com.sun.media</groupId>
@@ -138,6 +136,16 @@
             <groupId>org.imgscalr</groupId>
             <artifactId>imgscalr-lib</artifactId>
             <version>4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${lucene-version}</version>
         </dependency>
     </dependencies>
     <repositories>
