@@ -1,5 +1,6 @@
 package ws.palladian.semantics;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,8 +74,7 @@ public class PalladianSpellChecker {
      */
     private static final Pattern NO_CORRECTION_PATTERN = Pattern.compile("[0-9" + Pattern.quote("<>=-*'#/+'&.") + "]");
 
-    //    private Trie<Integer> words = new Trie<>();
-    private Map<String, Integer> words = new HashMap<>();
+    private Object2IntOpenHashMap<String> words = new Object2IntOpenHashMap<>();
 
     public PalladianSpellChecker() {
         this.useContext = true;
@@ -116,10 +116,7 @@ public class PalladianSpellChecker {
                 String lastMatch = null;
                 while (m.find()) {
                     String match = m.group();
-                    Integer count = getWordCount(match);
-                    if (count == null) {
-                        count = 0;
-                    }
+                    int count = getWordCount(match);
                     words.put(match, count + 1);
                     uniqueWords.add(match);
                     if (lastMatch != null && useContext) {
@@ -439,7 +436,7 @@ public class PalladianSpellChecker {
             wordKnown.set(true);
             return word;
         }
-        if (getWordCount(word) != null) {
+        if (getWordCount(word) > 0) {
             wordKnown.set(true);
             if (uppercase) {
                 return StringHelper.upperCaseFirstLetter(word);
@@ -453,8 +450,8 @@ public class PalladianSpellChecker {
             if (s.isEmpty()) {
                 continue;
             }
-            Integer count = getWordCount(s);
-            if (count != null) {
+            int count = getWordCount(s);
+            if (count > 0) {
                 // look at the context
                 if (leftContext != null && useContext) {
                     count += 100 * contextCounter.count(leftContext + "_" + s);
@@ -478,12 +475,12 @@ public class PalladianSpellChecker {
                         compoundCorrect = false;
                         break;
                     }
-                    if (getWordCount(string) == null) {
+                    if (getWordCount(string) == 0) {
                         String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
                         // if (words.get(key) == null && strings.size() > 1) {
                         // key = autoCorrect(key, true);
                         // }
-                        if (getWordCount(key) == null) {
+                        if (getWordCount(key) == 0) {
                             compoundCorrect = false;
                             break;
                         }
@@ -502,8 +499,8 @@ public class PalladianSpellChecker {
                     continue;
                 }
                 for (String w : edits(s)) {
-                    Integer count = getWordCount(w);
-                    if (count != null && firstCharacterSame(w, word)) {
+                    int count = getWordCount(w);
+                    if (count > 0 && firstCharacterSame(w, word)) {
                         candidates.put(count, w);
                     }
                 }
@@ -527,11 +524,11 @@ public class PalladianSpellChecker {
         return !(a.isEmpty() || b.isEmpty()) && a.charAt(0) == b.charAt(0);
     }
 
-    public Map<String, Integer> getWords() {
+    public Object2IntOpenHashMap<String> getWords() {
         return words;
     }
 
-    public void setWords(Map<String, Integer> words) {
+    public void setWords(Object2IntOpenHashMap<String> words) {
         this.words = words;
     }
 
@@ -575,8 +572,8 @@ public class PalladianSpellChecker {
         this.germanCompoundStopCount = germanCompoundStopCount;
     }
 
-    protected Integer getWordCount(String word) {
-        return words.get(word);
+    protected int getWordCount(String word) {
+        return words.getInt(word);
     }
 
     public static void main(String[] args) throws IOException {
@@ -588,6 +585,6 @@ public class PalladianSpellChecker {
         System.out.println(ProcessHelper.getHeapUtilization());
         System.out.println(new PalladianSpellChecker("data/models/de.txt").autoCorrect("orankes Hadny"));
         System.out.println(ProcessHelper.getHeapUtilization());
-//        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("orankes Hadny"));
+        //        System.out.println(new PalladianSpellChecker("de.txt").autoCorrect("orankes Hadny"));
     }
 }
