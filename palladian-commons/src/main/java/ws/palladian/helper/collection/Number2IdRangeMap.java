@@ -1,0 +1,118 @@
+package ws.palladian.helper.collection;
+
+import it.unimi.dsi.fastutil.floats.Float2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+
+/**
+ * <p>
+ * Access objects indexed by a one dimensional numeric index, e.g. get all entries with value > 123.45. Running such
+ * range queries on databases is darn slow and can be replaced using this range map.
+ * </p>
+ * <p>
+ * This is a more memory efficient version of the generic range map and is used for float=>[id] (sets of integers)
+ * </p>
+ *
+ * <p>
+ * Complexity: O(n)
+ * </p>
+ *
+ * @author David Urbansky
+ */
+public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
+    /**
+     * <p>
+     * Given a seed and a comparison type, get all values that adhere to the condition.
+     * </p>
+     *
+     * @param v              The seed value.
+     * @param comparisonType The comparison type.
+     * @return An ordered list of values.
+     */
+    public IntArrayList getValues(double v, ComparisonType comparisonType) {
+        return getValues((float) v, comparisonType);
+    }
+
+    public IntArrayList getValues(float v, ComparisonType comparisonType) {
+        IntArrayList values = new IntArrayList();
+
+        if (comparisonType == ComparisonType.EQUALS) {
+            IntOpenHashSet c = get(v);
+            if (c != null) {
+                values.addAll(c);
+            }
+            return values;
+        }
+
+        boolean startCollecting = false;
+        for (Float2ObjectMap.Entry<IntOpenHashSet> entry : float2ObjectEntrySet()) {
+            if (startCollecting) {
+                values.addAll(entry.getValue());
+                continue;
+            }
+
+            float v1 = entry.getFloatKey();
+
+            boolean smaller = v1 < v;
+            boolean smallerEquals = v1 <= v;
+            boolean bigger = v1 > v;
+            boolean biggerEquals = v1 >= v;
+
+            if ((comparisonType == ComparisonType.LESS && smaller) || (comparisonType == ComparisonType.LESS_EQUALS && smallerEquals) || (comparisonType == ComparisonType.MORE
+                    && bigger) || (comparisonType == ComparisonType.MORE_EQUALS && biggerEquals)) {
+
+                values.addAll(entry.getValue());
+
+                if (comparisonType == ComparisonType.MORE || comparisonType == ComparisonType.MORE_EQUALS) {
+                    startCollecting = true;
+                }
+            }
+        }
+
+        return values;
+    }
+
+    /**
+     * <p>
+     * Get all values within [lowerBound,upperBound].
+     * </p>
+     *
+     * @param lowerBound The minimum number (inclusive).
+     * @param upperBound The maximum number (inclusive).
+     * @return A list of object within the given range.
+     */
+    public IntOpenHashSet getValuesBetween(double lowerBound, double upperBound) {
+        return getValuesBetween((float) lowerBound, (float) upperBound);
+    }
+
+    public IntOpenHashSet getValuesBetween(float lowerBound, float upperBound) {
+        IntOpenHashSet values = new IntOpenHashSet();
+
+        for (Float2ObjectMap.Entry<IntOpenHashSet> entry : float2ObjectEntrySet()) {
+            float v = entry.getFloatKey();
+            if (v >= lowerBound && v <= upperBound) {
+                values.addAll(entry.getValue());
+            }
+
+            if (v > upperBound) {
+                break;
+            }
+        }
+
+        return values;
+    }
+
+    public void put(double key, int c) {
+        this.put((float) key, c);
+    }
+
+    public void put(float key, int c) {
+        IntOpenHashSet vs = get(key);
+        if (vs == null) {
+            vs = new IntOpenHashSet();
+            put(key, vs);
+        }
+        vs.add(c);
+    }
+}
