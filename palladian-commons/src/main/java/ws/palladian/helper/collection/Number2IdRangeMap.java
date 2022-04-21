@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.floats.Float2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>
@@ -114,5 +115,19 @@ public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
             put(key, vs);
         }
         vs.add(c);
+    }
+
+    public static float condenseKey(double value) {
+        return condenseKey((float) value);
+    }
+
+    /**
+     * Fewer keys lead to more memory efficiency. If we store 0.123 and 0.124 together in 0.12, we save memory for keys and value sets.
+     *
+     * @param value The key to condense.
+     * @return A rounded version of the key.
+     */
+    public static float condenseKey(float value) {
+        return (float) MathHelper.round(value, 2);
     }
 }
