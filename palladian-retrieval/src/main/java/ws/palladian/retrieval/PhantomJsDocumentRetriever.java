@@ -57,10 +57,10 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             }
         }
 
-        String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true"
-                + overseerScript + "%7D";
+        String requestUrl =
+                "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        httpRetriever.setConnectionTimeout((int)TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         JsonObject response = new DocumentRetriever().tryGetJsonObject(requestUrl);
         if (response == null) {
             return null;
@@ -81,6 +81,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
         try {
             document = ParserFactory.createHtmlParser().parse(new StringInputStream(htmlContentString));
             document.setDocumentURI(url);
+            callRetrieverCallback(document);
         } catch (Exception e) {
             e.printStackTrace();
         }
