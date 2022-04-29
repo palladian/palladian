@@ -13,7 +13,6 @@ import java.sql.SQLException;
  * @author Philipp Katz
  */
 public interface RowConverter<T> {
-
     /**
      * <p>
      * Convert one row to the specified type. <b>Attention:</b> Only perform conversion operations here, do <b>not</b>
@@ -22,8 +21,6 @@ public interface RowConverter<T> {
      * 
      * @param resultSet The {@link ResultSet} to process.
      * @return The mapped object.
-     * @throws SQLException
      */
     T convert(ResultSet resultSet) throws SQLException;
-
 }

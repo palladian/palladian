@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -468,7 +469,6 @@ public class DatabaseManager {
         }
 
         try {
-
             if (connection == null) {
                 connection = getConnection();
             }
@@ -559,17 +559,14 @@ public class DatabaseManager {
      */
     @Deprecated
     public final Object[] runOneResultLineQuery(String query, final int entries, Object... args) {
-
         final Object[] resultEntries = new Object[entries];
 
         ResultSetCallback callback = new ResultSetCallback() {
-
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 for (int i = 1; i <= entries; i++) {
                     resultEntries[i - 1] = resultSet.getObject(i);
                 }
-
             }
         };
 
@@ -706,6 +703,34 @@ public class DatabaseManager {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
         return runQuery(converter, new BasicQuery(sql, args));
+    }
+    public final IntLinkedOpenHashSet runIntSetQuery(String sql, Object... args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
+
+        final IntLinkedOpenHashSet result = new IntLinkedOpenHashSet(1);
+
+        BasicQuery query = new BasicQuery(sql, args);
+
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            connection = getConnection();
+            ps = connection.prepareStatement(query.getSql());
+            fillPreparedStatement(ps, query.getArgs());
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                result.add(rs.getInt(1));
+            }
+        } catch (SQLException e) {
+            logError(e, query.getSql(), query.getArgs());
+        } finally {
+            close(connection, ps, rs);
+        }
+
+        return result;
     }
 
     /**
