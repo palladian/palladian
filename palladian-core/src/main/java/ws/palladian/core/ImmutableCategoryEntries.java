@@ -1,10 +1,10 @@
 package ws.palladian.core;
 
+import org.apache.commons.lang3.Validate;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * @author Philipp Katz
@@ -19,7 +19,7 @@ public final class ImmutableCategoryEntries extends AbstractCategoryEntries {
 
     /** Empty ImmutableCategoryEntries; use the constant {@link CategoryEntries#EMPTY} */
     ImmutableCategoryEntries() {
-        this.entryMap = Collections.<String, Category> emptyMap();
+        this.entryMap = Collections.emptyMap();
         this.mostLikely = null;
     }
 
@@ -57,7 +57,7 @@ public final class ImmutableCategoryEntries extends AbstractCategoryEntries {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ImmutableCategoryEntries other = (ImmutableCategoryEntries)obj;
+        ImmutableCategoryEntries other = (ImmutableCategoryEntries) obj;
         return entryMap.equals(other.entryMap);
     }
 

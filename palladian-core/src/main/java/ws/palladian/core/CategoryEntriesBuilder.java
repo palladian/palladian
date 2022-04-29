@@ -1,15 +1,14 @@
 package ws.palladian.core;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableDouble;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Factory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -19,18 +18,12 @@ import ws.palladian.helper.functional.Factory;
  * scores are negative, the builder assumes that we're dealing with log probabilities; in this case, the probability
  * values are "inverted". NaN/infinity values are not allowed and trigger an {@link IllegalArgumentException}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
-	
-	/** A factory for producing {@link CategoryEntriesBuilder}s. */
-	public static final Factory<CategoryEntriesBuilder> FACTORY = new Factory<CategoryEntriesBuilder>() {
-		@Override
-		public CategoryEntriesBuilder create() {
-			return new CategoryEntriesBuilder();
-		}
-	};
+    /** A factory for producing {@link CategoryEntriesBuilder}s. */
+    public static final Factory<CategoryEntriesBuilder> FACTORY = CategoryEntriesBuilder::new;
 
     private final Map<String, MutableDouble> entryMap;
 
@@ -40,14 +33,14 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * </p>
      */
     public CategoryEntriesBuilder() {
-        entryMap = new HashMap<>();
+        entryMap = new HashMap<>(1);
     }
 
     /**
      * <p>
      * Create a new {@link CategoryEntriesBuilder} from a given {@link Map} with category and score values.
      * </p>
-     * 
+     *
      * @param map The map with categories and scores, not <code>null</code>.
      */
     public CategoryEntriesBuilder(Map<String, ? extends Number> map) {
@@ -64,9 +57,9 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * <p>
      * Set the score of a category name.
      * </p>
-     * 
+     *
      * @param categoryName The name of the category, not <code>null</code>.
-     * @param score The associated score, higher or equal zero.
+     * @param score        The associated score, higher or equal zero.
      * @return Instance of this class, to allow method concatenation.
      */
     public CategoryEntriesBuilder set(String categoryName, double score) {
@@ -80,9 +73,9 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * <p>
      * Set the score of multiple category names.
      * </p>
-     * 
+     *
      * @param categoryNames The names of the categories, not <code>null</code>.
-     * @param score The associated score, higher or equal zero.
+     * @param score         The associated score, higher or equal zero.
      * @return Instance of this class, to allow method concatenation.
      */
     public CategoryEntriesBuilder set(Iterable<String> categoryNames, double score) {
@@ -98,9 +91,9 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * <p>
      * Add a score to an existing or new category.
      * </p>
-     * 
+     *
      * @param categoryName The name of the category, not <code>null</code>.
-     * @param score The score to add, higher or equal zero.
+     * @param score        The score to add, higher or equal zero.
      * @return Instance of this class, to allow method concatenation.
      */
     public CategoryEntriesBuilder add(String categoryName, double score) {
@@ -119,7 +112,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * <p>
      * Add another {@link CategoryEntries} instance to this builder. Scores are summed.
      * </p>
-     * 
+     *
      * @param categoryEntries The {@link CategoryEntries} to add, not <code>null</code>.
      * @return Instance of this class, to allow method concatenation.
      */
@@ -147,11 +140,10 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
                     probability = 1 - probability;
                 }
             }
-			String name = entry.getKey();
-			if (probability < 0) { // debugging
-				throw new IllegalStateException(
-						"probability was < 0; this should not happen (obviously caused by mixing negative and positive values)");
-			}
+            String name = entry.getKey();
+            if (probability < 0) { // debugging
+                throw new IllegalStateException("probability was < 0; this should not happen (obviously caused by mixing negative and positive values)");
+            }
             Category category = new ImmutableCategory(name, probability);
             map.put(name, category);
             if (mostLikely == null || mostLikely.getProbability() < probability) {
@@ -178,7 +170,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * <p>
      * Get the score of a given category.
      * </p>
-     * 
+     *
      * @param categoryName The category name, not <code>null</code>.
      * @return The score, or zero in case no score was set for the categoy.
      */
@@ -189,7 +181,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
 
     /**
      * Check for infinity/NaN values.
-     * 
+     *
      * @param score The score to check.
      * @throws IllegalArgumentException In case, a NaN/infinity was given.
      */
@@ -204,7 +196,6 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
 
     @Override
     public String toString() {
-    	return create().toString();
+        return create().toString();
     }
-
 }

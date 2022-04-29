@@ -117,6 +117,15 @@ public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
         vs.add(c);
     }
 
+    public void add(float key, IntOpenHashSet ids) {
+        IntOpenHashSet existingIds = get(key);
+        if (existingIds == null) {
+            existingIds = new IntOpenHashSet(ids.size());
+            put(key, existingIds);
+        }
+        existingIds.addAll(ids);
+    }
+
     public static float condenseKey(double value) {
         return condenseKey((float) value);
     }

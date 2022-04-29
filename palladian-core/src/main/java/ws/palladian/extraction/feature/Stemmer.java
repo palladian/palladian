@@ -2,28 +2,14 @@ package ws.palladian.extraction.feature;
 
 import org.apache.commons.lang3.Validate;
 import org.tartarus.snowball.SnowballProgram;
-import org.tartarus.snowball.ext.DanishStemmer;
-import org.tartarus.snowball.ext.DutchStemmer;
-import org.tartarus.snowball.ext.EnglishStemmer;
-import org.tartarus.snowball.ext.FinnishStemmer;
-import org.tartarus.snowball.ext.FrenchStemmer;
-import org.tartarus.snowball.ext.GermanStemmer;
-import org.tartarus.snowball.ext.HungarianStemmer;
-import org.tartarus.snowball.ext.ItalianStemmer;
-import org.tartarus.snowball.ext.NorwegianStemmer;
-import org.tartarus.snowball.ext.PortugueseStemmer;
-import org.tartarus.snowball.ext.RomanianStemmer;
-import org.tartarus.snowball.ext.RussianStemmer;
-import org.tartarus.snowball.ext.SpanishStemmer;
-import org.tartarus.snowball.ext.SwedishStemmer;
-import org.tartarus.snowball.ext.TurkishStemmer;
-
+import org.tartarus.snowball.ext.*;
 import ws.palladian.helper.constants.Language;
+
 import java.util.function.Function;
 
 /**
  * Stemmer using <a href="http://snowball.tartarus.org">Snowball</a>. Important: This class is <b>not</b> Thread-safe!
- * 
+ *
  * @author Philipp Katz
  */
 public final class Stemmer implements Function<String, String> {
@@ -33,8 +19,8 @@ public final class Stemmer implements Function<String, String> {
      * <p>
      * Create a new {@link Stemmer} for the specified language.
      * </p>
-     * 
-     * @param language
+     *
+     * @param language The language to stem.
      */
     public Stemmer(final Language language) {
         Validate.notNull(language, "language must not be null");
@@ -45,9 +31,6 @@ public final class Stemmer implements Function<String, String> {
      * <p>
      * Create a new Snowball stemmer for the specified {@link Language}.
      * </p>
-     * 
-     * @param language
-     * @return
      */
     private static SnowballProgram createStemmer(Language language) {
         switch (language) {
@@ -95,7 +78,7 @@ public final class Stemmer implements Function<String, String> {
      * <p>
      * Stem the supplied word.
      * </p>
-     * 
+     *
      * @param word The word to stem.
      * @return The stemmed word.
      */
@@ -113,5 +96,4 @@ public final class Stemmer implements Function<String, String> {
         builder.append("]");
         return builder.toString();
     }
-
 }
