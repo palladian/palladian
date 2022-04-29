@@ -2,6 +2,7 @@ package ws.palladian.helper;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
@@ -52,8 +53,7 @@ public final class UrlHelper {
     /**
      * RegEx pattern defining a session ID.
      */
-    private static final Pattern SESSION_ID_PATTERN = Pattern
-            .compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
+    private static final Pattern SESSION_ID_PATTERN = Pattern.compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
 
     /**
      * List of top level domains.
@@ -106,8 +106,7 @@ public final class UrlHelper {
 
     // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
     // this is able to match URLs, containing (brackets), but does not include trailing brackets
-    public static final Pattern URL_PATTERN = Pattern.compile(
-            "\\b(?:https?://)?([0-9a-zäöü-]{1,63}?\\.)+(?:" + TOP_LEVEL_DOMAINS
+    public static final Pattern URL_PATTERN = Pattern.compile("\\b(?:https?://)?([0-9a-zäöü-]{1,63}?\\.)+(?:" + TOP_LEVEL_DOMAINS
                     + ")(?:[?/](?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s()<>\\[\\]\"']{0,255})+(?:\\([^\\s()<>\\[\\]\"']{0,255}\\)|[^\\s.,;!?:()<>\\[\\]\"'])|/|\\b)",
             Pattern.CASE_INSENSITIVE);
 

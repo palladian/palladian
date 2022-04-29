@@ -233,7 +233,6 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @param key A key string.
      * @return The double value, or <code>null</code> in case there is no value with specified key, or the value cannot
      * be parsed as Double.
-     * @throws JsonException
      */
     public double getDouble(String key) throws JsonException {
         return JsonUtil.parseDouble(this.get(key));
