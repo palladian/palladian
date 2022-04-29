@@ -56,6 +56,7 @@ public class ProxyCrawlDocumentRetriever extends WebDocumentRetriever {
         Document d = documentRetriever.getWebDocument(requestUrl);
         if (d != null) {
             d.setDocumentURI(url);
+            callRetrieverCallback(d);
         }
         return d;
     }

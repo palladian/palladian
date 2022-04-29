@@ -1,16 +1,21 @@
 package ws.palladian.helper.conversion;
 
-public class AmountUnit {
+import java.util.Optional;
 
-    private Double amount;
+public class AmountUnit {
+    private float amount = -1;
     private String unit;
 
     public Double getAmount() {
-        return amount;
+        return amount < 0 ? null : (double) amount;
+    }
+
+    public void setAmount(float amount) {
+        this.amount = amount;
     }
 
     public void setAmount(Double amount) {
-        this.amount = amount;
+        this.amount = Optional.ofNullable(amount).orElse(-1d).floatValue();
     }
 
     public String getUnit() {
@@ -29,7 +34,7 @@ public class AmountUnit {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("AmountUnit [");
-        if (amount != null) {
+        if (amount > -1) {
             builder.append("amount=");
             builder.append(amount);
             builder.append(", ");
@@ -41,5 +46,4 @@ public class AmountUnit {
         builder.append("]");
         return builder.toString();
     }
-
 }

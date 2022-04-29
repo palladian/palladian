@@ -12,7 +12,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
-import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import java.net.UnknownHostException;
 import java.util.*;
@@ -30,9 +29,8 @@ import java.util.stream.Collectors;
  * <p>
  * A simple web crawler which can crawl web pages within a domain or crawl cross domain.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class Crawler {
     /** The logger for this class. */
@@ -113,7 +111,7 @@ public class Crawler {
         documentRetriever = new DocumentRetriever();
     }
 
-    public Crawler(DocumentRetriever documentRetriever) {
+    public Crawler(WebDocumentRetriever documentRetriever) {
         this.documentRetriever = documentRetriever;
     }
 
@@ -131,7 +129,7 @@ public class Crawler {
 
     /**
      * Visit a certain web page and grab URLs.
-     * 
+     *
      * @param currentUrl A URL.
      */
     protected void crawl(String currentUrl) {
@@ -166,12 +164,11 @@ public class Crawler {
             }
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
-                LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[] {links.size(),
-                        currentUrl, urlStack.size(), visitedUrls.size()});
+                LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[]{links.size(), currentUrl, urlStack.size(), visitedUrls.size()});
             }
 
             addUrlsToStack(links, currentUrl);
-        } else if (isRetryFailedRetrievals() && currentDocumentRetriever.getDownloadFilter().test(currentUrl)){
+        } else if (isRetryFailedRetrievals() && currentDocumentRetriever.getDownloadFilter().test(currentUrl)) {
             LOGGER.error("could not get " + currentUrl + ", putting it back on the stack for later");
             addUrlToStack(currentUrl, currentUrl);
         }
@@ -179,7 +176,7 @@ public class Crawler {
         release(currentDocumentRetriever);
     }
 
-    public void setSilentStopTime(int stopTimeInMinutes){
+    public void setSilentStopTime(int stopTimeInMinutes) {
         silentStopTime = stopTimeInMinutes;
     }
 
@@ -199,8 +196,7 @@ public class Crawler {
         // crawl
         final AtomicLong lastCrawlTime = new AtomicLong(System.currentTimeMillis());
         long silentStopTimeMillis = TimeUnit.MINUTES.toMillis(silentStopTime);
-        while ((stopCount == -1 || visitedUrls.size() < stopCount)
-                && ((System.currentTimeMillis() - lastCrawlTime.get()) < silentStopTimeMillis)) {
+        while ((stopCount == -1 || visitedUrls.size() < stopCount) && ((System.currentTimeMillis() - lastCrawlTime.get()) < silentStopTimeMillis)) {
 
             try {
                 final String url = getUrlFromStack();
@@ -267,9 +263,9 @@ public class Crawler {
 
     /**
      * Start the crawling process.
-     * 
-     * @param urlStack The URLs to crawl.
-     * @param inDomain Follow links that point to other pages within the given domain.
+     *
+     * @param urlStack  The URLs to crawl.
+     * @param inDomain  Follow links that point to other pages within the given domain.
      * @param outDomain Follow outbound links.
      */
     public void startCrawl(Set<String> urlStack, boolean inDomain, boolean outDomain, boolean subDomain) {
@@ -284,8 +280,8 @@ public class Crawler {
     /**
      * Start the crawling process.
      *
-     * @param startURL The URL where the crawler should start.
-     * @param inDomain Follow links that point to other pages within the given domain.
+     * @param startURL  The URL where the crawler should start.
+     * @param inDomain  Follow links that point to other pages within the given domain.
      * @param outDomain Follow outbound links.
      */
     public void startCrawl(String startURL, boolean inDomain, boolean outDomain, boolean subDomain) {
@@ -351,6 +347,7 @@ public class Crawler {
     public void addUrlModificationRegexps(LinkedHashMap<Pattern, String> urlModificationRegexps) {
         this.urlModificationRegexps.putAll(urlModificationRegexps);
     }
+
     public Set<String> getUrlAttributeModification() {
         return urlAttributeModification;
     }
@@ -529,7 +526,6 @@ public class Crawler {
     public void setTrackedLinks(Map<String, String> trackedLinks) {
         this.trackedLinks = trackedLinks;
     }
-
 
     public Consumer<String> getErrorCallback() {
         return errorCallback;

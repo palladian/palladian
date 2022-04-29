@@ -49,6 +49,7 @@ public class ScrapingBeeDocumentRetriever extends WebDocumentRetriever {
         Document webDocument = documentRetriever.getWebDocument(requestUrl);
         if (webDocument != null) {
             webDocument.setDocumentURI(url);
+            callRetrieverCallback(webDocument);
         }
         return webDocument;
     }

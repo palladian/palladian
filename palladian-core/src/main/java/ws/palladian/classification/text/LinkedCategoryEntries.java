@@ -1,7 +1,5 @@
 package ws.palladian.classification.text;
 
-import java.util.Iterator;
-
 import ws.palladian.core.AbstractCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.ImmutableCategory;
@@ -9,14 +7,10 @@ import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.math.MathHelper;
 
+import java.util.Iterator;
+
 final class LinkedCategoryEntries extends AbstractCategoryEntries {
-    
-    public static final Factory<LinkedCategoryEntries> FACTORY = new Factory<LinkedCategoryEntries>() {
-        @Override
-        public LinkedCategoryEntries create() {
-            return new LinkedCategoryEntries();
-        }
-    };
+    public static final Factory<LinkedCategoryEntries> FACTORY = LinkedCategoryEntries::new;
 
     private LinkedCategoryCount firstCategory;
 
@@ -30,10 +24,10 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
             @Override
             protected Category getNext() {
                 if (next == null) {
-                	return finished();
+                    return finished();
                 }
                 String categoryName = next.categoryName;
-                double probability = (double)next.count / totalCount;
+                double probability = (double) next.count / totalCount;
                 int count = next.count;
                 next = next.nextCategory;
                 return new ImmutableCategory(categoryName, probability, count);
@@ -49,9 +43,9 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
 
     /**
      * Increments a category count by the given value.
-     * 
+     *
      * @param category the category to increment, not <code>null</code>.
-     * @param count the number by which to increment, greater/equal zero.
+     * @param count    the number by which to increment, greater/equal zero.
      */
     public void increment(String category, int count) {
         for (LinkedCategoryCount current = firstCategory; current != null; current = current.nextCategory) {
@@ -67,9 +61,9 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
     /**
      * Add a category with a given count (no duplicate checking takes place: only to be used, when one can make sure
      * that it does not already exist).
-     * 
+     *
      * @param category the category to add, not <code>null</code>.
-     * @param count the count to set for the category.
+     * @param count    the count to set for the category.
      */
     public void append(String category, int count) {
         LinkedCategoryCount tmp = firstCategory;
@@ -77,7 +71,7 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
         firstCategory.nextCategory = tmp;
         totalCount = MathHelper.add(totalCount, count);
     }
-    
+
     public void append(Category category) {
         append(category.getName(), category.getCount());
     }
@@ -92,6 +86,5 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
             this.count = count;
         }
     }
-
 
 }

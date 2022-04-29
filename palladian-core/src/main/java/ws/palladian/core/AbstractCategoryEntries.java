@@ -1,17 +1,15 @@
 package ws.palladian.core;
 
-import static ws.palladian.helper.math.MathHelper.log2;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.math.MathHelper;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.math.MathHelper;
+import static ws.palladian.helper.math.MathHelper.log2;
 
 public abstract class AbstractCategoryEntries implements CategoryEntries {
-
     @Override
     public double getProbability(String categoryName) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
@@ -63,7 +61,7 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
     @Override
     public int size() {
         int count = 0;
-        for (Iterator<Category> iterator = this.iterator(); iterator.hasNext();) {
+        for (Iterator<Category> iterator = this.iterator(); iterator.hasNext(); ) {
             Category category = iterator.next();
             if (category.getProbability() > 0) {
                 count++;
@@ -79,7 +77,7 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
             if (category.getCount() == -1) {
                 return -1; // in case, at least one item has a count of -1, we can determine no total count
             }
-//            totalCount += category.getCount();
+            //            totalCount += category.getCount();
             try {
                 totalCount = MathHelper.add(totalCount, category.getCount());
             } catch (ArithmeticException e) {
@@ -88,16 +86,16 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
         }
         return totalCount;
     }
-    
+
     @Override
     public Set<String> getNames() {
-    	Set<String> names = new HashSet<>();
-    	for (Category category : this) {
-			names.add(category.getName());
-		}
-    	return names;
+        Set<String> names = new HashSet<>();
+        for (Category category : this) {
+            names.add(category.getName());
+        }
+        return names;
     }
-    
+
     @Override
     public double getEntropy() {
         double entropy = 0;
@@ -146,7 +144,7 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        CategoryEntries other = (CategoryEntries)obj;
+        CategoryEntries other = (CategoryEntries) obj;
         if (size() != other.size()) {
             return false;
         }
@@ -159,5 +157,4 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
         }
         return true;
     }
-
 }

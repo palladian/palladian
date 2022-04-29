@@ -1,24 +1,19 @@
 package ws.palladian.classification.text;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.Trie;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 /**
@@ -37,18 +32,17 @@ import java.util.function.Predicate;
  * terms in the trained categories.
  * <p>
  * <img src="doc-files/DictionaryModel.png" />
- * 
+ *
  * @author Philipp Katz
  */
 public final class DictionaryTrieModel extends AbstractDictionaryModel {
-
     public static final class Builder implements DictionaryBuilder {
 
         /** The logger for this class. */
         private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryTrieModel.Builder.class);
 
         /** Trie with term-category combinations with their counts. */
-        private final Trie<LinkedCategoryEntries> entryTrie = new Trie<LinkedCategoryEntries>();
+        private final Trie<LinkedCategoryEntries> entryTrie = new Trie<>();
         /** Counter for categories based on documents. */
         private final CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         /** Counter for categories based on terms. */
@@ -114,8 +108,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 }
                 double percentageRemoved = 100. * numRemoved / numTerms;
                 NumberFormat format = NumberFormat.getInstance(Locale.US);
-                LOGGER.info("Removed {} % terms ({}) with {}", format.format(percentageRemoved), numRemoved,
-                        pruningStrategy);
+                LOGGER.info("Removed {} % terms ({}) with {}", format.format(percentageRemoved), numRemoved, pruningStrategy);
                 numTerms -= numRemoved;
             }
             entryTrie.clean();
@@ -141,7 +134,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 String term = addEntry.getTerm();
                 LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
                 for (Category addCategory : addEntry.getCategoryEntries()) {
-                	// TODO really "append" (see JavaDoc), shouldn't this be "add"???
+                    // TODO really "append" (see JavaDoc), shouldn't this be "add"???
                     entries.append(addCategory);
                 }
                 numTerms++;
@@ -254,7 +247,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
     // of existing models still works (we keep a serialized form of each version from now on for the tests).
 
     private void writeObject(ObjectOutputStream out) throws IOException {
-    		writeObject_(out);
+        writeObject_(out);
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -264,12 +257,12 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
             throw new IOException("Unsupported version: " + version);
         }
         Map<Integer, String> categoryIndices = new HashMap<>();
-        entryTrie = new Trie<LinkedCategoryEntries>();
+        entryTrie = new Trie<>();
         // header
         int numCategories = in.readInt();
         CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numCategories; i++) {
-            String categoryName = (String)in.readObject();
+            String categoryName = (String) in.readObject();
             int categoryCount = in.readInt();
             documentCountBuilder.set(categoryName, categoryCount);
             categoryIndices.put(i, categoryName);
@@ -279,7 +272,7 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         numTerms = in.readInt();
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
-            String term = (String)in.readObject();
+            String term = (String) in.readObject();
             LinkedCategoryEntries entries = entryTrie.getOrPut(term, LinkedCategoryEntries.FACTORY);
             int numProbabilityEntries = in.readInt();
             for (int j = 0; j < numProbabilityEntries; j++) {
@@ -292,9 +285,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         }
         termCounts = termCountBuilder.create();
         // feature setting
-        featureSetting = (FeatureSetting)in.readObject();
+        featureSetting = (FeatureSetting) in.readObject();
         // name
-        name = (String)in.readObject();
+        name = (String) in.readObject();
     }
-
 }
