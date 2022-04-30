@@ -1204,4 +1204,10 @@ public final class MathHelper {
     public static int limitToRange(int value, int min, int max) {
         return Math.min(max, Math.max(min, value));
     }
+    public static double limitToRange(Double value, double min, double max, double defaultIfNull) {
+        if (value == null) {
+            return defaultIfNull;
+        }
+        return Math.min(max, Math.max(min, value));
+    }
 }
