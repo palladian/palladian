@@ -2,6 +2,7 @@ package ws.palladian.helper.geo;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -23,6 +24,9 @@ public class Spatial2dIdMap {
     private final List<IdCoordinate> lngIds = new ObjectArrayList<>();
 
     public Set<IdCoordinate> findInBox(double lat1, double lng1, double lat2, double lng2) {
+        if (latValues.isEmpty() || lngValues.isEmpty()) {
+            return ObjectSets.emptySet();
+        }
         //        StopWatch stopWatch = new StopWatch();
         Set<IdCoordinate> latitudeMatches;
         int i1 = CollectionHelper.findIndexBefore(lat1, latValues);
