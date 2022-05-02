@@ -978,8 +978,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     if (width > 0 && height > 0) {
                         builder.setWidth(width).setHeight(height);
                     } else {
-                        Double width1 = MathHelper.parseStringNumber(Optional.ofNullable(imageObj.tryGetString("width")).orElse(""));
-                        Double height1 = MathHelper.parseStringNumber(Optional.ofNullable(imageObj.tryGetString("height")).orElse(""));
+                        Double width1 = Optional.ofNullable(MathHelper.parseStringNumber(Optional.ofNullable(imageObj.tryGetString("width")).orElse(""))).orElse(0.);
+                        Double height1 = Optional.ofNullable(MathHelper.parseStringNumber(Optional.ofNullable(imageObj.tryGetString("height")).orElse(""))).orElse(0.);
                         if (width1 > 0 && height1 > 0) {
                             builder.setWidth(width1.intValue()).setHeight(height1.intValue());
                         }

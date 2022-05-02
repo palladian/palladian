@@ -1,19 +1,21 @@
 package ws.palladian.helper.constants;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.apache.commons.lang3.StringUtils;
 import ws.palladian.helper.StopWatch;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>
  * Enumeration for languages including ISO 639-1 and ISO 639-2.
  * </p>
- * 
+ *
+ * @author Philipp Katz, David Urbansky
  * @see <a href="http://en.wikipedia.org/wiki/ISO_639">Wikipedia: ISO 639</a>.
  * @see <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php">ISO 639-2 Language Code List</a>.
- * 
- * @author Philipp Katz, David Urbansky
  */
 public enum Language {
     AFAR("aa", "aar", "Afar"), //
@@ -153,7 +155,7 @@ public enum Language {
     private final Script script;
 
     /** Getting the language by iso 6391 is slow due to iterating through all values. Keep them in a map instead. */
-    private static final Map<String, Language> iso6391Map = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<String, Language> iso6391Map = new Object2ObjectOpenHashMap<>();
 
     static {
         for (Language language : values()) {
@@ -164,6 +166,7 @@ public enum Language {
     Language(String iso6391, String iso6392, String name) {
         this(iso6391, iso6392, name, null);
     }
+
     Language(String iso6391, String iso6392, String name, Script script) {
         this.iso6391 = iso6391;
         this.iso6392 = iso6392;
@@ -173,7 +176,7 @@ public enum Language {
 
     /**
      * @return The ISO 639-1 code of the language, <code>null</code> in case no such code exists. Usually two letters,
-     *         e.g. "en".
+     * e.g. "en".
      */
     public String getIso6391() {
         return iso6391;
@@ -181,8 +184,8 @@ public enum Language {
 
     /**
      * @return The ISO 639-2 code of the language. (in case <a
-     *         href="http://en.wikipedia.org/wiki/ISO_639-2#B_and_T_codes">B and T</a> codes exist, the T code is
-     *         returned). Usually three letters, e.g. "eng".
+     * href="http://en.wikipedia.org/wiki/ISO_639-2#B_and_T_codes">B and T</a> codes exist, the T code is
+     * returned). Usually three letters, e.g. "eng".
      */
     public String getIso6392() {
         return iso6392;
@@ -199,7 +202,7 @@ public enum Language {
      * <p>
      * Retrieve a {@link Language} by its ISO 639-1 code. For example, "en" for English.
      * </p>
-     * 
+     *
      * @param iso6391 The ISO 639-1 code.
      * @return The {@link Language} for the specified code, or <code>null</code> if no matching language was found.
      */
@@ -211,7 +214,7 @@ public enum Language {
      * <p>
      * Retrieve a {@link Language} by its ISO 639-2 code. For example, "eng" for English.
      * </p>
-     * 
+     *
      * @param iso6392 The ISO 639-2 code.
      * @return The {@link Language} for the specified code, or <code>null</code> if no matching language was found.
      */
@@ -230,7 +233,7 @@ public enum Language {
     /**
      * <p>
      * Retrieve a {@link Language} by name.
-     * 
+     *
      * @param name The name, case insensitive.
      * @return The {@link Language}, or <code>null</code> if no matching language was found.
      */
