@@ -2288,4 +2288,8 @@ public final class StringHelper {
         int rightIndex = Math.min(text.length(), wordEndIndex + contextSize);
         return text.substring(leftIndex, wordBeginIndex) + text.substring(wordBeginIndex, rightIndex);
     }
+
+    public static boolean nullOrEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
 }
