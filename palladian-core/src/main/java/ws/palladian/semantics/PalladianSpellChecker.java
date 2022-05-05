@@ -8,6 +8,7 @@ import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
@@ -68,6 +69,7 @@ public class PalladianSpellChecker {
      */
     private boolean useContext;
     private final Bag<String> contextCounter = new Bag<>();
+    private Language language = Language.ENGLISH;
 
     /**
      * Do not correct words that contain any of these characters.
@@ -96,9 +98,14 @@ public class PalladianSpellChecker {
      * @param useContext       Takes more space but makes corrections more precise.
      */
     public PalladianSpellChecker(String file, boolean ignoreDiacritics, boolean useContext) {
+        this(file, ignoreDiacritics, useContext, Language.ENGLISH);
+    }
+
+    public PalladianSpellChecker(String file, boolean ignoreDiacritics, boolean useContext, Language language) {
         StopWatch stopWatch = new StopWatch();
 
         this.useContext = useContext;
+        this.language = language;
         int lines = FileHelper.getNumberOfLines(file);
         final ProgressMonitor progressMonitor = new ProgressMonitor(lines, 1, "Spell Checker Loading Dictionary");
 
@@ -249,9 +256,12 @@ public class PalladianSpellChecker {
                 result.add(substring0i + c + substringi1);
             }
 
-            result.add(substring0i + 'ä' + substringi1);
-            result.add(substring0i + 'ö' + substringi1);
-            result.add(substring0i + 'ü' + substringi1);
+            if (language == Language.GERMAN) {
+                result.add(substring0i + 'ä' + substringi1);
+                result.add(substring0i + 'ö' + substringi1);
+                result.add(substring0i + 'ü' + substringi1);
+                result.add(substring0i + 'ß' + substringi1);
+            }
         }
 
         // insertions, 26(n+1)
@@ -263,9 +273,12 @@ public class PalladianSpellChecker {
             }
 
             // umlauts
-            result.add(substringI2 + 'ä' + substringI);
-            result.add(substringI2 + 'ö' + substringI);
-            result.add(substringI2 + 'ü' + substringI);
+            if (language == Language.GERMAN) {
+                result.add(substringI2 + 'ä' + substringI);
+                result.add(substringI2 + 'ö' + substringI);
+                result.add(substringI2 + 'ü' + substringI);
+                result.add(substringI2 + 'ß' + substringI);
+            }
         }
 
         result.removeIf(StringUtils::isEmpty);

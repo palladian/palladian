@@ -75,12 +75,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     /**
      * All sentences in the main content.
      */
-    private List<String> sentences = new ArrayList<>();
+    private List<String> sentences = new ArrayList<>(1);
 
     /**
      * Detected comments on the page.
      */
-    private List<String> comments = new ArrayList<>();
+    private List<String> comments = new ArrayList<>(0);
 
     /**
      * The html text of the main content node.
