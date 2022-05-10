@@ -251,6 +251,11 @@ public class WordTransformerTest {
     }
 
     @Test
+    public void testStemEnglishWords() {
+        assertEquals("sign, are in car!", WordTransformer.stemEnglishWords("signs, are in cars!"));
+    }
+
+    @Test
     public void testGetPastParticiple() {
         assertEquals("caused", WordTransformer.getPastParticiple("causes"));
         assertEquals("jumped", WordTransformer.getPastParticiple("jump"));

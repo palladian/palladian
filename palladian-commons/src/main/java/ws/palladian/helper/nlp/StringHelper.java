@@ -56,6 +56,9 @@ public final class StringHelper {
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
+    public static final String[] TRIMMABLE_CHARACTERS = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
+            "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™", "○"};
+
     private StringHelper() {
         // utility class.
     }
@@ -972,8 +975,6 @@ public final class StringHelper {
 
         string = StringEscapeUtils.unescapeHtml(string);
 
-        String[] unwanted = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-                "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™", "○"};
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
         // delete quotes only if it is unlikely to be a unit (foot and inches)
@@ -989,10 +990,10 @@ public final class StringHelper {
         while (((deleteFirst && trimLeft) || (deleteLast && trimRight)) && !string.isEmpty()) {
             deleteFirst = false;
             deleteLast = false;
-            Character first = string.charAt(0);
-            Character last = string.charAt(string.length() - 1);
+            char first = string.charAt(0);
+            char last = string.charAt(string.length() - 1);
             // System.out.println(Character.getType(last));
-            for (String element : unwanted) {
+            for (String element : TRIMMABLE_CHARACTERS) {
                 if (keepCharacters.contains(element)) {
                     continue;
                 }
@@ -1035,7 +1036,6 @@ public final class StringHelper {
      * </p>
      *
      * @param string The string with control characters.
-     * @return
      */
     public static String removeControlCharacters(String string) {
         // replace line breaks encoded in utf-8

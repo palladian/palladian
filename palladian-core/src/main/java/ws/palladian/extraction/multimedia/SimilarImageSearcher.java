@@ -50,7 +50,7 @@ public class SimilarImageSearcher {
         return true;
     }
 
-    private boolean loadIndex() {
+    protected boolean loadIndex() {
         String imageVectorsPath = folder.getPath() + "/image-vectors.gz";
         if (FileHelper.fileExists(imageVectorsPath)) {
             List<ImageVector> loadedImageVectors = FileHelper.tryDeserialize(imageVectorsPath);
@@ -126,7 +126,7 @@ public class SimilarImageSearcher {
         return createImageVectorFromNormalizedImage(grayscaleImage, identifier);
     }
 
-    private BufferedImage findProcessedImageByIdentifier(String identifier) {
+    protected BufferedImage findProcessedImageByIdentifier(String identifier) {
         String tempLinkPath = getImagePath(identifier, true);
 
         // check whether we have the image already
@@ -137,7 +137,7 @@ public class SimilarImageSearcher {
         return null;
     }
 
-    private BufferedImage findImageByIdentifier(String identifier) {
+    protected BufferedImage findImageByIdentifier(String identifier) {
         String tempLinkPath = getImagePath(identifier, false);
 
         // check whether we have the image already
@@ -148,7 +148,7 @@ public class SimilarImageSearcher {
         return null;
     }
 
-    private String getImagePath(String identifier, boolean processed) {
+    protected String getImagePath(String identifier, boolean processed) {
         if (identifier == null) {
             identifier = UUID_PREFIX + UUID.randomUUID();
         }
@@ -158,7 +158,7 @@ public class SimilarImageSearcher {
         return folder.getPath() + "/" + identifier + ".jpg";
     }
 
-    private ImageVector createImageVectorFromNormalizedImage(BufferedImage image, String identifier) {
+    protected ImageVector createImageVectorFromNormalizedImage(BufferedImage image, String identifier) {
         ImageVector imageVector = new ImageVector();
 
         int vectorPosition = 0;
@@ -202,7 +202,7 @@ public class SimilarImageSearcher {
         return CollectionHelper.getSublist(categoryNames, 0, numNeighbors);
     }
 
-    private CategoryEntries classify(ImageVector imageVectorToClassify, int numNeighbors) {
+    protected CategoryEntries classify(ImageVector imageVectorToClassify, int numNeighbors) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         // find k nearest neighbors, compare instance to every known instance
@@ -223,7 +223,7 @@ public class SimilarImageSearcher {
         return builder.create();
     }
 
-    private double computeDistance(byte[] values1, byte[] values2) {
+    protected double computeDistance(byte[] values1, byte[] values2) {
         Objects.requireNonNull(values1, "values1 must not be null");
         Objects.requireNonNull(values2, "values2 must not be null");
         double distance = 0;

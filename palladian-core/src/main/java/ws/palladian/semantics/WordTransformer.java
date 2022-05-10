@@ -1,5 +1,6 @@
 package ws.palladian.semantics;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
@@ -13,6 +14,8 @@ import ws.palladian.helper.nlp.StringHelper;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +64,8 @@ public class WordTransformer {
      * Exceptions for English stemming.
      */
     private static final Map<String, String> ENGLISH_STEMMING_EXCEPTIONS = new HashMap<>();
+
+    private static final Pattern TRIM_CHAR_PATTERN;
 
     static {
         // German nouns
@@ -170,6 +175,8 @@ public class WordTransformer {
         } finally {
             FileHelper.close(inputStream);
         }
+
+        TRIM_CHAR_PATTERN = Pattern.compile("["+StringUtils.join(StringHelper.TRIMMABLE_CHARACTERS,"")+"]");
     }
 
     /**
@@ -537,15 +544,23 @@ public class WordTransformer {
         String[] split = words.split(" ");
 
         for (int i = 0; i < split.length; i++) {
+            String word = split[i];
+            // remove trailing punctuation
+            Matcher matcher = TRIM_CHAR_PATTERN.matcher(word);
+            String trail = "";
+            if (matcher.find()) {
+                word = StringHelper.trimRight(word);
+                trail = matcher.group();
+            }
             if (language == Language.GERMAN) {
-                stemmedString.append(stemGermanWord(split[i]));
+                stemmedString.append(stemGermanWord(word));
             } else if (language == Language.ENGLISH) {
-                stemmedString.append(stemEnglishWord(split[i]));
+                stemmedString.append(stemEnglishWord(word));
             } else {
-                stemmedString.append(stemWord(split[i], language));
+                stemmedString.append(stemWord(word, language));
 
             }
-            stemmedString.append(" ");
+            stemmedString.append(trail).append(" ");
         }
 
         return stemmedString.toString().trim();
