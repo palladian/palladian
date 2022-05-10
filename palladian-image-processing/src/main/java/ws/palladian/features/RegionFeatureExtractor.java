@@ -21,7 +21,6 @@ public enum RegionFeatureExtractor implements FeatureExtractor {
 
     @Override
     public FeatureVector extract(BufferedImage image) {
-
         InstanceBuilder instanceBuilder = new InstanceBuilder();
 
         // paint detected colors white
@@ -130,12 +129,11 @@ public enum RegionFeatureExtractor implements FeatureExtractor {
         instanceBuilder.set("number_main_regions", numberOfMainRegions);
         instanceBuilder.set("mean_region_size", slimStats.getMean());
         instanceBuilder.set("main_region_size", slimStats.getMax());
-        instanceBuilder.set("main_region_width", (double) (rectangle.width+1) / dilatedImage.getWidth());
-        instanceBuilder.set("main_region_height", (double) (rectangle.height+1) / dilatedImage.getHeight());
+        instanceBuilder.set("main_region_width", (double) (rectangle.width + 1) / dilatedImage.getWidth());
+        instanceBuilder.set("main_region_height", (double) (rectangle.height + 1) / dilatedImage.getHeight());
         instanceBuilder.set("main_region_dominance", slimStats.getMax() / (dilatedImage.getWidth() * dilatedImage.getHeight()));
-        instanceBuilder.set("main_region_coverage", slimStats.getMax() / ((rectangle.width+1) * (rectangle.height+1)));
+        instanceBuilder.set("main_region_coverage", slimStats.getMax() / ((rectangle.width + 1) * (rectangle.height + 1)));
 
         return instanceBuilder.create();
     }
-
 }
