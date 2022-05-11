@@ -90,4 +90,9 @@ public abstract class MapDecorator<K, V> implements Map<K, V> {
 		return map;
 	}
 
+	@Override
+	public String toString() {
+		return map.toString();
+	}
+
 }
