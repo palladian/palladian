@@ -589,6 +589,10 @@ public class PalladianSpellChecker {
         return words.getInt(word);
     }
 
+    public void setLanguage(Language language) { this.language = language; }
+    
+    public Language getLanguage() { return language; }
+
     public static void main(String[] args) throws IOException {
         // System.out.println(new PalladianSpellChecker("en.txt").autoCorrect("caar"));
         // System.out.println(new
