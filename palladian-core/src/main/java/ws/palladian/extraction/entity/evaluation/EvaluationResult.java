@@ -169,11 +169,11 @@ public class EvaluationResult {
      */
     public EvaluationResult(List<? extends Annotation> goldStandard) {
         Validate.notNull(goldStandard, "goldStandard must not be null");
-        this.assignments = LazyMap.create(new Bag.BagFactory<>());
+        this.assignments = new LazyMap<>(Bag::new);
         this.resultAnnotations = DefaultMultiMap.createWithList();
         this.confusionMatrix = new ConfusionMatrix();
-        this.actualAssignments = Bag.create();
-        this.possibleAssignments = Bag.create();
+        this.actualAssignments = new Bag<>();
+        this.possibleAssignments = new Bag<>();
         for (Annotation annotation : goldStandard) {
             possibleAssignments.add(annotation.getTag());
         }
@@ -479,7 +479,7 @@ public class EvaluationResult {
     }
 
     private Bag<String> getAnnotationCount(ResultType resultType) {
-        Bag<String> counts = Bag.create();
+        Bag<String> counts = new Bag<>();
         counts.addAll(getAnnotations(resultType).stream().map(Annotation::getTag).collect(Collectors.toList()));
         return counts;
     }

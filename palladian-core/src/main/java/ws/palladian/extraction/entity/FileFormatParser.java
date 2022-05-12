@@ -602,7 +602,7 @@ public final class FileFormatParser {
         Annotations<Annotation> annotations = new Annotations<Annotation>();
 
         // count the number of collected seeds per concept
-        Bag<String> conceptSeedCount = Bag.create();
+        Bag<String> conceptSeedCount = new Bag<>();
 
         // store entities in a set to avoid duplicates
         Set<String> entitySet = new HashSet<String>();
