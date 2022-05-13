@@ -662,4 +662,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
     }
 
+    /**
+     * Remove null keys and null values
+     */
+    public void removeNulls() {
+        remove(null);
+        map.keySet().removeIf(key -> map.get(key) == null);
+    }
 }
