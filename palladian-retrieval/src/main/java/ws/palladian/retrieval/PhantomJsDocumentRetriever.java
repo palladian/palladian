@@ -7,6 +7,8 @@ import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +81,13 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
 
         Document document = null;
         try {
-            document = ParserFactory.createHtmlParser().parse(new StringInputStream(htmlContentString));
+            String contentType = Optional.ofNullable(response.tryQueryString("pageResponses[0]/headers/content-type")).orElse("").toLowerCase();
+            if (contentType.contains("utf-8")) {
+                byte[] content = htmlContentString.getBytes(StandardCharsets.UTF_8);
+                document = ParserFactory.createHtmlParser().parse(new ByteArrayInputStream(content));
+            } else {
+                document = ParserFactory.createHtmlParser().parse(new StringInputStream(htmlContentString));
+            }
             document.setDocumentURI(url);
             callRetrieverCallback(document);
         } catch (Exception e) {

@@ -32,7 +32,6 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author Philipp Katz
  */
 public final class PalladianSentenceDetector implements SentenceDetector {
-
     /** Sentence split pattern for English text. */
     private static final Pattern PATTERN_EN = Pattern.compile(Tokenizer.SENTENCE_SPLIT_REGEX_EN);
 
@@ -71,7 +70,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
     @Override
     public Iterator<Token> iterateTokens(String text) {
         // recognize URLs, dates and smileys, so we don't break them
-        List<Annotation> maskAnnotations = new ArrayList<>();
+        List<Annotation> maskAnnotations = new ArrayList<>(1);
         maskAnnotations.addAll(UrlTagger.INSTANCE.getAnnotations(text));
         maskAnnotations.addAll(DATE_TAGGER.getAnnotations(text));
         maskAnnotations.addAll(SmileyTagger.INSTANCE.getAnnotations(text));
@@ -86,7 +85,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
         String maskedText = maskedTextBuilder.toString();
 
         // tokenize the masked text
-        List<Token> maskedSentences = new ArrayList<>();
+        List<Token> maskedSentences = new ArrayList<>(1);
         Pattern pattern = language == Language.GERMAN ? PATTERN_DE : PATTERN_EN;
         Matcher matcher = pattern.matcher(maskedText);
         int lastIndex = 0;

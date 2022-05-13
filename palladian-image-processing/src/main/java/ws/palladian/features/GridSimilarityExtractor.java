@@ -16,7 +16,6 @@ import static ws.palladian.features.color.Luminosity.LUMINOSITY;
 import static ws.palladian.utils.ImageUtils.getRGB;
 
 public class GridSimilarityExtractor implements FeatureExtractor {
-
     private final int divisions;
 
     public GridSimilarityExtractor(int divisions) {
