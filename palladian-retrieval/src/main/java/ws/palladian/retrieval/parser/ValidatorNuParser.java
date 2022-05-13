@@ -22,7 +22,6 @@ import java.io.IOException;
  * @see <a href="http://about.validator.nu/htmlparser/">The Validator.nu HTML Parser</a>
  */
 public final class ValidatorNuParser extends BaseDocumentParser {
-
     protected ValidatorNuParser() {
         // instances should be created by the factory.
     }

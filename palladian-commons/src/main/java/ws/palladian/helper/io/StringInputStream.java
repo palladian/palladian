@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class StringInputStream extends InputStream {
-
-    private StringBuilder string = null;
+    private StringBuilder string;
     int currentIndex = 0;
 
     public StringInputStream(String text) {
@@ -23,5 +22,4 @@ public class StringInputStream extends InputStream {
         }
         return -1;
     }
-
 }
