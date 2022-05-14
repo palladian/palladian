@@ -151,7 +151,7 @@ public final class TextBasedScopeDetectorEvaluation {
     public static double[] createEvaluationGridSize() {
         final double[] gridSizes = new double[15];
         for (int i = 0; i < gridSizes.length; i++) {
-            gridSizes[i] = (double)180 / (FastMath.pow(2, i));
+            gridSizes[i] = (double)180 / (Math.pow(2, i));
         }
         return gridSizes;
     }

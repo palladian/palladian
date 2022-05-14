@@ -35,7 +35,7 @@ public final class GaussianBlur implements Function<BufferedImage, BufferedImage
         float coeff = 2f * sigma * sigma;
         float total = 0;
         for (int x = -width; x <= width; x++) {
-            float g = (float)(norm * FastMath.exp(-x * x / coeff));
+            float g = (float)(norm * Math.exp(-x * x / coeff));
             matrix[x + width] = g;
             total += g;
         }

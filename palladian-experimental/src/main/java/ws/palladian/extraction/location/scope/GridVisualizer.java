@@ -81,7 +81,7 @@ public final class GridVisualizer {
             String[] identifier = GridCreator.split(category.getName());
             String x = identifier[0];
             String y = identifier[1];
-            matrix.set(x, y, FastMath.pow(category.getProbability() / maxProbability, normalization));
+            matrix.set(x, y, Math.pow(category.getProbability() / maxProbability, normalization));
         }
         return matrix;
     }
