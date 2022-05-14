@@ -1,5 +1,7 @@
 package ws.palladian.extraction.feature;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.util.Iterator;
 
 public abstract class AbstractTermCorpus implements TermCorpus {
@@ -10,7 +12,7 @@ public abstract class AbstractTermCorpus implements TermCorpus {
         // 1 + to avoid negative idf values (this is the way Lucene does it):
         // https://lucene.apache.org/core/4_5_1/core/org/apache/lucene/search/similarities/TFIDFSimilarity.html
         // https://stackoverflow.com/a/19959938 (comments)
-        return 1 + Math.log((double) getNumDocs() / (getCount(term) + s));
+        return 1 + FastMath.log((double) getNumDocs() / (getCount(term) + s));
     }
 
     @Override

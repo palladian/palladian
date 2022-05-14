@@ -5,6 +5,7 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class NerHelper {
+    private static final Pattern NUMBER_PATTERN = PatternHelper.compileOrGet("\\d");
 
     private NerHelper() {
         // no instances.
@@ -27,7 +29,7 @@ public final class NerHelper {
             return Collections.singletonList(text);
         }
 
-        List<String> chunks = new ArrayList<String>();
+        List<String> chunks = new ArrayList<>();
         List<String> sentences = Tokenizer.getSentences(text);
         StringBuilder currentChunk = new StringBuilder(maxChunkLength);
         for (String sentence : sentences) {
@@ -56,13 +58,7 @@ public final class NerHelper {
         FileHelper.writeToFile(alignFilePath, alignedContent);
     }
 
-    /**
-     * @param inputContent
-     * @param correctContent
-     * @return
-     */
     public static String alignContentText(String inputContent, String correctContent) {
-
         String alignedContent = inputContent;
 
         // compare contents, ignore tags and align content with inputText (correctContent)
@@ -230,8 +226,8 @@ public final class NerHelper {
      * "going to New York", and a specified length of 2, the following contexts would be extracted: "to" and "going to".
      *
      * @param annotation The annotation, not <code>null</code>.
-     * @param text       The text, which is referred to by the annotation, not <code>null</code>.
-     * @param size       The size in tokens.
+     * @param text The text, which is referred to by the annotation, not <code>null</code>.
+     * @param size The size in tokens.
      * @return A list with cumulated left context tokens from length 1 ... n.
      */
     public static List<String> getLeftContexts(Annotation annotation, String text, int size) {
@@ -244,7 +240,7 @@ public final class NerHelper {
             char ch = text.charAt(idx);
             builder.append(ch);
             if (ch == ' ' || idx == 0) {
-                String value = builder.toString().trim().replaceAll("\\d", "§");
+                String value = NUMBER_PATTERN.matcher(builder.toString().trim()).replaceAll("§");
                 if (value.length() > 0) {
                     contexts.add(StringHelper.reverseString(value));
                 }
@@ -262,8 +258,8 @@ public final class NerHelper {
      * "is a city".
      *
      * @param annotation The annotation, not <code>null</code>.
-     * @param text       The text, which is referred to by the annotation, not <code>null</code>.
-     * @param size       The size in tokens.
+     * @param text The text, which is referred to by the annotation, not <code>null</code>.
+     * @param size The size in tokens.
      * @return A list with cumulated right context tokens from length 1 ... n.
      */
     public static List<String> getRightContexts(Annotation annotation, String text, int size) {
@@ -273,7 +269,7 @@ public final class NerHelper {
             char ch = text.charAt(idx);
             builder.append(ch);
             if (ch == ' ' || idx == 0) {
-                String value = builder.toString().trim().replaceAll("\\d", "§");
+                String value = NUMBER_PATTERN.matcher(builder.toString().trim()).replaceAll("§");
                 if (value.length() > 0) {
                     if (StringHelper.isPunctuation(value.charAt(value.length() - 1))) {
                         value = value.substring(0, value.length() - 1);
@@ -298,5 +294,4 @@ public final class NerHelper {
         String rightContext = text.substring(offset + length, Math.min(text.length(), offset + length + size)).trim();
         return leftContext + "__" + rightContext;
     }
-
 }

@@ -408,7 +408,7 @@ public final class LocationExtractionEvaluator {
             extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
                     ANCHOR_DISTANCE_THRESHOLD, //
                     LOWER_POPULATION_THRESHOLD, //
-                    (int)Math.pow(10, anchorPopulationThreshold), //
+                    (int)FastMath.pow(10, anchorPopulationThreshold), //
                     SAME_DISTANCE_THRESHOLD, //
                     LASSO_DISTANCE_THRESHOLD, //
                     LOWER_UNLIKELY_POPULATION_THRESHOLD, //
@@ -441,7 +441,7 @@ public final class LocationExtractionEvaluator {
                     ANCHOR_POPULATION_THRESHOLD, //
                     SAME_DISTANCE_THRESHOLD, //
                     LASSO_DISTANCE_THRESHOLD, //
-                    (int)Math.pow(10, lowerUnlikelyPopulationThreshold), //
+                    (int)FastMath.pow(10, lowerUnlikelyPopulationThreshold), //
                     TOKEN_THRESHOLD)));
         }
         for (int tokenThreshold = 0; tokenThreshold <= 10; tokenThreshold++) {

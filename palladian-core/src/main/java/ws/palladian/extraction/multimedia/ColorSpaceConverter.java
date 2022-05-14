@@ -117,11 +117,11 @@ public class ColorSpaceConverter {
         double[] result = new double[3];
 
         double y = (L + 16.0) / 116.0;
-        double y3 = Math.pow(y, 3.0);
+        double y3 = FastMath.pow(y, 3.0);
         double x = (a / 500.0) + y;
-        double x3 = Math.pow(x, 3.0);
+        double x3 = FastMath.pow(x, 3.0);
         double z = y - (b / 200.0);
-        double z3 = Math.pow(z, 3.0);
+        double z3 = FastMath.pow(z, 3.0);
 
         if (y3 > 0.008856) {
             y = y3;
@@ -209,17 +209,17 @@ public class ColorSpaceConverter {
         if (r <= 0.04045) {
             r = r / 12.92;
         } else {
-            r = Math.pow(((r + 0.055) / 1.055), 2.4);
+            r = FastMath.pow(((r + 0.055) / 1.055), 2.4);
         }
         if (g <= 0.04045) {
             g = g / 12.92;
         } else {
-            g = Math.pow(((g + 0.055) / 1.055), 2.4);
+            g = FastMath.pow(((g + 0.055) / 1.055), 2.4);
         }
         if (b <= 0.04045) {
             b = b / 12.92;
         } else {
-            b = Math.pow(((b + 0.055) / 1.055), 2.4);
+            b = FastMath.pow(((b + 0.055) / 1.055), 2.4);
         }
 
         r *= 100.0;
@@ -285,17 +285,17 @@ public class ColorSpaceConverter {
         double z = Z / whitePoint[2];
 
         if (x > 0.008856) {
-            x = Math.pow(x, 1.0 / 3.0);
+            x = FastMath.pow(x, 1.0 / 3.0);
         } else {
             x = (7.787 * x) + (16.0 / 116.0);
         }
         if (y > 0.008856) {
-            y = Math.pow(y, 1.0 / 3.0);
+            y = FastMath.pow(y, 1.0 / 3.0);
         } else {
             y = (7.787 * y) + (16.0 / 116.0);
         }
         if (z > 0.008856) {
-            z = Math.pow(z, 1.0 / 3.0);
+            z = FastMath.pow(z, 1.0 / 3.0);
         } else {
             z = (7.787 * z) + (16.0 / 116.0);
         }
@@ -335,17 +335,17 @@ public class ColorSpaceConverter {
 
         // assume sRGB
         if (r > 0.0031308) {
-            r = ((1.055 * Math.pow(r, 1.0 / 2.4)) - 0.055);
+            r = ((1.055 * FastMath.pow(r, 1.0 / 2.4)) - 0.055);
         } else {
             r = (r * 12.92);
         }
         if (g > 0.0031308) {
-            g = ((1.055 * Math.pow(g, 1.0 / 2.4)) - 0.055);
+            g = ((1.055 * FastMath.pow(g, 1.0 / 2.4)) - 0.055);
         } else {
             g = (g * 12.92);
         }
         if (b > 0.0031308) {
-            b = ((1.055 * Math.pow(b, 1.0 / 2.4)) - 0.055);
+            b = ((1.055 * FastMath.pow(b, 1.0 / 2.4)) - 0.055);
         } else {
             b = (b * 12.92);
         }

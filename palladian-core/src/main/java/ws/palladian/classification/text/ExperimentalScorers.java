@@ -1,5 +1,6 @@
 package ws.palladian.classification.text;
 
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.classification.text.PalladianTextClassifier.DefaultScorer;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 
@@ -42,8 +43,8 @@ public final class ExperimentalScorers {
             }
             double termCategoryProbability = (double)termCategoryCount / dictCount;
             double squaredTermCategoryProb = termCategoryProbability * termCategoryProbability;
-            double idf = Math.log((numDocs + 1) / (dictCount + 1));
-            double weight = Math.log(docCount + 1) * idf;
+            double idf = FastMath.log((numDocs + 1) / (dictCount + 1));
+            double weight = FastMath.log(docCount + 1) * idf;
             return weight * squaredTermCategoryProb;
         }
     }
@@ -67,8 +68,8 @@ public final class ExperimentalScorers {
             }
             double termCategoryProbability = (double)termCategoryCount / dictCount;
             double squaredTermCategoryProb = termCategoryProbability * termCategoryProbability;
-            // return squaredTermCategoryProb * Math.log(1 + dictCount);
-            return squaredTermCategoryProb * (1 + Math.log(dictCount));
+            // return squaredTermCategoryProb * FastMath.log(1 + dictCount);
+            return squaredTermCategoryProb * (1 + FastMath.log(dictCount));
         }
     }
 
@@ -95,7 +96,7 @@ public final class ExperimentalScorers {
             // backoff, similar to a Naive Bayes; pretend, we have seen each term once more than actually
             double p = (double)(docCount + 1) / numUniqTerms;
             double q = (double)(termCategoryCount + 1) / (categorySum + numUniqTerms);
-            return p * Math.log(p / q);
+            return p * FastMath.log(p / q);
         }
 
         @Override

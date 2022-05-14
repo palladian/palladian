@@ -25,7 +25,6 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 
 public class AnnotationRuleEngine {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationRuleEngine.class);
 
@@ -55,7 +54,7 @@ public class AnnotationRuleEngine {
     }
 
     /** An action which is taken, when a rule matches. */
-    public static enum Action {
+    public enum Action {
         /** Removes the given annotation. */
         REMOVE_THIS {
             @Override
@@ -68,12 +67,7 @@ public class AnnotationRuleEngine {
             @Override
             void apply(Annotation annotation, Map<Annotation, CategoryEntriesBuilder> probs, String outcome) {
                 Set<String> parts = new HashSet<>(Arrays.asList(annotation.getValue().split("\\s")));
-                Iterator<Annotation> iterator = probs.keySet().iterator();
-                while (iterator.hasNext()) {
-                    if (StringHelper.containsWord(parts, iterator.next().getValue())) {
-                        iterator.remove();
-                    }
-                }
+                probs.keySet().removeIf(annotation1 -> StringHelper.containsWord(parts, annotation1.getValue()));
             }
         },
         /** Classifies the given annotation. */

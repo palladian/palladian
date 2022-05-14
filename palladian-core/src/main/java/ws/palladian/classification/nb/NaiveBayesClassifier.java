@@ -2,6 +2,7 @@ package ws.palladian.classification.nb;
 
 import org.apache.commons.lang3.Validate;
 
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.core.Classifier;
@@ -81,7 +82,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
             if (logSpace) {
-            	probability = Math.log(probability);
+            	probability = FastMath.log(probability);
             }
             
             for (String featureName : model.getLearnedFeatures()) {
@@ -90,7 +91,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
                     String nominalValue = ((NominalValue)value).getString();
                     double currentProbability = model.getProbability(featureName, nominalValue, category, laplace);
 					if (logSpace) {
-                    	probability += Math.log(currentProbability);
+                    	probability += FastMath.log(currentProbability);
                     } else {
                     	probability *= currentProbability;
                     }
@@ -99,7 +100,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
                     double density = model.getDensity(featureName, doubleValue, category);
                     if (density > 0) {
                     	if (logSpace) {
-                    		probability += Math.log(density);
+                    		probability += FastMath.log(density);
                     	} else {
                     		probability *= density;
                     	}

@@ -43,11 +43,11 @@ public class SelfTuningLibSvmLearner extends AbstractLearner<LibSvmModel> {
 		
 		// paper suggest to use 2^-5 to 2^15 for C
 		for (int i = -5; i <= 15; i+=STEP_SIZE) {
-			double C = Math.pow(2, i);
+			double C = FastMath.pow(2, i);
 			
 			for (int j = -15; j <= 3; j+=STEP_SIZE) {
 				
-				double gamma = Math.pow(2, j);
+				double gamma = FastMath.pow(2, j);
 				
 				double averageAccuracy = 0;
 				

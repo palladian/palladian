@@ -82,7 +82,7 @@ public final class TextBasedScopeDetectorEvaluation {
 //            trainingSet = new WikipediaLocationScopeIterator(trainingDirectory, true);
 //            
 //            for (int i = 0; i <= 14; i++) {
-//                int trainingSize = (int)Math.pow(2, i);
+//                int trainingSize = (int)FastMath.pow(2, i);
 //                FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "### training documents " + trainingSize + "\n");
 //                Iterable<LocationDocument> limitedTrain = CollectionHelper.limit(trainingSet, trainingSize);
 //                DictionaryScopeModel model = DictionaryScopeDetector.train(limitedTrain, featureSetting, defaultGridSize);
@@ -139,7 +139,7 @@ public final class TextBasedScopeDetectorEvaluation {
 //        QueryCreator queryCreator = KNearestNeighborScopeDetector.MORE_LIKE_THIS_QUERY_CREATOR;
 //        int k = 5;
 //        for (int i = 0; i <= 14; i++) {
-//            int trainingSize = (int)Math.pow(2, i);
+//            int trainingSize = (int)FastMath.pow(2, i);
 //            FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "### training documents " + trainingSize + "\n");
 //            Iterable<LocationDocument> limitedTrain = CollectionHelper.limit(trainingSet, trainingSize);
 //            NearestNeighborScopeModel model = KNearestNeighborScopeDetector.train(limitedTrain, featureSetting);
@@ -151,7 +151,7 @@ public final class TextBasedScopeDetectorEvaluation {
     public static double[] createEvaluationGridSize() {
         final double[] gridSizes = new double[15];
         for (int i = 0; i < gridSizes.length; i++) {
-            gridSizes[i] = (double)180 / (Math.pow(2, i));
+            gridSizes[i] = (double)180 / (FastMath.pow(2, i));
         }
         return gridSizes;
     }

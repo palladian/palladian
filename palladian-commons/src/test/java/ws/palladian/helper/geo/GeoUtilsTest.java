@@ -17,7 +17,6 @@ import org.junit.rules.ErrorCollector;
 import ws.palladian.helper.StopWatch;
 
 public class GeoUtilsTest {
-
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
@@ -199,5 +198,4 @@ public class GeoUtilsTest {
         assertEquals(GeoUtils.EARTH_MAX_DISTANCE_KM,
                 GeoUtils.getLargestDistance(Arrays.<GeoCoordinate> asList(null, null)), 0.1);
     }
-
 }

@@ -31,7 +31,7 @@
 // 		public double getDepthScore() {
 // 			double score = 0;
 // 			for (Integer depth : depths) {
-// 				score += 1./Math.pow(2, depth);
+// 				score += 1./FastMath.pow(2, depth);
 // 			}
 // 			return score;
 // 		}

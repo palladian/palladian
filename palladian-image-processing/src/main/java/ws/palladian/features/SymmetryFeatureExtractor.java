@@ -64,8 +64,8 @@ public class SymmetryFeatureExtractor implements FeatureExtractor {
         for (int idx = 0; idx < rgbImage1.length; idx++) {
             int value1 = extractor.extractValue(new Color(rgbImage1[idx]));
             int value2 = extractor.extractValue(new Color(rgbImage2[idx]));
-            squaredError += Math.pow(Math.abs(value1 - value2) / 255., r);
+            squaredError += FastMath.pow(Math.abs(value1 - value2) / 255., r);
         }
-        return 1 - Math.pow(squaredError / rgbImage1.length, 1. / r);
+        return 1 - FastMath.pow(squaredError / rgbImage1.length, 1. / r);
     }
 }

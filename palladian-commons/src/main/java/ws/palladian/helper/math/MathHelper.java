@@ -3,6 +3,7 @@ package ws.palladian.helper.math;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.util.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -17,6 +18,10 @@ import java.util.regex.Pattern;
 /**
  * <p>
  * The MathHelper provides mathematical functionality.
+ * </p>
+ * <p>
+ *     We use FastMath for the following default math functions due to faster speeds: cos, sin, pow, atan2, log, and exp.
+ *     See https://gist.github.com/ijuma/840120 and https://blog.juma.me.uk/2011/02/23/performance-of-fastmath-from-commons-math/
  * </p>
  *
  * @author David Urbansky
@@ -227,7 +232,7 @@ public final class MathHelper {
         if (Double.isNaN(number)) {
             return Double.NaN;
         }
-        double numberFactor = Math.pow(10.0, digits);
+        double numberFactor = FastMath.pow(10.0, digits);
         return Math.round(numberFactor * number) / numberFactor;
     }
 
@@ -235,7 +240,7 @@ public final class MathHelper {
         if (Double.isNaN(number)) {
             return Double.NaN;
         }
-        double numberFactor = Math.pow(10.0, digits);
+        double numberFactor = FastMath.pow(10.0, digits);
         return Math.ceil(numberFactor * number) / numberFactor;
     }
 
@@ -243,7 +248,7 @@ public final class MathHelper {
         if (Double.isNaN(number)) {
             return Double.NaN;
         }
-        double numberFactor = Math.pow(10.0, digits);
+        double numberFactor = FastMath.pow(10.0, digits);
         return Math.floor(numberFactor * number) / numberFactor;
     }
 
@@ -347,7 +352,7 @@ public final class MathHelper {
     // public static double computeRootMeanSquareError(List<double[]> values) {
     // double sum = 0.0;
     // for (double[] d : values) {
-    // sum += Math.pow(d[0] - d[1], 2);
+    // sum +=FastMath.pow(d[0] - d[1], 2);
     // }
     //
     // return Math.sqrt(sum / values.size());
@@ -368,7 +373,7 @@ public final class MathHelper {
         int distance = list1.size() - 1;
         for (int i = list1.size(); i > 0; i -= 2) {
             summedMaxDistance += 2 * distance;
-            summedMaxSquaredDistance += 2 * Math.pow(distance, 2);
+            summedMaxSquaredDistance += 2 * FastMath.pow(distance, 2);
             distance -= 2;
         }
 
@@ -384,7 +389,7 @@ public final class MathHelper {
             for (String entry2 : list2) {
                 if (entry1.equals(entry2)) {
                     summedRealDistance += Math.abs(position1 - position2);
-                    summedRealSquaredDistance += Math.pow(position1 - position2, 2);
+                    summedRealSquaredDistance += FastMath.pow(position1 - position2, 2);
 
                     double[] values = new double[2];
                     values[0] = position1;
@@ -439,7 +444,7 @@ public final class MathHelper {
         long num = 0;
         for (int i = 0; i < addrArray.length; i++) {
             int power = 3 - i;
-            num += Integer.parseInt(addrArray[i]) % 256 * Math.pow(256, power);
+            num += Integer.parseInt(addrArray[i]) % 256 * FastMath.pow(256, power);
         }
         return num;
     }
@@ -715,7 +720,7 @@ public final class MathHelper {
     }
 
     public static double log2(double num) {
-        return Math.log(num) / Math.log(2);
+        return FastMath.log(num) / FastMath.log(2);
     }
 
     public static long crossTotal(long s) {
@@ -755,8 +760,8 @@ public final class MathHelper {
 
         for (int i = 0; i < x.size(); i++) {
             nominator += (x.get(i) - avgX) * (y.get(i) - avgY);
-            denominatorX += Math.pow(x.get(i) - avgX, 2);
-            denominatorY += Math.pow(y.get(i) - avgY, 2);
+            denominatorX += FastMath.pow(x.get(i) - avgX, 2);
+            denominatorY += FastMath.pow(y.get(i) - avgY, 2);
         }
 
         double denominator = Math.sqrt(denominatorX * denominatorY);
@@ -840,7 +845,7 @@ public final class MathHelper {
         int bits = items.length;
         List<List<T>> combinations = new ArrayList<List<T>>();
 
-        int max = (int) Math.pow(2, bits);
+        int max = (int)FastMath.pow(2, bits);
         for (long i = 1; i < max; i++) {
             List<T> combination = new LinkedList<T>();
             if (computeCombinationRecursive(i, items, combination, 0)) {
@@ -1190,6 +1195,32 @@ public final class MathHelper {
         } else {
             atan = PI_2 - z / (z * z + 0.28f);
             return (y < 0.0f) ? atan - PI : atan;
+        }
+    }
+    public static double atan2(double y, double x) {
+        final double PI_2 = Math.PI / 2.;
+        final double MINUS_PI_2 = -PI_2;
+        if (x == 0.0) {
+            if (y > 0.0) {
+                return PI_2;
+            }
+            if (y == 0.0) {
+                return 0.0;
+            }
+            return MINUS_PI_2;
+        }
+
+        final double atan;
+        final double z = y / x;
+        if (Math.abs(z) < 1.0) {
+            atan = z / (1.0 + 0.28 * z * z);
+            if (x < 0.0) {
+                return (y < 0.0) ? atan - Math.PI : atan + Math.PI;
+            }
+            return atan;
+        } else {
+            atan = PI_2 - z / (z * z + 0.28);
+            return (y < 0.0) ? atan - Math.PI : atan;
         }
     }
 

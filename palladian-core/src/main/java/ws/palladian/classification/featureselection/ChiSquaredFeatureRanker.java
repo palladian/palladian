@@ -104,7 +104,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
                 int N_01 = categoryCount - N_11;
                 int N_00 = N - (N_10 + N_01 + N_11);
                 LOGGER.trace("Using N_11 {}, N_10 {}, N_01 {}, N_00 {}", N_11, N_10, N_01, N_00);
-                double numerator = (N_11 + N_10 + N_01 + N_00) * Math.pow(N_11 * N_00 - N_10 * N_01, 2);
+                double numerator = (N_11 + N_10 + N_01 + N_00) *FastMath.pow(N_11 * N_00 - N_10 * N_01, 2);
                 int denominator = (N_11 + N_01) * (N_11 + N_10) * (N_10 + N_00) * (N_01 + N_00);
                 double chiSquare = numerator / denominator;
                 LOGGER.trace("Chi² value is {}", chiSquare);

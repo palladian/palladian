@@ -8,7 +8,6 @@ import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.helper.io.FileHelper;
 
 public final class DefaultCandidateExtractor implements ClassifyingTagger {
-
     /** Path to the case dictionary within the resources. */
     private static final String CASE_DICTIONARY_RESOURCE = "/caseDictionary.csv";
 
@@ -44,8 +43,6 @@ public final class DefaultCandidateExtractor implements ClassifyingTagger {
     @Override
     public List<ClassifiedAnnotation> getAnnotations(String text) {
         List<Annotation> taggedEntities = tagger.getAnnotations(text);
-        List<ClassifiedAnnotation> classifiedEntities = ruleEngine.apply(text, taggedEntities);
-        return classifiedEntities;
+        return ruleEngine.apply(text, taggedEntities);
     }
-
 }

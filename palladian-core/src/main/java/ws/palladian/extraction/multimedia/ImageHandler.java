@@ -586,7 +586,7 @@ public class ImageHandler {
             for (int j = 0; j < Math.min(image1.getHeight(), image2.getHeight()); j++) {
                 Color color1 = new Color(image1.getRGB(i, j));
                 Color color2 = new Color(image2.getRGB(i, j));
-                squaredError += Math.pow((color1.getRed() - color2.getRed()) / 255., 2);
+                squaredError += FastMath.pow((color1.getRed() - color2.getRed()) / 255., 2);
             }
         }
 
@@ -609,12 +609,12 @@ public class ImageHandler {
             for (int j = 0; j < Math.min(image1.getHeight(), image2.getHeight()); j++) {
                 Color color1 = new Color(image1.getRGB(i, j));
                 Color color2 = new Color(image2.getRGB(i, j));
-                squaredError += Math.pow((color1.getRed() - color2.getRed()) / (double) 255, r);
+                squaredError += FastMath.pow((color1.getRed() - color2.getRed()) / (double) 255, r);
             }
         }
 
         double meanSquareError = 1.0 / (image1.getWidth() * image1.getHeight()) * squaredError;
-        meanSquareError = Math.pow(meanSquareError, 1.0 / r);
+        meanSquareError = FastMath.pow(meanSquareError, 1.0 / r);
 
         return 1 - meanSquareError;
     }
@@ -947,9 +947,9 @@ public class ImageHandler {
         double[] lab1 = new ColorSpaceConverter().rgbToLab(color1.getRed(), color1.getGreen(), color1.getBlue());
         double[] lab2 = new ColorSpaceConverter().rgbToLab(color2.getRed(), color2.getGreen(), color2.getBlue());
 
-        double lDistance = Math.pow(lab1[0] - lab2[0], 2);
-        double aDistance = Math.pow(lab1[1] - lab2[1], 2);
-        double bDistance = Math.pow(lab1[2] - lab2[2], 2);
+        double lDistance = FastMath.pow(lab1[0] - lab2[0], 2);
+        double aDistance = FastMath.pow(lab1[1] - lab2[1], 2);
+        double bDistance = FastMath.pow(lab1[2] - lab2[2], 2);
 
         return Math.sqrt(lDistance + aDistance + bDistance);
     }

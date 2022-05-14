@@ -16,7 +16,7 @@ public class DBSCANTest {
     private final class EuclideanDistance implements Distance<Point> {
         @Override
         public double getDistance(Point i1, Point i2) {
-            return Math.sqrt(Math.pow(i1.x - i2.x, 2) + Math.pow(i1.y - i2.y, 2));
+            return Math.sqrt(FastMath.pow(i1.x - i2.x, 2) + FastMath.pow(i1.y - i2.y, 2));
         }
     }
 

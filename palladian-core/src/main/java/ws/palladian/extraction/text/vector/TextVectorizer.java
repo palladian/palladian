@@ -3,6 +3,7 @@ package ws.palladian.extraction.text.vector;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.math3.util.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer impl
 		LOG_NORMALIZATION {
 			@Override
 			float calc(int count, int numWordsInDoc, int maxCount) {
-				return (float) (1 + Math.log(count));
+				return (float) (1 + FastMath.log(count));
 			}
 		},
 		DOUBLE_NORMALIZATION {
@@ -78,19 +79,19 @@ public class TextVectorizer extends AbstractDatasetFeatureVectorTransformer impl
 		IDF {
 			@Override
 			float calc(int corpusCount, int numDocsInCorpus, int maxCount) {
-				return (float) Math.log((float) numDocsInCorpus / corpusCount);
+				return (float) FastMath.log((float) numDocsInCorpus / corpusCount);
 			}
 		},
 		IDF_SMOOTH {
 			@Override
 			float calc(int corpusCount, int numDocsInCorpus, int maxCount) {
-				return (float) Math.log((float) numDocsInCorpus / (corpusCount + 1));
+				return (float) FastMath.log((float) numDocsInCorpus / (corpusCount + 1));
 			}
 		},
 		IDF_MAX {
 			@Override
 			float calc(int corpusCount, int numDocsInCorpus, int maxCount) {
-				return (float) Math.log((float) (maxCount * corpusCount) / (1 + corpusCount));
+				return (float) FastMath.log((float) (maxCount * corpusCount) / (1 + corpusCount));
 			}
 		},
 

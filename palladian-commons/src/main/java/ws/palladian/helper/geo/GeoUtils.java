@@ -1,14 +1,16 @@
 package ws.palladian.helper.geo;
 
-import org.apache.commons.lang3.Validate;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Distance;
+import static java.lang.Math.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.Math.*;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.math3.util.FastMath;
+
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Distance;
 
 /**
  * <p>
@@ -62,11 +64,11 @@ public final class GeoUtils {
         double y = 0;
         double z = 0;
         for (GeoCoordinate location : coordinates) {
-            double latRad = Math.toRadians(location.getLatitude());
-            double lngRad = Math.toRadians(location.getLongitude());
-            x += Math.cos(latRad) * Math.cos(lngRad);
-            y += Math.cos(latRad) * Math.sin(lngRad);
-            z += Math.sin(latRad);
+            double latRad = FastMath.toRadians(location.getLatitude());
+            double lngRad = FastMath.toRadians(location.getLongitude());
+            x += FastMath.cos(latRad) * FastMath.cos(lngRad);
+            y += FastMath.cos(latRad) * FastMath.sin(lngRad);
+            z += FastMath.sin(latRad);
         }
         x /= count;
         y /= count;
@@ -74,11 +76,11 @@ public final class GeoUtils {
         if (Math.abs(x) < 1e-9 || Math.abs(y) < 1e-9 || Math.abs(z) < 1e-9) {
             return new ImmutableGeoCoordinate(0., 0.);
         }
-        double lngRad = Math.atan2(y, x);
-        double hypRad = Math.sqrt(x * x + y * y);
-        double latRad = Math.atan2(z, hypRad);
-        double lng = Math.toDegrees(lngRad);
-        double lat = Math.toDegrees(latRad);
+        double lngRad = FastMath.atan2(y, x);
+        double hypRad = FastMath.sqrt(x * x + y * y);
+        double latRad = FastMath.atan2(z, hypRad);
+        double lng = FastMath.toDegrees(lngRad);
+        double lat = FastMath.toDegrees(latRad);
         return new ImmutableGeoCoordinate(lat, lng);
     }
 
@@ -157,7 +159,7 @@ public final class GeoUtils {
      * 315].
      *
      * @param coordinate The center coordinate.
-     * @param distance   The distance.
+     * @param distance The distance.
      * @return An array with eight coordinates around the specified coordinate, each with the specified distance.
      */
     static GeoCoordinate[] getTestPoints(GeoCoordinate coordinate, double distance) {
@@ -214,7 +216,7 @@ public final class GeoUtils {
         double rlng1 = toRadians(lng1);
         double rlng2 = toRadians(lng2);
 
-        double x = (rlng2 - rlng1) * Math.cos((rlat1 + rlat2) / 2);
+        double x = (rlng2 - rlng1) * FastMath.cos((rlat1 + rlat2) / 2);
         double y = (rlat2 - rlat1);
         return Math.sqrt(x * x + y * y) * EARTH_RADIUS_KM;
     }
@@ -242,7 +244,7 @@ public final class GeoUtils {
         double dLat = (rlat2 - rlat1) / 2;
         double dLon = (rlng2 - rlng1) / 2;
         double a = sin(dLat) * sin(dLat) + cos(rlat1) * cos(rlat2) * sin(dLon) * sin(dLon);
-        return 2 * EARTH_RADIUS_KM * atan2(sqrt(a), sqrt(1 - a));
+        return 2 * EARTH_RADIUS_KM * FastMath.atan2(sqrt(a), sqrt(1 - a));
     }
 
     /**
@@ -254,7 +256,7 @@ public final class GeoUtils {
      * @param lat The latitude.
      * @param lng The longitude.
      * @return <code>true</code> in case the latitude and longitude are valid for a coordinate, <code>false</code>
-     * otherwise.
+     *         otherwise.
      */
     public static boolean isValidCoordinateRange(double lat, double lng) {
         return -90 <= lat && lat <= 90 && -180 <= lng && lng <= 180;
@@ -322,7 +324,7 @@ public final class GeoUtils {
      *
      * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
      * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection was
-     * empty.
+     *         empty.
      * @see #largestDistanceBelow(double, Collection) is faster, if you just care about a maximum value.
      */
     public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {

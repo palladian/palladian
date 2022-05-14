@@ -1,5 +1,6 @@
 package ws.palladian.classification.evaluation;
 
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Classifier;
 import ws.palladian.core.Instance;
@@ -32,7 +33,7 @@ public class LogLossEvaluator extends AbstractClassificationEvaluator<Double> {
 	public static double logLoss(boolean actual, double predicted) {
 		double y = actual ? 1 : 0;
 		double p_binned = Math.max(Math.min(predicted, 1 - EPSILON), EPSILON);
-		return -y * Math.log(p_binned);
+		return -y * FastMath.log(p_binned);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.Collection;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.math3.util.FastMath;
 
 import java.util.function.Predicate;
 
@@ -61,7 +62,7 @@ public class BloomFilter<T> implements Predicate<T>, Serializable {
      * @param numElements The expected number of elements, greater zero.
      */
     public BloomFilter(double fpProb, int numElements) {
-        this(numElements, (int)Math.ceil(numElements * Math.log(1 / fpProb) / Math.pow(Math.log(2), 2)));
+        this(numElements, (int)Math.ceil(numElements * FastMath.log(1 / fpProb) / FastMath.pow(FastMath.log(2), 2)));
     }
 
     /**
@@ -77,8 +78,8 @@ public class BloomFilter<T> implements Predicate<T>, Serializable {
         Validate.isTrue(vectorSize > 0, "vectorSize must be greater zero");
         this.vectorSize = vectorSize;
         this.bitVector = new BitSet(vectorSize);
-        this.numHashFunctions = (int)Math.ceil(vectorSize / numElements * Math.log(2));
-        this.falsePositiveProbability = Math.pow(2, -(vectorSize * Math.log(2)) / numElements);
+        this.numHashFunctions = (int)Math.ceil(vectorSize / numElements * FastMath.log(2));
+        this.falsePositiveProbability = FastMath.pow(2, -(vectorSize * FastMath.log(2)) / numElements);
     }
 
     /**

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import de.bwaldvogel.liblinear.Parameter;
 import de.bwaldvogel.liblinear.SolverType;
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.classification.liblinear.LibLinearLearner;
 import ws.palladian.classification.liblinear.LibLinearModel;
 import ws.palladian.classification.utils.NoNormalizer;
@@ -98,7 +99,7 @@ public class NbSvmLearner extends AbstractLearner<NbSvmModel> {
 
 		final float[] r = new float[nTokens];
 		for (int i = 0; i < nTokens; i++) {
-			r[i] = (float) Math.log(p[i] / p_sum / (q[i] / q_sum));
+			r[i] = (float) FastMath.log(p[i] / p_sum / (q[i] / q_sum));
 		}
 
 		Dataset transformedDataset = vectorizedDataset.transform(new AbstractDatasetFeatureVectorTransformer() {

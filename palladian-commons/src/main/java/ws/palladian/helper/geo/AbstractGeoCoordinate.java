@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * <p>
@@ -104,8 +105,8 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         // http://vinsol.com/blog/2011/08/30/geoproximity-search-with-mysql/ and https://www.wikiwand.com/en/Latitude
         double lat1 = getLatitude() - distance / 111.2;
         double lat2 = getLatitude() + distance / 111.2;
-        double lng1 = getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
-        double lng2 = getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(getLatitude())) * 111.2);
+        double lng1 = getLongitude() - distance / Math.abs(FastMath.cos(Math.toRadians(getLatitude())) * 111.2);
+        double lng2 = getLongitude() + distance / Math.abs(FastMath.cos(Math.toRadians(getLatitude())) * 111.2);
         return new double[] {lat1, lng1, lat2, lng2};
     }
 

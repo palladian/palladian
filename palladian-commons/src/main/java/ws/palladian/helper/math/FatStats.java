@@ -1,6 +1,7 @@
 package ws.palladian.helper.math;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.FixedSizeQueue;
@@ -143,7 +144,7 @@ public class FatStats extends AbstractStats {
 //        double mean = getMean();
 //        double standardDeviation = 0;
 //        for (Number value : values) {
-//            standardDeviation += Math.pow(value.doubleValue() - mean, 2);
+//            standardDeviation +=FastMath.pow(value.doubleValue() - mean, 2);
 //        }
 //        standardDeviation /= values.size() - 1;
 //        standardDeviation = Math.sqrt(standardDeviation);
@@ -247,7 +248,7 @@ public class FatStats extends AbstractStats {
         }
         double mse = 0;
         for (Double value : values) {
-            mse += Math.pow(value, 2);
+            mse += FastMath.pow(value, 2);
         }
         return mse / values.size();
     }

@@ -43,7 +43,7 @@ public class SelfTuningLibLinearLearner extends AbstractLearner<LibLinearModel> 
 		
 		// paper suggest to use 2^-5 to 2^15 for C
 		for (int i = -5; i <= 15; i++) {
-			double C = Math.pow(2, i);
+			double C = FastMath.pow(2, i);
 			
 			double averageAccuracy = 0;
 

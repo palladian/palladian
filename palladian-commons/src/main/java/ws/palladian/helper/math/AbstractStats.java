@@ -3,6 +3,7 @@ package ws.palladian.helper.math;
 import java.util.Iterator;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.util.FastMath;
 
 public abstract class AbstractStats implements Stats {
 
@@ -58,7 +59,7 @@ public abstract class AbstractStats implements Stats {
 			return 0;
 		}
 		// http://brownmath.com/stat/shape.htm#Skewness
-		double skewness = getMomentAboutMean(3) / Math.pow(getMomentAboutMean(2), 3. / 2);
+		double skewness = getMomentAboutMean(3) / FastMath.pow(getMomentAboutMean(2), 3. / 2);
 		if (isSample()) {
 			skewness = skewness * Math.sqrt(n * (n - 1)) / (n - 2);
 		}
@@ -72,7 +73,7 @@ public abstract class AbstractStats implements Stats {
 			return 0;
 		}
 		// http://brownmath.com/stat/shape.htm#Kurtosis
-		double kurtosis = getMomentAboutMean(4) / Math.pow(getMomentAboutMean(2), 2) - 3;
+		double kurtosis = getMomentAboutMean(4) / FastMath.pow(getMomentAboutMean(2), 2) - 3;
 		if (isSample()) {
 			kurtosis = (double) (n - 1) / ((n - 2) * (n - 3)) * ((n + 1) * kurtosis + 6);
 		}
@@ -87,7 +88,7 @@ public abstract class AbstractStats implements Stats {
 		double mean = getMean();
 		double moment = 0;
 		for (Double number : this) {
-			moment += Math.pow(number - mean, k);
+			moment += FastMath.pow(number - mean, k);
 		}
 		return moment /= getCount();
 	}

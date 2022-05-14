@@ -1,6 +1,7 @@
 package ws.palladian.utils;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.helper.math.AbstractStats;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
@@ -201,7 +202,7 @@ public class HistogramStats extends AbstractStats {
 		if (variance == 0) {
 			return 0;
 		}
-		return momentAboutMean(3) / Math.pow(variance, 3. / 2);
+		return momentAboutMean(3) /FastMath.pow(variance, 3. / 2);
 	}
 
 	/**
@@ -221,7 +222,7 @@ public class HistogramStats extends AbstractStats {
 		if (variance == 0) {
 			return 0;
 		}
-		return momentAboutMean(4) / Math.pow(variance, 2) - 3;
+		return momentAboutMean(4) / FastMath.pow(variance, 2) - 3;
 	}
 
 	@Override
@@ -236,7 +237,7 @@ public class HistogramStats extends AbstractStats {
 		double mean = getMean();
 		double moment = 0;
 		for (int i = 0; i < numbers.length; i++) {
-			moment += numbers[i] * Math.pow(i - mean, k);
+			moment += numbers[i] *FastMath.pow(i - mean, k);
 		}
 		return moment /= count;
 	}

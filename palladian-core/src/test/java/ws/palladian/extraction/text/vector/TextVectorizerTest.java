@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math3.util.FastMath;
 import org.junit.Test;
 
 import ws.palladian.classification.text.FeatureSetting;
@@ -64,7 +65,7 @@ public class TextVectorizerTest {
 				TextVectorizer.TFStrategy.TERM_FREQUENCY, TextVectorizer.IDFStrategy.IDF_SMOOTH, 100);
 		Instance vectorizedDocument = vectorizer.apply(createDoc("The sky is blue."));
 		assertEquals(5, vectorizedDocument.getVector().size());
-		assertEquals(1. / 5 * Math.log(4. / 3), vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
+		assertEquals(1. / 5 * FastMath.log(4. / 3), vectorizedDocument.getVector().getNumeric("sky").getFloat(), 0.0001);
 	}
 
 	private static Instance createDoc(String text) {

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
 
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.core.Model;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.Matrix;
@@ -153,7 +154,7 @@ public final class NaiveBayesModel implements Model {
 
 		double variance = standardDeviation * standardDeviation;
 		double probabilityDensity = 1. / Math.sqrt(2 * PI * variance)
-				* Math.exp(-Math.pow(featureValue - mean, 2) / (2 * variance));
+				* FastMath.exp(-FastMath.pow(featureValue - mean, 2) / (2 * variance));
 
 		// normalize using the sum of maximum values for each category
 		return probabilityDensity / getDensityNormalization(featureName);
