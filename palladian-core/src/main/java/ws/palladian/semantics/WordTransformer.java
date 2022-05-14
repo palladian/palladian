@@ -176,7 +176,7 @@ public class WordTransformer {
             FileHelper.close(inputStream);
         }
 
-        TRIM_CHAR_PATTERN = Pattern.compile("["+StringUtils.join(StringHelper.TRIMMABLE_CHARACTERS,"")+"]");
+        TRIM_CHAR_PATTERN = Pattern.compile("["+StringUtils.join(StringHelper.TRIMMABLE_CHARACTERS,"")+"]$");
     }
 
     /**

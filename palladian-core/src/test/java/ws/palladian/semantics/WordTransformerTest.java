@@ -252,6 +252,7 @@ public class WordTransformerTest {
 
     @Test
     public void testStemEnglishWords() {
+        assertEquals("2.4 dollar", WordTransformer.stemEnglishWords("2.4 dollars"));
         assertEquals("sign, are in car!", WordTransformer.stemEnglishWords("signs, are in cars!"));
     }
 
