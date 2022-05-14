@@ -26,7 +26,6 @@ import ws.palladian.helper.io.FileHelper;
  * @author David Urbansky
  */
 public abstract class NamedEntityRecognizer implements Tagger {
-
     /** The logger for named entity recognizer classes. */
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedEntityRecognizer.class);
 
@@ -95,10 +94,7 @@ public abstract class NamedEntityRecognizer implements Tagger {
         return evaluate(goldStandard, annotations, ignore);
     }
 
-    public static EvaluationResult evaluate(List<? extends Annotation> goldStandard,
-            List<? extends Annotation> nerResult,
-            Set<String> ignore) {
-
+    public static EvaluationResult evaluate(List<? extends Annotation> goldStandard, List<? extends Annotation> nerResult, Set<String> ignore) {
         EvaluationResult evaluationResult = new EvaluationResult(goldStandard);
         Set<Annotation> taggedAnnotations = new HashSet<>();
 
@@ -122,8 +118,7 @@ public abstract class NamedEntityRecognizer implements Tagger {
 
                 // skip ignored annotations for error cases 2,3,4, and 5, however, leave the possibility for error 1
                 // (tagged something that should not have been tagged)
-                if (ignore.contains(goldStandardAnnotation.getValue())
-                        && !(nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition() && !taggedOverlap)) {
+                if (ignore.contains(goldStandardAnnotation.getValue()) && !(nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition() && !taggedOverlap)) {
                     continue;
                 }
 
@@ -149,8 +144,7 @@ public abstract class NamedEntityRecognizer implements Tagger {
                         evaluationResult.add(ResultType.ERROR5, goldStandardAnnotation, nerAnnotation);
                     }
                     taggedOverlap = true;
-                } else if (nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition()
-                        || counter == goldStandard.size()) {
+                } else if (nerAnnotation.getStartPosition() < goldStandardAnnotation.getEndPosition() || counter == goldStandard.size()) {
                     if (!taggedOverlap) {
                         // tagged something that should not have been tagged (error1)
                         evaluationResult.add(ResultType.ERROR1, null, nerAnnotation);
@@ -192,5 +186,4 @@ public abstract class NamedEntityRecognizer implements Tagger {
     public TaggingFormat getTaggingFormat() {
         return taggingFormat;
     }
-
 }

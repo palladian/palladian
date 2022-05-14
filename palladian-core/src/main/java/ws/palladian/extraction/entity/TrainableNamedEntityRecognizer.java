@@ -147,5 +147,4 @@ public abstract class TrainableNamedEntityRecognizer extends NamedEntityRecogniz
             return trainingComplete;
         }
     }
-
 }

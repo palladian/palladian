@@ -17,36 +17,35 @@ public class PalladianNerTest {
 
     @Test
     public void testRemoveDateFragment() {
-        Annotation result = PalladianNer.removeDateFragment(new ImmutableAnnotation(10, "June John Hiatt",
-                StringUtils.EMPTY));
+        Annotation result = NerHelper.removeDateFragment(new ImmutableAnnotation(10, "June John Hiatt", StringUtils.EMPTY));
         assertEquals(15, result.getStartPosition());
         assertEquals("John Hiatt", result.getValue());
 
-        result = PalladianNer.removeDateFragment(new ImmutableAnnotation(0, "John Hiatt June", StringUtils.EMPTY));
+        result = NerHelper.removeDateFragment(new ImmutableAnnotation(0, "John Hiatt June", StringUtils.EMPTY));
         assertEquals(0, result.getStartPosition());
         assertEquals("John Hiatt", result.getValue());
 
-        result = PalladianNer.removeDateFragment(new ImmutableAnnotation(0, "Apr. John Hiatt", StringUtils.EMPTY));
+        result = NerHelper.removeDateFragment(new ImmutableAnnotation(0, "Apr. John Hiatt", StringUtils.EMPTY));
         assertEquals(5, result.getStartPosition());
         assertEquals("John Hiatt", result.getValue());
 
-        result = PalladianNer.removeDateFragment(new ImmutableAnnotation(0, "John Hiatt Apr.", StringUtils.EMPTY));
+        result = NerHelper.removeDateFragment(new ImmutableAnnotation(0, "John Hiatt Apr.", StringUtils.EMPTY));
         assertEquals(0, result.getStartPosition());
         assertEquals("John Hiatt", result.getValue());
     }
 
     @Test
     public void testContainsDateFragment() {
-        boolean result = PalladianNer.isDateFragment("June John Hiatt");
+        boolean result = NerHelper.isDateFragment("June John Hiatt");
         assertFalse(result);
 
-        result = PalladianNer.isDateFragment("January");
+        result = NerHelper.isDateFragment("January");
         assertTrue(result);
 
-        result = PalladianNer.isDateFragment("JANUARY");
+        result = NerHelper.isDateFragment("JANUARY");
         assertTrue(result);
 
-        result = PalladianNer.isDateFragment("January ");
+        result = NerHelper.isDateFragment("January ");
         assertTrue(result);
     }
 
@@ -72,5 +71,4 @@ public class PalladianNerTest {
         assertFalse(caseDictionary.contains("according"));
         assertTrue(caseDictionary.contains("involvement"));
     }
-
 }

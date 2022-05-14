@@ -1,9 +1,24 @@
 package ws.palladian.extraction.entity.tagger;
 
-import org.apache.commons.lang3.StringUtils;
+import static ws.palladian.core.Annotation.TAG_CONVERTER;
+import static ws.palladian.core.Token.VALUE_CONVERTER;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
+import static ws.palladian.helper.functional.Predicates.not;
+
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ws.palladian.classification.text.*;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
@@ -18,26 +33,10 @@ import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
-import static ws.palladian.core.Annotation.TAG_CONVERTER;
-import static ws.palladian.core.Token.VALUE_CONVERTER;
-import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
-import static ws.palladian.helper.functional.Predicates.not;
 
 /**
  * <p>
@@ -79,7 +78,6 @@ import static ws.palladian.helper.functional.Predicates.not;
  * @author Philipp Katz
  */
 public class PalladianNer extends TrainableNamedEntityRecognizer implements ClassifyingTagger {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianNer.class);
 
@@ -522,43 +520,9 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         classifiedAnnotations = postProcessAnnotations(inputText, classifiedAnnotations);
         CollectionHelper.remove(classifiedAnnotations, not(AnnotationFilters.tag(NO_ENTITY)));
         if (model.languageMode == LanguageIndependent) {
-            classifiedAnnotations = combineAnnotations(classifiedAnnotations);
+            classifiedAnnotations = NerHelper.combineAnnotations(classifiedAnnotations);
         }
         return classifiedAnnotations;
-    }
-
-    /**
-     * Combine annotations that are right next to each other having the same tag.
-     *
-     * @param annotations The annotations to combine.
-     * @return The combined annotations.
-     */
-    private static Annotations<ClassifiedAnnotation> combineAnnotations(Annotations<ClassifiedAnnotation> annotations) {
-        Annotations<ClassifiedAnnotation> combinedAnnotations = new Annotations<>();
-        annotations.sort();
-        ClassifiedAnnotation previous = null;
-        ClassifiedAnnotation previousCombined = null;
-        for (ClassifiedAnnotation current : annotations) {
-            if (current.getTag().equalsIgnoreCase("o")) {
-                continue;
-            }
-            if (previous != null && current.sameTag(previous) && current.getStartPosition() == previous.getEndPosition() + 1) {
-                if (previousCombined == null) {
-                    previousCombined = previous;
-                }
-                int startPosition = previousCombined.getStartPosition();
-                String value = previousCombined.getValue() + " " + current.getValue();
-                ClassifiedAnnotation combined = new ClassifiedAnnotation(startPosition, value, previous.getCategoryEntries());
-                combinedAnnotations.add(combined);
-                previousCombined = combined;
-                combinedAnnotations.remove(previousCombined);
-            } else {
-                combinedAnnotations.add(current);
-                previousCombined = null;
-            }
-            previous = current;
-        }
-        return combinedAnnotations;
     }
 
     private void preProcessAnnotations(Set<Annotation> annotations) {
@@ -567,13 +531,13 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             removeIncorrectlyTaggedInTraining(annotations);
         }
         if (taggingSettings.isUnwrapEntities()) {
-            unwrapEntities(annotations);
+            NerHelper.unwrapEntities(annotations, model);
         }
         if (taggingSettings.isUnwrapEntitiesWithContext() && model.leftContexts != null) {
             unwrapWithContext(annotations);
         }
         if (taggingSettings.isRemoveDateFragments()) {
-            removeDateFragments(annotations);
+            NerHelper.removeDateFragments(annotations);
         }
         if (taggingSettings.isFixStartErrorsCaseDictionary() && model.lowerCaseDictionary != null) {
             fixStartErrorsWithCaseDictionary(annotations);
@@ -582,7 +546,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             removeSentenceStartErrors(annotations);
         }
         if (taggingSettings.isRemoveDates()) {
-            removeDates(annotations);
+            NerHelper.removeDates(annotations);
         }
     }
 
@@ -628,30 +592,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         annotations.addAll(toAdd);
     }
 
-    private static void removeDateFragments(Set<Annotation> annotations) {
-        Set<Annotation> toAdd = new HashSet<>();
-        Set<Annotation> toRemove = new HashSet<>();
-        for (Annotation annotation : annotations) {
-            Annotation result = removeDateFragment(annotation);
-            if (result != null) {
-                toRemove.add(annotation);
-                toAdd.add(result);
-            }
-        }
-        LOGGER.debug("Removed {} partial date annotations", toRemove.size());
-        annotations.addAll(toAdd);
-        annotations.removeAll(toRemove);
-    }
-
-    private static void removeDates(Set<Annotation> annotations) {
-        int numRemoved = CollectionHelper.remove(annotations, new Predicate<Annotation>() {
-            @Override
-            public boolean test(Annotation annotation) {
-                return !isDateFragment(annotation.getValue());
-            }
-        });
-        LOGGER.debug("Removed {} purely date annotations", numRemoved);
-    }
 
     private void unwrapWithContext(Set<Annotation> annotations) {
         Set<Annotation> toAdd = new HashSet<>();
@@ -710,7 +650,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         int removed = CollectionHelper.remove(annotations, new Predicate<Annotation>() {
             @Override
             public boolean test(Annotation annotation) {
-                if (annotation.getValue().indexOf(" ") == -1) {
+                if (!annotation.getValue().contains(" ")) {
                     if (model.lowerCaseDictionary.contains(annotation.getValue().toLowerCase())) {
                         LOGGER.debug("Remove by case signature: {}", annotation.getValue());
                         return false;
@@ -732,24 +672,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         LOGGER.debug("Removed {} incorrectly tagged entities in training data", removed);
     }
 
-    private void unwrapEntities(Set<Annotation> annotations) {
-        Set<Annotation> toAdd = new HashSet<>();
-        Set<Annotation> toRemove = new HashSet<>();
-        for (Annotation annotation : annotations) {
-            boolean isAllUppercase = StringHelper.isCompletelyUppercase(annotation.getValue());
-            if (isAllUppercase) {
-                Set<Annotation> unwrapped = unwrapAnnotations(annotation, annotations);
-                if (unwrapped.size() > 0) {
-                    toAdd.addAll(unwrapped);
-                    toRemove.add(annotation);
-                }
-            }
-        }
-        annotations.removeAll(toRemove);
-        annotations.addAll(toAdd);
-        LOGGER.debug("Unwrapping removed {}, added {} entities", toRemove.size(), toAdd.size());
-    }
-
     private ClassifiedAnnotation applyContextAnalysis(ClassifiedAnnotation annotation, String text) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         builder.add(annotation.getCategoryEntries());
@@ -762,51 +684,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
             builder.add(contextClassification);
         }
         return new ClassifiedAnnotation(annotation, builder.create());
-    }
-
-    /**
-     * Check whether the given text is a date fragment, e.g. "June".
-     *
-     * @param value The value to check.
-     * @return <code>true</code> in case the text is a date fragment.
-     */
-    static boolean isDateFragment(String value) {
-        for (String dateFragment : RegExp.DATE_FRAGMENTS) {
-            if (StringUtils.isBlank(value.replaceAll(dateFragment, " "))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Try to remove date fragments from the given annotation, e.g. "June John Hiatt" becomes "John Hiatt".
-     *
-     * @param annotation The annotation to process.
-     * @return A new annotation with removed date fragments and fixed offsets, or <code>null</code> in case the given
-     * annotation did not contain a date fragment.
-     */
-    static Annotation removeDateFragment(Annotation annotation) {
-        String newValue = annotation.getValue();
-        int newOffset = annotation.getStartPosition();
-        for (String dateFragment : RegExp.DATE_FRAGMENTS) {
-            String regExp = "(?:" + dateFragment + ")\\.?";
-            String beginRegExp = "^" + regExp + " ";
-            String endRegExp = " " + regExp + "$";
-            int textLength = newValue.length();
-            if (StringHelper.countRegexMatches(newValue, beginRegExp) > 0) {
-                newValue = newValue.replaceAll(beginRegExp, " ").trim();
-                newOffset += textLength - newValue.length();
-            }
-            if (StringHelper.countRegexMatches(newValue, endRegExp) > 0) {
-                newValue = newValue.replaceAll(endRegExp, " ").trim();
-            }
-        }
-        if (annotation.getValue().equals(newValue)) {
-            return null;
-        }
-        LOGGER.debug("Removed date fragment from '{}' gives '{}'", annotation.getValue(), newValue);
-        return new ImmutableAnnotation(newOffset, newValue, annotation.getTag());
     }
 
     /**
@@ -867,40 +744,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
     public PalladianNerModel getModel() {
         return model;
-    }
-
-    /**
-     * <p>
-     * If the annotation is completely upper case, like "NEW YORK CITY AND DRESDEN", try to find which of the given
-     * annotation are part of this entity. The given example contains two entities that might be in the given annotation
-     * set. If so, we return the found annotations.
-     *
-     * @param annotation  The annotation to check.
-     * @param annotations The annotations we are searching for in this entity.
-     * @return A set of annotations found in this annotation.
-     */
-    private Set<Annotation> unwrapAnnotations(Annotation annotation, Set<Annotation> annotations) {
-        Set<String> otherValues = new HashSet<>();
-        for (Annotation currentAnnotation : annotations) {
-            if (!currentAnnotation.equals(annotation)) {
-                otherValues.add(currentAnnotation.getValue().toLowerCase());
-            }
-        }
-        Set<Annotation> unwrappedAnnotations = new HashSet<>();
-        String annotationValue = annotation.getValue();
-        List<String> parts = StringHelper.getSubPhrases(annotationValue);
-        for (String part : parts) {
-            String partValue = part.toLowerCase();
-            if (otherValues.contains(partValue) || model.entityDictionaryContains(partValue)) {
-                int startPosition = annotation.getStartPosition() + annotationValue.toLowerCase().indexOf(partValue);
-                unwrappedAnnotations.add(new ImmutableAnnotation(startPosition, part));
-            }
-        }
-        if (LOGGER.isDebugEnabled() && unwrappedAnnotations.size() > 0) {
-            List<String> unwrappedParts = CollectionHelper.convertList(unwrappedAnnotations, VALUE_CONVERTER);
-            LOGGER.debug("Unwrapped {} in {} parts: {}", annotationValue, unwrappedAnnotations.size(), unwrappedParts);
-        }
-        return unwrappedAnnotations;
     }
 
     @Override
