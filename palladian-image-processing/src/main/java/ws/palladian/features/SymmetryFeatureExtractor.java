@@ -1,5 +1,6 @@
 package ws.palladian.features;
 
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.multimedia.ImageHandler;

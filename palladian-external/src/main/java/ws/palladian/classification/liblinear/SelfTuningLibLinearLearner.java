@@ -1,5 +1,6 @@
 package ws.palladian.classification.liblinear;
 
+import org.apache.commons.math3.util.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

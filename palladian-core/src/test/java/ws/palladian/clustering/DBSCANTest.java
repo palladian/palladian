@@ -6,13 +6,13 @@ import java.awt.Point;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.math3.util.FastMath;
 import org.junit.Test;
 
 import ws.palladian.helper.functional.Distance;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 
 public class DBSCANTest {
-
     private final class EuclideanDistance implements Distance<Point> {
         @Override
         public double getDistance(Point i1, Point i2) {
@@ -22,7 +22,7 @@ public class DBSCANTest {
 
     @Test
     public void testDBSCAN() {
-        DBSCAN<Point> dbscan = new DBSCAN<Point>(1.5, 3, new EuclideanDistance());
+        DBSCAN<Point> dbscan = new DBSCAN<>(1.5, 3, new EuclideanDistance());
         Set<Point> points = new HashSet<>();
         points.add(new Point(1, 1));
         points.add(new Point(2, 1));
@@ -47,10 +47,9 @@ public class DBSCANTest {
         strings.add("pea");
         strings.add("peas");
         strings.add("peanut");
-        DBSCAN<String> dbscan = new DBSCAN<String>(0.1, 2, new JaroWinklerSimilarity());
+        DBSCAN<String> dbscan = new DBSCAN<>(0.1, 2, new JaroWinklerSimilarity());
         Set<Set<String>> clusters = dbscan.cluster(strings);
         assertEquals(4, clusters.size());
         // CollectionHelper.print(clusters);
     }
-
 }

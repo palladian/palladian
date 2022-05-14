@@ -1,5 +1,7 @@
 package ws.palladian.extraction.multimedia;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.awt.Color;
 
 /**

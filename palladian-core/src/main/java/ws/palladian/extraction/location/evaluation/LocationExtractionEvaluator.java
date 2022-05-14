@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
 
+import org.apache.commons.math3.util.FastMath;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
@@ -408,7 +409,7 @@ public final class LocationExtractionEvaluator {
             extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
                     ANCHOR_DISTANCE_THRESHOLD, //
                     LOWER_POPULATION_THRESHOLD, //
-                    (int)FastMath.pow(10, anchorPopulationThreshold), //
+                    (int) FastMath.pow(10, anchorPopulationThreshold), //
                     SAME_DISTANCE_THRESHOLD, //
                     LASSO_DISTANCE_THRESHOLD, //
                     LOWER_UNLIKELY_POPULATION_THRESHOLD, //
