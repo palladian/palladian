@@ -1,5 +1,7 @@
 package ws.palladian.extraction.location.scope;
 
+import java.util.Optional;
+
 import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
@@ -22,5 +24,17 @@ public interface ScopeDetector {
      * @return A coordinate representing the scope, or <code>null</code> in case no scope could be determined.
      */
     GeoCoordinate getScope(String text);
+
+    /**
+     * <p>
+     * Detect the geographic scope for the given text.
+     * </p>
+     *
+     * @param text The text for which to determine the scope.
+     * @return Optional with a coordinate representing the scope if it could be determined.
+     */
+    default Optional<GeoCoordinate> getScopeOptional(String text) {
+        return Optional.ofNullable(getScope(text));
+    }
 
 }
