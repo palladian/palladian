@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -737,6 +738,12 @@ public final class MediaWikiUtil {
         Validate.notNull(action, "action must not be null");
         try {
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            // https://docs.oracle.com/javase/tutorial/jaxp/limits/limits.html
+            // java.lang.IllegalStateException: org.xml.sax.SAXParseException; lineNumber:
+            // 54465205; columnNumber: 222; JAXP00010004: Die akkumulierte Größe von Entitys
+            // ist "50.000.001" und überschreitet den Grenzwert "50.000.000", der von
+            // "FEATURE_SECURE_PROCESSING" festgelegt wurde.
+            saxParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
             SAXParser parser = saxParserFactory.newSAXParser();
             parser.parse(inputStream, new MediaWikiPageContentHandler(action));
         } catch (ParserConfigurationException e) {
