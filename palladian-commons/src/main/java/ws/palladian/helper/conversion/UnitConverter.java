@@ -1,19 +1,18 @@
 package ws.palladian.helper.conversion;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import ws.palladian.helper.constants.TemperatureUnit;
 import ws.palladian.helper.constants.UnitType;
 import ws.palladian.helper.normalization.UnitNormalizer;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * <p>
  * Convert units.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class UnitConverter {
 
@@ -21,10 +20,10 @@ public class UnitConverter {
      * <p>
      * Convert an amount from one unit to another.
      * </p>
-     * 
-     * @param amount The amount to convert.
+     *
+     * @param amount   The amount to convert.
      * @param fromUnit The source unit.
-     * @param toUnit The target unit.
+     * @param toUnit   The target unit.
      * @return The converted amount.
      */
     public static Double convert(Double amount, String fromUnit, String toUnit) {
@@ -79,7 +78,7 @@ public class UnitConverter {
         return amount;
     }
 
-    public static AmountUnit bestFitConvert(Double amount, String fromUnit, Collection<String> possibleUnits) {
+    public static AmountUnit bestFitConvert(double amount, String fromUnit, Collection<String> possibleUnits) {
         double normalizedAmount = UnitNormalizer.getNormalizedNumber(amount, fromUnit);
 
         // the divisor should be close to one to get the best fit
