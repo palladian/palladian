@@ -58,6 +58,10 @@ public interface Location {
      */
     Long getPopulation();
 
+    default Optional<Long> getPopulationOptional() {
+        return Optional.ofNullable(getPopulation());
+    }
+
     /**
      * <p>
      * Get the logical hierarchy for a given {@link Location}. For example, "Baden-Württemberg" is contained in
