@@ -99,7 +99,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
         List<LocationAnnotation> result = new ArrayList<>();
 
-        Set<Location> anchors = getAnchors(locations);
+        Set<Location> anchors = getAnchors(text, locations);
 
         for (Annotation annotation : locations.keySet()) {
             Collection<Location> candidates = locations.get(annotation);
@@ -199,7 +199,7 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
                 .orElse(null);
     }
 
-    private Set<Location> getAnchors(MultiMap<? extends Annotation, Location> locations) {
+    protected Set<Location> getAnchors(String text, MultiMap<? extends Annotation, Location> locations) {
         Set<Location> anchorLocations = new HashSet<>();
 
         //        // check if one is contained in the other
