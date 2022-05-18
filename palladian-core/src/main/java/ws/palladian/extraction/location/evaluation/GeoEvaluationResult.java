@@ -17,7 +17,9 @@ import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.FatStats;
 
 /**
  * <p>
@@ -96,6 +98,8 @@ public class GeoEvaluationResult {
 
     private final String datasetName;
 
+    private final FatStats errorDistanceStats = new FatStats();
+
     public GeoEvaluationResult(String extractorName, String datasetName) {
         this.extractorName = extractorName;
         this.datasetName = datasetName;
@@ -136,6 +140,41 @@ public class GeoEvaluationResult {
     public void addResultFromDocument(String fileName, List<LocationAnnotation> gold, List<LocationAnnotation> result) {
         List<EvaluationItem> evaluationList = new ArrayList<>();
         Set<Annotation> taggedAnnotations = new HashSet<>();
+
+        // different approach: loop through the gold annotations,
+        // get the resolved annotations, and check the accuracy
+
+//        FatStats distanceStats = new FatStats();
+
+        for (LocationAnnotation goldAnnotation : gold) {
+//            System.out.println("*****");
+//            System.out.println("gold: " + goldAnnotation);
+
+            boolean resolved = false;
+
+            for (LocationAnnotation assignedLocation : result) {
+                if (goldAnnotation.overlaps(assignedLocation) || assignedLocation.overlaps(goldAnnotation)) {
+
+//                    System.out.println("assigned: " + assignedLocation);
+
+                    errorDistanceStats.add(goldAnnotation.getLocation().getCoordinate().distance(assignedLocation.getLocation().getCoordinate()));
+                    resolved = true;
+
+                    break; // continue with next gold annotation
+                }
+
+            }
+
+            if (!resolved) {
+                // gold annotation was not annotated, consider error with maximum distance
+//                System.out.println("not assigned");
+                errorDistanceStats.add(GeoUtils.EARTH_MAX_DISTANCE_KM);
+            }
+
+//            System.out.println("*****");
+        }
+
+//        System.out.println(distanceStats);
 
         // evaluate
         for (LocationAnnotation assignedAnnotation : result) {
@@ -210,6 +249,10 @@ public class GeoEvaluationResult {
         return 2 * getPrecision() * getRecall() / (getPrecision() + getRecall());
     }
 
+    public FatStats getErrorDistanceStats() {
+        return errorDistanceStats;
+    }
+
     public void writeDetailedReport(File fileName) {
         StringBuilder evaluationDetails = new StringBuilder();
 
@@ -244,6 +287,9 @@ public class GeoEvaluationResult {
         result.append("Precision-Geo: ").append(getPrecision()).append('\n');
         result.append("Recall-Geo: ").append(getRecall()).append('\n');
         result.append("F1-Geo: ").append(getF1());
+
+        result.append("\n\nDistances:\n").append(errorDistanceStats);
+
         return result.toString();
     }
 

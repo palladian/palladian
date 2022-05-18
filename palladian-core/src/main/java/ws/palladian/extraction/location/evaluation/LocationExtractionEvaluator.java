@@ -356,7 +356,7 @@ public final class LocationExtractionEvaluator {
         if (!summaryFile.exists()) {
             // write header
             summaryCsv
-                    .append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo;time\n");
+                    .append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo;geoMean;geoMedian;log(geoMean);log(geoMedian);p(error<=1);p(error<=10);p(error<=100);p(error<=161);p(error<=1000);time\n");
         }
         summaryCsv.append(timestamp).append(';');
         summaryCsv.append(dataset.toString()).append(';');
@@ -374,6 +374,17 @@ public final class LocationExtractionEvaluator {
         summaryCsv.append(geoResult.getPrecision()).append(';');
         summaryCsv.append(geoResult.getRecall()).append(';');
         summaryCsv.append(geoResult.getF1()).append(';');
+        // …
+        summaryCsv.append(geoResult.getErrorDistanceStats().getMean()).append(';');
+        summaryCsv.append(geoResult.getErrorDistanceStats().getMedian()).append(';');
+        summaryCsv.append(Math.log(geoResult.getErrorDistanceStats().getMean())).append(';');
+        summaryCsv.append(Math.log(geoResult.getErrorDistanceStats().getMedian())).append(';');
+        summaryCsv.append(geoResult.getErrorDistanceStats().getCumulativeProbability(1)).append(';');
+        summaryCsv.append(geoResult.getErrorDistanceStats().getCumulativeProbability(10)).append(';');
+        summaryCsv.append(geoResult.getErrorDistanceStats().getCumulativeProbability(100)).append(';');
+        // as used in the paper “What's missing in geographical parsing?”; M. Gritta, …; 2017
+        summaryCsv.append(geoResult.getErrorDistanceStats().getCumulativeProbability(161)).append(';');
+        summaryCsv.append(geoResult.getErrorDistanceStats().getCumulativeProbability(1000)).append(';');
         // elapsed time
         summaryCsv.append(stopWatch.getTotalElapsedTime()).append('\n');
 
