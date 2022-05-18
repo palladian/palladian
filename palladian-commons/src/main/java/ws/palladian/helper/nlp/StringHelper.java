@@ -1096,6 +1096,7 @@ public final class StringHelper {
         // trim but keep sentence delimiters
         text = StringHelper.trim(text, keepCharacters);
         text = text.replace("″", "\"");
+        text = text.replace("\u00AD", "-");
         if (text.startsWith(")")) {
             text = text.substring(1);
         }
