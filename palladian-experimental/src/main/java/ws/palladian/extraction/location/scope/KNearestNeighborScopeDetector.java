@@ -191,6 +191,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                 Map<String, String> featureSettingData = featureSetting.toMap();
                 indexWriter.setLiveCommitData(featureSettingData.entrySet());
                 indexWriter.commit();
+                indexWriter.forceMerge(1);
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }
