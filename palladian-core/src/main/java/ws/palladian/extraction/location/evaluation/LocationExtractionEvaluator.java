@@ -102,7 +102,7 @@ public final class LocationExtractionEvaluator {
 
     }
 
-    private final List<File> datasetPaths = new ArrayList<>();
+    private final List<Iterable<? extends LocationDocument>> datasets = new ArrayList<>();
 
     private final List<LocationExtractor> extractors = new ArrayList<>();
 
@@ -119,7 +119,11 @@ public final class LocationExtractionEvaluator {
         if (!temp.isDirectory()) {
             throw new IllegalArgumentException(datasetPath + " is not a directory.");
         }
-        datasetPaths.add(temp);
+        datasets.add(new TudLoc2013DatasetIterable(temp));
+    }
+
+    public void addDataset(Iterable<? extends LocationDocument> dataset) {
+        datasets.add(dataset);
     }
 
     public void addExtractor(LocationExtractor extractor) {
@@ -131,15 +135,25 @@ public final class LocationExtractionEvaluator {
     }
 
     public void runAll(boolean detailedReport) {
-        int numIterations = datasetPaths.size() * extractors.size();
+        int numIterations = datasets.size() * extractors.size();
         ProgressReporter progress = new ProgressMonitor();
         progress.startTask("LocationExtractionEvaluation", numIterations);
-        for (File datasetPath : datasetPaths) {
+        for (Iterable<? extends LocationDocument> datasetPath : datasets) {
             for (LocationExtractor extractor : extractors) {
                 run(extractor, datasetPath, detailedReport);
                 progress.increment();
             }
         }
+    }
+
+    public static LocationEvaluationResult run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
+        Validate.notNull(extractor, "extractor must not be null");
+        Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
+        if (!datasetDirectory.isDirectory()) {
+            throw new IllegalArgumentException("The provided path to the gold standard '" + datasetDirectory
+                    + "' does not exist or is no directory.");
+        }
+        return run(extractor, new TudLoc2013DatasetIterable(datasetDirectory), detailedReport);
     }
 
     /**
@@ -167,14 +181,9 @@ public final class LocationExtractionEvaluator {
      *            <code>false</code> to only write the _locations_summary.csv.
      * @return Result with summary evaluation measures.
      */
-    public static LocationEvaluationResult run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
+    public static LocationEvaluationResult run(LocationExtractor extractor, Iterable<? extends LocationDocument> dataset, boolean detailedReport) {
         Validate.notNull(extractor, "extractor must not be null");
-        Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
-
-        if (!datasetDirectory.isDirectory()) {
-            throw new IllegalArgumentException("The provided path to the gold standard '" + datasetDirectory
-                    + "' does not exist or is no directory.");
-        }
+        Validate.notNull(dataset, "dataset must not be null");
 
         Map<ResultType, Map<String, Collection<Annotation>>> errors = new LinkedHashMap<ResultType, Map<String, Collection<Annotation>>>();
         errors.put(CORRECT, new HashMap<String, Collection<Annotation>>());
@@ -184,7 +193,7 @@ public final class LocationExtractionEvaluator {
         errors.put(ERROR4, new HashMap<String, Collection<Annotation>>());
         errors.put(ERROR5, new HashMap<String, Collection<Annotation>>());
 
-        Iterator<LocationDocument> goldStandard = new TudLoc2013DatasetIterable(datasetDirectory).iterator();
+        Iterator<? extends LocationDocument> goldStandard = dataset.iterator();
 
         // for macro averaging
         double precisionMuc = 0;
@@ -193,7 +202,7 @@ public final class LocationExtractionEvaluator {
         double recallExact = 0;
 
         EvaluationResult micro = new EvaluationResult(Collections.<Annotation> emptyList());
-        GeoEvaluationResult geoResult = new GeoEvaluationResult(extractor.getName(), datasetDirectory.getPath());
+        GeoEvaluationResult geoResult = new GeoEvaluationResult(extractor.getName(), dataset.toString());
 
         StopWatch stopWatch = new StopWatch();
         int count = 0;
@@ -245,7 +254,7 @@ public final class LocationExtractionEvaluator {
         StringBuilder summary = new StringBuilder();
 
         summary.append("Result for:").append(extractor.getName()).append("\n\n");
-        summary.append("Using dataset:").append(datasetDirectory.getPath()).append("\n\n");
+        summary.append("Using dataset:").append(dataset.toString()).append("\n\n");
 
         summary.append("============ macro average ============\n\n");
 
@@ -350,7 +359,7 @@ public final class LocationExtractionEvaluator {
                     .append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo;time\n");
         }
         summaryCsv.append(timestamp).append(';');
-        summaryCsv.append(datasetDirectory.getPath()).append(';');
+        summaryCsv.append(dataset.toString()).append(';');
         summaryCsv.append(extractor.getName()).append(';');
         summaryCsv.append(micro.getPrecision(EvaluationMode.EXACT_MATCH)).append(';');
         summaryCsv.append(micro.getRecall(EvaluationMode.EXACT_MATCH)).append(';');

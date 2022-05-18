@@ -94,11 +94,11 @@ public class GeoEvaluationResult {
 
     private final String extractorName;
 
-    private final String datasetPath;
+    private final String datasetName;
 
-    public GeoEvaluationResult(String extractorName, String datasetPath) {
+    public GeoEvaluationResult(String extractorName, String datasetName) {
         this.extractorName = extractorName;
-        this.datasetPath = datasetPath;
+        this.datasetName = datasetName;
     }
 
     private void add(List<EvaluationItem> evaluationList) {
@@ -214,7 +214,7 @@ public class GeoEvaluationResult {
         StringBuilder evaluationDetails = new StringBuilder();
 
         evaluationDetails.append("# Result for:").append(extractorName).append('\n');
-        evaluationDetails.append("# Using dataset:").append(datasetPath).append('\n');
+        evaluationDetails.append("# Using dataset:").append(datasetName).append('\n');
 
         evaluationDetails.append("#\n");
         evaluationDetails.append("#\n");
