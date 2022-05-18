@@ -16,6 +16,7 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
+import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeDetectorLearner;
 import ws.palladian.helper.collection.CollectionHelper;
 import java.util.function.Consumer;
 import ws.palladian.helper.functional.ConsumerIteratorAdapter;
@@ -39,7 +40,7 @@ public class WikipediaBigDatasetEvaluation {
     // private static final File WIKI_DUMP = new File("/Users/pk/Desktop/enwiki-20140614-pages-articles.xml.bz2");
     // private static final File WIKI_DUMP = new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2");
     // private static final File WIKI_DUMP = new File("/Volumes/iMac HD/temp/enwiki-20130503-pages-articles.xml.bz2");
-    private static final File WIKI_DUMP = new File("/Volumes/iMac HD/temp/enwiki-20140707-pages-articles.xml.bz2");
+    private static final File WIKI_DUMP = new File("/Volumes/iMac SSD 2/Location_Lab_Revisited/enwiki-20220501-pages-articles-multistream.xml.bz2");
 
     private static final Function<WikiPage, LocationDocument> CONVERTER = new Function<WikiPage, LocationDocument>() {
         private static final String UNDETERMINED = "undetermined";
@@ -115,23 +116,23 @@ public class WikipediaBigDatasetEvaluation {
                 Iterable<LocationDocument> trainingLocations = CollectionHelper.convert(trainingPages, CONVERTER);
                 // Iterable<LocationDocument> testingLocations = CollectionHelper.convert(testingPages, CONVERTER);
                 
-                // FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
-                FeatureSetting setting = FeatureSettingBuilder.words(1, 2).create();
-                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
-                builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
-                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 1);
-                DictionaryScopeModel model = learner.train(trainingLocations);
+//                // FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
+//                FeatureSetting setting = FeatureSettingBuilder.words(1, 2).create();
+//                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
+//                builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
+//                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 1);
+//                DictionaryScopeModel model = learner.train(trainingLocations);
+//                
+//                try {
+//                    FileHelper.serialize(model, "enwiki-20140614-locations-1-2-words-1.0.ser");
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
                 
-                try {
-                    FileHelper.serialize(model, "enwiki-20140614-locations-1-2-words-1.0.ser");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                
-                // File indexFile = new File("/Users/pk/temp/nearestNeighborScopeModel_wikipedia_90-train");
-                // FeatureSetting featureSetting = FeatureSettingBuilder.words(1).create();
-                // NearestNeighborScopeDetectorLearner learner = new NearestNeighborScopeDetectorLearner(indexFile, featureSetting);
-                // learner.train(trainingLocations);
+                File indexFile = new File("/Users/pk/temp/knn-scope-model-wikipedia-90-train");
+                FeatureSetting featureSetting = FeatureSettingBuilder.words(1).create();
+                NearestNeighborScopeDetectorLearner learner = new NearestNeighborScopeDetectorLearner(indexFile, featureSetting);
+                learner.train(trainingLocations);
                 
                 // trainingLocations = CollectionHelper.limit(trainingLocations, 20000);
                 // testingLocations = CollectionHelper.limit(testingLocations, 10);
