@@ -239,6 +239,33 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         }
     }
 
+    @Override
+    public List<? extends GeoCoordinate> getScopes(String text) {
+        List<GeoCoordinate> coordinates = new ArrayList<>();
+        try {
+            Query query = queryCreator.createQuery(text, reader, analyzer);
+            LOGGER.trace("{} = {}", query.getClass().getSimpleName(), query);
+            TopDocs searchResult = searcher.search(query, k);
+            if (searchResult.totalHits.value == 0) {
+                Collections.emptyList();
+            }
+            for (int i = 0; i < searchResult.scoreDocs.length; i++) {
+                ScoreDoc scoreDoc = searchResult.scoreDocs[i];
+                Document document = searcher.doc(scoreDoc.doc);
+                double lat = document.getField(FIELD_LAT).numericValue().doubleValue();
+                double lng = document.getField(FIELD_LNG).numericValue().doubleValue();
+                try {
+                    coordinates.add(new ImmutableGeoCoordinate(lat, lng));
+                } catch (IllegalArgumentException e) {
+                    // weird shit
+                }
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return coordinates;
+    }
+
     /**
      * Create a combined {@link BooleanQuery} from the document.
      */
