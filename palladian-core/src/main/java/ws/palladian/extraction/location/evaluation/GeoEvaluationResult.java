@@ -157,7 +157,13 @@ public class GeoEvaluationResult {
 
 //                    System.out.println("assigned: " + assignedLocation);
 
-                    errorDistanceStats.add(goldAnnotation.getLocation().getCoordinate().distance(assignedLocation.getLocation().getCoordinate()));
+                    GeoCoordinate goldCoordinate = goldAnnotation.getLocation().getCoordinate();
+                    if (goldCoordinate == null) {
+//                        System.out.println("gold has no coordinate " + goldAnnotation);
+                        continue;
+                    }
+                    GeoCoordinate assignedCoordinate = assignedLocation.getLocation().getCoords().orElse(GeoCoordinate.NULL);
+                    errorDistanceStats.add(goldCoordinate.distance(assignedCoordinate));
                     resolved = true;
 
                     break; // continue with next gold annotation
@@ -165,11 +171,11 @@ public class GeoEvaluationResult {
 
             }
 
-            if (!resolved) {
-                // gold annotation was not annotated, consider error with maximum distance
-//                System.out.println("not assigned");
-                errorDistanceStats.add(GeoUtils.EARTH_MAX_DISTANCE_KM);
-            }
+//            if (!resolved) {
+//                // gold annotation was not annotated, consider error with maximum distance
+////                System.out.println("not assigned");
+//                errorDistanceStats.add(GeoUtils.EARTH_MAX_DISTANCE_KM);
+//            }
 
 //            System.out.println("*****");
         }
