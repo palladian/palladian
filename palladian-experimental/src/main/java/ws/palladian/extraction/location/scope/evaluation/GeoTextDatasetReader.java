@@ -12,7 +12,7 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.ImmutableGeoCoordinate;
@@ -106,7 +106,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
         return builder.toString();
     }
 
-    private static final class DatasetIterator extends AbstractIterator<LocationDocument> {
+    private static final class DatasetIterator extends AbstractIterator2<LocationDocument> {
         final LineIterator lineIterator;
         final ProgressReporter progress;
         final SubSet subSet;
@@ -123,7 +123,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
         }
 
         @Override
-        protected LocationDocument getNext() throws Finished {
+        protected LocationDocument getNext() {
             while (lineIterator.hasNext()) {
                 progress.increment();
                 String line = lineIterator.next();
@@ -146,7 +146,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
                     return new LocationDocument(documentName, text, null, scopeLocation);
                 }
             }
-            throw FINISHED;
+            return finished();
         }
 
         private static int getFold(long userId) {
@@ -160,7 +160,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
      * 
      * @author Philipp Katz
      */
-    private static final class CombininingIterator extends AbstractIterator<LocationDocument> {
+    private static final class CombininingIterator extends AbstractIterator2<LocationDocument> {
 
         private final Iterator<LocationDocument> wrapped;
 
@@ -173,7 +173,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
         }
 
         @Override
-        protected LocationDocument getNext() throws Finished {
+        protected LocationDocument getNext() {
             while (wrapped.hasNext()) {
                 LocationDocument currentDocument = wrapped.next();
                 LocationDocument combinedDocument = null;
@@ -193,7 +193,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
             if (buffer.toString().length() > 0) { // last document in the buffer
                 return createAndClear();
             }
-            throw FINISHED;
+            return finished();
         }
 
         private LocationDocument createAndClear() {
