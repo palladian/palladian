@@ -3,6 +3,7 @@ package ws.palladian.extraction.location.persistence.lucene;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Bits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +126,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
      *
      * @param directory The Lucene directory with the location data, not <code>null</code>.
      * @throws IllegalStateException In case setting up the Lucene readers fails.
+     * @see #open(String) for convenience.
      */
     public LuceneLocationSource(Directory directory) {
         Validate.notNull(directory, "directory must not be null");
@@ -133,6 +136,22 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
             searcher = new IndexSearcher(reader);
         } catch (IOException e) {
             throw new IllegalStateException("IOException when opening DirectoryReader or IndexSearcher", e);
+        }
+    }
+    
+    /**
+     * Convenience function to open an LLS.
+     * 
+     * @param directoryPath Path to the directory.
+     * @return The LLS.
+     * @throws IllegalStateException In case it cannot be opened for whatever
+     *                               reason.
+     */
+    public static LuceneLocationSource open(String directoryPath) throws IOException {
+        try {
+            return new LuceneLocationSource(FSDirectory.open(Paths.get(directoryPath)));
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 

@@ -25,7 +25,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * <p>
@@ -35,7 +37,7 @@ import java.util.Set;
  *
  * @author Philipp Katz
  */
-class LocalGlobalLexiconConverter {
+class LocalGlobalLexiconReader {
 
     public static void convert(File inputFile, final File outputDirectory) throws Exception {
 
@@ -50,6 +52,16 @@ class LocalGlobalLexiconConverter {
         if (coordinateFile.isFile()) {
             coordinateFile.delete();
         }
+
+        parse(inputFile, document -> {
+            String docId = document.getFileName();
+            writeArticle(document.getText(), document.getAnnotations(), docId, outputDirectory);
+            appendCoordinatesFile(document.getAnnotations(), docId, coordinateFile);
+        });
+    }
+
+    public static void parse(File inputFile, final Consumer<LocationDocument> consumer) throws Exception {
+        Objects.requireNonNull(consumer, "consumer was null");
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
@@ -88,8 +100,8 @@ class LocalGlobalLexiconConverter {
                     if (topCount != null && annotations.size() != topCount) {
                         throw new IllegalStateException("Count mismatch; should be " + topCount + ", but is " + annotations.size());
                     }
-                    writeArticle(text, annotations, docId, outputDirectory);
-                    appendCoordinatesFile(annotations, docId, coordinateFile);
+                    LocationDocument locationDocument = new LocationDocument(docId, text, annotations, null);
+                    consumer.accept(locationDocument);
                     clearAll();
                 } else if (qName.equals("text")) {
                     text = getBuffer();
@@ -183,8 +195,8 @@ class LocalGlobalLexiconConverter {
         }
         int idx = 0;
         for (LocationAnnotation annotation : annotations) {
-            Double lat = annotation.getLocation().getLatitude();
-            Double lng = annotation.getLocation().getLongitude();
+            Double lat = annotation.getLocation().getCoords().map(GeoCoordinate::getLatitude).orElse(null);
+            Double lng = annotation.getLocation().getCoords().map(GeoCoordinate::getLongitude).orElse(null);
             int id = annotation.getLocation().getId();
             String fileName = String.format("text_%s.txt", docId);
             String sourceId = id != 0 ? "geonames:" + id : "";

@@ -153,7 +153,7 @@ public class WikiToRDatasetReader {
         Objects.requireNonNull(action, "action was null");
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
-        DefaultHandler handler = new WikiToRHandler(action::accept);
+        DefaultHandler handler = new WikiToRHandler(action);
         parser.parse(inputFile, handler);
     }
 
