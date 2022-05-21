@@ -1,6 +1,7 @@
 package ws.palladian.extraction.location.disambiguation;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.classification.dt.QuickDtLearner;
@@ -11,16 +12,16 @@ import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.location.*;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
-import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource;
 import ws.palladian.helper.collection.CompositeIterator;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.persistence.DatabaseManagerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -130,20 +131,21 @@ public class FeatureBasedDisambiguationLearner {
     }
 
     public static void main(String[] args) throws IOException {
-        LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+    	LocationSource locationSource = new LuceneLocationSource(FSDirectory.open(Paths.get("/Users/pk/Desktop/Location_Lab_Revisited/Palladian_Location_Database_2022-04-19_13-45-08")));
         FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource, DefaultCandidateExtractor.INSTANCE, 100,
                 new ConfigurableFeatureExtractor());
-        File datasetTud = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/1-training");
-        File datasetLgl = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/1-train");
-        File datasetClust = new File("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/1-train");
+        File datasetTud = new File("/Users/pk/Desktop/Location_Lab_Revisited/tud-loc-2013/1-training");
+        File datasetLgl = new File("/Users/pk/Desktop/Location_Lab_Revisited/LGL-converted/1-train");
+        File datasetClust = new File("/Users/pk/Desktop/Location_Lab_Revisited/CLUST-converted/1-train");
         QuickDtModel model;
         model = learner.learn(datasetTud);
+        FileHelper.serialize(model, "locationDisambiguationModel-tudLoc2013-100trees.ser.gz");
         model = learner.learn(datasetLgl);
+        FileHelper.serialize(model, "locationDisambiguationModel-lgl-100trees.ser.gz");
         model = learner.learn(datasetClust);
+        FileHelper.serialize(model, "locationDisambiguationModel-clust-100trees.ser.gz");
         model = learner.learn(datasetTud, datasetLgl, datasetClust);
-        FileHelper.serialize(model, "locationDisambiguationModel.ser.gz");
-        // dataset = new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
-        // learner.learn(dataset);
+        FileHelper.serialize(model, "locationDisambiguationModel-all-100trees.ser.gz");
     }
 
 }
