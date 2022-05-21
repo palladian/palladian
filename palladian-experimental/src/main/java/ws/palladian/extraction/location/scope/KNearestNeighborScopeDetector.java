@@ -268,7 +268,9 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
     /**
      * Create a combined {@link BooleanQuery} from the document.
+     * @deprecated Doesn't perform well (speed and accuracy wise).
      */
+    @Deprecated
     public static final QueryCreator BOOLEAN_QUERY_CREATOR = new QueryCreator() {
         private static final String NAME = "Boolean";
 
