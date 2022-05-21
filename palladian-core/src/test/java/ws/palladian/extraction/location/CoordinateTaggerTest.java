@@ -67,5 +67,24 @@ public class CoordinateTaggerTest {
         annotations = tagger.getAnnotations(text);
         assertEquals(0, annotations.size());
     }
+    
+    @Test
+    public void testGeoURI() {
+        // https://en.wikipedia.org/wiki/Geo_URI_scheme
+        String geoUri = "geo:37.786971,-122.399677 and geo:37.786971,-122.399677;u=35";
+        List<LocationAnnotation> annotations = CoordinateTagger.INSTANCE.getAnnotations(geoUri);
+
+        assertEquals(2, annotations.size());
+        assertEquals(4, annotations.get(0).getStartPosition());
+        assertEquals(25, annotations.get(0).getEndPosition());
+        assertEquals(37.786971, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0.05);
+        assertEquals(-122.399677, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0.05);
+        
+        assertEquals(34, annotations.get(1).getStartPosition());
+        assertEquals(55, annotations.get(1).getEndPosition());
+        assertEquals(37.786971, annotations.get(1).getLocation().getCoordinate().getLatitude(), 0.05);
+        assertEquals(-122.399677, annotations.get(1).getLocation().getCoordinate().getLongitude(), 0.05);
+
+    }
 
 }
