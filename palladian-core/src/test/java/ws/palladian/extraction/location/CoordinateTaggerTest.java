@@ -14,43 +14,43 @@ public class CoordinateTaggerTest {
 
         List<LocationAnnotation> annotations = tagger.getAnnotations("40.446195,-79.948862");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0);
 
         annotations = tagger.getAnnotations("40.446195, -79.948862");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0);
 
         annotations = tagger.getAnnotations("40.446195 -79.948862");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0);
 
         annotations = tagger.getAnnotations("40.446195N 79.948862W");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0);
 
         annotations = tagger.getAnnotations("40°26′47″N 079°58′36″W");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0.05);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0.05);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0.05);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0.05);
 
         annotations = tagger.getAnnotations("40d 26′ 47″ N 079d 58′ 36″ W");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0.05);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0.05);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0.05);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0.05);
 
         annotations = tagger.getAnnotations("40:26:46.302N 079:56:55.903W");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0.05);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0.05);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0.05);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0.05);
 
         annotations = tagger.getAnnotations("40° 26.7717, -79° 56.93172");
         assertEquals(1, annotations.size());
-        assertEquals(40.446195, annotations.get(0).getLocation().getLatitude(), 0.05);
-        assertEquals(-79.948862, annotations.get(0).getLocation().getLongitude(), 0.05);
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0.05);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0.05);
     }
 
     @Test
@@ -59,8 +59,8 @@ public class CoordinateTaggerTest {
         String text = "Mast Hill (68°11′S 67°0′W) is a hill 14 metres (46 ft) high at the western end of Stonington Island, Marguerite Bay, on the west side of the Antarctic Peninsula.";
         List<LocationAnnotation> annotations = tagger.getAnnotations(text);
         assertEquals(1, annotations.size());
-        assertEquals(-68.183333, annotations.get(0).getLocation().getLatitude(), 0.05);
-        assertEquals(-67, annotations.get(0).getLocation().getLongitude(), 0.05);
+        assertEquals(-68.183333, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0.05);
+        assertEquals(-67, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0.05);
         // CollectionHelper.print(annotations);
 
         text = "The cost of living index was listed as 121.4, 21.4 points above the U.S. average.";
