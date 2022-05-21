@@ -38,7 +38,7 @@ public class FeatureBasedDisambiguationLearner {
     /** Maximum distance between train and candidate location to be considered positive. */
     private static final int MAX_DISTANCE = 50;
 
-    private final QuickDtLearner learner;
+    private final int numTrees;
 
     private final LocationFeatureExtractor featureExtraction;
 
@@ -50,7 +50,7 @@ public class FeatureBasedDisambiguationLearner {
         Validate.notNull(locationSource, "locationSource must not be null");
         this.locationSource = locationSource;
         this.tagger = tagger;
-        this.learner = QuickDtLearner.randomForest(numTrees);
+        this.numTrees = numTrees;
         this.featureExtraction = featureExtractor;
     }
 
@@ -78,6 +78,7 @@ public class FeatureBasedDisambiguationLearner {
 
     public QuickDtModel learn(Iterator<LocationDocument> trainDocuments) {
         Set<Instance> trainingData = createTrainingData(trainDocuments);
+        QuickDtLearner learner = QuickDtLearner.randomForest(numTrees);
         return learner.train(trainingData);
     }
 
