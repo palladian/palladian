@@ -34,7 +34,7 @@ public final class CoordinateTagger implements Tagger {
     private static final String LEFT = "(?<!\\w)";
     private static final String RIGHT = "(?!\\w)";
     private static final String DEG = "([-+]?\\d{1,3}\\.\\d{1,10})([NSWE])?";
-    private static final String SEP = "(?:,\\s?|\\s)";
+    private static final String SEP = "(?:\\s*[,;]\\s*|\\s*)";
 
     /** Only degrees, as real number. */
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
@@ -58,8 +58,15 @@ public final class CoordinateTagger implements Tagger {
             try {
                 double lat = Double.parseDouble(matcher.group(2));
                 double lng = Double.parseDouble(matcher.group(5));
-                lat = "S".equals(matcher.group(3)) ? -lat : lat;
-                lng = "W".equals(matcher.group(6)) ? -lng : lng;
+                // make negative if S or W (consider lat/lng or lng/lat order)
+                lat = "S".equals(matcher.group(3)) || "W".equals(matcher.group(3)) ? -lat : lat;
+                lng = "W".equals(matcher.group(6)) || "S".equals(matcher.group(6)) ? -lng : lng;
+                // swap lat/lng if applicable
+                if ("W".equals(matcher.group(3)) || "E".equals(matcher.group(3))) {
+                    double temp = lat;
+                    lat = lng;
+                    lng = temp;
+                }
                 if (GeoUtils.isValidCoordinateRange(lat, lng)) {
                     annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
                 }
@@ -73,6 +80,12 @@ public final class CoordinateTagger implements Tagger {
             try {
                 double lat = GeoUtils.parseDms(matcher.group(1));
                 double lng = GeoUtils.parseDms(matcher.group(6));
+                // swap lat/lng if applicable
+                if (matcher.group(1).contains("W") || matcher.group(1).contains("E")) {
+                    double temp = lat;
+                    lat = lng;
+                    lng = temp;
+                }
                 if (GeoUtils.isValidCoordinateRange(lat, lng)) {
                     annotations.add(createAnnotation(matcher.start(), matcher.group(), lat, lng));
                 }

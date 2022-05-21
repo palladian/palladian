@@ -2,6 +2,7 @@ package ws.palladian.extraction.location;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -28,6 +29,11 @@ public class CoordinateTaggerTest {
         assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0);
 
         annotations = tagger.getAnnotations("40.446195N 79.948862W");
+        assertEquals(1, annotations.size());
+        assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0);
+        assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0);
+
+        annotations = tagger.getAnnotations("79.948862W 40.446195N");
         assertEquals(1, annotations.size());
         assertEquals(40.446195, annotations.get(0).getLocation().getCoordinate().getLatitude(), 0);
         assertEquals(-79.948862, annotations.get(0).getLocation().getCoordinate().getLongitude(), 0);
@@ -85,6 +91,31 @@ public class CoordinateTaggerTest {
         assertEquals(37.786971, annotations.get(1).getLocation().getCoordinate().getLatitude(), 0.05);
         assertEquals(-122.399677, annotations.get(1).getLocation().getCoordinate().getLongitude(), 0.05);
 
+    }
+
+    @Test
+    public void testCoordinateVariants() {
+        List<String> variants = Arrays.asList("6°52′41″N,79°53′48″E", //
+                "6°52′41″N;79°53′48″E", //
+                "6°52′41″N 79°53′48″E", //
+                "6°52′41″N  79°53′48″E", //
+                "6°52′41″N; 79°53′48″E", //
+                "6°52′41″N, 79°53′48″E", //
+                "6°52′41″N;  79°53′48″E", //
+                "6°52′41″N,  79°53′48″E", //
+                "6°52′41″N ; 79°53′48″E", //
+                "6°52′41″N , 79°53′48″E", //
+                "6°52′41″N  ;  79°53′48″E", //
+                "6°52′41″N  ,  79°53′48″E", //
+                "        6°52′41″N,79°53′48″E", //
+                "79°53′48″E,6°52′41″N" //
+        );
+        for (String variant : variants) {
+            List<LocationAnnotation> result = CoordinateTagger.INSTANCE.getAnnotations(variant);
+            assertEquals(1, result.size());
+            assertEquals(6.878055555555556, result.get(0).getLocation().getCoordinate().getLatitude(), 0.05);
+            assertEquals(79.89666666666668, result.get(0).getLocation().getCoordinate().getLongitude(), 0.05);
+        }
     }
 
 }
