@@ -3,7 +3,6 @@ package ws.palladian.classification.liblinear;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.bwaldvogel.liblinear.Feature;
 import de.bwaldvogel.liblinear.FeatureNode;
 import de.bwaldvogel.liblinear.Linear;
 import de.bwaldvogel.liblinear.Model;
@@ -180,12 +178,7 @@ public final class LibLinearLearner extends AbstractLearner<LibLinearModel> {
 		if (bias >= 0) {
 			features.add(new FeatureNode(featureLabelIndices.size() + 1, bias)); // bias term
 		}
-		Collections.sort(features, new Comparator<de.bwaldvogel.liblinear.Feature>() {
-			@Override
-			public int compare(Feature o1, Feature o2) {
-				return Integer.compare(o1.getIndex(), o2.getIndex());
-			}
-		});
+		Collections.sort(features, (o1, o2) -> Integer.compare(o1.getIndex(), o2.getIndex()));
 		return features.toArray(new de.bwaldvogel.liblinear.Feature[features.size()]);
 	}
 

@@ -2,7 +2,6 @@ package ws.palladian.extraction.location.scope;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +22,6 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
 import ws.palladian.helper.collection.CollectionHelper;
-import java.util.function.Function;
 
 /**
  * Decorator for a fine grid dictionary to "simulate" a coarse grid dictionary.
@@ -90,12 +88,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
     @Override
     public Set<String> getCategories() {
         Set<String> fineCategories = decorated.getCategories();
-        return CollectionHelper.convertSet(fineCategories, new Function<String, String>() {
-            @Override
-            public String apply(String input) {
-                return mapToCoarse(input);
-            }
-        });
+        return CollectionHelper.convertSet(fineCategories, input -> mapToCoarse(input));
     }
 
     @Override
@@ -171,12 +164,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
             // StopWatch stopWatch = new StopWatch();
             // LOGGER.debug("Size of cache {}, cleaning up", entriesCache.size());
             List<Entry<String, CategoryEntries>> temp = new ArrayList<>(entriesCache.entrySet());
-            Collections.sort(temp, new Comparator<Entry<String, CategoryEntries>>() {
-                @Override
-                public int compare(Entry<String, CategoryEntries> e1, Entry<String, CategoryEntries> e2) {
-                    return e2.getValue().size()-e1.getValue().size();
-                }
-            });
+            Collections.sort(temp, (e1, e2) -> e2.getValue().size()-e1.getValue().size());
             entriesCache.clear();
             int newMinSizeForCaching = Integer.MAX_VALUE;
             int maxSize = Integer.MIN_VALUE;

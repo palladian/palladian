@@ -14,7 +14,7 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Predicates;
-import java.util.function.Function;
+
 import java.util.function.Predicate;
 
 /**
@@ -38,12 +38,7 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
 
         @Override
         public Iterator<Category> iterator() {
-            return CollectionHelper.filter(wrapped.iterator(), new Predicate<Category>() {
-                @Override
-                public boolean test(Category item) {
-                    return categoryFilter.test(item.getName());
-                }
-            });
+            return CollectionHelper.filter(wrapped.iterator(), (Predicate<Category>) item -> categoryFilter.test(item.getName()));
         }
 
         @Override
@@ -78,12 +73,7 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
 
     @Override
     public Set<String> getCategories() {
-        return CollectionHelper.convertSet(getDocumentCounts(), new Function<Category, String>() {
-            @Override
-            public String apply(Category input) {
-                return input.getName();
-            }
-        });
+        return CollectionHelper.convertSet(getDocumentCounts(), Category::getName);
     }
 
 //    @Override
