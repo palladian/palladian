@@ -83,7 +83,7 @@ public class WikiToRDatasetReader {
                 List<LocationAnnotation> annotations = toponymIndices.stream()
                         .map(s -> new LocationAnnotation(s.start, text.substring(s.start, s.end), location))
                         .collect(Collectors.toList());
-                LocationDocument locationDocument = new LocationDocument("page_" + pageNumber, text, annotations,
+                LocationDocument locationDocument = new ImmutableLocationDocument("page_" + pageNumber, text, annotations,
                         location);
                 consumer.accept(locationDocument);
                 clearAll();

@@ -100,7 +100,7 @@ class LocalGlobalLexiconReader {
                     if (topCount != null && annotations.size() != topCount) {
                         throw new IllegalStateException("Count mismatch; should be " + topCount + ", but is " + annotations.size());
                     }
-                    LocationDocument locationDocument = new LocationDocument(docId, text, annotations, null);
+                    LocationDocument locationDocument = new ImmutableLocationDocument(docId, text, annotations, null);
                     consumer.accept(locationDocument);
                     clearAll();
                 } else if (qName.equals("text")) {

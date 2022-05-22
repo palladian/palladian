@@ -3,12 +3,14 @@ package ws.palladian.extraction.location.scope.evaluation;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.helper.ProgressMonitor;
@@ -22,7 +24,7 @@ import ws.palladian.retrieval.wiki.WikiPage;
  * <p>
  * Iterator for the Wikipedia scope location dataset.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class WikipediaLocationScopeIterator implements Iterable<LocationDocument> {
@@ -34,7 +36,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
      * <p>
      * Create a new Wikipedia scope dataset iterator where files are iterated in alphabetical order.
      * </p>
-     * 
+     *
      * @param datasetPath The path to the dataset, which contains files with MediaWiki markup with file name extension
      *            ".mediawiki", not <code>null</code>.
      */
@@ -46,7 +48,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
      * <p>
      * Create a new Wikipedia scope dataset iterator.
      * </p>
-     * 
+     *
      * @param datasetPath The path to the dataset, which contains files with MediaWiki markup with file name extension
      *            ".mediawiki", not <code>null</code>.
      * @param shuffle <code>true</code> to shuffle the files randomly (useful, in case the filenames have the pages'
@@ -72,7 +74,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
         return new Iterator<LocationDocument>() {
             private int idx = 0;
             private final ProgressMonitor monitor = new ProgressMonitor();
-            
+
             {
                 monitor.startTask(null, wikiPages.length);
             }
@@ -86,21 +88,8 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
             public LocationDocument next() {
                 monitor.increment();
                 File currentFile = wikiPages[idx++];
-                String markupContent;
-                try {
-                    markupContent = FileHelper.readFileToString(currentFile);
-                } catch (IOException e) {
-                    throw new IllegalStateException("Could not read '" + currentFile + "': " + e.getMessage(), e);
-                }
-                WikiPage page = new WikiPage(0, 0, StringUtils.EMPTY, markupContent);
-                GeoCoordinate scope = page.getCoordinate();
-                if (scope != null) {
-                    // save some memory, we don't need all that additional information in MarkupGeoCoordinate
-                    scope = new ImmutableGeoCoordinate(scope.getLatitude(), scope.getLongitude());
-                }
-                Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
-                        LocationType.UNDETERMINED, scope, null);
-                return new LocationDocument(currentFile.getName(), page.getCleanText(), null, scopeLocation);
+                return new WikiLocationDocument(currentFile);
+
             }
 
             @Override
@@ -120,6 +109,66 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
         builder.append(wikiPages.length);
         builder.append("]");
         return builder.toString();
+    }
+
+    private static final class WikiLocationDocument implements LocationDocument {
+
+        private final File file;
+
+        private boolean parsed = false;
+
+        private String text;
+
+        private Location scopeLocation;
+
+        public WikiLocationDocument(File file) {
+            this.file = file;
+        }
+
+        @Override
+        public String getFileName() {
+            return file.getName();
+        }
+
+        @Override
+        public String getText() {
+            lazyParse();
+            return text;
+        }
+
+        @Override
+        public List<LocationAnnotation> getAnnotations() {
+            return null;
+        }
+
+        @Override
+        public Location getMainLocation() {
+            lazyParse();
+            return scopeLocation;
+        }
+
+        private void lazyParse() {
+            if (parsed) {
+                return;
+            }
+            String markupContent;
+            try {
+                markupContent = FileHelper.readFileToString(file);
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not read '" + file + "': " + e.getMessage(), e);
+            }
+            WikiPage page = new WikiPage(0, 0, StringUtils.EMPTY, markupContent);
+            GeoCoordinate scope = page.getCoordinate();
+            if (scope != null) {
+                // save some memory, we don't need all that additional information in MarkupGeoCoordinate
+                scope = new ImmutableGeoCoordinate(scope.getLatitude(), scope.getLongitude());
+            }
+            text = page.getCleanText();
+            scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
+                    LocationType.UNDETERMINED, scope, null);
+            parsed = true;
+        }
+
     }
 
 }

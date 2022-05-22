@@ -18,6 +18,7 @@ import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.evaluation.ImmutableLocationDocument;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeModel;
@@ -61,7 +62,7 @@ public class KNearestNeighborScopeDetectorTest {
     private static LocationDocument createDoc(String text, double lat, double lng) {
         GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);
         Location location = new ImmutableLocation(0, StringUtils.EMPTY, LocationType.UNDETERMINED, coordinate, null);
-        return new LocationDocument(StringUtils.EMPTY, text, Collections.<LocationAnnotation> emptyList(), location);
+        return new ImmutableLocationDocument(StringUtils.EMPTY, text, Collections.<LocationAnnotation> emptyList(), location);
     }
 
 }

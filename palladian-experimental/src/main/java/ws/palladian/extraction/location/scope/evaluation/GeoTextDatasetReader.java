@@ -9,6 +9,7 @@ import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.evaluation.ImmutableLocationDocument;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
@@ -143,7 +144,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
                     Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
                             LocationType.UNDETERMINED, scope, null);
                     String documentName = userName + "#" + StringHelper.sha1(text);
-                    return new LocationDocument(documentName, text, null, scopeLocation);
+                    return new ImmutableLocationDocument(documentName, text, null, scopeLocation);
                 }
             }
             return finished();
@@ -201,7 +202,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
                 LocationBuilder builder = new LocationBuilder();
                 builder.setPrimaryName(LocationDocument.UNDETERMINED);
                 builder.setCoordinate(coordinate);
-                return new LocationDocument(userName, buffer.toString().trim(), null, builder.create());
+                return new ImmutableLocationDocument(userName, buffer.toString().trim(), null, builder.create());
             } finally {
                 buffer = new StringBuilder();
                 userName = null;

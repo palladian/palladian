@@ -48,11 +48,11 @@ public class ScopeDetectorEvaluator {
 
     private static final String RESULT_DETAILS_FILE = "data/scopeDetectionDetailedResults_%s.csv";
 
-    private final List<Iterable<LocationDocument>> datasets = new ArrayList<>();
+    private final List<Iterable<? extends LocationDocument>> datasets = new ArrayList<>();
 
     private final List<ScopeDetector> detectors = new ArrayList<>();
 
-    public void addDataset(Iterable<LocationDocument> dataset) {
+    public void addDataset(Iterable<? extends LocationDocument> dataset) {
         datasets.add(dataset);
     }
 
@@ -63,7 +63,7 @@ public class ScopeDetectorEvaluator {
     public void runAll(boolean detailedResults) {
         writeHeader();
 
-        for (Iterable<LocationDocument> dataset : datasets) {
+        for (Iterable<? extends LocationDocument> dataset : datasets) {
             FileHelper.appendFile(RESULT_CSV_FILE.getPath(), "##### " + dataset.toString() + "\n");
             for (ScopeDetector detector : detectors) {
                 evaluateScopeDetection(detector, dataset, detailedResults);
@@ -107,7 +107,7 @@ public class ScopeDetectorEvaluator {
      * @return The error distance statistics.
      */
     public static Stats evaluateScopeDetection(ScopeDetector scopeDetector,
-            Iterable<LocationDocument> documentIterator, boolean detailedResults) {
+            Iterable<? extends LocationDocument> documentIterator, boolean detailedResults) {
         Validate.notNull(scopeDetector, "scopeDetector must not be null");
         Validate.notNull(documentIterator, "documentIterator must not be null");
 

@@ -13,6 +13,7 @@ import ws.palladian.classification.text.PruningStrategies;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.evaluation.ImmutableLocationDocument;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
@@ -51,7 +52,7 @@ public class WikipediaBigDatasetEvaluation {
             MarkupCoordinate tmp = input.getCoordinate();
             GeoCoordinate scope = new ImmutableGeoCoordinate(tmp.getLatitude(), tmp.getLongitude());
             Location scopeLocation = new ImmutableLocation(-1, UNDETERMINED, LocationType.UNDETERMINED, scope, null);
-            return new LocationDocument(input.getTitle(), input.getCleanText(), null, scopeLocation);
+            return new ImmutableLocationDocument(input.getTitle(), input.getCleanText(), null, scopeLocation);
         }
     };
 

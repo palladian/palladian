@@ -89,7 +89,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
                 if (mainLocationIdx != -1) {
                     mainLocation = annotations.get(mainLocationIdx).getLocation();
                 }
-                return new LocationDocument(currentFile.getName(), cleanText, annotations, mainLocation);
+                return new ImmutableLocationDocument(currentFile.getName(), cleanText, annotations, mainLocation);
             }
 
             @Override

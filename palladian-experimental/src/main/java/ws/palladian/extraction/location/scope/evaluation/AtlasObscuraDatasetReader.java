@@ -19,6 +19,7 @@ import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
+import ws.palladian.extraction.location.evaluation.ImmutableLocationDocument;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource;
 import ws.palladian.extraction.location.scope.FirstScopeDetector;
@@ -69,7 +70,7 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 					Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
 							LocationType.UNDETERMINED, geoCoordinate, null);
 
-					return new LocationDocument(String.valueOf(id), text, Collections.emptyList(), scopeLocation);
+					return new ImmutableLocationDocument(String.valueOf(id), text, Collections.emptyList(), scopeLocation);
 
 				} catch (JsonException e) {
 					// just continue for heaven's sake!
