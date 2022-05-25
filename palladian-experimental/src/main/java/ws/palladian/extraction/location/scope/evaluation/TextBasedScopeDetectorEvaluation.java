@@ -5,7 +5,10 @@ import static ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEva
 import java.io.File;
 import java.util.Set;
 
+import ws.palladian.classification.text.DictionaryMapModel;
+import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.classification.text.evaluation.FeatureSettingGenerator;
@@ -13,6 +16,7 @@ import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
+import ws.palladian.helper.io.FileHelper;
 
 /**
  * Evaluation script for text-based scope detectors; runs different feature settings to determine the optimal config.
@@ -27,9 +31,9 @@ public final class TextBasedScopeDetectorEvaluation {
     }
     
     public static void main(String[] args) throws Exception {
-        File trainingDirectory = new File("/Users/pk/temp/WikipediaScopeDataset-2014/split-1");
-        File validationDirectory = new File("/Users/pk/temp/WikipediaScopeDataset-2014/split-2");
-        File testDirectory = new File("/Users/pk/temp/WikipediaScopeDataset-2014/split-3");
+        File trainingDirectory = new File("/Users/pk/Desktop/Location_Lab_Revisited/WikipediaScopeDataset-2014/split-1");
+        File validationDirectory = new File("/Users/pk/Desktop/Location_Lab_Revisited/WikipediaScopeDataset-2014/split-2");
+        File testDirectory = new File("/Users/pk/Desktop/Location_Lab_Revisited/WikipediaScopeDataset-2014/split-3");
         Iterable<LocationDocument> trainingSet = new WikipediaLocationScopeIterator(trainingDirectory, true);
         Iterable<LocationDocument> validationSet = new WikipediaLocationScopeIterator(validationDirectory);
         Iterable<LocationDocument> testSet = new WikipediaLocationScopeIterator(testDirectory);
@@ -40,9 +44,11 @@ public final class TextBasedScopeDetectorEvaluation {
         // evaluateScopeDetection(detector, testSet, false);
         // System.exit(0);
 
-        // FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
-        // DictionaryScopeModel model = DictionaryScopeDetector.train(trainingSet, setting, 0.703125);
-        // FileHelper.trySerialize(model, "evaluationModel-0.703125.ser.gz");
+        FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
+//        DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, 0.703125).train(trainingSet);
+        DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryTrieModel.Builder(), 0.703125).train(trainingSet);
+//         DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryMapModel.Builder(), 0.703125).train(trainingSet);
+        FileHelper.trySerialize(model, "evaluationModel-0.703125-6-9-char-ngrams.ser.gz");
         // DictionaryScopeModel model = FileHelper.deserialize("evaluationModel-0.703125.ser.gz");
 
         // ScopeDetector detector = new DictionaryScopeDetector(model, new BayesScorer());
@@ -53,19 +59,19 @@ public final class TextBasedScopeDetectorEvaluation {
 
         // System.exit(0);
 
-        final double[] gridSizes = createEvaluationGridSize();
-        final double defaultGridSize = 5.0;
-        final Scorer scorer = new PalladianTextClassifier.DefaultScorer();
-        
-        // DictionaryScopeDetector ///////////////////////////////////////////////////////////////////////////
-        
-        // determine feature setting
-        Set<FeatureSetting> featureSettings = new FeatureSettingGenerator().words(1, 5).chars(1, 10).create();
-        for (FeatureSetting featureSetting : featureSettings) {
-            DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(featureSetting, defaultGridSize);
-            DictionaryScopeModel model = learner.train(trainingSet);
-            evaluateScopeDetection(new DictionaryScopeDetector(model), validationSet, true);
-        }
+//        final double[] gridSizes = createEvaluationGridSize();
+//        final double defaultGridSize = 5.0;
+//        final Scorer scorer = new PalladianTextClassifier.DefaultScorer();
+//        
+//        // DictionaryScopeDetector ///////////////////////////////////////////////////////////////////////////
+//        
+//        // determine feature setting
+//        Set<FeatureSetting> featureSettings = new FeatureSettingGenerator().words(1, 5).chars(1, 10).create();
+//        for (FeatureSetting featureSetting : featureSettings) {
+//            DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(featureSetting, defaultGridSize);
+//            DictionaryScopeModel model = learner.train(trainingSet);
+//            evaluateScopeDetection(new DictionaryScopeDetector(model), validationSet, true);
+//        }
 
         // determine grid size, using the best feature setting from above
 //        FeatureSetting featureSetting = FeatureSettingBuilder.chars(6, 9).create();

@@ -117,23 +117,23 @@ public class WikipediaBigDatasetEvaluation {
                 Iterable<LocationDocument> trainingLocations = CollectionHelper.convert(trainingPages, CONVERTER);
                 // Iterable<LocationDocument> testingLocations = CollectionHelper.convert(testingPages, CONVERTER);
                 
-//                // FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
+                 FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
 //                FeatureSetting setting = FeatureSettingBuilder.words(1, 2).create();
-//                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
+                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
 //                builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
-//                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 1);
-//                DictionaryScopeModel model = learner.train(trainingLocations);
-//                
-//                try {
-//                    FileHelper.serialize(model, "enwiki-20140614-locations-1-2-words-1.0.ser");
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 0.703125);
+                DictionaryScopeModel model = learner.train(trainingLocations);
                 
-                File indexFile = new File("/Users/pk/temp/knn-scope-model-wikipedia-90-train");
-                FeatureSetting featureSetting = FeatureSettingBuilder.words(1).create();
-                NearestNeighborScopeDetectorLearner learner = new NearestNeighborScopeDetectorLearner(indexFile, featureSetting);
-                learner.train(trainingLocations);
+                try {
+                    FileHelper.serialize(model, "enwiki-20220501-locationDictionary-6-9-char-0.703125.ser.gz");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                
+//                File indexFile = new File("/Users/pk/temp/knn-scope-model-wikipedia-90-train");
+//                FeatureSetting featureSetting = FeatureSettingBuilder.words(1).create();
+//                NearestNeighborScopeDetectorLearner learner = new NearestNeighborScopeDetectorLearner(indexFile, featureSetting);
+//                learner.train(trainingLocations);
                 
                 // trainingLocations = CollectionHelper.limit(trainingLocations, 20000);
                 // testingLocations = CollectionHelper.limit(testingLocations, 10);
