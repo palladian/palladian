@@ -185,8 +185,8 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
     @Override
     public DictionaryModel train(Dataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-        long size = dataset.size();
-        ProgressMonitor progressMonitor = new ProgressMonitor(size, 0.1, "Training text classifier");
+//        long size = dataset.size();
+//        ProgressMonitor progressMonitor = new ProgressMonitor(size, 0.1, "Training text classifier");
         for (Instance instance : dataset) {
             String targetClass = instance.getCategory();
             TextValue textValue = (TextValue) instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
@@ -198,7 +198,7 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
                 terms.add(iterator.next());
             }
             dictionaryBuilder.addDocument(terms, targetClass, instance.getWeight());
-            progressMonitor.incrementAndPrintProgress();
+//            progressMonitor.incrementAndPrintProgress();
         }
         return dictionaryBuilder.create();
     }
