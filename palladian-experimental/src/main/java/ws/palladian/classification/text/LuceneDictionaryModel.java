@@ -173,6 +173,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
 
             writer.setLiveCommitData(commitUserData.entrySet());
             writer.commit();
+            writer.forceMerge(1);
             writer.close();
             return new LuceneDictionaryModel(directory);
         } catch (IOException e) {
