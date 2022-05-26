@@ -13,8 +13,8 @@ import ws.palladian.helper.math.ConfusionMatrix;
 
 public class DictionaryModelBenchmark {
 
-    private static final String trainFile = "/Users/pk/Dropbox/Uni/Datasets/20newsgroups-18828/index_split1.txt";
-    private static final String testFile = "/Users/pk/Dropbox/Uni/Datasets/20newsgroups-18828/index_split2.txt";
+    private static final String trainFile = "/Users/pk/Desktop/20newsgroups-18828/index_split1.txt";
+    private static final String testFile = "/Users/pk/Desktop/20newsgroups-18828/index_split2.txt";
     private static final FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
     private static final File BENCHMARK_RESULT_CSV = new File("dictionaryModelBenchmark.csv");
 

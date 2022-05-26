@@ -40,6 +40,8 @@ import java.util.function.Predicate;
  * permanently updating the Lucene index is terribly slow), and creating the dictionary use
  * {@link #index(DictionaryModel, File)} to transfer the dictionary to the Lucene index.
  * 
+ * During prediction, this is approx. 10x slower than an in-memory dictionary.
+ * 
  * @author Philipp Katz
  */
 @SuppressWarnings("serial")
