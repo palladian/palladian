@@ -14,7 +14,7 @@ import java.util.*;
  * <p>
  * Represents a news feed. (A feed should be processed by a single thread only.)
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -184,8 +184,8 @@ public class Feed {
 
     /**
      * Set the feed's URL.
-     * 
-     * @param feedUrl
+     *
+     * @param feedUrl The feed's URL.
      */
     public void setFeedUrl(String feedUrl) {
         this.feedUrl = feedUrl;
@@ -194,11 +194,10 @@ public class Feed {
     /**
      * Replace the feed's items with the provided items. Make sure the items' properties such as windowSize or httpDate
      * are already set. It is not assumed that the list contains exactly one complete poll.
-     * 
+     *
      * @param items All items to set.
      */
     public void setItems(List<FeedItem> items) {
-
         ArrayList<FeedItem> newItemsTemp = new ArrayList<>();
         Map<String, Date> itemCacheTemp = new HashMap<>();
         recalculateDates = true;
@@ -209,8 +208,7 @@ public class Feed {
             if (isNewItem(hash)) {
                 // correct timestamp only in case this hasn't been done before.
                 // if (feedItem.getCorrectedPublishedDate() == null) {
-                Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(),
-                        getLastButOnePollTime(), feedItem.toString());
+                Date correctedTimestamp = correctedTimestamp(feedItem.getPublished(), getLastPollTime(), getLastButOnePollTime(), feedItem.toString());
                 feedItem.setCorrectedPublishedDate(correctedTimestamp);
                 // }
 
@@ -244,8 +242,7 @@ public class Feed {
         if (isNewItem(hash)) {
             // correct timestamp only in case this hasn't been done before.
             // if (item.getCorrectedPublishedDate() == null) {
-            Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(),
-                    getLastButOnePollTime(), item.toString());
+            Date correctedTimestamp = correctedTimestamp(item.getPublished(), getLastPollTime(), getLastButOnePollTime(), item.toString());
             item.setCorrectedPublishedDate(correctedTimestamp);
             // }
             addCacheItem(hash, item.getCorrectedPublishedDate());
@@ -266,22 +263,21 @@ public class Feed {
      * it has not been seen before (not identified as duplicate). Therefore, its timestamp has to be older than the last
      * poll, and if we already polled the feed twice or more, the item timestamp must be newer than the last but one
      * poll (otherwise we would have seen the item before).
-     * 
+     *
      * <p>
      * Get the publish date from the entry. In case an entry has no timestamp, its timestamp is in the future of
      * lastPollTimeFeed, older than the the last but one poll (lastButOnePollTimeFeed) or older than 01.01.1990 00:00
      * (Unix 631152000), the last poll timestamp (lastPollTimeFeed) is used instead.
-     * 
-     * @param entryPublishDate The entry's publish date to correct.
-     * @param lastPollTimeFeed The time the feed has been polled the last time, that is, the time of the current poll
+     *
+     * @param entryPublishDate       The entry's publish date to correct.
+     * @param lastPollTimeFeed       The time the feed has been polled the last time, that is, the time of the current poll
      * @param lastButOnePollTimeFeed The time of the last but one poll. This is the poll done before lastPollTimeFeed.
-     *            May be <code>null</code> if there was no such poll.
-     * @param logMessage Message to write to logfile in case the date has been corrected. Useful to know which item has
-     *            been corrected when reading the logfile.
+     *                               May be <code>null</code> if there was no such poll.
+     * @param logMessage             Message to write to logfile in case the date has been corrected. Useful to know which item has
+     *                               been corrected when reading the logfile.
      * @return the corrected publish date.
      */
-    private static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, Date lastButOnePollTimeFeed,
-            String logMessage) {
+    private static Date correctedTimestamp(Date entryPublishDate, Date lastPollTimeFeed, Date lastButOnePollTimeFeed, String logMessage) {
         StringBuilder warnings = new StringBuilder();
 
         // get poll timestamp, if not present, use current time as estimation.
@@ -304,19 +300,16 @@ public class Feed {
             // check for date in future of last (=current) poll
             if (pubDate.getTime() > pollTime) {
                 pubDate = new Date(pollTime);
-                warnings.append("Entry has a pub date in the future, feed entry : ").append(logMessage)
-                        .append(timestampUsed);
+                warnings.append("Entry has a pub date in the future, feed entry : ").append(logMessage).append(timestampUsed);
                 // is entry older than last but one poll? If so, we should have seen it before so pubDate must be wrong.
             } else if (lastButOnePollTimeFeed != null && !pubDate.after(lastButOnePollTimeFeed)) {
                 pubDate = new Date(pollTime);
-                warnings.append("Entry has a pub date in the past of the last but one poll, feed entry : ")
-                        .append(logMessage).append(timestampUsed);
+                warnings.append("Entry has a pub date in the past of the last but one poll, feed entry : ").append(logMessage).append(timestampUsed);
 
                 // Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), date must be wrong
             } else if (pubDate.getTime() < 631152000) {
                 pubDate = new Date(pollTime);
-                warnings.append("Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), feed entry : ")
-                        .append(logMessage).append(timestampUsed);
+                warnings.append("Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), feed entry : ").append(logMessage).append(timestampUsed);
             }
 
             // no pubDate provided, use poll timestamp
@@ -333,7 +326,7 @@ public class Feed {
 
     /**
      * Locally store the item timestamp. Make sure that this date is not newer than the feed's poll timestamp.
-     * 
+     *
      * @param pubDate a item timestamp.
      */
     private void addCacheItem(String hash, Date pubDate) {
@@ -343,7 +336,7 @@ public class Feed {
     /**
      * Replaces the current item cache with the given one. Don't never ever ever ever use this. This is meant to be used
      * only by the persistence layer and administrative authorities. And Chuck Norris.
-     * 
+     *
      * @param toCache The new item cache to set.
      */
     public void setCachedItems(Map<String, Date> toCache) {
@@ -354,7 +347,7 @@ public class Feed {
      * Get all cached item hashes and their associated corrected publish dates. These are the items of the most recent
      * feed window that was not empty. Caution! In case the feeds last window was empty but the one before contained
      * items, the cache contains these items and does not reflect the current polls content (which would be empty).
-     * 
+     *
      * @return all cached item hashes and their associated publish dates.
      */
     public Map<String, Date> getCachedItems() {
@@ -363,10 +356,10 @@ public class Feed {
 
     /**
      * Get the cached, (corrected) publish date that is associated to the provided item hash.
-     * 
+     *
      * @param hash The {@link FeedItem}'s hash to get the publish date for.
      * @return the cached, (corrected) publish date that is associated to the provided item hash or <code>null</code> if
-     *         the hash is unknown.
+     * the hash is unknown.
      */
     private Date getCachedItemTimestamp(String hash) {
         return itemCache.get(hash);
@@ -374,7 +367,7 @@ public class Feed {
 
     /**
      * Checks whether the provided item hash is already in the cache. If so, the item is already known.
-     * 
+     *
      * @param hash The item's hash to check.
      * @return <code>true</code> if the hash is already in {@link #itemCache}, <code>false</code> else wise.
      */
@@ -391,7 +384,7 @@ public class Feed {
      * Since some feeds do not provide timestamps for some or all of their items and publish dates may be in the future,
      * missing and future timestamps are replaced by the feed's poll timestamp.
      * </p>
-     * 
+     *
      * @return Corrected item timestamps.
      */
     public Collection<Date> getCorrectedItemTimestamps() {
@@ -400,7 +393,7 @@ public class Feed {
 
     /**
      * Get all items that were new in the most recent poll.
-     * 
+     *
      * @return the newItems, never <code>null</code>.
      */
     public List<FeedItem> getNewItems() {
@@ -420,7 +413,7 @@ public class Feed {
     /**
      * Add the item to the list of items that are known to be new (not contained in the previous poll of this feed). If
      * you want to add an item to this feed, use {@link #addItem(FeedItem)} instead.
-     * 
+     *
      * @param newItem A item that is known to be new.
      */
     private void addNewItem(FeedItem newItem) {
@@ -451,7 +444,7 @@ public class Feed {
 
     /**
      * Number of times the feed has been retrieved and successfully read or polled and has not been modified.
-     * 
+     *
      * @return Number of times the feed has been retrieved and successfully read or polled and has not been modified.
      */
     public int getChecks() {
@@ -460,8 +453,8 @@ public class Feed {
 
     /**
      * Set the min check interval.
-     * 
-     * @param minCheckInterval The min check interval in minutes.
+     *
+     * @param updateInterval The check interval in minutes.
      */
     public void setUpdateInterval(int updateInterval) {
         this.updateInterval = updateInterval;
@@ -494,8 +487,7 @@ public class Feed {
                 tempSecondNewestDate = tempNewestDate;
                 tempNewestDate = cache.get(hash);
             }
-            if (tempNewestDate != null && currentElement < tempNewestDate.getTime()
-                    && (tempSecondNewestDate == null || currentElement > tempSecondNewestDate.getTime())) {
+            if (tempNewestDate != null && currentElement < tempNewestDate.getTime() && (tempSecondNewestDate == null || currentElement > tempSecondNewestDate.getTime())) {
                 tempSecondNewestDate = cache.get(hash);
             }
 
@@ -537,8 +529,6 @@ public class Feed {
     /**
      * If date's year is > 9999, we set it to null! Do not set this value, it is calculated by the feed itself. The
      * setter is to be used by the persistence layer only!
-     * 
-     * @param lastFeedEntry
      */
     public void setLastFeedEntry(Date lastFeedEntry) {
         this.lastFeedEntry = DateHelper.validateYear(lastFeedEntry);
@@ -557,8 +547,6 @@ public class Feed {
     /**
      * The Date of the second newest entry. Might be same as {@link #getLastFeedEntry()} in case the two newest entries
      * have the same publish date. Use with caution, this value is automatically updated.
-     * 
-     * @param lastButOneFeedEntry
      */
     public void setLastButOneFeedEntry(Date lastButOneFeedEntry) {
         this.lastButOneFeedEntry = DateHelper.validateYear(lastButOneFeedEntry);
@@ -575,7 +563,7 @@ public class Feed {
      * Poll 2, Entry D: 01.01.2000 01:00<br />
      * <br />
      * Since distinct dates are forced, entry B is returned.
-     * 
+     *
      * @return The Date of the second newest entry or <code>null</code> if there is no such date.
      */
     public Date getLastButOneFeedEntry() {
@@ -599,17 +587,15 @@ public class Feed {
      * The publish timestamp of the oldest entry in the most recent window. If date's year is > 9999, we set it to null!
      * Do not set this value, it is calculated by the feed itself. The setter is to be used by the persistence layer
      * only!
-     * 
+     *
      * @param oldestFeedEntryCurrentWindow The publish timestamp of the oldest entry in the most recent window.
      */
-    private final void setOldestFeedEntryCurrentWindow(Date oldestFeedEntryCurrentWindow) {
+    private void setOldestFeedEntryCurrentWindow(Date oldestFeedEntryCurrentWindow) {
         this.oldestFeedEntryCurrentWindow = DateHelper.validateYear(oldestFeedEntryCurrentWindow);
     }
 
     /**
      * If date's year is > 9999, we set it to null!
-     * 
-     * @param lastFeedEntry
      */
     public void setHttpLastModified(Date httpLastModified) {
         this.httpLastModified = DateHelper.validateYear(httpLastModified);
@@ -633,7 +619,7 @@ public class Feed {
 
     /**
      * Returns the activity pattern of the feed.
-     * 
+     *
      * @return The {@link FeedActivityPattern}.
      */
     public FeedActivityPattern getActivityPattern() {
@@ -717,8 +703,8 @@ public class Feed {
 
     /**
      * Sets the time as lastPollTime and sets the old value as {@link #setLastButOnePollTime(Date)}.
-     * 
-     * @param lastChecked The date this feed was checked for updates the last time.
+     *
+     * @param lastPollTime The date this feed was checked for updates the last time.
      */
     public final void setLastPollTime(Date lastPollTime) {
         setLastButOnePollTime(this.lastPollTime);
@@ -726,10 +712,9 @@ public class Feed {
     }
 
     /**
-     * 
      * The date this feed was checked for updates the last but one time. This can be used to correct item timestamps.
      * It should be in the past of {@link #getLastPollTime()}.
-     * 
+     *
      * @return the lastButOnePollTime, might be <code>null</code> if there was no such poll.
      */
     public final Date getLastButOnePollTime() {
@@ -739,7 +724,7 @@ public class Feed {
     /**
      * The date this feed was checked for updates the last but one time. This can be used to correct item timestamps.
      * It should be in the past of {@link #getLastPollTime()}.
-     * 
+     *
      * @param lastButOnePollTime the lastButOnePollTime to set
      */
     public final void setLastButOnePollTime(Date lastButOnePollTime) {
@@ -763,18 +748,15 @@ public class Feed {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Feed other = (Feed)obj;
+        Feed other = (Feed) obj;
         return other.feedUrl.equals(this.feedUrl);
     }
 
     /**
      * If the new windowSize is different to the previous size (except the previous was null), the variable window size
      * flag is set.
-     * 
-     * @param windowSize
      */
     public void setWindowSize(Integer windowSize) {
-
         Integer oldWindowSize = getWindowSize();
         // do not set back to null
         if (windowSize != null) {
@@ -821,7 +803,7 @@ public class Feed {
 
     /**
      * Set the time in millisecond that has been spent on processing this feed.
-     * 
+     *
      * @param totalProcessingTimeMS time in milliseconds.
      */
     public void setTotalProcessingTime(long totalProcessingTimeMS) {
@@ -831,7 +813,7 @@ public class Feed {
 
     /**
      * Get the time in milliseconds that has been spent on processing this feed.
-     * 
+     *
      * @return time in milliseconds >= 0. Initially 0.
      */
     public long getTotalProcessingTime() {
@@ -840,7 +822,7 @@ public class Feed {
 
     /**
      * Increases the time that has been spend on processing this feed by the given value.
-     * 
+     *
      * @param processingTimeToAddMS time to add in millisecond.
      */
     public void increaseTotalProcessingTimeMS(long processingTimeToAddMS) {
@@ -850,7 +832,7 @@ public class Feed {
 
     /**
      * Get the average time in milliseconds that has been spent on processing this feed.
-     * 
+     *
      * @return totalProcessingTime/(checks + unreachableCount)
      */
     public long getAverageProcessingTime() {
@@ -860,7 +842,7 @@ public class Feed {
     /**
      * Number of times that we found a MISS, that is, if we knew the feed's items before, checked it again and none of
      * the items has been seen before.
-     * 
+     *
      * @return the misses
      */
     public final int getMisses() {
@@ -870,7 +852,7 @@ public class Feed {
     /**
      * Set the number of times that we found a MISS, that is, if we knew the feed's items before, checked it again and
      * none of the items has been seen before.
-     * 
+     *
      * @param misses The number of misses
      */
     public final void setMisses(int misses) {
@@ -887,7 +869,7 @@ public class Feed {
 
     /**
      * Set the timestamp when we found the last MISS for this feed.
-     * 
+     *
      * @param lastMissTime The timestamp we detected the last miss.
      */
     public void setLastMissTime(Date lastMissTime) {
@@ -896,7 +878,7 @@ public class Feed {
 
     /**
      * Get the timestamp when we found the last MISS for this feed.
-     * 
+     *
      * @return The timestamp we detected the last miss, <code>null</code> if there has never been a MISS.
      */
     public Date getLastMissTime() {
@@ -905,7 +887,7 @@ public class Feed {
 
     /**
      * If true, do not use feed to create a data set, e.g. by {@link DatasetCreator}
-     * 
+     *
      * @return If true, do not use feed to create a data set, e.g. by {@link DatasetCreator}
      */
     public final boolean isBlocked() {
@@ -914,7 +896,7 @@ public class Feed {
 
     /**
      * Set to true to not use the feed to create a data set, e.g. by {@link DatasetCreator}
-     * 
+     *
      * @param blocked set to true to block the feed.
      */
     public final void setBlocked(boolean blocked) {
@@ -924,7 +906,7 @@ public class Feed {
     /**
      * The timestamp this feed has been successfully checked the last time. A successful check happens if the feed is
      * reachable and parsable.
-     * 
+     *
      * @return The timestamp of the last successful check, <code>null</code> if there is none.
      */
     public final Date getLastSuccessfulCheckTime() {
@@ -934,7 +916,7 @@ public class Feed {
     /**
      * The timestamp this feed has been successfully checked the last time. A successful check happens if the feed is
      * reachable and parsable. This timestamp should be set every time {@link #checks} is increased.
-     * 
+     *
      * @param lastSuccessfulCheckTime The timestamp of the last successful check, <code>null</code> if there is none.
      */
     public final void setLastSuccessfulCheckTime(Date lastSuccessfulCheckTime) {
@@ -944,7 +926,7 @@ public class Feed {
     /**
      * Set to <code>true</code> if the feed has a variable window size. The variableWindowSize is initially
      * <code>null</code> (unknown). Once set to true, it can't be changed anymore.
-     * 
+     *
      * @param variableWindowSize Set to <code>true</code> if the feed has a variable window size.
      */
     public void setVariableWindowSize(Boolean variableWindowSize) {
@@ -955,7 +937,7 @@ public class Feed {
 
     /**
      * @return <code>true</code> if the feed has a variable window size, <code>false</code> if not, <code>null</code> if
-     *         unknown.
+     * unknown.
      */
     public Boolean hasVariableWindowSize() {
         return variableWindowSize;
@@ -964,7 +946,7 @@ public class Feed {
     /**
      * The number of unique items downloaded so far. This value may differ from {@link #items}.size() since
      * {@link #items} may have been reseted by calling {@link #freeMemory()}.
-     * 
+     *
      * @param numberOfItemsReceived The number of unique items downloaded so far.
      */
     public void setNumberOfItemsReceived(int numberOfItemsReceived) {
@@ -973,7 +955,7 @@ public class Feed {
 
     /**
      * @return The number of unique items downloaded so far. This value may differ from {@link #items}.size() since
-     *         {@link #items} may have been reseted by calling {@link #freeMemory()}.
+     * {@link #items} may have been reseted by calling {@link #freeMemory()}.
      */
     public int getNumberOfItemsReceived() {
         return numberOfItemsReceived;
@@ -981,7 +963,7 @@ public class Feed {
 
     /**
      * Increments the {@link #numberOfItemsReceived} so far by the given value.
-     * 
+     *
      * @param numberOfNewItems Number of new items.
      */
     private void incrementNumberOfItemsReceived(int numberOfNewItems) {
@@ -1011,8 +993,8 @@ public class Feed {
 
     /**
      * Add additional data, identified by key.
-     * 
-     * @param key Identifier to be used to access this data.
+     *
+     * @param key  Identifier to be used to access this data.
      * @param data the additional data to store.
      * @return The additional data previously associated with key, or <code>null</code> if there was no mapping for key.
      */
@@ -1036,7 +1018,7 @@ public class Feed {
 
     /**
      * @return the FeedTaskResult of the most recent FeedTask. <code>null</code> if the FeedTask has never been run on
-     *         this feed.
+     * this feed.
      */
     public final FeedTaskResult getLastFeedTaskResult() {
         return lastFeedTaskResult;
@@ -1048,5 +1030,4 @@ public class Feed {
     public final void setLastFeedTaskResult(FeedTaskResult lastFeedTaskResult) {
         this.lastFeedTaskResult = lastFeedTaskResult;
     }
-
 }

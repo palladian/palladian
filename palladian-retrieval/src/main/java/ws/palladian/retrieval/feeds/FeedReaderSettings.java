@@ -1,9 +1,6 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
@@ -13,13 +10,14 @@ import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
 import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
 import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Settings for the {@link FeedReader}. Use the {@link Builder} to instantiate.
- * 
+ *
  * @author Philipp Katz
  */
 public interface FeedReaderSettings {
-
     /** Maximum number of feed reading threads at the same time. */
     int DEFAULT_NUM_THREADS = 200;
 
@@ -63,7 +61,7 @@ public interface FeedReaderSettings {
 
     /** Warn if processing of a feed takes longer than this. */
     long DEFAULT_EXECUTION_WARN_TIME = TimeUnit.MINUTES.toMillis(3);
-    
+
     Factory<FeedParser> DEFAULT_PARSER_FACTORY = RomeFeedParser::new;
 
     /**
@@ -88,7 +86,7 @@ public interface FeedReaderSettings {
 
     /**
      * @return The time in milliseconds when the feed reader should wake up the check scheduler to see which feeds
-     *         should be read, greater/equal 1,000.
+     * should be read, greater/equal 1,000.
      */
     long getWakeUpInterval();
 
@@ -103,13 +101,13 @@ public interface FeedReaderSettings {
     long getMaximumFeedSize();
 
     long getExecutionWarnTime();
-    
+
     Factory<? extends FeedParser> getParserFactory();
 
     /**
      * <p>
      * A builder for {@link FeedReaderSettings} instances.
-     * 
+     *
      * @author Philipp Katz
      */
     class Builder implements Factory<FeedReaderSettings> {
@@ -180,7 +178,7 @@ public interface FeedReaderSettings {
             this.executionWarnTime = executionWarnTime;
             return this;
         }
-        
+
         public Builder setParserFactory(Factory<? extends FeedParser> factory) {
             this.parserFactory = factory;
             return this;
@@ -202,7 +200,5 @@ public interface FeedReaderSettings {
             Validate.notNull(parserFactory, "parserFactory must not be null");
             return new ImmutableFeedReaderSettings(this);
         }
-
     }
-
 }
