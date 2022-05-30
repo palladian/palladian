@@ -3,19 +3,18 @@ package ws.palladian.extraction.location.scope.evaluation;
 import static ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEvaluator.evaluateScopeDetection;
 
 import java.io.File;
-import java.util.Set;
 
-import ws.palladian.classification.text.DictionaryMapModel;
+import ws.palladian.classification.text.BayesScorer;
 import ws.palladian.classification.text.DictionaryTrieModel;
+import ws.palladian.classification.text.ExperimentalScorers;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
-import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
-import ws.palladian.classification.text.evaluation.FeatureSettingGenerator;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector;
-import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
+import ws.palladian.extraction.location.scope.MultiStepDictionaryScopeDetector;
+import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -44,18 +43,36 @@ public final class TextBasedScopeDetectorEvaluation {
         // evaluateScopeDetection(detector, testSet, false);
         // System.exit(0);
 
-        FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
+//        FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).maxTerms(1500).create();
+//        FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(1500).create(); // 5.7 mb
+//        FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(5000).create(); // dto.
+        FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(Integer.MAX_VALUE).create();
 //        DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, 0.703125).train(trainingSet);
         DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryTrieModel.Builder(), 0.703125).train(trainingSet);
 //         DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryMapModel.Builder(), 0.703125).train(trainingSet);
         FileHelper.trySerialize(model, "evaluationModel-0.703125-6-9-char-ngrams.ser.gz");
         // DictionaryScopeModel model = FileHelper.deserialize("evaluationModel-0.703125.ser.gz");
 
-        // ScopeDetector detector = new DictionaryScopeDetector(model, new BayesScorer());
-        // evaluateScopeDetection(detector, testSet, false);
+         // ScopeDetector detector = new DictionaryScopeDetector(model, new ExperimentalScorers.LogCountScorer());
+         // evaluateScopeDetection(detector, testSet, false);
+         
+//         ScopeDetector detector2 = new MultiStepDictionaryScopeDetector(model, new ExperimentalScorers.LogCountScorer(), 11.25, 5.625, 2.8125, 1.40625);
+//         evaluateScopeDetection(detector2, testSet, false);
+//
+//         ScopeDetector detector3 = new MultiStepDictionaryScopeDetector(model, PalladianTextClassifier.DEFAULT_SCORER, 11.25, 5.625, 2.8125, 1.40625);
+//         evaluateScopeDetection(detector3, testSet, false);
 
-        // ScopeDetector detector = new MultiStepDictionaryScopeDetector(model, new BayesScorer(), 5.625);
-        // evaluateScopeDetection(detector, testSet, false);
+//         ScopeDetector detector4 = new MultiStepDictionaryScopeDetector(model, new BayesScorer(), 11.25, 5.625, 2.8125, 1.40625);
+//         evaluateScopeDetection(detector4, testSet, false);
+
+//         ScopeDetector detector5 = new MultiStepDictionaryScopeDetector(model, new BayesScorer(), 11.25, 2.8125);
+//         evaluateScopeDetection(detector5, testSet, false);
+
+        ScopeDetector detector6 = new MultiStepDictionaryScopeDetector(model, new BayesScorer(), 2.8125);
+         evaluateScopeDetection(detector6, testSet, false);
+
+         ScopeDetector detector7 = new MultiStepDictionaryScopeDetector(model, new BayesScorer(), 11.25);
+         evaluateScopeDetection(detector7, testSet, false);
 
         // System.exit(0);
 
