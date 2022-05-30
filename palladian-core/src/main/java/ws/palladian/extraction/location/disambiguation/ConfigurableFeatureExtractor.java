@@ -57,6 +57,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
         LocationSet countries = allLocations.where(type(LocationType.COUNTRY));
         LocationSet units = allLocations.where(type(LocationType.UNIT));
         List<GeoCoordinate> scopes = determineTextScopes(text);
+        List<List<? extends GeoCoordinate>> scopes2 = determineTextScopes2(text);
         MultiMap<Location, String> mentions = createMentionMap(locations);
 
         Set<String> alreadyChecked = new HashSet<>();
@@ -87,7 +88,7 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
             for (Location location : candidates) {
 
                 Long population = coalesce(location.getPopulation(), 0l);
-                GeoCoordinate coordinate = coalesce(location.getCoordinate(), GeoCoordinate.NULL);
+                GeoCoordinate coordinate = location.getCoords().orElse(GeoCoordinate.NULL);
 
                 InstanceBuilder builder = new InstanceBuilder();
 
@@ -165,6 +166,26 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
                     scope = scope != null ? scope : GeoCoordinate.NULL;
                     builder.set("scopeDistance-" + n, coordinate.distance(scope));
                 }
+                for (int n = 0; n < scopes2.size(); n++) {
+                    List<? extends GeoCoordinate> scopeCoords = scopes2.get(n);
+                    // minDist to scopes
+                    // maxDist to scopes
+                    // in distance to scope
+                    double minDist = Double.MAX_VALUE;
+                    double maxDist = Double.MIN_VALUE;
+                    for (GeoCoordinate scopeCoord : scopeCoords) {
+                        minDist = Math.min(minDist, scopeCoord.distance(coordinate));
+                        maxDist = Math.max(maxDist, scopeCoord.distance(coordinate));
+                    }
+                    for (double dist : setting.getDistanceValues()) {
+                        builder.set("scopeDistance-" + n + "-" + dist, minDist < dist);
+//                      System.out.println("scopeDistance-" + n + "-" + dist + ":" + (minDist < dist));
+                    }
+                    builder.set("scopeDistance-" + n + "-min", minDist);
+                    builder.set("scopeDistance-" + n + "-max", maxDist);
+//                    System.out.println("scopeDistance-" + n + "-min:" +  minDist);
+//                    System.out.println("scopeDistance-" + n + "-max:" +  maxDist);
+                }
                 for (Entry<String, Long> searcherCount : indexCounts.entrySet()) {
                     String indexName = searcherCount.getKey();
                     Long indexCount = searcherCount.getValue();
@@ -199,6 +220,14 @@ public class ConfigurableFeatureExtractor implements LocationFeatureExtractor {
         List<GeoCoordinate> result = new ArrayList<>();
         for (ScopeDetector scopeDetector : setting.getScopeDetectors()) {
             result.add(scopeDetector.getScope(text));
+        }
+        return result;
+    }
+    
+    private List<List<? extends GeoCoordinate>> determineTextScopes2(String text) {
+        List<List<? extends GeoCoordinate>> result = new ArrayList<>();
+        for (ScopeDetector scopeDetector : setting.getScopeDetectors()) {
+            result.add(scopeDetector.getScopes(text));
         }
         return result;
     }
