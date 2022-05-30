@@ -1,5 +1,10 @@
 package ws.palladian.classification.text;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+
 import ws.palladian.core.AbstractCategoryEntries;
 import ws.palladian.core.Category;
 import ws.palladian.core.ImmutableCategory;
@@ -7,8 +12,15 @@ import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.math.MathHelper;
 
-import java.util.Iterator;
-
+/**
+ * Store categories in a linked data structure. In contrast to a hash map this
+ * saves a considerable amount of memory. Disadvantage: Incrementing a count
+ * (during training) is expensive as all entries must be iterated. This is
+ * partially mitigated by sorting the entries every now and then by count (thus
+ * frequently appearing entries are at the beginning of the list).
+ *
+ * @author Philipp Katz
+ */
 final class LinkedCategoryEntries extends AbstractCategoryEntries {
     public static final Factory<LinkedCategoryEntries> FACTORY = LinkedCategoryEntries::new;
 
@@ -74,6 +86,26 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
 
     public void append(Category category) {
         append(category.getName(), category.getCount());
+    }
+
+    /** Sort entries in this instance by count. (called every n inserts from the DictionaryTrieModel.Builder). */
+    /* package */ void sortByCount() {
+        if (firstCategory == null || totalCount < 2) {
+            return;
+        }
+		// can be for sure be done more efficiently, but for now we just put into a
+		// list, sort, and then transform it back -- better would be to sort on the
+		// linked structure directly, as this avoids instantiating unnecessary objects
+        List<LinkedCategoryCount> temp = new ArrayList<>();
+        for (LinkedCategoryCount next = firstCategory; next != null; next = next.nextCategory) {
+            temp.add(next);
+        }
+        temp.sort(Comparator.comparing((LinkedCategoryCount entry) -> entry.count).reversed());
+        for (int i = 0; i < temp.size() - 1; i++) {
+            temp.get(i).nextCategory = temp.get(i + 1);
+        }
+        temp.get(temp.size() - 1).nextCategory = null;
+        firstCategory = temp.get(0);
     }
 
     private static final class LinkedCategoryCount {

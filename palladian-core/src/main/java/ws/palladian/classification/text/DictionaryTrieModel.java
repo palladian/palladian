@@ -41,6 +41,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         /** The logger for this class. */
         private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryTrieModel.Builder.class);
 
+        private static final int OPTIMIZE_AFTER_INSERTIONS = 10000;
+
         /** Trie with term-category combinations with their counts. */
         private final Trie<LinkedCategoryEntries> entryTrie = new Trie<>();
         /** Counter for categories based on documents. */
@@ -55,6 +57,8 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         private int numTerms;
         /** The pruning strategies to apply when creating the model. */
         private Predicate<? super CategoryEntries> pruningStrategy;
+
+        private int insertions = 0;
 
         @Override
         public DictionaryBuilder setName(String name) {
@@ -90,6 +94,14 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
                 termCountBuilder.add(category, weight);
             }
             documentCountBuilder.add(category, weight);
+            if (++insertions % OPTIMIZE_AFTER_INSERTIONS == 0) {
+                LOGGER.debug("%s insertions -- optimizing category entries", insertions);
+                Iterator<Entry<String, LinkedCategoryEntries>> iterator = entryTrie.iterator();
+                while (iterator.hasNext()) {
+                    LinkedCategoryEntries entries = iterator.next().getValue();
+                    entries.sortByCount();
+                }
+            }
             return this;
         }
 
