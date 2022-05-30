@@ -32,4 +32,9 @@ public class DictionaryTrieModelTest extends AbstractDictionaryModelTest {
 		assertEquals(4, model.getTermCounts().getCount(CATEGORY_2));
 	}
 
+	@Override
+	protected DictionaryBuilder getBuilder() {
+		return new DictionaryTrieModel.Builder();
+	}
+
 }

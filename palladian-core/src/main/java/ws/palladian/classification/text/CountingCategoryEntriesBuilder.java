@@ -5,8 +5,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.mutable.MutableInt;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
@@ -16,10 +17,10 @@ import ws.palladian.helper.math.MathHelper;
 
 public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> {
 
-    private final Map<String, MutableInt> entryMap;
+    private final Object2IntMap<String> entryMap;
 
     public CountingCategoryEntriesBuilder() {
-        this.entryMap = new HashMap<>();
+        this.entryMap = new Object2IntOpenHashMap<String>();
     }
 
     /**
@@ -30,31 +31,26 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
      * @param map The map with categories and scores, not <code>null</code>.
      */
     public CountingCategoryEntriesBuilder(Map<String, ? extends Integer> map) {
+        this();
         Validate.notNull(map, "map must not be null");
-        entryMap = new HashMap<>();
         for (Entry<String, ? extends Number> entry : map.entrySet()) {
             int count = entry.getValue().intValue();
             Validate.isTrue(count >= 0, "count must be greater/equal zero");
-            entryMap.put(entry.getKey(), new MutableInt(count));
+            entryMap.put(entry.getKey(), count);
         }
     }
 
     public CountingCategoryEntriesBuilder set(String categoryName, int count) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         Validate.isTrue(count >= 0, "count must be greater/equal zero");
-        entryMap.put(categoryName, new MutableInt(count));
+        entryMap.put(categoryName, count);
         return this;
     }
 
     public CountingCategoryEntriesBuilder add(String categoryName, int count) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         Validate.isTrue(count >= 0, "count must be greater/equal zero, but was " + count);
-        MutableInt value = entryMap.get(categoryName);
-        if (value == null) {
-            entryMap.put(categoryName, new MutableInt(count));
-        } else {
-            value.setValue(MathHelper.add(value.intValue(), count));
-        }
+        entryMap.compute(categoryName, (key, value) -> value != null ? MathHelper.add(value, count) : count);
         return this;
     }
 
@@ -77,11 +73,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
     public CountingCategoryEntriesBuilder subtract(String categoryName, int count) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         Validate.isTrue(count >= 0, "count must be greater/equal zero");
-        MutableInt value = entryMap.get(categoryName);
-        if (value != null) {
-            int newValue = MathHelper.add(value.intValue(), -count);
-            value.setValue(newValue);
-        }
+        entryMap.compute(categoryName, (key, value) -> value != null ? MathHelper.add(value, -count) : null);
         return this;
     }
 
@@ -93,8 +85,8 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         }
         Map<String, Category> entries = new HashMap<>();
         Category mostLikely = null;
-        for (Entry<String, MutableInt> entry : entryMap.entrySet()) {
-            int count = entry.getValue().intValue();
+        for (Object2IntMap.Entry<String> entry : entryMap.object2IntEntrySet()) {
+            int count = entry.getIntValue();
             if (count == 0) { // skip zero entries
                 continue;
             }
@@ -111,7 +103,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
 
     public int getTotalCount() {
         int totalCount = 0;
-        for (MutableInt value : entryMap.values()) {
+        for (Integer value : entryMap.values()) {
             totalCount += value.intValue();
         }
         return totalCount;

@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import ws.palladian.helper.io.FileHelper;
 
-public class AbstractDictionaryModelTest {
+public abstract class AbstractDictionaryModelTest {
 	protected static final String CATEGORY_1 = "category1";
 	protected static final String CATEGORY_2 = "category2";
 
@@ -50,7 +50,7 @@ public class AbstractDictionaryModelTest {
 		 * rel(word4,c2) = 100%
 		 * </pre>
 		 */
-		DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
+		DictionaryBuilder builder = getBuilder();
 		builder.addDocument(new HashSet<>(Arrays.asList(WORD_1, WORD_3)), CATEGORY_1);
 		builder.addDocument(new HashSet<>(Arrays.asList(WORD_2, WORD_4)), CATEGORY_2);
 		builder.addDocument(new HashSet<>(Arrays.asList(WORD_3, WORD_4)), CATEGORY_2);
@@ -59,6 +59,8 @@ public class AbstractDictionaryModelTest {
 		builder.addDocument(new HashSet<>(Arrays.asList(WORD_3)), CATEGORY_1);
 		model = builder.create();
 	}
+
+	protected abstract DictionaryBuilder getBuilder();
 
 	@Test
 	public void testDictionaryModel() {

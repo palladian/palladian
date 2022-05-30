@@ -4,16 +4,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 import org.apache.commons.lang3.Validate;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.helper.collection.AbstractIterator2;
-import java.util.function.Predicate;
 
 public class DictionaryMapModel extends AbstractDictionaryModel {
 
@@ -22,7 +24,8 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 	public static final class Builder implements DictionaryBuilder {
 		private String name;
 		private FeatureSetting featureSetting;
-		private Map<String, LinkedCategoryEntries> dictionary = new HashMap<>();
+		/** Mapping term -> category -> count */
+		private Object2ObjectMap<String, Object2IntMap<String>> dictionary = new Object2ObjectOpenHashMap<>();
 		/** Counter for categories based on documents. */
 		private final CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
 		/** Counter for categories based on terms. */
@@ -30,6 +33,8 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 
 		@Override
 		public DictionaryModel create() {
+			// convert from mapping `category -> term -> count`
+			// to mapping `term -> category -> count`
 			return new DictionaryMapModel(this);
 		}
 
@@ -53,12 +58,14 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		@Override
 		public DictionaryBuilder addDocument(Collection<String> terms, String category, int weight) {
 			for (String term : terms) {
-				LinkedCategoryEntries categoryEntries = dictionary.get(term);
-				if (categoryEntries == null) {
-					categoryEntries = new LinkedCategoryEntries();
-					dictionary.put(term, categoryEntries);
-				}
-				categoryEntries.increment(category, weight);
+				dictionary.compute(term, (termValue, categoryCounts) -> {
+					if (categoryCounts == null) {
+						categoryCounts = new Object2IntOpenHashMap<>(1);
+					}
+					categoryCounts.compute(category,
+							(categoryKey, countValue) -> countValue == null ? weight : countValue + weight);
+					return categoryCounts;
+				});
 				termCountBuilder.add(category, weight);
 			}
 			documentCountBuilder.add(category, weight);
@@ -79,7 +86,7 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 
 	private transient String name;
 	private transient FeatureSetting featureSetting;
-	private transient Map<String, LinkedCategoryEntries> dictionary;
+	private transient Object2ObjectMap<String, Object2IntMap<String>> dictionary;
 	private transient CategoryEntries documentCounts;
 	private transient CategoryEntries termCounts;
 
@@ -105,8 +112,8 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 	@Override
 	public CategoryEntries getCategoryEntries(String term) {
 		Validate.notNull(term, "term must not be null");
-		LinkedCategoryEntries entries = dictionary.get(term);
-		return entries != null ? entries : CategoryEntries.EMPTY;
+		Object2IntMap<String> entries = dictionary.get(term);
+		return entries != null ? new CountingCategoryEntriesBuilder(entries).create() : CategoryEntries.EMPTY;
 	}
 
 	@Override
@@ -126,18 +133,11 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 
 	@Override
 	public Iterator<DictionaryEntry> iterator() {
-		return new AbstractIterator2<DictionaryEntry>() {
-			final Iterator<Entry<String, LinkedCategoryEntries>> it = dictionary.entrySet().iterator();
-
-			@Override
-			protected DictionaryEntry getNext() {
-				if (it.hasNext()) {
-					Entry<String, LinkedCategoryEntries> entry = it.next();
-					return new ImmutableDictionaryEntry(entry.getKey(), entry.getValue());
-				}
-				return finished();
-			}
-		};
+		return dictionary.entrySet() //
+				.stream() //
+				.<DictionaryEntry>map(entry -> new ImmutableDictionaryEntry(entry.getKey(),
+						new CountingCategoryEntriesBuilder(entry.getValue()).create())) //
+				.iterator();
 	}
 
 	// serialization code
@@ -159,8 +159,8 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		if (version != VERSION) {
 			throw new IOException("Unsupported version: " + version);
 		}
-		Map<Integer, String> categoryIndices = new HashMap<>();
-		dictionary = new HashMap<>();
+		Map<Integer, String> categoryIndices = new Int2ObjectOpenHashMap<>();
+		dictionary = new Object2ObjectOpenHashMap<>();
 		// header
 		int numCategories = in.readInt();
 		CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
@@ -176,13 +176,13 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		for (int i = 0; i < numTerms; i++) {
 			String term = (String) in.readObject();
 			int numProbabilityEntries = in.readInt();
-			LinkedCategoryEntries entries = new LinkedCategoryEntries();
+			Object2IntMap<String> entries = new Object2IntOpenHashMap<>(numProbabilityEntries);
 			dictionary.put(term, entries);
 			for (int j = 0; j < numProbabilityEntries; j++) {
 				int categoryIdx = in.readInt();
 				String categoryName = categoryIndices.get(categoryIdx);
 				int categoryCount = in.readInt();
-				entries.append(categoryName, categoryCount);
+				entries.put(categoryName, categoryCount);
 				termCountBuilder.add(categoryName, categoryCount);
 			}
 		}
