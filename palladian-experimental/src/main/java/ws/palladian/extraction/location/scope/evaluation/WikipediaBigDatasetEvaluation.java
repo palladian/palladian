@@ -117,15 +117,15 @@ public class WikipediaBigDatasetEvaluation {
                 Iterable<LocationDocument> trainingLocations = CollectionHelper.convert(trainingPages, CONVERTER);
                 // Iterable<LocationDocument> testingLocations = CollectionHelper.convert(testingPages, CONVERTER);
                 
-                 FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
-//                FeatureSetting setting = FeatureSettingBuilder.words(1, 2).create();
+//                 FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
+                FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(Integer.MAX_VALUE).create();
                 DictionaryBuilder builder = new DictionaryTrieModel.Builder();
 //                builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
-                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 0.703125);
+                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 0.3515625);
                 DictionaryScopeModel model = learner.train(trainingLocations);
                 
                 try {
-                    FileHelper.serialize(model, "enwiki-20220501-locationDictionary-6-9-char-0.703125.ser.gz");
+                    FileHelper.serialize(model, "enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
