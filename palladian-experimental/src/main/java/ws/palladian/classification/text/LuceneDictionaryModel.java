@@ -143,11 +143,8 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
             throw new IllegalStateException("Path '" + directoryPath
                     + " already exists. Delete first or pick different path.");
         }
-        FSDirectory directory = null;
-        IndexWriter writer = null;
-        try {
-            directory = FSDirectory.open(directoryPath.toPath());
-            writer = new IndexWriter(directory, new IndexWriterConfig(ANALYZER));
+        try (FSDirectory directory = FSDirectory.open(directoryPath.toPath());
+                IndexWriter writer = new IndexWriter(directory, new IndexWriterConfig(ANALYZER))) {
             ProgressMonitor progressMonitor = new ProgressMonitor();
             progressMonitor.startTask("Writing Lucene dict.", dictionary.getNumUniqTerms());
 
@@ -178,11 +175,6 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
             return new LuceneDictionaryModel(directory);
         } catch (IOException e) {
             throw new IllegalStateException(e);
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException ignore) {
-            }
         }
     }
 
