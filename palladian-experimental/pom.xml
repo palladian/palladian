@@ -84,5 +84,10 @@
 			<artifactId>sqlite-jdbc</artifactId>
 			<version>3.36.0.3</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
 	</dependencies>
 </project>
