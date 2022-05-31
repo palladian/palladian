@@ -12,6 +12,8 @@ import java.util.Objects;
 import org.apache.lucene.store.FSDirectory;
 
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.classification.text.ExperimentalScorers;
+import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -22,6 +24,7 @@ import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.evaluation.ImmutableLocationDocument;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource;
+import ws.palladian.extraction.location.scope.DictionaryScopeDetector;
 import ws.palladian.extraction.location.scope.FirstScopeDetector;
 import ws.palladian.extraction.location.scope.FrequencyScopeDetector;
 import ws.palladian.extraction.location.scope.HighestPopulationScopeDetector;
@@ -30,6 +33,8 @@ import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector;
 import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeModel;
 import ws.palladian.extraction.location.scope.LeastDistanceScopeDetector;
 import ws.palladian.extraction.location.scope.MidpointScopeDetector;
+import ws.palladian.extraction.location.scope.MultiStepDictionaryScopeDetector;
+import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -58,6 +63,7 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 					String line = lineIterator.next();
 					JsonObject json = new JsonObject(line);
 					int id = json.getInt("id");
+				System.out.println(id);
 					String headline = json.getString("headline");
 					String description = json.getString("description");
 					String copy = json.getString("copy");
@@ -119,18 +125,28 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 		// eval.addDetector(new LeastDistanceScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
 		// eval.addDetector(new MidpointScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
 
-		QuickDtModel model1 = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-tudLoc2013-100trees.ser.gz");
+		// QuickDtModel model1 = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-tudLoc2013-100trees.ser.gz");
 		// eval.addDetector(new LeastDistanceScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model1, 0))));
 		// eval.addDetector(new FrequencyScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model1, 0))));
 		// eval.addDetector(new FirstScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model1, 0))));
-		eval.addDetector(new HighestTrustScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model1, 0))));
+		// eval.addDetector(new HighestTrustScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model1, 0))));
 		// QuickDtModel model2 = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-lgl-100trees.ser.gz");
 		// eval.addDetector(new LeastDistanceScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model2, 0))));
 		// QuickDtModel model3 = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-clust-100trees.ser.gz");
 		// eval.addDetector(new LeastDistanceScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model3, 0))));
 		// QuickDtModel model4 = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-all-100trees.ser.gz");
 		// eval.addDetector(new LeastDistanceScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model4, 0))));
-
+		
+		DictionaryScopeModel dictionaryScopeModel = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
+		MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, 11.25, 5.625, 2.8125, 1.40625, 0.703125);
+		eval.addDetector(scopeDetector);
+		
+		MultiStepDictionaryScopeDetector scopeDetector2 = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, PalladianTextClassifier.DEFAULT_SCORER, 11.25, 5.625, 2.8125, 1.40625, 0.703125);
+		eval.addDetector(scopeDetector2);
+		
+		MultiStepDictionaryScopeDetector scopeDetector3 = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new ExperimentalScorers.LogCountScorer(), 11.25, 5.625, 2.8125, 1.40625, 0.703125);
+		eval.addDetector(scopeDetector3);
+		
 		eval.runAll(true);
 	}
 

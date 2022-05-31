@@ -1,6 +1,5 @@
 package ws.palladian.classification.text;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,6 +7,7 @@ import org.apache.commons.lang3.Validate;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
@@ -83,7 +83,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         if (totalCount == 0) {
             return CategoryEntries.EMPTY;
         }
-        Map<String, Category> entries = new HashMap<>();
+        Map<String, Category> entries = new Object2ObjectOpenHashMap<>();
         Category mostLikely = null;
         for (Object2IntMap.Entry<String> entry : entryMap.object2IntEntrySet()) {
             int count = entry.getIntValue();

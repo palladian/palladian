@@ -1,18 +1,17 @@
 package ws.palladian.extraction.location.scope;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import ws.palladian.classification.text.AbstractDictionaryModel;
 import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
 import ws.palladian.classification.text.DictionaryModel;
@@ -48,10 +47,10 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
     private final GridCreator fineGrid;
 
     /** Cache mapped values, because mapping is not very fast. */
-    private final Map<String, String> fineToCoarseIdentifier = new HashMap<>();
+    private final Map<String, String> fineToCoarseIdentifier = new Object2ObjectOpenHashMap<>();
 
     /** Cache often requested terms and their TermCategoryEntries. */
-    private final Map<String, CategoryEntries> entriesCache = new HashMap<>();
+    private final Map<String, CategoryEntries> entriesCache = new Object2ObjectOpenHashMap<>();
 
     /**
      * Keep only those TermCategoryEntries cached, where the #size is greater than this value (this is adapted
@@ -163,14 +162,18 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
             // size is above the now removed threshold ...
             // StopWatch stopWatch = new StopWatch();
             // LOGGER.debug("Size of cache {}, cleaning up", entriesCache.size());
-            List<Entry<String, CategoryEntries>> temp = new ArrayList<>(entriesCache.entrySet());
-            Collections.sort(temp, (e1, e2) -> e2.getValue().size()-e1.getValue().size());
+            List<Pair<String, CategoryEntries>> temp = entriesCache //
+                    .entrySet() //
+                    .stream() //
+                    .map(e -> Pair.of(e.getKey(), e.getValue())) // nb: need to copy due to clear()
+                    .sorted((e1, e2) -> e2.second().size() - e1.second().size()) //
+                    .collect(Collectors.toList()); //
             entriesCache.clear();
             int newMinSizeForCaching = Integer.MAX_VALUE;
             int maxSize = Integer.MIN_VALUE;
-            for (Entry<String, CategoryEntries> current : temp) {
-                CategoryEntries categoryEntries = current.getValue();
-                entriesCache.put(current.getKey(), categoryEntries);
+            for (Pair<String, CategoryEntries> current : temp) {
+                CategoryEntries categoryEntries = current.second();
+                entriesCache.put(current.first(), categoryEntries);
                 newMinSizeForCaching = Math.min(newMinSizeForCaching, categoryEntries.size());
                 maxSize = Math.max(maxSize, categoryEntries.size());
                 if (entriesCache.size() >= CACHE_LOWER_SIZE) {
@@ -189,11 +192,18 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
     }
 
     private CategoryEntries mapToCoarse(CategoryEntries fineCategoryEntries) {
+        // TODO use LinkedCategoryEntries instead? -- too slow to build due to `increment`,
+        // but maybe we can use them just for storage?
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (Category category : fineCategoryEntries) {
             builder.add(mapToCoarse(category.getName()), category.getCount());
         }
         return builder.create();
+//      LinkedCategoryEntries categoryEntries = new LinkedCategoryEntries();
+//      for (Category category : fineCategoryEntries) {
+//          categoryEntries.increment(mapToCoarse(category.getName()), category.getCount());
+//      }
+//      return categoryEntries;
     }
 
     private String mapToCoarse(String fineCellIdentifier) {
