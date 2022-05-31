@@ -35,6 +35,7 @@ import ws.palladian.extraction.location.scope.LeastDistanceScopeDetector;
 import ws.palladian.extraction.location.scope.MidpointScopeDetector;
 import ws.palladian.extraction.location.scope.MultiStepDictionaryScopeDetector;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
+import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -42,6 +43,7 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.CloseableIterator;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineIterator;
+import ws.palladian.helper.io.ProgressReporterInputStream;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
@@ -49,9 +51,12 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 
 	private final class AtlasObscuraJsonIterator extends AbstractIterator2<LocationDocument> implements CloseableIterator<LocationDocument> {
 		private final LineIterator lineIterator;
+		private final ProgressMonitor progressMonitor;
 
 		private AtlasObscuraJsonIterator(File jsonPath) {
 			this.lineIterator = new LineIterator(jsonPath);
+			int numLines = FileHelper.getNumberOfLines(jsonPath);
+			progressMonitor = new ProgressMonitor(numLines);
 		}
 
 		@Override
@@ -61,9 +66,10 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 
 				try {
 					String line = lineIterator.next();
+					progressMonitor.increment();
+
 					JsonObject json = new JsonObject(line);
 					int id = json.getInt("id");
-				System.out.println(id);
 					String headline = json.getString("headline");
 					String description = json.getString("description");
 					String copy = json.getString("copy");
