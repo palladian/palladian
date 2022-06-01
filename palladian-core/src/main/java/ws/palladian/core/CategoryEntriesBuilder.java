@@ -2,6 +2,9 @@ package ws.palladian.core;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableDouble;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Factory;
@@ -22,6 +25,9 @@ import java.util.Map.Entry;
  * @author Philipp Katz
  */
 public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
+    /** The logger for this class. */
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryEntriesBuilder.class);
+
     /** A factory for producing {@link CategoryEntriesBuilder}s. */
     public static final Factory<CategoryEntriesBuilder> FACTORY = CategoryEntriesBuilder::new;
 
@@ -141,8 +147,10 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
                 }
             }
             String name = entry.getKey();
-            if (probability < 0) { // debugging
-                throw new IllegalStateException("probability was < 0; this should not happen (obviously caused by mixing negative and positive values)");
+            if (probability < 0) {
+                LOGGER.warn(
+                        "probability for {} was {} < 0; this should not happen (obviously caused by mixing negative and positive values)",
+                        name, probability);
             }
             Category category = new ImmutableCategory(name, probability);
             map.put(name, category);
