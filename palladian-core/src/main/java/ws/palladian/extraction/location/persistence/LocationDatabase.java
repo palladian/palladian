@@ -1,21 +1,9 @@
 package ws.palladian.extraction.location.persistence;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -25,11 +13,12 @@ import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.persistence.DatabaseManager;
-import ws.palladian.persistence.DatabaseManagerFactory;
-import ws.palladian.persistence.ResultIterator;
-import ws.palladian.persistence.ResultSetCallback;
-import ws.palladian.persistence.RowConverters;
+import ws.palladian.persistence.*;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * <p>
@@ -40,12 +29,11 @@ import ws.palladian.persistence.RowConverters;
  * <code>sessionVariables=group_concat_max_len=1048576</code> has to be appended to the JDBC URL which is supplied to
  * the {@link DatabaseManagerFactory}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  */
 public class LocationDatabase extends DatabaseManager implements LocationSource, LocationStore {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationDatabase.class);
 
@@ -73,17 +61,14 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
      * Check the configured value for the 'group_concat_max_len', and throw an {@link IllegalStateException} if value is
      * too small.
      */
-    private final void checkGroupConcatLength() {
+    private void checkGroupConcatLength() {
         runQuery(new ResultSetCallback() {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 int groupConcatLength = resultSet.getInt(2);
                 if (groupConcatLength < EXPECTED_GROUP_CONCAT_LENGTH) {
                     throw new IllegalStateException(
-                            "Please increase 'group_concat_max_len'; it is currently set to "
-                                    + groupConcatLength
-                                    + ", but should be at least "
-                                    + EXPECTED_GROUP_CONCAT_LENGTH
+                            "Please increase 'group_concat_max_len'; it is currently set to " + groupConcatLength + ", but should be at least " + EXPECTED_GROUP_CONCAT_LENGTH
                                     + " for the LocationDatabase to work correctly. See the class documentation for more information.");
                 }
             }
@@ -99,11 +84,10 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
      * <p>
      * Create a parameter mask for dynamically creating prepared statements. Example of a result looks like "?,?,?,?".
      * </p>
-     * 
+     *
      * @param numParams The number of parameters in the mask.
-     * @return
      */
-    private static final String createMask(int numParams) {
+    private static String createMask(int numParams) {
         return StringUtils.repeat("?", ",", numParams);
     }
 
@@ -112,8 +96,7 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
         return getLocationsInternal(locationNames, languages, null, null);
     }
 
-    private MultiMap<String, Location> getLocationsInternal(Collection<String> locationNames, Set<Language> languages,
-            GeoCoordinate coordinate, Double distance) {
+    private MultiMap<String, Location> getLocationsInternal(Collection<String> locationNames, Set<Language> languages, GeoCoordinate coordinate, Double distance) {
         String languageList = null;
         if (languages != null) {
             StringBuilder builder = new StringBuilder();
@@ -162,14 +145,13 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
         List<Location> locations = runQuery(LocationRowConverter.INSTANCE, prepStmt, locationIds);
 
         // sort the returned list, so that we have the order of the given locations IDs
-        Collections.sort(locations, (l0, l1) -> locationIds.indexOf(l0.getId()) - locationIds.indexOf(l1.getId()));
+        locations.sort(Comparator.comparingInt(l0 -> locationIds.indexOf(l0.getId())));
 
         return locations;
     }
 
     @Override
     public void save(Location location) {
-
         // create hierarchy string
         String hierarchyString = null;
         if (!location.getAncestorIds().isEmpty()) {
@@ -198,7 +180,6 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
         if (location.getAlternativeNames() != null) {
             addAlternativeNames(generatedLocationId, location.getAlternativeNames());
         }
-
     }
 
     /**
@@ -254,8 +235,7 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
     }
 
     @Override
-    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
-            GeoCoordinate coordinate, double distance) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages, GeoCoordinate coordinate, double distance) {
         return getLocationsInternal(locationNames, languages, coordinate, distance);
     }
 
@@ -263,7 +243,7 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
      * <p>
      * Get all locations in the database.
      * </p>
-     * 
+     *
      * @return An iterator over all locations.
      */
     @Override
@@ -289,5 +269,4 @@ public class LocationDatabase extends DatabaseManager implements LocationSource,
         runUpdate("ALTER TABLE `location_alternative_names` ENABLE KEYS");
         LOGGER.info("Enabled keys");
     }
-
 }
