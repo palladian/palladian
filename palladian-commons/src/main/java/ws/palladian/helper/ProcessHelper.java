@@ -8,6 +8,8 @@ import ws.palladian.helper.io.StringOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class should provide convenience methods for interacting with the OS functionality.
@@ -16,7 +18,6 @@ import java.io.InputStream;
  * @author Philipp Katz
  */
 public final class ProcessHelper {
-
     /**
      * The logger for this class.
      */
@@ -101,4 +102,16 @@ public final class ProcessHelper {
         return log;
     }
 
+    public static void waitForThreadPool(ExecutorService executorService, StopWatch stopWatch) {
+        LOGGER.info("waiting for all threads to finish...");
+        executorService.shutdown();
+        try {
+            while (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                LOGGER.debug("wait");
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+        LOGGER.info("...all threads finished in " + stopWatch.getTotalElapsedTimeString());
+    }
 }
