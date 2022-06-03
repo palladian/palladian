@@ -12,6 +12,7 @@ import java.util.Objects;
 import org.apache.lucene.store.FSDirectory;
 
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.classification.text.BayesScorer;
 import ws.palladian.classification.text.ExperimentalScorers;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.extraction.location.ImmutableLocation;
@@ -109,6 +110,7 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 		return new AtlasObscuraJsonIterator(jsonPath);
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException {
 		AtlasObscuraDatasetReader reader = new AtlasObscuraDatasetReader(new File("/Users/pk/Desktop/atlas-obscura-crawler/places.json"));
 
@@ -143,15 +145,21 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 		// QuickDtModel model4 = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-all-100trees.ser.gz");
 		// eval.addDetector(new LeastDistanceScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model4, 0))));
 		
+//		DictionaryScopeModel dictionaryScopeModel = FileHelper.deserialize("/Users/pk/Repositories/palladian/palladian-experimental/enwiki-20220501-locationDictionary-1-word-0.3515625-min50.ser.gz");
 		DictionaryScopeModel dictionaryScopeModel = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
-		MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, 11.25, 5.625, 2.8125, 1.40625, 0.703125);
+//		MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, 22.5, 2.8125);
+		// +++ MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.LAPLACE, BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
+		// --- MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
+		// --- MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.LAPLACE, BayesScorer.Options.FREQUENCIES), 22.5, 5.625, 1.40625);
+		// MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
+		MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
 		eval.addDetector(scopeDetector);
+//		
+//		MultiStepDictionaryScopeDetector scopeDetector2 = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, PalladianTextClassifier.DEFAULT_SCORER, 11.25, 5.625, 2.8125, 1.40625, 0.703125);
+//		eval.addDetector(scopeDetector2);
 		
-		MultiStepDictionaryScopeDetector scopeDetector2 = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, PalladianTextClassifier.DEFAULT_SCORER, 11.25, 5.625, 2.8125, 1.40625, 0.703125);
-		eval.addDetector(scopeDetector2);
-		
-		MultiStepDictionaryScopeDetector scopeDetector3 = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new ExperimentalScorers.LogCountScorer(), 11.25, 5.625, 2.8125, 1.40625, 0.703125);
-		eval.addDetector(scopeDetector3);
+//		MultiStepDictionaryScopeDetector scopeDetector3 = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new ExperimentalScorers.LogCountScorer(), 11.25, 5.625, 2.8125, 1.40625, 0.703125);
+//		eval.addDetector(scopeDetector3);
 		
 		eval.runAll(true);
 	}
