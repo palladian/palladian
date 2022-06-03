@@ -1,0 +1,44 @@
+ws.palladian.classification.text.DictionaryTrieModel$Builder@4f8e5cde;22;20;0.9008640291041382
+ws.palladian.classification.text.DictionaryTrieModel2$Builder@1edf1c96;13;102;0.9008640291041382
+ws.palladian.classification.text.DictionaryMapModel2$Builder@7e774085;17;21;0.9010156131574958
+ws.palladian.classification.text.DictionaryMapModel2$Builder@7e774085;18;21;0.9010156131574958
+ws.palladian.classification.text.DictionaryMapModel2$Builder@7e774085;19;21;0.9008640291041382
+
+# DictionaryMapModel
+####################
+
+## using LinkedCategoryEntries
+ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;20;22;0.9008640291041382
+ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;18;21;0.9008640291041382
+
+## using ArrayCategoryEntries
+ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;21;29;0.9008640291041382
+ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;23;28;0.9008640291041382
+ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;14;19;0.9008640291041382
+ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;13;19;0.9008640291041382
+
+# HashedDictionaryMapModel
+##########################
+
+ws.palladian.classification.text.HashedDictionaryMapModel$Builder@7e774085;19;25;0.9008640291041382
+ws.palladian.classification.text.HashedDictionaryMapModel$Builder@7e774085;21;22;0.9008640291041382
+ws.palladian.classification.text.HashedDictionaryMapModel$Builder@7e774085;20;23;0.9008640291041382
+
+# DictionaryTrieModel2
+######################
+
+ws.palladian.classification.text.DictionaryTrieModel2$Builder@1edf1c96;24;104;0.9008640291041382
+ws.palladian.classification.text.DictionaryTrieModel2$Builder@1edf1c96;23;102;0.9008640291041382
+ws.palladian.classification.text.DictionaryTrieModel2$Builder@1edf1c96;24;103;0.9008640291041382
+
+# DictionaryTrieModel
+#####################
+
+ws.palladian.classification.text.DictionaryTrieModel$Builder@4f8e5cde;32;22;0.9008640291041382
+ws.palladian.classification.text.DictionaryTrieModel$Builder@4f8e5cde;34;21;0.9008640291041382
+
+
+
+
+ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;7;23;0.898741852357132
+ws.palladian.classification.text.HashedDictionaryMapModel$Builder@7e774085;11;8;0.898741852357132

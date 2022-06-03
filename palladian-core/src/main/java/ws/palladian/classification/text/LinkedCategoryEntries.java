@@ -20,7 +20,11 @@ import ws.palladian.helper.math.MathHelper;
  * frequently appearing entries are at the beginning of the list).
  *
  * @author Philipp Katz
+ * @deprecated Performance just sucks when training a grid model (i.e. thousands
+ *             of categories). I've switched to {@link ArrayCategoryEntries}
+ *             which consumes more space, but is better performance-wise.
  */
+@Deprecated
 final class LinkedCategoryEntries extends AbstractCategoryEntries {
     public static final Factory<LinkedCategoryEntries> FACTORY = LinkedCategoryEntries::new;
 

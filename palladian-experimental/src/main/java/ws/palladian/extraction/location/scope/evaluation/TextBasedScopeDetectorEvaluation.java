@@ -5,10 +5,12 @@ import static ws.palladian.extraction.location.scope.evaluation.ScopeDetectorEva
 import java.io.File;
 
 import ws.palladian.classification.text.BayesScorer;
+import ws.palladian.classification.text.DictionaryMapModel;
 import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.ExperimentalScorers;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
+import ws.palladian.classification.text.HashedDictionaryMapModel;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector;
@@ -46,9 +48,23 @@ public final class TextBasedScopeDetectorEvaluation {
 //        FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).maxTerms(1500).create();
 //        FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(1500).create(); // 5.7 mb
 //        FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(5000).create(); // dto.
-        FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(Integer.MAX_VALUE).create();
+//        FeatureSetting setting = FeatureSettingBuilder.words(1,2).maxTerms(Integer.MAX_VALUE).create();
+        FeatureSetting setting = FeatureSettingBuilder.chars(6).maxTerms(Integer.MAX_VALUE).create();
 //        DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, 0.703125).train(trainingSet);
-        DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryTrieModel.Builder(), 0.703125).train(trainingSet);
+        
+        // 1-2 words: 14%
+        // 6 chars: 4%
+        // DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryTrieModel.Builder(), 0.3515625).train(trainingSet);
+        
+        // 26%
+        // 6 chars: 5%
+        // DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryMapModel.Builder(), 0.3515625).train(trainingSet);
+        
+        // 40%
+        // 6 chars: 8%
+        // DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new HashedDictionaryMapModel.Builder(), 0.3515625).train(trainingSet);
+        DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new HashedDictionaryMapModel.Builder(), 0.3515625).train(trainingSet);
+        
 //         DictionaryScopeModel model = new DictionaryScopeDetector.DictionaryScopeDetectorLearner(setting, new DictionaryMapModel.Builder(), 0.703125).train(trainingSet);
         FileHelper.trySerialize(model, "evaluationModel-0.703125-6-9-char-ngrams.ser.gz");
         // DictionaryScopeModel model = FileHelper.deserialize("evaluationModel-0.703125.ser.gz");

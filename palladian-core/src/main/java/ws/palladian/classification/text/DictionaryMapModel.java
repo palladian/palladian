@@ -11,8 +11,6 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.Validate;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import ws.palladian.core.CategoryEntries;
@@ -25,7 +23,7 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		private String name;
 		private FeatureSetting featureSetting;
 		/** Mapping term -> category -> count */
-		private Object2ObjectMap<String, Object2IntMap<String>> dictionary = new Object2ObjectOpenHashMap<>();
+		private Object2ObjectMap<String, ArrayCategoryEntries> dictionary = new Object2ObjectOpenHashMap<>();
 		/** Counter for categories based on documents. */
 		private final CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
 		/** Counter for categories based on terms. */
@@ -60,10 +58,9 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 			for (String term : terms) {
 				dictionary.compute(term, (termValue, categoryCounts) -> {
 					if (categoryCounts == null) {
-						categoryCounts = new Object2IntOpenHashMap<>(1);
+						categoryCounts = new ArrayCategoryEntries();
 					}
-					categoryCounts.compute(category,
-							(categoryKey, countValue) -> countValue == null ? weight : countValue + weight);
+					categoryCounts.increment(category, weight);
 					return categoryCounts;
 				});
 				termCountBuilder.add(category, weight);
@@ -86,7 +83,7 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 
 	private transient String name;
 	private transient FeatureSetting featureSetting;
-	private transient Object2ObjectMap<String, Object2IntMap<String>> dictionary;
+	private transient Object2ObjectMap<String, ArrayCategoryEntries> dictionary;
 	private transient CategoryEntries documentCounts;
 	private transient CategoryEntries termCounts;
 
@@ -112,8 +109,8 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 	@Override
 	public CategoryEntries getCategoryEntries(String term) {
 		Validate.notNull(term, "term must not be null");
-		Object2IntMap<String> entries = dictionary.get(term);
-		return entries != null ? new CountingCategoryEntriesBuilder(entries).create() : CategoryEntries.EMPTY;
+		CategoryEntries entries = dictionary.get(term);
+		return entries != null ? entries : CategoryEntries.EMPTY;
 	}
 
 	@Override
@@ -135,8 +132,7 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 	public Iterator<DictionaryEntry> iterator() {
 		return dictionary.entrySet() //
 				.stream() //
-				.<DictionaryEntry>map(entry -> new ImmutableDictionaryEntry(entry.getKey(),
-						new CountingCategoryEntriesBuilder(entry.getValue()).create())) //
+				.<DictionaryEntry>map(entry -> new ImmutableDictionaryEntry(entry.getKey(), entry.getValue())) //
 				.iterator();
 	}
 
@@ -176,13 +172,13 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		for (int i = 0; i < numTerms; i++) {
 			String term = (String) in.readObject();
 			int numProbabilityEntries = in.readInt();
-			Object2IntMap<String> entries = new Object2IntOpenHashMap<>(numProbabilityEntries);
+			ArrayCategoryEntries entries = new ArrayCategoryEntries();
 			dictionary.put(term, entries);
 			for (int j = 0; j < numProbabilityEntries; j++) {
 				int categoryIdx = in.readInt();
 				String categoryName = categoryIndices.get(categoryIdx);
 				int categoryCount = in.readInt();
-				entries.put(categoryName, categoryCount);
+				entries.increment(categoryName, categoryCount);
 				termCountBuilder.add(categoryName, categoryCount);
 			}
 		}
