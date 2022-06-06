@@ -291,8 +291,7 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
     }
 
     private static final int hash(String term) {
-        byte[] bytes = term.getBytes();
-        return term != null ? HashHelper.murmur32(bytes, bytes.length, 1) : 0;
+        return term != null ? HashHelper.murmur32(term.getBytes(), 1) : 0;
     }
 
     // https://stackoverflow.com/a/13306784

@@ -178,7 +178,7 @@ public class BloomFilter<T> implements Predicate<T>, Serializable {
         byte[] bytes = getBytes(item);
         int[] hashes = new int[numHashes];
         for (int i = 0; i < numHashes; i++) {
-            int hash = HashHelper.murmur32(bytes, bytes.length, i);
+            int hash = HashHelper.murmur32(bytes, i);
             // shift the modulus, so that we do not get any negative values
             int modHash = (hash % vectorSize + vectorSize) % vectorSize;
             hashes[i] = modHash;
