@@ -62,14 +62,6 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         return this;
     }
 
-//    public CountingCategoryEntriesBuilder subtract(CategoryEntries entries) {
-//        Validate.notNull(entries, "entries must not be null");
-//        for (Category entry : entries) {
-//            subtract(entry.getName(), entry.getCount());
-//        }
-//        return this;
-//    }
-
     public CountingCategoryEntriesBuilder subtract(String categoryName, int count) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         Validate.isTrue(count >= 0, "count must be greater/equal zero");
