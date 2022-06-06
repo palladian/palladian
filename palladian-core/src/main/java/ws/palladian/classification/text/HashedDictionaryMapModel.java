@@ -137,12 +137,12 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
 
     /** Invoked from the {@link Builder}. */
     private HashedDictionaryMapModel(Builder builder) {
-        this.name = builder.name;
-        this.featureSetting = builder.featureSetting;
-        this.dictionary = builder.dictionary;
-        this.documentCounts = builder.documentCountBuilder.create();
-        this.termCounts = builder.termCountBuilder.create();
-        this.hashToCategory = builder.hashToCategory;
+        name = builder.name;
+        featureSetting = builder.featureSetting;
+        dictionary = builder.dictionary;
+        documentCounts = builder.documentCountBuilder.create();
+        termCounts = builder.termCountBuilder.create();
+        hashToCategory = builder.hashToCategory;
     }
 
     @Override
