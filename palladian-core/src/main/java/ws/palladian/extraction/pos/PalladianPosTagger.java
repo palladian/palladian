@@ -24,7 +24,7 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.ArrayIterator;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
@@ -81,7 +81,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
      * 
      * @author Philipp Katz
      */
-    private static final class BrownCorpusIterator extends AbstractIterator<Instance> {
+    private static final class BrownCorpusIterator extends AbstractIterator2<Instance> {
 
         final ProgressMonitor progressMonitor;
         final Iterator<File> trainingFiles;
@@ -95,7 +95,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
         }
 
         @Override
-        protected Instance getNext() throws Finished {
+        protected Instance getNext() {
             if (currentInstances != null && currentInstances.hasNext()) {
                 return currentInstances.next();
             }
@@ -104,7 +104,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
                 currentInstances = createInstances(trainingFiles.next());
                 return currentInstances.next();
             }
-            throw FINISHED;
+            return finished();
         }
 
         private Iterator<Instance> createInstances(File inputFile) {

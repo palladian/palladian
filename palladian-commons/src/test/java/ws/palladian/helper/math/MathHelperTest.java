@@ -15,7 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
@@ -28,13 +28,13 @@ public class MathHelperTest {
 
     @Test
     public void testRandomSample() {
-        Collection<Integer> numbers = CollectionHelper.newArrayList(new AbstractIterator<Integer>() {
+        Collection<Integer> numbers = CollectionHelper.newArrayList(new AbstractIterator2<Integer>() {
             int counter = 0;
 
             @Override
-            protected Integer getNext() throws Finished {
+            protected Integer getNext() {
                 if (counter >= 1000) {
-                    throw FINISHED;
+                    return finished();
                 }
                 return counter++;
             }

@@ -13,7 +13,7 @@ import org.apache.commons.lang.Validate;
 
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -60,13 +60,13 @@ public final class OpenNlpSentenceDetector implements SentenceDetector {
     @Override
     public Iterator<Token> iterateTokens(final String text) {
         final opennlp.tools.util.Span[] spans = model.sentPosDetect(text);
-        return new AbstractIterator<Token>() {
+        return new AbstractIterator2<Token>() {
             int idx = 0;
 
             @Override
-            protected Token getNext() throws Finished {
+            protected Token getNext() {
                 if (idx >= spans.length) {
-                    throw FINISHED;
+                    return finished();
                 }
                 opennlp.tools.util.Span span = spans[idx++];
                 String value = text.substring(span.getStart(), span.getEnd());

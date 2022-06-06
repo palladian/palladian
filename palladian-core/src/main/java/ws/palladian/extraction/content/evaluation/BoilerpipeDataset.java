@@ -12,7 +12,7 @@ import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
@@ -91,11 +91,11 @@ public final class BoilerpipeDataset implements ContentExtractionDataset {
     @Override
     public Iterator<ContentExtractionPage> iterator() {
 
-        return new AbstractIterator<ContentExtractionPage>() {
+        return new AbstractIterator2<ContentExtractionPage>() {
             Iterator<String> uuidIterator = uuidUrlMapping.keySet().iterator();
 
             @Override
-            protected ContentExtractionPage getNext() throws Finished {
+            protected ContentExtractionPage getNext() {
                 if (uuidIterator.hasNext()) {
                     final String uuid = uuidIterator.next();
                     return new ContentExtractionPage() {
@@ -132,7 +132,7 @@ public final class BoilerpipeDataset implements ContentExtractionDataset {
                         }
                     };
                 }
-                throw FINISHED;
+                return finished();
             }
         };
     }

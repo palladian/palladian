@@ -17,7 +17,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -85,13 +85,13 @@ public final class OpenNlpTokenizer implements TextTokenizer {
     @Override
     public Iterator<Token> iterateTokens(final String text) {
         final Span[] spans = tokenizer.tokenizePos(text);
-        return new AbstractIterator<Token>() {
+        return new AbstractIterator2<Token>() {
             int idx = 0;
 
             @Override
-            protected Token getNext() throws Finished {
+            protected Token getNext() {
                 if (idx >= spans.length) {
-                    throw FINISHED;
+                    return finished();
                 }
                 Span span = spans[idx++];
                 String value = text.substring(span.getStart(), span.getEnd());

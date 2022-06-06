@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -33,11 +33,11 @@ public final class CleanevalDataset implements ContentExtractionDataset {
 
     @Override
     public Iterator<ContentExtractionPage> iterator() {
-        return new AbstractIterator<ContentExtractionPage>() {
+        return new AbstractIterator2<ContentExtractionPage>() {
             Iterator<File> iterator = txtFiles.iterator();
 
             @Override
-            protected ContentExtractionPage getNext() throws Finished {
+            protected ContentExtractionPage getNext() {
                 if (iterator.hasNext()) {
                     final File txtFile = iterator.next();
                     return new ContentExtractionPage() {
@@ -71,7 +71,7 @@ public final class CleanevalDataset implements ContentExtractionDataset {
                         }
                     };
                 }
-                throw FINISHED;
+                return finished();
             }
         };
     }

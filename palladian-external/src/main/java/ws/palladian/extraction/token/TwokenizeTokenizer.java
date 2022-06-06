@@ -5,7 +5,7 @@ import java.util.Iterator;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.collection.AbstractIterator2;
 import cmu.arktweetnlp.Twokenize;
 
 /**
@@ -23,12 +23,12 @@ public final class TwokenizeTokenizer implements TextTokenizer {
     public Iterator<Token> iterateTokens(final String text) {
 
         final Iterator<String> tokens = Twokenize.tokenizeRawTweetText(text).iterator();
-        return new AbstractIterator<Token>() {
+        return new AbstractIterator2<Token>() {
 
             int endPosition = 0;
 
             @Override
-            protected Token getNext() throws Finished {
+            protected Token getNext() {
                 if (tokens.hasNext()) {
                     String token = tokens.next();
                     int startPosition = text.indexOf(token, endPosition);
@@ -44,7 +44,7 @@ public final class TwokenizeTokenizer implements TextTokenizer {
                     return new ImmutableToken(startPosition, token);
 
                 }
-                throw FINISHED;
+                return finished();
             }
         };
     }
