@@ -15,9 +15,9 @@ public class DictionaryModelBenchmark {
 
     private static final String trainFile = "/Users/pk/Desktop/20newsgroups-18828/index_split1.txt";
     private static final String testFile = "/Users/pk/Desktop/20newsgroups-18828/index_split2.txt";
-//    private static final FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
+    private static final FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 6).maxTerms(1000).create();
     // private static final FeatureSetting featureSetting = FeatureSettingBuilder.words(1, 2).maxTerms(Integer.MAX_VALUE).create();
-    private static final FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 7).maxTerms(Integer.MAX_VALUE).create();
+//    private static final FeatureSetting featureSetting = FeatureSettingBuilder.chars(3, 7).maxTerms(Integer.MAX_VALUE).create();
     private static final File BENCHMARK_RESULT_CSV = new File("dictionaryModelBenchmark.csv");
 
     public static void main(String[] args) throws IOException {
@@ -41,6 +41,7 @@ public class DictionaryModelBenchmark {
         // benchmark(new HashedDictionaryMapModel.Builder()); // ** using LinkedCategoryEntries: 98% (!)
         // benchmark(new HashedDictionaryMapModel.Builder()); // ** using ArrayCategoryEntries: 66%
         // benchmark(new HashedDictionaryMapModel.Builder()); // ** using short in CategoryEntry for name:  68% >> rolling back as it's rather complex
+    	 benchmark(new HashedDictionaryMapModel.Builder()); // ** get rid of ArrayCategoryEntries, store them packed in a long[]: goes through  100% (!!)
 
          // benchmark(new LuceneDictionaryModel.Builder(FileHelper.getTempFile()));
 

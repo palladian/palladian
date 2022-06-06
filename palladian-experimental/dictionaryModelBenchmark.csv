@@ -38,7 +38,8 @@ ws.palladian.classification.text.DictionaryTrieModel$Builder@4f8e5cde;32;22;0.90
 ws.palladian.classification.text.DictionaryTrieModel$Builder@4f8e5cde;34;21;0.9008640291041382
 
 
+# HashedDictionaryMapModel with long[] storage
+##########################
 
-
-ws.palladian.classification.text.DictionaryMapModel$Builder@4f8e5cde;7;23;0.898741852357132
-ws.palladian.classification.text.HashedDictionaryMapModel$Builder@7e774085;11;8;0.898741852357132
+ws.palladian.classification.text.HashedDictionaryMapModel$Builder@7e774085;19;21;0.9008640291041382
+ws.palladian.classification.text.HashedDictionaryMapModel$Builder@7e774085;20;19;0.9008640291041382
