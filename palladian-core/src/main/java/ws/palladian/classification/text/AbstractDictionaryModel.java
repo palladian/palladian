@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -130,20 +131,10 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
             return false;
         }
         AbstractDictionaryModel other = (AbstractDictionaryModel)obj;
-        if (getFeatureSetting() == null) {
-            if (other.getFeatureSetting() != null) {
-                return false;
-            }
-        } else if (!getFeatureSetting().equals(other.getFeatureSetting())) {
-            return false;
-        }
-        if (getNumUniqTerms() != other.getNumUniqTerms()) {
-            return false;
-        }
-        if (!getDocumentCounts().equals(other.getDocumentCounts())) {
-            return false;
-        }
-        if (!getTermCounts().equals(other.getTermCounts())) {
+        if (!(Objects.equals(getFeatureSetting(), other.getFeatureSetting()) && //
+                Objects.equals(getNumUniqTerms(), other.getNumUniqTerms()) && //
+                Objects.equals(getDocumentCounts(), other.getDocumentCounts()) && //
+                Objects.equals(getTermCounts(), other.getTermCounts()))) { //
             return false;
         }
         for (DictionaryEntry thisEntries : this) {
