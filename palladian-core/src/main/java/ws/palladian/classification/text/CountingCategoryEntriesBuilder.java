@@ -94,11 +94,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
     }
 
     public int getTotalCount() {
-        int totalCount = 0;
-        for (Integer value : entryMap.values()) {
-            totalCount += value.intValue();
-        }
-        return totalCount;
+    	return entryMap.values().intStream().sum();
     }
     
     public void clear() {
