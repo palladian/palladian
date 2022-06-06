@@ -87,27 +87,19 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
             for (String term : terms) {
                 int termHash = hash(term);
                 long[] categoryEntries = dictionary.compute(termHash, (k, v) -> v != null ? v : new long[0]);
-                boolean exists = false;
                 // note: one long packs two ints: category hash and count
-                // TODO for better performance, we should keep the arrays sorted by category
-                // name, and add new entries at the appropriate place (copy and adapt code from
-                // ArrayCategoryEntries)
-                for (int i = 0; i < categoryEntries.length; i++) {
-                    long categoryEntry = categoryEntries[i];
-                    int currentCategoryHash = (int) (categoryEntry >> 32);
-                    if (currentCategoryHash == categoryHash) {
-                        int categoryCount = (int) categoryEntry;
-                        categoryCount += weight;
-                        categoryEntries[i] = (long) categoryHash << 32 | categoryCount & 0xffffffffL;
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) {
-                    long valuee = (long) categoryHash << 32 | weight & 0xffffffffL;
+                int index = binarySearchForPackedLong(categoryEntries, categoryHash);
+                if (index >= 0) { // just increment count of existing entry
+                    long categoryEntry = categoryEntries[index];
+                    int categoryCount = (int) categoryEntry;
+                    categoryCount += weight;
+                    categoryEntries[index] = (long) categoryHash << 32 | categoryCount & 0xffffffffL;
+                } else { // add new entry and ensure to keep sorted
                     long[] newCategoryEntries = new long[categoryEntries.length + 1];
-                    System.arraycopy(categoryEntries, 0, newCategoryEntries, 0, categoryEntries.length);
-                    newCategoryEntries[categoryEntries.length] = valuee;
+                    int insertPosition = -index - 1;
+                    System.arraycopy(categoryEntries, 0, newCategoryEntries, 0, insertPosition);
+                    newCategoryEntries[insertPosition] = (long) categoryHash << 32 | weight & 0xffffffffL;
+                    System.arraycopy(categoryEntries, insertPosition, newCategoryEntries, -index, categoryEntries.length - insertPosition);
                     dictionary.put(termHash, newCategoryEntries);
                 }
                 termCountBuilder.add(category, weight);
@@ -301,6 +293,24 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
     private static final int hash(String term) {
         byte[] bytes = term.getBytes();
         return term != null ? HashHelper.murmur32(bytes, bytes.length, 1) : 0;
+    }
+
+    // https://stackoverflow.com/a/13306784
+    private static final int binarySearchForPackedLong(long[] packedArr, int val) {
+        int low = 0;
+        int high = packedArr.length - 1;
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            int midVal = (int) (packedArr[mid] >> 32); // unpacking the long
+            if (midVal < val) {
+                low = mid + 1;
+            } else if (midVal > val) {
+                high = mid - 1;
+            } else {
+                return mid;
+            }
+        }
+        return -(low + 1);
     }
 
 }
