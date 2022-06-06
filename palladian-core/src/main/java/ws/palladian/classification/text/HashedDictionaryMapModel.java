@@ -8,8 +8,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import org.apache.commons.lang3.Validate;
-
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -88,18 +86,17 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
                 int termHash = hash(term);
                 long[] categoryEntries = dictionary.compute(termHash, (k, v) -> v != null ? v : new long[0]);
                 // note: one long packs two ints: category hash and count
-                int index = binarySearchForPackedLong(categoryEntries, categoryHash);
+                int index = binarySearchForPackedCategoryHash(categoryEntries, categoryHash);
                 if (index >= 0) { // just increment count of existing entry
-                    long categoryEntry = categoryEntries[index];
-                    int categoryCount = (int) categoryEntry;
-                    categoryCount += weight;
-                    categoryEntries[index] = (long) categoryHash << 32 | categoryCount & 0xffffffffL;
+                    // value is packed, but we can simply add, as this affects the “base” part
+                    categoryEntries[index] += weight;
                 } else { // add new entry and ensure to keep sorted
                     long[] newCategoryEntries = new long[categoryEntries.length + 1];
                     int insertPosition = -index - 1;
                     System.arraycopy(categoryEntries, 0, newCategoryEntries, 0, insertPosition);
-                    newCategoryEntries[insertPosition] = (long) categoryHash << 32 | weight & 0xffffffffL;
-                    System.arraycopy(categoryEntries, insertPosition, newCategoryEntries, -index, categoryEntries.length - insertPosition);
+                    newCategoryEntries[insertPosition] = pack(categoryHash, weight);
+                    System.arraycopy(categoryEntries, insertPosition, newCategoryEntries, -index,
+                            categoryEntries.length - insertPosition);
                     dictionary.put(termHash, newCategoryEntries);
                 }
                 termCountBuilder.add(category, weight);
@@ -149,15 +146,15 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
 
     @Override
     public CategoryEntries getCategoryEntries(String term) {
-        Validate.notNull(term, "term must not be null");
+        Objects.requireNonNull(term, "term must not be null");
         long[] entries = dictionary.get(hash(term));
         if (entries == null) {
             return CategoryEntries.EMPTY;
         }
         CountingCategoryEntriesBuilder builder = new CountingCategoryEntriesBuilder();
         for (long categoryEntry : entries) {
-            int currentCategoryHash = (int) (categoryEntry >> 32);
-            int categoryCount = (int) categoryEntry;
+            int currentCategoryHash = unpackCategoryHash(categoryEntry);
+            int categoryCount = unpackCategoryCount(categoryEntry);
             String category = hashToCategory.get(currentCategoryHash);
             builder.set(category, categoryCount);
         }
@@ -250,8 +247,8 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
             for (int j = 0; j < numProbabilityEntries; j++) {
                 long categoryEntry = in.readLong();
                 categoryEntries[j] = categoryEntry;
-                int currentCategoryHash = (int) (categoryEntry >> 32);
-                int categoryCount = (int) categoryEntry;
+                int currentCategoryHash = unpackCategoryHash(categoryEntry);
+                int categoryCount = unpackCategoryCount(categoryEntry);
                 String categoryName = hashToCategory.get(currentCategoryHash);
                 termCountBuilder.add(categoryName, categoryCount);
             }
@@ -294,13 +291,25 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
         return term != null ? HashHelper.murmur32(term.getBytes(), 1) : 0;
     }
 
+    private static final long pack(int categoryHash, int categoryCount) {
+        return (long) categoryHash << 32 | categoryCount & 0xffffffffL;
+    }
+
+    private static final int unpackCategoryHash(long value) {
+        return (int) (value >> 32);
+    }
+
+    private static final int unpackCategoryCount(long value) {
+        return (int) value;
+    }
+
     // https://stackoverflow.com/a/13306784
-    private static final int binarySearchForPackedLong(long[] packedArr, int val) {
+    private static final int binarySearchForPackedCategoryHash(long[] packedArr, int val) {
         int low = 0;
         int high = packedArr.length - 1;
         while (low <= high) {
             int mid = (low + high) >>> 1;
-            int midVal = (int) (packedArr[mid] >> 32); // unpacking the long
+            int midVal = unpackCategoryHash(packedArr[mid]); // unpacking the long
             if (midVal < val) {
                 low = mid + 1;
             } else if (midVal > val) {
