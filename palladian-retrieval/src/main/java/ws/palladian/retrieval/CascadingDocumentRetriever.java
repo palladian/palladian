@@ -229,10 +229,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     private void configure(JsEnabledDocumentRetriever renderingDocumentRetriever) {
+        renderingDocumentRetriever.deleteAllCookies();
         renderingDocumentRetriever.getWaitForElementMap().clear();
         renderingDocumentRetriever.setWaitForElementMap(getWaitForElementMap());
         renderingDocumentRetriever.setTimeoutSeconds(getTimeoutSeconds());
         renderingDocumentRetriever.setWaitExceptionCallback(getWaitExceptionCallback());
+        renderingDocumentRetriever.setCookies(this.cookies);
     }
 
     private void updateRequestTracker(String retrieverKey, boolean goodDocument) {

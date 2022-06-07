@@ -9,6 +9,8 @@ public abstract class JsEnabledDocumentRetriever extends WebDocumentRetriever {
     protected int timeoutSeconds = 10;
     protected Consumer<WaitException> waitExceptionCallback;
 
+    protected Map<String, String> cookies;
+
     /**
      * We can configure the retriever to wait for certain elements on certain URLs that match the given pattern.
      */
@@ -36,5 +38,13 @@ public abstract class JsEnabledDocumentRetriever extends WebDocumentRetriever {
 
     public void setWaitExceptionCallback(Consumer<WaitException> waitExceptionCallback) {
         this.waitExceptionCallback = waitExceptionCallback;
+    }
+
+    public void setCookies(Map<String, String> cookies) {
+        this.cookies = cookies;
+    }
+
+    public void deleteAllCookies() {
+        this.cookies = null;
     }
 }
