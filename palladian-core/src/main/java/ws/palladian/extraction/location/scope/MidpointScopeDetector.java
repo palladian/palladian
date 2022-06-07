@@ -1,17 +1,13 @@
 package ws.palladian.extraction.location.scope;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
-
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.commons.lang3.Validate;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 
@@ -25,23 +21,19 @@ public final class MidpointScopeDetector extends AbstractRankingScopeDetector {
 
     @Override
     public Location getScope(Collection<LocationAnnotation> annotations) {
-        Validate.notNull(annotations, "locations must not be null");
-        if (annotations.isEmpty()) {
+        Objects.requireNonNull(annotations, "locations must not be null");
+        List<Location> locations = annotations.stream() //
+                .map(LocationAnnotation::getLocation) //
+                .filter(l -> l.getCoords().isPresent()) // only keep with coordinates
+                .collect(Collectors.toList());
+        if (locations.isEmpty()) {
             return null;
         }
-        List<Location> locations = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
-        List<GeoCoordinate> coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
-        CollectionHelper.removeNulls(coordinates);
-        if (coordinates.isEmpty()) {
-            return null;
-        }
+        List<GeoCoordinate> coordinates = locations.stream().map(Location::getCoordinate).collect(Collectors.toList());
         GeoCoordinate midpoint = GeoUtils.getMidpoint(coordinates);
         double smallestDistance = Double.MAX_VALUE;
         Location selectedCoordinate = null;
         for (Location location : locations) {
-            if (location.getCoordinate() == null) {
-                continue;
-            }
             double distance = midpoint.distance(location.getCoordinate());
             if (distance < smallestDistance) {
                 smallestDistance = distance;
