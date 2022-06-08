@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
@@ -171,14 +172,19 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     @Override
     public Iterator<T> iterator() {
 
-        return new AbstractIterator<T>() {
+        return new Iterator<T>() {
 
             final Iterator<Entry<T, Integer>> entryIterator = map.entrySet().iterator();
             Entry<T, Integer> currentEntry = null;
             int currentCount;
 
             @Override
-            protected T getNext() throws Finished {
+            public boolean hasNext() {
+                return entryIterator.hasNext() || currentEntry != null && currentCount > 0;
+            }
+
+            @Override
+            public T next() {
                 if (currentEntry != null && currentCount > 0) {
                     currentCount--;
                     return currentEntry.getKey();
@@ -188,7 +194,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
                     currentCount = currentEntry.getValue() - 1;
                     return currentEntry.getKey();
                 }
-                throw FINISHED;
+                throw new NoSuchElementException();
             }
 
             @Override
@@ -382,8 +388,8 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        map = new HashMap<>();
         int numEntries = in.readInt();
+        map = new HashMap<>(numEntries);
         for (int i = 0; i < numEntries; i++) {
             @SuppressWarnings("unchecked")
             T item = (T)in.readObject();
