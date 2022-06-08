@@ -24,6 +24,14 @@ class ArrayCategoryEntries extends AbstractCategoryEntries {
 
     private CategoryEntry[] entries = EMPTY;
 
+    ArrayCategoryEntries() {
+        this(EMPTY);
+    }
+
+    ArrayCategoryEntries(CategoryEntry[] entries) {
+        this.entries = entries;
+    }
+
     @Override
     public Iterator<Category> iterator() {
         int totalCount = Arrays.stream(entries) //
@@ -50,13 +58,13 @@ class ArrayCategoryEntries extends AbstractCategoryEntries {
         }
     }
 
-    private static final class CategoryEntry {
+    static final class CategoryEntry {
 
         private final String name;
 
         private int count;
 
-        private CategoryEntry(String name, int count) {
+        CategoryEntry(String name, int count) {
             this.name = name;
             this.count = count;
         }

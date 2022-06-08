@@ -16,6 +16,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ws.palladian.classification.text.ArrayCategoryEntries.CategoryEntry;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator2;
@@ -277,15 +278,16 @@ public final class DictionaryTrieModel extends AbstractDictionaryModel {
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             String term = (String) in.readObject();
-            ArrayCategoryEntries entries = entryTrie.getOrPut(term, ArrayCategoryEntries::new);
             int numProbabilityEntries = in.readInt();
+            CategoryEntry[] entries = new CategoryEntry[numProbabilityEntries];
             for (int j = 0; j < numProbabilityEntries; j++) {
                 int categoryIdx = in.readInt();
                 String categoryName = categoryIndices.get(categoryIdx);
                 int categoryCount = in.readInt();
-                entries.increment(categoryName, categoryCount);
+                entries[j] = new CategoryEntry(categoryName, categoryCount);
                 termCountBuilder.add(categoryName, categoryCount);
             }
+            entryTrie.put(term, new ArrayCategoryEntries(entries));
         }
         termCounts = termCountBuilder.create();
         // feature setting

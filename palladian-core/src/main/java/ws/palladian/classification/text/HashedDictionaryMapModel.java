@@ -226,10 +226,9 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
         if (version != VERSION) {
             throw new IOException("Unsupported version: " + version);
         }
-        hashToCategory = new Int2ObjectOpenHashMap<>();
-        dictionary = new Int2ObjectOpenHashMap<>();
         // header
         int numCategories = in.readInt();
+        hashToCategory = new Int2ObjectOpenHashMap<>(numCategories);
         CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numCategories; i++) {
             String categoryName = (String) in.readObject();
@@ -239,6 +238,7 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
         }
         documentCounts = documentCountBuilder.create();
         int numTerms = in.readInt(); // num. terms -- not stored
+        dictionary = new Int2ObjectOpenHashMap<>(numTerms);
         CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
         for (int i = 0; i < numTerms; i++) {
             int termHash = in.readInt();

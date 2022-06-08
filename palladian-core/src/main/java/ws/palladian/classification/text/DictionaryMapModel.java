@@ -13,6 +13,7 @@ import org.apache.commons.lang3.Validate;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import ws.palladian.classification.text.ArrayCategoryEntries.CategoryEntry;
 import ws.palladian.core.CategoryEntries;
 
 public class DictionaryMapModel extends AbstractDictionaryModel {
@@ -155,10 +156,9 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		if (version != VERSION) {
 			throw new IOException("Unsupported version: " + version);
 		}
-		Map<Integer, String> categoryIndices = new Int2ObjectOpenHashMap<>();
-		dictionary = new Object2ObjectOpenHashMap<>();
 		// header
 		int numCategories = in.readInt();
+		Map<Integer, String> categoryIndices = new Int2ObjectOpenHashMap<>(numCategories);
 		CountingCategoryEntriesBuilder documentCountBuilder = new CountingCategoryEntriesBuilder();
 		for (int i = 0; i < numCategories; i++) {
 			String categoryName = (String) in.readObject();
@@ -168,19 +168,20 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		}
 		documentCounts = documentCountBuilder.create();
 		int numTerms = in.readInt(); // num. terms -- not stored
+		dictionary = new Object2ObjectOpenHashMap<>(numTerms);
 		CountingCategoryEntriesBuilder termCountBuilder = new CountingCategoryEntriesBuilder();
 		for (int i = 0; i < numTerms; i++) {
 			String term = (String) in.readObject();
 			int numProbabilityEntries = in.readInt();
-			ArrayCategoryEntries entries = new ArrayCategoryEntries();
-			dictionary.put(term, entries);
+			CategoryEntry[] entries = new CategoryEntry[numProbabilityEntries];
 			for (int j = 0; j < numProbabilityEntries; j++) {
 				int categoryIdx = in.readInt();
 				String categoryName = categoryIndices.get(categoryIdx);
 				int categoryCount = in.readInt();
-				entries.increment(categoryName, categoryCount);
+				entries[j] = new CategoryEntry(categoryName, categoryCount);
 				termCountBuilder.add(categoryName, categoryCount);
 			}
+			dictionary.put(term, new ArrayCategoryEntries(entries));
 		}
 		termCounts = termCountBuilder.create();
 		// feature setting
