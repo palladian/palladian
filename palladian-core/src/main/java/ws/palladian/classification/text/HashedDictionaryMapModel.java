@@ -84,7 +84,7 @@ public class HashedDictionaryMapModel extends AbstractDictionaryModel {
             hashToCategory.put(categoryHash, category);
             for (String term : terms) {
                 int termHash = hash(term);
-                long[] categoryEntries = dictionary.compute(termHash, (k, v) -> v != null ? v : new long[0]);
+                long[] categoryEntries = dictionary.computeIfAbsent(termHash, (k) -> new long[0]);
                 // note: one long packs two ints: category hash and count
                 int index = binarySearchForPackedCategoryHash(categoryEntries, categoryHash);
                 if (index >= 0) { // just increment count of existing entry

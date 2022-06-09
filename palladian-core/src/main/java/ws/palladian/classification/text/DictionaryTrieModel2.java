@@ -68,8 +68,7 @@ public final class DictionaryTrieModel2 extends AbstractDictionaryModel {
             Validate.notNull(terms, "terms must not be null");
             Validate.notNull(category, "category must not be null");
             Validate.isTrue(weight >= 1, "weight must be equal/greater one");
-            IntTrie trie = categoryTries.compute(category,
-                    (categoryValue, trieValue) -> trieValue != null ? trieValue : new IntTrie());
+            IntTrie trie = categoryTries.computeIfAbsent(category, (categoryValue) -> new IntTrie());
             for (String term : terms) {
                 Integer count = trie.get(term);
                 int newCount = (count != null ? count : 0) + weight;

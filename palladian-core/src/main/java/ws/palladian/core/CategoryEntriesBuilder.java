@@ -105,12 +105,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntriesBuilder add(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         validateNumber(score);
-        MutableDouble value = entryMap.get(categoryName);
-        if (value == null) {
-            entryMap.put(categoryName, new MutableDouble(score));
-        } else {
-            value.add(score);
-        }
+        entryMap.computeIfAbsent(categoryName, (key) -> new MutableDouble()).add(score);
         return this;
     }
 
@@ -167,11 +162,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * @return The sum of all scores over all categories.
      */
     public double getTotalScore() {
-        double total = 0;
-        for (MutableDouble value : entryMap.values()) {
-            total += value.doubleValue();
-        }
-        return total;
+    	return entryMap.values().stream().mapToDouble(MutableDouble::doubleValue).sum();
     }
 
     /**

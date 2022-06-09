@@ -57,13 +57,8 @@ public class DictionaryMapModel extends AbstractDictionaryModel {
 		@Override
 		public DictionaryBuilder addDocument(Collection<String> terms, String category, int weight) {
 			for (String term : terms) {
-				dictionary.compute(term, (termValue, categoryCounts) -> {
-					if (categoryCounts == null) {
-						categoryCounts = new ArrayCategoryEntries();
-					}
-					categoryCounts.increment(category, weight);
-					return categoryCounts;
-				});
+				ArrayCategoryEntries categoryCounts = dictionary.computeIfAbsent(term, (termValue) -> new ArrayCategoryEntries());
+				categoryCounts.increment(category, weight);
 				termCountBuilder.add(category, weight);
 			}
 			documentCountBuilder.add(category, weight);

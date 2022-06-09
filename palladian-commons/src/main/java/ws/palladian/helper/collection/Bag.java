@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -301,26 +302,14 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * @return The {@link Entry} with the highest count, or <code>null</code> in case no entry exists.
      */
     public Entry<T, Integer> getMax() {
-        Entry<T, Integer> max = null;
-        for (Entry<T, Integer> entry : unique()) {
-            if (max == null || max.getValue() < entry.getValue()) {
-                max = entry;
-            }
-        }
-        return max;
+        return unique().stream().max(Comparator.comparing(Entry::getValue)).orElse(null);
     }
 
     /**
      * @return The {@link Entry} with the lowest count, or <code>null</code> in case no entry exists.
      */
     public Entry<T, Integer> getMin() {
-        Entry<T, Integer> min = null;
-        for (Entry<T, Integer> entry : unique()) {
-            if (min == null || min.getValue() > entry.getValue()) {
-                min = entry;
-            }
-        }
-        return min;
+        return unique().stream().min(Comparator.comparing(Entry::getValue)).orElse(null);
     }
 
     /**
