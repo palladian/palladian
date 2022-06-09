@@ -14,7 +14,7 @@ import ws.palladian.helper.constants.Language;
  * Save the settings which text features should be used for a classifier. Use the {@link FeatureSettingBuilder} to
  * instantiate.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -36,6 +36,8 @@ public class FeatureSetting implements Serializable {
     /** Name of the key for maxTerms when creating a map. */
     public static final String PROPERTY_MAX_TERMS = "maxTerms";
 
+    private static final Object PROPERTY_TERM_SELECTOR = "termSelector";
+
     /** Name of the key for textFeatureType when creating a map. */
     public static final String PROPERTY_TEXT_FEATURE_TYPE = "textFeatureType";
 
@@ -53,9 +55,9 @@ public class FeatureSetting implements Serializable {
 
     /** Name of the key for langauge setting. */
     public static final String PROPERTY_LANGUAGE = "language";
-    
+
     public static final String PROPERTY_CREATE_SKIP_GRAMS = "createSkipGrams";
-    
+
     public static final String PROPERTY_USE_TOKEN_COMBINATIONS = "useTokenCombinations";
     public static final String PROPERTY_TOKEN_COMBINATIONS_MIN_TERM_LENGTH = "tokenCombinationsMinNGramLength";
     public static final String PROPERTY_TOKEN_COMBINATIONS_MAX_TERM_LENGTH = "tokenCombinationsMaxNGramLength";
@@ -86,12 +88,14 @@ public class FeatureSetting implements Serializable {
     static final boolean DEFAULT_REMOVE_STOPWORDS = false;
 
     public static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
-    
+
     static final boolean DEFAULT_CREATE_SKIP_GRAMS = false;
-    
+
     static final boolean DEFAULT_USE_TOKEN_COMBINATIONS = false;
     static final int DEFAULT_TOKEN_COMBINATIONS_MIN_NGRAM_LENGTH = 1;
     static final int DEFAULT_TOKEN_COMBINATIONS_MAX_NGRAM_LENGTH = 1;
+
+    static final TermSelector DEFAULT_TERM_SELECTOR = TermSelector.FIRST;
 
     public enum TextFeatureType {
         /** Use n-Grams on a character level. */
@@ -105,6 +109,8 @@ public class FeatureSetting implements Serializable {
 
     /** The maximum number of terms that should be used per document. */
     private final int maxTerms;
+
+    private TermSelector termSelector = DEFAULT_TERM_SELECTOR;
 
     /** Minimum n-gram length. */
     private final int minNGramLength;
@@ -138,7 +144,7 @@ public class FeatureSetting implements Serializable {
 
     /** The language used for stemming and stop word removal. */
     private Language language = DEFAULT_LANGUAGE;
-    
+
     /** Whether to create skip grams, e.g. for "the quick brown", a skip gram would be "the brown". */
     private boolean createSkipGrams = DEFAULT_CREATE_SKIP_GRAMS;
 
@@ -182,6 +188,7 @@ public class FeatureSetting implements Serializable {
     FeatureSetting(FeatureSettingBuilder builder) {
         this.textFeatureType = builder.featureType;
         this.maxTerms = builder.maxTerms;
+        this.termSelector = builder.termSelector;
         this.minNGramLength = builder.minNGramLength;
         this.maxNGramLength = builder.maxNGramLength;
         this.minimumTermLength = builder.minTermLength;
@@ -200,13 +207,14 @@ public class FeatureSetting implements Serializable {
     /**
      * <p>
      * Create a feature setting from a properties map.
-     * 
+     *
      * @param properties The properties, not <code>null</code>.
      */
     public FeatureSetting(Map<String, String> properties) {
         Validate.notNull(properties, "properties must not be null");
         this.textFeatureType = TextFeatureType.valueOf(properties.get(PROPERTY_TEXT_FEATURE_TYPE));
         this.maxTerms = Integer.parseInt(properties.get(PROPERTY_MAX_TERMS));
+        this.termSelector = Optional.ofNullable(properties.get(PROPERTY_TERM_SELECTOR)).map(TermSelector::valueOf).orElse(DEFAULT_TERM_SELECTOR);
         this.minNGramLength = Integer.parseInt(properties.get(PROPERTY_MIN_N_GRAM_LENGTH));
         this.maxNGramLength = Integer.parseInt(properties.get(PROPERTY_MAX_N_GRAM_LENGTH));
         this.minimumTermLength = Integer.parseInt(properties.get(PROPERTY_MIN_TERM_LENGTH));
@@ -235,6 +243,10 @@ public class FeatureSetting implements Serializable {
 
     public int getMaxTerms() {
         return maxTerms;
+    }
+
+    public TermSelector getTermSelector() {
+        return termSelector;
     }
 
     public int getMinNGramLength() {
@@ -279,10 +291,10 @@ public class FeatureSetting implements Serializable {
     public Language getLanguage() {
         return language;
     }
-    
+
     public boolean isCreateSkipGrams() {
-		return createSkipGrams;
-	}
+        return createSkipGrams;
+    }
 
     public boolean isUseTokenCombinations() {
         return useTokenCombinations;
@@ -324,7 +336,7 @@ public class FeatureSetting implements Serializable {
             }
         }
         if (DEFAULT_MAX_TERMS != maxTerms) {
-            builder.append(", maxTerms=").append(maxTerms);
+            builder.append(", maxTerms=").append(termSelector).append(" ").append(maxTerms);
         }
         if (isCaseSensitive()) {
             builder.append(", caseSensitive");
@@ -342,7 +354,7 @@ public class FeatureSetting implements Serializable {
             builder.append(", language=").append(language);
         }
         if (isCreateSkipGrams()) {
-        	builder.append(", createSkipGrams");
+            builder.append(", createSkipGrams");
         }
         builder.append("]");
         return builder.toString();
@@ -367,12 +379,12 @@ public class FeatureSetting implements Serializable {
         map.put(PROPERTY_CREATE_SKIP_GRAMS, String.valueOf(createSkipGrams));
         return map;
     }
-    
+
     // hashCode + equals
 
     @Override
     public int hashCode() {
-    	return toMap().hashCode();
+        return toMap().hashCode();
     }
 
     @Override

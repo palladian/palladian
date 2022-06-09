@@ -16,6 +16,7 @@ import ws.palladian.helper.functional.Factory;
 public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
     final TextFeatureType featureType;
     int maxTerms = FeatureSetting.DEFAULT_MAX_TERMS;
+    TermSelector termSelector = FeatureSetting.DEFAULT_TERM_SELECTOR;
     int minNGramLength = FeatureSetting.DEFAULT_MIN_NGRAM_LENGTH;
     int maxNGramLength = FeatureSetting.DEFAULT_MAX_NGRAM_LENGTH;
     int minTermLength = FeatureSetting.DEFAULT_MIN_TERM_LENGTH;
@@ -146,8 +147,23 @@ public final class FeatureSettingBuilder implements Factory<FeatureSetting> {
      * @return The builder, to allow method chaining.
      */
     public FeatureSettingBuilder maxTerms(int maxTerms) {
+        return maxTerms(maxTerms, TermSelector.FIRST);
+    }
+
+    /**
+     * <p>
+     * Set the maximum number of terms to extract per document.
+     * </p>
+     *
+     * @param maxTerms The maximum number of terms to extract, greater zero.
+     * @param termSelector Specify by which criterion to select the terms.
+     * @return The builder, to allow method chaining.
+     */
+    public FeatureSettingBuilder maxTerms(int maxTerms, TermSelector termSelector) {
         Validate.isTrue(maxTerms > 0, "maxTerms must be greater zero");
+        Validate.notNull(termSelector, "termSelector must not be null");
         this.maxTerms = maxTerms;
+        this.termSelector = termSelector;
         return this;
     }
 

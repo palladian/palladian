@@ -5,14 +5,13 @@ import ws.palladian.core.*;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.TextValue;
 import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.collection.Bag;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -193,11 +192,8 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
             String text = textValue.getText();
 
             Iterator<String> iterator = preprocessor.apply(text);
-            Collection<String> terms = new HashSet<>();
-            while (iterator.hasNext() && terms.size() < featureSetting.getMaxTerms()) {
-                terms.add(iterator.next());
-            }
-            dictionaryBuilder.addDocument(terms, targetClass, instance.getWeight());
+            Set<Entry<String, Integer>> terms = featureSetting.getTermSelector().getTerms(iterator, featureSetting.getMaxTerms());
+            dictionaryBuilder.addDocument(terms.stream().map(Entry::getKey).collect(Collectors.toSet()), targetClass, instance.getWeight());
 //            progressMonitor.incrementAndPrintProgress();
         }
         return dictionaryBuilder.create();
@@ -210,10 +206,7 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
         TextValue textValue = (TextValue) featureVector.get(VECTOR_TEXT_IDENTIFIER);
         Iterator<String> iterator = preprocessor.apply(textValue.getText());
-        Bag<String> termCounts = new Bag<>();
-        while (iterator.hasNext() && termCounts.uniqueItems().size() < featureSetting.getMaxTerms()) {
-            termCounts.add(iterator.next());
-        }
+        Set<Entry<String, Integer>> termCounts = featureSetting.getTermSelector().getTerms(iterator, featureSetting.getMaxTerms());
         final CategoryEntries termSums = model.getTermCounts();
         final int numUniqueTerms = model.getNumUniqTerms();
         final int numDocs = model.getNumDocuments();
@@ -221,7 +214,7 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         final boolean scoreNonMatches = scorer.scoreNonMatches();
         final Set<String> matchedCategories = new HashSet<>();
 
-        for (Entry<String, Integer> termCount : termCounts.unique()) {
+        for (Entry<String, Integer> termCount : termCounts) {
             String term = termCount.getKey();
             CategoryEntries categoryEntries = model.getCategoryEntries(term);
             int docCount = termCount.getValue();
