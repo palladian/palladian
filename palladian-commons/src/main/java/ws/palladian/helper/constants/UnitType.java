@@ -39,10 +39,11 @@ public enum UnitType {
     TORQUE("Nm"), //
     PIXEL("pixel"), //
     LUMINANCE("nit"), //
-    CURRENCY(null),
+    FLOW_RATE("m³/s"), //
+    CURRENCY(null), //
     OTHER(null);
 
-    private List<Pair<List<String>, Double>> units = new ArrayList<>();
+    private final List<Pair<List<String>, Double>> units = new ArrayList<>();
     private List<String> sortedUnitNames = new ArrayList<>();
 
     private final String baseUnit;
@@ -316,9 +317,8 @@ public enum UnitType {
 
         // TEMPERATURE units will not be normalized as there are non-linear projections
         for (TemperatureUnit tUnit : TemperatureUnit.values()) {
-            unitList = new ArrayList<>();
-            unitList.addAll(tUnit.getNames());
-            UnitType.TEMPERATURE.units.add(Pair.<List<String>, Double>of(unitList, null));
+            unitList = new ArrayList<>(tUnit.getNames());
+            UnitType.TEMPERATURE.units.add(Pair.of(unitList, null));
         }
 
         // TIME units are normalized to seconds
@@ -790,7 +790,7 @@ public enum UnitType {
         unitList.add("Tbsps");
         unitList.add("tbsps");
         unitList.add("tbsp");
-//        unitList.add("T");
+        //        unitList.add("T");
         UnitType.VOLUME.units.add(Pair.of(unitList, 14.7868));
 
         unitList = new ArrayList<>();
@@ -804,7 +804,7 @@ public enum UnitType {
         unitList.add("teaspoon");
         unitList.add("tsps");
         unitList.add("tsp");
-//        unitList.add("t");
+        //        unitList.add("t");
         UnitType.VOLUME.units.add(Pair.of(unitList, 4.92892));
 
         unitList = new ArrayList<>();
@@ -850,6 +850,23 @@ public enum UnitType {
         unitList.add("dbc");
         unitList.add("decibel");
         UnitType.POWER_RATIO.units.add(Pair.of(unitList, 1.));
+
+        // FLOW RATE
+        unitList = new ArrayList<>();
+        unitList.add("us gpm");
+        unitList.add("us gallons per minute");
+        unitList.add("us gallons / minute");
+        UnitType.FLOW_RATE.units.add(Pair.of(unitList, 0.0000630902));
+
+        unitList = new ArrayList<>();
+        unitList.add("gpm");
+        unitList.add("gallons per minute");
+        unitList.add("gallons / minute");
+        UnitType.FLOW_RATE.units.add(Pair.of(unitList, 0.0000757682));
+
+        unitList = new ArrayList<>();
+        unitList.add("m³/s");
+        UnitType.FLOW_RATE.units.add(Pair.of(unitList, 1.));
 
         // CURRENCY units are not normalized
         unitList = new ArrayList<>();

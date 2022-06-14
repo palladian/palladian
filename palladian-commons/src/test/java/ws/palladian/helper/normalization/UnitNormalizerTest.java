@@ -8,7 +8,6 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.UnitType;
 
 public class UnitNormalizerTest {
-
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
@@ -43,6 +42,9 @@ public class UnitNormalizerTest {
         input = "100 kN/m²";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.PRESSURE));
 
+        input = "100 gpm";
+        collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.FLOW_RATE));
+
         input = "100kN/m²";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("kN/m²"));
 
@@ -57,6 +59,9 @@ public class UnitNormalizerTest {
 
         input = "screen up to 350 inches.";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("inches"));
+
+        input = "5.3 gpm";
+        collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("gpm"));
     }
 
     @Test
@@ -67,7 +72,9 @@ public class UnitNormalizerTest {
 
         collector.checkThat(UnitTranslator.translateUnitsOfInput("schleuderdrehzahl 7 U/min", Language.GERMAN), Matchers.is("schleuderdrehzahl 7 rpm"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("schleuderdrehzahl 7 u/minute", Language.GERMAN), Matchers.is("schleuderdrehzahl 7 rpm"));
-        collector.checkThat(UnitTranslator.translateUnitsOfInput("description maximale schleuderdrehzahl: ca. 1.600 u/minute beim standardprogram baumwolle 60° c", Language.GERMAN), Matchers.is("description maximale schleuderdrehzahl: ca. 1.600 rpm beim standardprogram baumwolle 60° c"));
+        collector.checkThat(
+                UnitTranslator.translateUnitsOfInput("description maximale schleuderdrehzahl: ca. 1.600 u/minute beim standardprogram baumwolle 60° c", Language.GERMAN),
+                Matchers.is("description maximale schleuderdrehzahl: ca. 1.600 rpm beim standardprogram baumwolle 60° c"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("nach einer Fahrzeit von 7 stunden", Language.GERMAN), Matchers.is("nach einer fahrzeit von 7 hours"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("Altersempfehlung ab 9 jahren", Language.GERMAN), Matchers.is("altersempfehlung ab 9 years"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("mit 12 kilokalorien sehr gesund", Language.GERMAN), Matchers.is("mit 12 kilocalories sehr gesund"));
