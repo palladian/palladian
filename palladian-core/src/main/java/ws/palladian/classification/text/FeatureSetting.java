@@ -246,7 +246,7 @@ public class FeatureSetting implements Serializable {
     }
 
     public TermSelector getTermSelector() {
-        return termSelector;
+        return Optional.ofNullable(termSelector).orElse(DEFAULT_TERM_SELECTOR);
     }
 
     public int getMinNGramLength() {
@@ -336,7 +336,7 @@ public class FeatureSetting implements Serializable {
             }
         }
         if (DEFAULT_MAX_TERMS != maxTerms) {
-            builder.append(", maxTerms=").append(termSelector).append(" ").append(maxTerms);
+            builder.append(", maxTerms=").append(getTermSelector()).append(" ").append(maxTerms);
         }
         if (isCaseSensitive()) {
             builder.append(", caseSensitive");
