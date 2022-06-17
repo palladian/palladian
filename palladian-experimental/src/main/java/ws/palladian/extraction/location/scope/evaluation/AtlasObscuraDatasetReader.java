@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.lucene.store.FSDirectory;
@@ -17,6 +18,7 @@ import ws.palladian.classification.text.ExperimentalScorers;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.PalladianLocationExtractor;
@@ -113,19 +115,21 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws IOException {
 		AtlasObscuraDatasetReader reader = new AtlasObscuraDatasetReader(new File("/Users/pk/Desktop/atlas-obscura-crawler/places.json"));
+		analyzeScopeDetection(reader, 1000);
+		System.exit(0);
 
 		ScopeDetectorEvaluator eval = new ScopeDetectorEvaluator();
 		// for now, just take 25% for evaluation
 		Iterable<LocationDocument> data = CollectionHelper.filter(reader, l -> Integer.valueOf(l.getFileName()) % 4 == 0);
 
 		eval.addDataset(data);
-
+		 
 		// NearestNeighborScopeModel model = NearestNeighborScopeModel.fromIndex(new File("/Users/pk/Desktop/Location_Lab_Revisited/knn-scope-model-wikipedia-90-train"));
 		// eval.addDetector(new KNearestNeighborScopeDetector(model, 1, MORE_LIKE_THIS_QUERY_CREATOR));
 		// eval.addDetector(new KNearestNeighborScopeDetector(model, 3, MORE_LIKE_THIS_QUERY_CREATOR));
 		// eval.addDetector(new KNearestNeighborScopeDetector(model, 5, MORE_LIKE_THIS_QUERY_CREATOR));
 		// eval.addDetector(new KNearestNeighborScopeDetector(model, 10, MORE_LIKE_THIS_QUERY_CREATOR));
-
+		 
 		LocationSource source = new LuceneLocationSource(FSDirectory.open(Paths.get("/Users/pk/Desktop/Location_Lab_Revisited/Palladian_Location_Database_2022-04-19_13-45-08")));
 		// eval.addDetector(new FirstScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
 		// eval.addDetector(new FrequencyScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
@@ -163,5 +167,71 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 		
 		eval.runAll(true);
 	}
+
+	// compare different location extractors and scope detectors to see, how often we're able to extract a location at all 
+	// (1) use location extractor to get ALL locations and see if one is within 100 km distance of the reference location (this is basically “as good as it gets”)
+	// (2) if (1) fails, try text classification-based approaches “dictionary” and “KNN”
+    private static void analyzeScopeDetection(AtlasObscuraDatasetReader reader, int limit) throws IOException {
+        // int thresholdKm = 100;
+        int thresholdKm = 161;
+        
+        Iterable<LocationDocument> data = CollectionHelper.limit(reader, limit);
+        
+        LocationSource source = new LuceneLocationSource(FSDirectory.open(Paths.get("/Users/pk/Desktop/Location_Lab_Revisited/Palladian_Location_Database_2022-04-19_13-45-08")));
+        // HeuristicDisambiguation disambiguation = new HeuristicDisambiguation(); // 76 %
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-tudLoc2013-100trees.ser.gz"), 0); // 86 %
+        PalladianLocationExtractor locationExtractor = new PalladianLocationExtractor(source, disambiguation);
+
+        NearestNeighborScopeModel nnModel = NearestNeighborScopeModel.fromIndex(new File("/Users/pk/Desktop/Location_Lab_Revisited/knn-scope-model-wikipedia-90-train"));
+        KNearestNeighborScopeDetector nearestNeighborScopeDetector = new KNearestNeighborScopeDetector(nnModel, 1, MORE_LIKE_THIS_QUERY_CREATOR);
+        
+        DictionaryScopeModel dictionaryModel = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
+        MultiStepDictionaryScopeDetector dictionaryScopeDetector = new MultiStepDictionaryScopeDetector(dictionaryModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT, BayesScorer.Options.LAPLACE), 22.5, 5.625, 1.40625);
+        
+        int matchedDocuments = 0;
+        int matchedConditionalKnn = 0;
+        int matchedConditionalDict = 0;
+        int matchedConditional = 0;
+        for (LocationDocument doc : data) {
+            List<LocationAnnotation> annotations = locationExtractor.getAnnotations(doc.getText());
+            long numMatches = annotations.stream() //
+                    .map(LocationAnnotation::getLocation) //
+                    .map(Location::getCoords) //
+                    .filter(c -> c.isPresent()) //
+                    .filter(c -> c.get().distance(doc.getMainLocation().getCoordinate()) < thresholdKm) //
+                    .count(); //
+            if (numMatches > 0) {
+                matchedDocuments++;
+            } else {
+                System.out.println("=== location extractor was not able to get location, trying text classification ===");
+                System.out.println(doc);
+                System.out.println(doc.getText());
+                System.out.println(annotations);
+                GeoCoordinate knnDcope = nearestNeighborScopeDetector.getScope(doc.getText());
+                GeoCoordinate dictScope = dictionaryScopeDetector.getScope(doc.getText());
+                System.out.println("knn >>> " + knnDcope.distance(doc.getMainLocation().getCoordinate()));
+                System.out.println("dict >>> " + dictScope.distance(doc.getMainLocation().getCoordinate()));
+                boolean knnSuccess = knnDcope.distance(doc.getMainLocation().getCoordinate()) < thresholdKm;
+                boolean dictSuccess = dictScope.distance(doc.getMainLocation().getCoordinate()) < thresholdKm;
+                if (knnSuccess) {
+                    matchedConditionalKnn++;
+                }
+                if (dictSuccess) {
+                    matchedConditionalDict++;
+                }
+                if (knnSuccess || dictSuccess) {
+                    matchedConditional++;
+                }
+
+                System.out.println("===");
+            }
+        }
+        System.out.println("%/documents where PLE result is close to main location: "+ (double) matchedDocuments / limit);
+        System.out.println("#/documents where PLE failed but KNN succeeded: " + matchedConditionalKnn);
+        System.out.println("#/documents where PLE failed but Dictionary succeeded: " + matchedConditionalDict);
+        System.out.println("#/documents where PLE failed but Dictionary/KNN succeeded: " + matchedConditional);
+        System.out.println("%/documents where PLE failed but Dictionary/KNN succeeded: " + (double) matchedConditional / (limit - matchedDocuments));
+        nearestNeighborScopeDetector.close();
+    }
 
 }
