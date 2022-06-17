@@ -1,15 +1,16 @@
 package ws.palladian.core;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.mutable.MutableDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.functional.Factory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -31,7 +32,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     /** A factory for producing {@link CategoryEntriesBuilder}s. */
     public static final Factory<CategoryEntriesBuilder> FACTORY = CategoryEntriesBuilder::new;
 
-    private final Map<String, MutableDouble> entryMap;
+    private final Object2DoubleMap<String> entryMap;
 
     /**
      * <p>
@@ -39,7 +40,16 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * </p>
      */
     public CategoryEntriesBuilder() {
-        entryMap = new HashMap<>(1);
+        this(1);
+    }
+    
+    /**
+     * Create a new {@link CategoryEntriesBuilder}.
+     *
+     * @param size Expected size.
+     */
+    public CategoryEntriesBuilder(int size) {
+        entryMap = new Object2DoubleOpenHashMap<>(size);
     }
 
     /**
@@ -50,12 +60,12 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * @param map The map with categories and scores, not <code>null</code>.
      */
     public CategoryEntriesBuilder(Map<String, ? extends Number> map) {
+        this(map.size());
         Validate.notNull(map, "map must not be null");
-        entryMap = new HashMap<>();
         for (Entry<String, ? extends Number> entry : map.entrySet()) {
             double score = entry.getValue().doubleValue();
             validateNumber(score);
-            entryMap.put(entry.getKey(), new MutableDouble(score));
+            entryMap.put(entry.getKey(), score);
         }
     }
 
@@ -71,7 +81,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntriesBuilder set(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         validateNumber(score);
-        entryMap.put(categoryName, new MutableDouble(score));
+        entryMap.put(categoryName, score);
         return this;
     }
 
@@ -105,7 +115,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     public CategoryEntriesBuilder add(String categoryName, double score) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         validateNumber(score);
-        entryMap.computeIfAbsent(categoryName, (key) -> new MutableDouble()).add(score);
+        entryMap.compute(categoryName, (keyCategoryName, valueScore) -> valueScore != null ? valueScore += score : score);
         return this;
     }
 
@@ -128,14 +138,14 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     @Override
     public CategoryEntries create() {
         double total = getTotalScore();
-        Map<String, Category> map = new HashMap<>();
+        Map<String, Category> map = new Object2ObjectOpenHashMap<>(entryMap.size());
         Category mostLikely = null;
-        for (Entry<String, MutableDouble> entry : entryMap.entrySet()) {
+        for (Object2DoubleMap.Entry<String> entry : entryMap.object2DoubleEntrySet()) {
             double probability;
             if (total == 0) {
                 probability = 0.;
             } else {
-                probability = entry.getValue().doubleValue() / total;
+                probability = entry.getDoubleValue() / total;
                 if (total < 0) {
                     // in case we have summed up log probabilities; we need the "inverse"
                     probability = 1 - probability;
@@ -162,7 +172,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * @return The sum of all scores over all categories.
      */
     public double getTotalScore() {
-    	return entryMap.values().stream().mapToDouble(MutableDouble::doubleValue).sum();
+    	return entryMap.values().doubleStream().sum();
     }
 
     /**
@@ -174,8 +184,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
      * @return The score, or zero in case no score was set for the categoy.
      */
     public double getScore(String categoryName) {
-        MutableDouble value = entryMap.get(categoryName);
-        return value != null ? value.doubleValue() : 0;
+        return entryMap.getOrDefault(categoryName, 0);
     }
 
     /**

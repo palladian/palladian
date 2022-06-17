@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import org.apache.commons.lang3.Validate;
 
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public abstract class AbstractDictionaryModel implements DictionaryModel {
 
@@ -31,7 +31,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
 
     @Override
     public Set<String> getCategories() {
-        return CollectionHelper.convertSet(getDocumentCounts(), input -> input.getName());
+        return getDocumentCounts().getNames();
     }
 
     @Override
@@ -155,8 +155,9 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
 
     protected void writeObject_(ObjectOutputStream out) throws IOException {
         // map the category names to numeric indices, so that we can use "1" instead of "aVeryLongCategoryName"
-        List<Category> sortedCategories = CollectionHelper.newArrayList(getDocumentCounts());
-        Collections.sort(sortedCategories, (c1, c2) -> c1.getName().compareTo(c2.getName()));
+        List<Category> sortedCategories = new ArrayList<>();
+        getDocumentCounts().forEach(sortedCategories::add);
+        Collections.sort(sortedCategories, Comparator.comparing(Category::getName));
         Map<String, Integer> categoryIndices = new HashMap<>();
         int idx = 0;
         for (Category category : sortedCategories) {
