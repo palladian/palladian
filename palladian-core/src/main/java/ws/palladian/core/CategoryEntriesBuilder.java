@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMaps;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -137,7 +138,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
     
     public CategoryEntriesBuilder add(CategoryEntriesBuilder builder) {
         Validate.notNull(builder, "builder must not be null");
-        for (Object2DoubleMap.Entry<String> entry : builder.entryMap.object2DoubleEntrySet()) {
+        for (Object2DoubleMap.Entry<String> entry : Object2DoubleMaps.fastIterable(builder.entryMap)) {
             add(entry.getKey(), entry.getDoubleValue());
         }
         return this;
@@ -148,7 +149,7 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
         double total = getTotalScore();
         Map<String, Category> map = new Object2ObjectOpenHashMap<>(entryMap.size());
         Category mostLikely = null;
-        for (Object2DoubleMap.Entry<String> entry : entryMap.object2DoubleEntrySet()) {
+        for (Object2DoubleMap.Entry<String> entry : Object2DoubleMaps.fastIterable(entryMap)) {
             double probability;
             if (total == 0) {
                 probability = 0.;
