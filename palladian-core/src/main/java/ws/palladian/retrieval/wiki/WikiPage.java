@@ -128,19 +128,6 @@ public class WikiPage extends WikiPageReference {
     }
 
     private static final List<String> getStringsInBold(String text) {
-        // Pattern pattern = Pattern.compile("'''([^']+)'''");
-        // like this, it also works for bold text with a ' character:
-//        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
-//        Matcher matcher = pattern.matcher(text);
-//        List<String> result = new ArrayList<>();
-//        while (matcher.find()) {
-//            String group = matcher.group(1);
-//            if (StringUtils.isNotBlank(group) && group.length() > 1) {
-//                result.add(group.trim());
-//            }
-//        }
-//        return result;
-        
         final List<String> result = new ArrayList<>();
         MediaWikiFormattingParser.parse(text, new MediaWikiFormattingParser.ParserAdapter() {
             StringBuilder buffer = new StringBuilder();
@@ -315,7 +302,6 @@ public class WikiPage extends WikiPageReference {
         // single infobox, take this; e.g.
         // https://en.wikipedia.org/wiki/American_Sign_Museum
         // https://en.wikipedia.org/wiki/Alberta_Railway_Museum
-        // https://en.wikipedia.org/wiki/Alykes
         if (infoboxes.size() == 1 && coordinates.size() == 1) {
             return coordinates.get(0);
         }
