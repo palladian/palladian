@@ -1,5 +1,9 @@
 package ws.palladian.extraction.location.scope;
 
+import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
+import static ws.palladian.classification.text.BayesScorer.Options.FREQUENCIES;
+import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -133,8 +137,8 @@ public class DictionaryScopeDetector implements ScopeDetector {
 
     }
 
-    /** The default {@link Scorer} which is used for the text classifier. */
-    public static final Scorer DEFAULT_SCORER = new BayesScorer();
+    /** The default {@link Scorer} which is used for the text classifier (don't use priors as this has proven counter productive). */
+    public static final Scorer DEFAULT_SCORER = new BayesScorer(COMPLEMENT, FREQUENCIES, LAPLACE);
 
     /** The model. */
     private final DictionaryScopeModel model;

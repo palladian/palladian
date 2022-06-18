@@ -15,6 +15,7 @@ import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.evaluation.ImmutableLocationDocument;
 import ws.palladian.extraction.location.evaluation.LocationDocument;
+import ws.palladian.extraction.location.scope.DictionaryScopeDetector;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
 import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeDetectorLearner;
@@ -113,22 +114,28 @@ public class WikipediaBigDatasetEvaluation {
 
                 // make a 90:10 training:test split
                 Iterable<WikiPage> trainingPages = CollectionHelper.filter(iterable, new ModSplitter(10, 0, 8));
-                // Iterable<WikipediaPage> testingPages = CollectionHelper.filter(iterable, new ModSplitter(10, 9, 9));
+                 Iterable<WikiPage> testingPages = CollectionHelper.filter(iterable, new ModSplitter(10, 9, 9));
                 Iterable<LocationDocument> trainingLocations = CollectionHelper.convert(trainingPages, CONVERTER);
-                // Iterable<LocationDocument> testingLocations = CollectionHelper.convert(testingPages, CONVERTER);
+                 Iterable<LocationDocument> testingLocations = CollectionHelper.convert(testingPages, CONVERTER);
+                 
+                 testingLocations = CollectionHelper.limit(testingLocations, 1000);
+                 
+                 DictionaryScopeModel model = FileHelper.tryDeserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
+                 ScopeDetectorEvaluator.evaluateScopeDetection(new DictionaryScopeDetector(model), testingLocations, true);
+                 System.exit(0);
                 
-//                 FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
-                FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(Integer.MAX_VALUE).create();
-                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
-//                builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
-                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 0.3515625);
-                DictionaryScopeModel model = learner.train(trainingLocations);
-                
-                try {
-                    FileHelper.serialize(model, "enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+////                 FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
+//                FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(Integer.MAX_VALUE).create();
+//                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
+////                builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
+//                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 0.3515625);
+//                DictionaryScopeModel model = learner.train(trainingLocations);
+//                
+//                try {
+//                    FileHelper.serialize(model, "enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
                 
 //                File indexFile = new File("/Users/pk/temp/knn-scope-model-wikipedia-90-train");
 //                FeatureSetting featureSetting = FeatureSettingBuilder.words(1).create();
