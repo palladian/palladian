@@ -301,7 +301,8 @@ public class WikiPage extends WikiPageReference {
         // return CollectionHelper.getFirst(WikipediaUtil.extractCoordinateTag(text));
         List<MarkupCoordinate> coordinates = new ArrayList<>();
         coordinates.addAll(MediaWikiUtil.extractCoordinateTag(text));
-        for (WikiTemplate infobox : getInfoboxes()) {
+        List<WikiTemplate> infoboxes = getInfoboxes();
+        for (WikiTemplate infobox : infoboxes) {
             coordinates.addAll(infobox.getCoordinates());
         }
         for (MarkupCoordinate coordinate : coordinates) {
@@ -309,6 +310,14 @@ public class WikiPage extends WikiPageReference {
             if (display != null && (display.contains("title") || display.equals("t"))) {
                 return coordinate;
             }
+        }
+        // nothing with title or t found, but if there's only one occurrence within a
+        // single infobox, take this; e.g.
+        // https://en.wikipedia.org/wiki/American_Sign_Museum
+        // https://en.wikipedia.org/wiki/Alberta_Railway_Museum
+        // https://en.wikipedia.org/wiki/Alykes
+        if (infoboxes.size() == 1 && coordinates.size() == 1) {
+            return coordinates.get(0);
         }
         return null;
     }

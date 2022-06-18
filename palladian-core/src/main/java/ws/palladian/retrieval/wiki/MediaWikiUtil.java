@@ -757,7 +757,9 @@ public final class MediaWikiUtil {
 
     public static void main(String[] args) throws IOException, SAXException {
         MediaWikiDescriptor descriptor = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
-        System.out.println(retrieveArticle(descriptor, "Bionville-sur-Nied").getAlternativeTitles());
+        // System.out.println(retrieveArticle(descriptor, "American_Sign_Museum").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "Alberta_Railway_Museum").getCoordinate());
+        System.out.println(retrieveArticle(descriptor, "Alykes").getCoordinate());
         System.exit(0);
         System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli").size());
         System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli (song)").size());
