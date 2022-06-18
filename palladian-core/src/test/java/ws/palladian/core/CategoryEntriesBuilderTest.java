@@ -58,5 +58,21 @@ public class CategoryEntriesBuilderTest {
         assertEquals("D", categoryEntries.getMostLikely().getName());
         assertEquals(0.6833, categoryEntries.getMostLikely().getProbability(), DELTA);
     }
+    
+    @Test
+    public void testCategoryEntriesBuidler_add() {
+        CategoryEntriesBuilder builder1 = new CategoryEntriesBuilder();
+        builder1.set("B", 50);
+        builder1.set("C", 20);
+
+        CategoryEntriesBuilder builder2 = new CategoryEntriesBuilder();
+        builder2.set("A", 10);
+        builder2.set("C", 20);
+        
+        CategoryEntries cateegoryEntries = builder1.add(builder2).create();
+        assertEquals(0.1, cateegoryEntries.getProbability("A"), DELTA);
+        assertEquals(0.5, cateegoryEntries.getProbability("B"), DELTA);
+        assertEquals(0.4, cateegoryEntries.getProbability("C"), DELTA);
+    }
 
 }

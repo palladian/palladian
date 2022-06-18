@@ -4,20 +4,21 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import ws.palladian.core.*;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.TextValue;
-import ws.palladian.helper.ProgressMonitor;
 
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -129,12 +130,13 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
             return getClass().getSimpleName();
         }
     }
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(PalladianTextClassifier.class);
 
     public static final String VECTOR_TEXT_IDENTIFIER = "text";
 
     public static final Scorer DEFAULT_SCORER = new DefaultScorer();
+    
+    /** Enable to run the classification parallelized. */ 
+    public static boolean PARALLELIZED = true;
 
     private final DictionaryBuilder dictionaryBuilder;
 
@@ -220,80 +222,77 @@ public class PalladianTextClassifier extends AbstractLearner<DictionaryModel> im
         final int numUniqueTerms = model.getNumUniqTerms();
         final int numDocs = model.getNumDocuments();
         final int numTerms = model.getNumTerms();
-
-        // parallelized code -- TODO optimize, nicer?
-        int numItems = termCounts.size();
-        int parallelism = ForkJoinPool.getCommonPoolParallelism(); // 21s:693ms
-        // int parallelism = 1; // 58s:107ms
-        int chunkSize = (int) Math.ceil((float) numItems / parallelism);
-        List<CategoryEntries> allCategoryEntries = chunked(termCounts.stream(), chunkSize)
-                .parallel()
-                .map(chunk -> classifyTerms(model, chunk, termSums, numUniqueTerms, numDocs, numTerms))
-                .collect(Collectors.toList());
-        // merge entries
-        CategoryEntriesBuilder builder = new CategoryEntriesBuilder(model.getNumCategories());
-        allCategoryEntries.forEach(entries -> builder.add(entries));
-        
-        boolean matched = builder.getTotalScore() != 0;
-        for (Category category : model.getDocumentCounts()) {
-            String categoryName = category.getName();
-            double termScore = builder.getScore(categoryName);
-            double categoryProbability = category.getProbability();
-            double newScore = scorer.scoreCategory(categoryName, termScore, categoryProbability, matched);
-            builder.set(categoryName, newScore);
-        }
-        return builder.create();
-    }
-
-    private CategoryEntries classifyTerms(DictionaryModel model, List<Entry<String, Integer>> termCounts, CategoryEntries termSums,
-            int numUniqueTerms, int numDocs, int numTerms) {
-        LOGGER.debug("{} process {} terms", Thread.currentThread().getName(), termCounts.size());
-        CategoryEntriesBuilder builder = new CategoryEntriesBuilder(model.getNumCategories());
         final boolean scoreNonMatches = scorer.scoreNonMatches();
-        final Set<String> matchedCategories = new HashSet<>();
 
-        for (Entry<String, Integer> termCount : termCounts) {
-            String term = termCount.getKey();
-            CategoryEntries categoryEntries = model.getCategoryEntries(term);
-            int docCount = termCount.getValue();
-            int dictCount = categoryEntries.getTotalCount();
-            for (Category category : categoryEntries) {
-                String categoryName = category.getName();
-                int categorySum = termSums.getCount(categoryName);
-                int count = category.getCount();
-                double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numUniqueTerms, numDocs, numTerms);
-                // TODO ws.palladian.core.CategoryEntriesBuilder.add(String, double) is a
-                // performance hotspot for large term/category combinations; store the
-                // prediction differently? array? or just restructure the loop?
-                builder.add(categoryName, score);
-                if (scoreNonMatches) {
-                    matchedCategories.add(categoryName);
-                }
+        Stream<Entry<String, Integer>> stream = PARALLELIZED ? termCounts.parallelStream() : termCounts.stream();
+        return stream.collect(new Collector<Entry<String, Integer>, CategoryEntriesBuilder, CategoryEntries>() { //
+            @Override
+            public Supplier<CategoryEntriesBuilder> supplier() {
+                return () -> new CategoryEntriesBuilder(model.getNumCategories());
             }
-            // do the scoring for the non-matches; i.e. term-category combinations with count zero;
-            // this is necessary e.g. for smoothing during the Bayes scoring. It's only done in case it is explicitly
-            // requested by Scorer#scoreNonMatches, because it takes time (especially with lots of categories).
-            if (scoreNonMatches) {
-                for (Category category : termSums) {
-                    String categoryName = category.getName();
-                    if (!matchedCategories.contains(categoryName)) {
-                        int categorySum = category.getCount();
-                        double score = scorer.score(term, categoryName, 0, dictCount, docCount, categorySum, numUniqueTerms, numDocs, numTerms);
+
+            @Override
+            public BiConsumer<CategoryEntriesBuilder, Entry<String, Integer>> accumulator() {
+                return (builder, termCount) -> {
+                    ObjectSet<String> matchedCategories = new ObjectOpenHashSet<>(model.getNumCategories());
+                    String term = termCount.getKey();
+                    CategoryEntries categoryEntries = model.getCategoryEntries(term);
+                    int docCount = termCount.getValue();
+                    int dictCount = categoryEntries.getTotalCount();
+                    for (Category category : categoryEntries) {
+                        String categoryName = category.getName();
+                        int categorySum = termSums.getCount(categoryName);
+                        int count = category.getCount();
+                        double score = scorer.score(term, categoryName, count, dictCount, docCount, categorySum, numUniqueTerms, numDocs, numTerms);
+                        // TODO ws.palladian.core.CategoryEntriesBuilder.add(String, double) is a
+                        // performance hotspot for large term/category combinations; store the
+                        // prediction differently? array? or just restructure the loop?
                         builder.add(categoryName, score);
+                        if (scoreNonMatches) {
+                            matchedCategories.add(categoryName);
+                        }
                     }
-                }
-                matchedCategories.clear();
+                    // do the scoring for the non-matches; i.e. term-category combinations with count zero;
+                    // this is necessary e.g. for smoothing during the Bayes scoring. It's only done in case it is explicitly
+                    // requested by Scorer#scoreNonMatches, because it takes time (especially with lots of categories).
+                    if (scoreNonMatches) {
+                        for (Category category : termSums) {
+                            String categoryName = category.getName();
+                            if (!matchedCategories.contains(categoryName)) {
+                                int categorySum = category.getCount();
+                                double score = scorer.score(term, categoryName, 0, dictCount, docCount, categorySum, numUniqueTerms, numDocs, numTerms);
+                                builder.add(categoryName, score);
+                            }
+                        }
+                    }
+                };
             }
-        }
-        return builder.create();
-    }
-    
-    // https://stackoverflow.com/a/50385938 (also see notes!)
-    private static <T> Stream<List<T>> chunked(Stream<T> stream, int chunkSize) {
-        AtomicInteger index = new AtomicInteger(0);
-        return stream.collect(Collectors.groupingBy(x -> index.getAndIncrement() / chunkSize))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue);
+
+            @Override
+            public BinaryOperator<CategoryEntriesBuilder> combiner() {
+                return CategoryEntriesBuilder::add;
+            }
+
+            @Override
+            public Function<CategoryEntriesBuilder, CategoryEntries> finisher() {
+                return (builder) -> {
+                    boolean matched = builder.getTotalScore() != 0;
+                    for (Category category : model.getDocumentCounts()) {
+                        String categoryName = category.getName();
+                        double termScore = builder.getScore(categoryName);
+                        double categoryProbability = category.getProbability();
+                        double newScore = scorer.scoreCategory(categoryName, termScore, categoryProbability, matched);
+                        builder.set(categoryName, newScore);
+                    }
+                    return builder.create();
+                };
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return EnumSet.of(Characteristics.UNORDERED);
+            }
+        });
     }
 
     public CategoryEntries classify(String text, DictionaryModel model) {

@@ -134,6 +134,14 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
         }
         return this;
     }
+    
+    public CategoryEntriesBuilder add(CategoryEntriesBuilder builder) {
+        Validate.notNull(builder, "builder must not be null");
+        for (Object2DoubleMap.Entry<String> entry : builder.entryMap.object2DoubleEntrySet()) {
+            add(entry.getKey(), entry.getDoubleValue());
+        }
+        return this;
+    }
 
     @Override
     public CategoryEntries create() {
@@ -204,6 +212,6 @@ public final class CategoryEntriesBuilder implements Factory<CategoryEntries> {
 
     @Override
     public String toString() {
-        return create().toString();
+        return entryMap.toString();
     }
 }
