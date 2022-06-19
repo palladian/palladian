@@ -18,8 +18,10 @@ import ws.palladian.classification.text.DictionaryBuilder;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
+import ws.palladian.classification.text.TermSelector;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
@@ -164,7 +166,12 @@ public class DictionaryScopeDetector implements ScopeDetector {
         this.model = model;
         this.gridCreator = new GridCreator(model.gridSize);
         this.scorer = scorer;
-        this.classifier = new PalladianTextClassifier(model.dictionaryModel.getFeatureSetting(), scorer);
+        FeatureSetting featureSetting = FeatureSettingBuilder
+                    .copy(model.dictionaryModel.getFeatureSetting())
+                    // .maxTerms(500, TermSelector.FIRST)
+                    .maxTerms(500, TermSelector.FREQUENCY)
+                    .create();
+        this.classifier = new PalladianTextClassifier(featureSetting, scorer);
     }
 
     /**
