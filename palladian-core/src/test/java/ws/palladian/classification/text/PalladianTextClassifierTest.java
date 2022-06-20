@@ -15,9 +15,9 @@ import ws.palladian.core.InstanceBuilder;
 
 public class PalladianTextClassifierTest {
 
-    private static final FeatureSetting featureSetting = FeatureSettingBuilder.words().create();
+    private static final FeatureSetting FEATURE_SETTING = FeatureSettingBuilder.words().create();
 
-    private static final List<Instance> docs = createDocs();
+    private static final List<Instance> DOCS = createDocs();
 
     private static final String TEST_TEXT = "Chinese Chinese Chinese Tokyo Japan";
 
@@ -34,9 +34,9 @@ public class PalladianTextClassifierTest {
 
     @Test
     public void testPalladianTextClassifier_PalladianScorer() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting,
-                new PalladianTextClassifier.DefaultScorer());
-        DictionaryModel model = classifier.train(docs);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(FEATURE_SETTING,
+                PalladianTextClassifier.DEFAULT_SCORER);
+        DictionaryModel model = classifier.train(DOCS);
         CategoryEntries result = classifier.classify(TEST_TEXT, model);
         assertEquals("no", result.getMostLikely().getName());
         assertEquals(.79, result.getMostLikely().getProbability(), 0.01);
@@ -44,8 +44,8 @@ public class PalladianTextClassifierTest {
 
     @Test
     public void testPalladianTextClassifier_BayesScorer() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new BayesScorer(PRIORS));
-        DictionaryModel model = classifier.train(docs);
+        PalladianTextClassifier classifier = new PalladianTextClassifier(FEATURE_SETTING, new BayesScorer(PRIORS));
+        DictionaryModel model = classifier.train(DOCS);
         CategoryEntries result = classifier.classify(TEST_TEXT, model);
         assertEquals("yes", result.getMostLikely().getName());
         assertEquals(0.74, result.getMostLikely().getProbability(), 0.01);
@@ -53,12 +53,12 @@ public class PalladianTextClassifierTest {
 
     @Test
     public void testPalladianTextClassifier_BayesScorerComplement() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new BayesScorer(PRIORS,
+        PalladianTextClassifier classifier = new PalladianTextClassifier(FEATURE_SETTING, new BayesScorer(PRIORS,
                 COMPLEMENT));
-        DictionaryModel model = classifier.train(docs);
+        DictionaryModel model = classifier.train(DOCS);
         CategoryEntries result = classifier.classify(TEST_TEXT, model);
         assertEquals("yes", result.getMostLikely().getName());
         assertEquals(0.88, result.getMostLikely().getProbability(), 0.01);
     }
-
+    
 }
