@@ -298,14 +298,19 @@ public class WikiPage extends WikiPageReference {
                 return coordinate;
             }
         }
-        // nothing with title or t found, but if there's only one occurrence within a
-        // single infobox, take this; e.g.
+        // nothing with title or t found, but if there's only one occurrence
+        // within the first infobox, take this; e.g.
         // https://en.wikipedia.org/wiki/American_Sign_Museum
         // https://en.wikipedia.org/wiki/Alberta_Railway_Museum
-        if (infoboxes.size() == 1 && coordinates.size() == 1) {
-            return coordinates.get(0);
-        }
-        return null;
+        // these should *not* be extracted (coordinate within text)
+        // https://en.wikipedia.org/wiki/Boron
+        // https://en.wikipedia.org/wiki/Apollo_1
+        // https://en.wikipedia.org/wiki/EastEnders
+        return infoboxes //
+                .stream() //
+                .findFirst() //
+                .map(infobox -> infobox.getCoordinates().stream().findFirst().orElse(null)) //
+                .orElse(null);
     }
     
     @Override

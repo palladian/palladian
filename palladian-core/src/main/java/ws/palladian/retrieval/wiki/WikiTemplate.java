@@ -141,6 +141,12 @@ public class WikiTemplate {
                 }
             }
         }
+
+        // try to parse a {{coord}} markup within the box
+        for (String value : content.values()) {
+            coordinates.addAll(MediaWikiUtil.extractCoordinateTag(value));
+        }
+
         return coordinates;
     }
 

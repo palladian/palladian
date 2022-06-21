@@ -759,7 +759,14 @@ public final class MediaWikiUtil {
         MediaWikiDescriptor descriptor = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
         // System.out.println(retrieveArticle(descriptor, "American_Sign_Museum").getCoordinate());
         // System.out.println(retrieveArticle(descriptor, "Alberta_Railway_Museum").getCoordinate());
-        System.out.println(retrieveArticle(descriptor, "Alykes").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "Alykes").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "André_the_Giant").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "Eiffel_Tower").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "Boron").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "Carl_Linnaeus").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "Jurassic").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "Apollo_1").getCoordinate());
+        // System.out.println(retrieveArticle(descriptor, "EastEnders").getCoordinate());
         System.exit(0);
         System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli").size());
         System.out.println(retrieveBacklinks(descriptor, "Mario Balotelli (song)").size());
