@@ -8,7 +8,7 @@ import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.Trie;
+import ws.palladian.helper.collection.DiskTrie;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -472,15 +472,13 @@ public final class Tokenizer {
             }
             // one digit after period
             if (endIndex < string.length() - 1) {
-                pointIsSentenceDelimiter =
-                        !StringHelper.isNumber(string.charAt(endIndex + 1)) && Character.isUpperCase(string.charAt(endIndex + 1)) || StringHelper.isBracket(string.charAt(endIndex + 1))
-                                || (endIndex > 0 && string.charAt(endIndex - 1) == '"');
+                pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1)) && Character.isUpperCase(string.charAt(endIndex + 1)) || StringHelper.isBracket(
+                        string.charAt(endIndex + 1)) || (endIndex > 0 && string.charAt(endIndex - 1) == '"');
             }
             // two digits after period
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
-                pointIsSentenceDelimiter =
-                        !StringHelper.isNumber(string.charAt(endIndex + 2)) && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string.charAt(
-                                endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
+                pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 2)) && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(
+                        string.charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
             }
             // break after period
             if (!pointIsSentenceDelimiter && (string.length() == (endIndex + 1) || string.charAt(endIndex + 1) == '\n')) {
@@ -553,7 +551,7 @@ public final class Tokenizer {
         //                .valueSerializer(new SerializerJava())
         //                .createOrOpen();
         File dataFolder = new File("data/trie3/");
-        Trie<IntOpenHashSet> map = new Trie<>();
+        DiskTrie<IntOpenHashSet> map = new DiskTrie<>();
         System.out.println("structure created " + stopWatch1.getElapsedTimeStringAndIncrement());
 
         ////////////////// fill structure //////////////////
@@ -631,7 +629,7 @@ public final class Tokenizer {
                 //                btree.close();
             } else {
                 //                int[] ints = map.get(query);
-                IntOpenHashSet ints = Optional.ofNullable(map).orElse(new Trie<>()).get(query);
+                IntOpenHashSet ints = Optional.ofNullable(map).orElse(new DiskTrie<>()).get(query);
                 if (ints == null) {
                     System.out.println("-");
                 } else {

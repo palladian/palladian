@@ -11,12 +11,12 @@ import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
 /**
  * <p>
- * Download content from a different IP via the cloud.
+ * Download content from a different IP via a cloud.
  * </p>
  *
  * @author David Urbansky
- * @see <a href="https://app.webscrapingapi.com/documentation/basic-request">Web Scraping API Docs</a>
- *      12.06.2022
+ * @see <a href="https://app.webscrapingapi.com/documentation/getting-started">Web Scraping API Docs</a>
+ *      14.06.2022
  */
 public class WebScrapingApiDocumentRetriever extends WebDocumentRetriever {
     private final String apiKey;
@@ -46,7 +46,7 @@ public class WebScrapingApiDocumentRetriever extends WebDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         THROTTLE.hold();
-        String requestUrl = "https://api.webscrapingapi.com/v1?api_key=" + apiKey + "&render_js=" + useJsRendering + "&url=" + UrlHelper.encodeParameter(url);
+        String requestUrl = "https://api.webscrapingapi.com/v1?api_key=" + apiKey + "&render_js=" + (useJsRendering ? "1" : "0") + "&url=" + UrlHelper.encodeParameter(url);
         Document webDocument = documentRetriever.getWebDocument(requestUrl);
         if (webDocument != null) {
             webDocument.setDocumentURI(url);

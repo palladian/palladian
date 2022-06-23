@@ -1,24 +1,23 @@
 package ws.palladian.helper.nlp;
 
-import java.security.MessageDigest;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
+
+import java.security.MessageDigest;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * <p>
@@ -39,8 +38,8 @@ public final class StringHelper {
     private static final Pattern PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
     private static final Pattern PATTERN_STRING = Pattern.compile(RegExp.STRING);
     private static final Pattern PATTERN_NUMBER = Pattern.compile(RegExp.NUMBER);
-    private static final Pattern PATTERN_NUMBER_STRICT = Pattern
-            .compile("-?((\\d{1,3}(\\.\\d{3})+(,\\d{1,2})?)|(^\\d+$)|(\\d{1,3}(,\\d{3})+(\\.\\d{1,2})?)|(\\d+,\\d{1,20})|(\\d+\\.\\d{1,20}))");
+    private static final Pattern PATTERN_NUMBER_STRICT = Pattern.compile(
+            "-?((\\d{1,3}(\\.\\d{3})+(,\\d{1,2})?)|(^\\d+$)|(\\d{1,3}(,\\d{3})+(\\.\\d{1,2})?)|(\\d+,\\d{1,20})|(\\d+\\.\\d{1,20}))");
     private static final Pattern PATTERN_EXPONENTIAL_NUMBER = Pattern.compile("^-?\\d+\\.\\d+E\\d+$");
     private static final Pattern PATTERN_STARTS_WITH_NUMBER = Pattern.compile("^" + RegExp.NUMBER);
     private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
@@ -56,8 +55,8 @@ public final class StringHelper {
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
-    public static final String[] TRIMMABLE_CHARACTERS = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
-            "@", "<", ">", "=", "·", "^", "_", "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™", "○"};
+    public static final String[] TRIMMABLE_CHARACTERS = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\", "@", "<", ">", "=", "·", "^", "_",
+            "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™", "○"};
 
     private StringHelper() {
         // utility class.
@@ -415,8 +414,7 @@ public final class StringHelper {
      */
     public static boolean containsWordRegExp(String word, String searchString) {
         String allowedNeighbors = "[\\s,.;-?!()\\[\\]]";
-        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|("
-                + allowedNeighbors + word + "$)|(^" + word + "$)";
+        String regexp = allowedNeighbors + word + allowedNeighbors + "|(^" + word + allowedNeighbors + ")|(" + allowedNeighbors + word + "$)|(^" + word + "$)";
 
         try {
             Pattern pattern = PatternHelper.compileOrGet(regexp, Pattern.CASE_INSENSITIVE);
@@ -752,8 +750,7 @@ public final class StringHelper {
 
         string = StringHelper.trim(string).toLowerCase();
 
-        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
-                "twelve").contains(string);
+        return Arrays.asList("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve").contains(string);
     }
 
     /**
@@ -773,12 +770,9 @@ public final class StringHelper {
 
         for (int i = 0, l = string.length(); i < l; ++i) {
             Character ch = string.charAt(i);
-            if (Character.getType(ch) != Character.DECIMAL_DIGIT_NUMBER
-                    && Character.getType(ch) != Character.DASH_PUNCTUATION
-                    && Character.getType(ch) != Character.CONNECTOR_PUNCTUATION
-                    && Character.getType(ch) != Character.CURRENCY_SYMBOL
-                    && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE && ch != '%' && ch != '.'
-                    && ch != ',' && ch != ':') {
+            if (Character.getType(ch) != Character.DECIMAL_DIGIT_NUMBER && Character.getType(ch) != Character.DASH_PUNCTUATION && Character.getType(ch)
+                    != Character.CONNECTOR_PUNCTUATION && Character.getType(ch) != Character.CURRENCY_SYMBOL && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE
+                    && ch != '%' && ch != '.' && ch != ',' && ch != ':') {
                 isNumericExpression = false;
                 break;
             }
@@ -789,8 +783,7 @@ public final class StringHelper {
 
             if (m.find()) {
                 double number = Double.parseDouble(StringNormalizer.normalizeNumber(m.group()));
-                double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
-                        string.substring(m.end(), string.length()));
+                double convertedNumber = UnitNormalizer.getNormalizedNumber(number, string.substring(m.end(), string.length()));
                 if (number != convertedNumber) {
                     return true;
                 }
@@ -828,9 +821,8 @@ public final class StringHelper {
 
         for (int i = 0, l = string.length(); i < l; ++i) {
             Character ch = string.charAt(i);
-            if (Character.getType(ch) != Character.UPPERCASE_LETTER
-                    && Character.getType(ch) != Character.INITIAL_QUOTE_PUNCTUATION
-                    && Character.getType(ch) != Character.FINAL_QUOTE_PUNCTUATION && ch != ' ') {
+            if (Character.getType(ch) != Character.UPPERCASE_LETTER && Character.getType(ch) != Character.INITIAL_QUOTE_PUNCTUATION && Character.getType(ch)
+                    != Character.FINAL_QUOTE_PUNCTUATION && ch != ' ') {
                 return false;
             }
         }
@@ -892,7 +884,6 @@ public final class StringHelper {
         }
         return PATTERN_UPPERCASE.matcher(string).replaceAll("").length();
     }
-
 
     /**
      * <p>
@@ -1000,14 +991,10 @@ public final class StringHelper {
 
                 // System.out.println(first.charValue());
                 // System.out.println(Character.isSpaceChar(first));
-                if (first == element.charAt(0)
-                        || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
-                        || Character.isSpaceChar(first)) {
+                if (first == element.charAt(0) || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(first)) {
                     deleteFirst = true;
                 }
-                if (last == element.charAt(0)
-                        || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
-                        || Character.isSpaceChar(last)) {
+                if (last == element.charAt(0) || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(last)) {
                     deleteLast = true;
                 }
                 if (deleteFirst && deleteLast) {
@@ -1231,8 +1218,7 @@ public final class StringHelper {
      *                      empty.
      * @return The longest common string.
      */
-    public static String getLongestCommonString(String string1, String string2, boolean caseSensitive,
-                                                boolean shiftString) {
+    public static String getLongestCommonString(String string1, String string2, boolean caseSensitive, boolean shiftString) {
         String string1Compare = string1;
         String string2Compare = string2;
         if (!caseSensitive) {
@@ -1475,15 +1461,17 @@ public final class StringHelper {
      * @return The number of white spaces in the text.
      */
     public static int countWhitespaces(String text) {
-        return text.replaceAll("[^ ]", "").length();
+        int count = 0;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == ' ') {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
      * Shorten a String; returns the first num words.
-     *
-     * @param string
-     * @param num
-     * @return
      */
     public static String getFirstWords(String string, int num) {
         StringBuilder sb = new StringBuilder();
@@ -1573,8 +1561,8 @@ public final class StringHelper {
         }
         for (int i = 0; i < in.length(); i++) {
             current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
-            if (current == 0x9 || current == 0xA || current == 0xD || current >= 0x20 && current <= 0xD7FF
-                    || current >= 0xE000 && current <= 0xFFFD || current >= 0x10000 && current <= 0x10FFFF) {
+            if (current == 0x9 || current == 0xA || current == 0xD || current >= 0x20 && current <= 0xD7FF || current >= 0xE000 && current <= 0xFFFD
+                    || current >= 0x10000 && current <= 0x10FFFF) {
                 out.append(current);
             }
         }
@@ -2083,12 +2071,42 @@ public final class StringHelper {
     }
 
     /**
+     * Return the text context around a word.
+     *
+     * @param word        The word at the center.
+     * @param text        The entire text.
+     * @param contextSize The size of the context in characters.
+     * @return The context before the word + the word + the context after the word.
+     */
+    public static String getContext(String word, String text, int contextSize) {
+        int wordBeginIndex = text.indexOf(word);
+        if (wordBeginIndex < 0) {
+            return "";
+        }
+        int wordEndIndex = wordBeginIndex + word.length();
+        int leftIndex = Math.max(0, wordBeginIndex - contextSize);
+        int rightIndex = Math.min(text.length(), wordEndIndex + contextSize);
+        return text.substring(leftIndex, wordBeginIndex) + text.substring(wordBeginIndex, rightIndex);
+    }
+
+    public static boolean nullOrEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
+
+    /**
      * The main method.
      *
      * @param args the arguments
      */
     public static void main(String[] args) {
-
+        String text1 = "asd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjkljasd fasd falsdif alsidf asldifu saldifuasldif asldf sald falskdf sdlfks djfjklj";
+        StopWatch stopWatch001 = new StopWatch();
+        for (int i = 0; i < 100000; i++) {
+            StringHelper.countWhitespaces(text1);
+        }
+        System.out.println(StringHelper.countWhitespaces(text1));
+        System.out.println(stopWatch001.getElapsedTimeString());
+        System.exit(0);
         StopWatch sw = new StopWatch();
         Pattern pattern = Pattern.compile("[ ]{2,}");
         String text = "abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjd        flabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                                                       abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl                        abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdflabadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl abadf  adf isdjfa klf jasdkfj saldkf jsakl fd   dfkljasdjflasjdfl      df asdf asdf sda f  sfd s df asd f            df as df asdf a sdf asfd asd f asdf sadf sa df sa df weir weir                                                 wer                                                               FOUR_BYTE_UTF8_SYMBOLS.add(";
@@ -2269,28 +2287,5 @@ public final class StringHelper {
 
             colonIndex = nextColonIndex;
         }
-
-    }
-
-    /**
-     * Return the text context around a word.
-     * @param word The word at the center.
-     * @param text The entire text.
-     * @param contextSize The size of the context in characters.
-     * @return The context before the word + the word + the context after the word.
-     */
-    public static String getContext(String word, String text, int contextSize) {
-        int wordBeginIndex = text.indexOf(word);
-        if (wordBeginIndex < 0) {
-            return "";
-        }
-        int wordEndIndex = wordBeginIndex + word.length();
-        int leftIndex = Math.max(0, wordBeginIndex - contextSize);
-        int rightIndex = Math.min(text.length(), wordEndIndex + contextSize);
-        return text.substring(leftIndex, wordBeginIndex) + text.substring(wordBeginIndex, rightIndex);
-    }
-
-    public static boolean nullOrEmpty(String string) {
-        return string == null || string.isEmpty();
     }
 }

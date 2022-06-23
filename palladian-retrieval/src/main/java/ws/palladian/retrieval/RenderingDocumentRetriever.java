@@ -3,6 +3,7 @@ package ws.palladian.retrieval;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.github.bonigarcia.wdm.config.DriverManagerType;
 import org.openqa.selenium.*;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -18,6 +19,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
@@ -195,7 +197,24 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public void goTo(String url, boolean forceReload) {
-        if (forceReload || !driver.getCurrentUrl().equals(url)) {
+        String currentUrl = Optional.ofNullable(driver.getCurrentUrl()).orElse("");
+
+        if (cookies != null && !cookies.isEmpty()) {
+            String domain = UrlHelper.getDomain(url, false, true);
+            String currentDomain = UrlHelper.getDomain(currentUrl, false, true);
+            if (!domain.equalsIgnoreCase(currentDomain)) { // first navigate to the domain so we can set cookies
+                driver.get(url);
+            }
+            for (Map.Entry<String, String> entry : cookies.entrySet()) {
+                try {
+                    driver.manage().addCookie(new Cookie(entry.getKey(), entry.getValue(), domain, "/", null, false, false));
+                } catch (Exception e) {
+                    LOGGER.error("Could not set cookie", e);
+                }
+            }
+        }
+
+        if (forceReload || !currentUrl.equals(url)) {
             driver.get(url);
         }
 
@@ -224,6 +243,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem with waiting", e);
             ThreadHelper.deepSleep(500);
         }
+        driver.manage().deleteAllCookies();
     }
 
     /**
@@ -455,6 +475,12 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public RemoteWebDriver getDriver() {
         return driver;
+    }
+
+    @Override
+    public void deleteAllCookies() {
+        super.deleteAllCookies();
+        driver.manage().deleteAllCookies();
     }
 
     public static void main(String... args) throws HttpException {

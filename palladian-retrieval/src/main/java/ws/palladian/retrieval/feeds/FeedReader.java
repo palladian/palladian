@@ -25,9 +25,9 @@ public final class FeedReader {
     private final FeedReaderSettings settings;
 
     /**
-     * A scheduler that checks continuously if there are feeds in the {@link #feedCollection} that need to be updated. A
+     * A scheduler that checks continuously if there are feeds in the feedCollection that need to be updated. A
      * feed must be updated whenever the method {@link Feed#getLastPollTime()} return value is further away in the past
-     * then its {@link Feed#getMaxCheckInterval()} or {@link Feed#getUpdateInterval()} returns. Which one to use depends
+     * then its {@link Feed#getUpdateInterval()} returns. Which one to use depends
      * on the update strategy.
      */
     private final Timer checkScheduler;

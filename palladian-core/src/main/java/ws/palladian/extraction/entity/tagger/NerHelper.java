@@ -55,7 +55,7 @@ public final class NerHelper {
     /**
      * The output of the named entity recognition is not well formatted and we need to align it with the input data.
      *
-     * @param file The file where the prediction output is written in BIO format. This file will be overwritten.
+     * @param alignFile The file where the prediction output is written in BIO format. This file will be overwritten.
      */
     public static void alignContent(File alignFile, String correctContent) {
         // transform to XML
@@ -235,8 +235,8 @@ public final class NerHelper {
      * "going to New York", and a specified length of 2, the following contexts would be extracted: "to" and "going to".
      *
      * @param annotation The annotation, not <code>null</code>.
-     * @param text The text, which is referred to by the annotation, not <code>null</code>.
-     * @param size The size in tokens.
+     * @param text       The text, which is referred to by the annotation, not <code>null</code>.
+     * @param size       The size in tokens.
      * @return A list with cumulated left context tokens from length 1 ... n.
      */
     public static List<String> getLeftContexts(Annotation annotation, String text, int size) {
@@ -267,8 +267,8 @@ public final class NerHelper {
      * "is a city".
      *
      * @param annotation The annotation, not <code>null</code>.
-     * @param text The text, which is referred to by the annotation, not <code>null</code>.
-     * @param size The size in tokens.
+     * @param text       The text, which is referred to by the annotation, not <code>null</code>.
+     * @param size       The size in tokens.
      * @return A list with cumulated right context tokens from length 1 ... n.
      */
     public static List<String> getRightContexts(Annotation annotation, String text, int size) {
@@ -310,9 +310,9 @@ public final class NerHelper {
      * @param annotations The annotations to combine.
      * @return The combined annotations.
      */
-    public static Annotations<ClassifiedAnnotation> combineAnnotations(Annotations<ClassifiedAnnotation> annotations) {
+    public static Annotations<ClassifiedAnnotation> combineAnnotations(List<ClassifiedAnnotation> annotations) {
         Annotations<ClassifiedAnnotation> combinedAnnotations = new Annotations<>();
-        annotations.sort();
+        Collections.sort(annotations);
         ClassifiedAnnotation previous = null;
         ClassifiedAnnotation previousCombined = null;
         for (ClassifiedAnnotation current : annotations) {
@@ -338,7 +338,7 @@ public final class NerHelper {
         return combinedAnnotations;
     }
 
-    public static void removeDateFragments(Set<Annotation> annotations) {
+    public static void removeDateFragments(Collection<Annotation> annotations) {
         Set<Annotation> toAdd = new HashSet<>();
         Set<Annotation> toRemove = new HashSet<>();
         for (Annotation annotation : annotations) {
@@ -353,16 +353,16 @@ public final class NerHelper {
         annotations.removeAll(toRemove);
     }
 
-
-    public static void removeDates(Set<Annotation> annotations) {
+    public static void removeDates(Collection<Annotation> annotations) {
         int numRemoved = CollectionHelper.remove(annotations, annotation -> !isDateFragment(annotation.getValue()));
         LOGGER.debug("Removed {} purely date annotations", numRemoved);
     }
 
-    public static void unwrapEntities(Set<Annotation> annotations) {
+    public static void unwrapEntities(Collection<Annotation> annotations) {
         unwrapEntities(annotations, null);
     }
-    public static void unwrapEntities(Set<Annotation> annotations, PalladianNerModel model) {
+
+    public static void unwrapEntities(Collection<Annotation> annotations, PalladianNerModel model) {
         Set<Annotation> toAdd = new HashSet<>();
         Set<Annotation> toRemove = new HashSet<>();
         for (Annotation annotation : annotations) {
@@ -386,11 +386,11 @@ public final class NerHelper {
      * annotation are part of this entity. The given example contains two entities that might be in the given annotation
      * set. If so, we return the found annotations.
      *
-     * @param annotation The annotation to check.
+     * @param annotation  The annotation to check.
      * @param annotations The annotations we are searching for in this entity.
      * @return A set of annotations found in this annotation.
      */
-    private static Set<Annotation> unwrapAnnotations(Annotation annotation, Set<Annotation> annotations, PalladianNerModel model) {
+    private static Set<Annotation> unwrapAnnotations(Annotation annotation, Collection<Annotation> annotations, PalladianNerModel model) {
         Set<String> otherValues = new HashSet<>();
         for (Annotation currentAnnotation : annotations) {
             if (!currentAnnotation.equals(annotation)) {
@@ -414,7 +414,6 @@ public final class NerHelper {
         return unwrappedAnnotations;
     }
 
-
     /**
      * Check whether the given text is a date fragment, e.g. "June".
      *
@@ -430,12 +429,28 @@ public final class NerHelper {
         return false;
     }
 
+    public static void removeNestedAnnotations(List<? extends Annotation> annotations) {
+        Collections.sort(annotations);
+
+        ListIterator<? extends Annotation> iterator = annotations.listIterator();
+        int lastEndIndex = 0;
+        while (iterator.hasNext()) {
+            Annotation annotation = iterator.next();
+            // ignore nested annotations
+            if (annotation.getStartPosition() < lastEndIndex) {
+                iterator.remove();
+                continue;
+            }
+            lastEndIndex = annotation.getEndPosition();
+        }
+    }
+
     /**
      * Try to remove date fragments from the given annotation, e.g. "June John Hiatt" becomes "John Hiatt".
      *
      * @param annotation The annotation to process.
      * @return A new annotation with removed date fragments and fixed offsets, or <code>null</code> in case the given
-     *         annotation did not contain a date fragment.
+     * annotation did not contain a date fragment.
      */
     public static Annotation removeDateFragment(Annotation annotation) {
         String newValue = annotation.getValue();

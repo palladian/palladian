@@ -1,10 +1,10 @@
 package ws.palladian.helper.nlp;
 
+import ws.palladian.helper.collection.LruMap;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import ws.palladian.helper.collection.LruMap;
 
 /**
  * Compiling patterns is expensive. This helper caches frequently compiled patterns.

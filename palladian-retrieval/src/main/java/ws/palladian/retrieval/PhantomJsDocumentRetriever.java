@@ -5,6 +5,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.retrieval.parser.ParserFactory;
+import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,8 @@ import java.util.regex.Pattern;
  */
 public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKey;
+
+    private Map<String, String> cookies = null;
 
     /**
      * 424 means the source took too long to reply but we still might have the content we want.
@@ -59,8 +62,25 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             }
         }
 
+        String cookieString = "";
+
+        if (cookies != null && !cookies.isEmpty()) {
+            String domain = UrlHelper.getDomain(url, false, true);
+            JsonArray cookiesArr = new JsonArray();
+            for (Map.Entry<String, String> entry : cookies.entrySet()) {
+                JsonObject jo = new JsonObject();
+                jo.put("domain", domain);
+                jo.put("key", entry.getKey());
+                jo.put("value", entry.getValue());
+                cookiesArr.add(jo);
+            }
+            JsonObject requestSettings = new JsonObject();
+            requestSettings.put("cookies", cookiesArr);
+            cookieString = ",requestSettings:" + UrlHelper.encodeParameter(requestSettings.toString());
+        }
+
         String requestUrl =
-                "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + "%7D";
+                "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + cookieString + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         JsonObject response = new DocumentRetriever().tryGetJsonObject(requestUrl);

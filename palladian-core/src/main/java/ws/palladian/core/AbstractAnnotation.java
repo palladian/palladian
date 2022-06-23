@@ -4,7 +4,7 @@ package ws.palladian.core;
  * <p>
  * Common functionality for {@link Annotation} interface.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class AbstractAnnotation extends AbstractToken implements Annotation {
@@ -28,5 +28,4 @@ public abstract class AbstractAnnotation extends AbstractToken implements Annota
         builder.append("]");
         return builder.toString();
     }
-
 }

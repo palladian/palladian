@@ -1,21 +1,8 @@
 package ws.palladian.extraction.location;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.CategoryEntriesBuilder;
 import ws.palladian.extraction.entity.tagger.NerHelper;
@@ -24,6 +11,11 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.InputStream;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+
 public class AnnotationRuleEngine {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationRuleEngine.class);
@@ -31,7 +23,7 @@ public class AnnotationRuleEngine {
     private static final String BOUNDARY_CHAR = "|";
 
     private static final String REGEX_START = "{{";
-    
+
     private static final String REGEX_END = "}}";
 
     /** A rule which can be applied to entities; in case the rule matches, a {@link Action} is triggered. */
@@ -112,7 +104,9 @@ public class AnnotationRuleEngine {
         };
 
         abstract void apply(Annotation annotation, Map<Annotation, CategoryEntriesBuilder> probs, String outcome);
-    };
+    }
+
+    ;
 
     private final List<Rule> rules;
 

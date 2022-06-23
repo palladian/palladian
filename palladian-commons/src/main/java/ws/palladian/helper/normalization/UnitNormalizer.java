@@ -8,6 +8,7 @@ import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.UnitType;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 import java.util.*;
@@ -130,6 +131,10 @@ public class UnitNormalizer {
         return UnitType.CURRENCY.contains(unit);
     }
 
+    private static boolean isFlowRateUnit(String unit) {
+        return UnitType.FLOW_RATE.contains(unit);
+    }
+
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
             if (PATTERNS.get(unit).matcher(text).find()) {
@@ -214,6 +219,9 @@ public class UnitNormalizer {
         }
         if (isTorqueUnit(unit)) {
             return UnitType.TORQUE.getUnitNames();
+        }
+        if (isFlowRateUnit(unit)) {
+            return UnitType.FLOW_RATE.getUnitNames();
         }
 
         return new HashSet<>();
@@ -305,8 +313,13 @@ public class UnitNormalizer {
             return true;
         }
 
-        // volume
+        // sound volume
         if (isSoundVolumeUnit(unit1) && isSoundVolumeUnit(unit2)) {
+            return true;
+        }
+
+        // flow rate
+        if (isFlowRateUnit(unit1) && isFlowRateUnit(unit2)) {
             return true;
         }
 
@@ -361,9 +374,7 @@ public class UnitNormalizer {
             for (Pair<List<String>, Double> pair : unitType.getUnits()) {
                 for (String unitTypeUnit : pair.getLeft()) {
                     if (unit.equals(unitTypeUnit)) {
-                        if (pair.getRight() == null) {
-                            multiplier = -1.0;
-                        } else {
+                        if (pair.getRight() != null) {
                             multiplier = pair.getRight();
                         }
                         break ol;
@@ -415,14 +426,14 @@ public class UnitNormalizer {
      * @return The combined value or -1 if number is not part of special format.
      */
     public static double handleSpecialFormat(double number, String unitText, int decimals) {
-        double combinedValue = -1.0;
+        double combinedValue;
 
         try {
             Pattern pattern;
             Matcher matcher;
 
             // 1m20s type
-            pattern = Pattern.compile("\\Am(\\s)?(\\d)+s");
+            pattern = PatternHelper.compileOrGet("\\Am(\\s)?(\\d)+s");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * 60; // minutes to seconds
@@ -431,7 +442,7 @@ public class UnitNormalizer {
             }
 
             // 1h2m20s, 1h2m type
-            pattern = Pattern.compile("\\Ah(\\s)?(\\d)+m(\\s)?((\\d)+s)?");
+            pattern = PatternHelper.compileOrGet("\\Ah(\\s)?(\\d)+m(\\s)?((\\d)+s)?");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * 3600; // hours to seconds
@@ -446,7 +457,7 @@ public class UnitNormalizer {
             }
 
             // 01:01:20 type
-            pattern = Pattern.compile("\\A:(\\d)+:(\\d)+");
+            pattern = PatternHelper.compileOrGet("\\A:(\\d)+:(\\d)+");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * 3600; // hours to seconds
@@ -458,7 +469,7 @@ public class UnitNormalizer {
             }
 
             // 01:20 type
-            pattern = Pattern.compile("\\A:(\\d)+");
+            pattern = PatternHelper.compileOrGet("\\A:(\\d)+");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * 60; // minutes to seconds
@@ -476,7 +487,7 @@ public class UnitNormalizer {
             }
 
             // 5'9'' / 5'9'' type
-            pattern = Pattern.compile("\\A'(\\s)?(\\d)+''");
+            pattern = PatternHelper.compileOrGet("\\A'(\\s)?(\\d)+''");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
@@ -485,7 +496,7 @@ public class UnitNormalizer {
             }
 
             // per thousand, per 1000 type
-            pattern = Pattern.compile("(\\Aper thousand)|(\\Aper 1000)");
+            pattern = PatternHelper.compileOrGet("(\\Aper thousand)|(\\Aper 1000)");
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number / 10; // to percent
@@ -580,6 +591,9 @@ public class UnitNormalizer {
             if (isCurrencyUnit(word)) {
                 unitType = UnitType.CURRENCY;
             }
+            if (isFlowRateUnit(word)) {
+                unitType = UnitType.FLOW_RATE;
+            }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit
             }
@@ -589,8 +603,8 @@ public class UnitNormalizer {
 
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
         // add space in case it's missing "2.4Ghz" => "2.4 Ghz"
-        unitText = unitText.replaceAll("(\\d)([A-Za-z\"])", "$1 $2").trim();
-        String words[] = unitText.split(" ");
+        unitText = PatternHelper.compileOrGet("(\\d)([A-Za-z\"])").matcher(unitText).replaceAll("$1 $2").trim();
+        String[] words = unitText.split(" ");
 
         if (words.length == 0) {
             words = unitText.trim().split("(?<=[0-9])(?=\\w)");
@@ -614,10 +628,7 @@ public class UnitNormalizer {
     }
 
     public static double getNormalizedNumber(double number, String unitText, int decimals, String combinedSearchPreviousUnit) {
-        boolean combinedSearch = false;
-        if (combinedSearchPreviousUnit.length() > 0) {
-            combinedSearch = true;
-        }
+        boolean combinedSearch = combinedSearchPreviousUnit.length() > 0;
 
         // test first whether number is part of a special format
         double specialFormatOutcome = handleSpecialFormat(number, StringHelper.trim(unitText, ":'\""), decimals);
@@ -637,7 +648,7 @@ public class UnitNormalizer {
             unitText = unitText.substring(0, unitText.length() - 1);
         }
 
-        String words[] = unitText.split(" ");
+        String[] words = unitText.split(" ");
 
         int l = words.length;
         double multiplier = 1.0;
@@ -733,9 +744,6 @@ public class UnitNormalizer {
         return Pair.of(smallestReadableValue, bestMatchingTransformation.getLeft());
     }
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         StopWatch stopWatch = new StopWatch();
 
