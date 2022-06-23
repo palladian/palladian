@@ -8051,7 +8051,7 @@ die	Majuskel	die	Majuskeln
 die	Minuskel	die	Minuskeln
 der	Wappler	die	Wappler
 der	Radikand	die	Radikanden
-die	Triplikation		die	Triplikationen	
+die	Triplikation	die		Triplikationen	
 der	Reif	die	Reife
 die	Rückbildung	die	Rückbildungen
 die	Polis	die	Poleis
@@ -10035,7 +10035,7 @@ der	Zwergpinguin	die	Zwergpinguine
 der	Goldschopfpinguin	die	Goldschopfpinguine
 der	Bobtail	die	Bobtails
 die	Recherche	die	Recherchen
-die	 Sprachstörung	die	 Sprachstörungen
+die	Sprachstörung	die	Sprachstörungen
 der	Zwerg-Bläuling	die	Zwerg-Bläulinge
 der	Bücherskorpion	die	Bücherskorpione
 die	Bagatelle	die	Bagatellen
@@ -10059,7 +10059,7 @@ das	Sigel	die	Sigel
 der	Sprachtyp	die	Sprachtypen
 die	Phlebografie	die	Phlebografien
 die	Defibrillation	die	Defibrillationen
-die	 Sprachgemeinschaft	die	 Sprachgemeinschaften
+die	Sprachgemeinschaft	die	Sprachgemeinschaften
 die	Demenz	die	Demenzen
 die	Einrückung	die	Einrückungen
 die	Verleumdung	die	Verleumdungen
@@ -10086,7 +10086,7 @@ der	Hedonist	die	Hedonisten
 die	Benutzerseite	die	Benutzerseiten
 die	Elaboration	die	Elaborationen
 der	Median	die	Mediane
-die	 Sprachentwicklungsstörung	die	 Sprachentwicklungsstörungen
+die	Sprachentwicklungsstörung	die	Sprachentwicklungsstörungen
 die	Sprachfunktion	die	Sprachfunktionen
 der	Pleitier	die	Pleitiers
 der	Pleitegeier	die	Pleitegeier
@@ -10118,7 +10118,7 @@ die	Wüstung	die	Wüstungen
 die	Paronychie	die	Paronychien
 die	Zisterne	die	Zisternen
 das	Spektakel	die	Spektakel
-die	 Sprachgesellschaft	die	 Sprachgesellschaften
+die	Sprachgesellschaft	die	Sprachgesellschaften
 das	Sternenbanner	die	Sternenbanner
 die	Sternfrucht	die	Sternfrüchte
 die	Zugehfrau	die	Zugehfrauen
@@ -10628,7 +10628,7 @@ die	Sommerlinde	die	Sommerlinden
 die	Bergulme	die	Bergulmen
 die	Schwarzpappel	die	Schwarzpappeln
 die	Bergkiefer	die	Bergkiefern
-der	Sadebaum	die	 Sadebäume
+der	Sadebaum	die	Sadebäume
 die	Rottanne	die	Rottannen
 der	Schneeballahorn	die	Schneeballahorne
 die	Rüster	die	Rüstern
@@ -10845,7 +10845,7 @@ das	Nachfeld	die	Nachfelder
 das	Vorfeld	die	Vorfelder
 die	Satzklammer	die	Satzklammern
 das	Monoxid	die	Monoxide
-der	Fittich	die	 Fittiche
+der	Fittich	die	Fittiche
 die	Stichstraße	die	Stichstraßen
 der	Kelch	die	Kelche
 der	Zombie	die	Zombies
@@ -10876,7 +10876,7 @@ die	Christbaumkugel	die	Christbaumkugeln
 das	Viertel	die	Viertel
 die	Koinzidenz	die	Koinzidenzen
 der	Muffin	die	Muffins
-das	Bügeleisen	die	 Bügeleisen
+das	Bügeleisen	die	Bügeleisen
 die	Finissage	die	Finissagen
 der	Ikonismus	die	Ikonismen
 der	Imperativsatz	die	Imperativsätze
@@ -11485,7 +11485,7 @@ die	Betäubung	die	Betäubungen
 die	Bewehrung	die	Bewehrungen
 die	Bifurkation	die	Bifurkationen
 der	Beduine	die	Beduinen
-die	 Mammografie	die	 Mammografien
+die	Mammografie	die	Mammografien
 der	Studienabschnitt	die	Studienabschnitte
 der	Dämpfer	die	Dämpfer
 die	Soldatin	die	Soldatinnen
@@ -12005,7 +12005,7 @@ die	Leukotomie	die	Leukotomien
 die	Zentrierung	die	Zentrierungen
 die	Weintraube	die	Weintrauben
 das	Straßenfest	die	Straßenfeste
-der	Ikonodule	die	 Ikonodulen
+der	Ikonodule	die	Ikonodulen
 die	Deponie	die	Deponien
 der	Ikonoklast	die	Ikonoklasten
 das	Lapidarium	die	Lapidarien
@@ -12217,7 +12217,7 @@ das	Gerippe	die	Gerippe
 das	Versprechen	die	Versprechen
 die	Automobilindustrie	die	Automobilindustrien
 das	Presswerk	die	Presswerke
-die	Ersterwähnungsurkunde	die	 Ersterwähnungsurkunden
+die	Ersterwähnungsurkunde	die	Ersterwähnungsurkunden
 die	Gründungsurkunde	die	Gründungsurkunden
 die	Kartusche	die	Kartuschen
 der	Kotflügel	die	Kotflügel
@@ -14010,8 +14010,8 @@ der	Auslug	die	Ausluge
 das	Eiscafé	die	Eiscafés
 die	Galanterie	die	Galanterien
 die	Abmahnung	die	Abmahnungen
-der	 Frontmotor	die	Frontmotoren
-der	 Mittelmotor	die	Mittelmotoren
+der	Frontmotor	die	Frontmotoren
+der	Mittelmotor	die	Mittelmotoren
 die	Klappe	die	Klappen
 die	Intervention	die	Interventionen
 der	Backstein	die	Backsteine
@@ -14380,7 +14380,7 @@ die	Weberei	die	Webereien
 die	Modifikation	die	Modifikationen
 die	Täuschung	die	Täuschungen
 die	Dornenkrone	die	Dornenkronen
-der	Harzer Roller	die	 Harzer Roller
+der	Harzer Roller	die	Harzer Roller
 das	Tötungsverbrechen	die	Tötungsverbrechen
 die	Blamage	die	Blamagen
 die	Desorganisation	die	Desorganisationen
@@ -14444,7 +14444,7 @@ der	Umriss	die	Umrisse
 die	Rheinbrücke	die	Rheinbrücken
 die	Rheinaue	die	Rheinauen
 die	Rektifikation	die	Rektifikationen
-der	Poetaster	die	 Poetaster
+der	Poetaster	die	Poetaster
 die	Gedichtsammlung	die	Gedichtsammlungen
 der	Balljunge	die	Balljungen
 die	Vorfreude	die	Vorfreuden
@@ -14452,7 +14452,7 @@ der	Vorwurf	die	Vorwürfe
 die	Wasserkunst	die	Wasserkünste
 der	Merlan	die	Merlane
 der	Wurf	die	Würfe
-das	Leichtathletikstadion	die	 Leichtathletikstadien
+das	Leichtathletikstadion	die	Leichtathletikstadien
 die	Warze	die	Warzen
 die	Zapfsäule	die	Zapfsäulen
 die	Tanksäule	die	Tanksäulen
@@ -14585,11 +14585,11 @@ die	Sauerstoffmaske	die	Sauerstoffmasken
 die	Fechtmaske	die	Fechtmasken
 der	Belang	die	Belange
 der	Totenacker	die	Totenäcker
-die	Totenbahre	die	 Totenbahren
-die	Totenbeschwörung	die	 Totenbeschwörungen
-die	Totenbestattung	die	 Totenbestattungen
-der	Totenbaum	die	 Totenbäume
-das	Totenbett	die	 Totenbetten
+die	Totenbahre	die	Totenbahren
+die	Totenbeschwörung	die	Totenbeschwörungen
+die	Totenbestattung	die	Totenbestattungen
+der	Totenbaum	die	Totenbäume
+das	Totenbett	die	Totenbetten
 die	Totenmesse	die	Totenmessen
 die	Totenhalle	die	Totenhallen
 die	Totenfeier	die	Totenfeiern
@@ -14722,7 +14722,7 @@ der	Traubensaft	die	Traubensäfte
 der	Dobermann	die	Dobermänner
 der	Freier	die	Freier
 die	Quiche	die	Quiches
-der	 Interessent	die	Interessenten
+der	Interessent	die	Interessenten
 die	Konsultation	die	Konsultationen
 die	Fase	die	Fasen
 der	Hochzeitstag	die	Hochzeitstage
@@ -19477,7 +19477,7 @@ das	Metallbett	die	Metallbetten
 die	Soffitte	die	Soffitten
 der	Sprachinhalt	die	Sprachinhalte
 das	Utensil	die	Utensilien
-die	 Sprachmischung	die	 Sprachmischungen
+die	Sprachmischung	die	Sprachmischungen
 das	Spielfeld	die	Spielfelder
 der	Samenerguss	die	Samenergüsse
 der	Nichtschwimmer	die	Nichtschwimmer
@@ -20331,7 +20331,7 @@ der	Ausspruch	die	Aussprüche
 der	Schriftwechsel	die	Schriftwechsel
 der	Schriftverkehr	die	Schriftverkehre
 das	Schrifttum	die	Schrifttümer
-die	 Schriftentwicklung	die	 Schriftentwicklungen
+die	Schriftentwicklung	die	Schriftentwicklungen
 der	Lappe	die	Lappen
 der	Tänzer	die	Tänzer
 die	Oxidation	die	Oxidationen
@@ -20355,7 +20355,7 @@ der	Staatsdienst	die	Staatsdienste
 das	Hechtkraut	die	Hechtkräuter
 die	Trance	die	Trancen
 die	Blechdose	die	Blechdosen
-das	Dosenbier	die	 Dosenbiere
+das	Dosenbier	die	Dosenbiere
 der	Trassat	die	Trassaten
 der	Landstrich	die	Landstriche
 der	Familienbetrieb	die	Familienbetriebe
@@ -20509,7 +20509,7 @@ die	Ration	die	Rationen
 der	Flächenbrand	die	Flächenbrände
 der	Klinkenstecker	die	Klinkenstecker
 das	Knicklicht	die	Knicklichter
-die	 Israelin	die	 Israelinnen
+die	Israelin	die	Israelinnen
 der	Rechtsruck	die	Rechtsrucke
 das	Ungleichgewicht	die	Ungleichgewichte
 der	Kronkorken	die	Kronkorken
@@ -20586,7 +20586,7 @@ der	Kondensationspunkt	die	Kondensationspunkte
 die	Sprachenkenntnis	die	Sprachenkenntnisse
 die	Allgemeinsprache	die	Allgemeinsprachen
 die	Aktienanleihe	die	Aktienanleihen
-der	 Rollgabelschlüssel	die	 Rollgabelschlüssel
+der	Rollgabelschlüssel	die	Rollgabelschlüssel
 die	Veneninnenhautentzündung	die	Veneninnenhautentzündungen
 der	Monaster	die	Monaster
 das	Myelom	die	Myelome
@@ -20658,7 +20658,7 @@ die	Nörgelei	die	Nörgeleien
 der	Nörgler	die	Nörgler
 die	Krittelei	die	Kritteleien
 die	Nörglerin	die	Nörglerinnen
-das	 Hausmittel	die	 Hausmittel
+das	Hausmittel	die	Hausmittel
 der	Biologielehrer	die	Biologielehrer
 der	Lateinlehrer	die	Lateinlehrer
 der	Fahrschullehrer	die	Fahrschullehrer
@@ -21444,7 +21444,7 @@ das	Hämagogum	die	Hämagoga
 das	Betrugsopfer	die	Betrugsopfer
 das	Mordopfer	die	Mordopfer
 der	Militärhubschrauber	die	Militärhubschrauber
-die	enterohämorrhagische Escherichia coli	die	 enterohämorrhagischen Escherichiae coli
+die	enterohämorrhagische Escherichia coli	die	enterohämorrhagischen Escherichiae coli
 das	Postament	die	Postamente
 das	Vergewaltigungsopfer	die	Vergewaltigungsopfer
 die	Stahlfeder	die	Stahlfedern
@@ -22268,8 +22268,8 @@ das	Parfait	die	Parfaits
 der	Raser	die	Raser
 der	Calypso	die	Calypsos
 der	Rucksackbomber	die	Rucksackbomber
-die	Nullfuge	die	 Nullfugen
-die	Null-Fuge	die	 Null-Fugen
+die	Nullfuge	die	Nullfugen
+die	Null-Fuge	die	Null-Fugen
 das	Totem	die	Totems
 der	Beikoch	die	Beiköche
 das	Mängelexemplar	die	Mängelexemplare
@@ -23934,7 +23934,7 @@ die	Bauernregel	die	Bauernregeln
 die	Ausstellungseröffnung	die	Ausstellungseröffnungen
 das	Sprachzeugnis	die	Sprachzeugnisse
 die	Zauberin	die	Zauberinnen
-das	 Wehwehchen	die	 Wehwehchen
+das	Wehwehchen	die	Wehwehchen
 die	Gemeinschaftswährung	die	Gemeinschaftswährungen
 das	Mittelchen	die	Mittelchen
 der	Hosenscheißer	die	Hosenscheißer
@@ -24189,7 +24189,7 @@ die	Dauerkarte	die	Dauerkarten
 die	Umstellung	die	Umstellungen
 die	Prügelstrafe	die	Prügelstrafen
 die	Besserwisserei	die	Besserwissereien
-die	Überlieferung		die	Überlieferungen	
+die	Überlieferung	die		Überlieferungen	
 der	Rückblick	die	Rückblicke
 die	Wiederkunft	die	Wiederkünfte
 der	Acarologe	die	Acarologen
@@ -25721,7 +25721,7 @@ die	Transaktionsnummer	die	Transaktionsnummern
 die	Grenzmark	die	Grenzmarken
 der	Klassenerhalt	die	Klassenerhalte
 der	Klassenverbleib	die	Klassenverbleibe
-die	Alexie	die	 Alexien
+die	Alexie	die	Alexien
 die	Quästur	die	Quästuren
 der	Sendeplatz	die	Sendeplätze
 die	Agraphie	die	Agraphien
@@ -26201,7 +26201,7 @@ die	Partnerin	die	Partnerinnen
 die	Nierenkapsel	die	Nierenkapseln
 die	Nierenpyramide	die	Nierenpyramiden
 das	Nierenkanälchen	die	Nierenkanälchen
-das	 Nierenkörperchen	die	Nierenkörperchen
+das	Nierenkörperchen	die	Nierenkörperchen
 der	Vorsitz	die	Vorsitze
 die	Geoglyphe	die	Geoglyphen
 das	Aak	die	Aake
@@ -26589,7 +26589,7 @@ der	Hexaederstumpf	die	Hexaederstümpfe
 die	Bettgeschichte	die	Bettgeschichten
 der	Kraxler	die	Kraxler
 das	Gspusi	die	Gspusis
-die	Scheibenbremse	die	 Scheibenbremsen
+die	Scheibenbremse	die	Scheibenbremsen
 der	Schram	die	Schräme
 der	Reiberdatschi	die	Reiberdatschi
 der	Dynast	die	Dynasten
@@ -26668,7 +26668,7 @@ die	Zollbeamtin	die	Zollbeamtinnen
 die	Polizeibeamtin	die	Polizeibeamtinnen
 die	Ordnungswidrigkeit	die	Ordnungswidrigkeiten
 das	Steuerabkommen	die	Steuerabkommen
-die	 Steuerfahndung	die	 Steuerfahndungen
+die	Steuerfahndung	die	Steuerfahndungen
 der	Steuersünder	die	Steuersünder
 der	Selbstzweck	die	Selbstzwecke
 die	Glückssache	die	Glückssachen
@@ -29903,7 +29903,7 @@ die	Jahrmillion	die	Jahrmillionen
 das	Polaroidfoto	die	Polaroidfotos
 der	Loreleyfelsen	die	Loreleyfelsen
 das	Jaspé	die	Jaspés
-der	Muskattrollinger 	die	 Muskattrollinger
+der	Muskattrollinger 	die	Muskattrollinger
 die	Hörsprechgarnitur	die	Hörsprechgarnituren
 der	Kläffer	die	Kläffer
 das	Währungssystem 	die	Währungssysteme
@@ -30309,7 +30309,7 @@ der	Peilwagen	die	Peilwagen
 die	Morphiumspritze	die	Morphiumspritzen
 die	Heroinspritze	die	Heroinspritzen
 die	Tetanusspritze	die	Tetanusspritzen
-die	 Gesteinsschicht	die	 Gesteinsschichten
+die	Gesteinsschicht	die	Gesteinsschichten
 der	Negativpreis	die	Negativpreise
 der	Brokat	die	Brokate
 der	Wohnungsmarkt	die	Wohnungsmärkte
@@ -33242,7 +33242,7 @@ der	Ärmelstreifen	die	Ärmelstreifen
 die	Äquilibristin	die	Äquilibristinnen
 das	Änderungsmodul	die	Änderungsmodule
 die	Äquatorlinie	die	Äquatorlinien
-das	Ärosol		die Ärosole
+das	Ärosol	die	Ärosole
 die	Ärztekammer	die	Ärztekammern
 das	Ärztemuster	die	Ärztemuster
 das	Ärztehaus	die	Ärztehäuser
@@ -33287,7 +33287,7 @@ die	Ätzgrube	die	Ätzgruben
 die	Ätzmaske	die	Ätzmasken
 die	Ätzkammer	die	Ätzkammern
 die	Ätzlösung	die	Ätzlösungen
-die	Ätzkraft		die Ätzkräfte
+die	Ätzkraft	die	Ätzkräfte
 der	Ätzabtrag	die	Ätzabträge
 der	Ätzhügel	die	Ätzhügel
 das	Ätzmittel	die	Ätzmittel
@@ -33328,7 +33328,7 @@ das	Ökoaudit	die	Ökoaudits
 die	Ökobilanz	die	Ökobilanzen
 das	Öko-Haus	die	Öko-Häuser
 die	Ökoaktivistin	die	Ökoaktivistinnen
-die	Ökolatsche		die Ökolatschen
+die	Ökolatsche	die	Ökolatschen
 das	Ökodesign-Konsultationsforum	die	Ökodesign-Konsultationsforen
 die	Ökologiebewegung	die	Ökologiebewegungen
 die	Ökologin	die	Ökologinnen
@@ -33384,7 +33384,7 @@ der	Öldollar	die	Öldollars
 die	Öldiffusionspumpe	die	Öldiffusionspumpen
 der	Ölbrunnen	die	Ölbrunnen
 der	Öldruckstoßdämpfer	die	Öldruckstoßdämpfer
-der	Öldruck		die Öldrücke
+der	Öldruck	die	Öldrücke
 das	Ölembargo	die	Ölembargos
 die	Öldruckbremse	die	Öldruckbremsen
 der	Öldruckschalter	die	Öldruckschalter
@@ -33428,7 +33428,7 @@ der	Ölkanal	die	Ölkanäle
 das	Ölkabel	die	Ölkabel
 die	Ölkatastrophe	die	Ölkatastrophen
 der	Ölkesselschalter	die	Ölkesselschalter
-der	Ölkeil		die Ölkeile
+der	Ölkeil	die	Ölkeile
 der	Ölkondensator	die	Ölkondensatoren
 der	Ölimporteur	die	Ölimporteure
 die	Ölkontrolle	die	Ölkontrollen
@@ -33559,7 +33559,7 @@ der	Ölwechsel	die	Ölwechsel
 die	Ölzuführung	die	Ölzuführungen
 die	Ölzuleitung	die	Ölzuleitungen
 der	Ölzusatz	die	Ölzusätze
-die	Ölzufuhr		die Ölzufuhren
+die	Ölzufuhr	die	Ölzufuhren
 der	Önologe	die	Önologen
 der	Ölzweig	die	Ölzweige
 der	Ölzerstäubungsbrenner	die	Ölzerstäubungsbrenner
@@ -33867,7 +33867,7 @@ die	Übermittlungssteuerung	die	Übermittlungssteuerungen
 der	Übernachtungsgast	die	Übernachtungsgäste
 der	Übernachtungspreis	die	Übernachtungspreise
 der	Übernachtungsplatz	die	Übernachtungsplätze
-die	Übernachtungszahl		die Übernachtungszahlen
+die	Übernachtungszahl	die	Übernachtungszahlen
 der	Übernahmeanspruch	die	Übernahmeansprüche
 die	Übermenge	die	Übermengen
 der	Übernahmebeleg	die	Übernahmebelege
@@ -33886,7 +33886,7 @@ der	Übernahmetest	die	Übernahmetests
 das	Übernahmerecht	die	Übernahmerechte
 der	Übernahmeversuch	die	Übernahmeversuche
 der	Übernahmevertrag	die	Übernahmeverträge
-der	Übernahmewettkampf		die Übernahmewettkämpfe
+der	Übernahmewettkampf	die	Übernahmewettkämpfe
 der	Übernahmevorschlag	die	Übernahmevorschläge
 die	Übernahmeprüfung	die	Übernahmeprüfungen
 die	Übernahmewelle	die	Übernahmewellen
@@ -33927,14 +33927,14 @@ der	Überrollkäfig	die	Überrollkäfige
 die	Übersättigung	die	Übersättigungen
 die	Überregulierung	die	Überregulierungen
 der	Überrock	die	Überröcke
-die	Übersäuerung		die Übersäuerungen
+die	Übersäuerung	die	Übersäuerungen
 das	Überschallflugzeug	die	Überschallflugzeuge
 der	Überrollpflug	die	Überrollpflüge
 die	Überrundung	die	Überrundungen
 das	Übergebot	die	Übergebote
 die	Überschallströmung	die	Überschallströmungen
 die	Überschattung	die	Überschattungen
-der	Überschallgeschwindigkeitsbereich		die Überschallgeschwindigkeitsbereiche
+der	Überschallgeschwindigkeitsbereich	die	Überschallgeschwindigkeitsbereiche
 die	Überschirmungsfläche	die	Überschirmungsflächen
 die	Überschicht	die	Überschichten
 die	Übernachtungskreuzfahrt	die	Übernachtungskreuzfahrten
@@ -33964,7 +33964,7 @@ der	Überschussladungsträger		Überschußladungsträger
 die	Überschussreserve		Überschußreserve
 der	Überschussschlamm		Überschußschlamm
 die	Überschussposition		Überschußposition
-der	Überschwang		die Überschwänge
+der	Überschwang	die	Überschwänge
 der	Überschuss		Überschuß
 die	Überschwemmungskatastrophe	die	Überschwemmungskatastrophen
 das	Überschwemmungsgebiet	die	Überschwemmungsgebiete
@@ -34074,10 +34074,10 @@ das	Übertragsbit	die	Übertragsbits
 der	Übertragende		ein Übertragender
 die	Übertragungsachse	die	Übertragungsachsen
 die	Übertragerbrücke	die	Übertragerbrücken
-der	Übertragungsanfang		die Übertragungsanfänge
+der	Übertragungsanfang	die	Übertragungsanfänge
 die	Übertragungsanweisung	die	Übertragungsanweisungen
 der	Übertragungsbeschluss		Übertragungsbeschluß
-die	Übertragungseigenschaft		die Übertragungseigenschaften
+die	Übertragungseigenschaft	die	Übertragungseigenschaften
 die	Übertragungseinheit	die	Übertragungseinheiten
 die	Übertragungsbescheinigung	die	Übertragungsbescheinigungen
 die	Übertragungsfunktion	die	Übertragungsfunktionen
@@ -34234,7 +34234,7 @@ der	Übungsturm	die	Übungstürme
 die	A-Bewertung	die	A-Bewertungen
 das	A-Loch	die	A-Löcher
 die	A-Saite	die	A-Saiten
-das	A-Land		die A-Länder
+das	A-Land	die	A-Länder
 die	A-Sprache	die	A-Sprachen
 der	Überweisungsabsender	die	Überweisungsabsender
 die	A-Säule	die	A-Säulen
@@ -34285,7 +34285,7 @@ das	Abänderungsgesetz	die	Abänderungsgesetze
 der	Abakus	die	Abakusse
 die	Abandonerklärung	die	Abandonerklärungen
 die	Abakusblüte	die	Abakusblüten
-die	Abandonware		die Abandonwares
+die	Abandonware	die	Abandonwares
 der	Abandonist	die	Abandonisten
 die	Abarbeitungsfolge	die	Abarbeitungsfolgen
 der	Abarbeitungsmechanismus	die	Abarbeitungsmechanismen
@@ -34296,7 +34296,7 @@ die	Abaya	die	Abayas
 der	Abatjour	die	Abatjours
 die	Abbauarbeit	die	Abbauarbeiten
 die	Abandonnierung	die	Abandonnierungen
-die	Abbaubarkeit		die Abbaubarkeiten
+die	Abbaubarkeit	die	Abbaubarkeiten
 die	Abbauerlaubnis	die	Abbauerlaubnisse
 die	Abbauförderstrecke	die	Abbauförderstrecken
 die	Abbaubedingung	die	Abbaubedingungen
@@ -34518,8 +34518,8 @@ der	Abduktionsmuskel	die	Abduktionsmuskeln
 der	Abelsonit	die	Abelsonite
 die	Abdominalpresse	die	Abdominalpressen
 der	Abeceschütze	die	Abeceschützen
-das	Abendbrot		die Abendbrote
-die	Abendbekleidung		die Abendbekleidungen
+das	Abendbrot	die	Abendbrote
+die	Abendbekleidung	die	Abendbekleidungen
 die	Abendblume	die	Abendblumen
 die	Abendgesellschaft	die	Abendgesellschaften
 die	Abendglocke	die	Abendglocken
@@ -34529,7 +34529,7 @@ die	Abendkarte	die	Abendkarten
 der	Abendkernbeißer	die	Abendkernbeißer
 die	Abendklasse	die	Abendklassen
 die	Abendlandschaft	die	Abendlandschaften
-die	Abendluft		die Abendlüfte
+die	Abendluft	die	Abendlüfte
 der	Abendmahlkelch	die	Abendmahlkelche
 die	Abendmahlsbesucherin	die	Abendmahlsbesucherinnen
 die	Abendmahlsfeier	die	Abendmahlsfeiern
@@ -34814,11 +34814,11 @@ das	Abgeschöpfte		ein Abgeschöpftes
 das	Abgescheuerte		ein Abgescheuertes
 der	Abgeschiedene		ein Abgeschiedener
 die	Abgeordnetenkammer	die	Abgeordnetenkammern
-die	Abgeschiedenheit		die Abgeschiedenheiten
+die	Abgeschiedenheit	die	Abgeschiedenheiten
 der	Abgleichkondensator	die	Abgleichkondensatoren
 der	Abgleichwiderstand	die	Abgleichwiderstände
 der	Abgleichpunkt	die	Abgleichpunkte
-der	Abgleich		die Abgleiche
+der	Abgleich	die	Abgleiche
 die	Abgottboa	die	Abgottboas
 der	Abgleichfehler	die	Abgleichfehler
 das	Abgratwerkzeug	die	Abgratwerkzeuge
@@ -34891,7 +34891,7 @@ das	Abiturtreffen	die	Abiturtreffen
 das	Abiturzeugnis	die	Abiturzeugnisse
 die	Abisoliermaschine	die	Abisoliermaschinen
 das	Abisoliermesser	die	Abisoliermesser
-das	Abitur		die Abiture
+das	Abitur	die	Abiture
 das	Abkühlgitter	die	Abkühlgitter
 das	Abisoliergerät	die	Abisoliergeräte
 die	Abkühlungsperiode	die	Abkühlungsperioden
@@ -34929,7 +34929,7 @@ die	Abklingkonstante	die	Abklingkonstanten
 das	Abkommen	die	Abkommen
 die	Abkochung	die	Abkochungen
 die	Abkopplung	die	Abkopplungen
-die	Abkunft		die Abkünfte
+die	Abkunft	die	Abkünfte
 die	Ablöseklausel	die	Ablöseklauseln
 die	Ablängzange	die	Ablängzangen
 der	Ablösevorgang	die	Ablösevorgänge
@@ -34965,7 +34965,7 @@ der	Ablasskrämer		Ablaßkrämer
 der	Ablagetisch	die	Ablagetische
 der	Ablasskanal		Ablaßkanal
 der	Ablassstreit		Ablaßstreit
-die	Ablammsaison		die Ablammsaisons
+die	Ablammsaison	die	Ablammsaisons
 die	Ablasstaste		Ablaßtaste
 die	Ablassgeschwindigkeit		Ablaßgeschwindigkeit
 der	Ablasszettel		Ablaßzettel
@@ -35148,7 +35148,7 @@ die	Abrüstungsvereinbarung	die	Abrüstungsvereinbarungen
 die	Abrüstungsverhandlung	die	Abrüstungsverhandlungen
 das	Abrüstungsabkommen	die	Abrüstungsabkommen
 das	Abquetschwerkzeug	die	Abquetschwerkzeuge
-die	Abluft		die Ablüfte
+die	Abluft	die	Ablüfte
 der	Abramovit	die	Abramovite
 der	Abortturm	die	Aborttürme
 der	Abräumer	die	Abräumer
@@ -35266,7 +35266,7 @@ die	Absatzsteigerung	die	Absatzsteigerungen
 der	Absatzweg	die	Absatzwege
 das	Abluftproblem	die	Abluftprobleme
 der	Absatzzähler	die	Absatzzähler
-die	Absatzzahl		die Absatzzahlen
+die	Absatzzahl	die	Absatzzahlen
 die	Absatzmethode	die	Absatzmethoden
 der	Absatzmagnet	die	Absatzmagnete
 die	Absaugöffnung	die	Absaugöffnungen
@@ -35452,7 +35452,7 @@ die	Abschreibungsliste	die	Abschreibungslisten
 das	Abschreckungsmittel	die	Abschreckungsmittel
 die	Abschreckanlage	die	Abschreckanlagen
 die	Abschreibungsmethode	die	Abschreibungsmethoden
-die	Abschreibungsdauer		die Abschreibungsdauern
+die	Abschreibungsdauer	die	Abschreibungsdauern
 die	Abschreibungsrechnung	die	Abschreibungsrechnungen
 die	Abschreibungsprognose	die	Abschreibungsprognosen
 das	Abschreibungsfeld	die	Abschreibungsfelder
@@ -35567,7 +35567,7 @@ der	Absorptionskoeffizient	die	Absorptionskoeffizienten
 das	Absorptionsmittel	die	Absorptionsmittel
 die	Absorptionsfläche	die	Absorptionsflächen
 das	Absorptionsrohr	die	Absorptionsrohre
-das	Absorptionsprinzip		die Absorptionsprinzipien
+das	Absorptionsprinzip	die	Absorptionsprinzipien
 das	Absorptionsspektrum	die	Absorptionsspektren
 das	Absorptionssystem	die	Absorptionssysteme
 die	Abrichteinrichtung	die	Abrichteinrichtungen
@@ -35686,7 +35686,7 @@ die	Abstoßung	die	Abstoßungen
 die	Abströmöffnung	die	Abströmöffnungen
 die	Abstrahlfläche	die	Abstrahlflächen
 die	Abstimmvorrichtung	die	Abstimmvorrichtungen
-die	Abstraktheit		die Abstraktheiten
+die	Abstraktheit	die	Abstraktheiten
 der	Abstrahlwinkel	die	Abstrahlwinkel
 der	Abstraktionist	die	Abstraktionisten
 die	Abstraktionistin	die	Abstraktionistinnen
@@ -35827,13 +35827,13 @@ der	Abwärtstrend	die	Abwärtstrends
 der	Abwärtstransformator	die	Abwärtstransformatoren
 der	Abtretungsgläubiger	die	Abtretungsgläubiger
 die	Abwärtswende	die	Abwärtswenden
-die	Abwärtskompatibilität		die Abwärtskompatibilitäten
+die	Abwärtskompatibilität	die	Abwärtskompatibilitäten
 die	Abwartin	die	Abwartinnen
 der	Abwart	die	Abwarte
 die	Abtuschanlage	die	Abtuschanlagen
 das	Abwaschtuch	die	Abwaschtücher
 der	Abwärtstrafo	die	Abwärtstrafos
-das	Abwaschwasser		die Abwaschwässer
+das	Abwaschwasser	die	Abwaschwässer
 die	Abwasserabsetzanlage	die	Abwasserabsetzanlagen
 die	Abwasseraufbereitungsanlage	die	Abwasseraufbereitungsanlagen
 der	Abwasseranschluss		Abwasseranschluß
@@ -36050,7 +36050,7 @@ die	Achslinie	die	Achslinien
 die	Acht-Stunden-Schicht	die	Acht-Stunden-Schichten
 das	Achssystem	die	Achssysteme
 die	Achswelle	die	Achswellen
-die	Achromatisierung		die Achromatisierungen
+die	Achromatisierung	die	Achromatisierungen
 das	Achtbitzeichen	die	Achtbitzeichen
 der	Achszapfen	die	Achszapfen
 die	Achtelmeile	die	Achtelmeilen
@@ -36063,7 +36063,7 @@ die	Achsverlängerung	die	Achsverlängerungen
 das	Achterdeck	die	Achterdecks
 der	Achterknoten	die	Achterknoten
 die	Achterkurve	die	Achterkurven
-die	Achterbahn	die	 Achterbahnen
+die	Achterbahn	die	Achterbahnen
 die	Achterleine	die	Achterleinen
 das	Achterl	die	Achterl
 die	Achterliekskrümmung	die	Achterliekskrümmungen
@@ -36109,7 +36109,7 @@ die	Acker-Rindszunge	die	Acker-Rindszungen
 die	Acker-Kratzdistel	die	Acker-Kratzdisteln
 die	Acker-Ringelblume	die	Acker-Ringelblumen
 die	Achthundertjahrfeier	die	Achthundertjahrfeiern
-die	Acker-Schmalwand		die Acker-Schmalwände
+die	Acker-Schmalwand	die	Acker-Schmalwände
 die	Acker-Trespe	die	Acker-Trespen
 die	Acker-Scheibenegge	die	Acker-Scheibeneggen
 das	Acker-Stiefmütterchen	die	Acker-Stiefmütterchen
@@ -36141,7 +36141,7 @@ der	Ackerschlepperreifen	die	Ackerschlepperreifen
 die	Ackerschnecke	die	Ackerschnecken
 die	Ackerschleppe	die	Ackerschleppen
 die	Ackerkratzdistel	die	Ackerkratzdisteln
-die	Ackerschmalwand		die Ackerschmalwände
+die	Ackerschmalwand	die	Ackerschmalwände
 der	Abwärtswandler	die	Abwärtswandler
 der	Ackerschlepper	die	Ackerschlepper
 die	Ackerrand-Grasbüscheleule	die	Ackerrand-Grasbüscheleulen
@@ -36236,7 +36236,7 @@ das	Adelsgeschlecht	die	Adelsgeschlechter
 die	Adelskirche	die	Adelskirchen
 der	Adelssitz	die	Adelssitze
 der	Additionswert	die	Additionswerte
-die	Adenodynie		die Adenodynien
+die	Adenodynie	die	Adenodynien
 das	Adenom	die	Adenome
 das	Adenofibrom	die	Adenofibrome
 die	Adenomyosis	die	Adenomyosen
@@ -36310,9 +36310,9 @@ der	Administrationsbefehl	die	Administrationsbefehle
 der	Adlerkolibri	die	Adlerkolibris
 der	Adlige		ein Adliger
 die	Admiralsgattin	die	Admiralsgattinnen
-die	Admiralitätsinsel		die Admiralitätsinseln
+die	Admiralitätsinsel	die	Admiralitätsinseln
 der	Admiral	die	Admirale
-die	Admiralswürde		die Admiralswürden
+die	Admiralswürde	die	Admiralswürden
 der	Admiralstabsoffizier	die	Admiralstabsoffiziere
 die	Admiralitätskarte	die	Admiralitätskarten
 das	Adlerweibchen	die	Adlerweibchen
@@ -36455,7 +36455,7 @@ das	Aderlassmesser		Aderlaßmesser
 die	Aerationszone	die	Aerationszonen
 der	Aegirin-Augit	die	Aegirin-Augite
 das	Advokatenstift	die	Advokatenstifte
-der	Aeneade		die Aeneaden
+der	Aeneade	die	Aeneaden
 der	Aerinit	die	Aerinite
 das	Adygeisch		Adygeische
 der	Aerodynamiker	die	Aerodynamiker
@@ -36517,7 +36517,7 @@ der	Afmit	die	Afmite
 die	Afrikanistin	die	Afrikanistinnen
 die	Afrobrasilianerin	die	Afrobrasilianerinnen
 der	Afrodeutsche		ein Afrodeutscher
-der	Afrolook		die Afrolooks
+der	Afrolook	die	Afrolooks
 der	Afrobrasilianer	die	Afrobrasilianer
 die	After-Mastdarm-Fistel	die	After-Mastdarm-Fisteln
 der	Afrikander	die	Afrikander
@@ -36546,7 +36546,7 @@ der	Agarnährboden	die	Agarnährböden
 der	Afromosiabaum	die	Afromosiabäume
 die	Agath-Heidekrauteule	die	Agath-Heidekrauteulen
 das	Agavengewächs	die	Agavengewächse
-die	 Agalaktie	die	 Agalaktien
+die	Agalaktie	die	Agalaktien
 der	Agardit	die	Agardite
 die	Agende	die	Agenden
 der	Agententhriller	die	Agententhriller
@@ -36569,7 +36569,7 @@ die	Aggregatnummer	die	Aggregatnummern
 der	Aggressionsakt	die	Aggressionsakte
 die	Agenturvergütung	die	Agenturvergütungen
 der	Aggressionstherapeut	die	Aggressionstherapeuten
-die	Aggressionspolitik		die Aggressionspolitiken
+die	Aggressionspolitik	die	Aggressionspolitiken
 die	Aggressionsneigung	die	Aggressionsneigungen
 die	Agiorücklage	die	Agiorücklagen
 der	Agilolfinger	die	Agilolfinger
@@ -36584,7 +36584,7 @@ der	Agon	die	Agone
 das	AGR-Ventil	die	AGR-Ventile
 der	Agrarökologe	die	Agrarökologen
 der	Agrarüberschuss		Agrarüberschuß
-die	Aggressionsbewältigung		die Aggressionsbewältigungen
+die	Aggressionsbewältigung	die	Aggressionsbewältigungen
 der	Agrarausschuss		Agrarausschuß
 die	Agraraussprache	die	Agraraussprachen
 die	Agrarökologin	die	Agrarökologinnen
@@ -36595,7 +36595,7 @@ das	Agrarbudget	die	Agrarbudgets
 die	Agrardebatte	die	Agrardebatten
 die	Agrarebene	die	Agrarebenen
 der	Agrarexperte	die	Agrarexperten
-das	Agrargut		die Agrargüter
+das	Agrargut	die	Agrargüter
 die	Agrargesellschaft	die	Agrargesellschaften
 der	Agrarhistoriker	die	Agrarhistoriker
 der	Agrarökonom	die	Agrarökonomen
@@ -36694,7 +36694,7 @@ der	Ajoit	die	Ajoite
 der	Ajaxflöter	die	Ajaxflöter
 der	Ajour-Stich	die	Ajour-Stiche
 der	Ajanfichtenbuchdrucker	die	Ajanfichtenbuchdrucker
-das	 Ai	die	Ais
+das	Ai	die	Ais
 der	Ajourstich	die	Ajourstiche
 die	Akademikerfamilie	die	Akademikerfamilien
 das	Akademiemitglied	die	Akademiemitglieder
@@ -36722,7 +36722,7 @@ der	Akhtenskit	die	Akhtenskite
 der	Akdalait	die	Akdalaite
 der	Akazienzweig	die	Akazienzweige
 der	Akia	die	Akias
-die	Akinetopsie		die Akinetopsien
+die	Akinetopsie	die	Akinetopsien
 die	Akklimatisierung	die	Akklimatisierungen
 das	Akklimatisierungsproblem	die	Akklimatisierungsprobleme
 der	Akkommodationsmuskel	die	Akkommodationsmuskeln
@@ -36791,7 +36791,7 @@ die	Akquisitionssequenz	die	Akquisitionssequenzen
 der	Akrochordit	die	Akrochordite
 der	Akroblast	die	Akroblasten
 der	Akku-Schrauber	die	Akku-Schrauber
-die	Akrosomreaktion		die Akrosomreaktionen
+die	Akrosomreaktion	die	Akrosomreaktionen
 das	Akroterium	die	Akroterien
 das	Akrostichon	die	Akrosticha
 das	Akroterion	die	Akroterien
@@ -36826,7 +36826,7 @@ der	Aktenstoß	die	Aktenstöße
 der	Aktenvermerk	die	Aktenvermerke
 der	Aktenwolf	die	Aktenwölfe
 die	Aktentasche	die	Aktentaschen
-das	Aktfoto		die Aktfoto
+das	Aktfoto	die	Aktfoto
 der	Aktenmeter	die	Aktenmeter
 das	Aktenstück	die	Aktenstücke
 die	Aktienanlage	die	Aktienanlagen
@@ -36862,7 +36862,7 @@ die	Aktienoption	die	Aktienoptionen
 die	Aktienkurve	die	Aktienkurven
 der	Aktienrückkauf	die	Aktienrückkäufe
 die	Aktienrendite	die	Aktienrenditen
-die	Akrodynie		die Akrodynien
+die	Akrodynie	die	Akrodynien
 die	Aktienspekulation	die	Aktienspekulationen
 die	Aktiengruppe	die	Aktiengruppen
 das	Aktienstimmrecht	die	Aktienstimmrechte
@@ -36896,7 +36896,7 @@ der	Aktionspreis	die	Aktionspreise
 der	Aktionsparameter	die	Aktionsparameter
 das	Aktionsrad	die	Aktionsräder
 der	Aktionstag	die	Aktionstage
-der	Aktionspunkt		die Aktionspunkte
+der	Aktionspunkt	die	Aktionspunkte
 die	Aktionsplanung	die	Aktionsplanungen
 die	Aktionsware	die	Aktionswaren
 der	Aktionsradius	die	Aktionsradien
@@ -36925,7 +36925,7 @@ die	Aktivkohle	die	Aktivkohlen
 die	Aktienspekulantin	die	Aktienspekulantinnen
 das	Aktivitätsmuster	die	Aktivitätsmuster
 der	Aktivismus	die	Aktivismen
-die	Aktivseite		die Aktivseiten
+die	Aktivseite	die	Aktivseiten
 der	Aktivurlaub	die	Aktivurlaube
 das	Aktivvermögen	die	Aktivvermögen
 die	Aktivzone	die	Aktivzonen
@@ -37068,7 +37068,7 @@ der	Albert-Sperlingskauz	die	Albert-Sperlingskäuze
 die	Alarmübung	die	Alarmübungen
 die	Albertistaube	die	Albertistauben
 das	Albanischwörterbuch	die	Albanischwörterbücher
-der	Albdruck		die Albdrücke
+der	Albdruck	die	Albdrücke
 der	Albino	die	Albinos
 das	Albinokaninchen	die	Albinokaninchen
 der	Albertseekauz	die	Albertseekäuze
@@ -37111,7 +37111,7 @@ der	Alfredstelznerit	die	Alfredstelznerite
 die	Aldehyd-Gruppe	die	Aldehyd-Gruppen
 der	Algebraiker	die	Algebraiker
 die	Algenblüte	die	Algenblüten
-die	Algenbekämpfung		die Algenbekämpfungen
+die	Algenbekämpfung	die	Algenbekämpfungen
 der	Algendünger	die	Algendünger
 die	Algaroba-Linse	die	Algaroba-Linsen
 der	Algenentferner	die	Algenentferner
@@ -37131,7 +37131,7 @@ das	Algentoxin	die	Algentoxine
 der	Algonkinstamm	die	Algonkinstämme
 der	Algodonit	die	Algodonite
 der	Alhagistrauch	die	Alhagisträucher
-das	Akzelerationsprinzip		die Akzelerationsprinzipien
+das	Akzelerationsprinzip	die	Akzelerationsprinzipien
 die	Alibi-Frau	die	Alibi-Frauen
 die	Alhidade	die	Alhidaden
 die	Alibiaktion	die	Alibiaktionen
@@ -37153,10 +37153,10 @@ die	Alkalibatterie	die	Alkalibatterien
 die	Alkaliextraktion	die	Alkaliextraktionen
 der	Aleutenalk	die	Aleutenalke
 die	Algengarnele	die	Algengarnelen
-die	Alkalinität		die Alkalinitäten
+die	Alkalinität	die	Alkalinitäten
 das	Alkalihalogenid	die	Alkalihalogenide
 der	Alizarinfarbstoff	die	Alizarinfarbstoffe
-die	Alkaloidextraktion		die Alkaloidextraktionen
+die	Alkaloidextraktion	die	Alkaloidextraktionen
 das	Alkalihydroxid	die	Alkalihydroxide
 das	Alkanal	die	Alkanale
 die	Alkansäure	die	Alkansäuren
@@ -37165,20 +37165,20 @@ der	Alkoholabhängige		ein Alkoholabhängiger
 der	Alki	die	Alkis
 die	Alkoholausschanklizenz	die	Alkoholausschanklizenzen
 das	Alkoholat	die	Alkoholate
-die	Alkoholbestimmung		die Alkoholbestimmungen
+die	Alkoholbestimmung	die	Alkoholbestimmungen
 der	Alkoholauszug	die	Alkoholauszüge
 das	Alkoholdelikt	die	Alkoholdelikte
 der	Alkoholbrenner	die	Alkoholbrenner
 die	Alkohol-Entziehungskur	die	Alkohol-Entziehungskuren
 der	Aktienumsatz	die	Aktienumsätze
 die	Alkoholentziehungskur	die	Alkoholentziehungskuren
-die	Alkoholexposition		die Alkoholexpositionen
+die	Alkoholexposition	die	Alkoholexpositionen
 das	Alkoholfeuchtwerk	die	Alkoholfeuchtwerke
 das	Alkoholentzugsprogramm	die	Alkoholentzugsprogramme
 die	Alkoholgegnerin	die	Alkoholgegnerinnen
 die	Alkoholfahne	die	Alkoholfahnen
 der	Alkoholgrad	die	Alkoholgrade
-die	Alkoholhepatitis		die Alkoholhepatitiden
+die	Alkoholhepatitis	die	Alkoholhepatitiden
 der	Alkoholeinfluss		Alkoholeinfluß
 die	Alkoholisierung	die	Alkoholisierungen
 die	Alkoholleber	die	Alkohollebern
@@ -37217,7 +37217,7 @@ der	Allanit	die	Allanite
 das	Algesimeter	die	Algesimeter
 das	Allabreve	die	Allabreve
 die	Alkyl-Gruppe	die	Alkyl-Gruppen
-das	Alkali		die Alkalien
+das	Alkali	die	Alkalien
 der	Allanpringit	die	Allanpringite
 der	Alleghanyit		Alleghanyite
 das	Allegro	die	Allegros
@@ -37233,7 +37233,7 @@ die	Alkylkette	die	Alkylketten
 der	Alleinflug	die	Alleinflüge
 der	Alleinerzieher	die	Alleinerzieher
 der	Alleingesellschafter	die	Alleingesellschafter
-das	Alkolimit		die Alkolimits
+das	Alkolimit	die	Alkolimits
 der	Alleinhersteller	die	Alleinhersteller
 die	Alleinherrschaft	die	Alleinherrschaften
 der	Alleinmakler	die	Alleinmakler
@@ -37282,7 +37282,7 @@ der	Alleswisser	die	Alleswisser
 das	Allfinanzkonzept	die	Allfinanzkonzepte
 der	Akkreditivauftrag	die	Akkreditivaufträge
 die	Allgefahrenversicherung	die	Allgefahrenversicherungen
-die	Allgegenwart		die Allgegenwarten
+die	Allgegenwart	die	Allgegenwarten
 der	Allfarblori	die	Allfarbloris
 der	Allgemeinbegriff	die	Allgemeinbegriffe
 die	Allgöttin	die	Allgöttinnen
@@ -37380,7 +37380,7 @@ die	Alpen-Akelei	die	Alpen-Akeleien
 der	Almosenkorb	die	Almosenkörbe
 der	Alpen-Apollofalter	die	Alpen-Apollofalter
 die	Alpenüberquerung	die	Alpenüberquerungen
-der	Alpdruck		die Alpdrücke
+der	Alpdruck	die	Alpdrücke
 die	Alpen-Distel	die	Alpen-Disteln
 die	Alpen-Erle	die	Alpen-Erlen
 die	Alose	die	Alosen
@@ -37468,7 +37468,7 @@ der	Alpenspanner	die	Alpenspanner
 der	Alpenrotschwanz	die	Alpenrotschwänze
 das	Alpenwiesel	die	Alpenwiesel
 die	Alpenweide	die	Alpenweiden
-die	Alpentruppe		die Alpentruppen
+die	Alpentruppe	die	Alpentruppen
 die	Algebraikerin	die	Algebraikerinnen
 der	Alpenzoo	die	Alpenzoos
 der	Alpha-Alkoholiker	die	Alpha-Alkoholiker
@@ -37660,7 +37660,7 @@ das	Altersruhegeld	die	Altersruhegelder
 die	Altertumswissenschaft	die	Altertumswissenschaften
 das	Alterungsmessgerät		Alterungsmeßgerät
 die	Altersgenossin	die	Altersgenossinnen
-die	Altersvorsorge		die Altersvorsorgen
+die	Altersvorsorge	die	Altersvorsorgen
 die	Altersversicherungskasse	die	Altersversicherungskassen
 die	Altertumsforscherin	die	Altertumsforscherinnen
 der	Altersvorsorgeplan	die	Altersvorsorgepläne
@@ -37748,7 +37748,7 @@ das	Altweltkamel	die	Altweltkamele
 die	Aluminiumaußenhaut	die	Aluminiumaußenhäute
 der	Altstadtteil	die	Altstadtteile
 das	Aluminiumatom	die	Aluminiumatome
-die	Altweltmaus		die Altweltmäuse
+die	Altweltmaus	die	Altweltmäuse
 die	Aluminiumfassade	die	Aluminiumfassaden
 der	Aluminiumüberzug	die	Aluminiumüberzüge
 das	Alu-Bike	die	Alu-Bikes
@@ -37983,7 +37983,7 @@ der	Amethystkolibri	die	Amethystkolibris
 die	Amethysteule	die	Amethysteulen
 der	Amethystohrkolibri	die	Amethystohrkolibris
 der	Amethystrennvogel	die	Amethystrennvögel
-der	Amhare		die Amharen
+der	Amhare	die	Amharen
 der	Amherstfasan	die	Amherstfasane
 der	Amicit	die	Amicite
 das	Amethystarmband	die	Amethystarmbänder
@@ -38020,7 +38020,7 @@ der	Ammoniakgehalt	die	Ammoniakgehalte
 die	Ammenbiene	die	Ammenbienen
 die	Ammoniakintoxikation	die	Ammoniakintoxikationen
 der	Ammonioalunit	die	Ammonioalunite
-die	Ammoniakmoleküluhr		die Ammoniakmoleküluhren
+die	Ammoniakmoleküluhr	die	Ammoniakmoleküluhren
 der	Ammoniomagnesiovoltait	die	Ammoniomagnesiovoltaite
 der	Ammoniojarosit	die	Ammoniojarosite
 der	Ammersee-Kaulbarsch	die	Ammersee-Kaulbarsche
@@ -38040,7 +38040,7 @@ der	Amnestiebeschluss		Amnestiebeschluß
 das	Ammonshorn	die	Ammonshörner
 das	Amniogramm	die	Amniogramme
 das	Ammonplätzchen	die	Ammonplätzchen
-der	Amoralismus		die Amoralismen
+der	Amoralismus	die	Amoralismen
 der	Amokschütze	die	Amokschützen
 die	Amokfahrt	die	Amokfahrten
 die	Amokfahrerin	die	Amokfahrerinnen
@@ -38089,7 +38089,7 @@ die	Ampferblattlaus	die	Ampferblattläuse
 das	Amphibienfahrzeug	die	Amphibienfahrzeuge
 die	Amperezahl	die	Amperezahlen
 der	Ampfer-Wurzelbohrer	die	Ampfer-Wurzelbohrer
-die	Amphibolgruppe		die Amphibolgruppen
+die	Amphibolgruppe	die	Amphibolgruppen
 das	Amphibienflugzeug	die	Amphibienflugzeuge
 der	Amphibolit	die	Amphibolite
 das	Ampferblatt	die	Ampferblätter
@@ -38166,10 +38166,10 @@ die	Amtshandlung	die	Amtshandlungen
 die	Amtseinführung	die	Amtseinführungen
 die	Amtsleitung	die	Amtsleitungen
 der	Amtsmissbrauch		Amtsmißbrauch
-die	Amtsführung		die Amtsführungen
+die	Amtsführung	die	Amtsführungen
 die	Amtskette	die	Amtsketten
 der	Amtsgenosse	die	Amtsgenossen
-die	Ammoniak-Moleküluhr		die Ammoniak-Moleküluhren
+die	Ammoniak-Moleküluhr	die	Ammoniak-Moleküluhren
 der	Amtskollege	die	Amtskollegen
 die	Amtskennziffer	die	Amtskennziffern
 der	Amtsschreiber	die	Amtsschreiber
@@ -38319,7 +38319,7 @@ die	Anaphase	die	Anaphasen
 die	Ananastomate	die	Ananastomaten
 die	Anarchistin	die	Anarchistinnen
 das	Analysierprogramm	die	Analysierprogramme
-der	Anarchismus		die Anarchismen
+der	Anarchismus	die	Anarchismen
 der	Anandit	die	Anandite
 der	Anaphase-Inhibitor	die	Anaphase-Inhibitoren
 die	Anarcho-Komödie	die	Anarcho-Komödien
@@ -38493,7 +38493,7 @@ der	Anemograf	die	Anemografen
 der	Anemonen-Blattspanner	die	Anemonen-Blattspanner
 die	Anemonen-Pilzkoralle	die	Anemonen-Pilzkorallen
 der	Anemonenwächter	die	Anemonenwächter
-das	Anerbieten		die Anerbieten
+das	Anerbieten	die	Anerbieten
 die	Anekdotenerzählerin	die	Anekdotenerzählerinnen
 die	Anemonengrundel	die	Anemonengrundeln
 der	Anerkennungsbescheid	die	Anerkennungsbescheide
@@ -38677,7 +38677,7 @@ der	Angerling	die	Angerlinge
 der	Anger	die	Anger
 der	Angelwurm	die	Angelwürmer
 die	Angelologie	die	Angelologien
-die	Angelsaison		die Angelsaisons
+die	Angelsaison	die	Angelsaisons
 der	Angetraute		ein Angetrauter
 das	Angioödem	die	Angioödeme
 das	Angiofibrom	die	Angiofibrome
@@ -38708,7 +38708,7 @@ die	Anglokanadierin	die	Anglokanadierinnen
 die	Angola-Bülbülgrasmücke	die	Angola-Bülbülgrasmücken
 der	Anglophobe		ein Anglophober
 der	Anglo-Inder	die	Anglo-Inder
-der	Anglozentrismus		die Anglozentrismen
+der	Anglozentrismus	die	Anglozentrismen
 der	Anglo-Araber	die	Anglo-Araber
 der	Anglonormanne	die	Anglonormannen
 der	Angolagirlitz	die	Angolagirlitze
@@ -38803,7 +38803,7 @@ das	Anheuerungsverfahren	die	Anheuerungsverfahren
 die	Anhänglichkeit	die	Anhänglichkeiten
 die	Anhydrobiose	die	Anhydrobiosen
 das	Anhui-Moschustier	die	Anhui-Moschustiere
-der	Anilingus		die Anilingi
+der	Anilingus	die	Anilingi
 das	Anilinsalz	die	Anilinsalze
 das	Animationsprogramm	die	Animationsprogramme
 die	Animation	die	Animationen
@@ -38826,7 +38826,7 @@ der	Ankömmling	die	Ankömmlinge
 die	Ankörnschablone	die	Ankörnschablonen
 der	Ankörner	die	Ankörner
 der	Anislikör	die	Anisliköre
-die	Ankunft		die Ankünfte
+die	Ankunft	die	Ankünfte
 der	Ankarana-Wieselmaki	die	Ankarana-Wieselmakis
 das	Ankündigungsschreiben	die	Ankündigungsschreiben
 die	Anjouan-Zwergohreule	die	Anjouan-Zwergohreulen
@@ -38987,7 +38987,7 @@ die	Anlagenfamilie	die	Anlagenfamilien
 die	Anlagenkonfiguration	die	Anlagenkonfigurationen
 die	Anlagenleistung	die	Anlagenleistungen
 die	Anlagenplanung	die	Anlagenplanungen
-der	Anlagenschutz		die Anlagenschutze
+der	Anlagenschutz	die	Anlagenschutze
 der	Anlagenschlüssel	die	Anlagenschlüssel
 die	Anlagenschnittstelle	die	Anlagenschnittstellen
 der	Anlagenstammsatz	die	Anlagenstammsätze
@@ -39060,7 +39060,7 @@ der	Anleihegläubiger	die	Anleihegläubiger
 das	Anleiheagio	die	Anleiheagios
 das	Anlagensicherheitshandbuch	die	Anlagensicherheitshandbücher
 der	Anlaufring	die	Anlaufringe
-das	Anleihekapital		die Anleihekapitale
+das	Anleihekapital	die	Anleihekapitale
 der	Anlaufskredit	die	Anlaufskredite
 der	Anlegesteg	die	Anlegestege
 die	Anleihebewertung	die	Anleihebewertungen
@@ -39105,7 +39105,7 @@ das	Anmeldeverfahren	die	Anmeldeverfahren
 das	Anmeldeamt	die	Anmeldeämter
 die	Anmerkungsspalte	die	Anmerkungsspalten
 die	Anmeldebestätigung	die	Anmeldebestätigungen
-die	Annäherungspolitik		die Annäherungspolitiken
+die	Annäherungspolitik	die	Annäherungspolitiken
 das	Annäherungsverfahren	die	Annäherungsverfahren
 der	Anmeldetermin	die	Anmeldetermine
 der	Annäherungsschalter	die	Annäherungsschalter
@@ -39152,7 +39152,7 @@ der	Anodenableiter	die	Anodenableiter
 das	Annonengewächs	die	Annonengewächse
 die	Annahmeperiode	die	Annahmeperioden
 die	Anodenbatterie	die	Anodenbatterien
-die	Annahmepflicht		die Annahmepflichten
+die	Annahmepflicht	die	Annahmepflichten
 der	Annuitätenfaktor	die	Annuitätenfaktoren
 die	Annullierung	die	Annullierungen
 der	Anodenkreis	die	Anodenkreise
@@ -39209,7 +39209,7 @@ der	Anpassungstransformator	die	Anpassungstransformatoren
 das	Anpassungsproblem	die	Anpassungsprobleme
 der	Anpassungstest	die	Anpassungstests
 die	Anpassungsversicherung	die	Anpassungsversicherungen
-die	Anpassungsunfähigkeit		die Anpassungsunfähigkeiten
+die	Anpassungsunfähigkeit	die	Anpassungsunfähigkeiten
 die	Anprangerung	die	Anprangerungen
 der	Anpressdruck		Anpreßdruck
 die	Anordnungszeichnung	die	Anordnungszeichnungen
@@ -39271,7 +39271,7 @@ das	Ansatzbuch	die	Ansatzbücher
 der	Ansatzkanal	die	Ansatzkanäle
 der	Ansatzpunkt	die	Ansatzpunkte
 das	Ansatzrohr	die	Ansatzrohre
-das	Anrufaufkommen		die Anrufaufkommen
+das	Anrufaufkommen	die	Anrufaufkommen
 die	Ansatzsäge	die	Ansatzsägen
 der	Ansaugkanal	die	Ansaugkanäle
 der	Ansager	die	Ansager
@@ -39391,7 +39391,7 @@ die	Anschlussschraube		Anschlußschraube
 die	Anreißschablone	die	Anreißschablonen
 der	Anschlussstecker		Anschlußstecker
 die	Anschlusssicherung		Anschlußsicherung
-die	Anschlusstafel		die Anschlußtafel
+die	Anschlusstafel	die	Anschlußtafel
 das	Anschlussverbot		Anschlußverbot
 die	Anschlussspannung		Anschlußspannung
 der	Anschlusswert	die	Anschlusswerte
@@ -39438,7 +39438,7 @@ der	Ansitzjäger	die	Ansitzjäger
 die	Ansprechstelle	die	Ansprechstellen
 die	Ansprechpartnerliste	die	Ansprechpartnerlisten
 der	Ansitz	die	Ansitze
-die	Ansprecherregung		die Ansprecherregungen
+die	Ansprecherregung	die	Ansprecherregungen
 die	Ansprechzeit	die	Ansprechzeiten
 die	Anspruchsbegründung	die	Anspruchsbegründungen
 der	Anspritzpunkt	die	Anspritzpunkte
@@ -39469,7 +39469,7 @@ der	Anstellungsgrad	die	Anstellungsgrade
 die	Anstandsregel	die	Anstandsregeln
 der	Anstellwinkel	die	Anstellwinkel
 die	Anstellungsprüfung	die	Anstellungsprüfungen
-die	Anstandsform		die Anstandsformen
+die	Anstandsform	die	Anstandsformen
 der	Ansteuerbaustein	die	Ansteuerbausteine
 die	Ansteuerspannung	die	Ansteuerspannungen
 das	Ansteuersignal	die	Ansteuersignale
@@ -39622,7 +39622,7 @@ die	Antikernkraftbewegung	die	Antikernkraftbewegungen
 das	Antihidrotikum	die	Antihidrotika
 das	Antiklopfmittel	die	Antiklopfmittel
 der	Antikmarkt	die	Antikmärkte
-das	Antikoagulans		die Antikoagulantia
+das	Antikoagulans	die	Antikoagulantia
 das	Antiklumpmittel	die	Antiklumpmittel
 die	Antikoagulationstherapie	die	Antikoagulationstherapien
 der	Antikondensationsbeutel	die	Antikondensationsbeutel
@@ -39726,7 +39726,7 @@ das	Antitussivum	die	Antitussiva
 das	Antitranspirant	die	Antitranspirante
 das	Antischaummittel	die	Antischaummittel
 das	Antivitamin	die	Antivitamine
-der	Antiziganismus		die Antiziganismen
+der	Antiziganismus	die	Antiziganismen
 das	Antivalenzglied	die	Antivalenzglieder
 der	Antonier	die	Antonier
 die	Antizyklogenese	die	Antizyklogenesen
@@ -39922,7 +39922,7 @@ die	Anwerbungsmethode	die	Anwerbungsmethoden
 die	Anzapfeinstelleinrichtung	die	Anzapfeinstelleinrichtungen
 die	Anzapfleitung	die	Anzapfleitungen
 das	Anxiolytikum	die	Anxiolytika
-die	Anzahl		die Anzahlen
+die	Anzahl	die	Anzahlen
 die	Anzapfstufe	die	Anzapfstufen
 der	Anwuchs	die	Anwüchse
 die	Anzahlungsgarantie	die	Anzahlungsgarantien
@@ -40140,9 +40140,9 @@ der	Apothekerschrank	die	Apothekerschränke
 der	Appenzellerin	die	Appenzellerinnen
 der	Appertbülbül	die	Appertbülbüls
 der	Appetithappen	die	Appetithappen
-der	Appetit		die Appetite
+der	Appetit	die	Appetite
 der	Appetitmacher	die	Appetitmacher
-der	Applaus		die Applause
+der	Applaus	die	Applause
 der	Appetithemmer	die	Appetithemmer
 die	Applikationsingenieurin	die	Applikationsingenieurinnen
 der	Applikationsspezialist	die	Applikationsspezialisten
@@ -40206,7 +40206,7 @@ der	Aquarienliebhaber	die	Aquarienliebhaber
 der	Aquarienfisch	die	Aquarienfische
 die	Arachnoidalzyste	die	Arachnoidalzysten
 die	Arachnoiditis	die	Arachnoiditiden
-die	Arachnodaktylie		die Arachnodaktylien
+die	Arachnodaktylie	die	Arachnodaktylien
 die	Arachnologin	die	Arachnologinnen
 der	Arafura-Fächerschwanz	die	Arafura-Fächerschwänze
 der	Arabischlehrer	die	Arabischlehrer
@@ -40271,16 +40271,16 @@ das	Arbeitnehmerüberlassungsunternehmen	die	Arbeitnehmerüberlassungsunternehme
 der	Arbeitgeberpräsident	die	Arbeitgeberpräsidenten
 die	Arbeitertochter	die	Arbeitertöchter
 der	Arbeitnehmerbeitrag	die	Arbeitnehmerbeiträge
-das	Arbeitnehmer-Entsendegesetz		die Arbeitnehmer-Entsendegesetze
+das	Arbeitnehmer-Entsendegesetz	die	Arbeitnehmer-Entsendegesetze
 das	Arbeitnehmerentsendegesetz	die	Arbeitnehmerentsendegesetze
 das	Arbeitnehmererfindergesetz	die	Arbeitnehmererfindergesetze
 der	Arbeitgebertag	die	Arbeitgebertage
 der	Arbeitnehmerdirektor	die	Arbeitnehmerdirektoren
 die	Arbeitnehmerorganisation	die	Arbeitnehmerorganisationen
-die	Arbeitnehmer-Arbeitgeberbeziehung		die Arbeitnehmer-Arbeitgeberbeziehungen
+die	Arbeitnehmer-Arbeitgeberbeziehung	die	Arbeitnehmer-Arbeitgeberbeziehungen
 die	Arbeitnehmerüberlassung	die	Arbeitnehmerüberlassungen
 die	Arbeitnehmerfrage	die	Arbeitnehmerfragen
-die	Arbeitsökonomie		die Arbeitsökonomien
+die	Arbeitsökonomie	die	Arbeitsökonomien
 das	Arbeitsablaufdiagramm	die	Arbeitsablaufdiagramme
 der	Arbeitsablaufplan	die	Arbeitsablaufpläne
 das	Arbeitnehmerüberlassungsgesetz	die	Arbeitnehmerüberlassungsgesetze
@@ -40293,7 +40293,7 @@ die	Arbeitsanforderung	die	Arbeitsanforderungen
 das	Arbeitsangebot	die	Arbeitsangebote
 die	Arbeitgeberin	die	Arbeitgeberinnen
 der	Arbeitsanreiz	die	Arbeitsanreize
-der	Arbeitsantritt		die Arbeitsantritte
+der	Arbeitsantritt	die	Arbeitsantritte
 der	Arbeitsanzug	die	Arbeitsanzüge
 die	Arbeitsaufgabe	die	Arbeitsaufgaben
 der	Arbeitsabstand	die	Arbeitsabstände
@@ -40302,7 +40302,7 @@ die	Anzapfverbindung	die	Anzapfverbindungen
 der	Arbeitsauftragszettel	die	Arbeitsauftragszettel
 der	Arbeitsausnutzungsfaktor	die	Arbeitsausnutzungsfaktoren
 die	Arbeitsbörse	die	Arbeitsbörsen
-die	Arbeitsausführung		die Arbeitsausführungen
+die	Arbeitsausführung	die	Arbeitsausführungen
 die	Arbeitsanweisung	die	Arbeitsanweisungen
 der	Arbeitsausschuss		Arbeitsausschuß
 der	Arbeitsbegleitschein	die	Arbeitsbegleitscheine
@@ -40398,7 +40398,7 @@ der	Arbeitsinhalt	die	Arbeitsinhalte
 der	Arbeitskonflikt	die	Arbeitskonflikte
 der	Arbeitskräfteengpass		Arbeitskräfteengpaß
 der	Arbeitskräfteplan	die	Arbeitskräftepläne
-der	Arbeitskräfteumschlag		die Arbeitskräfteumschläge
+der	Arbeitskräfteumschlag	die	Arbeitskräfteumschläge
 das	Arbeitskräftedefizit	die	Arbeitskräftedefizite
 die	Arbeitskräftestunde	die	Arbeitskräftestunden
 die	Arbeitskräftereserve	die	Arbeitskräftereserven
@@ -40447,7 +40447,7 @@ die	Arbeitsmarktgesamtrechnung	die	Arbeitsmarktgesamtrechnungen
 das	Arbeitsmittel	die	Arbeitsmittel
 das	Arbeitsmuster	die	Arbeitsmuster
 der	Arbeitsnachweis	die	Arbeitsnachweise
-die	Arbeitsmarktpolitik		die Arbeitsmarktpolitiken
+die	Arbeitsmarktpolitik	die	Arbeitsmarktpolitiken
 die	Arbeitsnummer	die	Arbeitsnummern
 der	Arbeitsmediziner	die	Arbeitsmediziner
 die	Arbeitsorganisation	die	Arbeitsorganisationen
@@ -40464,7 +40464,7 @@ die	Arbeitspause	die	Arbeitspausen
 die	Arbeitsplankopfzeile	die	Arbeitsplankopfzeilen
 die	Arbeitsoberfläche	die	Arbeitsoberflächen
 die	Arbeitsphase	die	Arbeitsphasen
-das	Arbeitspensum		die Arbeitspensen
+das	Arbeitspensum	die	Arbeitspensen
 der	Arbeitsplan	die	Arbeitspläne
 der	Arbeitsort	die	Arbeitsorte
 das	Arbeitsplatzangebot	die	Arbeitsplatzangebote
@@ -40602,7 +40602,7 @@ die	Arbeitszeitbeschränkung	die	Arbeitszeitbeschränkungen
 die	Arbitrageklausel	die	Arbitrageklauseln
 der	Arbitragehändler	die	Arbitragehändler
 das	Arbeitszeitgesetz	die	Arbeitszeitgesetze
-das	Arbutin		die Arbutine
+das	Arbutin	die	Arbutine
 der	Arcade-Automat	die	Arcade-Automaten
 der	Arcanit	die	Arcanite
 das	Arboretum	die	Arboreten
@@ -40702,7 +40702,7 @@ der	Arganbaum	die	Arganbäume
 die	Areafunktion	die	Areafunktionen
 der	Arestempel	die	Arestempel
 das			der Ar
-die	Arglisteinrede		die Arglisteinreden
+die	Arglisteinrede	die	Arglisteinreden
 das	Argonatom	die	Argonatome
 die	Argonsonde	die	Argonsonden
 der	Argentotennantit	die	Argentotennantite
@@ -40715,7 +40715,7 @@ der	Argus-Riedfrosch	die	Argus-Riedfrösche
 das	Argonarcgerät	die	Argonarcgeräte
 der	Argesit	die	Argesite
 der	Argusfasan	die	Argusfasane
-das	Argusauge		die Argusaugen
+das	Argusauge	die	Argusaugen
 der	Argyrodit	die	Argyrodite
 der	Argusfisch	die	Argusfische
 der	Arbitrage-Händler	die	Arbitrage-Händler
@@ -40837,7 +40837,7 @@ die	Armkugel	die	Armkugeln
 das	Armloch	die	Armlöcher
 die	Armkachel	die	Armkacheln
 der	Armstern	die	Armsterne
-die	Armutsbekämpfung		die Armutsbekämpfungen
+die	Armutsbekämpfung	die	Armutsbekämpfungen
 der	Armutsfall	die	Armutsfälle
 die	Armutsbedingung	die	Armutsbedingungen
 die	Armschiene	die	Armschienen
@@ -41456,7 +41456,7 @@ die	Atomenergiebehörde	die	Atomenergiebehörden
 die	Atomkernspaltung	die	Atomkernspaltungen
 die	Atomblitz-Schutzbrille	die	Atomblitz-Schutzbrillen
 der	Atomforscher	die	Atomforscher
-der	Atomismus		die Atomismen
+der	Atomismus	die	Atomismen
 die	Atomgruppe	die	Atomgruppen
 die	Atomkonfiguration	die	Atomkonfigurationen
 der	Atomkonflikt	die	Atomkonflikte
@@ -41655,7 +41655,7 @@ die	Außentasche	die	Außentaschen
 die	Außentätigkeit	die	Außentätigkeiten
 der	Außenmantel	die	Außenmäntel
 der	Außenstellenleiter	die	Außenstellenleiter
-das	Außensteuergesetz		die Außensteuergesetze
+das	Außensteuergesetz	die	Außensteuergesetze
 die	Außentür		Außentüre
 der	Außenstürmer	die	Außenstürmer
 die	Außenstelle	die	Außenstellen
@@ -41767,7 +41767,7 @@ der	Aufbügelbuchstabe	die	Aufbügelbuchstaben
 das	Aufbauprinzip	die	Aufbauprinzipien
 die	Aufbauanleitung	die	Aufbauanleitungen
 das	Aufbaustudium	die	Aufbaustudien
-das	Aufbau-Prinzip		die Aufbau-Prinzipien
+das	Aufbau-Prinzip	die	Aufbau-Prinzipien
 die	Aufbauschule	die	Aufbauschulen
 der	Aufbauwortschatz	die	Aufbauwortschätze
 der	Aufbauspieler	die	Aufbauspieler
@@ -41788,11 +41788,11 @@ die	Aufbereitungskapazität	die	Aufbereitungskapazitäten
 die	Aufbesserung	die	Aufbesserungen
 die	Aufbewahrungsfrist	die	Aufbewahrungsfristen
 das	Aufbereitungszeichen	die	Aufbereitungszeichen
-die	Aufbewahrungsdauer		die Aufbewahrungsdauern
+die	Aufbewahrungsdauer	die	Aufbewahrungsdauern
 das	Aufbewahrungsmittel	die	Aufbewahrungsmittel
 die	Aufbereitungsmaske	die	Aufbereitungsmasken
 die	Aufbessrung		Aufbeßrung
-das	Aufbegehren		die Aufbegehren
+das	Aufbegehren	die	Aufbegehren
 der	Aufbewahrungskasten	die	Aufbewahrungskästen
 der	Aufbereitungscode	die	Aufbereitungscodes
 die	Aufbereitungsleistung	die	Aufbereitungsleistungen
@@ -41815,11 +41815,11 @@ die	Aufbrecherin	die	Aufbrecherinnen
 das	Aufbauspiel	die	Aufbauspiele
 der	Aufbiss		Aufbiß
 die	Aufdampfung	die	Aufdampfungen
-die	Aufbruchstimmung		die Aufbruchstimmungen
+die	Aufbruchstimmung	die	Aufbruchstimmungen
 die	Aufbereitungsanlage	die	Aufbereitungsanlagen
 die	Aufbewahrungstasche	die	Aufbewahrungstaschen
 der	Aufbrecher	die	Aufbrecher
-die	Aufbruchsstimmung		die Aufbruchsstimmungen
+die	Aufbruchsstimmung	die	Aufbruchsstimmungen
 die	Aufbaumaschine	die	Aufbaumaschinen
 das	Aufbewahrungsmöbel	die	Aufbewahrungsmöbel
 die	Aufdeckung	die	Aufdeckungen
@@ -41986,7 +41986,7 @@ die	Aufkratzmaschine	die	Aufkratzmaschinen
 die	Aufklebeadresse	die	Aufklebeadressen
 der	Aufklebezettel	die	Aufklebezettel
 der	Auflöser	die	Auflöser
-die	Auflösungserscheinung		die Auflösungserscheinungen
+die	Auflösungserscheinung	die	Auflösungserscheinungen
 der	Aufklärungszug	die	Aufklärungszüge
 das	Aufklappbuch	die	Aufklappbücher
 die	Aufklärungsstelle	die	Aufklärungsstellen
@@ -41995,7 +41995,7 @@ das	Aufladegerät	die	Aufladegeräte
 die	Aufladekarte	die	Aufladekarten
 der	Aufladekondensator	die	Aufladekondensatoren
 die	Aufladezeit	die	Aufladezeiten
-der	Auflösungskeil		die Auflösungskeile
+der	Auflösungskeil	die	Auflösungskeile
 die	Auflösungsvereinbarung	die	Auflösungsvereinbarungen
 die	Aufklärungslinie	die	Aufklärungslinien
 die	Auflagehöhe	die	Auflagehöhen
@@ -42106,7 +42106,7 @@ die	Aufnahmestellung	die	Aufnahmestellungen
 der	Aufnahmetubus	die	Aufnahmetubusse
 die	Aufnahmevorrichtung	die	Aufnahmevorrichtungen
 die	Aufnahmeplatte	die	Aufnahmeplatten
-die	Aufopferung		die Aufopferungen
+die	Aufopferung	die	Aufopferungen
 die	Aufnahmesequenz	die	Aufnahmesequenzen
 der	Aufnahmestopp		Aufnahmestop
 die	Aufprallkontur	die	Aufprallkonturen
@@ -42139,7 +42139,7 @@ der	Aufpasser	die	Aufpasser
 die	Aufnahmevereinbarung	die	Aufnahmevereinbarungen
 die	Aufnahmekennlinie	die	Aufnahmekennlinien
 die	Aufrechterhaltungsgebühr	die	Aufrechterhaltungsgebühren
-der	Aufrechnungsblock		die Aufrechnungsblöcke
+der	Aufrechnungsblock	die	Aufrechnungsblöcke
 die	Aufräumerin	die	Aufräumerinnen
 der	Aufrichter	die	Aufrichter
 der	Aufriss		Aufriß
@@ -42150,7 +42150,7 @@ der	Aufreißer	die	Aufreißer
 der	Aufrissentwurf		Aufrißentwurf
 das	Aufrufsignal	die	Aufrufsignale
 die	Aufrollvorrichtung	die	Aufrollvorrichtungen
-der	Aufruhr		die Aufruhre
+der	Aufruhr	die	Aufruhre
 die	Aufräumefrau	die	Aufräumefrauen
 das	Aufrufprogramm	die	Aufrufprogramme
 die	Aufrundungsfunktion	die	Aufrundungsfunktionen
@@ -42207,12 +42207,12 @@ die	Aufsichtsberechtigung	die	Aufsichtsberechtigungen
 das	Aufsichtsamt	die	Aufsichtsämter
 das	Aufnahmezentrum	die	Aufnahmezentren
 das	Aufsichtsgremium	die	Aufsichtsgremien
-der	Aufprall		die Aufpralle
+der	Aufprall	die	Aufpralle
 die	Aufsichtsperson	die	Aufsichtspersonen
 die	Aufnahmetechnik	die	Aufnahmetechniken
 der	Aufsichtsratsbeschluss		Aufsichtsratsbeschluß
 die	Aufsichtsratsvergütung	die	Aufsichtsratsvergütungen
-die	Aufsichtsratssteuer		die Aufsichtsratssteuern
+die	Aufsichtsratssteuer	die	Aufsichtsratssteuern
 der	Aufsichtsratschef	die	Aufsichtsratschefs
 der	Aufsichtsratsvorsitzende		ein Aufsichtsratsvorsitzender
 die	Aufsichtsrätin	die	Aufsichtsrätinnen
@@ -42222,7 +42222,7 @@ der	Aufsichtsschüler	die	Aufsichtsschüler
 der	Aufspürer	die	Aufspürer
 die	Aufsichtsarbeit	die	Aufsichtsarbeiten
 die	Aufspannung	die	Aufspannungen
-die	Aufsichtsratsteuer		die Aufsichtsratsteuern
+die	Aufsichtsratsteuer	die	Aufsichtsratsteuern
 der	Aufspannflansch	die	Aufspannflansche
 die	Aufspannfläche	die	Aufspannflächen
 der	Aufspuler	die	Aufspuler
@@ -42377,10 +42377,10 @@ die	Aufwickelvorrichtung	die	Aufwickelvorrichtungen
 die	Aufwertung	die	Aufwertungen
 der	Aufwischlappen	die	Aufwischlappen
 das	Aufzählungsformat	die	Aufzählungsformate
-der	Aufwand		die Aufwände
+der	Aufwand	die	Aufwände
 das	Aufweitwerkzeug	die	Aufweitwerkzeuge
 die	Aufwieglerin	die	Aufwieglerinnen
-die	Aufzucht		die Aufzüchte
+die	Aufzucht	die	Aufzüchte
 der	Aufwühler	die	Aufwühler
 die	Aufwickelspule	die	Aufwickelspulen
 das	Aufzeichnungsformat	die	Aufzeichnungsformate
@@ -42470,7 +42470,7 @@ die	Augenfarbe	die	Augenfarben
 die	Augenfleck-Breitfußbeutelmaus	die	Augenfleck-Breitfußbeutelmäuse
 der	Augendeckel	die	Augendeckel
 der	Augenfleck-Mandarinfisch	die	Augenfleck-Mandarinfische
-die	Auftragsausführung		die Auftragsausführungen
+die	Auftragsausführung	die	Auftragsausführungen
 der	Augenfleckbärbling	die	Augenfleckbärblinge
 der	Augend	die	Augenden
 der	Augenfleck-Leierfisch	die	Augenfleck-Leierfische
@@ -42498,7 +42498,7 @@ der	Augenkontakt	die	Augenkontakte
 die	Augenkrankheit	die	Augenkrankheiten
 das	Augenmittel	die	Augenmittel
 der	Augengesunde		ein Augengesunder
-das	Augenlicht		die Augenlichter
+das	Augenlicht	die	Augenlichter
 der	Augenheilkundler	die	Augenheilkundler
 der	Augenmarienkäfer	die	Augenmarienkäfer
 die	Augenoptikerin	die	Augenoptikerinnen
@@ -42850,7 +42850,7 @@ das	Ausgabeprogramm	die	Ausgabeprogramme
 der	Ausgangsübertrager	die	Ausgangsübertrager
 der	Ausgabezeitpunkt	die	Ausgabezeitpunkte
 der	Ausgabeschalter	die	Ausgabeschalter
-die	Ausgangsbedingung		die Ausgangsbedingungen
+die	Ausgangsbedingung	die	Ausgangsbedingungen
 der	Ausgabesatz	die	Ausgabesätze
 das	Ausgaberegister	die	Ausgaberegister
 die	Ausgangsbasis	die	Ausgangsbasen
@@ -43249,7 +43249,7 @@ die	Ausmusterung	die	Ausmusterungen
 der	Auslieferungsantrag	die	Auslieferungsanträge
 der	Auspuffflammenwerfer	die	Auspuffflammenwerfer
 die	Ausnahmesituation	die	Ausnahmesituationen
-das	Auspuffgas		die Auspuffgase
+das	Auspuffgas	die	Auspuffgase
 der	Ausnahmekönner	die	Ausnahmekönner
 die	Ausprägung	die	Ausprägungen
 das	Auspuffendrohr	die	Auspuffendrohre
@@ -43263,7 +43263,7 @@ das	Ausrücklager	die	Ausrücklager
 das	Ausnahmeangebot	die	Ausnahmeangebote
 der	Ausrüstervertrag	die	Ausrüsterverträge
 der	Ausrüstungs-Leasingvertrag	die	Ausrüstungs-Leasingverträge
-die	Ausnutzung		die Ausnutzungen
+die	Ausnutzung	die	Ausnutzungen
 die	Ausrüstungsmaschine	die	Ausrüstungsmaschinen
 der	Ausrüster	die	Ausrüster
 die	Auspeitschung	die	Auspeitschungen
@@ -43353,7 +43353,7 @@ das	Ausschiffungsboot	die	Ausschiffungsboote
 die	Ausschnittkopie	die	Ausschnittkopien
 die	Ausscheidungsurografie	die	Ausscheidungsurografien
 der	Ausschließungsfaktor	die	Ausschließungsfaktoren
-die	Ausschreitung		die Ausschreitungen
+die	Ausschreitung	die	Ausschreitungen
 das	Ausschlusskriterium		Ausschlußkriterium
 die	Ausschreibungsbekanntmachung	die	Ausschreibungsbekanntmachungen
 die	Ausschreibungszeichnung	die	Ausschreibungszeichnungen
@@ -43423,7 +43423,7 @@ der	Aussprachelehrer	die	Aussprachelehrer
 das	Ausstellfenster	die	Ausstellfenster
 der	Ausstellungsbereich	die	Ausstellungsbereiche
 die	Ausstandsfeier	die	Ausstandsfeiern
-die	Ausstellungsdauer		die Ausstellungsdauern
+die	Ausstellungsdauer	die	Ausstellungsdauern
 der	Aussteigevorgang	die	Aussteigevorgänge
 der	Ausstellungsgegenstand	die	Ausstellungsgegenstände
 die	Ausstellungsgestalterin	die	Ausstellungsgestalterinnen
@@ -43511,7 +43511,7 @@ die	Austeilung	die	Austeilungen
 die	Austauschstudentin	die	Austauschstudentinnen
 der	Austern-Seitling	die	Austern-Seitlinge
 das	Austauschblatt	die	Austauschblätter
-die	Austeritätspolitik		die Austeritätspolitiken
+die	Austeritätspolitik	die	Austeritätspolitiken
 die	Austernkrämerin	die	Austernkrämerinnen
 die	Austernschildlaus	die	Austernschildläuse
 der	Austernfisch	die	Austernfische
@@ -43565,7 +43565,7 @@ das	Auswärtstrikot	die	Auswärtstrikots
 der	Auswürfling	die	Auswürflinge
 der	Austinit	die	Austinite
 die	Austrittserklärung	die	Austrittserklärungen
-die	Auswärtsfarbe		die Auswärtsfarben
+die	Auswärtsfarbe	die	Auswärtsfarben
 der	Auswärtsdress		Auswärtsdreß
 die	Austrittswunde	die	Austrittswunden
 der	Auswahlfragebogen	die	Auswahlfragebogen
@@ -43682,7 +43682,7 @@ der	Ausziehknopf	die	Ausziehknöpfe
 der	Ausziehschacht	die	Ausziehschächte
 das	Ausziehbett	die	Ausziehbetten
 die	Auszugslänge	die	Auszugslängen
-die	Authentizität		die Authentizitäten
+die	Authentizität	die	Authentizitäten
 der	Auszahlungsbetrag	die	Auszahlungsbeträge
 das	Ausziehwerkzeug	die	Ausziehwerkzeuge
 der	Ausziehgriff	die	Ausziehgriffe
@@ -43721,7 +43721,7 @@ der	Autobiograph	die	Autobiographen
 der	Ausziehversuch	die	Ausziehversuche
 der	Autobumser	die	Autobumser
 die	Autobushaltestelle	die	Autobushaltestellen
-das	Autoabgas		die Autoabgase
+das	Autoabgas	die	Autoabgase
 die	Autobiografin	die	Autobiografinnen
 die	Autoausstellung	die	Autoausstellungen
 die	Autodesignerin	die	Autodesignerinnen
@@ -43734,7 +43734,7 @@ die	Autobahneinfahrt	die	Autobahneinfahrten
 das	Autodach	die	Autodächer
 der	Autodesigner	die	Autodesigner
 der	Autobahnparkplatz	die	Autobahnparkplätze
-die	Autobranche		die Autobranchen
+die	Autobranche	die	Autobranchen
 der	Autofahrerhandschuh	die	Autofahrerhandschuhe
 das	Autobetriebshandbuch	die	Autobetriebshandbücher
 die	Auto-Alarmanlage	die	Auto-Alarmanlagen
@@ -43847,7 +43847,7 @@ das	Automobilwerk	die	Automobilwerke
 das	Autopolster	die	Autopolster
 die	Autopresse	die	Autopressen
 das	Autopsie-Besteck	die	Autopsie-Bestecke
-der	Autoraub		die Autoraube
+der	Autoraub	die	Autoraube
 die	Autoreifenfabrik	die	Autoreifenfabriken
 die	Autopositionierung	die	Autopositionierungen
 das	Autorenexemplar	die	Autorenexemplare
@@ -43980,7 +43980,7 @@ die	Axialpumpe	die	Axialpumpen
 das	Axino	die	Axinos
 das	Axiomensystem	die	Axiomensysteme
 die	Awash-Vielzitzenmaus	die	Awash-Vielzitzenmäuse
-die	Axiologie		die Axiologien
+die	Axiologie	die	Axiologien
 der	Axialverdichter	die	Axialverdichter
 der	Axminster-Teppich	die	Axminster-Teppiche
 der	Axial-Lüfter	die	Axial-Lüfter
@@ -44007,7 +44007,7 @@ der	Azara-Nachtaffe	die	Azara-Nachtaffen
 das	Ayrshire-Rind	die	Ayrshire-Rinder
 die	Azaleenmotte	die	Azaleenmotten
 der	Axtkopf	die	Axtköpfe
-die	Azetabulektomie		die Azetabulektomien
+die	Azetabulektomie	die	Azetabulektomien
 das	Azara-Aguti	die	Azara-Agutis
 die	Azetabulumexzision	die	Azetabulumexzisionen
 das	Azetaldehyd	die	Azetaldehyde
@@ -44247,7 +44247,7 @@ die	Büchersendung	die	Büchersendungen
 der	Bücherschrank	die	Bücherschränke
 der	Bücherselbstbedienungsladen	die	Bücherselbstbedienungsläden
 die	Bücherstellage	die	Bücherstellagen
-das	Bücherstudium		die Bücherstudien
+das	Bücherstudium	die	Bücherstudien
 die	Büchersammlung	die	Büchersammlungen
 das	Bücherverbot	die	Bücherverbote
 der	Büchersammler	die	Büchersammler
@@ -44258,7 +44258,7 @@ der	Bücherrevisor	die	Bücherrevisoren
 der	Büchsenlauf	die	Büchsenläufe
 das	Bücherverzeichnis	die	Bücherverzeichnisse
 der	Bücherverkäufer	die	Bücherverkäufer
-die	Büchsentomate		die Büchsentomaten
+die	Büchsentomate	die	Büchsentomaten
 das	Büßergewand	die	Büßergewänder
 die	Büchsenbodenschmierung	die	Büchsenbodenschmierungen
 der	Bücherverkauf	die	Bücherverkäufe
@@ -44437,7 +44437,7 @@ das	Büroabenteuer	die	Büroabenteuer
 die	Bürgerversicherung	die	Bürgerversicherungen
 die	Bürgerrechtsbewegung	die	Bürgerrechtsbewegungen
 die	Bürgschaftserklärung	die	Bürgschaftserklärungen
-der	Büroalltag		die Büroalltage
+der	Büroalltag	die	Büroalltage
 der	Büroaktenschrank	die	Büroaktenschränke
 die	Bürgerrechtsgruppe	die	Bürgerrechtsgruppen
 der	Bürgschaftsvertrag	die	Bürgschaftsverträge
@@ -44512,7 +44512,7 @@ das	Bürohemd	die	Bürohemden
 die	Bürohelferin	die	Bürohelferinnen
 das	Büroinventar	die	Büroinventare
 die	Bürogebäudemodernisierung	die	Bürogebäudemodernisierungen
-der	Büroflächenbedarf		die Büroflächenbedarfe
+der	Büroflächenbedarf	die	Büroflächenbedarfe
 die	Büroküche	die	Büroküchen
 der	Bürokaufmann	die	Bürokaufleute
 das	Bürohaus	die	Bürohäuser
@@ -44645,7 +44645,7 @@ der	B-Horizont	die	B-Horizonte
 das	B-Movie	die	B-Movies
 die	B-Mannschaft	die	B-Mannschaften
 der	Büttner	die	Büttner
-das	B-Land		die B-Länder
+das	B-Land	die	B-Länder
 die	B-Ware	die	B-Waren
 das	B-Team	die	B-Teams
 der	B-Beamte		ein B-Beamter
@@ -44659,7 +44659,7 @@ der	B-Baum	die	B-Bäume
 die	B-Zelle	die	B-Zellen
 das	Bürstchen	die	Bürstchen
 die	Büscheleule	die	Büscheleulen
-der	Babenberger		die Babenberger
+der	Babenberger	die	Babenberger
 die	Babassupalme	die	Babassupalmen
 der	Büschelohrmaki	die	Büschelohrmakis
 das	B-Meson	die	B-Mesonen
@@ -44684,7 +44684,7 @@ die	Babycreme	die	Babycremes
 der	Babybauch	die	Babybäuche
 der	Baby-Stuhl	die	Baby-Stühle
 der	Babyfläschchenwärmer	die	Babyfläschchenwärmer
-das	Babyfoto		die Babyfoto
+das	Babyfoto	die	Babyfoto
 die	Basssaite		Baßsaite
 die	Baby-Nadel	die	Baby-Nadeln
 die	Baby-Mütze	die	Baby-Mützen
@@ -44718,7 +44718,7 @@ das	Babyfläschchen	die	Babyfläschchen
 die	Babytrage	die	Babytragen
 das	Bach-Windröschen	die	Bach-Windröschen
 die	Babyzelle	die	Babyzellen
-die	Bachblüte		die Bachblüten
+die	Bachblüte	die	Bachblüten
 die	Bachdistel	die	Bachdisteln
 der	Bach-Steinbrech	die	Bach-Steinbreche
 der	Bachel	die	Bachel
@@ -44799,7 +44799,7 @@ das	Backronym	die	Backronyme
 das	Backhähnchen	die	Backhähnchen
 die	Backsteinmauer	die	Backsteinmauern
 die	Backsteinarchitektur	die	Backsteinarchitekturen
-das	Backmalz		die Backmalze
+das	Backmalz	die	Backmalze
 das	Backsteinhaus	die	Backsteinhäuser
 der	Backstagepass		Backstagepaß
 der	Backteig	die	Backteige
@@ -44845,7 +44845,7 @@ der	Badekurort	die	Badekurorte
 der	Badeort	die	Badeorte
 der	Badepantoffel	die	Badepantoffeln
 das	Badeparadies	die	Badeparadiese
-die	Badesaison		die Badesaisons
+die	Badesaison	die	Badesaisons
 die	Badepantolette	die	Badepantoletten
 der	Badeplatz	die	Badeplätze
 das	Badeschiff	die	Badeschiffe
@@ -45062,7 +45062,7 @@ die	Baker-Zyste	die	Baker-Zysten
 die	Bajonetthülle	die	Bajonetthüllen
 der	Bakerit	die	Bakerite
 die	Bakerzyste	die	Bakerzysten
-das	Bakelit		die Bakelite
+das	Bakelit	die	Bakelite
 der	Baissespekulant	die	Baissespekulanten
 die	Bajonettzange	die	Bajonettzangen
 der	Baird-Schnabelwal	die	Baird-Schnabelwale
@@ -45098,7 +45098,7 @@ der	Balancer	die	Balancer
 der	Balchasch-Barsch	die	Balchasch-Barsche
 die	Baldachinspinne	die	Baldachinspinnen
 der	Balconnet-BH	die	Balconnet-BHs
-die	Balanceseite		die Balanceseiten
+die	Balanceseite	die	Balanceseiten
 das	Baldriangewächs	die	Baldriangewächse
 das	Balearen-Alpenveilchen	die	Balearen-Alpenveilchen
 die	Baleareninsel	die	Baleareninseln
@@ -45170,7 +45170,7 @@ das	Balladenbüchlein	die	Balladenbüchlein
 die	Balladensängerin	die	Balladensängerinnen
 der	Balkenkode	die	Balkenkodes
 die	Balkenbrücke	die	Balkenbrücken
-der	Ballast		die Ballaste
+der	Ballast	die	Ballaste
 der	Balladesänger	die	Balladesänger
 der	Ballenbrecher	die	Ballenbrecher
 die	Ballenkarre	die	Ballenkarren
@@ -45227,7 +45227,7 @@ der	Ballaststoff	die	Ballaststoffe
 der	Baissemarkt	die	Baissemärkte
 der	Balliranoit	die	Balliranoite
 der	Ballführer	die	Ballführer
-der	Bader	die	 Bader
+der	Bader	die	Bader
 die	Ballistokardiographie	die	Ballistokardiographien
 das	Ballettkorps	die	Ballettkorps
 die	Ballhupe	die	Ballhupen
@@ -45398,7 +45398,7 @@ der	Bandapparat	die	Bandapparate
 die	Bandanlage	die	Bandanlagen
 das	Bandanfangsetikett	die	Bandanfangsetiketten
 die	Bandanfangsmarkierung	die	Bandanfangsmarkierungen
-der	Bandanese		die Bandanesen
+der	Bandanese	die	Bandanesen
 der	Bandarbeiter	die	Bandarbeiter
 die	Bandauflösung	die	Bandauflösungen
 das	Bananenblatt	die	Bananenblätter
@@ -45679,7 +45679,7 @@ die	Barbezahlung	die	Barbezahlungen
 die	Barbesitzerin	die	Barbesitzerinnen
 das	Barbiturat	die	Barbiturate
 die	Barbiepuppe	die	Barbiepuppen
-der	Barausgleich		die Barausgleiche
+der	Barausgleich	die	Barausgleiche
 die	Barbituratvergiftung	die	Barbituratvergiftungen
 der	Barausturmvogel	die	Barausturmvögel
 der	Bannermanturako	die	Bannermanturakos
@@ -46155,7 +46155,7 @@ das	Bauamt	die	Bauämter
 die	Bauausführungszeichnung	die	Bauausführungszeichnungen
 der	Bauabschnitt	die	Bauabschnitte
 die	Batteriezelle	die	Batteriezellen
-die	Bauarbeit		die Bauarbeiten
+die	Bauarbeit	die	Bauarbeiten
 der	Baubeginn	die	Baubeginne
 der	Bauantrag	die	Bauanträge
 die	Bauaufsichtsbehörde	die	Bauaufsichtsbehörden
@@ -46170,7 +46170,7 @@ der	Batteriezustand	die	Batteriezustände
 der	Baubürgermeister	die	Baubürgermeister
 der	Bauaufseher	die	Bauaufseher
 der	Batteriesäureheber	die	Batteriesäureheber
-der	Bauchansatz		die Bauchansätze
+der	Bauchansatz	die	Bauchansätze
 die	Batzenscheibe	die	Batzenscheiben
 der	Bauchafter	die	Bauchafter
 die	Bauchbinde	die	Bauchbinden
@@ -46592,12 +46592,12 @@ der	Baurahmen	die	Baurahmen
 der	Baumeister	die	Baumeister
 der	Bauschärmel	die	Bauschärmel
 der	Bauranoit	die	Bauranoite
-die	Baupolizei		die Baupolizeien
+die	Baupolizei	die	Baupolizeien
 der	Bauschen	die	Bauschen
 der	Bausachverständige		ein Bausachverständiger
 der	Bauschreiner	die	Bauschreiner
 die	Baupumpe	die	Baupumpen
-die	Bausaison		die Bausaisons
+die	Bausaison	die	Bausaisons
 der	Bausparer	die	Bausparer
 die	Bauproduktenrichtlinie	die	Bauproduktenrichtlinien
 der	Bauspekulant	die	Bauspekulanten
@@ -46715,13 +46715,13 @@ die	Beamtenstadt	die	Beamtenstädte
 der	Bearbeitungsraum	die	Bearbeitungsräume
 das	Bearbeitungsverfahren	die	Bearbeitungsverfahren
 der	Bearbeitungsfehler	die	Bearbeitungsfehler
-die	Bearbeitungsdauer		die Bearbeitungsdauern
+die	Bearbeitungsdauer	die	Bearbeitungsdauern
 die	Beanspruchungsklasse	die	Beanspruchungsklassen
 der	Bearsit	die	Bearsite
 das	Bearbeitungszentrum	die	Bearbeitungszentren
 der	Beamten-Baum	die	Beamten-Bäume
 der	Bearthit	die	Bearthite
-die	Bauteileliste		dieBauteilelisten
+die	Bauteileliste	die	Bauteilelisten
 der	Beatmer	die	Beatmer
 das	Bearbeitungsstadium	die	Bearbeitungsstadien
 die	Bearbeitungsgebühr	die	Bearbeitungsgebühren
@@ -47067,7 +47067,7 @@ der	Begünstigte		ein Begünstigter
 der	Befundungsmonitor	die	Befundungsmonitore
 der	Begüterte		ein Begüterter
 die	Begünstigung	die	Begünstigungen
-die	Begünstigungspolitik		die Begünstigungspolitiken
+die	Begünstigungspolitik	die	Begünstigungspolitiken
 der	Befragte		ein Befragter
 der	Begabungsnachweis	die	Begabungsnachweise
 der	Befundungsarbeitsplatz	die	Befundungsarbeitsplätze
@@ -47078,9 +47078,9 @@ die	Begegnungsgruppe	die	Begegnungsgruppen
 die	Befundkarte	die	Befundkarten
 der	Begehungshorizont	die	Begehungshorizonte
 der	Begeisterte		ein Begeisterter
-das	Begehren		die Begehren
+das	Begehren	die	Begehren
 der	Begeisterungssturm	die	Begeisterungsstürme
-die	Begeisterung		die Begeisterungen
+die	Begeisterung	die	Begeisterungen
 die	Begehrung	die	Begehrungen
 der	Beginenhof	die	Beginenhöfe
 die	Begine	die	Beginen
@@ -47146,7 +47146,7 @@ die	Begrüßungsparty	die	Begrüßungspartys
 das	Begrüßungsmenü	die	Begrüßungsmenüs
 der	Begegnungsort	die	Begegnungsorte
 die	Begräbnisfeier	die	Begräbnisfeiern
-der	Begrüßungstrunk		die Begrüßungstrünke
+der	Begrüßungstrunk	die	Begrüßungstrünke
 der	Begrabene		ein Begrabener
 das	Begrüßungsritual	die	Begrüßungsrituale
 die	Begrüßungsrede	die	Begrüßungsreden
@@ -47388,11 +47388,11 @@ der	Beispielsfall	die	Beispielsfälle
 die	Beistellung	die	Beistellungen
 der	Beispielsatz	die	Beispielsätze
 der	Beistelltisch	die	Beistelltische
-die	Beistimmung		die Beistimmungen
+die	Beistimmung	die	Beistimmungen
 der	Beiträger	die	Beiträger
 die	Beiträgerin	die	Beiträgerinnen
 das	Beitragsjahr	die	Beitragsjahre
-die	Beisetzungsfeierlichkeit		die Beisetzungsfeierlichkeiten
+die	Beisetzungsfeierlichkeit	die	Beisetzungsfeierlichkeiten
 die	Beitragsbemessung	die	Beitragsbemessungen
 die	Beitragsgruppe	die	Beitragsgruppen
 die	Beitragsleistung	die	Beitragsleistungen
@@ -47617,7 +47617,7 @@ das	Bel	die	Bel
 der	Belugastör	die	Belugastöre
 die	Bemächtigung	die	Bemächtigungen
 die	Bemaßungslinie	die	Bemaßungslinien
-der	Belohnungsaufschub		die Belohnungsaufschübe
+der	Belohnungsaufschub	die	Belohnungsaufschübe
 die	Bemannung	die	Bemannungen
 die	Bemaßung	die	Bemaßungen
 die	Bemalung	die	Bemalungen
@@ -47625,7 +47625,7 @@ die	Bemängelung	die	Bemängelungen
 der	Bementit	die	Bementite
 der	Bembel	die	Bembel
 das	Bema	die	Bemata
-die	Bemühung		die Bemühungen
+die	Bemühung	die	Bemühungen
 der	Bemessungs-Betriebsstrom	die	Bemessungs-Betriebsströme
 der	Bemessungs-Stoßstrom	die	Bemessungs-Stoßströme
 der	Bellingerit	die	Bellingerite
@@ -47931,7 +47931,7 @@ die	Bergamadine	die	Bergamadinen
 die	Bergamottessenz	die	Bergamottessenzen
 das	Bergamt	die	Bergämter
 die	Bergansicht	die	Bergansichten
-der	Bergarbeiterprotest		die Bergarbeiterproteste
+der	Bergarbeiterprotest	die	Bergarbeiterproteste
 die	Bergarbeiterstadt	die	Bergarbeiterstädte
 der	Bergastrild	die	Bergastrilde
 der	Bergarbeiterstreik	die	Bergarbeiterstreiks
@@ -48196,7 +48196,7 @@ die	Berichtskategorie	die	Berichtskategorien
 die	Berichtsfunktion	die	Berichtsfunktionen
 der	Bergsturz	die	Bergstürze
 der	Berieseler	die	Berieseler
-die	Berichtssaison		die Berichtssaisons
+die	Berichtssaison	die	Berichtssaisons
 der	Berichtstermin	die	Berichtstermine
 der	Berichtigungsposten	die	Berichtigungsposten
 der	Bergzug	die	Bergzüge
@@ -48212,7 +48212,7 @@ die	Berlepschamazilie	die	Berlepschamazilien
 die	Berlepschelfe	die	Berlepschelfen
 die	Beringmöwe	die	Beringmöwen
 der	Berlepschameisenpitta	die	Berlepschameisenpittas
-die	Berieselungsmusik		die Berieselungsmusiken
+die	Berieselungsmusik	die	Berieselungsmusiken
 die	Berlepschdrossel	die	Berlepschdrosseln
 der	Berlepschschlüpfer	die	Berlepschschlüpfer
 die	Beringschneeammer	die	Beringschneeammern
@@ -48226,7 +48226,7 @@ der	Bermudasturmvogel	die	Bermudasturmvögel
 der	Bermuda-Anglerfisch	die	Bermuda-Anglerfische
 der	Bernalit	die	Bernalite
 der	Berndtit	die	Berndtite
-das	Bermudadreieck		die Bermudadreiecke
+das	Bermudadreieck	die	Bermudadreiecke
 das	Berndeutsch		Berndeutsche
 der	Berlinit	die	Berlinite
 der	Bermuda-Sturmvogel	die	Bermuda-Sturmvögel
@@ -48261,7 +48261,7 @@ der	Berthe-Mausmaki	die	Berthe-Mausmakis
 der	Berufsabschnitt	die	Berufsabschnitte
 der	Berufer	die	Berufer
 der	Bertrandit	die	Bertrandite
-die	Berry-Phase		die Berry-Phasen
+die	Berry-Phase	die	Berry-Phasen
 der	Berufsanfänger	die	Berufsanfänger
 der	Berufsangehörige		ein Berufsangehöriger
 das	Berufsausbildungszentrum	die	Berufsausbildungszentren
@@ -48305,7 +48305,7 @@ der	Berufsfischer	die	Berufsfischer
 der	Berufskollege	die	Berufskollegen
 die	Berufshaftpflichtversicherung	die	Berufshaftpflichtversicherungen
 die	Berufslaufbahn	die	Berufslaufbahnen
-das	Berufsbildungsgesetz		die Berufsbildungsgesetze
+das	Berufsbildungsgesetz	die	Berufsbildungsgesetze
 das	Berufskolleg	die	Berufskollegs
 die	Berufslehre	die	Berufslehren
 die	Berufsförderung	die	Berufsförderungen
@@ -48349,7 +48349,7 @@ der	Berufsverbrecher	die	Berufsverbrecher
 der	Berufsverlauf	die	Berufsverläufe
 die	Berufsvorbereitung	die	Berufsvorbereitungen
 die	Berufsunfallversicherung	die	Berufsunfallversicherungen
-der	Berufsverkehr		die Berufsverkehre
+der	Berufsverkehr	die	Berufsverkehre
 der	Berufswechsler	die	Berufswechsler
 der	Berufsweg	die	Berufswege
 die	Berufsunfähigkeitsrente	die	Berufsunfähigkeitsrenten
@@ -48506,7 +48506,7 @@ der	Beschleuniger	die	Beschleuniger
 der	Beschicker	die	Beschicker
 die	Beschleunigungsspur	die	Beschleunigungsspuren
 der	Beschleunigungsweg	die	Beschleunigungswege
-das	Beschleunigungsprinzip		die Beschleunigungsprinzipien
+das	Beschleunigungsprinzip	die	Beschleunigungsprinzipien
 die	Beschließerin	die	Beschließerinnen
 die	Beschleunigungsspannung	die	Beschleunigungsspannungen
 die	Beschleunigungsstrecke	die	Beschleunigungsstrecken
@@ -48575,7 +48575,7 @@ die	Besenkammer	die	Besenkammern
 die	Beseelung	die	Beseelungen
 das	Beschwichtigungsmittel	die	Beschwichtigungsmittel
 die	Besen-Birke	die	Besen-Birken
-der	Besenkeil		die Besenkeile
+der	Besenkeil	die	Besenkeile
 der	Besenginsterspitzmausrüssler		Besenginsterspitzmausrüßler
 der	Beschreiber	die	Beschreiber
 die	Besenkiefer	die	Besenkiefern
@@ -48625,7 +48625,7 @@ der	Besoffene		ein Besoffener
 die	Besitzübertragung	die	Besitzübertragungen
 die	Besitzurkunde	die	Besitzurkunden
 die	Besoldungsgruppe	die	Besoldungsgruppen
-der	Besitz		die Besitze
+der	Besitz	die	Besitze
 die	Besoldungstabelle	die	Besoldungstabellen
 der	Besitzwechsel	die	Besitzwechsel
 die	Besitzstandsklausel	die	Besitzstandsklauseln
@@ -48688,7 +48688,7 @@ der	Bestandsverlauf	die	Bestandsverläufe
 die	Bestandsschutzmethode	die	Bestandsschutzmethoden
 die	Bestandsveränderung	die	Bestandsveränderungen
 die	Bestandsprovision	die	Bestandsprovisionen
-der	Bestandsverlust		die Bestandsverluste
+der	Bestandsverlust	die	Bestandsverluste
 die	Bestürzung	die	Bestürzungen
 die	Bestätigungs-Taste	die	Bestätigungs-Tasten
 das	Bestatterfahrzeug	die	Bestatterfahrzeuge
@@ -48732,7 +48732,7 @@ das	Bestellformular	die	Bestellformulare
 die	Bestellantwort	die	Bestellantworten
 die	Bestandsdatei	die	Bestandsdateien
 der	Bestellkarte	der	Bestellkarten
-die	Bestellerfassung		die Bestellerfassungen
+die	Bestellerfassung	die	Bestellerfassungen
 die	Bestellliste		Bestelliste
 die	Bestellnummer	die	Bestellnummern
 die	Bestellpraxis	die	Bestellpraxen
@@ -48788,7 +48788,7 @@ der	Bestellschein	die	Bestellscheine
 der	Bestsellerautor		Bestsellerautoren
 die	Besucherlounge	die	Besucherlounges
 der	Besuchermagnet	die	Besuchermagnete
-das	Besucher-Tracking		die Besucher-Trackings
+das	Besucher-Tracking	die	Besucher-Trackings
 der	Besucherprospekt	die	Besucherprospekte
 das	Bestellerland	die	Bestellerländer
 das	Besucherschildchen	die	Besucherschildchen
@@ -48966,7 +48966,7 @@ das	Betonfertigteil	die	Betonfertigteile
 der	Betonhohlblockstein	die	Betonhohlblocksteine
 die	Betonkernaktivierung	die	Betonkernaktivierungen
 die	Betonkassettendecke	die	Betonkassettendecken
-die	Betonkonsistenz		die Betonkonsistenzen
+die	Betonkonsistenz	die	Betonkonsistenzen
 die	Betonkernkühlung	die	Betonkernkühlungen
 das	Betäubungsmittelrezept	die	Betäubungsmittelrezepte
 der	Betongrasstein	die	Betongrassteine
@@ -48989,7 +48989,7 @@ die	Betonierbühne	die	Betonierbühnen
 der	Betonpfahl	die	Betonpfähle
 die	Betonnung	die	Betonnungen
 die	Betonmischung	die	Betonmischungen
-der	Betonlaborservice		die Betonlaborservices
+der	Betonlaborservice	die	Betonlaborservices
 die	Betonierung	die	Betonierungen
 die	Betonmischertrommel	die	Betonmischertrommeln
 die	Betonpiste	die	Betonpisten
@@ -49009,7 +49009,7 @@ die	Betonrezeptur	die	Betonrezepturen
 die	Betondecke	die	Betondecken
 der	Betonmischwagen	die	Betonmischwagen
 der	Betonrüttler	die	Betonrüttler
-die	Betonrohdichte		die Betonrohdichten
+die	Betonrohdichte	die	Betonrohdichten
 die	Betonplattform	die	Betonplattformen
 die	Betonsanierung	die	Betonsanierungen
 die	Betonmauerdeckung	die	Betonmauerdeckungen
@@ -49134,7 +49134,7 @@ der	Betriebsanzeiger	die	Betriebsanzeiger
 der	Betriebsbahnhof	die	Betriebsbahnhöfe
 die	Betriebsablaufsteuerung	die	Betriebsablaufsteuerungen
 die	Betriebsbeschreibung	die	Betriebsbeschreibungen
-die	Betriebsbedingung		die Betriebsbedingungen
+die	Betriebsbedingung	die	Betriebsbedingungen
 der	Betriebsartenwähler	die	Betriebsartenwähler
 der	Betonkleber	die	Betonkleber
 die	Betriebsbegehung	die	Betriebsbegehungen
@@ -49278,8 +49278,8 @@ der	Bettelstab	die	Bettelstäbe
 der	Bettelmönch	die	Bettelmönche
 der	Bettelarmband-Anhänger	die	Bettelarmband-Anhänger
 der	Betsileo-Wollmaki	die	Betsileo-Wollmakis
-die	Bettenanzahl		die Bettenanzahlen
-die	Bettenauslastung		die Bettenauslastungen
+die	Bettenanzahl	die	Bettenanzahlen
+die	Bettenauslastung	die	Bettenauslastungen
 das	Betttuch		Bettuch
 die	Bettenzahl	die	Bettenzahlen
 die	Bettenabteilung	die	Bettenabteilungen
@@ -49386,7 +49386,7 @@ die	Beutetierart	die	Beutetierarten
 die	Beutelzunge	die	Beutelzungen
 die	Bevölkerungsgruppe	die	Bevölkerungsgruppen
 der	Beutezug	die	Beutezüge
-die	Bevölkerungsdichte		die Bevölkerungsdichten
+die	Bevölkerungsdichte	die	Bevölkerungsdichten
 der	Bevölkerungsrückgang	die	Bevölkerungsrückgänge
 die	Bevölkerungsschicht	die	Bevölkerungsschichten
 der	Beutelschneider	die	Beutelschneider
@@ -49455,7 +49455,7 @@ der	Bewegungsgrund	die	Bewegungsgründe
 der	Bewegungsmechanismus	die	Bewegungsmechanismen
 der	Bewegungsmelder	die	Bewegungsmelder
 der	Bewegungsradius	die	Bewegungsradien
-die	Bewegungsnachahmung		die Bewegungsnachahmungen
+die	Bewegungsnachahmung	die	Bewegungsnachahmungen
 das	Bewegungsmuster	die	Bewegungsmuster
 die	Bewegungsform	die	Bewegungsformen
 die	Bewegungsbahn	die	Bewegungsbahnen
@@ -49478,7 +49478,7 @@ der	Beutelteufel	die	Beutelteufel
 das	Beweisaufnahmeprotokoll	die	Beweisaufnahmeprotokolle
 der	Bewegungszünder	die	Bewegungszünder
 die	Bewegungspause	die	Bewegungspausen
-die	Beweislast		die Beweislasten
+die	Beweislast	die	Beweislasten
 das	Beweissicherungsverfahren	die	Beweissicherungsverfahren
 die	Beweismittelkette	die	Beweismittelketten
 der	Beweisgrund	die	Beweisgründe
@@ -49489,7 +49489,7 @@ die	Beweisskizze	die	Beweisskizzen
 die	Beweisführung	die	Beweisführungen
 die	Bewerberin	die	Bewerberinnen
 das	Bewerbergespräch	die	Bewerbergespräche
-das	Beweisfoto		die Beweisfoto
+das	Beweisfoto	die	Beweisfoto
 die	Beweisurkunde	die	Beweisurkunden
 der	Bewegungssensor	die	Bewegungssensoren
 das	Bewerberland	die	Bewerberländer
@@ -49500,9 +49500,9 @@ der	Bewerbungsbrief	die	Bewerbungsbriefe
 die	Bewerbungsmappe	die	Bewerbungsmappen
 das	Bewerbungsformblatt	die	Bewerbungsformblätter
 das	Bewegungsprofil	die	Bewegungsprofile
-die	Beweisnot		die Beweisnöte
+die	Beweisnot	die	Beweisnöte
 das	Bewerbungsformular	die	Bewerbungsformulare
-die	Bewerbungsunterlage		die Bewerbungsunterlagen
+die	Bewerbungsunterlage	die	Bewerbungsunterlagen
 die	Bewerberauswahl	die	Bewerberauswahlen
 die	Bewerbungsaufforderung	die	Bewerbungsaufforderungen
 das	Bewerbungstraining	die	Bewerbungstrainings
@@ -49812,7 +49812,7 @@ die	Bierfahne	die	Bierfahnen
 das	Bierfass		Bierfaß
 das	Bierfest	die	Bierfeste
 das	Biegewerkzeug	die	Biegewerkzeuge
-das	Bienensterben		die Bienensterben
+das	Bienensterben	die	Bienensterben
 die	Bierdeckelsammlung	die	Bierdeckelsammlungen
 der	Biergenuss		Biergenuß
 die	Bienenweide	die	Bienenweiden
@@ -49884,13 +49884,13 @@ der	Bilanzierungstrick	die	Bilanzierungstricks
 die	Bilanzpressekonferenz	die	Bilanzpressekonferenzen
 der	Bilanzkreis	die	Bilanzkreise
 die	Bilanzreform	die	Bilanzreformen
-die	Bilanzleiche		die Bilanzleichen
+die	Bilanzleiche	die	Bilanzleichen
 der	Bilanzprüfer	die	Bilanzprüfer
 die	Bierparty	die	Bierpartys
 der	Bilanzierungszeitraum	die	Bilanzierungszeiträume
 die	Bilanzsumme	die	Bilanzsummen
 die	Bilanzfälschung	die	Bilanzfälschungen
-das	Bilanzrichtliniengesetz		die Bilanzrichtliniengesetze
+das	Bilanzrichtliniengesetz	die	Bilanzrichtliniengesetze
 die	Bilanzanalyse	die	Bilanzanalysen
 der	Bilanztag	die	Bilanztage
 der	Bilanzauszug	die	Bilanzauszüge
@@ -49918,7 +49918,7 @@ der	Bildband	die	Bildbände
 die	Bildbearbeitung	die	Bildbearbeitungen
 das	Bildbetrachtungssystem	die	Bildbetrachtungssysteme
 der	Bildbereich	die	Bildbereiche
-die	Bildaustastlücke		die Bildaustastlücken
+die	Bildaustastlücke	die	Bildaustastlücken
 die	Bildbefundung	die	Bildbefundungen
 der	Bildauswerter	die	Bildauswerter
 der	Bildbericht	die	Bildberichte
@@ -49984,7 +49984,7 @@ der	Bildfeldrahmen	die	Bildfeldrahmen
 das	Bilderverbot	die	Bilderverbote
 das	Bilderrätsel	die	Bilderrätsel
 der	Bilderzyklus	die	Bilderzyklen
-die	Bilderverehrung		die Bilderverehrungen
+die	Bilderverehrung	die	Bilderverehrungen
 das	Bildformat	die	Bildformate
 die	Bildform	die	Bildformen
 das	Bilderzimmer	die	Bilderzimmer
@@ -50157,7 +50157,7 @@ der	Bildungsträger	die	Bildungsträger
 die	Bildungsstätte	die	Bildungsstätten
 die	Bildungstour	die	Bildungstouren
 die	Bildstrecke	die	Bildstrecken
-der	Bildungsrucksack		die Bildungsrucksäcke
+der	Bildungsrucksack	die	Bildungsrucksäcke
 der	Bildungsurlaub	die	Bildungsurlaube
 das	Bildungswerk	die	Bildungswerke
 das	Bildungszentrum	die	Bildungszentren
@@ -50249,7 +50249,7 @@ die	Billigmarke	die	Billigmarken
 der	Billwiseit	die	Billwiseite
 die	Billigung	die	Billigungen
 der	Billigungsvermerk	die	Billigungsvermerke
-das	Billigkeitsrecht		die Billigkeitsrechte
+das	Billigkeitsrecht	die	Billigkeitsrechte
 der	Billingsleyit	die	Billingsleyite
 die	Bilobektomie	die	Bilobektomien
 der	Bimetallschalter	die	Bimetallschalter
@@ -50284,7 +50284,7 @@ die	Binärziffer	die	Binärziffern
 der	Bindebogen	die	Bindebogen
 der	Binärzähler	die	Binärzähler
 der	Binde-BH	die	Binde-BHs
-die	Binärkompatibilität		die Binärkompatibilitäten
+die	Binärkompatibilität	die	Binärkompatibilitäten
 das	Bindegarn	die	Bindegarne
 der	Bindedraht	die	Bindedrähte
 die	Bindegewebsentzündung	die	Bindegewebsentzündungen
@@ -50380,7 +50380,7 @@ das	Binnendelta	die	Binnendeltas
 der	Binnendeutsche		ein Binnendeutscher
 der	Binnenflüchtling	die	Binnenflüchtlinge
 die	Bindungsstärke	die	Bindungsstärken
-der	Binnenflug		dier Binnenflüge
+der	Binnenflug	die	r Binnenflüge
 der	Binnen-Brief	die	Binnen-Briefe
 die	Binneninsel	die	Binneninseln
 der	Binnenklüver	die	Binnenklüver
@@ -50457,7 +50457,7 @@ die	Binnenmarktmaßnahme	die	Binnenmarktmaßnahmen
 der	Bioarchäologe	die	Bioarchäologen
 der	Biocomputer	die	Biocomputer
 das	Bioflavonoid	die	Bioflavonoide
-die	Biodiversitäts-Konvention		die Biodiversitäts-Konventionen
+die	Biodiversitäts-Konvention	die	Biodiversitäts-Konventionen
 das	Biogas-Blockheizkraftwerk	die	Biogas-Blockheizkraftwerke
 die	Biogasanlage	die	Biogasanlagen
 die	Biogefahr	die	Biogefahren
@@ -50483,7 +50483,7 @@ das	Biologiebuch	die	Biologiebücher
 die	Biolehrerin	die	Biolehrerinnen
 der	Bioklimatologe	die	Bioklimatologen
 die	Biologielehrerin	die	Biologielehrerinnen
-die	Biodiversität		die Biodiversitäten
+die	Biodiversität	die	Biodiversitäten
 der	Biologielaborant	die	Biologielaboranten
 die	Biokybernetikerin	die	Biokybernetikerinnen
 der	Binnendruck	die	Binnendrücke
@@ -50493,7 +50493,7 @@ die	Biomaterialbank	die	Biomaterialbanken
 die	Biomathematikerin	die	Biomathematikerinnen
 der	Biolehrer	die	Biolehrer
 die	Biomembran	die	Biomembranen
-das	Biologiestudium		die Biologiestudien
+das	Biologiestudium	die	Biologiestudien
 der	Biometriker	die	Biometriker
 das	Biomikroskop	die	Biomikroskope
 die	Biomechanikerin	die	Biomechanikerinnen
@@ -50775,7 +50775,7 @@ der	Bixbyit	die	Bixbyite
 der	Bjarebyit	die	Bjarebyite
 der	Blähbauch	die	Blähbäuche
 der	Biwaksack	die	Biwaksäcke
-die	Bitzellenzeit		die Bitzellenzeiten
+die	Bitzellenzeit	die	Bitzellenzeiten
 der	Bläschendrüsentumor	die	Bläschendrüsentumoren
 die	Blässgans		Bläßgans
 das	Bläschen	die	Bläschen
@@ -50796,7 +50796,7 @@ das	Blätterteig-Pastetenhaus	die	Blätterteig-Pastetenhäuser
 das	Blätterteigstängelchen	die	Blätterteigstängelchen
 das	Bläsertriebwerk	die	Bläsertriebwerke
 das	Bitterholzgewächs	die	Bitterholzgewächse
-der	Blätterwald		die Blätterwälder
+der	Blätterwald	die	Blätterwälder
 die	Bläulingszikade	die	Bläulingszikaden
 der	Bläser	die	Bläser
 die	Bläschendrüse	die	Bläschendrüsen
@@ -51295,7 +51295,7 @@ der	Blaustern	die	Blausterne
 die	Blaupunkt-Sandgrundel	die	Blaupunkt-Sandgrundeln
 der	Blaustreifen-Doktorfisch	die	Blaustreifen-Doktorfische
 der	Blaustirn-Rotschwanzsittich	die	Blaustirn-Rotschwanzsittiche
-der	Blaustich		die Blaustiche
+der	Blaustich	die	Blaustiche
 der	Blaustreifen-Zackenbarsch	die	Blaustreifen-Zackenbarsche
 der	Blaustrichellori	die	Blaustrichelloris
 der	Blaustift	die	Blaustifte
@@ -51851,7 +51851,7 @@ der	Blutadler	die	Blutadler
 die	Blut-Johannisbeere	die	Blut-Johannisbeeren
 die	Blockzargentür		Blockzargentüre
 die	Blutanalyse	die	Blutanalysen
-das	Blut		die Blute
+das	Blut	die	Blute
 der	Blutalkoholtest	die	Blutalkoholtests
 der	Blumenverkäufer	die	Blumenverkäufer
 der	Blusenstoff	die	Blusenstoffe
@@ -51982,7 +51982,7 @@ der	Blutsturz	die	Blutstürze
 die	Bluttangare	die	Bluttangaren
 der	Blutverlust	die	Blutverluste
 der	Blutstropfen	die	Blutstropfen
-die	Blutstammzelle		die Blutstammzellen
+die	Blutstammzelle	die	Blutstammzellen
 das	Blutwunder	die	Blutwunder
 der	Blutwert	die	Blutwerte
 die	Blutzelle	die	Blutzellen
@@ -52100,7 +52100,7 @@ die	Bodenentwässerung	die	Bodenentwässerungen
 das	Bodenfahrzeug	die	Bodenfahrzeuge
 der	Bodenfaltenbeutel	die	Bodenfaltenbeutel
 die	Bodenfeuchtigkeit	die	Bodenfeuchtigkeiten
-die	Bodenfeuchte		die Bodenfeuchten
+die	Bodenfeuchte	die	Bodenfeuchten
 die	Bodenfläche	die	Bodenflächen
 die	Bodenfalte	die	Bodenfalten
 das	Bodeneffektfluggerät	die	Bodeneffektfluggeräte
@@ -52155,7 +52155,7 @@ die	Bodenerosion	die	Bodenerosionen
 die	Bodenkrume	die	Bodenkrumen
 der	Bodenkuskus	die	Bodenkuskus
 die	Bodenlage	die	Bodenlagen
-der	Bodenorganismus		die Bodenorganismen
+der	Bodenorganismus	die	Bodenorganismen
 die	Bodenkarte	die	Bodenkarten
 der	Bodennullpunkt	die	Bodennullpunkte
 das	Bodenkampfflugzeug	die	Bodenkampfflugzeuge
@@ -52175,7 +52175,7 @@ das	Bodenschutzgesetz	die	Bodenschutzgesetze
 die	Bodenreform	die	Bodenreformen
 die	Bodenschiene	die	Bodenschienen
 die	Bodensäule	die	Bodensäulen
-der	Bodenschutz		die Bodenschutze
+der	Bodenschutz	die	Bodenschutze
 die	Bodenschutzpflanze	die	Bodenschutzpflanzen
 die	Bodenschutzmatte	die	Bodenschutzmatten
 die	Bodenschwelle	die	Bodenschwellen
@@ -52203,15 +52203,15 @@ der	Bodentürschließer	die	Bodentürschließer
 die	Bodentragfähigkeit	die	Bodentragfähigkeiten
 das	Bodentuch	die	Bodentücher
 der	Bodenstaubsauger	die	Bodenstaubsauger
-die	Bodenverarmung		die Bodenverarmungen
+die	Bodenverarmung	die	Bodenverarmungen
 das	Bodenprofil	die	Bodenprofile
 die	Bodenvase	die	Bodenvasen
 die	Bodenverdichtung	die	Bodenverdichtungen
 die	Bodenuntersuchung	die	Bodenuntersuchungen
 der	Bocksdorn	die	Bocksdorne
-die	Bodenversäuerung		die Bodenversäuerungen
+die	Bodenversäuerung	die	Bodenversäuerungen
 der	Bodenverdrängungshammer	die	Bodenverdrängungshämmer
-die	Bodenversauerung		die Bodenversauerungen
+die	Bodenversauerung	die	Bodenversauerungen
 die	Bodenverschmutzung	die	Bodenverschmutzungen
 die	Bodenvorbereitung	die	Bodenvorbereitungen
 der	Bodenturner	die	Bodenturner
@@ -52464,7 +52464,7 @@ das	Bolzenschussgerät		Bolzenschußgerät
 das	Bolzenschweißgerät	die	Bolzenschweißgeräte
 die	Bolzenklemme	die	Bolzenklemmen
 das	Bolzenloch	die	Bolzenlöcher
-die	Bolzenlochausführung		die Bolzenlochausführungen
+die	Bolzenlochausführung	die	Bolzenlochausführungen
 das	Bolzenschloss		Bolzenschloß
 das	Bolzenschießgerät	die	Bolzenschießgeräte
 der	Bolzplatz	die	Bolzplätze
@@ -52889,7 +52889,7 @@ der	Botendienst	die	Botendienste
 der	Bouillonwürfel	die	Bouillonwürfel
 der	Boubouwürger	die	Boubouwürger
 der	Boulangerit	die	Boulangerite
-das	Boulevardmedium		die Boulevardmedien
+das	Boulevardmedium	die	Boulevardmedien
 die	Bougie	die	Bougies
 das	Boulevardblatt	die	Boulevardblätter
 die	Boulekugel	die	Boulekugeln
@@ -52903,7 +52903,7 @@ das	Boulevardthema	die	Boulevardthemen
 der	Bournonit	die	Bournonite
 die	Bountyscharbe	die	Bountyscharben
 der	Boultonschnäpper	die	Boultonschnäpper
-die	Bourbonenmonarchie		die Bourbonenmonarchien
+die	Bourbonenmonarchie	die	Bourbonenmonarchien
 das	Boutique-Hotel	die	Boutique-Hotels
 der	Bourkesittich	die	Bourkesittiche
 die	Boutique	die	Boutiquen
@@ -53092,11 +53092,11 @@ der	Branchenverband	die	Branchenverbände
 der	Branchenvertreter	die	Branchenvertreter
 die	Branchenflaute	die	Branchenflauten
 die	Branchialspalte	die	Branchialspalten
-die	Brunst		die Brünste
+die	Brunst	die	Brünste
 die	Brandabschnittsbegrenzung	die	Brandabschnittsbegrenzungen
 der	Branchenvergleich	die	Branchenvergleiche
 der	Brandausbruch	die	Brandausbrüche
-die	Brandausbreitung		die Brandausbreitungen
+die	Brandausbreitung	die	Brandausbreitungen
 der	Branchialbogen	die	Branchialbogen
 die	Brandabschnittstür		Brandabschnittstüre
 der	Brandbeschleunigerspürhund	die	Brandbeschleunigerspürhunde
@@ -53143,7 +53143,7 @@ der	Brandherd	die	Brandherde
 die	Brandklasse	die	Brandklassen
 das	Brandloch	die	Brandlöcher
 das	Brandmal	die	Brandmale
-die	Brandlüftung		die Brandlüftungen
+die	Brandlüftung	die	Brandlüftungen
 der	Brandkrustenpilz	die	Brandkrustenpilze
 das	Brandgeschoss		Brandgeschoß
 die	Brandmauer	die	Brandmauern
@@ -53253,7 +53253,7 @@ die	Brasilkiefer	die	Brasilkiefern
 die	Brasse	die	Brassen
 der	Brandungsrückstrom	die	Brandungsrückströme
 das	Brassinosteroid	die	Brassinosteroide
-das	Brassinolid		die Brassinolide
+das	Brassinolid	die	Brassinolide
 die	Brassenbarbe	die	Brassenbarben
 der	Bratapfelkuchen	die	Bratapfelkuchen
 die	Bratbirne	die	Bratbirnen
@@ -53300,7 +53300,7 @@ der	Bratschlauch	die	Bratschläuche
 der	Bratofen	die	Bratöfen
 die	Brauchwasserpumpe	die	Brauchwasserpumpen
 der	Brauenbreitschnabel	die	Brauenbreitschnäbel
-das	Brauchwasser		die Brauchwässer
+das	Brauchwasser	die	Brauchwässer
 der	Bratenwender	die	Bratenwender
 der	Brauenknochen	die	Brauenknochen
 der	Brauenfliegenstecher	die	Brauenfliegenstecher
@@ -53438,7 +53438,7 @@ der	Braunkappenweber	die	Braunkappenweber
 der	Braunkappenvireo	die	Braunkappenvireos
 der	Braunkehl-Bürzelstelzer	die	Braunkehl-Bürzelstelzer
 der	Braunkehl-Baumläufer	die	Braunkehl-Baumläufer
-das	Brauchtum		die Brauchtümer
+das	Brauchtum	die	Brauchtümer
 der	Braunbinden-Blattspanner	die	Braunbinden-Blattspanner
 das	Braunkehl-Dreifinger-Faultier	die	Braunkehl-Dreifinger-Faultiere
 das	Braunkehl-Keilschwanzhuhn	die	Braunkehl-Keilschwanzhühner
@@ -53650,7 +53650,7 @@ der	Brautstrauß	die	Brautsträuße
 die	Brautnacht	die	Brautnächte
 der	Brautzug	die	Brautzüge
 der	Brautführer	die	Brautführer
-der	Brautraub		die Brautraube
+der	Brautraub	die	Brautraube
 das	Brautlied	die	Brautlieder
 der	Brautschuh	die	Brautschuhe
 der	Braunohr-Dickkopf	die	Braunohr-Dickköpfe
@@ -54324,7 +54324,7 @@ der	Bronzeschwanz-Schattenkolibri	die	Bronzeschwanz-Schattenkolibris
 der	Bronzekessel	die	Bronzekessel
 die	Bronzemedaillengewinnerin	die	Bronzemedaillengewinnerinnen
 das	Bronzeschneehöschen	die	Bronzeschneehöschen
-die	Bronzeskulptur		die	Bronzeskulpturen
+die	Bronzeskulptur	die		Bronzeskulpturen
 der	Bronzeschwanzfasan	die	Bronzeschwanzfasane
 das	Bronzerücken-Glanzkehlchen	die	Bronzerücken-Glanzkehlchen
 der	Bronzeschwanzsaphir	die	Bronzeschwanzsaphire
@@ -54508,7 +54508,7 @@ der	Brustband-Grundschnäpper	die	Brustband-Grundschnäpper
 das	Brustdrüsengewebe	die	Brustdrüsengewebe
 das	Brustbild	die	Brustbilder
 der	Brustband-Ameisenfänger	die	Brustband-Ameisenfänger
-die	Brotvermehrungskirche		die Brotvermehrungskirchen
+die	Brotvermehrungskirche	die	Brotvermehrungskirchen
 die	Brusterkrankung	die	Brusterkrankungen
 der	Brustbandeisvogel	die	Brustbandeisvögel
 die	Brustdrüse	die	Brustdrüsen
@@ -54539,11 +54539,11 @@ der	Brustgurt	die	Brustgurte
 die	Brustentfernung	die	Brustentfernungen
 der	Brotteller	die	Brotteller
 die	Brustkorrektur	die	Brustkorrekturen
-die	Brunftsaison		die Brunftsaisons
+die	Brunftsaison	die	Brunftsaisons
 der	Brustkrampf	die	Brustkrämpfe
 der	Brustfleck-Barrakuda	die	Brustfleck-Barrakudas
 der	Brustkrebs	die	Brustkrebse
-der	Brustkern		die Brustkerne
+der	Brustkern	die	Brustkerne
 die	Brustkorbinfektion	die	Brustkorbinfektionen
 die	Brustkrankheit	die	Brustkrankheiten
 der	Brustmuskel	die	Brustmuskeln
@@ -54604,7 +54604,7 @@ die	Brustzyste	die	Brustzysten
 das	Brustwarzenhütchen	die	Brustwarzenhütchen
 die	Broschennadel	die	Broschennadeln
 das	Brutpaar	die	Brutpaare
-die	Brutsaison		die Brutsaisons
+die	Brutsaison	die	Brutsaisons
 die	Brutmaschine	die	Brutmaschinen
 die	Brutperiode	die	Brutperioden
 die	Brutto-Grundfläche	die	Brutto-Grundflächen
@@ -54650,10 +54650,10 @@ der	Bryde-Wal	die	Bryde-Wale
 die	Bryologin	die	Bryologinnen
 die	Brutkolonie	die	Brutkolonien
 die	Buße		Busse
-die	Bruststimme		die Bruststimmen
+die	Bruststimme	die	Bruststimmen
 der	Brutvogel	die	Brutvögel
 das	Bußbuch	die	Bußbücher
-der	Bruttostromverbrauch		die Bruttostromverbräuche
+der	Bruttostromverbrauch	die	Bruttostromverbräuche
 der	Bryologe	die	Bryologen
 die	Bußfeier	die	Bußfeiern
 der	Bußprediger	die	Bußprediger
@@ -54673,7 +54673,7 @@ die	Brustmaschine	die	Brustmaschinen
 das	Bußverfahren	die	Bußverfahren
 das	Bubenstück	die	Bubenstücke
 der	Bubukuckuck	die	Bubukuckucke
-das	Bußsakrament		die Bußsakramente
+das	Bußsakrament	die	Bußsakramente
 die	Buchausgabe	die	Buchausgaben
 das	Brustsegment	die	Brustsegmente
 der	Buchbeitrag	die	Buchbeiträge
@@ -55056,7 +55056,7 @@ die	Bundbuchse	die	Bundbuchsen
 der	Bummler	die	Bummler
 der	Bundesangestellte		ein Bundesangestellter
 die	Bundesanstalt	die	Bundesanstalten
-der	Bumser		die Bumser
+der	Bumser	die	Bumser
 der	Bundesadler	die	Bundesadler
 der	Bundesanwalt	die	Bundesanwälte
 der	Bundesbeamte		ein Bundesbeamter
@@ -55064,20 +55064,20 @@ die	Bundesbürgerin	die	Bundesbürgerinnen
 der	Bundesbedienstete		ein Bundesbediensteter
 die	Bundesbehörde	die	Bundesbehörden
 die	Bundesanleihe	die	Bundesanleihen
-das	Bundesausbildungsförderungsgesetz		die Bundesausbildungsförderungsgesetze
+das	Bundesausbildungsförderungsgesetz	die	Bundesausbildungsförderungsgesetze
 das	Bundesbezirksgericht	die	Bundesbezirksgerichte
 der	Buggy	die	Buggys
 die	Bumerangnadel	die	Bumerangnadeln
-das	Bundesberggesetz		die Bundesberggesetze
-das	Bundesbaugesetz		die Bundesbaugesetze
+das	Bundesberggesetz	die	Bundesberggesetze
+das	Bundesbaugesetz	die	Bundesbaugesetze
 die	Bundesbeziehung	die	Bundesbeziehungen
 der	Bundesdeutsche		ein Bundesdeutscher
-das	Bundesbahngesetz		die Bundesbahngesetze
+das	Bundesbahngesetz	die	Bundesbahngesetze
 die	Bundesbeamtin	die	Bundesbeamtinnen
 das	Bundesamt	die	Bundesämter
 die	Bundesflagge	die	Bundesflaggen
 der	Bundesetat	die	Bundesetats
-der	Bundesdurchschnitt		die Bundesdurchschnitte
+der	Bundesdurchschnitt	die	Bundesdurchschnitte
 der	Bumerang	die	Bumerangs
 der	Bundesgenosse	die	Bundesgenossen
 das	Bundesgeld	die	Bundesgelder
@@ -55086,11 +55086,11 @@ das	Bundesgesetzblatt	die	Bundesgesetzblätter
 die	Bundesgeschäftsführerin	die	Bundesgeschäftsführerinnen
 die	Bundesgesetzgebung		Bundesgesetzgebungen
 der	Bundesgesundheitsminister	die	Bundesgesundheitsminister
-der	Bundesfreiwilligendienst		die Bundesfreiwilligendienste
+der	Bundesfreiwilligendienst	die	Bundesfreiwilligendienste
 das	Bundesgefängnis	die	Bundesgefängnisse
 der	Bundeshaushalt	die	Bundeshaushalte
 der	Bundesgrenzschutzhubschrauber	die	Bundesgrenzschutzhubschrauber
-das	Bundesimmissionsschutzgesetz		die Bundesimmissionsschutzgesetze
+das	Bundesimmissionsschutzgesetz	die	Bundesimmissionsschutzgesetze
 der	Buckler	die	Buckler
 der	Bundesjustizminister	die	Bundesjustizminister
 der	Bundesinnenminister	die	Bundesinnenminister
@@ -55101,7 +55101,7 @@ der	Bundesligaverein	die	Bundesligavereine
 der	Bundesminister	die	Bundesminister
 der	Bundeskreis	die	Bundeskreise
 der	Bundeskanzleramtsminister	die	Bundeskanzleramtsminister
-das	Bundesnaturschutzgesetz		die Bundesnaturschutzgesetze
+das	Bundesnaturschutzgesetz	die	Bundesnaturschutzgesetze
 die	Bundesoberbehörde	die	Bundesoberbehörden
 der	Bundespolizeibeamte		ein Bundespolizeibeamter
 die	Bundesrätin	die	Bundesrätinnen
@@ -55109,23 +55109,23 @@ der	Bundesrichter	die	Bundesrichter
 der	Bundesschatzbrief	die	Bundesschatzbriefe
 der	Bundesschluss		Bundesschluß
 der	Bundessozialminister	die	Bundessozialminister
-das	Bundespräsidialamt		die Bundespräsidialämter
+das	Bundespräsidialamt	die	Bundespräsidialämter
 der	Bundestagsabgeordnete		ein Bundestagsabgeordneter
 das	Bundesgesetz	die	Bundesgesetze
 das	Bundeskonkordat	die	Bundeskonkordate
 der	Bundestagsbeschluss		Bundestagsbeschluß
 die	Bundestagsfraktion	die	Bundestagsfraktionen
 der	Bundesligaeinsatz	die	Bundesligaeinsätze
-die	Bundestarifordnung		die Bundestarifordnungen
+die	Bundestarifordnung	die	Bundestarifordnungen
 die	Bundestagskandidatur	die	Bundestagskandidaturen
-das	Bundesverfassungsgerichtsgesetz		die Bundesverfassungsgerichtsgesetze
+das	Bundesverfassungsgerichtsgesetz	die	Bundesverfassungsgerichtsgesetze
 der	Bundesverfassungsrichter	die	Bundesverfassungsrichter
 das	Bundesverdienstkreuz	die	Bundesverdienstkreuze
 der	Bundesumweltminister	die	Bundesumweltminister
 das	Bundesvermögen	die	Bundesvermögen
 das	Bundesgesundheitsblatt	die	Bundesgesundheitsblätter
 der	Bundesvorsitzende		ein Bundesvorsitzender
-das	Bundesversorgungsgesetz		die Bundesversorgungsgesetze
+das	Bundesversorgungsgesetz	die	Bundesversorgungsgesetze
 der	Bundesverkehrsminister	die	Bundesverkehrsminister
 das	Bundeswappen	die	Bundeswappen
 der	Bundesverteidigungsminister	die	Bundesverteidigungsminister
@@ -55145,7 +55145,7 @@ die	Bundistin	die	Bundistinnen
 die	Bundfalte	die	Bundfalten
 die	Bungee-Springerin	die	Bungee-Springerinnen
 der	Bundeszuschuss		Bundeszuschuß
-das	Bundessozialhilfegesetz		die Bundessozialhilfegesetze
+das	Bundessozialhilfegesetz	die	Bundessozialhilfegesetze
 die	Bundwelle	die	Bundwellen
 das	Bungarotoxin	die	Bungarotoxine
 der	Bungee-Springer	die	Bungee-Springer
@@ -55264,7 +55264,7 @@ der	Burgunderkrieg	die	Burgunderkriege
 der	Burggasthof	die	Burggasthöfe
 die	Burin	die	Burinnen
 die	Burgundertraube	die	Burgundertrauben
-der	Burjate		die Burjaten
+der	Burjate	die	Burjaten
 der	Burgwart	die	Burgwarte
 die	Burgundin	die	Burgundinnen
 die	Burgunderin	die	Burgunderinnen
