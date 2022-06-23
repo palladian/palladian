@@ -102,6 +102,15 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                 throw new IllegalStateException("Error while trying to open '" + indexPath + "'.");
             }
         }
+        
+        /** @return The number of documents in this model. */
+        public int size() {
+            try (DirectoryReader reader = DirectoryReader.open(directory)) {
+                return reader.numDocs();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        }
 
     }
 
