@@ -15,7 +15,7 @@ public class Benchmark {
         evaluator.addDataset("/Users/pk/temp/LGL-converted/0-all");
         evaluator.addDataset("/Users/pk/temp/CLUST-converted/0-all");
 
-        // QuickDtModel model = ModelCache.getInstance().getLocationModel();
+        //        QuickDtModel model = ModelCache.getInstance().getLocationModel();
         // FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
         // Filter<String> filter = FileHelper.deserialize("/Users/pk/temp/bloomFilter.ser");
@@ -73,6 +73,5 @@ public class Benchmark {
         }
         System.out.println("took " + stopWatch);
     }
-
 
 }

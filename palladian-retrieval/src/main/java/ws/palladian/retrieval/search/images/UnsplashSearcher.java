@@ -1,13 +1,7 @@
 package ws.palladian.retrieval.search.images;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -21,11 +15,16 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  * Search for free images on <a href="https://unsplash.com/documentation">Unsplash</a>.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see <a href="https://unsplash.com/documentation">Unsplash API Docs</a>
  */
@@ -52,13 +51,18 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         this.apiKey = apiKey;
     }
 
+    public UnsplashSearcher(String apiKey, int defaultResultCount) {
+        this(apiKey);
+        this.defaultResultCount = defaultResultCount;
+    }
+
     /**
      * <p>
      * Creates a new Unsplash searcher.
      * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing Unsplash, which must be
-     *            provided as string via key {@value UnsplashSearcher#CONFIG_API_KEY} in the configuration.
+     *                      provided as string via key {@value UnsplashSearcher#CONFIG_API_KEY} in the configuration.
      */
     public UnsplashSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -72,14 +76,13 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     @Override
     /**
      * @param language Supported languages are English.
-     */
-    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
         resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(MAX_PER_PAGE, resultCount);
-        int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);
+        int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
 
         DocumentRetriever documentRetriever = new DocumentRetriever();
         Map<String, String> globalHeaders = new HashMap<>();
