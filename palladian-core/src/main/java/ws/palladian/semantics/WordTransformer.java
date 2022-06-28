@@ -79,7 +79,7 @@ public class WordTransformer {
                     LOGGER.warn("incorrect singular plural in line -------------> " + string);
                     continue;
                 }
-                if (parts[1].isEmpty()) {
+                if (parts[1].isEmpty() || parts[3].isEmpty()) {
                     continue;
                 }
                 String singular = parts[1].toLowerCase();
@@ -176,7 +176,7 @@ public class WordTransformer {
             FileHelper.close(inputStream);
         }
 
-        TRIM_CHAR_PATTERN = Pattern.compile("["+StringUtils.join(StringHelper.TRIMMABLE_CHARACTERS,"")+"]$");
+        TRIM_CHAR_PATTERN = Pattern.compile("[" + StringUtils.join(StringHelper.TRIMMABLE_CHARACTERS, "") + "]$");
     }
 
     /**
