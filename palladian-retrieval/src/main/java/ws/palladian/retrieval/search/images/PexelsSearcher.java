@@ -102,6 +102,7 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
 
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setAdditionalData("id", resultHit.tryGetInt("id") + "");
                     builder.setUrl(resultHit.getString("url"));
                     builder.setImageUrl(resultHit.tryQueryString("src/original"));
                     builder.setTitle("");

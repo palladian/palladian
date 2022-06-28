@@ -6,6 +6,8 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.helper.RequestThrottle;
+import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -18,6 +20,7 @@ import ws.palladian.retrieval.search.SearcherException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -35,6 +38,11 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
     public static final String CONFIG_API_KEY = "api.pixabay.key";
 
     private final String apiKey;
+
+    /**
+     * ProxyCrawl allows 100 requests/minute.
+     */
+    private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 100);
 
     /**
      * <p>
@@ -91,6 +99,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
 
             String requestUrl = buildRequest(query, page, Math.max(3, Math.min(200, resultCount - results.size())), language);
             try {
+                THROTTLE.hold();
                 String textResponse = documentRetriever.getText(requestUrl);
                 if (textResponse == null) {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
@@ -100,6 +109,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
                     BasicWebImage.Builder builder = new BasicWebImage.Builder();
+                    builder.setAdditionalData("id", resultHit.tryGetInt("id") + "");
                     builder.setUrl(resultHit.getString("pageURL"));
                     builder.setImageUrl(resultHit.getString("webformatURL"));
                     builder.setTitle(resultHit.getString("tags"));
