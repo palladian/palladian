@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="https://app.scrapingbee.com/dashboard">Scraping Bee API Docs</a>
  * 14.06.2021
  */
-public class ScrapingBeeDocumentRetriever extends WebDocumentRetriever {
+public class ScrapingBeeDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKey;
     private boolean useJsRendering = false;
 

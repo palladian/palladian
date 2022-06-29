@@ -199,6 +199,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             if (thread != null) {
                 thread.setName("Retrieving (proxycrawl): " + url);
             }
+            configure(cloudDocumentRetriever2);
             document = cloudDocumentRetriever2.getWebDocument(url);
             goodDocument = isGoodDocument(document);
             String message = goodDocument ? "success" : "fail";
@@ -212,6 +213,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             if (thread != null) {
                 thread.setName("Retrieving (scrapingbee): " + url);
             }
+            configure(cloudDocumentRetriever3);
             document = cloudDocumentRetriever3.getWebDocument(url);
             goodDocument = isGoodDocument(document);
             String message = goodDocument ? "success" : "fail";
@@ -297,5 +299,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (documentRetriever != null) {
             documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         }
+    }
+
+    public boolean renderJs(boolean renderJs) {
+        boolean originalValue = cloudDocumentRetriever2.isUseJsRendering();
+        cloudDocumentRetriever2.setUseJsRendering(renderJs);
+        cloudDocumentRetriever3.setUseJsRendering(renderJs);
+        return originalValue;
     }
 }

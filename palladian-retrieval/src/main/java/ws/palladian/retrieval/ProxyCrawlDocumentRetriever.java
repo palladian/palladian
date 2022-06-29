@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="https://proxycrawl.com/docs/crawling-api/#your-first-api-call">Proxy Crawl API Docs</a>
  * 18.05.2021
  */
-public class ProxyCrawlDocumentRetriever extends WebDocumentRetriever {
+public class ProxyCrawlDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKeyPlain;
     private final String apiKeyJs;
 
