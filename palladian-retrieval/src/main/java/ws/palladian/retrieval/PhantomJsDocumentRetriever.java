@@ -19,13 +19,12 @@ import java.util.regex.Pattern;
  * <p>
  * Download content from a different IP via a cloud.
  * </p>
+ * See https://phantomjscloud.com/docs/http-api/
  *
  * @author David Urbansky
  */
 public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKey;
-
-    private Map<String, String> cookies = null;
 
     /**
      * 424 means the source took too long to reply but we still might have the content we want.
@@ -57,7 +56,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
         for (Map.Entry<Pattern, String> patternStringEntry : waitForElementMap.entrySet()) {
             if (patternStringEntry.getKey().matcher(url).find()) {
                 String selector = patternStringEntry.getValue();
-                overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait(); await page.waitForSelector(\"" + selector + "\"); page.done();'");
+                overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();await page.waitForSelector(\"" + selector + "\");page.done();'");
                 break;
             }
         }
@@ -80,7 +79,8 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         String requestUrl =
-                "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + cookieString + "%7D";
+                "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript
+                        + cookieString + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         JsonObject response = new DocumentRetriever().tryGetJsonObject(requestUrl);
