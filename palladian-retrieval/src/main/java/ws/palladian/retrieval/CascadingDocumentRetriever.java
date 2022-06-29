@@ -302,9 +302,15 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public boolean renderJs(boolean renderJs) {
-        boolean originalValue = cloudDocumentRetriever2.isUseJsRendering();
-        cloudDocumentRetriever2.setUseJsRendering(renderJs);
-        cloudDocumentRetriever3.setUseJsRendering(renderJs);
+        boolean originalValue = false;
+        if (cloudDocumentRetriever2 != null) {
+            originalValue = cloudDocumentRetriever2.isUseJsRendering();
+            cloudDocumentRetriever2.setUseJsRendering(renderJs);
+        }
+        if (cloudDocumentRetriever3 != null) {
+            originalValue = cloudDocumentRetriever3.isUseJsRendering();
+            cloudDocumentRetriever3.setUseJsRendering(renderJs);
+        }
         return originalValue;
     }
 }
