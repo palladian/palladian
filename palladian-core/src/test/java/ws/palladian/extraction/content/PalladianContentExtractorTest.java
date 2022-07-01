@@ -118,7 +118,7 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.ITALIAN));
 
         // Russian
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://tass.ru/"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.moscowtimes.ru/"));
         language = palladianContentExtractor.detectLanguage();
         collector.checkThat(language, is(Language.RUSSIAN));
     }
