@@ -1,5 +1,7 @@
 package ws.palladian.extraction.multimedia;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
+
 import java.io.Serializable;
 
 /**
@@ -21,6 +23,11 @@ public class ImageVector implements Serializable {
      */
     private String identifier;
 
+    /**
+     * We might want to tag the image, e.g. with a category so that we can later only consider images that match a certain tag id.
+     */
+    private IntSet tagIds;
+
     public byte[] getValues() {
         return values;
     }
@@ -35,5 +42,20 @@ public class ImageVector implements Serializable {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public IntSet getTagIds() {
+        return tagIds;
+    }
+
+    public void setTagIds(IntSet tagIds) {
+        this.tagIds = tagIds;
+    }
+
+    public boolean containsTagId(Integer tagId) {
+        if (tagIds == null || tagId == null) {
+            return false;
+        }
+        return tagIds.contains(tagId.intValue());
     }
 }

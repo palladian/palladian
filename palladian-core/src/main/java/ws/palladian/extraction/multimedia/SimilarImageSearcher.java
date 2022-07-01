@@ -1,5 +1,8 @@
 package ws.palladian.extraction.multimedia;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
@@ -16,6 +19,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * An image optimized KNN implementation. This class indexes image vectors and allows for finding similar to a given one.
@@ -28,9 +32,16 @@ public class SimilarImageSearcher {
     protected static final String PROCESSED_PREFIX = "prcssd-";
     protected static final String UUID_PREFIX = "uuid-";
     protected final List<ImageVector> imageVectors = new ArrayList<>();
+    protected final Map<String, IntSet> tagMap = new HashMap<>();
+    protected final int boxSize;
 
     public SimilarImageSearcher(File folder) {
+        this(folder, 20);
+    }
+
+    public SimilarImageSearcher(File folder, int boxSize) {
         this.folder = folder;
+        this.boxSize = boxSize;
         boolean loaded = loadIndex();
         if (!loaded) {
             buildIndex();
@@ -38,14 +49,22 @@ public class SimilarImageSearcher {
     }
 
     public boolean index(String imageUrl, String identifier) {
-        return index(ImageHandler.load(imageUrl), identifier);
+        return index(imageUrl, identifier, null);
+    }
+
+    public boolean index(String imageUrl, String identifier, IntSet tagIds) {
+        return index(ImageHandler.load(imageUrl), identifier, tagIds);
     }
 
     public boolean index(BufferedImage image, String identifier) {
+        return index(image, identifier, null);
+    }
+
+    public boolean index(BufferedImage image, String identifier, IntSet tagIds) {
         if (image == null) {
             return false;
         }
-        ImageVector imageVector = createImageVector(image, identifier);
+        ImageVector imageVector = createImageVector(image, identifier, tagIds);
         imageVectors.add(imageVector);
         return true;
     }
@@ -56,14 +75,43 @@ public class SimilarImageSearcher {
             List<ImageVector> loadedImageVectors = FileHelper.tryDeserialize(imageVectorsPath);
             if (loadedImageVectors != null) {
                 imageVectors.addAll(loadedImageVectors);
+                String tagMapPath = folder.getPath() + "/tag-map.txt";
+                if (FileHelper.fileExists(tagMapPath)) {
+                    List<String> strings = FileHelper.readFileToArray(tagMapPath);
+                    // tag-map.txt has lines like this:
+                    // identifier,1,3,4,5
+                    for (String string : strings) {
+                        String[] split = string.split("§");
+                        IntSet tagIds = new IntOpenHashSet();
+                        for (int i = 1; i < split.length; i++) {
+                            tagIds.add(Integer.parseInt(split[i]));
+                        }
+                        tagMap.put(split[0], tagIds);
+                    }
+                }
                 return true;
             }
         }
         return false;
     }
 
+    private void saveTagMap() {
+        String tagMapPath = folder.getPath() + "/tag-map.txt";
+        StringBuilder content = new StringBuilder();
+
+        for (Map.Entry<String, IntSet> stringIntSetEntry : tagMap.entrySet()) {
+            content.append(stringIntSetEntry.getKey()).append("§");
+            content.append(StringUtils.join(stringIntSetEntry.getValue(), "§"));
+            content.append("\n");
+        }
+
+        FileHelper.writeToFile(tagMapPath, content.toString());
+        FileHelper.removeDuplicateLines(tagMapPath);
+    }
+
     protected boolean saveIndex() {
         String imageVectorsPath = folder.getPath() + "/image-vectors.gz";
+        saveTagMap();
         return FileHelper.trySerialize((Serializable) imageVectors, imageVectorsPath);
     }
 
@@ -78,7 +126,10 @@ public class SimilarImageSearcher {
             }
             identifier = FileHelper.getFileName(identifier);
             BufferedImage image = ImageHandler.load(file.getAbsolutePath());
-            ImageVector imageVector = createImageVector(image, identifier);
+            ImageVector imageVector = createImageVector(image, identifier, null);
+
+            imageVector.setTagIds(tagMap.get(identifier));
+
             imageVectors.add(imageVector);
             pm.incrementAndPrintProgress();
         }
@@ -89,10 +140,10 @@ public class SimilarImageSearcher {
     }
 
     protected ImageVector createImageVector(BufferedImage image) {
-        return createImageVector(image, null);
+        return createImageVector(image, null, null);
     }
 
-    protected ImageVector createImageVector(BufferedImage image, String identifier) {
+    protected ImageVector createImageVector(BufferedImage image, String identifier, IntSet tagIds) {
         String tempLinkPath = getImagePath(identifier, false);
         BufferedImage existingImage = findImageByIdentifier(identifier);
 
@@ -116,14 +167,21 @@ public class SimilarImageSearcher {
 
         BufferedImage grayscaleImage;
         if (!FileHelper.fileExists(greyImagePath)) {
-            BufferedImage smallImage = ImageHandler.rescaleImage(image, 20, 20, false);
+            BufferedImage smallImage = ImageHandler.rescaleImage(image, boxSize, boxSize, false);
             grayscaleImage = ImageHandler.toGrayScale(smallImage);
             ImageHandler.saveImage(grayscaleImage, greyImagePath);
         } else {
             grayscaleImage = ImageHandler.load(greyImagePath);
         }
 
-        return createImageVectorFromNormalizedImage(grayscaleImage, identifier);
+        ImageVector imageVectorFromNormalizedImage = createImageVectorFromNormalizedImage(grayscaleImage, identifier);
+
+        if (tagIds != null) {
+            tagMap.put(identifier, tagIds);
+            imageVectorFromNormalizedImage.setTagIds(tagIds);
+        }
+
+        return imageVectorFromNormalizedImage;
     }
 
     protected BufferedImage findProcessedImageByIdentifier(String identifier) {
@@ -180,22 +238,30 @@ public class SimilarImageSearcher {
     }
 
     public List<String> search(String identifier, int num) {
+        return search(identifier, num, null);
+    }
+
+    public List<String> search(String identifier, int num, Integer tagId) {
         BufferedImage existingImage = findProcessedImageByIdentifier(identifier);
-        return search(existingImage, num);
+        return search(existingImage, num, tagId);
     }
 
     public List<String> search(BufferedImage image, int num) {
+        return search(image, num, null);
+    }
+
+    public List<String> search(BufferedImage image, int num, Integer tagId) {
         if (image == null) {
             return new ArrayList<>();
         }
         ImageVector imageVector = createImageVector(image);
-        LinkedHashSet<String> similarProductIdentifiers = new LinkedHashSet<>(getNeighbors(imageVector, num));
+        LinkedHashSet<String> similarProductIdentifiers = new LinkedHashSet<>(getNeighbors(imageVector, num, tagId));
         return new ArrayList<>(CollectionHelper.getSubset(similarProductIdentifiers, 0, num));
     }
 
-    private List<String> getNeighbors(ImageVector imageVector, int numNeighbors) {
+    private List<String> getNeighbors(ImageVector imageVector, int numNeighbors, Integer tagId) {
         List<String> categoryNames = new ArrayList<>();
-        CategoryEntries classify = classify(imageVector, numNeighbors);
+        CategoryEntries classify = classify(imageVector, numNeighbors, tagId);
         for (Category category : classify) {
             categoryNames.add(category.getName());
         }
@@ -203,12 +269,21 @@ public class SimilarImageSearcher {
     }
 
     protected CategoryEntries classify(ImageVector imageVectorToClassify, int numNeighbors) {
+        return classify(imageVectorToClassify, numNeighbors, null);
+    }
+
+    protected CategoryEntries classify(ImageVector imageVectorToClassify, int numNeighbors, Integer tagId) {
         CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
         // find k nearest neighbors, compare instance to every known instance
         FixedSizePriorityQueue<Pair<String, Double>> neighbors = new FixedSizePriorityQueue<>(numNeighbors, new EntryValueComparator<>(CollectionHelper.Order.DESCENDING));
 
-        for (ImageVector imageVector : imageVectors) {
+        List<ImageVector> filteredList = imageVectors;
+        if (tagId != null) {
+            filteredList = imageVectors.stream().filter(v -> v.containsTagId(tagId)).collect(Collectors.toList());
+        }
+
+        for (ImageVector imageVector : filteredList) {
             double distance = computeDistance(imageVector.getValues(), imageVectorToClassify.getValues());
             neighbors.add(Pair.of(imageVector.getIdentifier(), distance));
         }
@@ -236,5 +311,22 @@ public class SimilarImageSearcher {
 
     public int getNumberOfIndexedImages() {
         return imageVectors.size();
+    }
+
+    public void clearIndex() {
+        // clear processed images, otherwise they would come back when building the index but that might be old out of date images
+        File[] files = FileHelper.getFiles(folder.getPath(), PROCESSED_PREFIX);
+        ProgressMonitor pm = new ProgressMonitor(files.length, 1., "Clearing index");
+        for (File file : files) {
+            FileHelper.delete(file);
+            pm.incrementAndPrintProgress();
+        }
+
+        FileHelper.delete(folder.getPath() + "/image-vectors.gz");
+        FileHelper.delete(folder.getPath() + "/tag-map.txt");
+
+        // clear in memory
+        this.imageVectors.clear();
+        this.tagMap.clear();
     }
 }

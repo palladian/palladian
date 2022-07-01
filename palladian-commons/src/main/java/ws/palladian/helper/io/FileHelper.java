@@ -531,7 +531,7 @@ public final class FileHelper {
     public static void removeDuplicateLines(String inputFilePath) {
         List<String> lines = readFileToArray(inputFilePath, -1);
 
-        Set<String> lineSet = new HashSet<>();
+        Set<String> lineSet = new LinkedHashSet<>();
 
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
@@ -1767,6 +1767,7 @@ public final class FileHelper {
 
     /**
      * Get the SHA1 hash of the file's content.
+     *
      * @param file The file.
      * @return sha1 of file content
      */
