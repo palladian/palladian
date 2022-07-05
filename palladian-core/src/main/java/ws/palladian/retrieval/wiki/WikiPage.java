@@ -313,6 +313,13 @@ public class WikiPage extends WikiPageReference {
                 .orElse(null);
     }
     
+    public Set<MarkupCoordinate> getCoordinates() {
+        Set<MarkupCoordinate> coordinates = new HashSet<>();
+        coordinates.addAll(MediaWikiUtil.extractCoordinateTag(text));
+        getInfoboxes().stream().map(WikiTemplate::getCoordinates).forEach(coordinates::addAll);
+        return coordinates;
+    }
+    
     @Override
     public Set<String> getTags() {
         return new HashSet<String>(getCategories());

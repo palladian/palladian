@@ -87,7 +87,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
     @Override
     public Set<String> getCategories() {
         Set<String> fineCategories = decorated.getCategories();
-        return CollectionHelper.convertSet(fineCategories, input -> mapToCoarse(input));
+        return CollectionHelper.convertSet(fineCategories, this::mapToCoarse);
     }
 
     @Override

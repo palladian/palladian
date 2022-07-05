@@ -3,13 +3,18 @@ package ws.palladian.extraction.location.scope.evaluation;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.collections.bag.SynchronizedSortedBag;
 import org.apache.commons.lang3.Validate;
 
+import ws.palladian.classification.text.BayesScorer;
 import ws.palladian.classification.text.DictionaryBuilder;
 import ws.palladian.classification.text.DictionaryTrieModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
+import ws.palladian.classification.text.HashedDictionaryMapModel;
+import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.text.PruningStrategies;
+import ws.palladian.classification.text.TermSelector;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -18,8 +23,13 @@ import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
+import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector;
 import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeDetectorLearner;
+import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeModel;
+import ws.palladian.extraction.location.scope.MultiStepDictionaryScopeDetector;
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.util.Iterator;
 import java.util.function.Consumer;
 import ws.palladian.helper.functional.ConsumerIteratorAdapter;
 import java.util.function.Function;
@@ -42,7 +52,8 @@ public class WikipediaBigDatasetEvaluation {
     // private static final File WIKI_DUMP = new File("/Users/pk/Desktop/enwiki-20140614-pages-articles.xml.bz2");
     // private static final File WIKI_DUMP = new File("/Volumes/LaCie500/enwiki-latest-pages-articles.xml.bz2");
     // private static final File WIKI_DUMP = new File("/Volumes/iMac HD/temp/enwiki-20130503-pages-articles.xml.bz2");
-    private static final File WIKI_DUMP = new File("/Volumes/iMac SSD 2/Location_Lab_Revisited/enwiki-20220501-pages-articles-multistream.xml.bz2");
+    // private static final File WIKI_DUMP = new File("/Volumes/iMac SSD 2/Location_Lab_Revisited/enwiki-20220501-pages-articles-multistream.xml.bz2");
+    private static final File WIKI_DUMP = new File("/Volumes/Archiv/Location_Lab_Revisited/enwiki-20220501-pages-articles-multistream.xml.bz2");
 
     private static final Function<WikiPage, LocationDocument> CONVERTER = new Function<WikiPage, LocationDocument>() {
         private static final String UNDETERMINED = "undetermined";
@@ -96,20 +107,31 @@ public class WikipediaBigDatasetEvaluation {
 
             @Override
             protected void consume(Iterable<WikiPage> iterable) {
-                iterable = CollectionHelper.filter(iterable, new Predicate<WikiPage>() {
-                    @Override
-                    public boolean test(WikiPage item) {
-                        if (item.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
-                            return false;
-                        }
-                        if (item.getTitle().toLowerCase().startsWith("list of")) {
-                            return false;
-                        }
-                        if (item.getCoordinate() == null) {
-                            return false;
-                        }
-                        return true;
+//                Iterator<WikiPage> temp = CollectionHelper.limit(iterable, 10000).iterator();
+//                int count = 0;
+//                while (temp.hasNext()) {
+//                    WikiPage page = temp.next();
+//                    if (page.getCoordinate() != null) {
+//                        System.out.println(page.getTitle());
+//                        count++;
+//                    }
+//                }
+//                System.out.println("# pages with coordinates: " + count);
+//                // # pages with coordinates: 671
+//                // # before: # pages with coordinates: 600
+//                System.exit(0);
+
+                iterable = CollectionHelper.filter(iterable, (Predicate<WikiPage>) item -> {
+                    if (item.getNamespaceId() != WikiPage.MAIN_NAMESPACE) {
+                        return false;
                     }
+                    if (item.getTitle().toLowerCase().startsWith("list of")) {
+                        return false;
+                    }
+                    if (item.getCoordinate() == null) {
+                        return false;
+                    }
+                    return true;
                 });
 
                 // make a 90:10 training:test split
@@ -118,29 +140,45 @@ public class WikipediaBigDatasetEvaluation {
                 Iterable<LocationDocument> trainingLocations = CollectionHelper.convert(trainingPages, CONVERTER);
                  Iterable<LocationDocument> testingLocations = CollectionHelper.convert(testingPages, CONVERTER);
                  
-                 testingLocations = CollectionHelper.limit(testingLocations, 1000);
+                 // limit to just 100 for now
+                 testingLocations = CollectionHelper.limit(testingLocations, 100);
+//                 testingLocations = CollectionHelper.limit(testingLocations, 1000);
+//                 testingLocations = CollectionHelper.limit(testingLocations, 10000);
                  
-                 DictionaryScopeModel model = FileHelper.tryDeserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
-                 ScopeDetectorEvaluator.evaluateScopeDetection(new DictionaryScopeDetector(model), testingLocations, true);
-                 System.exit(0);
-                
-////                 FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
-//                FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(Integer.MAX_VALUE).create();
-//                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
+                 
+//                 File indexFile = new File("/Users/pk/Desktop/Location_Lab_Revisited/knn-scope-model-wikipedia-90-train-v2");
+//                 NearestNeighborScopeModel knnIndex = KNearestNeighborScopeDetector.NearestNeighborScopeModel.fromIndex(indexFile);
+//                 ScopeDetectorEvaluator.evaluateScopeDetection(new KNearestNeighborScopeDetector(knnIndex, 5), testingLocations, true );
+//                 System.exit(0);
+                 
+//                 DictionaryScopeModel model = FileHelper.tryDeserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
+//                 DictionaryScopeModel model = FileHelper.tryDeserialize("/Users/pk/Repositories/palladian/palladian-experimental/enwiki-20220501-locationDictionary-1-word-500-frequency-0.3515625-v2-hashed.ser.gz");
+                 DictionaryScopeModel model = FileHelper.tryDeserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-2-word-0.3515625.ser.gz");
+//                 PalladianTextClassifier.PARALLELIZED = false;
+//                 ScopeDetectorEvaluator.evaluateScopeDetection(new MultiStepDictionaryScopeDetector(model, 5.625, 2.8125, 1.40625, 0.703125), testingLocations, true);
+                  DictionaryScopeDetector scopeDetector = new DictionaryScopeDetector(model);
+                  System.out.println(scopeDetector.getScope("St. Petersburg is near Miami."));
+                // ScopeDetectorEvaluator.evaluateScopeDetection(scopeDetector, testingLocations, true);
+//                 PalladianTextClassifier.PARALLELIZED = true;
+//                 ScopeDetectorEvaluator.evaluateScopeDetection(new DictionaryScopeDetector(model, new BayesScorer()), testingLocations, true);
+//                 PalladianTextClassifier.PARALLELIZED = false;
+//                 ScopeDetectorEvaluator.evaluateScopeDetection(new MultiStepDictionaryScopeDetector(model, new BayesScorer(), 5.625, 2.8125, 1.40625, 0.703125), testingLocations, true);
+//                 System.exit(0);
+
+//////                 FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
+//                FeatureSetting setting = FeatureSettingBuilder.words(1).maxTerms(500, TermSelector.FREQUENCY).create();
+////                DictionaryBuilder builder = new DictionaryTrieModel.Builder();
+//                DictionaryBuilder builder = new HashedDictionaryMapModel.Builder();
 ////                builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
 //                DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 0.3515625);
 //                DictionaryScopeModel model = learner.train(trainingLocations);
-//                
-//                try {
-//                    FileHelper.serialize(model, "enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+//                FileHelper.trySerialize(model, "enwiki-20220501-locationDictionary-1-word-500-frequency-0.3515625-v2-hashed.ser.gz");
                 
-//                File indexFile = new File("/Users/pk/temp/knn-scope-model-wikipedia-90-train");
+//                File indexFile = new File("/Users/pk/temp/knn-scope-model-wikipedia-90-train-v2");
 //                FeatureSetting featureSetting = FeatureSettingBuilder.words(1).create();
 //                NearestNeighborScopeDetectorLearner learner = new NearestNeighborScopeDetectorLearner(indexFile, featureSetting);
 //                learner.train(trainingLocations);
+                
                 
                 // trainingLocations = CollectionHelper.limit(trainingLocations, 20000);
                 // testingLocations = CollectionHelper.limit(testingLocations, 10);

@@ -118,8 +118,8 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 	public static void main(String[] args) throws IOException {
 		AtlasObscuraDatasetReader reader = new AtlasObscuraDatasetReader(new File("/Users/pk/Desktop/atlas-obscura-crawler/places.json"));
 		// analyzeScopeDetection(reader, 1000);
-        classifierBenchmark(reader);
-		System.exit(0);
+        // classifierBenchmark(reader);
+		// System.exit(0);
 
 		ScopeDetectorEvaluator eval = new ScopeDetectorEvaluator();
 		// for now, just take 25% for evaluation
@@ -127,13 +127,14 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 
 		eval.addDataset(data);
 		 
-		// NearestNeighborScopeModel model = NearestNeighborScopeModel.fromIndex(new File("/Users/pk/Desktop/Location_Lab_Revisited/knn-scope-model-wikipedia-90-train"));
-		// eval.addDetector(new KNearestNeighborScopeDetector(model, 1, MORE_LIKE_THIS_QUERY_CREATOR));
+//		NearestNeighborScopeModel model = NearestNeighborScopeModel.fromIndex(new File("/Users/pk/Desktop/Location_Lab_Revisited/knn-scope-model-wikipedia-90-train"));
+		NearestNeighborScopeModel model = NearestNeighborScopeModel.fromIndex(new File("/Users/pk/Desktop/Location_Lab_Revisited/knn-scope-model-wikipedia-90-train-v2"));
+		eval.addDetector(new KNearestNeighborScopeDetector(model, 1, MORE_LIKE_THIS_QUERY_CREATOR));
 		// eval.addDetector(new KNearestNeighborScopeDetector(model, 3, MORE_LIKE_THIS_QUERY_CREATOR));
 		// eval.addDetector(new KNearestNeighborScopeDetector(model, 5, MORE_LIKE_THIS_QUERY_CREATOR));
 		// eval.addDetector(new KNearestNeighborScopeDetector(model, 10, MORE_LIKE_THIS_QUERY_CREATOR));
 		 
-		LocationSource source = new LuceneLocationSource(FSDirectory.open(Paths.get("/Users/pk/Desktop/Location_Lab_Revisited/Palladian_Location_Database_2022-04-19_13-45-08")));
+//		LocationSource source = new LuceneLocationSource(FSDirectory.open(Paths.get("/Users/pk/Desktop/Location_Lab_Revisited/Palladian_Location_Database_2022-04-19_13-45-08")));
 		// eval.addDetector(new FirstScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
 		// eval.addDetector(new FrequencyScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
 		// eval.addDetector(new HighestPopulationScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
@@ -153,14 +154,14 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 		// eval.addDetector(new LeastDistanceScopeDetector(new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(model4, 0))));
 		
 //		DictionaryScopeModel dictionaryScopeModel = FileHelper.deserialize("/Users/pk/Repositories/palladian/palladian-experimental/enwiki-20220501-locationDictionary-1-word-0.3515625-min50.ser.gz");
-		DictionaryScopeModel dictionaryScopeModel = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
+//		DictionaryScopeModel dictionaryScopeModel = FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/enwiki-20220501-locationDictionary-1-word-0.3515625.ser.gz");
 //		MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, 22.5, 2.8125);
 		// +++ MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.LAPLACE, BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
 		// --- MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
 		// --- MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.LAPLACE, BayesScorer.Options.FREQUENCIES), 22.5, 5.625, 1.40625);
 		// MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
-		MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
-		eval.addDetector(scopeDetector);
+//		MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new BayesScorer(BayesScorer.Options.FREQUENCIES, BayesScorer.Options.COMPLEMENT), 22.5, 5.625, 1.40625);
+//		eval.addDetector(scopeDetector);
 //		
 //		// eval.addDetector(new FirstScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
 //		// eval.addDetector(new FrequencyScopeDetector(new PalladianLocationExtractor(source, new HeuristicDisambiguation())));
@@ -196,7 +197,7 @@ public class AtlasObscuraDatasetReader implements Iterable<LocationDocument> {
 ////		MultiStepDictionaryScopeDetector scopeDetector3 = new MultiStepDictionaryScopeDetector(dictionaryScopeModel, new ExperimentalScorers.LogCountScorer(), 11.25, 5.625, 2.8125, 1.40625, 0.703125);
 ////		eval.addDetector(scopeDetector3);
 //		
-//		eval.runAll(true);
+		eval.runAll(true);
 	}
 
 	// compare different location extractors and scope detectors to see, how often we're able to extract a location at all 

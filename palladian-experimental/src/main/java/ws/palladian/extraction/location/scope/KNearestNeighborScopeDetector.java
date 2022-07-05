@@ -351,13 +351,13 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         // FeatureSettingBuilder.words(1).create());
         // FileHelper.serialize(model, "nearestNeighborScope.model");
 
-        File indexPath = new File("/Users/pk/temp/nearestNeighborScopeModel_wikipedia_90-train");
+        File indexPath = new File("/Users/pk/Desktop/Location_Lab_Revisited/knn-scope-model-wikipedia-90-train-v2");
         NearestNeighborScopeModel model = NearestNeighborScopeModel.fromIndex(indexPath);
         // KNearestNeighborScopeDetector detector = new KNearestNeighborScopeDetector(model, 10, new
         // BooleanQueryCreator());
-        KNearestNeighborScopeDetector detector = new KNearestNeighborScopeDetector(model, 10,
-                MORE_LIKE_THIS_QUERY_CREATOR);
-        String text = FileHelper.readFileToString("/Users/pk/Desktop/text_43259724.txt");
+        KNearestNeighborScopeDetector detector = new KNearestNeighborScopeDetector(model, 3, MORE_LIKE_THIS_QUERY_CREATOR);
+        // String text = FileHelper.readFileToString("/Users/pk/Desktop/text_43259724.txt");
+        String text  ="St. Petersburg is near Miami";
         // System.out.println(detector.getScope("Dresden is a city in Germany, Saxony."));
         // System.out.println(detector.getScope("Flein is a small town near Heilbronn in Germany"));
         System.out.println(detector.getScope(text));

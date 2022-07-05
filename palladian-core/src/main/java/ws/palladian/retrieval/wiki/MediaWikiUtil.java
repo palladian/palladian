@@ -757,6 +757,16 @@ public final class MediaWikiUtil {
 
     public static void main(String[] args) throws IOException, SAXException {
         MediaWikiDescriptor descriptor = MediaWikiDescriptor.Builder.wikipedia().language(Language.ENGLISH).create();
+        for (int i =0;i<100;i++) {
+            WikiPageReference randomArticle = retrieveRandomArticle(descriptor);
+            WikiPage fullArticle = retrieveArticle(descriptor, randomArticle.getTitle());
+            if (fullArticle.getCoordinates().size() > 0) {
+                System.out.println(fullArticle.getTitle());
+                System.out.println(fullArticle.getCoordinates().size());
+                System.out.println(fullArticle.getCoordinates());
+                System.out.println("-------------------");
+            }
+        }
         // System.out.println(retrieveArticle(descriptor, "American_Sign_Museum").getCoordinate());
         // System.out.println(retrieveArticle(descriptor, "Alberta_Railway_Museum").getCoordinate());
         // System.out.println(retrieveArticle(descriptor, "Alykes").getCoordinate());

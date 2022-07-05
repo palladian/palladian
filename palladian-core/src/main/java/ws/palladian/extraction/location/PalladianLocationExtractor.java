@@ -2,9 +2,11 @@ package ws.palladian.extraction.location;
 
 import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
@@ -13,6 +15,7 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -99,10 +102,11 @@ public class PalladianLocationExtractor extends LocationExtractor {
         return String.format("PalladianLocationExtractor:%s", disambiguation);
     }
 
-    public static void main(String[] args) {
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        PalladianLocationExtractor extractor = new PalladianLocationExtractor(database);
-        String rawText = FileHelper.tryReadFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text64.txt");
+    public static void main(String[] args) throws IOException {
+        // LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        LocationSource source = LuceneLocationSource.open("/Users/pk/Desktop/Location_Lab_Revisited/Palladian_Location_Database_2022-04-19_13-45-08");
+        PalladianLocationExtractor extractor = new PalladianLocationExtractor(source, new FeatureBasedDisambiguation(FileHelper.deserialize("/Users/pk/Desktop/Location_Lab_Revisited/disambiguation-models/locationDisambiguationModel-all-100trees.ser.gz")));
+        // String rawText = FileHelper.tryReadFileToString("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/0-all/text64.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_44026163.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38765806.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_38812825.txt");
@@ -117,6 +121,8 @@ public class PalladianLocationExtractor extends LocationExtractor {
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_34647085.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/0-all/text_41298996.txt");
         // .readFileToString("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/text_38551711.txt");
+//        String rawText = "Peter Dermit lives in San Francisco, a city. Dublin on the other hand is in Ireland, south west of another city. St. Petersburg is near Miami.";
+        String rawText = "St. Petersburg is near Miami.";
         String cleanText = HtmlHelper.stripHtmlTags(rawText);
         List<LocationAnnotation> locations = extractor.getAnnotations(cleanText);
         CollectionHelper.print(locations);
