@@ -8,11 +8,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import opennlp.tools.doccat.DoccatFactory;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.doccat.DocumentSample;
 import opennlp.tools.doccat.FeatureGenerator;
 import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.TrainingParameters;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -49,7 +51,7 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
                 Instance instance = instances.next();
                 TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
                 String text = textValue.getText();
-                return new DocumentSample(instance.getCategory(), text);
+                return new DocumentSample(instance.getCategory(), new String[] { text });
             }
             return null;
         }
@@ -101,9 +103,9 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
 
     }
 
-    private static final int DEFAULT_CUTOFF = 5;
+    private static final TrainingParameters TRAINING_PARAMETERS = TrainingParameters.defaultParams();
 
-    private static final int DEFAULT_ITERATIONS = 100;
+    private static final DoccatFactory DOCCAT_FACTORY = new DoccatFactory();
 
     private final Language language;
 
@@ -120,8 +122,8 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
     public CategoryEntries classify(FeatureVector featureVector, OpenNlpTextClassifierModel model) {
         TextValue textValue = (TextValue)featureVector.get(VECTOR_TEXT_IDENTIFIER);
         String text = textValue.getText();
-        DocumentCategorizerME categorizer = new DocumentCategorizerME(model.doccatModel, featureGenerator);
-        double[] categorize = categorizer.categorize(text);
+        DocumentCategorizerME categorizer = new DocumentCategorizerME(model.doccatModel);
+        double[] categorize = categorizer.categorize(new String[] { text });
         CategoryEntriesBuilder entriesBuilder = new CategoryEntriesBuilder();
         for (int i = 0; i < categorize.length; i++) {
             double probability = categorize[i];
@@ -136,7 +138,7 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
         try {
             ObjectStream<DocumentSample> samples = new InstanceObjectStream(dataset.iterator());
             DoccatModel model = DocumentCategorizerME.train(language != null ? language.getIso6391()
-                    : StringUtils.EMPTY, samples, DEFAULT_CUTOFF, DEFAULT_ITERATIONS, featureGenerator);
+                    : StringUtils.EMPTY, samples, TRAINING_PARAMETERS, DOCCAT_FACTORY);
             return new OpenNlpTextClassifierModel(model, featureGenerator.getClass().getName());
         } catch (IOException e) {
             throw new IllegalStateException("Encountered IOException during training", e);

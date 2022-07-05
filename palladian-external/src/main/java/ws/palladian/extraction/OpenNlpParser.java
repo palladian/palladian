@@ -5,16 +5,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.List;
 
 import opennlp.tools.cmdline.parser.ParserTool;
-import opennlp.tools.coref.DiscourseEntity;
-import opennlp.tools.coref.LinkerMode;
-import opennlp.tools.coref.mention.DefaultParse;
-import opennlp.tools.coref.mention.Mention;
-import opennlp.tools.lang.english.TreebankLinker;
-import opennlp.tools.parser.Parse;
+//import opennlp.tools.coref.DiscourseEntity;
+//import opennlp.tools.coref.LinkerMode;
+//import opennlp.tools.coref.mention.DefaultParse;
+//import opennlp.tools.coref.mention.Mention;
+//import opennlp.tools.lang.english.TreebankLinker;
+//import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
 
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
+//import ws.palladian.helper.collection.CollectionHelper;
 
 /**
  * OpenNLP Parser
@@ -53,61 +53,61 @@ public class OpenNlpParser extends AbstractParser {
         corefPath = corefModelDirectory.getAbsolutePath();
     }
 
-    /**
-     * Identifies coreferences in an array of full parses of sentences.
-     * 
-     * @param parses
-     *            array of full parses of sentences
-     */
-    public void link(Parse[] parses) {
-        int sentenceNumber = 0;
-        List<Mention> document = new ArrayList<Mention>();
-
-        TreebankLinker linker;
-        try {
-            if (Cache.getInstance().containsDataObject(corefPath)) {
-                linker = (TreebankLinker) Cache.getInstance().getDataObject(corefPath);
-
-            } else {
-
-                linker = new TreebankLinker(corefPath, LinkerMode.TEST);
-                Cache.getInstance().putDataObject(corefPath, linker);
-            }
-            DiscourseEntity[] entities = linker.getEntities(document.toArray(new Mention[document.size()]));
-
-            CollectionHelper.print(entities);
-
-            for (Parse parse : parses) {
-                DefaultParse defaultParser = new DefaultParse(parse, sentenceNumber);
-                Mention[] extents = linker.getMentionFinder().getMentions(defaultParser);
-
-                // construct new parses for mentions which do not have
-                // constituents
-                for (int i = 0; i < extents.length; i++) {
-                    if (extents[i].getParse() == null) {
-                        opennlp.tools.parser.Parse snp = new Parse(parse.getText(), extents[i].getSpan(), "NML",
-                                1.0, i);
-                        parse.insert(snp);
-                        extents[i].setParse(new DefaultParse(snp, sentenceNumber));
-                    }
-                }
-
-                document.addAll(Arrays.asList(extents));
-                sentenceNumber++;
-            }
-
-            if (!document.isEmpty()) {
-                // Mention[] ms = document.toArray(new
-                // Mention[document.size()]);
-                // DiscourseEntity[] entities = linker.getEntities(ms);
-                // TODO return results in an appropriate data structure
-                LOGGER.info(document.toString());
-            }
-
-        } catch (IOException e) {
-            LOGGER.error("IOException while loading the linker model from {}", corefPath, e);
-        }
-    }
+//    /**
+//     * Identifies coreferences in an array of full parses of sentences.
+//     * 
+//     * @param parses
+//     *            array of full parses of sentences
+//     */
+//    public void link(Parse[] parses) {
+//        int sentenceNumber = 0;
+//        List<Mention> document = new ArrayList<Mention>();
+//
+//        TreebankLinker linker;
+//        try {
+//            if (Cache.getInstance().containsDataObject(corefPath)) {
+//                linker = (TreebankLinker) Cache.getInstance().getDataObject(corefPath);
+//
+//            } else {
+//
+//                linker = new TreebankLinker(corefPath, LinkerMode.TEST);
+//                Cache.getInstance().putDataObject(corefPath, linker);
+//            }
+//            DiscourseEntity[] entities = linker.getEntities(document.toArray(new Mention[document.size()]));
+//
+//            CollectionHelper.print(entities);
+//
+//            for (Parse parse : parses) {
+//                DefaultParse defaultParser = new DefaultParse(parse, sentenceNumber);
+//                Mention[] extents = linker.getMentionFinder().getMentions(defaultParser);
+//
+//                // construct new parses for mentions which do not have
+//                // constituents
+//                for (int i = 0; i < extents.length; i++) {
+//                    if (extents[i].getParse() == null) {
+//                        opennlp.tools.parser.Parse snp = new Parse(parse.getText(), extents[i].getSpan(), "NML",
+//                                1.0, i);
+//                        parse.insert(snp);
+//                        extents[i].setParse(new DefaultParse(snp, sentenceNumber));
+//                    }
+//                }
+//
+//                document.addAll(Arrays.asList(extents));
+//                sentenceNumber++;
+//            }
+//
+//            if (!document.isEmpty()) {
+//                // Mention[] ms = document.toArray(new
+//                // Mention[document.size()]);
+//                // DiscourseEntity[] entities = linker.getEntities(ms);
+//                // TODO return results in an appropriate data structure
+//                LOGGER.info(document.toString());
+//            }
+//
+//        } catch (IOException e) {
+//            LOGGER.error("IOException while loading the linker model from {}", corefPath, e);
+//        }
+//    }
 
 
 
