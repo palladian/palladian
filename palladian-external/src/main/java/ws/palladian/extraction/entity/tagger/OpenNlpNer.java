@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +18,7 @@ import java.util.Set;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.TokenNameFinderFactory;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.sentdetect.SentenceDetector;
 import opennlp.tools.tokenize.Tokenizer;
@@ -27,7 +27,6 @@ import opennlp.tools.util.InvalidFormatException;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.Span;
 import opennlp.tools.util.TrainingParameters;
-import opennlp.tools.util.featuregen.AdaptiveFeatureGenerator;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -45,7 +44,6 @@ import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.io.FileHelper;
 
 /**
@@ -78,9 +76,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
 
     private static final TrainingParameters TRAIN_PARAMS = TrainingParameters.defaultParams();
 
-    private static final AdaptiveFeatureGenerator FEATURE_GENERATOR = null;
-
-    private static final Map<String, Object> RESOURCES = Collections.emptyMap();
+    private static final TokenNameFinderFactory TOKEN_NAME_FINDER_FACTORY = new TokenNameFinderFactory();
 
     private final Tokenizer tokenizer;
 
@@ -141,13 +137,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
         // Map to collect all classifications for a given span; this is necessary, because individual entity types are
         // classified separately, and more than one entity classifier might tag an entity occurrence. We use the
         // probability values provided by the name finders to weight the individual type assignments.
-        Map<Pair<Integer, Integer>, CategoryEntriesBuilder> collectedAnnotations = LazyMap
-                .create(new Factory<CategoryEntriesBuilder>() {
-                    @Override
-                    public CategoryEntriesBuilder create() {
-                        return new CategoryEntriesBuilder();
-                    }
-                });
+        Map<Pair<Integer, Integer>, CategoryEntriesBuilder> collectedAnnotations = new LazyMap<>(() -> new CategoryEntriesBuilder());
         Span[] sentences = sentenceDetector.sentPosDetect(inputText);
         for (Span sentence : sentences) {
             String sentenceString = sentence.getCoveredText(inputText).toString();
@@ -230,8 +220,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
             ObjectStream<NameSample> stream = new CollectionObjectStream<NameSample>(nameSamples);
             BufferedOutputStream modelOut = null;
             try {
-                TokenNameFinderModel model = NameFinderME.train("en", type, stream, TRAIN_PARAMS, FEATURE_GENERATOR,
-                        RESOURCES);
+                TokenNameFinderModel model = NameFinderME.train("en", type, stream, TRAIN_PARAMS, TOKEN_NAME_FINDER_FACTORY);
                 File modelFile = new File(modelDirectory, "openNLP_" + type + ".bin");
                 modelOut = new BufferedOutputStream(new FileOutputStream(modelFile));
                 model.serialize(modelOut);
