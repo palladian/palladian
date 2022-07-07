@@ -18,6 +18,7 @@ import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -205,6 +206,10 @@ public class SitemapRetriever {
     }
 
     private Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
+        Pattern pattern = PatternHelper.compileOrGet("<!\\[CDATA\\[([^<>]+)]\\]>"); // CDATA can result in the extracted urls being empty, remove it in advance
+        Matcher matcher = pattern.matcher(sitemapText);
+        sitemapText = matcher.replaceAll("$1");
+
         List<Sitemap.Entry> entries = new ArrayList<>();
         try {
             Document xmlDocument;
