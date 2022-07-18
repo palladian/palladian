@@ -438,7 +438,10 @@ public class UnitNormalizer {
             if (matcher.find()) {
                 combinedValue = number * 60; // minutes to seconds
                 combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 1));
-                return MathHelper.round(combinedValue, decimals);
+                if (decimals > -1) {
+                    return MathHelper.round(combinedValue, decimals);
+                }
+                return combinedValue;
             }
 
             // 1h2m20s, 1h2m type
@@ -453,7 +456,10 @@ public class UnitNormalizer {
                 if (secondsIndex > -1) {
                     combinedValue += Double.parseDouble(matcher.group().substring(minutesIndex + 1, secondsIndex));
                 }
-                return MathHelper.round(combinedValue, decimals);
+                if (decimals > -1) {
+                    return MathHelper.round(combinedValue, decimals);
+                }
+                return combinedValue;
             }
 
             // 01:01:20 type
@@ -465,7 +471,10 @@ public class UnitNormalizer {
                 combinedValue += Double.parseDouble(matcher.group().substring(1, lastColonIndex)) * 60; // minutes to
                 // seconds
                 combinedValue += Double.parseDouble(matcher.group().substring(lastColonIndex + 1, matcher.end()));
-                return MathHelper.round(combinedValue, decimals);
+                if (decimals > -1) {
+                    return MathHelper.round(combinedValue, decimals);
+                }
+                return combinedValue;
             }
 
             // 01:20 type
@@ -474,7 +483,10 @@ public class UnitNormalizer {
             if (matcher.find()) {
                 combinedValue = number * 60; // minutes to seconds
                 combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end()));
-                return MathHelper.round(combinedValue, decimals);
+                if (decimals > -1) {
+                    return MathHelper.round(combinedValue, decimals);
+                }
+                return combinedValue;
             }
 
             // 5'9" / 5' 9" type
@@ -483,7 +495,10 @@ public class UnitNormalizer {
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
                 combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 1).trim()) * unitLookup("in"); // inches to centimeters
-                return MathHelper.round(combinedValue, decimals);
+                if (decimals > -1) {
+                    return MathHelper.round(combinedValue, decimals);
+                }
+                return combinedValue;
             }
 
             // 5'9'' / 5'9'' type
@@ -492,7 +507,10 @@ public class UnitNormalizer {
             if (matcher.find()) {
                 combinedValue = number * unitLookup("ft"); // feet to centimeters
                 combinedValue += Double.parseDouble(matcher.group().substring(1, matcher.end() - 2).trim()) * unitLookup("in"); // inches to centimeters
-                return MathHelper.round(combinedValue, decimals);
+                if (decimals > -1) {
+                    return MathHelper.round(combinedValue, decimals);
+                }
+                return combinedValue;
             }
 
             // per thousand, per 1000 type
@@ -500,7 +518,10 @@ public class UnitNormalizer {
             matcher = pattern.matcher(unitText);
             if (matcher.find()) {
                 combinedValue = number / 10; // to percent
-                return MathHelper.round(combinedValue, decimals);
+                if (decimals > -1) {
+                    return MathHelper.round(combinedValue, decimals);
+                }
+                return combinedValue;
             }
         } catch (StringIndexOutOfBoundsException e) {
             LOGGER.error(unitText, e);
@@ -616,15 +637,15 @@ public class UnitNormalizer {
         for (int i = 1; i < words.length; i++) {
             newUnitText += words[i] + " ";
         }
-        return getNormalizedNumber(number, newUnitText.trim(), 3, "");
+        return getNormalizedNumber(number, newUnitText.trim(), -1, "");
     }
 
     public static double getNormalizedNumber(double number, String unitText) {
-        return getNormalizedNumber(number, unitText, 3, "");
+        return getNormalizedNumber(number, unitText, -1, "");
     }
 
     private static double getNormalizedNumber(double number, String unitText, String combinedSearchPreviousUnit) {
-        return getNormalizedNumber(number, unitText, 3, combinedSearchPreviousUnit);
+        return getNormalizedNumber(number, unitText, -1, combinedSearchPreviousUnit);
     }
 
     public static double getNormalizedNumber(double number, String unitText, int decimals, String combinedSearchPreviousUnit) {
@@ -633,7 +654,10 @@ public class UnitNormalizer {
         // test first whether number is part of a special format
         double specialFormatOutcome = handleSpecialFormat(number, StringHelper.trim(unitText, ":'\""), decimals);
         if (specialFormatOutcome != -1.0) {
-            return MathHelper.round(specialFormatOutcome, decimals);
+            if (decimals > -1) {
+                return MathHelper.round(specialFormatOutcome, decimals);
+            }
+            return specialFormatOutcome;
         }
 
         // trim again, delete also ":" this time
@@ -702,7 +726,7 @@ public class UnitNormalizer {
         // because of trimming RAM: 2GB - 80GB HDD becomes 2GB 80GB
         // second unit must be same type (time, distance etc.) and smaller
         restWordSequence = restWordSequence.trim();
-        Pattern pat = Pattern.compile("\\A" + RegExp.NUMBER);
+        Pattern pat = PatternHelper.compileOrGet("\\A" + RegExp.NUMBER);
         Matcher m = pat.matcher(restWordSequence);
 
         m.region(0, restWordSequence.length());
@@ -715,7 +739,10 @@ public class UnitNormalizer {
             LOGGER.error(m.group(), e);
         }
 
-        return MathHelper.round(number, decimals);
+        if (decimals > -1) {
+            return MathHelper.round(number, decimals);
+        }
+        return number;
     }
 
     /**
