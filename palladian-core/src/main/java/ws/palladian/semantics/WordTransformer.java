@@ -87,7 +87,8 @@ public class WordTransformer {
                 GERMAN_SINGULAR_PLURAL.put(singular, plural);
                 GERMAN_PLURAL_SINGULAR.put(plural, singular);
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             FileHelper.close(inputStream);
         }
@@ -102,7 +103,8 @@ public class WordTransformer {
                 }
                 GERMAN_WORDS.add(string.toLowerCase());
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             FileHelper.close(inputStream);
         }
@@ -123,7 +125,8 @@ public class WordTransformer {
                 }
                 GERMAN_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             FileHelper.close(inputStream);
         }
@@ -139,7 +142,8 @@ public class WordTransformer {
                 }
                 ENGLISH_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             FileHelper.close(inputStream);
         }
@@ -156,7 +160,8 @@ public class WordTransformer {
                 IRREGULAR_VERBS.put(parts[1], englishVerb);
                 IRREGULAR_VERBS.put(parts[2], englishVerb);
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             FileHelper.close(inputStream);
         }
@@ -171,7 +176,8 @@ public class WordTransformer {
                 IRREGULAR_NOUNS.put(parts[1], parts[0]);
                 IRREGULAR_NOUNS_REVERSE.put(parts[0], parts[1]);
             }
-
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             FileHelper.close(inputStream);
         }
@@ -195,7 +201,7 @@ public class WordTransformer {
      * </p>
      *
      * @param pluralForm The plural form of the word.
-     * @param language   The language (either "en" for English or "de" for German)
+     * @param language The language (either "en" for English or "de" for German)
      * @return The singular form of the word.
      */
     public static String wordToSingular(String pluralForm, Language language) {
@@ -319,7 +325,7 @@ public class WordTransformer {
      * Split german compound words, e.g. "Goldkette" becomes (Gold, Kette).
      * </p>
      *
-     * @param word       The compound word.
+     * @param word The compound word.
      * @param forceSplit If force split, compound words from the dictionary are ignored, e.g. "Fahrradschloss" is in the dictionary but we'll try to break it to Fahrrad + Schloss
      * @return All words in its correct order that the compound is made out of.
      */
@@ -497,7 +503,7 @@ public class WordTransformer {
      *
      * @param singular The singular form of the word.
      * @return The plural form of the word.
-     * see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
+     *         see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      */
     public static String wordToPluralGerman(String singular) {
         if (singular == null) {
@@ -774,8 +780,8 @@ public class WordTransformer {
         string = string.toLowerCase();
 
         // check signal words
-        if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string) || StringHelper.containsWord("does", string) || StringHelper.containsWord(
-                "doesn't", string)) {
+        if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string) || StringHelper.containsWord("does", string)
+                || StringHelper.containsWord("doesn't", string)) {
             return EnglishTense.SIMPLE_PRESENT;
         }
 
@@ -818,12 +824,12 @@ public class WordTransformer {
         StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < 1000; i++) {
             String word = WordTransformer.wordToPluralCaseSensitive("schuhbox", Language.GERMAN);
-            //            System.out.println(word);
+            // System.out.println(word);
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
-        //        System.out.println(WordTransformer.stemGermanWord("Strassen"));
-        //        System.out.println(WordTransformer.stemGermanWord("straße"));
+        // System.out.println(WordTransformer.stemGermanWord("Strassen"));
+        // System.out.println(WordTransformer.stemGermanWord("straße"));
         // System.out.println(WordTransformer.stemEnglishWord("bleed"));
         // System.out.println(WordTransformer.getThirdPersonSingular("cross"));
         // System.out.println(WordTransformer.wordToSingularGerman("arasdften"));
