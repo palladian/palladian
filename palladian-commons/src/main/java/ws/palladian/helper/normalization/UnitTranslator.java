@@ -206,6 +206,9 @@ public class UnitTranslator {
      */
     public static String translateUnitsOfInput(String inputString, Language language) {
         List<String> keys = lengthSortedLanguageKeys.get(language);
+        if (keys == null) {
+            return inputString;
+        }
         inputString = inputString.toLowerCase();
         for (String key : keys) {
             if (inputString.contains(key.toLowerCase())) {
