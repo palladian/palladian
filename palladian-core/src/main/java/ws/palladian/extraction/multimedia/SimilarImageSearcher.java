@@ -36,14 +36,14 @@ public class SimilarImageSearcher {
     protected final int boxSize;
 
     public SimilarImageSearcher(File folder) {
-        this(folder, 20);
+        this(folder, 20, true);
     }
 
-    public SimilarImageSearcher(File folder, int boxSize) {
+    public SimilarImageSearcher(File folder, int boxSize, boolean buildIndex) {
         this.folder = folder;
         this.boxSize = boxSize;
         boolean loaded = loadIndex();
-        if (!loaded) {
+        if (!loaded && buildIndex) {
             buildIndex();
         }
     }
