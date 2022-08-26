@@ -1,20 +1,23 @@
 package ws.palladian.helper.normalization;
 
-import java.util.*;
-
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by David on 30.01.2018.
  */
 public class UnitTranslator {
+    private static final Map<Language, Map<String, String>> unitTranslations = new HashMap<>();
+    private static final Map<Language, List<String>> lengthSortedLanguageKeys = new HashMap<>();
 
-    private static Map<Language, Map<String, String>> unitTranslations = new HashMap<>();
-    private static Map<Language, List<String>> lengthSortedLanguageKeys = new HashMap<>();
     static {
+        //// GERMAN
         Map<String, String> germanTranslationMap = new HashMap<>();
-
 
         // OTHER
         germanTranslationMap.put("prozent", "percent");
@@ -54,8 +57,6 @@ public class UnitTranslator {
         germanTranslationMap.put("sek", "seconds");
         germanTranslationMap.put("millisekunde", "millisecond");
         germanTranslationMap.put("millisekunden", "milliseconds");
-
-        unitTranslations.put(Language.GERMAN, germanTranslationMap);
 
         // WEIGHT
         germanTranslationMap.put("tonne", "ton");
@@ -110,19 +111,83 @@ public class UnitTranslator {
         germanTranslationMap.put("milliamperestunde", "mAh");
         germanTranslationMap.put("milliamperestunden", "mAh");
 
+        unitTranslations.put(Language.GERMAN, germanTranslationMap);
+
+        //// FRENCH
+        Map<String, String> frenchTranslationMap = new HashMap<>();
+
+        // OTHER
+        frenchTranslationMap.put("pourcent", "percent");
+        frenchTranslationMap.put("pour cent", "percent");
+        frenchTranslationMap.put("billion", "trillion");
+        frenchTranslationMap.put("billions", "trillions");
+        frenchTranslationMap.put("milliard", "billion");
+        frenchTranslationMap.put("mille", "thousand");
+
+        // LENGTH
+        frenchTranslationMap.put("centimètre", "cm");
+        frenchTranslationMap.put("centimetre", "cm");
+
+        // TIME
+        frenchTranslationMap.put("an", "year");
+        frenchTranslationMap.put("année", "years");
+        frenchTranslationMap.put("annee", "years");
+        frenchTranslationMap.put("mois", "month");
+        frenchTranslationMap.put("semaine", "week");
+        frenchTranslationMap.put("semaines", "weeks");
+        frenchTranslationMap.put("jour", "day");
+        frenchTranslationMap.put("journée", "days");
+        frenchTranslationMap.put("journee", "days");
+        frenchTranslationMap.put("heure", "hour");
+        frenchTranslationMap.put("heures", "hours");
+        frenchTranslationMap.put("minutes", "minutes");
+        frenchTranslationMap.put("seconde", "second");
+
+        // WEIGHT
+        frenchTranslationMap.put("tonne", "ton");
+        frenchTranslationMap.put("tonnes", "tons");
+        frenchTranslationMap.put("kilogramme", "kg");
+        frenchTranslationMap.put("livre", "pounds");
+        frenchTranslationMap.put("once", "ounce");
+        frenchTranslationMap.put("gramme", "gram");
+
+        // AREA
+        frenchTranslationMap.put("mile carré", "square mile");
+        frenchTranslationMap.put("mètres carrés", "square meter");
+        frenchTranslationMap.put("hectares", "hectares");
+
+        // VOLUME
+        frenchTranslationMap.put("gallone", "gallon");
+
+        // POWER
+        frenchTranslationMap.put("cheval-vapeur", "horsepower");
+
+        // ENERGY
+        frenchTranslationMap.put("wattheure", "watt hour");
+        frenchTranslationMap.put("wattheures", "watt hours");
+
+        // ROTATION_SPEED
+        frenchTranslationMap.put("tours par minute", "rpm");
+
+        // ELECTRIC_CHARGE
+        frenchTranslationMap.put("kilowattheure", "kwh");
+        frenchTranslationMap.put("kilowattheures", "kwh");
+        frenchTranslationMap.put("ampère-heure", "Ah");
+        frenchTranslationMap.put("ampère-heures", "Ah");
+
+        unitTranslations.put(Language.FRENCH, frenchTranslationMap);
 
         // create the length sorted keymap
         for (Map.Entry<Language, Map<String, String>> languageMapEntry : unitTranslations.entrySet()) {
             Language language = languageMapEntry.getKey();
             Map<String, String> languageMappings = languageMapEntry.getValue();
             List<String> keySet = new ArrayList<>(languageMappings.keySet());
-            Collections.sort(keySet, StringLengthComparator.INSTANCE);
+            keySet.sort(StringLengthComparator.INSTANCE);
             lengthSortedLanguageKeys.put(language, keySet);
         }
     }
 
     public static String translate(String unitString, Language language) {
-
         Map<String, String> translationMap = unitTranslations.get(language);
 
         if (translationMap != null) {
@@ -137,16 +202,16 @@ public class UnitTranslator {
     }
 
     /**
-     * for a given input string all occurences of langauge dependant units are translated to english and replaced by the english version
-     * @param inputString
-     * @param language
-     * @return
+     * For a given input string all occurences of langauge dependant units are translated to english and replaced by the english version
      */
     public static String translateUnitsOfInput(String inputString, Language language) {
         List<String> keys = lengthSortedLanguageKeys.get(language);
+        if (keys == null) {
+            return inputString;
+        }
         inputString = inputString.toLowerCase();
         for (String key : keys) {
-            if(inputString.contains(key.toLowerCase())) {
+            if (inputString.contains(key.toLowerCase())) {
                 inputString = inputString.replace(key.toLowerCase(), unitTranslations.get(language).get(key));
                 break;
             }
