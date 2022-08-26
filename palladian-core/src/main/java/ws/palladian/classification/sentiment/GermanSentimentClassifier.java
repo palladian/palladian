@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
     private static final long serialVersionUID = 3611658830894765273L;
 
     /** Sentiment Map. It contains the word and the sentiment between [-1,1] (-1 is negative, 1 is positive). */
-    private Map<String, Double> sentimentMap = new HashMap<>();
+    private Object2FloatMap<String> sentimentMap = new Object2FloatOpenHashMap<>();
 
     /** Some words can emphasize the sentiment. In this map we store these words and their multiplier. */
     private static final Map<String, Double> emphasizeMap = new HashMap<>();
@@ -98,7 +100,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             // System.out.println("stop");
             // }
 
-            double sentimentValue = Double.parseDouble(parts[1]);
+            float sentimentValue = Float.parseFloat(parts[1]);
 
             // remove POS tag
             mainWord = mainWord.replaceAll("\\|.*", "");
@@ -167,8 +169,8 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                     emphasizeWeight *= -1;
                 }
 
-                Double sentiment = sentimentMap.get(token);
-                if (sentiment != null) {
+                float sentiment = sentimentMap.getOrDefault(token, -10101);
+                if (sentiment > -10101) {
                     sentiment *= emphasizeWeight;
                     if (sentiment > 0) {
                         LOGGER.debug("positive word: " + token + " (" + sentiment + ")");
