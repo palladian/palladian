@@ -122,7 +122,7 @@ public class SitemapRetriever {
                     sitemap1 = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include, needsCleaning);
                 }
 
-                sitemap.getUrlSet().addAll(sitemap1.getUrlSet());
+                sitemap.addUrls(sitemap1.getUrlSet());
                 break;
             case INDEX:
                 List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapContent);
@@ -157,7 +157,7 @@ public class SitemapRetriever {
                     } else {
                         sitemap2 = getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include);
                     }
-                    sitemap.getUrlSet().addAll(sitemap2.getUrlSet());
+                    sitemap.addUrls(sitemap2.getUrlSet());
 
                     // clean up files
                     FileHelper.delete(downloadPath);

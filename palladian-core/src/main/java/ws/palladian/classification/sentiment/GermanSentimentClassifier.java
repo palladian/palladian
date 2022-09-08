@@ -31,7 +31,6 @@ import ws.palladian.helper.nlp.StringHelper;
  * @author David Urbansky
  */
 public class GermanSentimentClassifier extends AbstractSentimentClassifier implements Serializable {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GermanSentimentClassifier.class);
 
@@ -123,7 +122,6 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 
     @Override
     public Category getPolarity(String text, String query) {
-
         String positiveCategory = "positive";
         String negativeCategory = "negative";
 
@@ -163,8 +161,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                 }
 
                 // check whether we need to negate the sentiment
-                if (lastToken.equalsIgnoreCase("nicht") || beforeLastToken.equalsIgnoreCase("nicht")
-                        || lastToken.equalsIgnoreCase("ohne") || lastToken.equalsIgnoreCase("kein")
+                if (lastToken.equalsIgnoreCase("nicht") || beforeLastToken.equalsIgnoreCase("nicht") || lastToken.equalsIgnoreCase("ohne") || lastToken.equalsIgnoreCase("kein")
                         || lastToken.equalsIgnoreCase("keine")) {
                     emphasizeWeight *= -1;
                 }
@@ -192,11 +189,9 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             builder.add(negativeCategory, negativeSentimentSumSentence);
             CategoryEntries categoryEntries = builder.create();
 
-            double probabilityMostLikelySentiment = categoryEntries
-                    .getProbability(categoryEntries.getMostLikelyCategory());
+            double probabilityMostLikelySentiment = categoryEntries.getProbability(categoryEntries.getMostLikelyCategory());
             if (probabilityMostLikelySentiment > confidenceThreshold
-                    && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence
-                            || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
+                    && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
                     && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
                 addOpinionatedSentence(categoryEntries.getMostLikelyCategory(), sentence);
             }
@@ -232,8 +227,8 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
 
         // build the model
         gsc = new GermanSentimentClassifier();
-        gsc.buildModel("data/temp/SentiWS_v1.8c-added_", "data/temp/gsc.gz");
-        System.exit(0);
+        // gsc.buildModel("data/temp/SentiWS_v1.8c-added_", "data/temp/gsc.gz");
+        // System.exit(0);
 
         gsc = new GermanSentimentClassifier("data/temp/gsc.gz");
         gsc.setConfidenceThreshold(0.6);
