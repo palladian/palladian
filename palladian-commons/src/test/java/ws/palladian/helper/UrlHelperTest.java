@@ -67,6 +67,22 @@ public class UrlHelperTest {
         assertEquals("", UrlHelper.getDomain(null));
         assertEquals("", UrlHelper.getDomain("file:///test.html")); // TODO return localhost here?
         assertEquals("localhost", UrlHelper.getDomain("file://localhost/test.html", false));
+
+        // https://forum.knime.com/t/bug-url-domain-extractor-does-not-recognize-tld-and-breaks-for-upper-case/45642
+        assertEquals("upper-case.com", UrlHelper.getDomain("https://UPPER-CASE.COM", false, false));
+        assertEquals("uppercase.com", UrlHelper.getDomain("https://UPPERCASE.COM", false, false));
+        assertEquals("domain.co.ke", UrlHelper.getDomain("https://domain.domain.co.ke", false, false));
+        assertEquals("domain.com.mm", UrlHelper.getDomain("https://domain.com.mm", false, false));
+        // https://forum.knime.com/t/url-domain-extractor-doesnt-work-with-new-tlds/42828
+        assertEquals("abc.crypto", UrlHelper.getDomain("http://abc.crypto", false, false));
+        // assertEquals("abc.blockchain", UrlHelper.getDomain("http://abc.blockchain", false, false));
+        // assertEquals("abc.bitcoin", UrlHelper.getDomain("http://abc.bitcoin", false, false));
+        assertEquals("abc.coin", UrlHelper.getDomain("http://abc.coin", false, false));
+        // assertEquals("abc.nft", UrlHelper.getDomain("http://abc.nft", false, false));
+        // assertEquals("abc.wallet", UrlHelper.getDomain("http://abc.wallet", false, false));
+        // assertEquals("abc.dao", UrlHelper.getDomain("http://abc.dao", false, false));
+        // assertEquals("abc.x", UrlHelper.getDomain("http://abc.x", false, false));
+        assertEquals("abc.com", UrlHelper.getDomain("http://abc.com", false, false));
     }
 
     @Test
