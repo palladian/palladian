@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.analysis;
 
+import ws.palladian.helper.functional.Collector;
+
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -27,12 +30,15 @@ public class Sitemap {
         return urlSet;
     }
 
+    public void addUrls(Collection<Entry> urls) {
+        urlSet.addAll(urls);
+    }
+
     public void setUrlSet(LinkedHashSet<Entry> urlSet) {
         this.urlSet = urlSet;
     }
 
     public static class Entry {
-
         private String location;
         private Date lastModified;
         private Double priority;
