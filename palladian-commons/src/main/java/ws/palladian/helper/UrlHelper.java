@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -68,40 +69,25 @@ public final class UrlHelper {
     private static final Pattern URL_PARAM = Pattern.compile("\\?.*");
 
     static {
-        InputStream resourceAsStream = UrlHelper.class.getResourceAsStream("/top-level-domains.txt");
-        final List<String> tlds = new ArrayList<>();
+        List<String> domains = new ArrayList<>();
+        InputStream resourceAsStream = UrlHelper.class.getResourceAsStream("/domains.txt");
         FileHelper.performActionOnEveryLine(resourceAsStream, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
                 String lineString = line.trim();
                 // ignore comments and empty lines ...
                 if (!lineString.startsWith("#") && !lineString.isEmpty()) {
-                    tlds.add(lineString.substring(1));
+                    domains.add(lineString);
                 }
             }
         });
-        Collections.sort(tlds, StringLengthComparator.INSTANCE);
-        TOP_LEVEL_DOMAINS = StringUtils.join(tlds, "|");
 
-        resourceAsStream = UrlHelper.class.getResourceAsStream("/second-level-domains.txt");
-        final List<String> slds = new ArrayList<>();
-        FileHelper.performActionOnEveryLine(resourceAsStream, new LineAction() {
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String lineString = line.trim();
-                // ignore comments and empty lines ...
-                if (!lineString.startsWith("#") && !lineString.isEmpty()) {
-                    slds.add(lineString);
-                }
-            }
-        });
-        slds.sort(StringLengthComparator.INSTANCE);
-
-        DOMAIN_SUFFIXES = slds;
-        String[] split = TOP_LEVEL_DOMAINS.split("\\|");
-        for (String tld : split) {
-            DOMAIN_SUFFIXES.add("." + tld);
-        }
+        domains.sort(StringLengthComparator.INSTANCE);
+        TOP_LEVEL_DOMAINS = domains.stream() //
+                .filter(d -> StringHelper.countOccurrences(d, ".") == 1) // only TLDs
+                .map(d -> d.substring(1)) // strip leading .
+                .collect(Collectors.joining("|"));
+        DOMAIN_SUFFIXES = Collections.unmodifiableList(domains);
     }
 
     // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
@@ -269,8 +255,11 @@ public final class UrlHelper {
      */
     public static String getDomain(String url, boolean includeProtocol, boolean includeSubdomain) {
         String result = "";
+        if (url == null || url.isEmpty()) {
+            return result;
+        }
         try {
-            URL urlObj = new URL(url);
+            URL urlObj = new URL(url.toLowerCase());
             String host = urlObj.getHost();
             if (!host.isEmpty()) {
                 if (includeProtocol) {
