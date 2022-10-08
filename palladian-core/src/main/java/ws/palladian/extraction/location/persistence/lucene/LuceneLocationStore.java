@@ -104,7 +104,7 @@ public final class LuceneLocationStore implements LocationStore {
         Document document = new Document();
         document.add(new StringField(FIELD_ID, String.valueOf(location.getId()), Field.Store.YES));
         document.add(new StringField(FIELD_TYPE, location.getType().toString(), Field.Store.YES));
-        document.add(new NameField(FIELD_NAME, location.getPrimaryName()));
+        document.add(new NameField(FIELD_NAME, sanitizeName(location.getPrimaryName())));
         location.getCoords().ifPresent(coordinate -> {
             String latLng = coordinate.getLatitude() + LAT_LNG_SEPARATOR + coordinate.getLongitude();
             document.add(new StringField(FIELD_LAT_LNG_TEMP, latLng, Field.Store.YES));
@@ -151,7 +151,7 @@ public final class LuceneLocationStore implements LocationStore {
         document.add(new StringField(FIELD_ALT_ID, String.valueOf(locationId), Field.Store.YES));
         for (AlternativeName altName : alternativeNames) {
             String langString = altName.getLang().map(Language::getIso6391).orElse("");
-            String nameString = altName.getName() + NAME_LANGUAGE_SEPARATOR + langString;
+            String nameString = sanitizeName(altName.getName()) + NAME_LANGUAGE_SEPARATOR + langString;
             document.add(new NameField(FIELD_NAME, nameString));
         }
         addDocument(document);
@@ -255,6 +255,16 @@ public final class LuceneLocationStore implements LocationStore {
         NameField(String name, String value) {
             super(name, value, FIELD_TYPE);
         }
+    }
+
+    /**
+     * Ensure that the {@link LuceneLocationSource#NAME_LANGUAGE_SEPARATOR} does not
+     * appear in the name.
+     * 
+     * See https://gitlab.com/palladian/palladian-knime/-/issues/114
+     */
+    private static String sanitizeName(String name) {
+        return name.replace(LuceneLocationSource.NAME_LANGUAGE_SEPARATOR, "");
     }
 
 }
