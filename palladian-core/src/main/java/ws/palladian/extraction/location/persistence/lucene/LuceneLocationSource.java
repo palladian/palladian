@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
@@ -101,8 +102,8 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /** Identifier for the field with the ancestor ids. */
     static final String FIELD_ANCESTOR_IDS = "ancestorIds";
 
-    /** Alternative names with language determiner are separated with this marker (e.g. "Berlin#de"). */
-    static final String NAME_LANGUAGE_SEPARATOR = "#";
+    /** Alternative names with language determiner are separated with this marker (e.g. "Berlin^de"). */
+    static final String NAME_LANGUAGE_SEPARATOR = "^";
 
     /** Separator character between IDs in hierarchy. */
     static final char HIERARCHY_SEPARATOR = '/';
@@ -227,7 +228,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
                 builder.setPrimaryName(value);
             } else {
                 // we have alternative names (either like "New York#", or "New York#en")
-                String[] split = value.split(NAME_LANGUAGE_SEPARATOR);
+                String[] split = value.split(Pattern.quote(NAME_LANGUAGE_SEPARATOR));
                 String name = split[0];
                 Language language = split.length == 2 ? Language.getByIso6391(split[1]) : null;
                 builder.addAlternativeName(name, language);

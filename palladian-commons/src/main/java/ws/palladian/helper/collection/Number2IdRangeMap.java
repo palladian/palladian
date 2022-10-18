@@ -48,8 +48,13 @@ public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
 
         boolean startCollecting = false;
         for (Float2ObjectMap.Entry<IntOpenHashSet> entry : float2ObjectEntrySet()) {
+            IntOpenHashSet value = entry.getValue();
+            if (value == null) {
+                continue;
+            }
+
             if (startCollecting) {
-                values.addAll(entry.getValue());
+                values.addAll(value);
                 continue;
             }
 
@@ -62,8 +67,7 @@ public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
 
             if ((comparisonType == ComparisonType.LESS && smaller) || (comparisonType == ComparisonType.LESS_EQUALS && smallerEquals) || (comparisonType == ComparisonType.MORE
                     && bigger) || (comparisonType == ComparisonType.MORE_EQUALS && biggerEquals)) {
-
-                values.addAll(entry.getValue());
+                values.addAll(value);
 
                 if (comparisonType == ComparisonType.MORE || comparisonType == ComparisonType.MORE_EQUALS) {
                     startCollecting = true;
