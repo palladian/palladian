@@ -578,7 +578,13 @@ public class WordTransformer {
         } else if (language == Language.ENGLISH) {
             return stemEnglishWord(word);
         } else {
-            return new Stemmer(language).stem(word);
+            try {
+                return new Stemmer(language).stem(word);
+            } catch (Exception e) {
+                // if we don't have a stemmer for a certain language, return the unstemmed original word
+                return word;
+            }
+
         }
     }
 
