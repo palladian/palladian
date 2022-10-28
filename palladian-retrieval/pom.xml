@@ -108,6 +108,11 @@
         </dependency>
         <!-- END OF SELENIUM DEPENDENCIES -->
         <dependency>
+            <groupId>com.sendinblue</groupId>
+            <artifactId>sib-api-v3-sdk</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.sendgrid</groupId>
             <artifactId>sendgrid-java</artifactId>
             <version>4.4.0</version>
