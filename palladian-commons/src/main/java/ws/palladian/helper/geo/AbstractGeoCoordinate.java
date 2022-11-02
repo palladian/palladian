@@ -1,11 +1,11 @@
 package ws.palladian.helper.geo;
 
 import static java.lang.Math.asin;
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
+import static org.apache.commons.math3.util.FastMath.atan2;
+import static org.apache.commons.math3.util.FastMath.cos;
+import static org.apache.commons.math3.util.FastMath.sin;
 import static ws.palladian.helper.geo.GeoUtils.EARTH_RADIUS_KM;
 
 import java.text.NumberFormat;

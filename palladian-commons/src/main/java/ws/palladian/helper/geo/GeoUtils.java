@@ -1,6 +1,9 @@
 package ws.palladian.helper.geo;
 
-import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.toRadians;
+import static org.apache.commons.math3.util.FastMath.cos;
+import static org.apache.commons.math3.util.FastMath.sin;
 
 import java.math.BigInteger;
 import java.util.*;
