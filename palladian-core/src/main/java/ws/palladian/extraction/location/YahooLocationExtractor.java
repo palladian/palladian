@@ -165,7 +165,7 @@ public class YahooLocationExtractor extends LocationExtractor {
             JsonObject jsonCentroid = placeJson.getJsonObject("centroid");
             double lng = jsonCentroid.getDouble("longitude");
             double lat = jsonCentroid.getDouble("latitude");
-            GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);
+            GeoCoordinate coordinate = GeoCoordinate.from(lat, lng);
 
             String name = placeJson.getString("name");
             String actualName = text.substring(startOffset, endOffset);

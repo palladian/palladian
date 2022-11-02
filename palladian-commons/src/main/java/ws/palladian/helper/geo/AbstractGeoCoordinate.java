@@ -123,7 +123,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
                 + atan2(sin(bearingRad) * sin(d) * cos(latRad), cos(d) - sin(latRad) * sin(resultLatRad));
         double resultLat = toDegrees(resultLatRad);
         double resultLng = GeoUtils.normalizeLongitude(toDegrees(resultLngRad));
-        return new ImmutableGeoCoordinate(resultLat, resultLng);
+        return GeoCoordinate.from(resultLat, resultLng);
     }
 
     @Override

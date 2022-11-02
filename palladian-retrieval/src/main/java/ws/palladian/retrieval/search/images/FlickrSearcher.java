@@ -361,7 +361,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
         if (lat == null || lng == null || (lat == 0.0 && lng == 0.0)) {
             return null;
         }
-        return new ImmutableGeoCoordinate(lat, lng);
+        return GeoCoordinate.from(lat, lng);
     }
 
     /**

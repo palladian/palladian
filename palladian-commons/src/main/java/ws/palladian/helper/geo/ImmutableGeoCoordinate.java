@@ -16,7 +16,9 @@ public final class ImmutableGeoCoordinate extends AbstractGeoCoordinate implemen
      * @param lat The latitude, between -90 and 90 inclusive.
      * @param lng The longitude, between -180 and 180 inclusive.
      * @throws IllegalArgumentException in case latitude/longitude are out of given range.
+     * @deprecated Use {@link GeoCoordinate#from(double, double)}
      */
+    @Deprecated
     public ImmutableGeoCoordinate(double lat, double lng) {
         GeoUtils.validateCoordinateRange(lat, lng);
         this.lat = lat;

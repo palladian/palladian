@@ -297,7 +297,7 @@ public final class UtmConverter {
         double[] latLng = mapXYToLatLon(easting, northing, cmeridian);
         double lat = toDegrees(latLng[0]);
         double lng = toDegrees(latLng[1]);
-        return new ImmutableGeoCoordinate(lat, lng);
+        return GeoCoordinate.from(lat, lng);
     }
 
     /**
@@ -387,7 +387,7 @@ public final class UtmConverter {
                     lng = 7.5;
                 }
             }
-            return new ImmutableGeoCoordinate(lat, lng);
+            return GeoCoordinate.from(lat, lng);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("'" + gridZone + "' cannot be parsed.");
         }

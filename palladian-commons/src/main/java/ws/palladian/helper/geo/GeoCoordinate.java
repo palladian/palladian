@@ -30,15 +30,24 @@ public interface GeoCoordinate {
             return GeoUtils.EARTH_MAX_DISTANCE_KM;
         }
 
-        ;
-
         public GeoCoordinate getCoordinate(double distance, double bearing) {
             return NULL;
         }
 
-        ;
-
     };
+
+    /**
+     * Create a new coordinate with the given latitude and longitude.
+     * 
+     * @param latitude The latitude, between -90 and 90 inclusive.
+     * @param longitude The longitude, between -180 and 180 inclusive.
+     * @return Coordinate based on the given latitude and longitude.
+     * @throws IllegalArgumentException in case latitude/longitude are out of given range.
+     */
+    @SuppressWarnings("deprecation")
+	public static GeoCoordinate from(double latitude, double longitude) {
+        return new ImmutableGeoCoordinate(latitude, longitude);
+    }
 
     /**
      * @return The geographical latitude of this location.

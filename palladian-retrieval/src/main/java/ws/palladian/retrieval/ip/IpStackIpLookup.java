@@ -4,7 +4,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.ThreadHelper;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -67,7 +67,7 @@ public final class IpStackIpLookup implements IpLookup {
 //            builder.setTimeZone(jsonResult.getString("time_zone"));
             double lat = jsonResult.getDouble("latitude");
             double lng = jsonResult.getDouble("longitude");
-            builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+            builder.setCoordinate(GeoCoordinate.from(lat, lng));
 //            builder.setMetroCode(jsonResult.getString("metro_code"));
 
         } catch (JsonException e) {
