@@ -348,6 +348,29 @@ public final class GeoUtils {
     /** For mapping Geohash from decimal (index) to Base 32 representation. */
     private static final String BASE_32_ALPHABET = "0123456789bcdefghjkmnpqrstuvwxyz";
 
+    /**
+     * Converts the given coordinate to a
+     * <a href="https://en.wikipedia.org/wiki/Geohash">Geohash</a>.
+     * 
+     * <p>
+     * A geohash is a single string of letters and digits of an arbitrary length –
+     * the longer, the more precise. A geohash guarantees, that two hashes with a
+     * shared prefix are close together (however the reverse is not guaranteed).
+     * This still makes geohashes useful e.g. for indexation, etc.
+     * 
+     * <p>
+     * A hash can be shortened at the end, which means losing precision. For the
+     * precision depending on the number of characters, see <a href=
+     * "https://en.wikipedia.org/wiki/Geohash#Digits_and_precision_in_km">here</a>.
+     * 
+     * <p>
+     * For a coordinate of <code>42.605, -5.603</code>, the geohash of length 5 is
+     * <code>ezs42</code>.
+     * 
+     * @param coordinate The coordinate for which to calculate the hash.
+     * @param length     The length of the hash in characters (at least one).
+     * @return The hash.
+     */
     public static String getGeohash(GeoCoordinate coordinate, int length) {
         Objects.requireNonNull(coordinate, "coordinate must not be null");
         if (length < 1) {
@@ -390,6 +413,16 @@ public final class GeoUtils {
         return hash.toString();
     }
 
+    /**
+     * Parse the given geohash into a latitude and longitude coordinates pair.
+     * 
+     * <p>
+     * For more details see {@link #getGeohash(GeoCoordinate, int)}.
+     * 
+     * @param geohash The geohash.
+     * @return The parsed coordinate.
+     * @throws IllegalArgumentException If the hash contains unexpected characters.
+     */
     public static GeoCoordinate parseGeohash(String geohash) {
         Objects.requireNonNull(geohash, "geohash must not be null");
         if (geohash.length() < 1) {
