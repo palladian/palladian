@@ -198,4 +198,23 @@ public class GeoUtilsTest {
         assertEquals(GeoUtils.EARTH_MAX_DISTANCE_KM,
                 GeoUtils.getLargestDistance(Arrays.<GeoCoordinate> asList(null, null)), 0.1);
     }
+    
+    @Test
+    public void testGetGeohash() {
+        // https://en.wikipedia.org/wiki/Geohash#Typical_and_main_usages
+        // GeoCoordinate coordinate = new ImmutableGeoCoordinate(57.64911, 10.40744);
+        GeoCoordinate coordinate = new ImmutableGeoCoordinate(42.605, -5.603);
+        String hash = GeoUtils.getGeohash(coordinate);
+        // assertEquals("u4pruydqqvj", hash);
+        assertEquals("ezs42", hash);
+    }
+
+    @Test
+    public void testParseGeohash() {
+        String geohash = "ezs42";
+        GeoCoordinate coordinate = GeoUtils.parseGeohash(geohash);
+        assertEquals(42.605, coordinate.getLatitude(), 0.0001);
+        assertEquals(-5.603, coordinate.getLongitude(), 0.0001);
+    }
+
 }
