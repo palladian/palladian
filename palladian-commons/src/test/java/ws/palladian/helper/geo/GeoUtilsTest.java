@@ -202,11 +202,15 @@ public class GeoUtilsTest {
     @Test
     public void testGetGeohash() {
         // https://en.wikipedia.org/wiki/Geohash#Typical_and_main_usages
-        // GeoCoordinate coordinate = GeoCoordinate.from(57.64911, 10.40744);
         GeoCoordinate coordinate = GeoCoordinate.from(42.605, -5.603);
-        String hash = GeoUtils.getGeohash(coordinate);
-        // assertEquals("u4pruydqqvj", hash);
-        assertEquals("ezs42", hash);
+        assertEquals("e", GeoUtils.getGeohash(coordinate, 1));
+        assertEquals("ez", GeoUtils.getGeohash(coordinate, 2));
+        assertEquals("ezs", GeoUtils.getGeohash(coordinate, 3));
+        assertEquals("ezs4", GeoUtils.getGeohash(coordinate, 4));
+        assertEquals("ezs42", GeoUtils.getGeohash(coordinate, 5));
+
+        GeoCoordinate coordinate2 = GeoCoordinate.from(57.64911, 10.40744);
+        assertEquals("u4pruydqqvj", GeoUtils.getGeohash(coordinate2, 11));
     }
 
     @Test
