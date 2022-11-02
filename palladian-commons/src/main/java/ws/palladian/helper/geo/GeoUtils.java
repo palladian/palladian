@@ -392,13 +392,18 @@ public final class GeoUtils {
 
     public static GeoCoordinate parseGeohash(String geohash) {
         Objects.requireNonNull(geohash, "geohash must not be null");
-
-        // TODO validation: allowed characters, proper length, ...
+        if (geohash.length() < 1) {
+            throw new IllegalArgumentException("hash must be non-empty");
+        }
 
         // (1) decode base 32ghs to binary
         BigInteger result = BigInteger.ZERO;
         for (char ch : geohash.toCharArray()) {
-            result = result.shiftLeft(5).add(BigInteger.valueOf(BASE_32_ALPHABET.indexOf(ch)));
+            int decimal = BASE_32_ALPHABET.indexOf(ch);
+            if (decimal == -1) {
+                throw new IllegalArgumentException("Invalid character: " + ch);
+            }
+            result = result.shiftLeft(5).add(BigInteger.valueOf(decimal));
         }
 
         // (2) split odd/even bits to longitude/latitude

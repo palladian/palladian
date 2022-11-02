@@ -214,6 +214,21 @@ public class GeoUtilsTest {
         assertEquals("u4pruydqqvj", GeoUtils.getGeohash(coordinate2, 11));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testParseGeohash_throwsOnNull() {
+        GeoUtils.parseGeohash(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseGeohash_throwsOnEmpty() {
+        GeoUtils.parseGeohash("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseGeohash_throwsOnInvalid() {
+        GeoUtils.parseGeohash("A");
+    }
+
     @Test
     public void testParseGeohash() {
         GeoCoordinate coordinate = GeoUtils.parseGeohash("ezs42");
