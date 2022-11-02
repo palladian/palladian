@@ -211,10 +211,22 @@ public class GeoUtilsTest {
 
     @Test
     public void testParseGeohash() {
-        String geohash = "ezs42";
-        GeoCoordinate coordinate = GeoUtils.parseGeohash(geohash);
+        GeoCoordinate coordinate = GeoUtils.parseGeohash("ezs42");
         assertEquals(42.605, coordinate.getLatitude(), 0.0001);
         assertEquals(-5.603, coordinate.getLongitude(), 0.0001);
+
+        // https://en.wikipedia.org/wiki/Geohash#Digits_and_precision_in_km
+        GeoCoordinate coordinate2 = new ImmutableGeoCoordinate(57.64911, 10.40744);
+        assertTrue(2500 > coordinate2.distance(GeoUtils.parseGeohash("u")));
+        assertTrue(630 > coordinate2.distance(GeoUtils.parseGeohash("u4")));
+        assertTrue(78 > coordinate2.distance(GeoUtils.parseGeohash("u4p")));
+        assertTrue(20 > coordinate2.distance(GeoUtils.parseGeohash("u4pr")));
+        assertTrue(2.4 > coordinate2.distance(GeoUtils.parseGeohash("u4pru")));
+        assertTrue(0.61 > coordinate2.distance(GeoUtils.parseGeohash("u4pruy")));
+        assertTrue(0.076 > coordinate2.distance(GeoUtils.parseGeohash("u4pruyd")));
+        assertTrue(0.019 > coordinate2.distance(GeoUtils.parseGeohash("u4pruydq")));
+        assertTrue(0.002 > coordinate2.distance(GeoUtils.parseGeohash("u4pruydqq")));
+        assertTrue(0.001 > coordinate2.distance(GeoUtils.parseGeohash("u4pruydqqvj")));
     }
 
 }

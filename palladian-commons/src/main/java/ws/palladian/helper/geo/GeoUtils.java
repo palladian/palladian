@@ -418,75 +418,50 @@ public final class GeoUtils {
     public static GeoCoordinate parseGeohash(String geohash) {
         Objects.requireNonNull(geohash, "geohash must not be null");
 
-        // (1) decode base 32ghs
-        int result = 0;
-        char[] chars = geohash.toCharArray();
-        for (int idx = 0; idx < chars.length; idx++) {
-            int decimal = BASE_32_ALPHABET.indexOf(chars[idx]);
-            System.out.println(chars[idx] + ": " + decimal);
-            result += decimal * Math.pow(32, chars.length - idx - 1);
+        // TODO validation: allowed characters, proper length, ...
+
+        // (1) decode base 32ghs to binary
+        long result = 0;
+        for (char ch : geohash.toCharArray()) {
+            result <<= 5;
+            result |= BASE_32_ALPHABET.indexOf(ch);
         }
-        System.out.println(result);
 
-        // (2) transform to binary
-        String binaryString = Integer.toBinaryString(result);
-        String padding = new String(new char[geohash.length() * 5]).replace("\0", "0");
-        String paddedBinaryString = padding.substring(binaryString.length()) + binaryString;
-        System.out.println(paddedBinaryString);
-
-        // (3) split odd/even to longitude/latitude
-        String latString = "";
-        String lngString = "";
-        for (int idx = 0; idx < paddedBinaryString.length(); idx++) {
-            if (idx % 2 == 0) {
-                lngString += paddedBinaryString.charAt(idx);
+        // (2) split odd/even bits to longitude/latitude
+        int mod = geohash.length() % 2; // different treatment of odd/even length hashes
+        double latMin = -90;
+        double latMid = 0;
+        double latMax = 90;
+        double latMean = 0;
+        double lngMin = -180;
+        double lngMid = 0;
+        double lngMax = 180;
+        double lngMean = 0;
+        for (int idx = geohash.length() * 5 - 1; idx >= 0; idx--) {
+            if (idx % 2 == mod) {
+                if ((result >> idx & 1) == 0) {
+                    latMean = (latMin + latMid) / 2;
+                    latMax = latMid;
+                } else {
+                    latMean = (latMid + latMax) / 2;
+                    latMin = latMid;
+                }
+                latMid = (latMin + latMax) / 2;
             } else {
-                latString += paddedBinaryString.charAt(idx);
+                if ((result >> idx & 1) == 0) {
+                    lngMean = (lngMin + lngMid) / 2;
+                    lngMax = lngMid;
+                } else {
+                    lngMean = (lngMid + lngMax) / 2;
+                    lngMin = lngMid;
+                }
+                lngMid = (lngMin + lngMax) / 2;
             }
         }
-        System.out.println("latString=" + latString);
-        System.out.println("lngString=" + lngString);
-
-        // (4) subsequently narrow down the errors
-        double minLat = -90;
-        double midLat = 0;
-        double maxLat = 90;
-        double meanLat = 0;
-        for (int idx = 0; idx < latString.length(); idx++) {
-            char bitValue = latString.charAt(idx);
-            if (bitValue == '0') {
-                meanLat = (minLat + midLat) / 2;
-                debug(idx, bitValue, minLat, midLat, maxLat, meanLat);
-                maxLat = midLat;
-            } else {
-                meanLat = (midLat + maxLat) / 2;
-                debug(idx, bitValue, minLat, midLat, maxLat, meanLat);
-                minLat = midLat;
-            }
-            midLat = (minLat + maxLat) / 2;
-        }
-
-        double minLng = -180;
-        double midLng = 0;
-        double maxLng = 180;
-        double meanLng = 0;
-        for (int idx = 0; idx < lngString.length(); idx++) {
-            char bitValue = lngString.charAt(idx);
-            if (bitValue == '0') {
-                meanLng = (minLng + midLng) / 2;
-                debug(idx, bitValue, minLng, midLng, maxLng, meanLng);
-                maxLng = midLng;
-            } else {
-                meanLng = (midLng + maxLng) / 2;
-                debug(idx, bitValue, minLng, midLng, maxLng, meanLng);
-                minLng = midLng;
-            }
-            midLng = (minLng + maxLng) / 2;
-        }
-        return new ImmutableGeoCoordinate(meanLat, meanLng);
+        return new ImmutableGeoCoordinate(latMean, lngMean);
     }
 
-    private static void debug(int idx, char bitValue, double min, double mid, double max, double mean) {
+    private static void debug(int idx, int bitValue, double min, double mid, double max, double mean) {
         System.out.println(idx + ": " + bitValue + " min=" + min + " mid=" + mid + " max=" + max + " mean=" + mean);
     }
 
