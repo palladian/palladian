@@ -105,7 +105,7 @@ public interface MultifacetQuery {
         }
 
         public Builder setCoordinate(double lat, double lng) {
-            this.coordinate = new ImmutableGeoCoordinate(lat, lng);
+            this.coordinate = GeoCoordinate.from(lat, lng);
             return this;
         }
 

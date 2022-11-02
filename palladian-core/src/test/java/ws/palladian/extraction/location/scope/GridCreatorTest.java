@@ -16,13 +16,13 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 public class GridCreatorTest {
 
-    private final GeoCoordinate c1 = new ImmutableGeoCoordinate(-35.3, 149.116667); // canberra
-    private final GeoCoordinate c2 = new ImmutableGeoCoordinate(35.683889, 139.774444); // tokyo
-    private final GeoCoordinate c3 = new ImmutableGeoCoordinate(43.7, -79.4); // toronto
-    private final GeoCoordinate c4 = new ImmutableGeoCoordinate(-22.908333, -43.196389); // rio de janeiro
-    private final GeoCoordinate c5 = new ImmutableGeoCoordinate(21.311389, -157.796389); // hawaii
-    private final GeoCoordinate c6 = new ImmutableGeoCoordinate(90, 180); // upper right corner
-    private final GeoCoordinate c7 = new ImmutableGeoCoordinate(-90, -180); // lower left corner
+    private final GeoCoordinate c1 = GeoCoordinate.from(-35.3, 149.116667); // canberra
+    private final GeoCoordinate c2 = GeoCoordinate.from(35.683889, 139.774444); // tokyo
+    private final GeoCoordinate c3 = GeoCoordinate.from(43.7, -79.4); // toronto
+    private final GeoCoordinate c4 = GeoCoordinate.from(-22.908333, -43.196389); // rio de janeiro
+    private final GeoCoordinate c5 = GeoCoordinate.from(21.311389, -157.796389); // hawaii
+    private final GeoCoordinate c6 = GeoCoordinate.from(90, 180); // upper right corner
+    private final GeoCoordinate c7 = GeoCoordinate.from(-90, -180); // lower left corner
 
     @SuppressWarnings("deprecation")
     @Test
@@ -44,8 +44,8 @@ public class GridCreatorTest {
     @Test
     public void testGetCoordinate() {
         GridCreator gridCreator = new GridCreator(90);
-        assertEquals(new ImmutableGeoCoordinate(-45, 135), gridCreator.getCoordinate("(3|0)"));
-        assertEquals(new ImmutableGeoCoordinate(45, -135), gridCreator.getCoordinate("(0|1)"));
+        assertEquals(GeoCoordinate.from(-45, 135), gridCreator.getCoordinate("(3|0)"));
+        assertEquals(GeoCoordinate.from(45, -135), gridCreator.getCoordinate("(0|1)"));
     }
 
     @Test
@@ -57,10 +57,10 @@ public class GridCreatorTest {
         assertEquals(0, cell.lat2, 0);
         assertEquals(90, cell.lng1, 0);
         assertEquals(180, cell.lng2, 0);
-        assertEquals(new ImmutableGeoCoordinate(0, 180), cell.getNE());
-        assertEquals(new ImmutableGeoCoordinate(-90, 180), cell.getSE());
-        assertEquals(new ImmutableGeoCoordinate(0, 90), cell.getNW());
-        assertEquals(new ImmutableGeoCoordinate(-90, 90), cell.getSW());
+        assertEquals(GeoCoordinate.from(0, 180), cell.getNE());
+        assertEquals(GeoCoordinate.from(-90, 180), cell.getSE());
+        assertEquals(GeoCoordinate.from(0, 90), cell.getNW());
+        assertEquals(GeoCoordinate.from(-90, 90), cell.getSW());
     }
 
     @Test
@@ -69,15 +69,15 @@ public class GridCreatorTest {
         List<GridCell> cells = new GridCreator(45).getCells(cell);
         assertEquals(4, cells.size());
         // CollectionHelper.print(cells);
-        assertEquals(new ImmutableGeoCoordinate(-45, 90), cells.get(0).getNW());
-        assertEquals(new ImmutableGeoCoordinate(-45, 135), cells.get(1).getNW());
-        assertEquals(new ImmutableGeoCoordinate(0, 90), cells.get(2).getNW());
-        assertEquals(new ImmutableGeoCoordinate(0, 135), cells.get(3).getNW());
+        assertEquals(GeoCoordinate.from(-45, 90), cells.get(0).getNW());
+        assertEquals(GeoCoordinate.from(-45, 135), cells.get(1).getNW());
+        assertEquals(GeoCoordinate.from(0, 90), cells.get(2).getNW());
+        assertEquals(GeoCoordinate.from(0, 135), cells.get(3).getNW());
         assertTrue(cell.intersects(cells.get(0)));
         assertTrue(cell.intersects(cells.get(1)));
         assertTrue(cell.intersects(cells.get(2)));
         assertTrue(cell.intersects(cells.get(3)));
-        assertFalse(cell.intersects(new GridCreator(45).getCell(new ImmutableGeoCoordinate(45, 90))));
+        assertFalse(cell.intersects(new GridCreator(45).getCell(GeoCoordinate.from(45, 90))));
     }
 
     @Test

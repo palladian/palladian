@@ -91,7 +91,7 @@ public final class GoogleGeocoder implements Geocoder {
 			JsonObject locationJson = geometryJson.getJsonObject("location");
 			double lat = locationJson.getDouble("lat");
 			double lng = locationJson.getDouble("lng");
-			return new ImmutableGeoCoordinate(lat, lng);
+			return GeoCoordinate.from(lat, lng);
 		} catch (JsonException e) {
 			throw new GeocoderException("Error while parsing JSON result ("
 					+ httpResult.getStringContent() + ").", e);

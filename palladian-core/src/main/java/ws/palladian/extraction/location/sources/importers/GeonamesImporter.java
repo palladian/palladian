@@ -498,7 +498,7 @@ public final class GeonamesImporter {
             this.geonamesId = Integer.parseInt(parts[0]);
             double longitude = Double.parseDouble(parts[5]);
             double latitude = Double.parseDouble(parts[4]);
-            this.coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+            this.coordinate = GeoCoordinate.from(latitude, longitude);
             this.primaryName = stringOrNull(parts[1]);
             // there are a few negative population values in the data
             this.population = Math.max(0, Long.parseLong(parts[14]));

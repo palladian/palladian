@@ -18,7 +18,7 @@ public class GeocoderIT {
 
 	private static final String TEST_ADDRESS = "3 Abbey Rd, London NW8 9AY";
 
-	private static final GeoCoordinate EXPECTED_COORDINATE = new ImmutableGeoCoordinate(51.5319953, -0.1782557);
+	private static final GeoCoordinate EXPECTED_COORDINATE = GeoCoordinate.from(51.5319953, -0.1782557);
 
 	private static Configuration config;
 

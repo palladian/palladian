@@ -71,7 +71,7 @@ public final class FileImporter {
             if (parts.length > 3) {
                 double latitude = Double.parseDouble(parts[2]);
                 double longitude = Double.parseDouble(parts[3]);
-                coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+                coordinate = GeoCoordinate.from(latitude, longitude);
             }
             int id = maxId + idOffset;
             locationStore.save(new ImmutableLocation(id, locationName, locationType, coordinate, null));

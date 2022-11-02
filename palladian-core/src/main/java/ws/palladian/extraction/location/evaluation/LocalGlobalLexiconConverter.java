@@ -117,7 +117,7 @@ class LocalGlobalLexiconConverter {
                     }
                     GeoCoordinate coordinate = null;
                     if (lat != null && lng != null) {
-                        coordinate = new ImmutableGeoCoordinate(lat, lng);
+                        coordinate = GeoCoordinate.from(lat, lng);
                     }
                     Location location = new ImmutableLocation(geonameId, topName, type, coordinate, null);
                     String value = text.substring(topStart, topEnd);

@@ -74,14 +74,14 @@ public final class GeoUtils {
         y /= count;
         z /= count;
         if (Math.abs(x) < 1e-9 || Math.abs(y) < 1e-9 || Math.abs(z) < 1e-9) {
-            return new ImmutableGeoCoordinate(0., 0.);
+            return GeoCoordinate.from(0., 0.);
         }
         double lngRad = FastMath.atan2(y, x);
         double hypRad = FastMath.sqrt(x * x + y * y);
         double latRad = FastMath.atan2(z, hypRad);
         double lng = FastMath.toDegrees(lngRad);
         double lat = FastMath.toDegrees(latRad);
-        return new ImmutableGeoCoordinate(lat, lng);
+        return GeoCoordinate.from(lat, lng);
     }
 
     /**
@@ -458,7 +458,7 @@ public final class GeoUtils {
                 lngMid = (lngMin + lngMax) / 2;
             }
         }
-        return new ImmutableGeoCoordinate(latMean, lngMean);
+        return GeoCoordinate.from(latMean, lngMean);
     }
 
     private static void debug(int idx, int bitValue, double min, double mid, double max, double mean) {

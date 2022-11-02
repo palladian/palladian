@@ -77,7 +77,7 @@ public final class MapQuestGeocoder implements Geocoder {
 						.getJsonObject("latLng");
 				double lat = latLngJson.getDouble("lat");
 				double lng = latLngJson.getDouble("lng");
-				return new ImmutableGeoCoordinate(lat, lng);
+				return GeoCoordinate.from(lat, lng);
 			}
 			return null;
 		} catch (JsonException e) {
