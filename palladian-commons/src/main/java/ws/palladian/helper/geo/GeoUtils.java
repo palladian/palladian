@@ -2,6 +2,7 @@ package ws.palladian.helper.geo;
 
 import static java.lang.Math.*;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -359,15 +360,15 @@ public final class GeoUtils {
         double lngMin = -180;
         double lngMid = 0;
         double lngMax = 180;
-        long binary = 0;
+        BigInteger binary = BigInteger.ZERO;
         for (int idx = 0; idx < 5 * length; idx++) {
-            binary <<= 1;
+            binary = binary.shiftLeft(1);
             if (idx % 2 == 0) {
                 if (coordinate.getLongitude() < lngMid) {
                     lngMax = lngMid;
                 } else {
                     lngMin = lngMid;
-                    binary |= 1;
+                    binary = binary.add(BigInteger.ONE);
                 }
                 lngMid = (lngMin + lngMax) / 2;
             } else {
@@ -375,7 +376,7 @@ public final class GeoUtils {
                     latMax = latMid;
                 } else {
                     latMin = latMid;
-                    binary |= 1;
+                    binary = binary.add(BigInteger.ONE);
                 }
                 latMid = (latMin + latMax) / 2;
             }
@@ -383,7 +384,7 @@ public final class GeoUtils {
 
         StringBuilder hash = new StringBuilder();
         for (int idx = 5 * (length - 1); idx >= 0; idx -= 5) {
-            int bits = (int) (binary >> idx & 0b11111);
+            int bits = binary.shiftRight(idx).and(BigInteger.valueOf(0b11111)).intValue();
             hash.append(BASE_32_ALPHABET.charAt(bits));
         }
         return hash.toString();
@@ -395,10 +396,9 @@ public final class GeoUtils {
         // TODO validation: allowed characters, proper length, ...
 
         // (1) decode base 32ghs to binary
-        long result = 0;
+        BigInteger result = BigInteger.ZERO;
         for (char ch : geohash.toCharArray()) {
-            result <<= 5;
-            result |= BASE_32_ALPHABET.indexOf(ch);
+            result = result.shiftLeft(5).add(BigInteger.valueOf(BASE_32_ALPHABET.indexOf(ch)));
         }
 
         // (2) split odd/even bits to longitude/latitude
@@ -412,8 +412,9 @@ public final class GeoUtils {
         double lngMax = 180;
         double lngMean = 0;
         for (int idx = geohash.length() * 5 - 1; idx >= 0; idx--) {
+            int currentBit = result.shiftRight(idx).and(BigInteger.ONE).intValue();
             if (idx % 2 == mod) {
-                if ((result >> idx & 1) == 0) {
+                if (currentBit == 0) {
                     latMean = (latMin + latMid) / 2;
                     latMax = latMid;
                 } else {
@@ -422,7 +423,7 @@ public final class GeoUtils {
                 }
                 latMid = (latMin + latMax) / 2;
             } else {
-                if ((result >> idx & 1) == 0) {
+                if (currentBit == 0) {
                     lngMean = (lngMin + lngMid) / 2;
                     lngMax = lngMid;
                 } else {

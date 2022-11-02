@@ -208,6 +208,7 @@ public class GeoUtilsTest {
         assertEquals("ezs", GeoUtils.getGeohash(coordinate, 3));
         assertEquals("ezs4", GeoUtils.getGeohash(coordinate, 4));
         assertEquals("ezs42", GeoUtils.getGeohash(coordinate, 5));
+        assertEquals("ezs42s000esks2q2dh8y", GeoUtils.getGeohash(coordinate, 20));
 
         GeoCoordinate coordinate2 = GeoCoordinate.from(57.64911, 10.40744);
         assertEquals("u4pruydqqvj", GeoUtils.getGeohash(coordinate2, 11));
@@ -218,6 +219,10 @@ public class GeoUtilsTest {
         GeoCoordinate coordinate = GeoUtils.parseGeohash("ezs42");
         assertEquals(42.605, coordinate.getLatitude(), 0.0001);
         assertEquals(-5.603, coordinate.getLongitude(), 0.0001);
+
+        GeoCoordinate coordinate3 = GeoUtils.parseGeohash("ezs42s000esks2q2dh8y");
+        assertEquals(42.605, coordinate3.getLatitude(), 0.0001);
+        assertEquals(-5.603, coordinate3.getLongitude(), 0.0001);
 
         // https://en.wikipedia.org/wiki/Geohash#Digits_and_precision_in_km
         GeoCoordinate coordinate2 = GeoCoordinate.from(57.64911, 10.40744);
