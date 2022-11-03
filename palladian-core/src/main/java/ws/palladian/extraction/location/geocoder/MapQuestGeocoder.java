@@ -28,7 +28,7 @@ public final class MapQuestGeocoder implements Geocoder {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MapQuestGeocoder.class);
 
-	private static final String API_URL = "http://open.mapquestapi.com/geocoding/v1/address?location=%s&key=%s";
+	private static final String API_URL = "https://www.mapquestapi.com/geocoding/v1/address?location=%s&key=%s";
 
 	public static final String CONFIG_API_KEY = "api.mapquest.apikey";
 
