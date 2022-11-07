@@ -59,7 +59,7 @@ public class KNearestNeighborScopeDetectorTest {
     }
 
     private static LocationDocument createDoc(String text, double lat, double lng) {
-        GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);
+        GeoCoordinate coordinate = GeoCoordinate.from(lat, lng);
         Location location = new ImmutableLocation(0, StringUtils.EMPTY, LocationType.UNDETERMINED, coordinate, null);
         return new LocationDocument(StringUtils.EMPTY, text, Collections.<LocationAnnotation> emptyList(), location);
     }

@@ -216,7 +216,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
                 double lat = document.getField(FIELD_LAT).numericValue().doubleValue();
                 double lng = document.getField(FIELD_LNG).numericValue().doubleValue();
                 try {
-                    GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);
+                    GeoCoordinate coordinate = GeoCoordinate.from(lat, lng);
                     // multiply the score, so that we add n items to the list
                     // from which we determine the center
                     int factor = Math.round(10 * scoreDoc.score / maxScore);

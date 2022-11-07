@@ -116,7 +116,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
                                 Double latitude = firstResolution.tryGetDouble("latitude");
                                 Double longitude = firstResolution.tryGetDouble("longitude");
                                 if (latitude != null && longitude != null) {
-                                    coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+                                    coordinate = GeoCoordinate.from(latitude, longitude);
                                 }
                                 String idString = firstResolution.tryGetString("id");
                                 id = idString != null ? idString.hashCode() : 0;

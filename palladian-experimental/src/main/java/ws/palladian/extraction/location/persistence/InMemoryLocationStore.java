@@ -274,7 +274,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
             builder.setType(type);
             builder.setPopulation(population == -1 ? null : population);
             builder.setAncestorIds(ancestorIds);
-            builder.setCoordinate(Float.isNaN(lat) ? null : new ImmutableGeoCoordinate(lat, lng));
+            builder.setCoordinate(Float.isNaN(lat) ? null : GeoCoordinate.from(lat, lng));
             return builder.create();
         }
 

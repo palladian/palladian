@@ -96,7 +96,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
                 GeoCoordinate scope = page.getCoordinate();
                 if (scope != null) {
                     // save some memory, we don't need all that additional information in MarkupGeoCoordinate
-                    scope = new ImmutableGeoCoordinate(scope.getLatitude(), scope.getLongitude());
+                    scope = GeoCoordinate.from(scope.getLatitude(), scope.getLongitude());
                 }
                 Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
                         LocationType.UNDETERMINED, scope, null);

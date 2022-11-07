@@ -137,7 +137,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
                 }
                 String placeType = jsonTags.getString("place");
                 LocationType type = mapPlaceType(placeType);
-                GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lon);
+                GeoCoordinate coordinate = GeoCoordinate.from(lat, lon);
                 locations.add(new ImmutableLocation(hack, name, altNames, type, coordinate, population, null));
             }
             return locations;

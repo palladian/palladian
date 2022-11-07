@@ -203,7 +203,7 @@ public abstract class AbstractLocationStoreTest {
 
     @Test
     public void testGetLocationByRadius() {
-        GeoCoordinate coordinate = new ImmutableGeoCoordinate(49, 9);
+        GeoCoordinate coordinate = GeoCoordinate.from(49, 9);
 
         List<Location> locations = locationSource.getLocations(coordinate, 20);
         assertEquals(2, locations.size());
@@ -241,7 +241,7 @@ public abstract class AbstractLocationStoreTest {
     @Test
     public void testGetLocationByNameAndRadius() {
         MultiMap<String, Location> locations = locationSource.getLocations(Arrays.asList("Flein"),
-                EnumSet.of(Language.ENGLISH), new ImmutableGeoCoordinate(49, 9), 20);
+                EnumSet.of(Language.ENGLISH), GeoCoordinate.from(49, 9), 20);
         assertEquals(1, locations.entrySet().size());
         Collection<Location> flein = locations.get("Flein");
         assertEquals(2, flein.size());

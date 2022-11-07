@@ -221,7 +221,7 @@ public class H2LocationSource extends DatabaseManager implements LocationSource 
         }
         double latitude = Double.parseDouble(split[0]);
         double longitude = Double.parseDouble(split[1]);
-        return new ImmutableGeoCoordinate(latitude, longitude);
+        return GeoCoordinate.from(latitude, longitude);
     }
 
     // https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry

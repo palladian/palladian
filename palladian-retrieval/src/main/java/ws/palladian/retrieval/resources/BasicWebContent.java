@@ -76,7 +76,7 @@ public class BasicWebContent implements WebContent {
         }
 
         public Builder setCoordinate(double latitude, double longitude) {
-            this.coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+            this.coordinate = GeoCoordinate.from(latitude, longitude);
             return this;
         }
 

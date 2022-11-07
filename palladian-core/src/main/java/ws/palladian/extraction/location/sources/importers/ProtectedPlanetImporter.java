@@ -134,7 +134,7 @@ public final class ProtectedPlanetImporter {
                     String[] latitudeLongitudeString = pair.split(",");
                     double lat = Double.parseDouble(latitudeLongitudeString[1]);
                     double lng = Double.parseDouble(latitudeLongitudeString[0]);
-                    coordinates.add(new ImmutableGeoCoordinate(lat, lng));
+                    coordinates.add(GeoCoordinate.from(lat, lng));
                 }
             }
             return GeoUtils.getMidpoint(coordinates);

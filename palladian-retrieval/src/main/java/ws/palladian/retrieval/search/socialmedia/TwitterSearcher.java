@@ -330,7 +330,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
                 JsonArray coordinates = jsonCoordinates.getJsonArray("coordinates");
                 double lat = coordinates.getDouble(1);
                 double lng = coordinates.getDouble(0);
-                builder.setCoordinate(new ImmutableGeoCoordinate(lat, lng));
+                builder.setCoordinate(GeoCoordinate.from(lat, lng));
             }
         }
         JsonArray hashTagsArray = jsonResult.queryJsonArray("/entities/hashtags");

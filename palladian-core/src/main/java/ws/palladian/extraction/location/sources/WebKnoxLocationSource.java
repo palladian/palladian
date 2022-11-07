@@ -105,7 +105,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource {
                     }
                     GeoCoordinate coordinate = null;
                     if (latitude != null && longitude != null) {
-                        coordinate = new ImmutableGeoCoordinate(latitude, longitude);
+                        coordinate = GeoCoordinate.from(latitude, longitude);
                     }
                     locations.add(new ImmutableLocation(id, primaryName, locationType, coordinate, population));
                 }
