@@ -139,7 +139,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
                     double lat = Double.parseDouble(lineSplit[3]);
                     double lng = Double.parseDouble(lineSplit[4]);
                     String text = lineSplit[5];
-                    GeoCoordinate scope = new ImmutableGeoCoordinate(lat, lng);
+                    GeoCoordinate scope = GeoCoordinate.from(lat, lng);
                     Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
                             LocationType.UNDETERMINED, scope, null);
                     String documentName = userName + "#" + StringHelper.sha1(text);

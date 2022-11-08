@@ -68,7 +68,7 @@ public final class MapzenGeocoder implements Geocoder, ReverseGeocoder {
 				JsonObject firstFeature = featuresJson.getJsonObject(0);
 				JsonObject geometryJson = firstFeature.getJsonObject("geometry");
 				JsonArray coordinatesJson = geometryJson.getJsonArray("coordinates");
-				return new ImmutableGeoCoordinate(coordinatesJson.getDouble(1), coordinatesJson.getDouble(0));
+				return GeoCoordinate.from(coordinatesJson.getDouble(1), coordinatesJson.getDouble(0));
 			}
 		} catch (JsonException e) {
 			throw new GeocoderException("Error while parsing JSON result (" + result.getStringContent() + ").", e);

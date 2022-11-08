@@ -1,18 +1,9 @@
 package ws.palladian.classification.sentiment;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
@@ -21,13 +12,21 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * <p>
  * German Sentiment Classifier that uses <a
  * href="http://wortschatz.informatik.uni-leipzig.de/download/sentiws.html">SentiWS</a>. The model uses this dictionary
  * and imports it from the file. Texts can be classified into positive and negative.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class GermanSentimentClassifier extends AbstractSentimentClassifier implements Serializable {
@@ -79,7 +78,7 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
      * <p>
      * Import the dictionary from the SentiWS file.
      * </p>
-     * 
+     *
      * @param dictionaryFilePath The path should be the prefix of the positive and negative file.
      */
     private void loadDictionary(String dictionaryFilePath) {
@@ -136,7 +135,6 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
         List<String> sentences = Tokenizer.getSentences(text);
 
         for (String sentence : sentences) {
-
             String lcSentence = sentence.toLowerCase();
 
             double positiveSentimentSumSentence = 0;
@@ -151,7 +149,6 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             String beforeLastToken = "";
             String lastToken = "";
             for (String token : tokens) {
-
                 token = StringHelper.trim(token);
 
                 // check whether we should emphasize the sentiment
@@ -190,12 +187,10 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
             CategoryEntries categoryEntries = builder.create();
 
             double probabilityMostLikelySentiment = categoryEntries.getProbability(categoryEntries.getMostLikelyCategory());
-            if (probabilityMostLikelySentiment > confidenceThreshold
-                    && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence)
-                    && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
+            if (probabilityMostLikelySentiment > confidenceThreshold && (positiveSentimentSumSentence > 2 * negativeSentimentSumSentence
+                    || negativeSentimentSumSentence > 2 * positiveSentimentSumSentence) && (positiveSentimentSumSentence >= 0.008 || negativeSentimentSumSentence > 0.008)) {
                 addOpinionatedSentence(categoryEntries.getMostLikelyCategory(), sentence);
             }
-
         }
 
         // CategoryEntries categoryEntries = new CategoryEntries();

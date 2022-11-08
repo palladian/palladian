@@ -19,22 +19,22 @@ import java.util.List;
 
 import org.junit.Test;
 
+import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 public class LocationSetTest {
 
     private final Location l1 = new ImmutableLocation(2028461, "Ulaanbaatar Hot", null, UNIT,
-            new ImmutableGeoCoordinate(47.91667, 106.91667), 844818l, Arrays.asList(2029969, 6255147, 6295630));
-    private final Location l2 = new ImmutableLocation(2028462, "Ulaanbaatar", null, CITY, new ImmutableGeoCoordinate(
+            GeoCoordinate.from(47.91667, 106.91667), 844818l, Arrays.asList(2029969, 6255147, 6295630));
+    private final Location l2 = new ImmutableLocation(2028462, "Ulaanbaatar", null, CITY, GeoCoordinate.from(
             47.90771, 106.88324), 844818l, Arrays.asList(2028461, 2029969, 6255147, 6295630));
     private final Location l3 = new ImmutableLocation(6295630, "Earth", null, REGION,
-            new ImmutableGeoCoordinate(0., 0.), 6814400000l, Collections.<Integer> emptyList());
-    private final Location l4 = new ImmutableLocation(4653031, "Richmond", CITY, new ImmutableGeoCoordinate(35.38563,
+            GeoCoordinate.from(0., 0.), 6814400000l, Collections.<Integer> emptyList());
+    private final Location l4 = new ImmutableLocation(4653031, "Richmond", CITY, GeoCoordinate.from(35.38563,
             -86.59194), 0l);
-    private final Location l5 = new ImmutableLocation(4074277, "Madison County", UNIT, new ImmutableGeoCoordinate(
+    private final Location l5 = new ImmutableLocation(4074277, "Madison County", UNIT, GeoCoordinate.from(
             34.73342, -86.56666), 0l);
-    private final Location l6 = new ImmutableLocation(100080784, "Madison County", UNIT, new ImmutableGeoCoordinate(
+    private final Location l6 = new ImmutableLocation(100080784, "Madison County", UNIT, GeoCoordinate.from(
             34.76583, -86.55778), null);
     private final Location l7 = new ImmutableLocation(8468884, "Fayetteville State University", POI, null, null);
 

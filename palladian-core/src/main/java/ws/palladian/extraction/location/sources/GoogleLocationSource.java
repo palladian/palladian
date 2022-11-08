@@ -127,7 +127,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
                 JsonObject jsonLocation = current.getJsonObject("geometry").getJsonObject("location");
                 double lat = jsonLocation.getDouble("lat");
                 double lng = jsonLocation.getDouble("lng");
-                GeoCoordinate coordinate = new ImmutableGeoCoordinate(lat, lng);
+                GeoCoordinate coordinate = GeoCoordinate.from(lat, lng);
                 LocationType type = mapType(current.getJsonArray("types"));
                 String name = current.getString("formatted_address");
                 int id = name.hashCode(); // not available by Google
@@ -201,7 +201,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
         // Collection<Location> locations = locationSource.getLocations("The Firehouse", null);
         // Collection<Location> locations = locationSource.getLocations("Heir Island", null);
         // Collection<Location> locations = locationSource.getLocations("Dun Aengus", null);
-        Collection<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(40.714224, -73.961452),
+        Collection<Location> locations = locationSource.getLocations(GeoCoordinate.from(40.714224, -73.961452),
                 0);
         CollectionHelper.print(locations);
     }

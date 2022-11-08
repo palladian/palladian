@@ -300,7 +300,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
         GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
         // Location location = locationSource.getLocation(7268814);
         // System.out.println(location);
-        // List<Location> locations = locationSource.getLocations(new ImmutableGeoCoordinate(52.52, 13.41), 10);
+        // List<Location> locations = locationSource.getLocations(GeoCoordinate.from(52.52, 13.41), 10);
         // List<Location> locations = locationSource.getLocations("U.S.", EnumSet.of(Language.ENGLISH));
         // List<Location> locations = locationSource.getLocations("Liége", EnumSet.of(Language.ENGLISH));
         List<Location> locations = locationSource.getLocations("Ceske Budejovice", EnumSet.of(Language.ENGLISH));

@@ -61,8 +61,8 @@ public class Spatial2dIdMap {
     public void put(double lat, double lng, int id) {
         IdCoordinate idCoordinate = new IdCoordinate();
         idCoordinate.setId(id);
-        idCoordinate.setCoordinate(new ImmutableGeoCoordinate(GeoUtils.normalizeLatitude(lat), GeoUtils.normalizeLongitude(lng)));
-        // idCoordinate.setCoordinate(new ImmutableGeoCoordinate(lat,lng));
+        idCoordinate.setCoordinate(GeoCoordinate.from(GeoUtils.normalizeLatitude(lat), GeoUtils.normalizeLongitude(lng)));
+        // idCoordinate.setCoordinate(GeoCoordinate.from(lat,lng));
 
         latIds.add(idCoordinate);
         lngIds.add(idCoordinate);
@@ -80,7 +80,7 @@ public class Spatial2dIdMap {
      * meters
      */
     public List<IdCoordinate> closestTo(double lat, double lng, int distanceMeters) {
-        ImmutableGeoCoordinate sourceCoordinate = new ImmutableGeoCoordinate(lat, lng);
+        GeoCoordinate sourceCoordinate = GeoCoordinate.from(lat, lng);
 
         double[] boundingBox = sourceCoordinate.getBoundingBox(distanceMeters / 1000.);
         List<IdCoordinate> inBox = new ArrayList<>(findInBox(boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]));

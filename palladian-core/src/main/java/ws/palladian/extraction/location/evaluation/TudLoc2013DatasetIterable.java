@@ -149,7 +149,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
                 if (!split[3].isEmpty() && !split[4].isEmpty()) {
                     double lat = Double.parseDouble(split[3]);
                     double lng = Double.parseDouble(split[4]);
-                    coordinate = new ImmutableGeoCoordinate(lat, lng);
+                    coordinate = GeoCoordinate.from(lat, lng);
                 }
                 coordinateMap.get(documentName).put(offset, coordinate);
             }

@@ -91,7 +91,7 @@ public final class GridCreator implements Iterable<GridCell> {
             for (double lng = cell.lng1; lng < cell.lng2; lng += gridSize) {
                 lat = GeoUtils.normalizeLatitude(lat);
                 lng = GeoUtils.normalizeLongitude(lng);
-                cells.add(getCell(new ImmutableGeoCoordinate(lat, lng)));
+                cells.add(getCell(GeoCoordinate.from(lat, lng)));
             }
         }
         return cells;
@@ -120,7 +120,7 @@ public final class GridCreator implements Iterable<GridCell> {
 //        try {
 //            double lng = Integer.valueOf(values[0]) * gridSize - 180 + 0.5 * gridSize;
 //            double lat = Integer.valueOf(values[1]) * gridSize - 90 + 0.5 * gridSize;
-//            return new ImmutableGeoCoordinate(lat, lng);
+//            return GeoCoordinate.from(lat, lng);
 //        } catch (NumberFormatException e) {
 //            throw new IllegalArgumentException("Invalid format: '" + cellIdentifier + "'.");
 //        }

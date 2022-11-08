@@ -38,28 +38,28 @@ public class GridCell {
      * @return The northeastern coordinate of this cell.
      */
     public GeoCoordinate getNE() {
-        return new ImmutableGeoCoordinate(lat2, lng2);
+        return GeoCoordinate.from(lat2, lng2);
     }
 
     /**
      * @return The southeastern coordinate of this cell.
      */
     public GeoCoordinate getSE() {
-        return new ImmutableGeoCoordinate(lat1, lng2);
+        return GeoCoordinate.from(lat1, lng2);
     }
 
     /**
      * @return The southwestern coordinate of this cell.
      */
     public GeoCoordinate getSW() {
-        return new ImmutableGeoCoordinate(lat1, lng1);
+        return GeoCoordinate.from(lat1, lng1);
     }
 
     /**
      * @return The northwestern coordinate of this cell.
      */
     public GeoCoordinate getNW() {
-        return new ImmutableGeoCoordinate(lat2, lng1);
+        return GeoCoordinate.from(lat2, lng1);
     }
 
     /**
@@ -68,7 +68,7 @@ public class GridCell {
     public GeoCoordinate getCenter() {
         double lat = GeoUtils.normalizeLatitude(lat1 + 0.5 * gridSize);
         double lng = GeoUtils.normalizeLongitude(lng1 + 0.5 * gridSize);
-        return new ImmutableGeoCoordinate(lat, lng);
+        return GeoCoordinate.from(lat, lng);
     }
 
 //    public boolean contains(GridCell other) {

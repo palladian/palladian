@@ -11,8 +11,8 @@ import ws.palladian.retrieval.*;
  * @see <a href="https://sendy.co/api">https://sendy.co/api</a>
  */
 public class SendyMailer {
-    private String apiLocation;
-    private String apiKey;
+    private final String apiLocation;
+    private final String apiKey;
 
     public SendyMailer(String apiLocation, String apiKey) {
         if (!apiLocation.endsWith("/")) {
@@ -113,7 +113,7 @@ public class SendyMailer {
             String responseText = StringHelper.clean(result.getStringContent()).toLowerCase();
             // System.out.println("Result: " + responseText);
             try {
-                return Integer.valueOf(responseText);
+                return Integer.parseInt(responseText);
             } catch (Exception e) {
                 return 0;
             }
@@ -132,5 +132,4 @@ public class SendyMailer {
         sendyMailer.trySubscribe(emailContact);
         System.out.println(sendyMailer.getSubscriberCount("LIST_ID"));
     }
-
 }

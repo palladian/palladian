@@ -48,7 +48,7 @@ public class WikipediaBigDatasetEvaluation {
         public LocationDocument apply(WikiPage input) {
             // copy MarkupCoordinate, as it contains lots of junk taking memory
             MarkupCoordinate tmp = input.getCoordinate();
-            GeoCoordinate scope = new ImmutableGeoCoordinate(tmp.getLatitude(), tmp.getLongitude());
+            GeoCoordinate scope = GeoCoordinate.from(tmp.getLatitude(), tmp.getLongitude());
             Location scopeLocation = new ImmutableLocation(-1, UNDETERMINED, LocationType.UNDETERMINED, scope, null);
             return new LocationDocument(input.getTitle(), input.getCleanText(), null, scopeLocation);
         }

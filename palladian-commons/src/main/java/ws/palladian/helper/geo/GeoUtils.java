@@ -1,7 +1,11 @@
 package ws.palladian.helper.geo;
 
-import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.toRadians;
+import static org.apache.commons.math3.util.FastMath.cos;
+import static org.apache.commons.math3.util.FastMath.sin;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,14 +78,14 @@ public final class GeoUtils {
         y /= count;
         z /= count;
         if (Math.abs(x) < 1e-9 || Math.abs(y) < 1e-9 || Math.abs(z) < 1e-9) {
-            return new ImmutableGeoCoordinate(0., 0.);
+            return GeoCoordinate.from(0., 0.);
         }
         double lngRad = FastMath.atan2(y, x);
         double hypRad = FastMath.sqrt(x * x + y * y);
         double latRad = FastMath.atan2(z, hypRad);
         double lng = FastMath.toDegrees(lngRad);
         double lat = FastMath.toDegrees(latRad);
-        return new ImmutableGeoCoordinate(lat, lng);
+        return GeoCoordinate.from(lat, lng);
     }
 
     /**
@@ -342,6 +346,135 @@ public final class GeoUtils {
             }
         }
         return largestDistance;
+    }
+
+    /** For mapping Geohash from decimal (index) to Base 32 representation. */
+    private static final String BASE_32_ALPHABET = "0123456789bcdefghjkmnpqrstuvwxyz";
+
+    /**
+     * Converts the given coordinate to a
+     * <a href="https://en.wikipedia.org/wiki/Geohash">Geohash</a>.
+     * 
+     * <p>
+     * A geohash is a single string of letters and digits of an arbitrary length –
+     * the longer, the more precise. A geohash guarantees, that two hashes with a
+     * shared prefix are close together (however the reverse is not guaranteed).
+     * This still makes geohashes useful e.g. for indexation, etc.
+     * 
+     * <p>
+     * A hash can be shortened at the end, which means losing precision. For the
+     * precision depending on the number of characters, see <a href=
+     * "https://en.wikipedia.org/wiki/Geohash#Digits_and_precision_in_km">here</a>.
+     * 
+     * <p>
+     * For a coordinate of <code>42.605, -5.603</code>, the geohash of length 5 is
+     * <code>ezs42</code>.
+     * 
+     * @param coordinate The coordinate for which to calculate the hash.
+     * @param length     The length of the hash in characters (at least one).
+     * @return The hash.
+     */
+    public static String getGeohash(GeoCoordinate coordinate, int length) {
+        Objects.requireNonNull(coordinate, "coordinate must not be null");
+        if (length < 1) {
+            throw new IllegalArgumentException("length must be greater zero");
+        }
+
+        double latMin = -90;
+        double latMid = 0;
+        double latMax = 90;
+        double lngMin = -180;
+        double lngMid = 0;
+        double lngMax = 180;
+        BigInteger binary = BigInteger.ZERO;
+        for (int idx = 0; idx < 5 * length; idx++) {
+            binary = binary.shiftLeft(1);
+            if (idx % 2 == 0) {
+                if (coordinate.getLongitude() < lngMid) {
+                    lngMax = lngMid;
+                } else {
+                    lngMin = lngMid;
+                    binary = binary.add(BigInteger.ONE);
+                }
+                lngMid = (lngMin + lngMax) / 2;
+            } else {
+                if (coordinate.getLatitude() < latMid) {
+                    latMax = latMid;
+                } else {
+                    latMin = latMid;
+                    binary = binary.add(BigInteger.ONE);
+                }
+                latMid = (latMin + latMax) / 2;
+            }
+        }
+
+        StringBuilder hash = new StringBuilder();
+        for (int idx = 5 * (length - 1); idx >= 0; idx -= 5) {
+            int bits = binary.shiftRight(idx).and(BigInteger.valueOf(0b11111)).intValue();
+            hash.append(BASE_32_ALPHABET.charAt(bits));
+        }
+        return hash.toString();
+    }
+
+    /**
+     * Parse the given geohash into a latitude and longitude coordinates pair.
+     * 
+     * <p>
+     * For more details see {@link #getGeohash(GeoCoordinate, int)}.
+     * 
+     * @param geohash The geohash.
+     * @return The parsed coordinate.
+     * @throws IllegalArgumentException If the hash contains unexpected characters.
+     */
+    public static GeoCoordinate parseGeohash(String geohash) {
+        Objects.requireNonNull(geohash, "geohash must not be null");
+        if (geohash.length() < 1) {
+            throw new IllegalArgumentException("hash must be non-empty");
+        }
+
+        // (1) decode base 32ghs to binary
+        BigInteger result = BigInteger.ZERO;
+        for (char ch : geohash.toCharArray()) {
+            int decimal = BASE_32_ALPHABET.indexOf(ch);
+            if (decimal == -1) {
+                throw new IllegalArgumentException("Invalid character: " + ch);
+            }
+            result = result.shiftLeft(5).add(BigInteger.valueOf(decimal));
+        }
+
+        // (2) split odd/even bits to longitude/latitude
+        int mod = geohash.length() % 2; // different treatment of odd/even length hashes
+        double latMin = -90;
+        double latMid = 0;
+        double latMax = 90;
+        double latMean = 0;
+        double lngMin = -180;
+        double lngMid = 0;
+        double lngMax = 180;
+        double lngMean = 0;
+        for (int idx = geohash.length() * 5 - 1; idx >= 0; idx--) {
+            int currentBit = result.shiftRight(idx).and(BigInteger.ONE).intValue();
+            if (idx % 2 == mod) {
+                if (currentBit == 0) {
+                    latMean = (latMin + latMid) / 2;
+                    latMax = latMid;
+                } else {
+                    latMean = (latMid + latMax) / 2;
+                    latMin = latMid;
+                }
+                latMid = (latMin + latMax) / 2;
+            } else {
+                if (currentBit == 0) {
+                    lngMean = (lngMin + lngMid) / 2;
+                    lngMax = lngMid;
+                } else {
+                    lngMean = (lngMid + lngMax) / 2;
+                    lngMin = lngMid;
+                }
+                lngMid = (lngMin + lngMax) / 2;
+            }
+        }
+        return GeoCoordinate.from(latMean, lngMean);
     }
 
     private GeoUtils() {

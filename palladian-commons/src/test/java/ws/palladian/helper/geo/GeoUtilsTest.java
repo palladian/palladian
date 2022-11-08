@@ -28,28 +28,28 @@ public class GeoUtilsTest {
     @BeforeClass
     public static void setUp() {
         coordinates1 = new HashSet<>();
-        coordinates1.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
-        coordinates1.add(new ImmutableGeoCoordinate(51.50853, -0.12574));
-        coordinates1.add(new ImmutableGeoCoordinate(47.66033, 9.17582));
-        coordinates1.add(new ImmutableGeoCoordinate(45.74846, 4.84671));
+        coordinates1.add(GeoCoordinate.from(52.52437, 13.41053));
+        coordinates1.add(GeoCoordinate.from(51.50853, -0.12574));
+        coordinates1.add(GeoCoordinate.from(47.66033, 9.17582));
+        coordinates1.add(GeoCoordinate.from(45.74846, 4.84671));
 
         coordinates2 = new HashSet<>();
-        coordinates2.add(new ImmutableGeoCoordinate(40.71427, -74.00597));
-        coordinates2.add(new ImmutableGeoCoordinate(35.68950, 139.69171));
+        coordinates2.add(GeoCoordinate.from(40.71427, -74.00597));
+        coordinates2.add(GeoCoordinate.from(35.68950, 139.69171));
 
         coordinates3 = new HashSet<>();
-        coordinates3.add(new ImmutableGeoCoordinate(52.52437, 13.41053));
+        coordinates3.add(GeoCoordinate.from(52.52437, 13.41053));
 
         coordinates4 = new HashSet<>();
-        coordinates4.add(new ImmutableGeoCoordinate(39.00027, -105.50083));
-        coordinates4.add(new ImmutableGeoCoordinate(52.16045, -0.70312));
-        coordinates4.add(new ImmutableGeoCoordinate(-33, -56));
-        coordinates4.add(new ImmutableGeoCoordinate(39.5, -8));
-        coordinates4.add(new ImmutableGeoCoordinate(54.75844, -2.69531));
-        coordinates4.add(new ImmutableGeoCoordinate(39.76, -98.5));
-        coordinates4.add(new ImmutableGeoCoordinate(51.297, 1.069));
-        coordinates4.add(new ImmutableGeoCoordinate(52.5, -3.5));
-        coordinates4.add(new ImmutableGeoCoordinate(38.89511, -77.03637));
+        coordinates4.add(GeoCoordinate.from(39.00027, -105.50083));
+        coordinates4.add(GeoCoordinate.from(52.16045, -0.70312));
+        coordinates4.add(GeoCoordinate.from(-33, -56));
+        coordinates4.add(GeoCoordinate.from(39.5, -8));
+        coordinates4.add(GeoCoordinate.from(54.75844, -2.69531));
+        coordinates4.add(GeoCoordinate.from(39.76, -98.5));
+        coordinates4.add(GeoCoordinate.from(51.297, 1.069));
+        coordinates4.add(GeoCoordinate.from(52.5, -3.5));
+        coordinates4.add(GeoCoordinate.from(38.89511, -77.03637));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class GeoUtilsTest {
         assertEquals(-153.661864, midpoint.getLongitude(), 0.01);
 
         midpoint = GeoUtils.getMidpoint(coordinates3);
-        assertEquals(new ImmutableGeoCoordinate(52.52437, 13.41053), midpoint);
+        assertEquals(GeoCoordinate.from(52.52437, 13.41053), midpoint);
 
         midpoint = GeoUtils.getMidpoint(coordinates4);
         assertEquals(47.703117, midpoint.getLatitude(), 0.01);
@@ -77,7 +77,7 @@ public class GeoUtilsTest {
         assertEquals(7.758056, center.getLongitude(), 0.01);
 
         center = GeoUtils.getCenterOfMinimumDistance(coordinates3);
-        assertEquals(new ImmutableGeoCoordinate(52.52437, 13.41053), center);
+        assertEquals(GeoCoordinate.from(52.52437, 13.41053), center);
 
         center = GeoUtils.getCenterOfMinimumDistance(coordinates4);
         assertEquals(52.52425, center.getLatitude(), 0.01);
@@ -103,7 +103,7 @@ public class GeoUtilsTest {
 
     @Test
     public void testGetTestPoints() {
-        GeoCoordinate origin = new ImmutableGeoCoordinate(53.320556, 1.729722);
+        GeoCoordinate origin = GeoCoordinate.from(53.320556, 1.729722);
         GeoCoordinate[] points = GeoUtils.getTestPoints(origin, 100);
         for (GeoCoordinate point : points) {
             assertEquals(100, point.distance(origin), 0.001);
@@ -118,10 +118,10 @@ public class GeoUtilsTest {
 
     @Test
     public void testApproximateDistance() {
-        GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
-        GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
-        GeoCoordinate c3 = new ImmutableGeoCoordinate(49.265278, 4.028611);
-        GeoCoordinate c4 = new ImmutableGeoCoordinate(48.858222, 2.2945);
+        GeoCoordinate c1 = GeoCoordinate.from(33.662508, -95.547692);
+        GeoCoordinate c2 = GeoCoordinate.from(48.85341, 2.3488);
+        GeoCoordinate c3 = GeoCoordinate.from(49.265278, 4.028611);
+        GeoCoordinate c4 = GeoCoordinate.from(48.858222, 2.2945);
 
         // should be: exact < approximate < 1.1 * exact
         double exact = c1.distance(c2);
@@ -146,8 +146,8 @@ public class GeoUtilsTest {
     @Test
     @Ignore
     public void performanceTest() {
-        GeoCoordinate c1 = new ImmutableGeoCoordinate(33.662508, -95.547692);
-        GeoCoordinate c2 = new ImmutableGeoCoordinate(48.85341, 2.3488);
+        GeoCoordinate c1 = GeoCoordinate.from(33.662508, -95.547692);
+        GeoCoordinate c2 = GeoCoordinate.from(48.85341, 2.3488);
 
         StopWatch stopExact = new StopWatch();
         for (int i = 0; i < 10000000; i++) {
@@ -198,4 +198,59 @@ public class GeoUtilsTest {
         assertEquals(GeoUtils.EARTH_MAX_DISTANCE_KM,
                 GeoUtils.getLargestDistance(Arrays.<GeoCoordinate> asList(null, null)), 0.1);
     }
+    
+    @Test
+    public void testGetGeohash() {
+        // https://en.wikipedia.org/wiki/Geohash#Typical_and_main_usages
+        GeoCoordinate coordinate = GeoCoordinate.from(42.605, -5.603);
+        assertEquals("e", GeoUtils.getGeohash(coordinate, 1));
+        assertEquals("ez", GeoUtils.getGeohash(coordinate, 2));
+        assertEquals("ezs", GeoUtils.getGeohash(coordinate, 3));
+        assertEquals("ezs4", GeoUtils.getGeohash(coordinate, 4));
+        assertEquals("ezs42", GeoUtils.getGeohash(coordinate, 5));
+        assertEquals("ezs42s000esks2q2dh8y", GeoUtils.getGeohash(coordinate, 20));
+
+        GeoCoordinate coordinate2 = GeoCoordinate.from(57.64911, 10.40744);
+        assertEquals("u4pruydqqvj", GeoUtils.getGeohash(coordinate2, 11));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testParseGeohash_throwsOnNull() {
+        GeoUtils.parseGeohash(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseGeohash_throwsOnEmpty() {
+        GeoUtils.parseGeohash("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseGeohash_throwsOnInvalid() {
+        GeoUtils.parseGeohash("A");
+    }
+
+    @Test
+    public void testParseGeohash() {
+        GeoCoordinate coordinate = GeoUtils.parseGeohash("ezs42");
+        assertEquals(42.605, coordinate.getLatitude(), 0.0001);
+        assertEquals(-5.603, coordinate.getLongitude(), 0.0001);
+
+        GeoCoordinate coordinate3 = GeoUtils.parseGeohash("ezs42s000esks2q2dh8y");
+        assertEquals(42.605, coordinate3.getLatitude(), 0.0001);
+        assertEquals(-5.603, coordinate3.getLongitude(), 0.0001);
+
+        // https://en.wikipedia.org/wiki/Geohash#Digits_and_precision_in_km
+        GeoCoordinate coordinate2 = GeoCoordinate.from(57.64911, 10.40744);
+        assertTrue(2500 > coordinate2.distance(GeoUtils.parseGeohash("u")));
+        assertTrue(630 > coordinate2.distance(GeoUtils.parseGeohash("u4")));
+        assertTrue(78 > coordinate2.distance(GeoUtils.parseGeohash("u4p")));
+        assertTrue(20 > coordinate2.distance(GeoUtils.parseGeohash("u4pr")));
+        assertTrue(2.4 > coordinate2.distance(GeoUtils.parseGeohash("u4pru")));
+        assertTrue(0.61 > coordinate2.distance(GeoUtils.parseGeohash("u4pruy")));
+        assertTrue(0.076 > coordinate2.distance(GeoUtils.parseGeohash("u4pruyd")));
+        assertTrue(0.019 > coordinate2.distance(GeoUtils.parseGeohash("u4pruydq")));
+        assertTrue(0.002 > coordinate2.distance(GeoUtils.parseGeohash("u4pruydqq")));
+        assertTrue(0.001 > coordinate2.distance(GeoUtils.parseGeohash("u4pruydqqvj")));
+    }
+
 }

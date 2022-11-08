@@ -664,6 +664,7 @@ public enum UnitType {
         unitList.add("square foot");
         unitList.add("square feet");
         unitList.add("sq. ft.");
+        unitList.add("sq ft");
         unitList.add("square ft");
         unitList.add("sqft");
         unitList.add("ft²");

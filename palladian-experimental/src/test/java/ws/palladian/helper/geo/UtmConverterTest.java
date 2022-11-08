@@ -11,7 +11,7 @@ public class UtmConverterTest {
 
     @Test
     public void testToUtm() {
-        UtmCoordinate utm = UtmConverter.toUtm(new ImmutableGeoCoordinate(51.049259, 13.73836));
+        UtmCoordinate utm = UtmConverter.toUtm(GeoCoordinate.from(51.049259, 13.73836));
         assertEquals(33, utm.getZone());
         assertEquals('U', utm.getBand());
         assertEquals(411566.4905930299, utm.getEasting(), 0.00001);
@@ -29,7 +29,7 @@ public class UtmConverterTest {
 
     @Test
     public void testUtmZone() {
-        assertEquals(33, UtmConverter.utmZone(new ImmutableGeoCoordinate(51.049259, 13.73836)));
+        assertEquals(33, UtmConverter.utmZone(GeoCoordinate.from(51.049259, 13.73836)));
     }
 
     @Test

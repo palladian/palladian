@@ -89,7 +89,7 @@ public final class ClavinLocationExtractor extends LocationExtractor {
         String featureClass = geoname.getFeatureClass().toString();
         String featureType = geoname.getFeatureCode().toString();
         LocationType type = GeonamesUtil.mapType(featureClass, featureType);
-        GeoCoordinate coordinate = new ImmutableGeoCoordinate(geoname.getLatitude(), geoname.getLongitude());
+        GeoCoordinate coordinate = GeoCoordinate.from(geoname.getLatitude(), geoname.getLongitude());
         Long population = geoname.getPopulation();
         Annotation annotation = new ImmutableAnnotation(startPosition, value, type.toString());
         Location location = new ImmutableLocation(id, primaryName, type, coordinate, population);
