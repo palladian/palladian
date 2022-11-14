@@ -2,6 +2,7 @@ package ws.palladian.helper.date;
 
 import org.apache.commons.lang3.Validate;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * @author Martin Gregor
  * @author Philipp Katz
  */
-public class ExtractedDateImpl implements ExtractedDate {
+public class ExtractedDateImpl implements ExtractedDate, Serializable {
     /** Found date as string. */
     private final String dateString;
 
