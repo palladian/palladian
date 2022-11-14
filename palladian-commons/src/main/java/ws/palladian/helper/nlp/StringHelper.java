@@ -44,7 +44,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_STARTS_WITH_NUMBER = Pattern.compile("^" + RegExp.NUMBER);
     private static final Pattern PATTERN_NUMBERING1 = Pattern.compile("^\\s*\\d+(\\.?\\d?)*\\s*");
     private static final Pattern PATTERN_NUMBERING2 = Pattern.compile("^\\s*#\\d+(\\.?\\d?)*\\s*");
-    private static final Pattern PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
+    public static final Pattern PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
     private static final Pattern PATTERN_NON_ASCII_SPACE = Pattern.compile(" ");
     private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
     private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
@@ -547,7 +547,7 @@ public final class StringHelper {
     }
 
     public static String removeWords(List<String> words, String searchString) {
-        Collections.sort(words, StringLengthComparator.INSTANCE);
+        words.sort(StringLengthComparator.INSTANCE);
         for (String word : words) {
             searchString = removeWord(word, searchString);
         }
@@ -580,9 +580,13 @@ public final class StringHelper {
         if (word == null || word.isEmpty()) {
             return searchString;
         }
+        return replaceWordCaseSensitive(word.toLowerCase(), replacement, searchString, searchString.toLowerCase());
+    }
 
-        word = word.toLowerCase();
-        String searchStringLc = searchString.toLowerCase();
+    public static String replaceWordCaseSensitive(String word, String replacement, String searchString, String searchStringLc) {
+        if (word == null || word.isEmpty()) {
+            return searchString;
+        }
 
         int oldIndex = 0;
         int index;
