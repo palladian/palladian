@@ -158,6 +158,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
             return null;
         }
         BasicWebImage.Builder builder = new BasicWebImage.Builder();
+        builder.setIdentifier(objJson.tryGetString("objectID"));
         builder.setAdditionalData("id", objJson.tryGetString("objectID"));
         builder.setUrl(objJson.tryGetString("objectURL"));
         builder.setImageUrl(primaryImage);
