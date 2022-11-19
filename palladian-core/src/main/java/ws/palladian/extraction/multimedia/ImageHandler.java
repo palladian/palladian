@@ -1105,6 +1105,7 @@ public class ImageHandler {
         for (int i = 0; i < 25; i++) {
             floats[i] = 1;
         }
+
         RenderedOp erodeOp = ErodeDescriptor.create(image, new KernelJAI(5, 5, floats), null);
         BufferedImage erodedImage = erodeOp.getAsBufferedImage();
 

@@ -1,9 +1,5 @@
 package ws.palladian.retrieval.search.images;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -19,6 +15,10 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * <p>
  * Search for free images on <a href="http://www.metmuseum.org/">The Met Museum</a>.
@@ -31,7 +31,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "MetMuseum";
     private final DocumentRetriever documentRetriever;
-    private IntArrayList allObjectIds = null;
+    private static IntArrayList allObjectIds = null;
 
     /**
      * <p>
@@ -85,8 +85,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
     @Override
     /**
      * @param language Supported languages are English.
-     */
-    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         return search(query, resultCount, language, null);
     }
 
@@ -159,6 +158,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
             return null;
         }
         BasicWebImage.Builder builder = new BasicWebImage.Builder();
+        builder.setIdentifier(objJson.tryGetString("objectID"));
         builder.setAdditionalData("id", objJson.tryGetString("objectID"));
         builder.setUrl(objJson.tryGetString("objectURL"));
         builder.setImageUrl(primaryImage);
