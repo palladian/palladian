@@ -4,10 +4,9 @@ import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.images.ImageType;
 
 public interface WebImage extends WebContent {
-
     /**
      * @return The URL of this image. In contrast to {@link #getUrl()}, which usually links to the page on which this
-     *         image was found, this URL points to the actual image file.
+     * image was found, this URL points to the actual image file.
      */
     String getImageUrl();
 
@@ -38,5 +37,4 @@ public interface WebImage extends WebContent {
     ImageType getImageType();
 
     String getFileType();
-
 }

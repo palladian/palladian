@@ -1,31 +1,29 @@
 package ws.palladian.retrieval.resources;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.images.ImageType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
  * {@link BasicWebImage}s represent search results from image searches on web search engines. For instantiation use the
  * {@link Builder}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  */
 public class BasicWebImage extends BasicWebContent implements WebImage {
-
     /**
      * <p>
      * Builder for creating new instances of {@link WebImage}.
      * </p>
-     * 
+     *
      * @author Philipp Katz
      */
     public static class Builder extends BasicWebContent.Builder {
-
         protected String imageUrl;
         protected String thumbnailUrl;
         protected int width = -1;
@@ -54,7 +52,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
             this.height = height;
             return this;
         }
-        
+
         public Builder setSize(int width, int height) {
             this.width = width;
             this.height = height;
@@ -180,7 +178,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     public String getFileType() {
         return fileType;
     }
-    
+
     @Override
     protected List<String> getToStringParts() {
         List<String> toStringParts = new ArrayList<>(super.getToStringParts());
@@ -234,7 +232,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        BasicWebImage other = (BasicWebImage)obj;
+        BasicWebImage other = (BasicWebImage) obj;
         if (fileType == null) {
             if (other.fileType != null)
                 return false;
@@ -265,5 +263,4 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
             return false;
         return true;
     }
-
 }

@@ -1,43 +1,29 @@
 package ws.palladian.retrieval;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
+import org.w3c.dom.*;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * The PageAnalyzer's responsibility is it to perform generic tasks on the DOM tree.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public final class PageAnalyzer {
-
     public static final Logger LOGGER = LoggerFactory.getLogger(PageAnalyzer.class);
 
     private PageAnalyzer() {
@@ -48,7 +34,7 @@ public final class PageAnalyzer {
      * <p>
      * Find and return the content of the &lt;title&gt; tag of the web page.
      * </p>
-     * 
+     *
      * @param document The document for which to get the title.
      * @return The title of the web page.
      */
@@ -72,7 +58,7 @@ public final class PageAnalyzer {
      * <p>
      * Try to find a table with at least 4 facts.
      * </p>
-     * 
+     *
      * @return A string array with 0: the xpath to the table row, 1: the first td index and 2: the number of rows.
      */
     public static String[] detectFactTable(Document document) {
@@ -83,12 +69,11 @@ public final class PageAnalyzer {
         tableParameters[0] = xPaths.getHighestCountXPath(4);
 
         // number of rows is expected to be half of td count since table must have at least two columns
-        tableParameters[2] = String.valueOf((int)Math.ceil((xPaths.getCountOfXPath(tableParameters[0]) / (double)2)));
+        tableParameters[2] = String.valueOf((int) Math.ceil((xPaths.getCountOfXPath(tableParameters[0]) / (double) 2)));
 
         // check whether there is one more xPath that ends on "th" instead of "td" with the same count
         if (tableParameters[0].length() > 0) {
-            int thCount = xPaths
-                    .getCountOfXPath(tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h");
+            int thCount = xPaths.getCountOfXPath(tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h");
             if (thCount == xPaths.getCountOfXPath(tableParameters[0])) {
                 tableParameters[0] = tableParameters[0].substring(0, tableParameters[0].length() - 1) + "h";
 
@@ -108,7 +93,7 @@ public final class PageAnalyzer {
      * <p>
      * Get a set of xPaths.
      * </p>
-     * 
+     *
      * @return A set of xPaths.
      */
     private static XPathSet getXPathSet(Document document) {
@@ -136,30 +121,21 @@ public final class PageAnalyzer {
      * <p>
      * Get all xPaths to the specified keyword in the specified document. The function does not return duplicates.
      * </p>
-     * 
+     *
      * @param document The document.
-     * @param keyword The keyword.
-     * @return
+     * @param keyword  The keyword.
      */
     public static Set<String> constructAllXPaths(Document document, String keyword) {
         return constructAllXPaths(document, keyword, false, false);
     }
 
-    public static Set<String> constructAllXPaths(Document document, String keyword, boolean deleteAllIndices,
-            boolean wordMatch) {
+    public static Set<String> constructAllXPaths(Document document, String keyword, boolean deleteAllIndices, boolean wordMatch) {
         Set<String> xpaths = new LinkedHashSet<>();
 
         if (document == null) {
             LOGGER.warn("document was null when constructing xpaths");
             return xpaths;
         }
-        // System.out.println("print the DOM from last child");
-        // printDOM(document.getLastChild(),"_");
-
-        // xpaths = visit(document.getLastChild(),0,keyword,xpaths);
-
-        // System.out.println(document.getFirstChild());
-
         try {
             xpaths = visit(document.getLastChild(), keyword, wordMatch, xpaths);
         } catch (StackOverflowError | Exception e) {
@@ -203,9 +179,7 @@ public final class PageAnalyzer {
      * Keep only xPaths that point to one of the specified elements. For example: [/HTML, /HTML/BODY/P] and [P] =>
      * [/HTML/BODY/P]
      * </p>
-     * 
-     * @param xPaths
-     * @param targetNodes
+     *
      * @return A set of xPaths that all point to one of the specified elements.
      */
     public static Set<String> keepXPathPointingTo(Set<String> xPaths, String[] targetNodes) {
@@ -232,12 +206,11 @@ public final class PageAnalyzer {
      * Find a single xPath that is generalized and works for many xPaths from the xPathSet. If several generalized
      * xPaths are found, take the one with the highest count.
      * </p>
-     * 
+     *
      * @param xPathSet A set of xPaths.
      * @return A string representing the mutual xPath.
      */
     public static String makeMutualXPath(Set<String> xPathSet) {
-
         if (xPathSet.isEmpty()) {
             return "";
         }
@@ -278,7 +251,7 @@ public final class PageAnalyzer {
             }
         }
 
-        LOGGER.debug("mutual={}, length={}, matches={}", mutualXPath,maxMatches,maxLength);
+        LOGGER.debug("mutual={}, length={}, matches={}", mutualXPath, maxMatches, maxLength);
 
         String[] pathArray = mutualXPath.split("/");
 
@@ -346,14 +319,13 @@ public final class PageAnalyzer {
      * <p>
      * Recursive visit all nodes and check for a given keyword and create add the xPath if found.
      * </p>
-     * 
-     * @param node The start node.
-     * @param keyword The keyword that needs to be found.
+     *
+     * @param node      The start node.
+     * @param keyword   The keyword that needs to be found.
      * @param wordMatch If true a whole word has to match the keyword.
-     * @param xpaths A set of xPath satisfying the conditions.
+     * @param xpaths    A set of xPath satisfying the conditions.
      */
-    private static Set<String> visit(Node node, String keyword, boolean wordMatch,
-            Set<String> xpaths) {
+    private static Set<String> visit(Node node, String keyword, boolean wordMatch, Set<String> xpaths) {
         // System.out.println(indent+node.getNodeName());
 
         try {
@@ -377,13 +349,11 @@ public final class PageAnalyzer {
                 // + child.getNodeValue());
 
                 String nodeValue = child.getNodeValue();
-                if (child.getTextContent().contains(keyword)
-                        || (nodeValue != null && child.getNodeType() != 8 && nodeValue.toLowerCase().contains(keyword.toLowerCase()))) {
+                if (child.getTextContent().contains(keyword) || (nodeValue != null && child.getNodeType() != 8 && nodeValue.toLowerCase().contains(keyword.toLowerCase()))) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch && nodeValue != null) {
-                        Pattern pattern = Pattern.compile("(?<![A-Za-z_])" + Pattern.quote(keyword) + "(?![A-Za-z_])",
-                                Pattern.CASE_INSENSITIVE);
+                        Pattern pattern = Pattern.compile("(?<![A-Za-z_])" + Pattern.quote(keyword) + "(?![A-Za-z_])", Pattern.CASE_INSENSITIVE);
                         Matcher m = pattern.matcher(nodeValue);
                         if (m.find()) {
                             String xpath = constructXPath(child);
@@ -413,7 +383,7 @@ public final class PageAnalyzer {
 
     /**
      * Construct a simple xPath from the root to the specified node.
-     * 
+     *
      * @param node The start node.
      * @return The string of the constructed xPath.
      */
@@ -438,8 +408,7 @@ public final class PageAnalyzer {
             // TODO allow th to have [] but change getNextSibling then!
             // TODO adding [1] also if no other elements exist could improve performance (XWI)
             String currentNode = node.getNodeName();
-            if ((node.getNextSibling() != null || psCount > 1) && !node.getNodeName().equalsIgnoreCase("html")
-                    && !node.getNodeName().equalsIgnoreCase("th")) {
+            if ((node.getNextSibling() != null || psCount > 1) && !node.getNodeName().equalsIgnoreCase("html") && !node.getNodeName().equalsIgnoreCase("th")) {
                 currentNode = node.getNodeName() + "[" + psCount + "]";
             }
             // System.out.println(node.getNodeName()+" "+node.getNodeType()+" "+node.getNodeValue());
@@ -459,7 +428,7 @@ public final class PageAnalyzer {
 
         // normalize (add tbody)
         // System.out.println("before normalization: "+xpath);
-        xpath = xpath.substring(9, xpath.length());
+        xpath = xpath.substring(9);
         // System.out.println("after normalization: "+xpath);
 
         String xplc = xpath.toLowerCase();
@@ -480,7 +449,7 @@ public final class PageAnalyzer {
      * Constructs an XPath with id and class attributes for the supplied {@link Node}, like
      * <code>/html/body/div#cnnContainer/div.cnn_maincntnr/div.cnn_contentarea</code>.
      * </p>
-     * 
+     *
      * @param node The start node, not <code>null</code>.
      * @return The string of the constructed XPath.
      */
@@ -522,7 +491,7 @@ public final class PageAnalyzer {
      * <p>
      * Create a string with id and class attribute for an XHTML node, like <code>#id5.class1.class2</code>.
      * </p>
-     * 
+     *
      * @param node The node for which to create id/class string, not <code>null</code>.
      * @return The id/class string.
      */
@@ -555,12 +524,12 @@ public final class PageAnalyzer {
 
     /**
      * Find out whether the node specified by the xPath is in a table (in a td cell).
-     * 
-     * @param xPath The xpath string pointing to the node.
+     *
+     * @param xPath    The xpath string pointing to the node.
      * @param lookBack How many parent nodes should be taken into account, e.g. with a lookBack of 3 the xpath
-     *            /div/table/tr/td/div/span/a/b is not considered
-     *            in a table because there is too much structure in the cell (more than 3 parents of the last node are
-     *            not table structures).
+     *                 /div/table/tr/td/div/span/a/b is not considered
+     *                 in a table because there is too much structure in the cell (more than 3 parents of the last node are
+     *                 not table structures).
      * @return True if given xpath points to a node in a table, else false.
      */
     public static boolean nodeInTable(String xPath, int lookBack) {
@@ -568,8 +537,8 @@ public final class PageAnalyzer {
         boolean inTable = false;
         String[] nodes = xPath.split("/");
         for (int nl = nodes.length, i = nl - 1; i > Math.max(0, nl - lookBack - 1); --i) {
-            if (nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0
-                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0) {
+            if (nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0 || nodes[i].toLowerCase().indexOf("th") == 0
+                    || nodes[i].toLowerCase().indexOf("xhtml:th") == 0) {
                 inTable = true;
                 break;
             }
@@ -580,7 +549,7 @@ public final class PageAnalyzer {
     /**
      * Get the xPath to the table cell where the given xPath is pointing to. e.g. /div/p/table/tr/td/a[5]/b =>
      * /div/p/table/tr/td
-     * 
+     *
      * @param xPath The xPath.
      * @return The string representation of an xPath.
      */
@@ -590,8 +559,8 @@ public final class PageAnalyzer {
         int index = nodes.length;
         for (int nl = nodes.length, i = nl - 1; i > 0; --i) {
             // System.out.println(i+" "+index+" "+nodes.length+" "+nodes[i]);
-            if (nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0
-                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0) {
+            if (nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0 || nodes[i].toLowerCase().indexOf("th") == 0
+                    || nodes[i].toLowerCase().indexOf("xhtml:th") == 0) {
                 index = i + 1;
                 break;
             }
@@ -608,7 +577,7 @@ public final class PageAnalyzer {
 
     /**
      * Get the name of the node the given xPath is pointing to. e.g. /html/body/div/table[5]/tr/td[3]/p/a[4] => a
-     * 
+     *
      * @param xpath The xPath.
      * @return The string representation of an xPath.
      */
@@ -626,8 +595,8 @@ public final class PageAnalyzer {
 
     /**
      * Check whether a node is in a box. A box is the "p" and the "div" tag.
-     * 
-     * @param xPath The xPath.
+     *
+     * @param xPath    The xPath.
      * @param lookBack How many parent nodes should be considered.
      * @return True if the specified xPath is in a box, else false.
      */
@@ -636,8 +605,8 @@ public final class PageAnalyzer {
         boolean inBox = false;
         String[] nodes = xPath.split("/");
         for (int nl = nodes.length, i = nl - 1; i > Math.max(0, nl - lookBack - 1); --i) {
-            if (nodes[i].toLowerCase().indexOf("p") == 0 || nodes[i].toLowerCase().indexOf("xhtml:p") == 0
-                    || nodes[i].toLowerCase().indexOf("div") == 0 || nodes[i].toLowerCase().indexOf("xhtml:div") == 0) {
+            if (nodes[i].toLowerCase().indexOf("p") == 0 || nodes[i].toLowerCase().indexOf("xhtml:p") == 0 || nodes[i].toLowerCase().indexOf("div") == 0
+                    || nodes[i].toLowerCase().indexOf("xhtml:div") == 0) {
                 inBox = true;
                 break;
             }
@@ -649,7 +618,7 @@ public final class PageAnalyzer {
      * Find the last box section ("p", "div", "hX", "td" or "th") of the given xPath. This is helpful as a certain term might
      * be in a too deep structure and searched
      * elements are around it. e.g. /table/tr/td/div[4]/span/b/a => /table/tr/td/div[4]
-     * 
+     *
      * @param xPath The xPath.
      * @return The potentially shortened xPath if found, else the input xPath.
      */
@@ -659,17 +628,14 @@ public final class PageAnalyzer {
         int index = nodes.length;
         for (int nl = nodes.length, i = nl - 1; i > 0; --i) {
             // System.out.println(i+" "+index+" "+nodes.length+" "+nodes[i]);
-            if (nodes[i].toLowerCase().indexOf("p") == 0 || nodes[i].toLowerCase().indexOf("xhtml:p") == 0
-                    || nodes[i].toLowerCase().indexOf("div") == 0 || nodes[i].toLowerCase().indexOf("xhtml:div") == 0
-                    || nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0
-                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0
-                    || nodes[i].toLowerCase().indexOf("li") == 0 || nodes[i].toLowerCase().indexOf("xhtml:li") == 0
-                    || nodes[i].toLowerCase().indexOf("h1") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h1") == 0
-                    || nodes[i].toLowerCase().indexOf("h2") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h2") == 0
-                    || nodes[i].toLowerCase().indexOf("h3") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h3") == 0
-                    || nodes[i].toLowerCase().indexOf("h4") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h4") == 0
-                    || nodes[i].toLowerCase().indexOf("h5") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h5") == 0
-                    || nodes[i].toLowerCase().indexOf("h6") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h6") == 0) {
+            if (nodes[i].toLowerCase().indexOf("p") == 0 || nodes[i].toLowerCase().indexOf("xhtml:p") == 0 || nodes[i].toLowerCase().indexOf("div") == 0
+                    || nodes[i].toLowerCase().indexOf("xhtml:div") == 0 || nodes[i].toLowerCase().indexOf("td") == 0 || nodes[i].toLowerCase().indexOf("xhtml:td") == 0
+                    || nodes[i].toLowerCase().indexOf("th") == 0 || nodes[i].toLowerCase().indexOf("xhtml:th") == 0 || nodes[i].toLowerCase().indexOf("li") == 0
+                    || nodes[i].toLowerCase().indexOf("xhtml:li") == 0 || nodes[i].toLowerCase().indexOf("h1") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h1") == 0
+                    || nodes[i].toLowerCase().indexOf("h2") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h2") == 0 || nodes[i].toLowerCase().indexOf("h3") == 0
+                    || nodes[i].toLowerCase().indexOf("xhtml:h3") == 0 || nodes[i].toLowerCase().indexOf("h4") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h4") == 0
+                    || nodes[i].toLowerCase().indexOf("h5") == 0 || nodes[i].toLowerCase().indexOf("xhtml:h5") == 0 || nodes[i].toLowerCase().indexOf("h6") == 0
+                    || nodes[i].toLowerCase().indexOf("xhtml:h6") == 0) {
                 index = i + 1;
                 break;
             }
@@ -698,8 +664,8 @@ public final class PageAnalyzer {
      * /div/p/table[4]/tr[6]/td[2]/div[4] (compare with above) /div/p/table[4]/tr[6]/th/div[4] =>
      * /div/p/table[4]/tr[6]/td[1]/div[4] TODO sometimes a spacer
      * cell is between attribute and value: http://www.smartone-vodafone.com/jsp/phone/english/detail_v3.jsp?id=662
-     * 
-     * @param xPath The xPath
+     *
+     * @param xPath            The xPath
      * @param tableCellSibling If true, only siblings of table cells (td,th) are searched.
      * @return The xpath pointing to the sibling.
      */
@@ -723,14 +689,12 @@ public final class PageAnalyzer {
 
         if (tdIndex > lastClosingBrackets && tdIndex > thIndex) {
             String firstPart = xPath.substring(0, tdIndex);
-            String lastPart = xPath.substring(tdIndex).replace("/td", "/td[1]").replace("/TD", "/TD[1]")
-                    .replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
+            String lastPart = xPath.substring(tdIndex).replace("/td", "/td[1]").replace("/TD", "/TD[1]").replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
             xPath = firstPart + lastPart;
             return xPath;
         } else if (thIndex > lastClosingBrackets && thIndex > tdIndex) {
             String firstPart = xPath.substring(0, thIndex);
-            String lastPart = xPath.substring(thIndex).replace("/th", "/td[1]").replace("/TH", "/TD[1]")
-                    .replace("/xhtml:th", "/xhtml:td[1]").replace("/xhtml:TH", "/xhtml:TD[1]");
+            String lastPart = xPath.substring(thIndex).replace("/th", "/td[1]").replace("/TH", "/TD[1]").replace("/xhtml:th", "/xhtml:td[1]").replace("/xhtml:TH", "/xhtml:TD[1]");
             xPath = firstPart + lastPart;
             return xPath;
         }
@@ -742,8 +706,7 @@ public final class PageAnalyzer {
 
         // update counter and return the updated xpath (no th was found after the last brackets)
         int currentIndex = Integer.parseInt(xPath.substring(lastOpeningBrackets + 1, lastClosingBrackets));
-        return xPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(++currentIndex)
-                + xPath.substring(lastClosingBrackets);
+        return xPath.substring(0, lastOpeningBrackets + 1) + ++currentIndex + xPath.substring(lastClosingBrackets);
     }
 
     public static String getNextTableCell(String xPath) {
@@ -753,7 +716,7 @@ public final class PageAnalyzer {
     /**
      * Point xPath to first table cell. For example: //TABLE/TR/TD => //TABLE/TR/TD[1] //TABLE/TR/TD[1] =>
      * //TABLE/TR/TD[1] //TABLE/TR/TH => //TABLE/TR/TH
-     * 
+     *
      * @param xPath The xPath.
      * @return The xPath pointing to the first table cell of the deepest table.
      */
@@ -770,8 +733,7 @@ public final class PageAnalyzer {
 
         if (tdIndex > lastClosingBrackets && tdIndex > thIndex) {
             String firstPart = xPath.substring(0, tdIndex);
-            String lastPart = xPath.substring(tdIndex).replace("/td", "/td[1]").replace("/TD", "/TD[1]")
-                    .replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
+            String lastPart = xPath.substring(tdIndex).replace("/td", "/td[1]").replace("/TD", "/TD[1]").replace("/xhtml:td", "/xhtml:td[1]").replace("/xhtml:TD", "/xhtml:TD[1]");
             xPath = firstPart + lastPart;
             return xPath;
         }
@@ -781,7 +743,7 @@ public final class PageAnalyzer {
 
     /**
      * Get number of table rows.
-     * 
+     *
      * @param attributeXPath This path should point to one attribute cell.
      * @return The number of table rows.
      */
@@ -791,7 +753,7 @@ public final class PageAnalyzer {
 
     /**
      * Get rows of a table.
-     * 
+     *
      * @param attributeXPath This path should point to one attribute cell.
      * @return An array of table row xPaths.
      */
@@ -801,10 +763,10 @@ public final class PageAnalyzer {
 
     /**
      * Get rows of a table.
-     * 
-     * @param document The document.
+     *
+     * @param document       The document.
      * @param attributeXPath This path should point to one attribute cell.
-     * @param siblingXPath This path should point to the fact value cell of the attribute.
+     * @param siblingXPath   This path should point to the fact value cell of the attribute.
      * @return An array of table row xPaths.
      */
     public static List<String[]> getTableRows(Document document, String attributeXPath, String siblingXPath) {
@@ -846,10 +808,8 @@ public final class PageAnalyzer {
         // create xPaths for each row
         for (int i = 1; i <= rowCount; i++) {
             String[] rowXPaths = new String[2];
-            rowXPaths[0] = attributeXPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(i)
-                    + attributeXPath.substring(lastClosingBrackets);
-            rowXPaths[1] = siblingXPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(i)
-                    + siblingXPath.substring(lastClosingBrackets);
+            rowXPaths[0] = attributeXPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(i) + attributeXPath.substring(lastClosingBrackets);
+            rowXPaths[1] = siblingXPath.substring(0, lastOpeningBrackets + 1) + String.valueOf(i) + siblingXPath.substring(lastClosingBrackets);
 
             tableRowsXPaths.add(rowXPaths);
         }
@@ -860,12 +820,10 @@ public final class PageAnalyzer {
     /**
      * Find the next table row for a given xPath. For example: //TABLE/TR[1]/TD[2] => //TABLE/TR[2]/TD[2]
      * //TABLE/TR/TD[2] => //TABLE/TR[1]/TD[2]
-     * 
+     *
      * @param xPath
-     * @return
      */
     public static String getNextTableRow(String xPath) {
-
         int trIndex = xPath.toLowerCase().lastIndexOf("tr");
 
         if (trIndex == -1) {
@@ -873,10 +831,9 @@ public final class PageAnalyzer {
         }
 
         // check whether tr has index already
-        if (xPath.substring(trIndex + 2, trIndex + 3).equals("[")) {
+        if (xPath.charAt(trIndex + 2) == '[') {
             int currentIndex = Integer.parseInt(xPath.substring(trIndex + 3, xPath.indexOf("]", trIndex + 3)));
-            xPath = xPath.substring(0, trIndex + 3) + String.valueOf(currentIndex + 1)
-                    + xPath.substring(xPath.indexOf("]", trIndex + 3));
+            xPath = xPath.substring(0, trIndex + 3) + String.valueOf(currentIndex + 1) + xPath.substring(xPath.indexOf("]", trIndex + 3));
             return xPath;
         } else {
             xPath = xPath.substring(0, trIndex + 2) + "[1]" + xPath.substring(trIndex + 2);
@@ -887,7 +844,7 @@ public final class PageAnalyzer {
 
     /**
      * Move one tag up in the DOM, e.g. /div/span/a => /div/span.
-     * 
+     *
      * @param xPath The xPath.
      * @return The parent node.
      */
@@ -897,13 +854,13 @@ public final class PageAnalyzer {
 
     /**
      * Count the number of columns in a table.
-     * 
-     * @param document The document.
+     *
+     * @param document     The document.
      * @param tableTDXPath The xPath to the table data tag.
      * @return The number of columns.
      */
     public static int getNumberOfTableColumns(Document document, String tableTDXPath) {
-        int numberOfColumns = 0;
+        int numberOfColumns;
 
         String t = getParentNode(getTableCellPath(tableTDXPath));
         List<Node> nodeList = XPathHelper.getXhtmlNodes(document, t);
@@ -1025,8 +982,7 @@ public final class PageAnalyzer {
         return sb.toString();
     }
 
-    private static StringBuilder getSeparatedTextContents(Node node, StringBuilder currentString)
-            throws OutOfMemoryError {
+    private static StringBuilder getSeparatedTextContents(Node node, StringBuilder currentString) throws OutOfMemoryError {
         Node child = node.getFirstChild();
 
         int maximumTags = 50;
@@ -1060,59 +1016,11 @@ public final class PageAnalyzer {
         return currentString;
     }
 
-    // private StringBuilder getChildHTMLContents(Node node, StringBuilder currentString) {
-    // Node child = node.getFirstChild();
-    //
-    // int maximumTags = 50;
-    // int tagCount = 0;
-    // while (child != null && tagCount < maximumTags) {
-    // // System.out.println(child.getNodeType() + " " + child.getNodeName());
-    // // do not consider comment nodes (type 8)
-    // if (child.getNodeType() == 3 || child.getNodeType() == 1) {
-    // if (child.getNodeValue() != null && child.getNodeName().startsWith("#")) {
-    // if (!child.getNodeName().startsWith("#")) {
-    // currentString.append("<");
-    // currentString.append(child.getNodeName());
-    // currentString.append(">");
-    // currentString.append(child.getNodeValue());
-    // currentString.append("</");
-    // currentString.append(child.getNodeName());
-    // currentString.append(">");
-    // } else {
-    // currentString.append(child.getNodeValue());
-    // }
-    // } else {
-    //
-    // currentString.append("<").append(child.getNodeName()).append(" ");
-    //
-    // // add attributes
-    // NamedNodeMap nnm = child.getAttributes();
-    // for (int i = 0; i < nnm.getLength(); i++) {
-    // Node attributeNode = nnm.item(i);
-    // currentString.append(attributeNode.getNodeName());
-    // currentString.append("=\"");
-    // currentString.append(attributeNode.getTextContent()).append("\" ");
-    // }
-    //
-    // currentString.append("/>");
-    // }
-    // }
-    //
-    // currentString = getChildHTMLContents(child, currentString);
-    // child = child.getNextSibling();
-    // tagCount++;
-    // }
-    //
-    // // if (currentString.endsWith(", ")) currentString = currentString.substring(0,currentString.length()-2);
-    //
-    // return currentString;
-    // }
-
     /**
      * If an xPath points to several (sibling) nodes, get the text of each node and add it to a list.
-     * 
+     *
      * @param document The document.
-     * @param xPath The xPath.
+     * @param xPath    The xPath.
      * @return A list of contents from the nodes that were targeted with the xPath.
      */
     // @SuppressWarnings("unchecked")
@@ -1123,34 +1031,6 @@ public final class PageAnalyzer {
         if (document == null) {
             return texts;
         }
-
-        // try {
-        // // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
-        // // evaluation results)
-        // xpath = XPathHelper.addXhtmlNsToXPath(document, xpath);
-        //
-        // // xpath = xpath.replaceAll("/xhtml:TBODY", "/");
-        //
-        // // TODO no attribute xpath working "/@href"
-        // DOMXPath xpathObj = new DOMXPath(xpath);
-        // xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-        //
-        // List<Node> results = xpathObj.selectNodes(document.getLastChild());
-        //
-        // Iterator<Node> nodeIterator = results.iterator();
-        // while (nodeIterator.hasNext()) {
-        // // get all text nodes
-        // Node node = nodeIterator.next();
-        // texts.add(node.getTextContent());
-        // }
-        //
-        // } catch (JaxenException e) {
-        // Logger.getRootLogger().error(xpath, e);
-        // } catch (DOMException e) {
-        // Logger.getRootLogger().error(xpath, e);
-        // } catch (Exception e) {
-        // Logger.getRootLogger().error(xpath, e);
-        // }
 
         List<Node> nodes = XPathHelper.getXhtmlNodes(document, xPath);
         for (Node node : nodes) {
@@ -1164,7 +1044,6 @@ public final class PageAnalyzer {
     // http://www.cineplex.com/Movies/AllMovies.aspx?sort=2,
     // http://www.expansys.com/n.aspx?c=169)
     public static String getSiblingPage(Document document) {
-
         String siblingURL = "";
         String domain = UrlHelper.getDomain(document.getDocumentURI(), true);
 
@@ -1186,9 +1065,6 @@ public final class PageAnalyzer {
 
         // get all links
         List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
-        if (linkNodes == null) {
-            return siblingURL;
-        }
         for (int i = 0; i < linkNodes.size(); i++) {
             String currentLink = linkNodes.get(i).getTextContent();
             currentLink = currentLink.trim();
@@ -1211,14 +1087,6 @@ public final class PageAnalyzer {
             // file ending must be the same
             int lastPointIndex = url.lastIndexOf(".");
             int fileEndingEndIndex = url.length();
-            if (lastPointIndex > domain.length()) {
-                if (url.substring(lastPointIndex + 1).contains("?")) {
-                    fileEndingEndIndex = lastPointIndex + 1 + url.substring(lastPointIndex + 1).indexOf("?");
-                }
-                // String fileEndingURL = url.substring(lastPointIndex + 1, fileEndingEndIndex);
-                // if (!fileEndingURL.equalsIgnoreCase(fileEndingLink) &&
-                // fileEndingURL.length() < 6) continue;
-            }
 
             lastPointIndex = currentLink.lastIndexOf(".");
             if (lastPointIndex > domain.length()) {
@@ -1227,9 +1095,8 @@ public final class PageAnalyzer {
                     fileEndingEndIndex = lastPointIndex + 1 + currentLink.substring(lastPointIndex + 1).indexOf("?");
                 }
                 String fileEndingLink = currentLink.substring(lastPointIndex + 1, fileEndingEndIndex);
-                if (fileEndingLink.equalsIgnoreCase("css") || fileEndingLink.equalsIgnoreCase("js")
-                        || fileEndingLink.equalsIgnoreCase("xml") || fileEndingLink.equalsIgnoreCase("ico")
-                        || fileEndingLink.equalsIgnoreCase("rss")) {
+                if (fileEndingLink.equalsIgnoreCase("css") || fileEndingLink.equalsIgnoreCase("js") || fileEndingLink.equalsIgnoreCase("xml") || fileEndingLink.equalsIgnoreCase(
+                        "ico") || fileEndingLink.equalsIgnoreCase("rss")) {
                     continue;
                 }
             }
@@ -1299,9 +1166,10 @@ public final class PageAnalyzer {
 
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
-            if (metaNode.getAttributes().getNamedItem("name") != null
-                    && metaNode.getAttributes().getNamedItem("content") != null
-                    && metaNode.getAttributes().getNamedItem("name").getTextContent().equalsIgnoreCase("description")) {
+            if (metaNode.getAttributes().getNamedItem("name") != null && metaNode.getAttributes().getNamedItem("content") != null && metaNode.getAttributes()
+                    .getNamedItem("name")
+                    .getTextContent()
+                    .equalsIgnoreCase("description")) {
                 String description = metaNode.getAttributes().getNamedItem("content").getTextContent();
                 String[] keywordArray = description.split("\\s");
                 for (String string : keywordArray) {
@@ -1323,7 +1191,7 @@ public final class PageAnalyzer {
      * For easier use, all attribute names (key in the map) will be lowercased. The content will not be processed by any
      * means.
      * </p>
-     * 
+     *
      * @param webPage The web page to process.
      * @return A map of name-content pairs that were found in the meta tags of the given web page.
      */
@@ -1332,8 +1200,7 @@ public final class PageAnalyzer {
 
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
-            if (metaNode.getAttributes().getNamedItem("name") != null
-                    && metaNode.getAttributes().getNamedItem("content") != null) {
+            if (metaNode.getAttributes().getNamedItem("name") != null && metaNode.getAttributes().getNamedItem("content") != null) {
 
                 String name = metaNode.getAttributes().getNamedItem("name").getTextContent();
                 String content = metaNode.getAttributes().getNamedItem("content").getTextContent();
@@ -1352,8 +1219,7 @@ public final class PageAnalyzer {
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(webPage, "//meta");
         for (Node metaNode : metaNodes) {
             NamedNodeMap attrs = metaNode.getAttributes();
-            if (attrs.getNamedItem("name") != null && attrs.getNamedItem("content") != null
-                    && attrs.getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
+            if (attrs.getNamedItem("name") != null && attrs.getNamedItem("content") != null && attrs.getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
                 String keywordString = attrs.getNamedItem("content").getTextContent();
                 String[] keywordArray = keywordString.split(",");
                 for (String keyword : keywordArray) {
@@ -1372,7 +1238,7 @@ public final class PageAnalyzer {
 
     /**
      * For example: /html/div/p[3]/small => /html/div/p/small
-     * 
+     *
      * @param xPath
      * @return
      */
