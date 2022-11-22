@@ -27,6 +27,7 @@ public enum UnitType {
     VOLUME("cm³"), //
     POWER_RATIO("dB"), //
     WEIGHT("g"), //
+    FORCE("N"), //
     SPEED("km/h"), //
     TEMPERATURE(null), //
     PRESSURE("pascal"), //
@@ -115,6 +116,31 @@ public enum UnitType {
         unitList.add("gbps");
         unitList.add("gBit/s");
         UnitType.BANDWIDTH.units.add(Pair.of(unitList, 1000000000.0));
+
+        // FORCE units are normalized to 1 Newton
+        unitList = new ArrayList<>();
+        unitList.add("N");
+        unitList.add("kg m/s^2");
+        unitList.add("kg m/s²");
+        unitList.add("newton");
+        unitList.add("newtons");
+        UnitType.FORCE.units.add(Pair.of(unitList, 1.0));
+
+        unitList = new ArrayList<>();
+        unitList.add("kp");
+        UnitType.FORCE.units.add(Pair.of(unitList, 9.80665));
+
+        unitList = new ArrayList<>();
+        unitList.add("dyn");
+        UnitType.FORCE.units.add(Pair.of(unitList, 0.00005));
+
+        unitList = new ArrayList<>();
+        unitList.add("lbf");
+        UnitType.FORCE.units.add(Pair.of(unitList, 4.448222));
+
+        unitList = new ArrayList<>();
+        unitList.add("pdl");
+        UnitType.FORCE.units.add(Pair.of(unitList, 0.138255));
 
         // POWER units are normalized to 1 Watt
         unitList = new ArrayList<>();

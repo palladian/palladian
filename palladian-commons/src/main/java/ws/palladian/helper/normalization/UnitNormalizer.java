@@ -43,6 +43,10 @@ public class UnitNormalizer {
         }
     }
 
+    private static boolean isForceUnit(String unit) {
+        return UnitType.FORCE.contains(unit);
+    }
+
     private static boolean isBandwidthUnit(String unit) {
         return UnitType.BANDWIDTH.contains(unit);
     }
@@ -223,6 +227,9 @@ public class UnitNormalizer {
         if (isFlowRateUnit(unit)) {
             return UnitType.FLOW_RATE.getUnitNames();
         }
+        if (isForceUnit(unit)) {
+            return UnitType.FORCE.getUnitNames();
+        }
 
         return new HashSet<>();
     }
@@ -325,6 +332,11 @@ public class UnitNormalizer {
 
         // temperature
         if (isTemperatureUnit(unit1) && isTemperatureUnit(unit2)) {
+            return true;
+        }
+
+        // force
+        if (isForceUnit(unit1) && isForceUnit(unit2)) {
             return true;
         }
 
