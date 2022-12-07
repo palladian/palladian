@@ -115,6 +115,10 @@ public class UnitNormalizer {
         return UnitType.TORQUE.contains(unit);
     }
 
+    private static boolean isSpeedUnit(String unit) {
+        return UnitType.SPEED.contains(unit);
+    }
+
     private static boolean isPressureUnit(String unit) {
         return UnitType.PRESSURE.contains(unit);
     }
@@ -230,6 +234,9 @@ public class UnitNormalizer {
         if (isForceUnit(unit)) {
             return UnitType.FORCE.getUnitNames();
         }
+        if (isSpeedUnit(unit)) {
+            return UnitType.SPEED.getUnitNames();
+        }
 
         return new HashSet<>();
     }
@@ -335,8 +342,18 @@ public class UnitNormalizer {
             return true;
         }
 
+        // torque
+        if (isTorqueUnit(unit1) && isTorqueUnit(unit2)) {
+            return true;
+        }
+
         // force
         if (isForceUnit(unit1) && isForceUnit(unit2)) {
+            return true;
+        }
+
+        // speed
+        if (isSpeedUnit(unit1) && isSpeedUnit(unit2)) {
             return true;
         }
 
@@ -626,6 +643,15 @@ public class UnitNormalizer {
             }
             if (isFlowRateUnit(word)) {
                 unitType = UnitType.FLOW_RATE;
+            }
+            if (isForceUnit(word)) {
+                unitType = UnitType.FORCE;
+            }
+            if (isTorqueUnit(word)) {
+                unitType = UnitType.TORQUE;
+            }
+            if (isSpeedUnit(word)) {
+                unitType = UnitType.SPEED;
             }
             if (unitType != UnitType.NONE) {
                 break; // we found a unit

@@ -758,6 +758,8 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("liters");
         unitList.add("liter");
+        unitList.add("litres");
+        unitList.add("litre");
         unitList.add("ltrs");
         unitList.add("l");
         unitList.add("cubic decimeter");
