@@ -747,6 +747,8 @@ public enum UnitType {
         // VOLUME units are normalized to milliliter
         unitList = new ArrayList<>();
         unitList.add("m³");
+        unitList.add("m3");
+        unitList.add("cubic meter");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1000000.));
 
         unitList = new ArrayList<>();
@@ -754,6 +756,14 @@ public enum UnitType {
         unitList.add("gallon");
         unitList.add("gal");
         UnitType.VOLUME.units.add(Pair.of(unitList, 3785.41));
+
+        unitList = new ArrayList<>();
+        unitList.add("ft³");
+        unitList.add("ft3");
+        unitList.add("cubic feet");
+        unitList.add("cubic foot");
+        unitList.add("cu ft");
+        UnitType.VOLUME.units.add(Pair.of(unitList, 28316.8));
 
         unitList = new ArrayList<>();
         unitList.add("liters");
