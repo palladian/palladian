@@ -1,16 +1,10 @@
 package ws.palladian.extraction.sentence;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableToken;
+import ws.palladian.core.Tagger;
 import ws.palladian.core.Token;
 import ws.palladian.extraction.entity.BracketTagger;
 import ws.palladian.extraction.entity.DateAndTimeTagger;
@@ -23,10 +17,17 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Palladian's sentence detector. Sentences are detected using regular expressions and by recognizing URLs, Emoticons
  * and Dates thus avoiding to break at those positions.
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
@@ -39,7 +40,7 @@ public final class PalladianSentenceDetector implements SentenceDetector {
     private static final Pattern PATTERN_DE = Pattern.compile(Tokenizer.SENTENCE_SPLIT_REGEX_DE);
 
     /** All date formats which include dots. */
-    private static final DateFormat[] DATES_WITH_DOTS = new DateFormat[] {RegExp.DATE_EU_D_MM, //
+    private static final DateFormat[] DATES_WITH_DOTS = new DateFormat[]{RegExp.DATE_EU_D_MM, //
             RegExp.DATE_EU_D_MM_Y, //
             RegExp.DATE_EU_D_MM_Y_T, //
             RegExp.DATE_EU_D_MMMM, //
@@ -62,19 +63,27 @@ public final class PalladianSentenceDetector implements SentenceDetector {
     /** The language to use for sentence splitting. */
     private final Language language;
 
+    /** The taggers to use for masking. Date masking is very expensive and might not always be needed. */
+    private final List<Tagger> maskingTaggers;
+
     public PalladianSentenceDetector(Language language) {
+        this(language, Arrays.asList(UrlTagger.INSTANCE, DATE_TAGGER, SmileyTagger.INSTANCE, BracketTagger.INSTANCE));
+    }
+
+    public PalladianSentenceDetector(Language language, List<Tagger> maskingTaggers) {
         Validate.notNull(language, "language must not be null");
         this.language = language;
+        this.maskingTaggers = maskingTaggers;
     }
 
     @Override
     public Iterator<Token> iterateTokens(String text) {
         // recognize URLs, dates and smileys, so we don't break them
         List<Annotation> maskAnnotations = new ArrayList<>(1);
-        maskAnnotations.addAll(UrlTagger.INSTANCE.getAnnotations(text));
-        maskAnnotations.addAll(DATE_TAGGER.getAnnotations(text));
-        maskAnnotations.addAll(SmileyTagger.INSTANCE.getAnnotations(text));
-        maskAnnotations.addAll(BracketTagger.INSTANCE.getAnnotations(text));
+
+        for (Tagger maskingTagger : maskingTaggers) {
+            maskAnnotations.addAll(maskingTagger.getAnnotations(text));
+        }
 
         // replace recognized entities with mask placeholder
         StringBuilder maskedTextBuilder = new StringBuilder(text);

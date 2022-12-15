@@ -1,5 +1,15 @@
 package ws.palladian.helper.date;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.functional.Factories;
+import ws.palladian.helper.nlp.StringHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,17 +17,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.constants.DateFormat;
-import ws.palladian.helper.constants.RegExp;
-import ws.palladian.helper.functional.Factories;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -28,7 +27,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * a {@link DateFormat} as specified in {@link RegExp}. All find methods operate on texts, this means, that the date to
  * be parsed may be surrounded with other text.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
@@ -48,7 +47,7 @@ public final class DateParser {
      * <p>
      * Parse a date by trying to match all known date formats, as specified by {@link RegExp#ALL_DATE_FORMATS}.
      * </p>
-     * 
+     *
      * @param date The string with the date to be parsed, not <code>null</code>.
      * @return The {@link ExtractedDate}, nor <code>null</code> if no date could be parsed.
      */
@@ -71,8 +70,8 @@ public final class DateParser {
      * <p>
      * Parse a date given a specific format.
      * </p>
-     * 
-     * @param date The string with the date to be parsed, not <code>null</code>.
+     *
+     * @param date   The string with the date to be parsed, not <code>null</code>.
      * @param format The format describing the date to be parsed, not <code>null</code>.
      * @return The {@link ExtractedDate}.
      */
@@ -86,8 +85,7 @@ public final class DateParser {
             parseLogic.setTimeZone(timeZone);
             parseLogic.parse();
         } catch (Exception e) {
-            LOGGER.error("Exception while parsing date string \"{}\" with format \"{}\": {}", new Object[] {date,
-                    format, e.getMessage()});
+            LOGGER.error("Exception while parsing date string \"{}\" with format \"{}\": {}", new Object[]{date, format, e.getMessage()});
             // TODO what to do in this case; return null? For now I just return the ExtractedDate which is incorrect,
             // but we avoid NPEs for now.
             LOGGER.debug("Stack trace", e);
@@ -100,7 +98,7 @@ public final class DateParser {
      * Try to parse a date from a text by trying to match all known date formats, as specified by
      * {@link RegExp#ALL_DATE_FORMATS}.
      * </p>
-     * 
+     *
      * @param text The text to check for a date, not <code>null</code>.
      * @return The {@link ExtractedDate}, or <code>null</code> if the specified text contained no matching date.
      */
@@ -112,11 +110,11 @@ public final class DateParser {
      * <p>
      * Try to parse a date from a text by trying the specified date formats.
      * </p>
-     * 
-     * @param text The string with the date to be parsed, not <code>null</code>.
+     *
+     * @param text    The string with the date to be parsed, not <code>null</code>.
      * @param formats An array of formats to try for parsing, not <code>null</code>.
      * @return The {@link ExtractedDate}, or <code>null</code> if the specified string could not be matched by the given
-     *         {@link DateFormat}s.
+     * {@link DateFormat}s.
      */
     public static ExtractedDate findDate(String text, DateFormat... formats) {
         for (DateFormat format : formats) {
@@ -134,11 +132,11 @@ public final class DateParser {
      * <p>
      * Try to parse a date from a text be trying the specified date format.
      * </p>
-     * 
+     *
      * @param string The text to check for a date, not <code>null</code>.
      * @param format The format to try for parsing, not <code>null</code>.
      * @return The {@link ExtractedDate} if found, or <code>null</code> if the specified text did not contain a date
-     *         matched by the given {@link DateFormat}.
+     * matched by the given {@link DateFormat}.
      */
     public static ExtractedDate findDate(String text, DateFormat format) {
         // text = StringHelper.removeDoubleWhitespaces(text);
@@ -174,10 +172,10 @@ public final class DateParser {
      * Find all dates in a text by trying to match all {@link DateFormat}s as defined in {@link RegExp#ALL_DATE_FORMATS}
      * .
      * </p>
-     * 
+     *
      * @param text The text to check for dates, not <code>null</code>.
      * @return A {@link List} of extracted dates which were found in the text, or an empty List if no dates were found,
-     *         never <code>null</code>.
+     * never <code>null</code>.
      */
     public static List<ExtractedDate> findDates(String text) {
         return findDates(text, RegExp.ALL_DATE_FORMATS);
@@ -187,11 +185,11 @@ public final class DateParser {
      * <p>
      * Find all dates in a text by trying the given {@link DateFormat}s.
      * </p>
-     * 
-     * @param text The text to check for dates, not <code>null</code>.
+     *
+     * @param text    The text to check for dates, not <code>null</code>.
      * @param formats A list of formats to try for parsing, not <code>null</code>.
      * @return A {@link List} of extracted dates which were found in the text, or an empty List if no dates were found,
-     *         never <code>null</code>.
+     * never <code>null</code>.
      */
     public static List<ExtractedDate> findDates(String text, DateFormat... formats) {
         List<ExtractedDate> result = new ArrayList<>();
@@ -211,11 +209,11 @@ public final class DateParser {
      * <p>
      * Find all dates in a text matching the given {@link DateFormat}.
      * </p>
-     * 
-     * @param text The text to check for dates, not <code>null</code>.
+     *
+     * @param text   The text to check for dates, not <code>null</code>.
      * @param format The format to try for parsing, not <code>null</code>.
      * @return A {@link List} of extracted dates which were found in the text, or an empty List if no dates were found,
-     *         never <code>null</code>.
+     * never <code>null</code>.
      */
     public static List<ExtractedDate> findDates(String text, DateFormat format) {
         StopWatch stopWatch = new StopWatch();
@@ -243,9 +241,7 @@ public final class DateParser {
             }
             if (!digitNeighbor) {
                 ExtractedDate extractedDate = parseDate(matcher.group(), format);
-                if (extractedDate != null) {
-                    result.add(extractedDate);
-                }
+                result.add(extractedDate);
             }
         }
         addToHallOfShame(format, stopWatch);
@@ -293,10 +289,10 @@ public final class DateParser {
      * Try to parse a date from text with relatives dates (e.g. <code>1 day ago</code>, ...). Month and year values are
      * rounded values, i.e. the calendar properties are not considered.
      * </p>
-     * 
+     *
      * @param string The text to check for a date, not <code>null</code>.
      * @return The {@link ExtractedDate} if found, or <code>null</code> if the specified text did not contain a relative
-     *         date.
+     * date.
      */
     public static ExtractedDate findRelativeDate(String text) {
         return findRelativeDate(text, System.currentTimeMillis());
