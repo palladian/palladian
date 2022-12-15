@@ -41,9 +41,9 @@ public class PalladianSpellChecker {
     private static final Collection<String> EMPTY_SET = new HashSet<>();
 
     /**
-     * Support for correcting German compounds.
+     * Support for correcting German compounds. The number of words to allow in a compound.
      */
-    private boolean germanCompoundSupport = false;
+    private int germanCompoundSupport = 0;
 
     /**
      * The longer the words, the longer it takes to create the variations (edits). This is the maxium word length we
@@ -483,19 +483,21 @@ public class PalladianSpellChecker {
             if (candidates.keySet().isEmpty() || Collections.max(candidates.keySet()) < germanCompoundStopCount) {
                 compoundCorrect = true;
                 List<String> strings = WordTransformer.splitGermanCompoundWords(word);
-                for (String string : strings) {
-                    if (string.length() < 2) {
-                        compoundCorrect = false;
-                        break;
-                    }
-                    if (getWordCount(string) == 0) {
-                        String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
-                        // if (words.get(key) == null && strings.size() > 1) {
-                        // key = autoCorrect(key, true);
-                        // }
-                        if (getWordCount(key) == 0) {
+                if (strings.size() <= getGermanCompoundWordNumber()) {
+                    for (String string : strings) {
+                        if (string.length() < 2) {
                             compoundCorrect = false;
                             break;
+                        }
+                        if (getWordCount(string) == 0) {
+                            String key = WordTransformer.wordToSingularGermanCaseSensitive(string);
+                            // if (words.get(key) == null && strings.size() > 1) {
+                            // key = autoCorrect(key, true);
+                            // }
+                            if (getWordCount(key) == 0) {
+                                compoundCorrect = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -546,11 +548,13 @@ public class PalladianSpellChecker {
     }
 
     public boolean isGermanCompoundSupport() {
+        return germanCompoundSupport > 0;
+    }
+    public int getGermanCompoundWordNumber() {
         return germanCompoundSupport;
     }
-
-    public void setGermanCompoundSupport(boolean germanCompoundSupport) {
-        this.germanCompoundSupport = germanCompoundSupport;
+    public void setGermanCompoundWordNumber(int wordNumber) {
+        germanCompoundSupport = wordNumber;
     }
 
     public int getMaxWordLength() {

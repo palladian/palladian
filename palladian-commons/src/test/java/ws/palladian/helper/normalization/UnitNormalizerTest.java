@@ -15,6 +15,13 @@ public class UnitNormalizerTest {
     public void testDetectUnit() {
         String input;
 
+        collector.checkThat(UnitNormalizer.getUnitType("N"), Matchers.is(UnitType.FORCE));
+        collector.checkThat(UnitNormalizer.getUnitType("km/h"), Matchers.is(UnitType.SPEED));
+        
+
+        input = "100N";
+        collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("N"));
+
         input = "10 t";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("t"));
 
