@@ -84,8 +84,9 @@ public class SitemapRetriever {
 
         // is the sitemap gzipped?
         if (FileHelper.getFileType(sitemapUrl).equalsIgnoreCase("gz")) {
-            String tempPath = "data/temp/sitemapIndex.xml";
-            documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped", Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
+            String tempPath = "data/temp/sitemapIndex-" + System.currentTimeMillis() + "-" + ((int) (Math.random() * 10000)) + ".xml";
+            documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped",
+                    Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
             FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
             sitemapContent = documentRetriever.getText(tempPath);
             if (sitemapContent == null) {
@@ -135,9 +136,10 @@ public class SitemapRetriever {
                     boolean gzipped = FileHelper.getFileType(sitemapLinkUrl).equalsIgnoreCase("gz");
 
                     // download
-                    String downloadPath = "data/temp/sitemap" + System.currentTimeMillis() + ".xml.gzipped";
+                    String downloadPath = "data/temp/sitemap-" + System.currentTimeMillis() + "-" + ((int) (Math.random() * 10000)) + ".xml.gzipped";
                     String unzippedPath = downloadPath.replace(".gzipped", "");
-                    documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath, Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
+                    documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath,
+                            Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
 
                     // unzip
                     if (gzipped) {
@@ -225,7 +227,6 @@ public class SitemapRetriever {
                 xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
                 urlNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//url");
             }
-
 
             for (Node urlNode : urlNodes) {
                 Node locationNode = null;
