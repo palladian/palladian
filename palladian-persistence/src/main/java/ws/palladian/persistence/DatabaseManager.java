@@ -1,23 +1,14 @@
 package ws.palladian.persistence;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.*;
 
 /**
  * <p>
@@ -25,12 +16,12 @@ import org.slf4j.LoggerFactory;
  * all ugly SQL specific details like {@link SQLException}s and automatically closes resources for you where applicable.
  * If you need to create your own application specific persistence layer, you may create your own subclass.
  * </p>
- * 
+ *
  * <p>
  * Instances of the DatabaseManager or its subclasses are created using the {@link DatabaseManagerFactory}, which takes
  * care of injecting the {@link DataSource}, which provides database connections.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  * @author Klemens Muthmann
@@ -54,7 +45,7 @@ public class DatabaseManager {
      * constructor is not exposed since new objects of this type must be constructed using the
      * {@link DatabaseManagerFactory}.
      * </p>
-     * 
+     *
      * @param dataSource The {@link DataSource}, which provides JDBC connections. Must not be <code>null</code>.
      */
     protected DatabaseManager(DataSource dataSource) {
@@ -68,7 +59,7 @@ public class DatabaseManager {
      * your responsibility to close all database resources after work has been done. This can be done conveniently by
      * using one of the various close methods offered by this class.
      * </p>
-     * 
+     *
      * @return A connection to the database obtained from the {@link DataSource}.
      * @throws SQLException In case, obtaining the connection fails.
      */
@@ -80,8 +71,8 @@ public class DatabaseManager {
      * <p>
      * Check, whether an item for the specified query exists.
      * </p>
-     * 
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql  Query statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
      */
@@ -95,8 +86,8 @@ public class DatabaseManager {
      * <p>
      * Check, whether an item for the specified query exists.
      * </p>
-     * 
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql  Query statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in query.
      * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
      */
@@ -112,8 +103,8 @@ public class DatabaseManager {
      * For each successful insertion, {@link BatchDataProvider#insertedItem(int, int)} is triggered to allow access to
      * the generated ID.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql      Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param provider A callback, which provides the necessary data for the insertion, not <code>null</code>.
      * @return The number of inserted rows.
      */
@@ -220,13 +211,13 @@ public class DatabaseManager {
      * <p>
      * Run a batch insertion and return the generated insert IDs.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql       Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param batchArgs List of arguments for the batch insertion. Arguments are supplied parameter lists. Not
-     *            <code>null</code>.
+     *                  <code>null</code>.
      * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
-     *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
-     *         a 0 value.
+     * array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
+     * a 0 value.
      */
     public final int[] runBatchInsertReturnIds(String sql, final List<List<Object>> batchArgs) {
         Validate.notEmpty(sql, "sql must not be empty");
@@ -254,7 +245,7 @@ public class DatabaseManager {
 
             @Override
             public void insertedItemLongId(int number, long generatedId) {
-                result[number] = (int)generatedId;
+                result[number] = (int) generatedId;
             }
         };
 
@@ -301,8 +292,8 @@ public class DatabaseManager {
      * <p>
      * Run a batch update.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql      Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param provider A callback, which provides the necessary data for the update, not <code>null</code>.
      * @return An array of update counts for each statement in the batch.
      */
@@ -344,10 +335,10 @@ public class DatabaseManager {
      * <p>
      * Run a batch update.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql       Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param batchArgs List of arguments for the batch update. Arguments are supplied parameter lists. Not
-     *            <code>null</code>.
+     *                  <code>null</code>.
      * @return An array of update counts for each statement in the batch.
      */
     public final int[] runBatchUpdate(String sql, final List<List<Object>> batchArgs) {
@@ -386,7 +377,7 @@ public class DatabaseManager {
      * aggregate queries, like <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MAX</code>,
      * <code>MIN</code>. Example for such a query: <code>SELECT COUNT(*) FROM feeds WHERE id > 342</code>.
      * </p>
-     * 
+     *
      * @param sql The query string for the aggregated integer result, not <code>null</code> or empty.
      * @return The result of the query, or <code>null</code> if no result.
      */
@@ -399,8 +390,8 @@ public class DatabaseManager {
      * <p>
      * Run an insert operation and return the generated insert ID.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql  Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
@@ -414,8 +405,8 @@ public class DatabaseManager {
      * <p>
      * Run an insert operation and return the generated insert ID.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql  Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in update statement.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
@@ -428,11 +419,11 @@ public class DatabaseManager {
      * Run an insert operation and return the generated insert ID. <b>NOTE</b>: If a connection is given, you
      * <b>must</b> close it yourself or reuse it.
      * </p>
-     * 
+     *
      * @param connection The connection to use for the update or <code>null</code> if a new connection should be
-     *            retrieved from the pool.
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in update statement.
+     *                   retrieved from the pool.
+     * @param sql        Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args       (Optional) arguments for parameter markers in update statement.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
     public final int runInsertReturnId(Connection connection, String sql, Object... args) {
@@ -445,7 +436,7 @@ public class DatabaseManager {
      * <p>
      * Run an insert operation and return the generated insert ID.
      * </p>
-     * 
+     *
      * @param query The query including the (optional) arguments, not <code>null</code>.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
@@ -504,10 +495,10 @@ public class DatabaseManager {
      * Run an insert operation and return the generated insert ID. <b>NOTE</b>: If a connection is given, you
      * <b>must</b> close it yourself or reuse it.
      * </p>
-     * 
+     *
      * @param connection The connection to use for the update or <code>null</code> if a new connection should be
-     *            retrieved from the pool.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     *                   retrieved from the pool.
+     * @param query      The query including the (optional) arguments, not <code>null</code>.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
     public final int runInsertReturnId(Connection connection, Query query) {
@@ -554,8 +545,8 @@ public class DatabaseManager {
 
     /**
      * @deprecated This should be done using {@link #runSingleQuery(RowConverter, String, Object...)} supplying a
-     *             {@link RowConverter} returning an Object[]. There is no need to explicitly specify the number of
-     *             entries.
+     * {@link RowConverter} returning an Object[]. There is no need to explicitly specify the number of
+     * entries.
      */
     @Deprecated
     public final Object[] runOneResultLineQuery(String query, final int entries, Object... args) {
@@ -579,12 +570,12 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, process the result using a callback.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
-     * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
+     *
+     * @param <T>       Type of the processed objects.
+     * @param callback  The callback which is triggered for each result row of the query, not <code>null</code>.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      (Optional) arguments for parameter markers in query.
      * @return Number of processed results.
      */
     public final <T> int runQuery(ResultCallback<T> callback, RowConverter<T> converter, String sql, Object... args) {
@@ -599,11 +590,11 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, process the result using a callback.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
-     * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
+     *
+     * @param <T>       Type of the processed objects.
+     * @param callback  The callback which is triggered for each result row of the query, not <code>null</code>.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @param query     The query including the (optional) arguments, not <code>null</code>.
      * @return Number of processed results.
      */
     public final <T> int runQuery(ResultCallback<T> callback, RowConverter<T> converter, Query query) {
@@ -641,10 +632,10 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, process the result using a callback.
      * </p>
-     * 
+     *
      * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, nut <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param sql      Query statement which may contain parameter markers, nut <code>null</code> or empty.
+     * @param args     (Optional) arguments for parameter markers in query.
      * @return Number of processed results.
      */
     public final int runQuery(ResultSetCallback callback, String sql, Object... args) {
@@ -658,9 +649,9 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, process the result using a callback.
      * </p>
-     * 
+     *
      * @param callback The callback which is triggered for each result row of the query, not <code>null</code>.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @param query    The query including the (optional) arguments, not <code>null</code>.
      * @return Number of processed results.
      */
     public final int runQuery(ResultSetCallback callback, Query query) {
@@ -673,11 +664,11 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, return the result as List.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return List with results.
      */
     public final <T> List<T> runQuery(RowConverter<T> converter, String sql, List<?> args) {
@@ -691,11 +682,11 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, return the result as List.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      (Optional) arguments for parameter markers in query.
      * @return List with results.
      */
     public final <T> List<T> runQuery(RowConverter<T> converter, String sql, Object... args) {
@@ -704,6 +695,7 @@ public class DatabaseManager {
         Validate.notNull(args, "args must not be null");
         return runQuery(converter, new BasicQuery(sql, args));
     }
+
     public final IntLinkedOpenHashSet runIntSetQuery(String sql, Object... args) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
@@ -737,10 +729,10 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, return the result as List.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @param query     The query including the (optional) arguments, not <code>null</code>.
      * @return List with results.
      */
     public final <T> List<T> runQuery(RowConverter<T> converter, Query query) {
@@ -766,11 +758,11 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      (Optional) arguments for parameter markers in query.
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, String sql, Object... args) {
@@ -781,10 +773,10 @@ public class DatabaseManager {
      * <p>
      * Run a query operation on the database, return the result as set keeping the order determined by the SQL query.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @param query     The query including the (optional) arguments, not <code>null</code>.
      * @return Set with results.
      */
     public final <T> Set<T> runDistinctQuery(RowConverter<T> converter, Query query) {
@@ -801,11 +793,11 @@ public class DatabaseManager {
      * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
      * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return Iterator for iterating over results.
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, List<?> args) {
@@ -825,11 +817,11 @@ public class DatabaseManager {
      * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
      * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in query.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      (Optional) arguments for parameter markers in query.
      * @return Iterator for iterating over results.
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, Object... args) {
@@ -849,10 +841,10 @@ public class DatabaseManager {
      * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
      * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
      * </p>
-     * 
-     * @param <T> Type of the processed objects.
+     *
+     * @param <T>       Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @param query     The query including the (optional) arguments, not <code>null</code>.
      * @return Iterator for iterating over results.
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, Query query) {
@@ -895,11 +887,11 @@ public class DatabaseManager {
      * <p>
      * Run a query operation for a single item in the database.
      * </p>
-     * 
-     * @param <T> Type of the processed object.
+     *
+     * @param <T>       Type of the processed object.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args Arguments for parameter markers in query, or empty List, not <code>null</code>.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      Arguments for parameter markers in query, or empty List, not <code>null</code>.
      * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<?> args) {
@@ -913,11 +905,11 @@ public class DatabaseManager {
      * <p>
      * Run a query operation for a single item in the database.
      * </p>
-     * 
-     * @param <T> Type of the processed object.
+     *
+     * @param <T>       Type of the processed object.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param sql Query statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in query, not <code>null</code>.
+     * @param sql       Query statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args      (Optional) arguments for parameter markers in query, not <code>null</code>.
      * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
@@ -931,10 +923,10 @@ public class DatabaseManager {
      * <p>
      * Run a query operation for a single item in the database.
      * </p>
-     * 
-     * @param <T> Type of the processed object.
+     *
+     * @param <T>       Type of the processed object.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type, not <code>null</code>.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     * @param query     The query including the (optional) arguments, not <code>null</code>.
      * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
     @SuppressWarnings("unchecked")
@@ -951,15 +943,15 @@ public class DatabaseManager {
         };
 
         runQuery(callback, converter, query.getSql(), query.getArgs());
-        return (T)result[0];
+        return (T) result[0];
     }
 
     /**
      * <p>
      * Run an update operation and return the number of affected rows.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql  Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The number of affected rows, or -1 if an error occurred.
      */
@@ -973,8 +965,8 @@ public class DatabaseManager {
      * <p>
      * Run an update operation and return the number of affected rows.
      * </p>
-     * 
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
+     *
+     * @param sql  Update statement which may contain parameter markers, not <code>null</code> or empty.
      * @param args (Optional) arguments for parameter markers in updateStatement.
      * @return The number of affected rows, or -1 if an error occurred.
      */
@@ -989,11 +981,11 @@ public class DatabaseManager {
      * <p>
      * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
      * </p>
-     * 
+     *
      * @param connection The connection to use for the update or <code>null</code> if a new connection should be
-     *            retrieved from the pool.
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
+     *                   retrieved from the pool.
+     * @param sql        Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args       Arguments for parameter markers in update statement, or empty List, not <code>null</code>.
      * @return The number of affected rows, or -1 if an error occurred.
      */
     public final int runUpdate(Connection connection, String sql, List<?> args) {
@@ -1009,11 +1001,11 @@ public class DatabaseManager {
      * <p>
      * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
      * </p>
-     * 
+     *
      * @param connection The connection to use for the update or <code>null</code> if a new connection should be
-     *            retrieved from the pool.
-     * @param sql Update statement which may contain parameter markers, not <code>null</code> or empty.
-     * @param args (Optional) arguments for parameter markers in updateStatement.
+     *                   retrieved from the pool.
+     * @param sql        Update statement which may contain parameter markers, not <code>null</code> or empty.
+     * @param args       (Optional) arguments for parameter markers in updateStatement.
      * @return The number of affected rows, or -1 if an error occurred.
      */
     public final int runUpdate(Connection connection, String sql, Object... args) {
@@ -1033,10 +1025,10 @@ public class DatabaseManager {
      * <p>
      * NOTE: If a connection is given, you <b>must</b> close it yourself or reuse it.
      * </p>
-     * 
+     *
      * @param connection The connection to use for the update or <code>null</code> if a new connection should be
-     *            retrieved from the pool.
-     * @param query The query including the (optional) arguments, not <code>null</code>.
+     *                   retrieved from the pool.
+     * @param query      The query including the (optional) arguments, not <code>null</code>.
      * @return The number of affected rows, or -1 if an error occurred.
      */
     public final int runUpdate(Connection connection, Query query) {
@@ -1076,7 +1068,7 @@ public class DatabaseManager {
     /**
      * Run an update by directly modifying the rows of the ResultSet. <b>Note:</b> The callback needs to invoke
      * {@link ResultSet#updateRow()} explicitly, in case a row was updated. Example:
-     * 
+     *
      * <pre>
      * ResultSetCallback callback = new ResultSetCallback() {
      *     &#064;Override
@@ -1087,9 +1079,9 @@ public class DatabaseManager {
      *     }
      * };
      * </pre>
-     * 
+     *
      * @param callback The callback which receives the ResultSet for each matching row, not <code>null</code>.
-     * @param sql The query.
+     * @param sql      The query.
      * @return Number of rows returned by the query.
      */
     public final int runUpdate(ResultSetCallback callback, String sql) {
@@ -1123,10 +1115,10 @@ public class DatabaseManager {
      * Log some diagnostics in case of errors. This includes the {@link SQLException} being thrown, the SQL statement
      * and the arguments, if any.
      * </p>
-     * 
+     *
      * @param exception The exception which occurred, not <code>null</code>.
-     * @param sql The executed SQL statement, not <code>null</code>.
-     * @param args The arguments for the SQL statement, may be <code>null</code>.
+     * @param sql       The executed SQL statement, not <code>null</code>.
+     * @param args      The arguments for the SQL statement, may be <code>null</code>.
      */
     protected static void logError(SQLException exception, String sql, Object... args) {
         StringBuilder errorLog = new StringBuilder();
@@ -1144,7 +1136,7 @@ public class DatabaseManager {
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
-     * 
+     *
      * @param connection The {@link Connection}, or <code>null</code>.
      */
     protected static void close(Connection connection) {
@@ -1156,7 +1148,7 @@ public class DatabaseManager {
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
-     * 
+     *
      * @param resultSet The {@link ResultSet}, or <code>null</code>.
      */
     protected static void close(ResultSet resultSet) {
@@ -1168,7 +1160,7 @@ public class DatabaseManager {
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
-     * 
+     *
      * @param statement The {@link Statement}, or <code>null</code>.
      */
     protected static void close(Statement statement) {
@@ -1180,9 +1172,9 @@ public class DatabaseManager {
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
-     * 
+     *
      * @param connection The {@link Connection}, or <code>null</code>.
-     * @param resultSet The {@link ResultSet}, or <code>null</code>.
+     * @param resultSet  The {@link ResultSet}, or <code>null</code>.
      */
     protected static void close(Connection connection, ResultSet resultSet) {
         close(connection, null, resultSet);
@@ -1193,9 +1185,9 @@ public class DatabaseManager {
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
-     * 
+     *
      * @param connection The {@link Connection}, or <code>null</code>.
-     * @param statement The {@link Statement}, or <code>null</code>.
+     * @param statement  The {@link Statement}, or <code>null</code>.
      */
     protected static void close(Connection connection, Statement statement) {
         close(connection, statement, null);
@@ -1206,10 +1198,10 @@ public class DatabaseManager {
      * Convenience method to close database resources. This method will perform <code>null</code> checking, close
      * resources where applicable and swallow all {@link SQLException}s.
      * </p>
-     * 
+     *
      * @param connection The {@link Connection}, or <code>null</code>.
-     * @param statement The {@link Statement}, or <code>null</code>.
-     * @param resultSet The {@link ResultSet}, or <code>null</code>.
+     * @param statement  The {@link Statement}, or <code>null</code>.
+     * @param resultSet  The {@link ResultSet}, or <code>null</code>.
      */
     protected static void close(Connection connection, Statement statement, ResultSet resultSet) {
         if (resultSet != null) {
@@ -1239,8 +1231,8 @@ public class DatabaseManager {
      * <p>
      * Sets {@link PreparedStatement} parameters based on the supplied arguments.
      * </p>
-     * 
-     * @param ps The {@link PreparedStatement} for which to set parameters.
+     *
+     * @param ps   The {@link PreparedStatement} for which to set parameters.
      * @param args {@link List} of parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
@@ -1252,8 +1244,8 @@ public class DatabaseManager {
      * <p>
      * Sets {@link PreparedStatement} parameters based on the supplied arguments.
      * </p>
-     * 
-     * @param ps The {@link PreparedStatement} for which to set parameters.
+     *
+     * @param ps   The {@link PreparedStatement} for which to set parameters.
      * @param args The parameters to set.
      * @throws SQLException In case setting the parameters failed.
      */
@@ -1270,7 +1262,7 @@ public class DatabaseManager {
      * <p>
      * Rollback the connection.
      * </p>
-     * 
+     *
      * @param connection The connection, or <code>null</code>.
      */
     protected static void rollback(Connection connection) {

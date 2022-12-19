@@ -15,22 +15,22 @@ import java.util.*;
  * calculate the median or cumulative probabilities and you're not using a windows-based stats (as in
  * {@link FatStats#FatStats(int)}), consider using the {@link SlimStats} class.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class FatStats extends AbstractStats {
-
     /**
      * <p>
      * A factory for producing {@link Stats} instances.
      * </p>
+     *
      * @deprecated No longer needed; with Java 8 just use <code>FatStats::new</code>.
      */
-	@Deprecated
+    @Deprecated
     public static final Factory<FatStats> FACTORY = FatStats::new;
 
     private final List<Double> values;
-    
+
     private boolean sorted = false;
 
     /**
@@ -46,7 +46,7 @@ public class FatStats extends AbstractStats {
      * <p>
      * Create a new {@link Stats} collection with the provided values.
      * </p>
-     * 
+     *
      * @param values The values to add to this Stats collection, not <code>null</code>.
      */
     public FatStats(Collection<? extends Number> values) {
@@ -60,19 +60,19 @@ public class FatStats extends AbstractStats {
      * Crate a new {@link Stats} object with the specified size as window, where only the last n items will be kept.
      * This way, a moving average can be calculated conveniently.
      * </p>
-     * 
+     *
      * @param size The size of the window, greater zero.
      */
     public FatStats(int size) {
         Validate.isTrue(size > 0);
         this.values = FixedSizeQueue.create(size);
     }
-    
+
     /**
      * <p>
      * Add another {@link FatStats} to this {@link FatStats}.
      * </p>
-     * 
+     *
      * @param stats The FatStats to add, not <code>null</code>.
      * @return This instance, for fluent method chaining.
      */
@@ -113,14 +113,14 @@ public class FatStats extends AbstractStats {
     @Override
     public double getMean() {
         // return getSum() / getCount();
-        
+
         if (values.isEmpty()) {
             return Double.NaN;
         }
 
         // prevent overflows; calculate iteratively as suggested in Knuth, The Art of Computer Programming Vol 2, section 4.2.2. See:
         // http://stackoverflow.com/questions/1930454/what-is-a-good-solution-for-calculating-an-average-where-the-sum-of-all-values-e
-        
+
         double mean = 0;
         int t = 1;
         for (double value : values) {
@@ -141,14 +141,14 @@ public class FatStats extends AbstractStats {
         if (values.size() == 1) {
             return 0.;
         }
-//        double mean = getMean();
-//        double standardDeviation = 0;
-//        for (Number value : values) {
-//            standardDeviation +=FastMath.pow(value.doubleValue() - mean, 2);
-//        }
-//        standardDeviation /= values.size() - 1;
-//        standardDeviation = Math.sqrt(standardDeviation);
-//        return standardDeviation;
+        //        double mean = getMean();
+        //        double standardDeviation = 0;
+        //        for (Number value : values) {
+        //            standardDeviation +=FastMath.pow(value.doubleValue() - mean, 2);
+        //        }
+        //        standardDeviation /= values.size() - 1;
+        //        standardDeviation = Math.sqrt(standardDeviation);
+        //        return standardDeviation;
 
         // Welford's method for calculation, see:
         // http://stackoverflow.com/questions/895929/how-do-i-determine-the-standard-deviation-stddev-of-a-set-of-values/897463#897463
@@ -163,13 +163,13 @@ public class FatStats extends AbstractStats {
             k++;
         }
         // subtract one from the count, when we have a sample
-		return Math.sqrt(s / (getCount() - (isSample() ? 1 : 0)));
+        return Math.sqrt(s / (getCount() - (isSample() ? 1 : 0)));
     }
 
     public double getStandardError() {
         return getStandardDeviation() / Math.sqrt(getCount());
     }
-    
+
     @Override
     public double getPercentile(int p) {
         Validate.isTrue(p >= 0 && p <= 100, "p must be in range [0,100]");
@@ -178,19 +178,19 @@ public class FatStats extends AbstractStats {
         }
         conditionalSort();
         double n = p / 100. * values.size();
-        if (n == (int)n) {
-            return 0.5 * values.get((int)n - 1) + 0.5 * values.get((int)n);
+        if (n == (int) n && n > 0 && (int) n < values.size()) {
+            return 0.5 * values.get((int) n - 1) + 0.5 * values.get((int) n);
         } else {
-            return values.get((int)Math.ceil(n) - 1);
+            return values.get((int) Math.ceil(n) - 1);
         }
     }
 
-	private void conditionalSort() {
-		if (!sorted) {
-        	Collections.sort(values);
-        	sorted = true;
+    private void conditionalSort() {
+        if (!sorted) {
+            Collections.sort(values);
+            sorted = true;
         }
-	}
+    }
 
     private static List<Double> getDoubleValues(Collection<? extends Number> values) {
         return CollectionHelper.convertList(values, input -> input.doubleValue());
@@ -256,46 +256,46 @@ public class FatStats extends AbstractStats {
     /* (non-Javadoc)
      * @see ws.palladian.helper.math.Stats#getCumulativeProbability(double)
      */
-	@Override
-	public double getCumulativeProbability(double t) {
-		if (values.isEmpty()) {
-			return Double.NaN;
-		}
-		conditionalSort();
-		int count = 0;
-		for (Double value : values) {
-			if (value > t) {
-				break;
-			}
-			count++;
-		}
-		return (double) count / getCount();
-	}
-	
-	@Override
-	public double getMode() {
-		double mode = Double.NaN;
-		int maxCount = 0;
-		Bag<Double> counts = new Bag<>();
-		for (Double value : values) {
-			int newCount = counts.add(value, 1);
-			if (newCount > maxCount) {
-				maxCount = newCount;
-				mode = value;
-			}
-		}
-		return mode;
-	}
-	
-	@Override
-	public boolean isSample() {
-		return true;
-	}
-	
-	@Override
-	public Iterator<Double> iterator() {
-		return CollectionHelper.unmodifiableIterator(values.iterator());
-	}
+    @Override
+    public double getCumulativeProbability(double t) {
+        if (values.isEmpty()) {
+            return Double.NaN;
+        }
+        conditionalSort();
+        int count = 0;
+        for (Double value : values) {
+            if (value > t) {
+                break;
+            }
+            count++;
+        }
+        return (double) count / getCount();
+    }
+
+    @Override
+    public double getMode() {
+        double mode = Double.NaN;
+        int maxCount = 0;
+        Bag<Double> counts = new Bag<>();
+        for (Double value : values) {
+            int newCount = counts.add(value, 1);
+            if (newCount > maxCount) {
+                maxCount = newCount;
+                mode = value;
+            }
+        }
+        return mode;
+    }
+
+    @Override
+    public boolean isSample() {
+        return true;
+    }
+
+    @Override
+    public Iterator<Double> iterator() {
+        return CollectionHelper.unmodifiableIterator(values.iterator());
+    }
 
     @Override
     public String toString() {
@@ -306,7 +306,7 @@ public class FatStats extends AbstractStats {
         stringBuilder.append("Standard Deviation: ").append(getStandardDeviation()).append("\n");
         stringBuilder.append("Standard Error: ").append(getStandardError()).append("\n");
         stringBuilder.append("Mean: ").append(getMean()).append("\n");
-        stringBuilder.append("Mode: " ).append(getMode()).append('\n');
+        stringBuilder.append("Mode: ").append(getMode()).append('\n');
         for (int p = 10; p < 100; p += 10) {
             stringBuilder.append(p + "-Percentile: ").append(getPercentile(p)).append('\n');
         }
