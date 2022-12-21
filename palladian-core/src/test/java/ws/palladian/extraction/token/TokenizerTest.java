@@ -104,8 +104,8 @@ public class TokenizerTest {
         tokens = Tokenizer.tokenize("40,000 residents");
         assertEquals(2, tokens.size());
 
-        tokens = Tokenizer
-                .tokenize("The United States of America are often called the USA, the U.S.A., or simply the U.S. The U.N. has its headquarter in N.Y.C. on the east coast.");
+        tokens = Tokenizer.tokenize(
+                "The United States of America are often called the USA, the U.S.A., or simply the U.S. The U.N. has its headquarter in N.Y.C. on the east coast.");
         // CollectionHelper.print(tokens);
         assertEquals(30, tokens.size());
 
@@ -120,7 +120,6 @@ public class TokenizerTest {
 
     @Test
     public void testGetSentence() {
-
         assertEquals(Tokenizer.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"), "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"), "Although, many of them (30.2%) are good");
         // assertEquals(Tokenizer.getSentence(

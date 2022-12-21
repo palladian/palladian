@@ -382,7 +382,6 @@ public final class Tokenizer {
      * @return The phrase from the beginning of the sentence.
      */
     public static String getPhraseFromBeginningOfSentence(String inputString) {
-
         String string = inputString;
         string = StringHelper.removeDoubleWhitespaces(string);
 
@@ -394,7 +393,7 @@ public final class Tokenizer {
         // make sure point is not between numerals e.g. 30.2% (as this would not
         // be the end of the sentence, keep searching in this case)
         boolean pointIsSentenceDelimiter = false;
-        while (!pointIsSentenceDelimiter && startIndex > -1) {
+        while (startIndex > -1) {
             if (startIndex >= string.length() - 1) {
                 break;
             }
@@ -460,7 +459,6 @@ public final class Tokenizer {
      * @return The phrase to the end of the sentence.
      */
     public static String getPhraseToEndOfSentence(String string) {
-
         // find the end of the current sentence
         int endIndex = string.indexOf(".");
 
@@ -468,7 +466,7 @@ public final class Tokenizer {
         // be the end of the sentence, keep searching in this case)
         // after point no number because 2 hr. 32 min. would be broken
         boolean pointIsSentenceDelimiter = false;
-        while (!pointIsSentenceDelimiter && endIndex > -1) {
+        while (endIndex > -1) {
 
             // before period
             if (endIndex > 0) {
