@@ -16,7 +16,6 @@ import java.util.Map;
  * @author David Urbansky
  */
 public final class AllColumnsRowConverter {
-
     private AllColumnsRowConverter() {
         // prevent instances.
     }
@@ -39,8 +38,7 @@ public final class AllColumnsRowConverter {
 
                 if (resultSet.getObject(i) == null) {
                     map.put(columnName, null);
-                } else
-                if (columnType == Types.INTEGER) {
+                } else if (columnType == Types.INTEGER) {
                     map.put(columnName, resultSet.getInt(i));
                 } else if (columnType == Types.TINYINT) {
                     map.put(columnName, resultSet.getInt(i));

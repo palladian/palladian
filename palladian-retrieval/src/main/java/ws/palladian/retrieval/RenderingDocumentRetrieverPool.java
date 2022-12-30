@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 
 /**
  * Pool rendering document retrievers as instantiating them is time-consuming.
+ *
  * @author David Urbansky
  */
 public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocumentRetriever> {
@@ -24,6 +25,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
         this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
     }
+
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
         super(size);
         this.driverManagerType = driverManagerType;
@@ -31,6 +33,17 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         this.userAgent = userAgent;
         this.driverVersionCode = driverVersionCode;
         initializePool();
+
+        // we have to shut down the browsers or the RAM will be used up rather quickly
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            for (int i = 0; i < size; ++i) {
+                try {
+                    pool.take().closeAndQuit();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
     }
 
     @Override

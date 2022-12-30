@@ -5,10 +5,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class ResourcePool<T> {
-    private final BlockingQueue<T> pool;
+    protected final BlockingQueue<T> pool;
     private final ReentrantLock lock = new ReentrantLock();
     private int createdObjects = 0;
-    private final int size;
+    protected final int size;
 
     protected ResourcePool(int size) {
         // enable the fairness; otherwise, some threads may wait forever.
