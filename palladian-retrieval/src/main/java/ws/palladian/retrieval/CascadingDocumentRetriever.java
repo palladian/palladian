@@ -153,12 +153,13 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
         if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RETRIEVER_RENDERING_POOL)) {
             // try rendering retriever
+            RenderingDocumentRetriever renderingDocumentRetriever = null;
+
             try {
                 if (thread != null) {
                     thread.setName("Retrieving (rendering): " + url);
                 }
-                RenderingDocumentRetriever renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
-
+                renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
                 //                for (Consumer<Document> retrieverCallback : getRetrieverCallbacks()) {
                 //                    renderingDocumentRetriever.addRetrieverCallback(retrieverCallback);
                 //                }
@@ -169,7 +170,6 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 //                renderingDocumentRetriever.getRetrieverCallbacks().clear();
 
                 goodDocument = isGoodDocument(document);
-                renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
 
                 String message = goodDocument ? "success" : "fail";
                 updateRequestTracker(RETRIEVER_RENDERING_POOL, goodDocument);
@@ -178,6 +178,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                                 RETRIEVER_RENDERING_POOL));
             } catch (Exception throwable) {
                 throwable.printStackTrace();
+            } finally {
+                if (renderingDocumentRetriever != null) {
+                    renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
+                }
             }
         }
 
