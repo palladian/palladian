@@ -30,7 +30,6 @@ import java.util.*;
  * @author Philipp Katz
  */
 public final class Tokenizer {
-
     /**
      * The RegExp used for tokenization (terms).
      */
@@ -38,6 +37,7 @@ public final class Tokenizer {
 
     /**
      * The RegExp used for sentence splitting.
+     * XXX matching these complex regexes is slow, can't we train a model?
      */
     public static final String SENTENCE_SPLIT_REGEX_EN = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|Mr|mr|Vers|Dr|dr|Prof|Nr|Rev|Mrs|mrs|Jr|jr|vs| eg|e\\.g|ca|max|Min|etc| cu| sq| ft)((\\.|\\?|\\!)(’|”|\")+(?=\\s+[A-Z])|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
     public static final String SENTENCE_SPLIT_REGEX_DE = "(?<!(\\.|\\()|([A-Z]\\.[A-Z]){1,10}|St|[mM]r|[dD]r|Ca|Mio|Mind|u\\.A|Inkl|Vers|Prof|[mM]s|zusätzl|äquiv|komp|quiet|elektr\\.|[jJ]r|vs|ca|engl|evtl|max|mind.|etc|Nr|Rev| sog| ident|bzw|i\\.d\\.R|v\\.a|u\\.v\\.m|o\\.k|zzgl|Min|Keyb|Elec|bspw|bsp|m\\.E|bezügl|bzgl|inkl|exkl|ggf|z\\.\\s?[bB]| max| min|\\s[a-z]|u\\.s\\.w|u\\.\\s?a|d\\.h)((\\.|\\?|\\!)(”|\")\\s[A-Z]|\\.|\\?+|\\!+)(?!(\\.|[0-9]|\"|”|'|\\)| B\\.|[!?]|(com|de|fr|uk|au|ca|cn|org|net)/?\\s|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))";
