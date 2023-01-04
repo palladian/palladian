@@ -86,5 +86,4 @@ final class LinkedCategoryEntries extends AbstractCategoryEntries {
             this.count = count;
         }
     }
-
 }

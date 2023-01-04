@@ -4,7 +4,6 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.math.MathHelper;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import static ws.palladian.helper.math.MathHelper.log2;
@@ -61,8 +60,7 @@ public abstract class AbstractCategoryEntries implements CategoryEntries {
     @Override
     public int size() {
         int count = 0;
-        for (Iterator<Category> iterator = this.iterator(); iterator.hasNext(); ) {
-            Category category = iterator.next();
+        for (Category category : this) {
             if (category.getProbability() > 0) {
                 count++;
             }

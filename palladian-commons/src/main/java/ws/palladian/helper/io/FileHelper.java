@@ -13,6 +13,7 @@ import ws.palladian.helper.math.MathHelper;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.function.Consumer;
@@ -327,7 +328,7 @@ public final class FileHelper {
         InputStream stream = null;
 
         try {
-            stream = new FileInputStream(file);
+            stream = Files.newInputStream(file.toPath());
 
             if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
                 stream = new GZIPInputStream(stream);
@@ -339,7 +340,6 @@ public final class FileHelper {
             while ((line = reader.readLine()) != null) {
                 contents.append(line).append(NEWLINE_CHARACTER);
             }
-
         } finally {
             close(stream, reader);
         }

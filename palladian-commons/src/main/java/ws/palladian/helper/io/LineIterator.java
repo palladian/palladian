@@ -1,19 +1,11 @@
 package ws.palladian.helper.io;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.AbstractIterator2;
 
-public final class LineIterator extends AbstractIterator2<String> implements CloseableIterator<String> {
+import java.io.*;
 
+public final class LineIterator extends AbstractIterator2<String> implements CloseableIterator<String> {
     private final BufferedReader reader;
     private boolean closed;
 
@@ -53,5 +45,4 @@ public final class LineIterator extends AbstractIterator2<String> implements Clo
         reader.close();
         closed = true;
     }
-
 }
