@@ -1765,6 +1765,18 @@ public final class StringHelper {
      * @param text    The text on which the regular expression should be evaluated.
      * @return A list of string matches.
      */
+    public static List<String> getRegexpMatches(Collection<Pattern> patterns, String text) {
+        if (text == null) {
+            return Collections.emptyList();
+        }
+        List<String> matches = new ArrayList<>();
+        for (Pattern pattern : patterns) {
+            matches.addAll(getRegexpMatches(pattern, text));
+        }
+
+        return matches;
+    }
+
     public static List<String> getRegexpMatches(Pattern pattern, String text) {
         if (text == null) {
             return Collections.emptyList();
