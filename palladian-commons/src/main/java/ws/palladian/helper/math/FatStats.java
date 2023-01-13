@@ -181,7 +181,7 @@ public class FatStats extends AbstractStats {
         if (n == (int) n && n > 0 && (int) n < values.size()) {
             return 0.5 * values.get((int) n - 1) + 0.5 * values.get((int) n);
         } else {
-            return values.get((int) Math.ceil(n) - 1);
+            return values.get(Math.max(0, (int) Math.ceil(n) - 1));
         }
     }
 
