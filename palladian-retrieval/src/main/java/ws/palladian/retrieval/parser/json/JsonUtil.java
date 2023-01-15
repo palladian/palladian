@@ -1,18 +1,24 @@
 package ws.palladian.retrieval.parser.json;
 
+import com.jsoniter.JsonIterator;
+import com.jsoniter.any.Any;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 class JsonUtil {
     public static boolean parseBoolean(Object object) throws JsonException {
         try {
-            if (object.equals(Boolean.FALSE) || object instanceof String && ((String)object).equalsIgnoreCase("false")) {
+            if (object instanceof Any) {
+                return ((Any) object).as(Boolean.class);
+            }
+            if (object.equals(Boolean.FALSE) || object instanceof String && ((String) object).equalsIgnoreCase("false")) {
                 return false;
-            } else if (object.equals(Boolean.TRUE) || object instanceof String
-                    && ((String)object).equalsIgnoreCase("true")) {
+            } else if (object.equals(Boolean.TRUE) || object instanceof String && ((String) object).equalsIgnoreCase("true")) {
                 return true;
             }
         } catch (Exception e) {
@@ -22,7 +28,10 @@ class JsonUtil {
 
     public static double parseDouble(Object object) throws JsonException {
         try {
-            return object instanceof Number ? ((Number)object).doubleValue() : Double.parseDouble((String)object);
+            if (object instanceof Any) {
+                return ((Any) object).as(Double.class);
+            }
+            return object instanceof Number ? ((Number) object).doubleValue() : Double.parseDouble((String) object);
         } catch (Exception e) {
             throw new JsonException("Could not parse \"" + object + "\" to double.");
         }
@@ -30,39 +39,56 @@ class JsonUtil {
 
     public static int parseInt(Object object) throws JsonException {
         try {
-            return object instanceof Number ? ((Number)object).intValue() : Integer.parseInt((String)object);
+            if (object instanceof Any) {
+                return ((Any) object).as(Integer.class);
+            }
+            return object instanceof Number ? ((Number) object).intValue() : Integer.parseInt((String) object);
         } catch (Exception e) {
             throw new JsonException("Could not parse \"" + object + "\" to int.");
         }
     }
 
     public static JsonArray parseJsonArray(Object object) throws JsonException {
-        if (object == null || object instanceof JsonArray) {
-            return (JsonArray)object;
-        }
-        throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
-//        try {
-//            return object instanceof JsonArray ? (JsonArray)object : null;
-//        } catch (Exception e) {
-//            throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
-//        }
+        return JsonIterator.deserialize(object.toString(), JsonArray.class);
+        //        if (object == null || object instanceof JsonArray) {
+        //            return (JsonArray)object;
+        //        }
+        //        throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
+        //        try {
+        //            return object instanceof JsonArray ? (JsonArray)object : null;
+        //        } catch (Exception e) {
+        //            throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
+        //        }
     }
 
     public static JsonObject parseJsonObject(Object object) throws JsonException {
+        try {
+            return ((Any) object).as(JsonObject.class);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        try {
+            return new JsonObject(((Any) object).as(JsonObject.class));
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        if (object instanceof HashMap) {
+            return new JsonObject((Map<?, ?>) object);
+        }
         if (object == null || object instanceof JsonObject) {
-            return (JsonObject)object;
+            return (JsonObject) object;
         }
         throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
-//        try {
-//            return object instanceof JsonObject ? (JsonObject)object : null;
-//        } catch (Exception e) {
-//            throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
-//        }
+        //        try {
+        //            return object instanceof JsonObject ? (JsonObject)object : null;
+        //        } catch (Exception e) {
+        //            throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
+        //        }
     }
 
     public static Long parseLong(Object object) throws JsonException {
         try {
-            return object instanceof Number ? ((Number)object).longValue() : Long.parseLong((String)object);
+            return object instanceof Number ? ((Number) object).longValue() : Long.parseLong((String) object);
         } catch (Exception e) {
             throw new JsonException("Could not parse \"" + object + "\" to long.");
         }
@@ -76,30 +102,28 @@ class JsonUtil {
             return null;
         }
         return object.toString();
-//        try {
-//            return object instanceof String ? (String)object : null;
-//        } catch (Exception e) {
-//            throw new JsonException("Could not parse \"" + object + "\" to string.");
-//      
-//        }
+        //        try {
+        //            return object instanceof String ? (String)object : null;
+        //        } catch (Exception e) {
+        //            throw new JsonException("Could not parse \"" + object + "\" to string.");
+        //
+        //        }
     }
 
     /**
      * Throw an exception if the object is a NaN or infinite number.
-     * 
-     * @param o
-     *            The object to test.
-     * @throws JsonException
-     *             If o is a non-finite number.
+     *
+     * @param o The object to test.
+     * @throws JsonException If o is a non-finite number.
      */
     public static void testValidity(Object o) throws JsonException {
         if (o != null) {
             if (o instanceof Double) {
-                if (((Double)o).isInfinite() || ((Double)o).isNaN()) {
+                if (((Double) o).isInfinite() || ((Double) o).isNaN()) {
                     throw new JsonException("JSON does not allow non-finite numbers.");
                 }
             } else if (o instanceof Float) {
-                if (((Float)o).isInfinite() || ((Float)o).isNaN()) {
+                if (((Float) o).isInfinite() || ((Float) o).isNaN()) {
                     throw new JsonException("JSON does not allow non-finite numbers.");
                 }
             }
@@ -109,9 +133,8 @@ class JsonUtil {
     /**
      * Try to convert a string into a number, boolean, or null. If the string
      * can't be converted, return the string.
-     * 
-     * @param string
-     *            A String.
+     *
+     * @param string A String.
      * @return A simple JSON value.
      */
     static Object stringToValue(String string) {
@@ -161,17 +184,17 @@ class JsonUtil {
         if (value == null || value.equals(null)) {
             writer.write("null");
         } else if (value instanceof JsonObject) {
-            ((JsonObject)value).write(writer, indentFactor, indent);
+            ((JsonObject) value).write(writer, indentFactor, indent);
         } else if (value instanceof JsonArray) {
-            ((JsonArray)value).write(writer, indentFactor, indent);
+            ((JsonArray) value).write(writer, indentFactor, indent);
         } else if (value instanceof Map) {
-            new JsonObject((Map<?, ?>)value).write(writer, indentFactor, indent);
+            new JsonObject((Map<?, ?>) value).write(writer, indentFactor, indent);
         } else if (value instanceof Collection) {
-            new JsonArray((Collection<?>)value).write(writer, indentFactor, indent);
+            new JsonArray((Collection<?>) value).write(writer, indentFactor, indent);
         } else if (value.getClass().isArray()) {
             new JsonArray(value).write(writer, indentFactor, indent);
         } else if (value instanceof Number) {
-            writer.write(numberToString((Number)value));
+            writer.write(numberToString((Number) value));
         } else if (value instanceof Boolean) {
             writer.write(value.toString());
         } else {
@@ -188,12 +211,10 @@ class JsonUtil {
 
     /**
      * Produce a string from a Number.
-     * 
-     * @param number
-     *            A Number
+     *
+     * @param number A Number
      * @return A String.
-     * @throws JsonException
-     *             If n is a non-finite number.
+     * @throws JsonException If n is a non-finite number.
      */
     static String numberToString(Number number) {
         if (number == null) {
@@ -224,9 +245,8 @@ class JsonUtil {
      * right places. A backslash will be inserted within </, producing <\/,
      * allowing JSON text to be delivered in HTML. In JSON text, a string cannot
      * contain a control character or an unescaped quote or backslash.
-     * 
-     * @param string
-     *            A String
+     *
+     * @param string A String
      * @return A String correctly formatted for insertion in a JSON text.
      */
     static String quote(String string) {
@@ -316,7 +336,7 @@ class JsonUtil {
         }
         String head = jPath.substring(start, end);
         String tail = jPath.substring(end);
-        return new String[] {head, tail};
+        return new String[]{head, tail};
     }
 
     private JsonUtil() {

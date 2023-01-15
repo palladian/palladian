@@ -25,11 +25,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -38,13 +34,13 @@ import java.util.List;
  * iteration, etc. The typed getters (e.g. {@link #getDouble(int)}) allow retrieving values for the corresponding type,
  * in case, the type in the JSON is incompatible to the requested type, <code>null</code> is returned.
  * </p>
- * 
+ *
  * <p>
  * The constructor can convert a JSON text into a Java object. The {@link #toString()} method converts to JSON text. The
  * texts produced by the <code>toString</code> methods strictly conform to JSON syntax rules. The constructors are more
  * forgiving in the texts they will accept:
  * </p>
- * 
+ *
  * <ul>
  * <li>An extra <code>,</code>&nbsp;<small>(comma)</small> may appear just before the closing bracket.</li>
  * <li>The <code>null</code> value will be inserted when there is <code>,</code> &nbsp;<small>(comma)</small> elision.</li>
@@ -54,7 +50,7 @@ import java.util.List;
  * <code>{ } [ ] / \ : , #</code> and if they do not look like numbers and if they are not the reserved words
  * <code>true</code>, <code>false</code>, or <code>null</code>.</li>
  * </ul>
- * 
+ *
  * <p>
  * This implementation is based on <a href="http://json.org/java/">JSON-java</a>, but it has been simplified to provide
  * more convenience, and unnecessary functionality has been stripped to keep the API clear. The most important changes
@@ -66,7 +62,7 @@ import java.util.List;
  * methods. The JPath is inspired from XPath (much less expressive though) and allows digging into JSON structures using
  * one method call, thus avoiding chained method invocations and tedious <code>null</code> checks.
  * </p>
- * 
+ *
  * @author JSON.org
  * @author Philipp Katz
  * @version 2013-04-18
@@ -85,37 +81,6 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         this.list = new ArrayList<>();
     }
 
-    JsonArray(JsonTokener x) throws JsonException {
-        this();
-        if (x.nextClean() != '[') {
-            throw x.syntaxError("A JSON array text must start with '['");
-        }
-        if (x.nextClean() != ']') {
-            x.back();
-            for (;;) {
-                if (x.nextClean() == ',') {
-                    x.back();
-                    list.add(null);
-                } else {
-                    x.back();
-                    list.add(x.nextValue());
-                }
-                switch (x.nextClean()) {
-                    case ',':
-                        if (x.nextClean() == ']') {
-                            return;
-                        }
-                        x.back();
-                        break;
-                    case ']':
-                        return;
-                    default:
-                        throw x.syntaxError("Expected a ',' or ']'");
-                }
-            }
-        }
-    }
-
     /**
      * <p>
      * Try to construct a {@link JsonArray} from a source JSON text string. Instead of the constructor, this method
@@ -123,7 +88,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * </p>
      *
      * @param source A string beginning with <code>[</code>&nbsp;<small>(left bracket)</small> and ending with
-     *            <code>]</code>&nbsp;<small>(right bracket)</small>.
+     *               <code>]</code>&nbsp;<small>(right bracket)</small>.
      * @return The {@link JsonArray}, or <code>null</code> in case it could not be parsed.
      */
     public static JsonArray tryParse(String source) {
@@ -138,9 +103,9 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Construct a {@link JsonArray} from a source JSON text.
      * </p>
-     * 
+     *
      * @param source A string that begins with <code>[</code>&nbsp;<small>(left bracket)</small> and ends with
-     *            <code>]</code>&nbsp;<small>(right bracket)</small>.
+     *               <code>]</code>&nbsp;<small>(right bracket)</small>.
      * @throws JsonException If there is a syntax error.
      */
     public JsonArray(String source) throws JsonException {
@@ -151,7 +116,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Construct a {@link JsonArray} from a {@link Collection}.
      * </p>
-     * 
+     *
      * @param collection A Collection.
      */
     public JsonArray(Collection<?> collection) {
@@ -180,7 +145,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Get the {@link Object} value associated with an index.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return An object value, or <code>null</code> in case there is no value with specified index.
      * @throws IndexOutOfBoundsException If index is below zero or greater/equal its size.
@@ -196,10 +161,10 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * Get the {@link Boolean} value associated with an index. The string values "true" and "false" are converted to
      * boolean.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return The boolean value, or <code>null</code> in case there is no value with specified index, or the value
-     *         cannot be parsed as boolean.
+     * cannot be parsed as boolean.
      * @throws JsonException
      */
     public boolean getBoolean(int index) throws JsonException {
@@ -218,10 +183,10 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Get the {@link Double} value associated with an index.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return The double value, or <code>null</code> in case there is no value with specified index, or the value
-     *         cannot be parsed as Double.
+     * cannot be parsed as Double.
      * @throws JsonException
      */
     public double getDouble(int index) throws JsonException {
@@ -240,10 +205,10 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Get the {@link Integer} value associated with an index.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return The integer value, or <code>null</code> in case there is no value with specified index, or the value
-     *         cannot be parsed as Integer.
+     * cannot be parsed as Integer.
      * @throws JsonException
      */
     public int getInt(int index) throws JsonException {
@@ -262,10 +227,10 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Get the {@link JsonArray} associated with an index.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return A JsonArray value, or <code>null</code> in case there is no value with specified index, or the value is
-     *         no {@link JsonArray}.
+     * no {@link JsonArray}.
      * @throws JsonException
      */
     public JsonArray getJsonArray(int index) throws JsonException {
@@ -284,10 +249,10 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Get the {@link JsonObject} associated with an index.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return A JsonObject value, or <code>null</code> in case there is no value with specified index, or the value is
-     *         no {@link JsonObject}.
+     * no {@link JsonObject}.
      * @throws JsonException
      */
     public JsonObject getJsonObject(int index) throws JsonException {
@@ -306,10 +271,10 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Get the {@link Long} value associated with an index.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return The long value, or <code>null</code> in case there is no value with specified index, or the value cannot
-     *         be parsed as Long.
+     * be parsed as Long.
      * @throws JsonException
      */
     public long getLong(int index) throws JsonException {
@@ -328,7 +293,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * <p>
      * Get the {@link String} associated with an index.
      * </p>
-     * 
+     *
      * @param index The index must be between 0 and length() - 1.
      * @return A string value, or <code>null</code> in case there is no value with specified index.
      * @throws JsonException
@@ -392,7 +357,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * produce a syntactically correct JSON text then null will be returned instead. This could occur if the array
      * contains an invalid number. <b>Warning:</b> This method assumes that the data structure is acyclical.
      * </p>
-     * 
+     *
      * @return a printable, displayable, transmittable representation of the array.
      */
     @Override
@@ -467,7 +432,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
             throw new JsonException("Illegal index: " + index);
         }
         if (value instanceof Json) {
-            Json child = (Json)value;
+            Json child = (Json) value;
             return child.query(remainingPath);
         } else if (remainingPath.isEmpty()) {
             return value;

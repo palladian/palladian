@@ -1,30 +1,11 @@
 package ws.palladian.retrieval.parser.json;
 
-/*
- * Copyright (c) 2002 JSON.org
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * The Software shall be used for Good, not Evil.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 import com.jayway.jsonpath.JsonPath;
+import com.jsoniter.JsonIterator;
+import com.jsoniter.any.Any;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
 
@@ -33,7 +14,7 @@ import java.util.*;
  * A {@link JsonObject} is an unordered collection of name/value pairs. Its external form is a string wrapped in curly
  * braces with colons between the names and values, and commas between the values and names. The object conforms to the
  * {@link Map} interface, allowing map manipulation, iteration, lookup, etc. The typed getters (e.g.
- * {@link #getDouble(int)}) allow retrieving values for the corresponding type, in case, the type in the JSON is
+ * getDouble(int)) allow retrieving values for the corresponding type, in case, the type in the JSON is
  * incompatible to the requested type, <code>null</code> is returned.
  * </p>
  *
@@ -73,7 +54,7 @@ import java.util.*;
 public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
 
     /** The map where the JsonObject's properties are kept. */
-    private final Map<String, Object> map;
+    private final Any any;
 
     /**
      * <p>
@@ -81,53 +62,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * </p>
      */
     public JsonObject() {
-        map = new LinkedHashMap<>();
-    }
-
-    JsonObject(JsonTokener x) throws JsonException {
-        this();
-        char c;
-        String key;
-
-        if (x.nextClean() != '{') {
-            throw x.syntaxError("A JSON object text must begin with '{'");
-        }
-        for (; ; ) {
-            c = x.nextClean();
-            switch (c) {
-                case 0:
-                    throw x.syntaxError("A JSON object text must end with '}'");
-                case '}':
-                    return;
-                default:
-                    x.back();
-                    key = x.nextValue().toString();
-            }
-
-            // The key is followed by ':'.
-
-            c = x.nextClean();
-            if (c != ':') {
-                throw x.syntaxError("Expected a ':' after a key");
-            }
-            this.put(key, x.nextValue());
-
-            // Pairs are separated by ','.
-
-            switch (x.nextClean()) {
-                case ';':
-                case ',':
-                    if (x.nextClean() == '}') {
-                        return;
-                    }
-                    x.back();
-                    break;
-                case '}':
-                    return;
-                default:
-                    throw x.syntaxError("Expected a ',' or '}'");
-            }
-        }
+        any = JsonIterator.deserialize("{}");
     }
 
     /**
@@ -139,12 +74,12 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonObject(Map<?, ?> map) {
-        this.map = new LinkedHashMap<>();
+        any = JsonIterator.deserialize("{}");
         if (map != null) {
             for (Object key : map.keySet()) {
                 Object value = map.get(key);
                 if (value != null) {
-                    this.map.put(key.toString(), value);
+                    any.asMap().put(key.toString(), Any.wrap(value));
                 }
             }
         }
@@ -179,7 +114,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException If there is a syntax error in the source string or a duplicated key.
      */
     public JsonObject(String source) throws JsonException {
-        this(new JsonTokener(source));
+        any = JsonIterator.deserialize(source);
     }
 
     /**
@@ -192,7 +127,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      */
     @Override
     public Object get(Object key) {
-        return key == null ? null : map.get(key);
+        return key == null ? null : any.get(key);
     }
 
     /**
@@ -295,7 +230,15 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonArray getJsonArray(String key) throws JsonException {
-        return JsonUtil.parseJsonArray(this.get(key));
+        Any any1 = any.get(key);
+        try {
+            return new JsonArray(any.get("reviews").asList());
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        JsonArray as = any1.as(JsonArray.class);
+        return as;
+        //        return JsonUtil.parseJsonArray(this.get(key));
     }
 
     public JsonArray tryGetJsonArray(String key) {
@@ -317,7 +260,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonObject getJsonObject(String key) throws JsonException {
-        return JsonUtil.parseJsonObject(this.get(key));
+        JsonObject jsonObject = new JsonObject();
+        Map as = any.get(key).as(Map.class);
+        jsonObject.putAll(as);
+        return jsonObject;
     }
 
     public JsonObject tryGetJsonObject(String key) {
@@ -326,6 +272,16 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return any.keys();
+    }
+
+    @Override
+    public Set<Entry<String, Object>> entrySet() {
+        return null;
     }
 
     /**
@@ -401,7 +357,15 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } catch (JsonException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-        return map.put(key, value);
+        return any.asMap().put(key, Any.wrap(value));
+    }
+
+    public Set<Entry<String, Any>> entrySet1() {
+        return any.asMap().entrySet();
+    }
+
+    public int size() {
+        return entrySet1().size();
     }
 
     /**
@@ -425,15 +389,6 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     }
 
     @Override
-    public String toString(int indentFactor) {
-        try {
-            return this.write(new StringWriter(), indentFactor, 0).toString();
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    @Override
     public Writer write(Writer writer) throws IOException {
         return this.write(writer, 0, 0);
     }
@@ -451,7 +406,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             if (indentFactor > 0) {
                 writer.write(' ');
             }
-            JsonUtil.writeValue(writer, map.get(key), indentFactor, indent);
+            JsonUtil.writeValue(writer, any.get(key), indentFactor, indent);
         } else if (length != 0) {
             final int newindent = indent + indentFactor;
             while (keys.hasNext()) {
@@ -468,7 +423,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
                 if (indentFactor > 0) {
                     writer.write(' ');
                 }
-                JsonUtil.writeValue(writer, map.get(key), indentFactor, newindent);
+                JsonUtil.writeValue(writer, any.get(key), indentFactor, newindent);
                 commanate = true;
             }
             if (indentFactor > 0) {
@@ -481,8 +436,18 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     }
 
     @Override
-    public Set<Entry<String, Object>> entrySet() {
-        return map.entrySet();
+    public String toString(int indentFactor) {
+        return any.toString();
+    }
+
+    //    @Override
+    //    public Set<Entry<String, Object>> entrySet() {
+    //        return any.asMap().entrySet();
+    //    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return keySet().contains(key);
     }
 
     @Override
@@ -497,11 +462,13 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
         Object value = get(key);
         String remainingPath = pathSplit[1];
-        if (value instanceof Json) {
-            Json child = (Json) value;
-            return child.query(remainingPath);
-        } else if (remainingPath.isEmpty()) {
+        if (remainingPath.isEmpty()) {
             return value;
+        }
+        if (value instanceof Any) {
+            //                    Any child = (Any) value;
+            //                    return child.query(remainingPath);
+            return null;
         } else {
             throw new JsonException("No value/item for query.");
         }
@@ -660,13 +627,5 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } catch (Exception e) {
             return null;
         }
-    }
-
-    /**
-     * Remove null keys and null values
-     */
-    public void removeNulls() {
-        remove(null);
-        map.keySet().removeIf(key -> map.get(key) == null);
     }
 }
