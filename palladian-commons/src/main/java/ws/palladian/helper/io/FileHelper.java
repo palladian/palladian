@@ -12,8 +12,10 @@ import ws.palladian.helper.math.MathHelper;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.function.Consumer;
@@ -322,29 +324,37 @@ public final class FileHelper {
         return readFileToString(file, DEFAULT_ENCODING);
     }
 
-    public static String readFileToString(File file, String encoding) throws IOException {
-        StringBuilder contents = new StringBuilder();
-        BufferedReader reader = null;
-        InputStream stream = null;
-
+    public static String tryReadGzippedFileToString(File file, String encoding) {
         try {
-            stream = Files.newInputStream(file.toPath());
+            StringBuilder contents = new StringBuilder();
+            BufferedReader reader = null;
+            InputStream stream = null;
 
-            if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
-                stream = new GZIPInputStream(stream);
+            try {
+                stream = Files.newInputStream(file.toPath());
+
+                if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+                    stream = new GZIPInputStream(stream);
+                }
+
+                reader = new BufferedReader(new InputStreamReader(stream, encoding));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    contents.append(line).append(NEWLINE_CHARACTER);
+                }
+            } finally {
+                close(stream, reader);
             }
 
-            reader = new BufferedReader(new InputStreamReader(stream, encoding));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                contents.append(line).append(NEWLINE_CHARACTER);
-            }
-        } finally {
-            close(stream, reader);
+            return contents.toString();
+        } catch (Exception e) {
+            return null;
         }
+    }
 
-        return contents.toString();
+    public static String readFileToString(File file, String encoding) throws IOException {
+        return Files.readString(Path.of(file.getPath()), Charset.forName(encoding));
     }
 
     /**

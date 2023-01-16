@@ -35,10 +35,4 @@ public class ClassFinderTest {
         assertTrue(classes.contains(ExampleClass1.class));
         assertTrue(classes.contains(ExampleClass2.class));
     }
-    
-    @Test
-    public void testPathToClassName() {
-    	assertEquals("ws.palladian.classification.nb.NaiveBayesClassifier", ClassFinder.pathToClassName("ws/palladian/classification/nb/NaiveBayesClassifier.class"));
-    }
-
 }

@@ -166,7 +166,7 @@
 		<logback.version>1.2.9</logback.version>
 		<timestamp>${maven.build.timestamp}</timestamp>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-		<project.jdk.version>1.8</project.jdk.version>
+		<project.jdk.version>17</project.jdk.version>
 	</properties>
 	<profiles>
 		<profile>

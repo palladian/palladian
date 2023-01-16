@@ -18,7 +18,7 @@ public class IntentParserTest {
     public void testParse() throws JsonException {
         String intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
-                "      {type: \"REGEX\", text: \"under \\\\$(\\\\d+)\"}" +
+                "      {\"type\": \"REGEX\", \"text\": \"under \\\\$(\\\\d+)\"}" +
                 "    ],\n" +
                 "    \"action\": {\n" +
                 "      \"filters\": [\n" +
@@ -34,8 +34,9 @@ public class IntentParserTest {
                 "          \"direction\": \"ASC\"\n" +
                 "        }\n" +
                 "      ]\n" +
-                "    },\n" +
+                "    }\n" +
                 "  }]";
+
         SearchIntentParser intentParser = new SearchIntentParser(new JsonArray(intentJson));
         List<ActivatedSearchIntentAction> intentActions = intentParser.parse("shoes under $101");
         ActivatedSearchIntentAction intentAction = CollectionHelper.getFirst(intentActions);
@@ -51,7 +52,7 @@ public class IntentParserTest {
         // intents with lookaheads and lookbehinds
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
-                "      {type: \"REGEX\", text: \"(?<=(?:^|[;. ]))(?:cheap(ish?))(?=($|[;. ]))\"}" +
+                "      {\"type\": \"REGEX\", \"text\": \"(?<=(?:^|[;. ]))(?:cheap(ish?))(?=($|[;. ]))\"}" +
                 "    ],\n" +
                 "    \"action\": {\n" +
                 "      \"filters\": [\n" +
@@ -68,7 +69,7 @@ public class IntentParserTest {
                 "          \"direction\": \"DESC\"\n" +
                 "        }\n" +
                 "      ]\n" +
-                "    },\n" +
+                "    }\n" +
                 "  }]";
         intentParser = new SearchIntentParser(new JsonArray(intentJson));
         intentActions = intentParser.parse("cheapish shoes");
@@ -79,7 +80,7 @@ public class IntentParserTest {
         // contains
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
-                "      {type: \"CONTAINS\", text: \"cheap\"}" +
+                "      {\"type\": \"CONTAINS\", \"text\": \"cheap\"}" +
                 "    ],\n" +
                 "    \"action\": {\n" +
                 "      \"filters\": [\n" +
@@ -96,7 +97,7 @@ public class IntentParserTest {
                 "          \"direction\": \"DESC\"\n" +
                 "        }\n" +
                 "      ]\n" +
-                "    },\n" +
+                "    }\n" +
                 "  }]";
         intentParser = new SearchIntentParser(new JsonArray(intentJson));
         intentActions = intentParser.parse("cheapish shoes");
@@ -112,13 +113,13 @@ public class IntentParserTest {
         // test redirect
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
-                "      {type: \"MATCH\", text: \"delivery\"}," +
-                "      {type: \"PHRASE_MATCH\", text: \"ups\"}," + 
+                "      {\"type\": \"MATCH\", \"text\": \"delivery\"}," +
+                "      {\"type\": \"PHRASE_MATCH\", \"text\": \"ups\"}" +
                 "    ],\n" +
                 "    \"action\": {\n" +
                 "      \"type\": \"REDIRECT\"," +
                 "      \"redirect\": \"https://delivery.com\"" +
-                "    },\n" +
+                "    }\n" +
                 "  }]";
         intentParser = new SearchIntentParser(new JsonArray(intentJson));
         intentActions = intentParser.parse("what about delivery?");
@@ -134,12 +135,12 @@ public class IntentParserTest {
         // test rewrite
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
-                "      {type: \"REGEX\", text: \"gta (\\\\d+)\"}," +
+                "      {\"type\": \"REGEX\", \"text\": \"gta (\\\\d+)\"}" +
                 "    ],\n" +
                 "    \"action\": {\n" +
                 "      \"type\": \"REWRITE\"," +
                 "      \"rewrite\": \"grand theft auto $1\"" +
-                "    },\n" +
+                "    }\n" +
                 "  }]";
         intentParser = new SearchIntentParser(new JsonArray(intentJson));
         intentActions = intentParser.parse("ps4 gta 6");
@@ -149,12 +150,12 @@ public class IntentParserTest {
 
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
-                "      {type: \"PHRASE_MATCH\", text: \"mtb\"}," +
+                "      {\"type\": \"PHRASE_MATCH\", \"text\": \"mtb\"}" +
                 "    ],\n" +
                 "    \"action\": {\n" +
                 "      \"type\": \"REWRITE\"," +
                 "      \"rewrite\": \"mountain bike\"" +
-                "    },\n" +
+                "    }\n" +
                 "  }]";
         intentParser = new SearchIntentParser(new JsonArray(intentJson));
         intentActions = intentParser.parse("mtb shoes");
@@ -165,12 +166,12 @@ public class IntentParserTest {
         // test regex redirects
         intentJson = "[{\n" +
                 "    \"triggers\": [\n" +
-                "      {type: \"REGEX\", text: \"ticket ([a-z]\\\\d+)\"}," +
+                "      {\"type\": \"REGEX\", \"text\": \"ticket ([a-z]\\\\d+)\"}" +
                 "    ],\n" +
                 "    \"action\": {\n" +
                 "      \"type\": \"REDIRECT\"," +
                 "      \"redirect\": \"https://helpcenter.com/tickets/$1\"" +
-                "    },\n" +
+                "    }\n" +
                 "  }]";
         intentParser = new SearchIntentParser(new JsonArray(intentJson));
         intentActions = intentParser.parse("need help with ticket C8788 fast please!!!");

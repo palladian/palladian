@@ -1,21 +1,14 @@
 package ws.palladian.retrieval.parser.json;
 
-import com.jsoniter.JsonIterator;
-import com.jsoniter.any.Any;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class JsonUtil {
     public static boolean parseBoolean(Object object) throws JsonException {
         try {
-            if (object instanceof Any) {
-                return ((Any) object).as(Boolean.class);
-            }
             if (object.equals(Boolean.FALSE) || object instanceof String && ((String) object).equalsIgnoreCase("false")) {
                 return false;
             } else if (object.equals(Boolean.TRUE) || object instanceof String && ((String) object).equalsIgnoreCase("true")) {
@@ -28,9 +21,6 @@ class JsonUtil {
 
     public static double parseDouble(Object object) throws JsonException {
         try {
-            if (object instanceof Any) {
-                return ((Any) object).as(Double.class);
-            }
             return object instanceof Number ? ((Number) object).doubleValue() : Double.parseDouble((String) object);
         } catch (Exception e) {
             throw new JsonException("Could not parse \"" + object + "\" to double.");
@@ -39,9 +29,6 @@ class JsonUtil {
 
     public static int parseInt(Object object) throws JsonException {
         try {
-            if (object instanceof Any) {
-                return ((Any) object).as(Integer.class);
-            }
             return object instanceof Number ? ((Number) object).intValue() : Integer.parseInt((String) object);
         } catch (Exception e) {
             throw new JsonException("Could not parse \"" + object + "\" to int.");
@@ -49,41 +36,22 @@ class JsonUtil {
     }
 
     public static JsonArray parseJsonArray(Object object) throws JsonException {
-        return JsonIterator.deserialize(object.toString(), JsonArray.class);
-        //        if (object == null || object instanceof JsonArray) {
-        //            return (JsonArray)object;
-        //        }
-        //        throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
-        //        try {
-        //            return object instanceof JsonArray ? (JsonArray)object : null;
-        //        } catch (Exception e) {
-        //            throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
-        //        }
+        if (object == null || object instanceof JsonArray) {
+            return (JsonArray) object;
+        } else if (object instanceof List) {
+            return new JsonArray(object);
+        }
+        throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
     }
 
     public static JsonObject parseJsonObject(Object object) throws JsonException {
-        try {
-            return ((Any) object).as(JsonObject.class);
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        try {
-            return new JsonObject(((Any) object).as(JsonObject.class));
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        if (object instanceof HashMap) {
-            return new JsonObject((Map<?, ?>) object);
-        }
         if (object == null || object instanceof JsonObject) {
             return (JsonObject) object;
         }
+        if (object instanceof Map) {
+            return new JsonObject((Map) object);
+        }
         throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
-        //        try {
-        //            return object instanceof JsonObject ? (JsonObject)object : null;
-        //        } catch (Exception e) {
-        //            throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
-        //        }
     }
 
     public static Long parseLong(Object object) throws JsonException {
@@ -95,19 +63,13 @@ class JsonUtil {
     }
 
     public static String parseString(Object object) throws JsonException {
-        if (object instanceof JsonObject || object instanceof JsonArray) {
+        if (object instanceof Map || object instanceof List) {
             throw new JsonException("Could not parse \"" + object + "\" to string.");
         }
         if (object == null) {
             return null;
         }
         return object.toString();
-        //        try {
-        //            return object instanceof String ? (String)object : null;
-        //        } catch (Exception e) {
-        //            throw new JsonException("Could not parse \"" + object + "\" to string.");
-        //
-        //        }
     }
 
     /**
@@ -130,91 +92,40 @@ class JsonUtil {
         }
     }
 
-    /**
-     * Try to convert a string into a number, boolean, or null. If the string
-     * can't be converted, return the string.
-     *
-     * @param string A String.
-     * @return A simple JSON value.
-     */
-    static Object stringToValue(String string) {
-        if (string.equals("")) {
-            return string;
-        }
-        if (string.equalsIgnoreCase("true")) {
-            return Boolean.TRUE;
-        }
-        if (string.equalsIgnoreCase("false")) {
-            return Boolean.FALSE;
-        }
-        if (string.equalsIgnoreCase("null")) {
-            return null;
-        }
+    //    static Writer writeValue(Writer writer, Object value, int indentFactor, int indent) throws IOException {
+    //        if (value == null || value.equals(null)) {
+    //            writer.write("null");
+    //        } else if (value instanceof JsonObject) {
+    //            ((JsonObject) value).write(writer, indentFactor, indent);
+    //        } else if (value instanceof JsonArray) {
+    //            ((JsonArray) value).write(writer, indentFactor, indent);
+    //        } else if (value instanceof Map) {
+    //            new JsonObject((Map<?, ?>) value).write(writer, indentFactor, indent);
+    //        } else if (value instanceof Collection) {
+    //            new JsonArray((Collection<?>) value).write(writer, indentFactor, indent);
+    //        } else if (value.getClass().isArray()) {
+    //            new JsonArray(value).write(writer, indentFactor, indent);
+    //        } else if (value instanceof Number) {
+    //            writer.write(numberToString((Number) value));
+    //        } else if (value instanceof Boolean) {
+    //            writer.write(value.toString());
+    //        } else {
+    //            quote(value.toString(), writer);
+    //        }
+    //        return writer;
+    //    }
 
-        /*
-         * If it might be a number, try converting it. If a number cannot be
-         * produced, then the value will just be a string.
-         */
-
-        char b = string.charAt(0);
-        if (b >= '0' && b <= '9' || b == '-') {
-            try {
-                if (string.indexOf('.') > -1 || string.indexOf('e') > -1 || string.indexOf('E') > -1) {
-                    Double d = Double.valueOf(string);
-                    if (!d.isInfinite() && !d.isNaN()) {
-                        return d;
-                    }
-                } else {
-                    Long myLong = new Long(string);
-                    if (string.equals(myLong.toString())) {
-                        if (myLong.longValue() == myLong.intValue()) {
-                            return new Integer(myLong.intValue());
-                        } else {
-                            return myLong;
-                        }
-                    }
-                }
-            } catch (Exception ignore) {
-            }
-        }
-        return string;
-    }
-
-    static Writer writeValue(Writer writer, Object value, int indentFactor, int indent) throws IOException {
-        if (value == null || value.equals(null)) {
-            writer.write("null");
-        } else if (value instanceof JsonObject) {
-            ((JsonObject) value).write(writer, indentFactor, indent);
-        } else if (value instanceof JsonArray) {
-            ((JsonArray) value).write(writer, indentFactor, indent);
-        } else if (value instanceof Map) {
-            new JsonObject((Map<?, ?>) value).write(writer, indentFactor, indent);
-        } else if (value instanceof Collection) {
-            new JsonArray((Collection<?>) value).write(writer, indentFactor, indent);
-        } else if (value.getClass().isArray()) {
-            new JsonArray(value).write(writer, indentFactor, indent);
-        } else if (value instanceof Number) {
-            writer.write(numberToString((Number) value));
-        } else if (value instanceof Boolean) {
-            writer.write(value.toString());
-        } else {
-            quote(value.toString(), writer);
-        }
-        return writer;
-    }
-
-    static void indent(Writer writer, int indent) throws IOException {
-        for (int i = 0; i < indent; i += 1) {
-            writer.write(' ');
-        }
-    }
+    //    static void indent(Writer writer, int indent) throws IOException {
+    //        for (int i = 0; i < indent; i += 1) {
+    //            writer.write(' ');
+    //        }
+    //    }
 
     /**
      * Produce a string from a Number.
      *
      * @param number A Number
      * @return A String.
-     * @throws JsonException If n is a non-finite number.
      */
     static String numberToString(Number number) {
         if (number == null) {

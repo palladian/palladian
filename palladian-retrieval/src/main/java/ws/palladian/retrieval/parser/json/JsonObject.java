@@ -3,10 +3,14 @@ package ws.palladian.retrieval.parser.json;
 import com.jayway.jsonpath.JsonPath;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
+import com.jsoniter.output.JsonStream;
+import com.jsoniter.spi.Config;
+import com.jsoniter.spi.JsoniterSpi;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import ws.palladian.helper.math.MathHelper;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.Writer;
 import java.util.*;
 
 /**
@@ -52,9 +56,8 @@ import java.util.*;
  * @version 2013-06-17
  */
 public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
-
     /** The map where the JsonObject's properties are kept. */
-    private final Any any;
+    private final Object2ObjectMap<String, Object> map;
 
     /**
      * <p>
@@ -62,7 +65,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * </p>
      */
     public JsonObject() {
-        any = JsonIterator.deserialize("{}");
+        map = new Object2ObjectLinkedOpenHashMap<>();
     }
 
     /**
@@ -71,15 +74,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * </p>
      *
      * @param map A map object that can be used to initialize the contents of the JsonObject.
-     * @throws JsonException
      */
-    public JsonObject(Map<?, ?> map) {
-        any = JsonIterator.deserialize("{}");
+    public JsonObject(Map map) {
+        this.map = new Object2ObjectLinkedOpenHashMap<>();
         if (map != null) {
             for (Object key : map.keySet()) {
                 Object value = map.get(key);
                 if (value != null) {
-                    any.asMap().put(key.toString(), Any.wrap(value));
+                    this.map.put(key.toString(), value);
                 }
             }
         }
@@ -114,7 +116,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException If there is a syntax error in the source string or a duplicated key.
      */
     public JsonObject(String source) throws JsonException {
-        any = JsonIterator.deserialize(source);
+        Any any = JsonIterator.deserialize(source);
+        map = any.as(Object2ObjectLinkedOpenHashMap.class);
     }
 
     /**
@@ -127,7 +130,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      */
     @Override
     public Object get(Object key) {
-        return key == null ? null : any.get(key);
+        return key == null ? null : map.get(key);
     }
 
     /**
@@ -230,15 +233,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonArray getJsonArray(String key) throws JsonException {
-        Any any1 = any.get(key);
-        try {
-            return new JsonArray(any.get("reviews").asList());
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        JsonArray as = any1.as(JsonArray.class);
-        return as;
-        //        return JsonUtil.parseJsonArray(this.get(key));
+        return JsonUtil.parseJsonArray(this.get(key));
     }
 
     public JsonArray tryGetJsonArray(String key) {
@@ -260,10 +255,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonObject getJsonObject(String key) throws JsonException {
-        JsonObject jsonObject = new JsonObject();
-        Map as = any.get(key).as(Map.class);
-        jsonObject.putAll(as);
-        return jsonObject;
+        return JsonUtil.parseJsonObject(map.get(key));
     }
 
     public JsonObject tryGetJsonObject(String key) {
@@ -275,13 +267,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     }
 
     @Override
-    public Set<String> keySet() {
-        return any.keys();
-    }
-
-    @Override
     public Set<Entry<String, Object>> entrySet() {
-        return null;
+        return map.entrySet();
     }
 
     /**
@@ -357,15 +344,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } catch (JsonException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-        return any.asMap().put(key, Any.wrap(value));
-    }
-
-    public Set<Entry<String, Any>> entrySet1() {
-        return any.asMap().entrySet();
-    }
-
-    public int size() {
-        return entrySet1().size();
+        return map.put(key, value);
     }
 
     /**
@@ -389,65 +368,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     }
 
     @Override
-    public Writer write(Writer writer) throws IOException {
-        return this.write(writer, 0, 0);
-    }
-
-    Writer write(Writer writer, int indentFactor, int indent) throws IOException {
-        boolean commanate = false;
-        final int length = this.size();
-        Iterator<String> keys = this.keySet().iterator();
-        writer.write('{');
-
-        if (length == 1) {
-            Object key = keys.next();
-            writer.write(JsonUtil.quote(key.toString()));
-            writer.write(':');
-            if (indentFactor > 0) {
-                writer.write(' ');
-            }
-            JsonUtil.writeValue(writer, any.get(key), indentFactor, indent);
-        } else if (length != 0) {
-            final int newindent = indent + indentFactor;
-            while (keys.hasNext()) {
-                Object key = keys.next();
-                if (commanate) {
-                    writer.write(',');
-                }
-                if (indentFactor > 0) {
-                    writer.write('\n');
-                }
-                JsonUtil.indent(writer, newindent);
-                writer.write(JsonUtil.quote(key.toString()));
-                writer.write(':');
-                if (indentFactor > 0) {
-                    writer.write(' ');
-                }
-                JsonUtil.writeValue(writer, any.get(key), indentFactor, newindent);
-                commanate = true;
-            }
-            if (indentFactor > 0) {
-                writer.write('\n');
-            }
-            JsonUtil.indent(writer, indent);
-        }
-        writer.write('}');
-        return writer;
-    }
-
-    @Override
     public String toString(int indentFactor) {
-        return any.toString();
+        Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).build();
+        return JsonStream.serialize(conf, this);
     }
-
-    //    @Override
-    //    public Set<Entry<String, Object>> entrySet() {
-    //        return any.asMap().entrySet();
-    //    }
 
     @Override
     public boolean containsKey(Object key) {
-        return keySet().contains(key);
+        return map.containsKey(key);
     }
 
     @Override
@@ -455,22 +383,39 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         if (jPath.isEmpty()) {
             return this;
         }
+        return query(this, jPath);
+    }
+
+    private Object query(Object value, String jPath) throws JsonException {
         String[] pathSplit = JsonUtil.splitJPath(jPath);
         String key = pathSplit[0];
-        if (!containsKey(key)) {
-            throw new JsonException("No key: " + key);
+
+        Object value2 = null;
+        if (value instanceof List) {
+            List v = (List) value;
+            int index = MathHelper.parseStringNumber(key).intValue();
+            if (index >= v.size()) {
+                throw new JsonException("Illegal index: " + index);
+            }
+            value2 = v.get(index);
+        } else if (value instanceof Map) {
+            Map v = (Map) value;
+            if (!v.containsKey(key)) {
+                throw new JsonException("No key: " + key);
+            }
+            value2 = v.get(key);
         }
-        Object value = get(key);
+
         String remainingPath = pathSplit[1];
         if (remainingPath.isEmpty()) {
-            return value;
+            return value2;
         }
-        if (value instanceof Any) {
-            //                    Any child = (Any) value;
-            //                    return child.query(remainingPath);
-            return null;
+
+        if (value2 instanceof Json) {
+            Json child = (Json) value2;
+            return child.query(remainingPath);
         } else {
-            throw new JsonException("No value/item for query.");
+            return query(value2, remainingPath.substring(1));
         }
     }
 

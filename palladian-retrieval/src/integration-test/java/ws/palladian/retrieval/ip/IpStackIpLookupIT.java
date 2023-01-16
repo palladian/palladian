@@ -7,7 +7,6 @@ import org.junit.rules.ErrorCollector;
 import static org.hamcrest.CoreMatchers.is;
 
 public class IpStackIpLookupIT {
-
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
@@ -25,5 +24,4 @@ public class IpStackIpLookupIT {
         collector.checkThat(result.getCoordinate().getLatitude(), is(50.1025));
         collector.checkThat(result.getCoordinate().getLongitude(), is(8.6299));
     }
-
 }
