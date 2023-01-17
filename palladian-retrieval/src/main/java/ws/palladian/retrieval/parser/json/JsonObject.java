@@ -14,46 +14,9 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * <p>
- * A {@link JsonObject} is an unordered collection of name/value pairs. Its external form is a string wrapped in curly
- * braces with colons between the names and values, and commas between the values and names. The object conforms to the
- * {@link Map} interface, allowing map manipulation, iteration, lookup, etc. The typed getters (e.g.
- * getDouble(int)) allow retrieving values for the corresponding type, in case, the type in the JSON is
- * incompatible to the requested type, <code>null</code> is returned.
- * </p>
- *
- * <p>
- * A {@link JsonObject} constructor can be used to convert an external form JSON text into an internal form, or to
- * convert values into a JSON text using the <code>put</code> and <code>toString</code> methods.
- * </p>
- *
- * <p>
- * The texts produced by the <code>toString</code> methods strictly conform to the JSON syntax rules. The constructors
- * are more forgiving in the texts they will accept:
- * <ul>
- * <li>An extra <code>,</code>&nbsp;<small>(comma)</small> may appear just before the closing brace.</li>
- * <li>Strings may be quoted with <code>'</code>&nbsp;<small>(single quote)</small>.</li>
- * <li>Strings do not need to be quoted at all if they do not begin with a quote or single quote, and if they do not
- * contain leading or trailing spaces, and if they do not contain any of these characters:
- * <code>{ } [ ] / \ : , #</code> and if they do not look like numbers and if they are not the reserved words
- * <code>true</code>, <code>false</code>, or <code>null</code>.</li>
- * </ul>
- *
- * <p>
- * This implementation is based on <a href="http://json.org/java/">JSON-java</a>, but it has been simplified to provide
- * more convenience, and unnecessary functionality has been stripped to keep the API clear. The most important changes
- * to the original implementation are as follows: 1) <code>opt</code> and <code>get</code> methods have been
- * consolidated, the getters return Objects, giving <code>null</code> in case no value for a given key/index was present
- * or the given datatype could no be converted. 2) <code>JsonArray</code> and <code>JsonObject</code> conform to the
- * Java Collections API (i.e. <code>JsonArray</code> implements the <code>List</code> interface, <code>JsonObject</code>
- * the <code>Map</code> interface). 3) Value retrieval is possible using a "JPath" through the <code>query</code>
- * methods. The JPath is inspired from XPath (much less expressive though) and allows digging into JSON structures using
- * one method call, thus avoiding chained method invocations and tedious <code>null</code> checks.
- * </p>
- *
  * @author JSON.org
- * @author Philipp Katz
- * @version 2013-06-17
+ * @author Philipp Katz, David Urbansky
+ * @version 2023-01-16
  */
 public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
     /** The map where the JsonObject's properties are kept. */
@@ -572,5 +535,13 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Remove null keys and null values
+     */
+    public void removeNulls() {
+        remove(null);
+        map.keySet().removeIf(key -> map.get(key) == null);
     }
 }
