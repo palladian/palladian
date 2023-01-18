@@ -21,7 +21,7 @@ Palladian is available through Maven on “The Central Repository”. Add it to 
 <dependency>
   <groupId>ws.palladian</groupId>
   <artifactId>palladian-core</artifactId>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
@@ -30,4 +30,4 @@ To use the `SNAPSHOT` builds, make sure to configure your `~/.m2/settings.xml` a
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2022.
+The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2023.
