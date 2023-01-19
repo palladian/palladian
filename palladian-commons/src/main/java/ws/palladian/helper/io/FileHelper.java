@@ -288,7 +288,7 @@ public final class FileHelper {
         try {
             return readFileToString(file, encoding);
         } catch (Exception e) {
-            return null;
+            return tryReadGzippedFileToString(file, encoding);
         }
     }
 

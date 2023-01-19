@@ -9,6 +9,7 @@ import com.jsoniter.spi.JsoniterSpi;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.PatternHelper;
 
 import java.io.Serializable;
 import java.util.*;
@@ -79,7 +80,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException If there is a syntax error in the source string or a duplicated key.
      */
     public JsonObject(String source) throws JsonException {
-        Any any = JsonIterator.deserialize(source);
+        Any any = null;
+        try {
+            any = JsonIterator.deserialize(source);
+        } catch (Exception e) {
+            // remove trailing commas
+            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+            any = JsonIterator.deserialize(source);
+        }
         map = any.as(Object2ObjectLinkedOpenHashMap.class);
     }
 
