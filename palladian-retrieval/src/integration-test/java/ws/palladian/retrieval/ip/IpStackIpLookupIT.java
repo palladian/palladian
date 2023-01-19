@@ -20,8 +20,8 @@ public class IpStackIpLookupIT {
         collector.checkThat(result.getRegionCode(), is("HE"));
         collector.checkThat(result.getRegionName(), is("Hesse"));
         collector.checkThat(result.getCity(), is("Frankfurt am Main"));
-        collector.checkThat(result.getZipCode(), is("60326"));
-        collector.checkThat(result.getCoordinate().getLatitude(), is(50.1025));
-        collector.checkThat(result.getCoordinate().getLongitude(), is(8.6299));
+        collector.checkThat(result.getZipCode(), is("60314"));
+        collector.checkThat(result.getCoordinate().getLatitude(), is(50.11370086669922));
+        collector.checkThat(result.getCoordinate().getLongitude(), is(8.711899757385254));
     }
 }
