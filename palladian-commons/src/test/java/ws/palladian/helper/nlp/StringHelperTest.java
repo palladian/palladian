@@ -69,6 +69,7 @@ public class StringHelperTest {
 
     @Test
     public void testContainsWord() {
+        assertFalse(StringHelper.containsWord("5mm", "screw is 1.5mm long"));
         assertTrue(StringHelper.containsWord("organic", "Organic-pralines are tasty"));
         assertTrue(StringHelper.containsWord("pralines", "Organic-pralines are tasty"));
         assertTrue(StringHelper.containsWord("ich", "das finde ich persönlich nicht weiter tragisch"));

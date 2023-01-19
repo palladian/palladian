@@ -486,6 +486,14 @@ public final class StringHelper {
         } else {
             char prevChar = searchString.charAt(index - 1);
             leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar));
+
+            // 1.5mm -> 5mm is not a word but part of 1.5mm
+            if (leftBorder && index > 1) {
+                char prevPrevChar = searchString.charAt(index - 2);
+                if (Character.isDigit(prevPrevChar) && prevChar == '.') {
+                    leftBorder = false;
+                }
+            }
         }
         boolean rightBorder;
         if (index + word.length() == searchString.length()) {
