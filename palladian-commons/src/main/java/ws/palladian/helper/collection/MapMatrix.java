@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -14,31 +16,23 @@ import java.util.Set;
  * {@link #getRow(Object)} is <b>much</b> faster than accessing a column using {@link #getColumn(Object)}, because in
  * the latter case, all entries need to be iterated.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <K> Type of the keys.
  * @param <V> Type of the values.
+ * @author Philipp Katz
  */
 public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializable {
-
     /** The serial version id. */
     private static final long serialVersionUID = 2L;
 
     /** The maps holding the matrix. */
-    private final Map<K, Map<K, V>> matrix = new HashMap<>();
+    private final Object2ObjectOpenHashMap<K, Map<K, V>> matrix = new Object2ObjectOpenHashMap<>();
 
     /** All keys for the x-axis used in the matrix. */
     private final Set<K> keysX = new LinkedHashSet<>();
 
     /** All keys for the y-axis used in the matrix. */
     private final Set<K> keysY = new LinkedHashSet<>();
-
-    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
-    @Deprecated
-    public static <K, V> MapMatrix<K, V> create() {
-        return new MapMatrix<>();
-    }
 
     @Override
     public MatrixVector<K, V> getRow(K y) {
@@ -102,5 +96,4 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
         matrix.remove(y);
         keysY.remove(y);
     }
-
 }

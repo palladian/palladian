@@ -49,7 +49,7 @@ public class MultiClassificationAggregator {
         Map<String, Map<String, Stats>> allStats = new LazyMap<>(new Factory<Map<String, Stats>>() {
             @Override
             public Map<String, Stats> create() {
-                return new LazyMap<String, Stats>(FatStats.FACTORY);
+                return new LazyMap<>(FatStats.FACTORY);
             }
         });
 

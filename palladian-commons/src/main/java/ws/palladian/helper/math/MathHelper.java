@@ -20,8 +20,8 @@ import java.util.regex.Pattern;
  * The MathHelper provides mathematical functionality.
  * </p>
  * <p>
- *     We use FastMath for the following default math functions due to faster speeds: cos, sin, pow, atan2, log, and exp.
- *     See https://gist.github.com/ijuma/840120 and https://blog.juma.me.uk/2011/02/23/performance-of-fastmath-from-commons-math/
+ * We use FastMath for the following default math functions due to faster speeds: cos, sin, pow, atan2, log, and exp.
+ * See https://gist.github.com/ijuma/840120 and https://blog.juma.me.uk/2011/02/23/performance-of-fastmath-from-commons-math/
  * </p>
  *
  * @author David Urbansky
@@ -222,8 +222,7 @@ public final class MathHelper {
         Validate.isTrue(0 <= mean && mean <= 1, "mean must be in range [0,1]");
         Double z = LOC_Z_MAPPING.get(confidenceLevel);
         if (z == null) {
-            throw new IllegalArgumentException("confidence level must be one of: {"
-                    + StringUtils.join(CONFIDENCE_LEVELS, ", ") + "}, but was " + confidenceLevel);
+            throw new IllegalArgumentException("confidence level must be one of: {" + StringUtils.join(CONFIDENCE_LEVELS, ", ") + "}, but was " + confidenceLevel);
         }
         return z * Math.sqrt(mean * (1 - mean) / samples);
     }
@@ -291,8 +290,7 @@ public final class MathHelper {
         return value1 < numMax && value1 > numMin;
     }
 
-    public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue,
-                                                    double correctnessMargin) {
+    public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue, double correctnessMargin) {
         double numMin = correctValue - correctnessMargin * correctValue;
         double numMax = correctValue + correctnessMargin * correctValue;
 
@@ -474,6 +472,10 @@ public final class MathHelper {
         return list.get(randomIndex);
     }
 
+    public static <T> T getRandomEntry(Set<T> set) {
+        return getRandomEntry(new ArrayList<>(set));
+    }
+
     /**
      * <p>
      * Return a random entry from a given collection and use reservoir sampling (might be VERY slow for slightly collections > 1000 entries)
@@ -596,8 +598,7 @@ public final class MathHelper {
         Set<Integer> randomNumbers = new HashSet<Integer>();
 
         if (max - min < numbers) {
-            LOGGER.warn("the range between min ({}) and max ({}) is not enough to create enough random numbers", min,
-                    max);
+            LOGGER.warn("the range between min ({}) and max ({}) is not enough to create enough random numbers", min, max);
             return randomNumbers;
         }
         while (randomNumbers.size() < numbers) {
@@ -845,7 +846,7 @@ public final class MathHelper {
         int bits = items.length;
         List<List<T>> combinations = new ArrayList<List<T>>();
 
-        int max = (int)FastMath.pow(2, bits);
+        int max = (int) FastMath.pow(2, bits);
         for (long i = 1; i < max; i++) {
             List<T> combination = new LinkedList<T>();
             if (computeCombinationRecursive(i, items, combination, 0)) {
@@ -870,8 +871,7 @@ public final class MathHelper {
      *                     {@code bitPattern} module 2 is 1 ({@code true}) or 0 ({@code false}).
      * @return {@code true} if the computed combination was computed successfully.
      */
-    private static <T> boolean computeCombinationRecursive(long bitPattern, T[] items, List<T> combination,
-                                                           int currentIndex) {
+    private static <T> boolean computeCombinationRecursive(long bitPattern, T[] items, List<T> combination, int currentIndex) {
         if (bitPattern % 2 != 0) {
             combination.add(items[currentIndex]);
         }
@@ -1152,8 +1152,7 @@ public final class MathHelper {
         return score / Math.min(actual.size(), k);
     }
 
-    public static <T> double getMeanAveragePrecision(Iterable<? extends Pair<? extends Set<T>, ? extends List<T>>> data,
-                                                     int k) {
+    public static <T> double getMeanAveragePrecision(Iterable<? extends Pair<? extends Set<T>, ? extends List<T>>> data, int k) {
         double meanAveragePrecision = 0;
         int n = 0;
         for (Pair<? extends Set<T>, ? extends List<T>> pair : data) {
@@ -1197,6 +1196,7 @@ public final class MathHelper {
             return (y < 0.0f) ? atan - PI : atan;
         }
     }
+
     public static double atan2(double y, double x) {
         final double PI_2 = Math.PI / 2.;
         final double MINUS_PI_2 = -PI_2;
@@ -1235,6 +1235,7 @@ public final class MathHelper {
     public static int limitToRange(int value, int min, int max) {
         return Math.min(max, Math.max(min, value));
     }
+
     public static double limitToRange(Double value, double min, double max, double defaultIfNull) {
         if (value == null) {
             return defaultIfNull;

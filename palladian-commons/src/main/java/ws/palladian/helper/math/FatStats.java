@@ -307,8 +307,8 @@ public class FatStats extends AbstractStats {
         stringBuilder.append("Standard Error: ").append(getStandardError()).append("\n");
         stringBuilder.append("Mean: ").append(getMean()).append("\n");
         stringBuilder.append("Mode: ").append(getMode()).append('\n');
-        for (int p = 10; p < 100; p += 10) {
-            stringBuilder.append(p + "-Percentile: ").append(getPercentile(p)).append('\n');
+        for (int p = 10; p <= 100; p += 10) {
+            stringBuilder.append(p).append("-Percentile: ").append(getPercentile(p)).append('\n');
         }
         stringBuilder.append("Count: ").append(getCount()).append("\n");
         stringBuilder.append("Range: ").append(getRange()).append("\n");
@@ -318,5 +318,4 @@ public class FatStats extends AbstractStats {
 
         return stringBuilder.toString();
     }
-
 }

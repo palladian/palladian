@@ -6,7 +6,6 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Predicates;
-import ws.palladian.helper.math.MathHelper;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -1041,14 +1040,6 @@ public final class CollectionHelper {
                 throw new UnsupportedOperationException("Modifications are not allowed.");
             }
         };
-    }
-
-    /**
-     * @deprecated Use {@link MathHelper#randomEntry(Collection)} instead.
-     */
-    @Deprecated
-    public static <T> T getRandom(Collection<T> collection) {
-        return new ArrayList<>(collection).get(MathHelper.getRandomIntBetween(0, collection.size() - 1));
     }
 
     /**

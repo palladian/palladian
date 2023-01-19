@@ -1,8 +1,8 @@
 package ws.palladian.helper.date;
 
-import java.util.NoSuchElementException;
-
 import org.apache.commons.lang3.Validate;
+
+import java.util.NoSuchElementException;
 
 /**
  * <p>
@@ -12,11 +12,10 @@ import org.apache.commons.lang3.Validate;
  * this means, a DateExactness with a value of {@link #DAY} implicitly provides all "less exact" values (i.e.
  * {@link #MONTH} and {@link #YEAR} in the given example).
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public enum DateExactness {
-
     /** No exactness. */
     UNSET(0),
     /** Exactness until and including year. */
@@ -36,7 +35,7 @@ public enum DateExactness {
 
     private final int value;
 
-    private DateExactness(int value) {
+    DateExactness(int value) {
         this.value = value;
     }
 
@@ -44,7 +43,7 @@ public enum DateExactness {
      * <p>
      * Get a {@link DateExactness} by its int value.
      * </p>
-     * 
+     *
      * @param value The int value denoting the {@link DateExactness}.
      * @return The {@link DateExactness} for the specified int value.
      */
@@ -62,7 +61,7 @@ public enum DateExactness {
      * Determine the common exactness of two {@link DateExactness}es. This is the smallest common denominator which can
      * be used for comparing two dates with potentially different exactness values.
      * </p>
-     * 
+     *
      * @param exactness1 The first exactness, not <code>null</code>.
      * @param exactness2 The second exactness, not <code>null</code>.
      * @return The common exactness for the two specified exactness values.
@@ -75,24 +74,11 @@ public enum DateExactness {
 
     /**
      * <p>
-     * Get an int value denoting the exactness.
-     * </p>
-     * 
-     * @deprecated Left for legacy reasons. DateExactness should be referenced by explicit type.
-     * @return
-     */
-    @Deprecated
-    public int getValue() {
-        return value;
-    }
-
-    /**
-     * <p>
      * Determine whether this {@link DateExactness} is more or equally exact than the supplied {@link DateExactness}.
      * E.g. a {@link DateExactness#YEAR} is less exact than {@link DateExactness#MINUTE} (see documentation at the head
      * for an explanation).
      * </p>
-     * 
+     *
      * @param exactness The exactness for which to check, whether it is in this exactness, not <code>null</code>.
      * @return <code>true</code> if this exactness in range of the supplied exactness, <code>false</code> otherwise.
      */
@@ -100,5 +86,4 @@ public enum DateExactness {
         Validate.notNull(exactness, "exactness must not be null");
         return value >= exactness.value;
     }
-
 }

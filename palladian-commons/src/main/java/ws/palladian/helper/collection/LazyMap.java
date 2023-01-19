@@ -17,7 +17,6 @@ import java.util.Map;
  * @author Philipp Katz
  */
 public final class LazyMap<K, V> extends MapDecorator<K, V> {
-
     private final Factory<? extends V> factory;
 
     public LazyMap(Map<K, V> map, Factory<? extends V> factory) {
