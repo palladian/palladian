@@ -34,13 +34,21 @@ import javax.media.jai.operator.ErodeDescriptor;
 import javax.media.jai.operator.GradientMagnitudeDescriptor;
 import java.awt.Color;
 import java.awt.*;
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorConvertOp;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 import java.util.*;
 import java.util.Map.Entry;
+
+import static java.awt.color.ColorSpace.CS_GRAY;
+import static java.awt.image.BufferedImage.TYPE_BYTE_GRAY;
 
 /**
  * <p>
@@ -1123,6 +1131,44 @@ public class ImageHandler {
     public static int[] getRGB(BufferedImage image) {
         Objects.requireNonNull(image, "image must not be null");
         return image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
+    }
+
+    public static BufferedImage getGrayscaleImage(BufferedImage image) {
+        BufferedImageOp grayscaleConv = new ColorConvertOp(ColorSpace.getInstance(CS_GRAY), null);
+        BufferedImage greyscaleImage = new BufferedImage(image.getWidth(), image.getHeight(), TYPE_BYTE_GRAY);
+        grayscaleConv.filter(image, greyscaleImage);
+        return greyscaleImage;
+    }
+
+    public static BufferedImage flipVertically(BufferedImage image) {
+        return flip(image, true);
+    }
+
+    public static BufferedImage flipHorizontally(BufferedImage image) {
+        return flip(image, false);
+    }
+
+    private static BufferedImage flip(BufferedImage image, boolean vertically) {
+        Objects.requireNonNull(image);
+        AffineTransform tx;
+        if (vertically) {
+            tx = AffineTransform.getScaleInstance(1, -1);
+            tx.translate(0, -image.getHeight(null));
+        } else {
+            tx = AffineTransform.getScaleInstance(-1, 1);
+            tx.translate(-image.getWidth(null), 0);
+        }
+        return apply(image, tx);
+    }
+
+    private static BufferedImage apply(BufferedImage image, AffineTransform tx) {
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        return op.filter(image, null);
+    }
+
+    public static BufferedImage rotate180(BufferedImage image) {
+        Objects.requireNonNull(image);
+        return apply(image, AffineTransform.getRotateInstance(Math.PI, image.getWidth() / 2.0, image.getHeight() / 2.0));
     }
 
     public static void main(String[] args) throws Exception {

@@ -138,7 +138,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-            <version>3.6</version>
+            <version>3.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -163,29 +163,8 @@
         <dependency>
             <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
-            <version>3.7.02</version>
+            <version>3.14.1</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.spark</groupId>-->
-            <!--<artifactId>spark-core_2.11</artifactId>-->
-            <!--<version>2.1.1</version>-->
-            <!--&lt;!&ndash;<scope>provided</scope>&ndash;&gt;-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.spark</groupId>-->
-        <!--<artifactId>spark-core_2.10</artifactId>-->
-        <!--<version>1.6.0</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.spark</groupId>-->
-        <!--<artifactId>spark-mllib_2.10</artifactId>-->
-        <!--<version>1.6.0</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.jfree</groupId>-->
-        <!--<artifactId>jfreechart</artifactId>-->
-        <!--<version>1.0.19</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
@@ -201,11 +180,6 @@
             <artifactId>deeplearning4j-zoo</artifactId>
             <version>${dl4j.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.deeplearning4j</groupId>-->
-            <!--<artifactId>dl4j-spark_2.11</artifactId>-->
-            <!--<version>${dl4j.spark.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
@@ -214,23 +188,8 @@
         <dependency>
             <groupId>org.scala-lang.modules</groupId>
             <artifactId>scala-xml_2.11</artifactId>
-            <version>1.0.6</version>
+            <version>1.3.0</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.nd4j</groupId>-->
-            <!--<artifactId>nd4j</artifactId>-->
-            <!--<version>0.8.1-SNAPSHOT</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.nd4j</groupId>-->
-            <!--<artifactId>nd4j-x86</artifactId>-->
-            <!--<version>${nd4j.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.nd4j</groupId>-->
-            <!--<artifactId>canova-api</artifactId>-->
-            <!--<version>${canova.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.clarifai.clarifai-api2</groupId>
             <artifactId>core</artifactId>
@@ -239,7 +198,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.16.1</version>
+            <version>3.21.12</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -249,18 +208,13 @@
         <dependency>
             <groupId>com.ibm.watson</groupId>
             <artifactId>ibm-watson</artifactId>
-            <version>8.3.1</version>
+            <version>8.6.3</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.amazonaws</groupId>-->
-            <!--<artifactId>aws-java-sdk</artifactId>-->
-            <!--<version>${aws.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-rekognition</artifactId>

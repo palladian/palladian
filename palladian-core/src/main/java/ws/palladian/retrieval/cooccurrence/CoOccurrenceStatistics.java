@@ -1,18 +1,18 @@
 package ws.palladian.retrieval.cooccurrence;
 
+import ws.palladian.helper.collection.Bag;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import ws.palladian.helper.collection.Bag;
-
 /**
  * <p>
  * This class holds the co-occurrence statistics for two terms. *
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class CoOccurrenceStatistics {
@@ -22,19 +22,19 @@ public class CoOccurrenceStatistics {
 
     /** The second term. */
     private final String term2;
-    
+
     /**
      * The number of co-occurrences for each searcher used. The key is the name of the searcher.
      */
     private final Bag<String> coOccurrences;
-    
+
     /** The actual sources of the co-occurrence. */
     private Map<String, Collection<String>> coOccurrenceSources;
 
     public CoOccurrenceStatistics(String term1, String term2) {
         this.term1 = term1;
         this.term2 = term2;
-        coOccurrences = Bag.create();
+        coOccurrences = new Bag<>();
         coOccurrenceSources = new HashMap<>();
     }
 
@@ -74,8 +74,7 @@ public class CoOccurrenceStatistics {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Co-Occurrence between \"" + getTerm1() + "\" and \"" + getTerm2() + "\"")
-                .append(" (total: " + getTotalCoOccurrenceCount() + ")").append("\n");
+        sb.append("Co-Occurrence between \"" + getTerm1() + "\" and \"" + getTerm2() + "\"").append(" (total: " + getTotalCoOccurrenceCount() + ")").append("\n");
         for (Entry<String, Collection<String>> element : coOccurrenceSources.entrySet()) {
             sb.append("\t").append(element.getKey()).append("\n");
             for (String source : element.getValue()) {

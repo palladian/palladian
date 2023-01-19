@@ -30,7 +30,7 @@ public class WebPageDateEvaluatorTest {
         File file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm");
         Document document = htmlParser.parse(file);
         RatedDate<ExtractedDate> date = WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
-        // FIXME assertEquals("2010-09-02", wpde.getBestRatedDate().getNormalizedDateString());
+        // TODO assertEquals("2010-09-02", wpde.getBestRatedDate().getNormalizedDateString());
 
         file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit1.htm");
         document = htmlParser.parse(file);
@@ -45,7 +45,7 @@ public class WebPageDateEvaluatorTest {
 
     //    @Test
     //    @Ignore
-    //    // FIXME
+    //    // TODO
     //    public void testGetAllBestRatedDate() throws FileNotFoundException {
     //        File file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm");
     //        Document document = htmlParser.parse(file);

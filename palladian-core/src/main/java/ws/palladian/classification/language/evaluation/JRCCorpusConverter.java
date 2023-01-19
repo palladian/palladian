@@ -1,21 +1,9 @@
 package ws.palladian.classification.language.evaluation;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.html.XPathHelper;
@@ -23,14 +11,19 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.retrieval.DocumentRetriever;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+
 /**
  * <p>
  * Parse the xml files from the <a href="http://wt.jrc.it/lt/Acquis/">JRC corpus</a> and save the body text in single
  * files. We can then further create training and testing sets with this class.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class JRCCorpusConverter {
 
@@ -45,9 +38,9 @@ public class JRCCorpusConverter {
      * The corpusRootFolderPath must point to a folder where each subfolder is named by the two digit language code and
      * has again subfolders which then contain the xml files.
      * </p>
-     * 
+     *
      * @param corpusRootFolderPath The path to the root folder of the corpus files.
-     * @param targetPath The path to the folder where the processed files should be saved to.
+     * @param targetPath           The path to the folder where the processed files should be saved to.
      */
     public void convertAllFiles(String corpusRootFolderPath, String targetPath) {
 
@@ -72,8 +65,7 @@ public class JRCCorpusConverter {
             File[] yearFolders = FileHelper.getFiles(languageFolder.getPath());
             for (File yearFolder : yearFolders) {
 
-                LOGGER.info("converting xml files from language: " + currentLanguageCode + " and year "
-                        + FileHelper.getFolderName(yearFolder.getPath()));
+                LOGGER.info("converting xml files from language: " + currentLanguageCode + " and year " + FileHelper.getFolderName(yearFolder.getPath()));
 
                 // process each xml document in the folder
                 File[] xmlFiles = FileHelper.getFiles(yearFolder.getPath());
@@ -111,7 +103,7 @@ public class JRCCorpusConverter {
 
     /**
      * Create an index of file location [space] language code for all languages.
-     * 
+     *
      * @param corpusRootFolder The path to the root folder of the dataset.
      * @throws IOException
      */
@@ -121,9 +113,9 @@ public class JRCCorpusConverter {
 
     /**
      * Create an index of file location [space] language code for all languages specified in the array.
-     * 
+     *
      * @param corpusRootFolderPath The path to the root folder of the dataset.
-     * @param includeLanguages The language codes for languages that should be included in the index.
+     * @param includeLanguages     The language codes for languages that should be included in the index.
      * @throws IOException
      */
     public void createIndex(String corpusRootFolderPath, String[] includeLanguages) throws IOException {
@@ -168,8 +160,8 @@ public class JRCCorpusConverter {
 
     /**
      * Create a smaller subset of an index with exactly the same number of instances per class.
-     * 
-     * @param indexFilePath The path to the index file.
+     *
+     * @param indexFilePath     The path to the index file.
      * @param instancesPerClass The number of instances per class.
      * @throws IOException
      */
@@ -179,7 +171,7 @@ public class JRCCorpusConverter {
 
         String indexFileName = FileHelper.appendToFileName(indexFilePath, "_ipc" + instancesPerClass);
         final FileWriter indexFile = new FileWriter(indexFileName);
-        final Bag<String> countMap = Bag.create();
+        final Bag<String> countMap = new Bag<>();
 
         LineAction la = new LineAction() {
             @Override
@@ -214,8 +206,8 @@ public class JRCCorpusConverter {
 
     /**
      * Split the index file into 2 parts (for training and testing).
-     * 
-     * @param indexFilePath The path to the file which should be split.
+     *
+     * @param indexFilePath   The path to the file which should be split.
      * @param splitPercentage The percentage of the first part. The second part is 100 - splitPercentage.
      * @throws IOException
      */
@@ -278,7 +270,7 @@ public class JRCCorpusConverter {
 
     /**
      * Delete all files that are empty.
-     * 
+     *
      * @param corpusRootFolderPath The path to the root of the corpus.
      */
     public void cleanDataset(String corpusRootFolderPath) {

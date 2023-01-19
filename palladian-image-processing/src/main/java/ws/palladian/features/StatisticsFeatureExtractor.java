@@ -2,9 +2,9 @@ package ws.palladian.features;
 
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
+import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.features.color.ColorExtractor;
 import ws.palladian.utils.HistogramStats;
-import ws.palladian.utils.ImageUtils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -22,7 +22,7 @@ public class StatisticsFeatureExtractor implements FeatureExtractor {
         for (int i = 0; i < extractors.length; i++) {
             stats[i] = new HistogramStats(256);
         }
-        int[] rgbArray = ImageUtils.getRGB(image);
+        int[] rgbArray = ImageHandler.getRGB(image);
         for (int rgb : rgbArray) {
             Color color = new Color(rgb);
             for (int i = 0; i < extractors.length; i++) {

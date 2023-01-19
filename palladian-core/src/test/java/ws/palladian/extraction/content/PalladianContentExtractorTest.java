@@ -30,7 +30,7 @@ public class PalladianContentExtractorTest {
 
     @Test
     @Ignore
-    // FIXME
+    // TODO
     public void testPalladianContentExtractor() throws PageContentExtractorException, FileNotFoundException {
         PalladianContentExtractor extractor = new PalladianContentExtractor();
 
@@ -134,7 +134,7 @@ public class PalladianContentExtractorTest {
         //        image = palladianContentExtractor.getDominantImage();
         //        collector.checkThat(image.getImageUrl(), containsString("produkte/bilder/NATA/015012_medium.jpg"));
 
-        // FIXME fails
+        // TODO fails
         //         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://rapunzel.de/bio-produkt-haselnuss-creme--120300.html"));
         //         image = palladianContentExtractor.getDominantImage();
         // //        collector.checkThat(image.getImageUrl(), containsString("bilder-96dpi-max-200-breit/120300.jpg"));
@@ -144,7 +144,7 @@ public class PalladianContentExtractorTest {
         //        image = palladianContentExtractor.getDominantImage();
         //        collector.checkThat(image.getImageUrl(), containsString("130306592/01.__large_preview.jpg"));
 
-        // FIXME fails
+        // TODO fails
         // palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("http://realhousemoms.com/root-beer-chicken-wings/"));
         // image = palladianContentExtractor.getDominantImage();
         // collector.checkThat(image.getImageUrl(), containsString("Root-Beer-Chicken-Wings-for-Real-Housemoms-Horizontal-Photo-e1422767540265.jpg"));
@@ -195,7 +195,7 @@ public class PalladianContentExtractorTest {
 
         extractor = getExtractor("pageContentExtractor/news-foxnews.html");
         collector.checkThat(extractor.getResultTitle(), is("Dick Van Dyke, 96, reflects on his marriage to Arlene Silver, 50: ‘We share an attitude’"));
-        //        collector.checkThat(extractor.getResultText(), startsWith("Arlene Silver wasn’t expecting to find love")); // FIXME locally works with starts with but doesn't build on github for unkonwn reasons
+        //        collector.checkThat(extractor.getResultText(), startsWith("Arlene Silver wasn’t expecting to find love")); // TODO locally works with starts with but doesn't build on github for unkonwn reasons
         collector.checkThat(extractor.getResultText(), containsString("Arlene Silver wasn’t expecting to find love"));
         collector.checkThat(extractor.getResultText(), endsWith("The Associated Press contributed to this report."));
         collector.checkThat(extractor.getResultText(), not(containsString("CLICK HERE TO")));
@@ -315,7 +315,7 @@ public class PalladianContentExtractorTest {
 
         extractor = getExtractor("pageContentExtractor/news-ndtv.html");
         collector.checkThat(extractor.getResultTitle(), is("India's Take On UN's 'International Day To Combat Islamophobia' Resolution"));
-        //        collector.checkThat(extractor.getResultText(), startsWith("As the UN General Assembly adopted")); // FIXME locally works with starts with but doesn't build on github for unkonwn reasons
+        //        collector.checkThat(extractor.getResultText(), startsWith("As the UN General Assembly adopted")); // TODO locally works with starts with but doesn't build on github for unkonwn reasons
         collector.checkThat(extractor.getResultText(), containsString("As the UN General Assembly adopted"));
         collector.checkThat(extractor.getResultText(), containsString("none of the proposals mooted by France were taken into consideration."));
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-15 17:28:58"));
@@ -335,7 +335,7 @@ public class PalladianContentExtractorTest {
         extractor = getExtractor("pageContentExtractor/news-bbc.html");
         collector.checkThat(extractor.getResultTitle(), is("Alisher Usmanov: Oligarch says he ditched mansions before sanctions"));
         collector.checkThat(extractor.getResultText(), containsString("A Russian billionaire sanctioned by the UK says he no longer owns many"));
-        //        collector.checkThat(extractor.getResultText(), containsString("It is now illegal for any person or company in the UK to do business with him")); // FIXME locally works with starts with but doesn't build on github for unkonwn reasons
+        //        collector.checkThat(extractor.getResultText(), containsString("It is now illegal for any person or company in the UK to do business with him")); // TODO locally works with starts with but doesn't build on github for unkonwn reasons
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-22 13:00:04"));
         collector.checkThat(extractor.getDominantImage().getImageUrl(), is("https://ichef.bbci.co.uk/news/1024/branded_news/17F03/production/_123815089_whatsubject.jpg"));
         collector.checkThat(extractor.getDominantImage().getWidth(), is(1469));

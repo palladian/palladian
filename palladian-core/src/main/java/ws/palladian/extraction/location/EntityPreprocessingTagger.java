@@ -109,7 +109,7 @@ public class EntityPreprocessingTagger implements Tagger {
                     continue;
                 }
             } else { // filtering/offset correction of multi-token annotations
-                // sliding cut, FIXME double spaces?
+                // sliding cut, TODO double spaces?
                 LOGGER.trace("Start correcting '{}'", value);
                 int offsetCut = 0;
                 String newValue = value;

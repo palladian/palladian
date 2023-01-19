@@ -28,7 +28,7 @@ public class MajorityAggregationStrategy implements AggregationStrategy {
 
     @Override
     public Map<Label, Double> aggregate(Collection<Map<Label, Double>> classifiedImages) {
-        Bag<Label> votes = Bag.create();
+        Bag<Label> votes = new Bag();
         for (Map<Label, Double> classifiedImage : classifiedImages) {
             for (Entry<Label, Double> labelProbability : classifiedImage.entrySet()) {
                 Double threshold = thresholds.get(labelProbability.getKey());

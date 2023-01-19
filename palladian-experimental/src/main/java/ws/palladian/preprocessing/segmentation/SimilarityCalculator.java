@@ -18,9 +18,8 @@ import ws.palladian.helper.math.MathHelper;
 /**
  * The SimilarityCalculator provides functions to calculate the similarity between texts, DOM-nodes
  * and whole documents.
- * 
+ *
  * @author Silvio Rabe
- * 
  */
 public class SimilarityCalculator {
 
@@ -29,7 +28,7 @@ public class SimilarityCalculator {
 
     /**
      * Calculates the similarity between two documents by counting their tag-q-grams.
-     * 
+     *
      * @param page1 Map of q-grams of the given document.
      * @param page2 Map of q-grams of the document to compare.
      * @return The similarity value between 0 and 1.
@@ -51,9 +50,9 @@ public class SimilarityCalculator {
 
                     double d = 0;
                     if (value > value2)
-                        d = (double)value2 / value;
+                        d = (double) value2 / value;
                     if (value < value2)
-                        d = (double)value / value2;
+                        d = (double) value / value2;
                     d = 1 - d;
                     variance.add(d);
                 }
@@ -81,8 +80,8 @@ public class SimilarityCalculator {
      * documents. It takes the node out of all documents and compares each node with each
      * other node. The comparison is based on the jaccard similarity over the content of
      * the nodes.
-     * 
-     * @param list A list of similar documents inclusive the original document.
+     *
+     * @param list  A list of similar documents inclusive the original document.
      * @param xPath The xpath to the node to compare in all documents.
      * @return A value of similarity.
      */
@@ -94,7 +93,7 @@ public class SimilarityCalculator {
 
             String simNode = HtmlHelper.documentToReadableText(XPathHelper.getXhtmlNode(doc, xPath));
 
-            Bag<String> nodeLines = Bag.create();
+            Bag<String> nodeLines = new Bag<>();
             StringTokenizer st = new StringTokenizer(simNode, "\n");
 
             while (st.hasMoreTokens()) {
@@ -114,8 +113,7 @@ public class SimilarityCalculator {
                 Bag<String> compareNodeLines = listOfNodeLines.get(j);
 
                 if (currentNodeLines != compareNodeLines) {
-                    Double jacc = MathHelper.computeJaccardSimilarity(currentNodeLines.uniqueItems(),
-                            compareNodeLines.uniqueItems());
+                    Double jacc = MathHelper.computeJaccardSimilarity(currentNodeLines.uniqueItems(), compareNodeLines.uniqueItems());
                     if (jacc.isNaN())
                         jacc = 0.0;
                     jaccArray.add(jacc);
@@ -139,14 +137,13 @@ public class SimilarityCalculator {
 
     /**
      * Calculates similarity values for all conflict nodes of a document.
-     * 
-     * @param docu The original document.
+     *
+     * @param docu          The original document.
      * @param conflictNodes A list of its conflict nodes.
-     * @param similarFiles A list of similar documents.
+     * @param similarFiles  A list of similar documents.
      * @return A map of all conflict nodes combined with its similarity values.
      */
-    public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, List<String> conflictNodes,
-            List<Document> similarFiles) {
+    public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, List<String> conflictNodes, List<Document> similarFiles) {
 
         Map<String, Double> similarityOfNodes = new LinkedHashMap<String, Double>();
 

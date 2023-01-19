@@ -114,7 +114,7 @@
 //        }
 //
 //        try {
-//            // FIXME
+//            // TODO
 //            String apiKey = "";
 //            String apiSecret = "";
 //            credentials = new BasicAWSCredentials(apiKey, apiSecret);
@@ -134,7 +134,7 @@
 //        }
 //
 //        try {
-//            // FIXME
+//            // TODO
 //            String apiKey = "";
 //            String apiSecret = "";
 //            credentials = new BasicAWSCredentials(apiKey, apiSecret);
@@ -428,8 +428,8 @@
 //        StopWatch stopWatch = new StopWatch();
 //
 //        // first we'll featurize the dataset
-////        FIXME DatasetFeaturizer featurizeDataset = new DatasetFeaturizer();
-////        FIXME trying this without for now featurizeDataset.featurizeDataset(imageDataset, trainPercentage);
+////        TODO DatasetFeaturizer featurizeDataset = new DatasetFeaturizer();
+////        TODO trying this without for now featurizeDataset.featurizeDataset(imageDataset, trainPercentage);
 //
 //        // import vgg base model
 //        // Note that the model imported does not have an output layer (check printed summary)
@@ -481,7 +481,7 @@
 //
 //        //////////////////////////////////////////////////////
 //        int batchSizePerWorker = 16;
-//        boolean useSparkLocal = false; // FIXME
+//        boolean useSparkLocal = false; // TODO
 //        String hdfsRoot = "/hdfstemp";
 //
 //        // Configuration for Spark training: see http://deeplearning4j.org/spark for explanation of these configuration options

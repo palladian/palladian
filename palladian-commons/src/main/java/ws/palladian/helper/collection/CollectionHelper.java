@@ -134,11 +134,10 @@ public final class CollectionHelper {
      */
     @Deprecated
     public static <V extends Comparable<V>> Map<String, V> sortByStringKeyLength(Map<String, V> map, final Order order) {
-
         LinkedList<Entry<String, V>> list = new LinkedList<>(map.entrySet());
 
         Comparator<Entry<String, V>> comparator = (o1, o2) -> {
-            int ret = new Integer(o1.getKey().length()).compareTo(o2.getKey().length());
+            int ret = Integer.compare(o1.getKey().length(), o2.getKey().length());
             return order == Order.ASCENDING ? ret : -ret;
         };
         Collections.sort(list, comparator);
@@ -248,20 +247,6 @@ public final class CollectionHelper {
     public static <E> ArrayList<E> newArrayList(E... elements) {
         Validate.notNull(elements, "elements must not be null");
         return new ArrayList<E>(Arrays.asList(elements));
-    }
-
-    /**
-     * <p>
-     * Create a new {@link HashSet}. This method allows omitting the type parameter when creating the HashSet:
-     * <code>Set&lt;String&gt; set = new HashSet<>();</code>.
-     * </p>
-     *
-     * @return A new {@link HashSet}.
-     * @deprecated since Java 7
-     */
-    @Deprecated
-    public static <E> HashSet<E> newHashSet() {
-        return new HashSet<>();
     }
 
     /**

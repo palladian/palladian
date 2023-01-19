@@ -1,7 +1,7 @@
 package ws.palladian.kaggle.fisheries.utils.hash;
 
 import org.imgscalr.Scalr;
-import ws.palladian.utils.ImageUtils;
+import ws.palladian.extraction.multimedia.ImageHandler;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ public class AverageHash implements ImageHash {
     public String hash(BufferedImage image) {
         BufferedImage processedImage = Scalr.resize(image, FIT_EXACT, WIDTH, HEIGHT, OP_GRAYSCALE);
 
-        int[] rgb = ImageUtils.getRGB(processedImage);
+        int[] rgb = ImageHandler.getRGB(processedImage);
         // image is greyscale, use value of the blue channel
         double meanValue = Arrays.stream(rgb).map(v -> v & 0xFF).average().getAsDouble();
 		
@@ -40,7 +40,7 @@ public class AverageHash implements ImageHash {
 			}
 		} */
 
-        String bitString = Arrays.stream(ImageUtils.getRGB(processedImage)).mapToObj(v -> (v & 0xFF) > meanValue ? "1" : "0").collect(Collectors.joining());
+        String bitString = Arrays.stream(ImageHandler.getRGB(processedImage)).mapToObj(v -> (v & 0xFF) > meanValue ? "1" : "0").collect(Collectors.joining());
 
         return HashUtil.toHex(bitString, WIDTH * HEIGHT / 4);
     }

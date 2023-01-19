@@ -1,21 +1,15 @@
 package ws.palladian.helper.collection;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.collection.CollectionHelper.Order;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.AbstractCollection;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.CollectionHelper.Order;
-import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
@@ -37,76 +31,24 @@ import ws.palladian.helper.functional.Factory;
  * <li>You can retrieve a copy of this map, where entries are sorted by their counts using {@link #createSorted(Order)}.
  * </ul>
  * </p>
- * 
+ *
  * @param <T> The type of the items in this Bag.
- * 
  * @author Philipp Katz
  * @author David Urbansky
  */
 public class Bag<T> extends AbstractCollection<T> implements Serializable {
-
     /** The serial version id. */
     private static final long serialVersionUID = 1l;
 
-    /**
-     * <p>
-     * A factory for creating {@link Bag}s.
-     * </p>
-     * 
-     * @author Philipp Katz
-     * 
-     * @param <T>
-     * @deprecated No longer needed; with Java 8 just use <code>Bag::new</code>.
-     */
-    @Deprecated
-    public static final class BagFactory<T> implements Factory<Bag<T>> {
-        @Override
-        public Bag<T> create() {
-            return Bag.create();
-        }
-    }
-
     /** The internal map keeping the data. */
-    private transient Map<T, Integer> map;
+    private transient Object2IntOpenHashMap<T> map;
 
     /** The sum of all counts in the map. */
     private transient int size;
 
     /**
-     * <p>
-     * Create an empty Bag.
-     * </p>
-     * 
-     * @return The Bag.
-     * @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds.
-     */
-    @Deprecated
-    public static <T> Bag<T> create() {
-        return new Bag<>(new HashMap<>());
-    }
-
-    /**
-     * <p>
-     * Create a new Bag and add all items from the given {@link Collection}.
-     * </p>
-     * 
-     * @param iterable The iterable from which to add items, not <code>null</code>.
-     * @return The Bag containing all items from the given collection.
-     * @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds.
-     */
-    @Deprecated
-    public static <T> Bag<T> create(Iterable<? extends T> iterable) {
-        Validate.notNull(iterable, "iterable must not be null");
-        Bag<T> bag = create();
-        for (T item : iterable) {
-            bag.add(item);
-        }
-        return bag;
-    }
-
-    /**
      * Create a new Bag and add all counts from the given {@link Map}.
-     * 
+     *
      * @param map the map from which to add items, not <code>null</code>.
      * @return The Bag containing all items from the given map.
      * @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds.
@@ -114,45 +56,45 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     @Deprecated
     public static <T> Bag<T> create(Map<? extends T, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
-        return new Bag<>(new HashMap<>(map));
+        return new Bag<>(new Object2IntOpenHashMap<>(map));
     }
-    
+
     /**
      * Creates an empty Bag.
      */
     public Bag() {
-    	this(new HashMap<T, Integer>());
+        this(new Object2IntOpenHashMap<>());
     }
 
     /**
      * Create a new Bag and add all counts from the given {@link Map}.
-     * 
+     *
      * @param map the map from which to add items, not <code>null</code>.
      */
     public Bag(Map<? extends T, ? extends Integer> map) {
-    	Validate.notNull(map, "map must not be null");
-        this.map = new HashMap<>();
+        Validate.notNull(map, "map must not be null");
+        this.map = new Object2IntOpenHashMap<>();
         for (Entry<? extends T, ? extends Integer> item : map.entrySet()) {
-        		add(item.getKey(), item.getValue());
+            add(item.getKey(), item.getValue());
         }
     }
-    
-	/**
-	 * Internal constructor, which does not copy the map. Only by
-	 * {@link #createSorted(Order)}.
-	 */
-	private Bag(Map<T, Integer> map, int size) {
-		this.map = map;
-		this.size = size;
-	}
+
+    /**
+     * Internal constructor, which does not copy the map. Only by
+     * {@link #createSorted(Order)}.
+     */
+    private Bag(Object2IntOpenHashMap<T> map, int size) {
+        this.map = map;
+        this.size = size;
+    }
 
     /**
      * Create a new Bag and add all items from the given {@link Iterable}.
-     * 
+     *
      * @param iterable The iterable from which to add items, not <code>null</code>.
      */
     public Bag(Iterable<? extends T> iterable) {
-    	this();
+        this();
         Validate.notNull(iterable, "iterable must not be null");
         for (T item : iterable) {
             add(item);
@@ -219,24 +161,24 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * <p>
      * Increment the count of the specified item by a certain number.
      * </p>
-     * 
-     * @param item The item which count should be incremented, not <code>null</code>.
+     *
+     * @param item      The item which count should be incremented, not <code>null</code>.
      * @param increment The count by which to increment (negative values decrement).
      * @return The item's new count, after adding.
      */
-	public int add(T item, int increment) {
-		Validate.notNull(item, "item must not be null");
-		int newCount = count(item) + increment;
-		map.put(item, newCount);
-		size += increment;
-		return newCount;
-	}
+    public int add(T item, int increment) {
+        Validate.notNull(item, "item must not be null");
+        int newCount = count(item) + increment;
+        map.put(item, newCount);
+        size += increment;
+        return newCount;
+    }
 
     /**
      * <p>
      * Remove all entries of the specified item from this Bag.
      * </p>
-     * 
+     *
      * @param item The item to remove, not <code>null</code>.
      * @return The old count, or zero in case the item was not present before.
      */
@@ -248,8 +190,8 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * <p>
      * Set the count of the specified item to a certain number.
      * </p>
-     * 
-     * @param item The item for which to set the count, not <code>null</code>.
+     *
+     * @param item  The item for which to set the count, not <code>null</code>.
      * @param count The count to set.
      * @return The old count, or zero in case the item was not present before.
      */
@@ -267,7 +209,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * <p>
      * Get the count of the specified item.
      * </p>
-     * 
+     *
      * @param item The item for which to get the count, not <code>null</code>.
      * @return The count of the specified item, or zero in case the item is not in this Bag.
      */
@@ -321,21 +263,21 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * <p>
      * Create a copy of this map which is sorted by counts.
      * </p>
-     * 
+     *
      * @param order The sort order, not <code>null</code>.
      * @return A copy of this map with entries sorted by counts.
      */
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<>(sorted, size);
+        return new Bag<>(new Object2IntOpenHashMap(sorted), size);
     }
 
     /**
      * <p>
      * Get a map with counts from this Bag.
      * </p>
-     * 
+     *
      * @return A map, where values represent the counts.
      */
     public Map<T, Integer> toMap() {
@@ -357,7 +299,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Bag<?> other = (Bag<?>)obj;
+        Bag<?> other = (Bag<?>) obj;
         if (size != other.size) {
             return false;
         }
@@ -382,11 +324,11 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        map = new HashMap<>();
+        map = new Object2IntOpenHashMap<>();
         int numEntries = in.readInt();
         for (int i = 0; i < numEntries; i++) {
             @SuppressWarnings("unchecked")
-            T item = (T)in.readObject();
+            T item = (T) in.readObject();
             int count = in.readInt();
             map.put(item, count);
             size += count;

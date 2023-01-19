@@ -48,8 +48,8 @@ public final class HtmlHelper {
     /**
      * HTML block level elements.
      */
-    private static final List<String> BLOCK_ELEMENTS = Arrays.asList("address", "blockquote", "div", "dl", "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr",
-            "noscript", "ol", "p", "pre", "table", "ul", "dd", "dt", "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map", "object", "script", "br");
+    private static final List<String> BLOCK_ELEMENTS = Arrays.asList("address", "blockquote", "div", "dl", "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "noscript",
+            "ol", "p", "pre", "table", "ul", "dd", "dt", "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map", "object", "script", "br");
 
     /**
      * "Junk" elements which do not contain relevant content.
@@ -155,6 +155,7 @@ public final class HtmlHelper {
     public static String stripHtmlTags(String htmlText) {
         return STRIP_ALL_TAGS.matcher(htmlText).replaceAll("");
     }
+
     public static String stripHtmlTags(String htmlText, String replacement) {
         return STRIP_ALL_TAGS.matcher(htmlText).replaceAll(replacement);
     }
@@ -301,10 +302,8 @@ public final class HtmlHelper {
      * keep some structure for displaying HTML content in text mode in a readable form.
      * </p>
      * <p>
-     * FIXME: "namespace not declared" errors pop up too often
+     * TODO: "namespace not declared" errors pop up too often
      *
-     * @param node
-     * @return
      * @author Philipp Katz
      */
     public static String documentToReadableText(Node node) {
@@ -420,7 +419,6 @@ public final class HtmlHelper {
      * Checks, if a node is simple like &ltu&gt,&ltb&gt,&lti&gt,...
      * </p>
      *
-     * @param node
      * @return true if simple, else false.
      */
     public static boolean isSimpleElement(Node node) {
@@ -436,9 +434,6 @@ public final class HtmlHelper {
      * <p>
      * Checks, if tag is a headline.
      * </p>
-     *
-     * @param tag
-     * @return
      */
     public static boolean isHeadlineTag(String tag) {
         return Arrays.asList("h1", "h2", "h3", "h4", "h5", "h6").contains(tag.toLowerCase());
@@ -453,10 +448,7 @@ public final class HtmlHelper {
      * Remove unnecessary whitespace from DOM nodes.
      * </p>
      *
-     * @param node
-     * @return
-     * @see http
-     * ://stackoverflow.com/questions/978810/how-to-strip-whitespace-only
+     * see http://stackoverflow.com/questions/978810/how-to-strip-whitespace-only
      * -text-nodes-from-a-dom-before- serialization
      */
     public static Node removeWhitespace(Node node) {
@@ -696,9 +688,9 @@ public final class HtmlHelper {
      */
     public static String documentToText(Node node) {
         // ignore css and script nodes
-        if (node == null || node.getNodeName() == null || node.getNodeName().equalsIgnoreCase("script") || node.getNodeName().equalsIgnoreCase("style")
-                || node.getNodeName().equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta")
-                || node.getNodeName().equalsIgnoreCase("head")) {
+        if (node == null || node.getNodeName() == null || node.getNodeName().equalsIgnoreCase("script") || node.getNodeName().equalsIgnoreCase("style") || node.getNodeName()
+                .equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option") || node.getNodeName().equalsIgnoreCase("meta") || node.getNodeName()
+                .equalsIgnoreCase("head")) {
             return "";
         }
 
@@ -746,10 +738,13 @@ public final class HtmlHelper {
      * NOTE: we need to pass the original document URL, otherwise we might get redirected from www.abc.com to www.def.com and the inDomain links of www.def.com do not make sense in the www.abc.com context.
      * @return A collection of URLs.
      */
-    public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow, boolean includeSubdomains) {
+    public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow,
+            boolean includeSubdomains) {
         return getLinks(document, originalDocumentUrl, inDomain, outDomain, prefix, respectNoFollow, includeSubdomains, new HashSet<>());
     }
-    public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow, boolean includeSubdomains, Set<String> urlAttributeModification) {
+
+    public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow,
+            boolean includeSubdomains, Set<String> urlAttributeModification) {
         Set<String> pageLinks = new HashSet<>();
 
         if (document == null) {
@@ -770,9 +765,9 @@ public final class HtmlHelper {
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();
-//            if (baseHref.contains(domain)) {
-//                domain = UrlHelper.getDomain(baseHref, false, !includeSubdomains).toLowerCase();
-//            }
+            //            if (baseHref.contains(domain)) {
+            //                domain = UrlHelper.getDomain(baseHref, false, !includeSubdomains).toLowerCase();
+            //            }
         }
 
         // get all internal domain links

@@ -1,25 +1,9 @@
 package ws.palladian.extraction.entity.dataset;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -42,6 +26,14 @@ import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 import ws.palladian.semantics.WordTransformer;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * The DatasetCreator crawls web pages and marks the given seed entities. The marked up pages are saved in:
@@ -51,7 +43,7 @@ import ws.palladian.semantics.WordTransformer;
  * <li>separate text files (cleansed HTML)</li>
  * <li>one long text file, all text files from 2 concatenated</li>
  * </ol>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -83,17 +75,16 @@ public class DatasetCreator {
      * <p>
      * Instantiate a new DatasetCreator.
      * </p>
-     * 
-     * @param datasetLocation The location to the directory where to store the dataset, not <code>null</code>.
-     * @param searcher The {@link WebSearcher} to use for searching, not <code>null</code>.
-     * @param seedsPerConcept The number of seed entities to take for each concept, greater zero.
-     * @param mentionsPerSeed The minimum mentions which each seed entity should have at least, greater zero. This
-     *            basically resembles the number of queries to the search engine per entity.
+     *
+     * @param datasetLocation      The location to the directory where to store the dataset, not <code>null</code>.
+     * @param searcher             The {@link WebSearcher} to use for searching, not <code>null</code>.
+     * @param seedsPerConcept      The number of seed entities to take for each concept, greater zero.
+     * @param mentionsPerSeed      The minimum mentions which each seed entity should have at least, greater zero. This
+     *                             basically resembles the number of queries to the search engine per entity.
      * @param queryWithConceptName Specify whether to add the name of the concept to the query (e.g.
-     *            <code>"Porsche 911" car</code>).
+     *                             <code>"Porsche 911" car</code>).
      */
-    public DatasetCreator(File datasetLocation, Searcher<WebContent> searcher, int seedsPerConcept,
-            int mentionsPerSeed, boolean queryWithConceptName) {
+    public DatasetCreator(File datasetLocation, Searcher<WebContent> searcher, int seedsPerConcept, int mentionsPerSeed, boolean queryWithConceptName) {
         Validate.notNull(datasetLocation, "datasetLocation must not be null");
         if (!datasetLocation.exists() && !datasetLocation.mkdirs()) {
             throw new IllegalStateException("Could not create directory " + datasetLocation);
@@ -116,9 +107,9 @@ public class DatasetCreator {
      * <p>
      * Create a dataset by searching for the seed mentions and storing the complete web pages.
      * </p>
-     * 
+     *
      * @param seedDirectory The path to the folder with the seed entities. Each file must be named with the concept
-     *            name (_partX is ignored for markup) and there must be one seed entity per line.
+     *                      name (_partX is ignored for markup) and there must be one seed entity per line.
      */
     private final void createDataset(File seedDirectory) {
         StopWatch stopWatch = new StopWatch();
@@ -138,22 +129,20 @@ public class DatasetCreator {
 
         writeMetaInformationFile(stopWatch, conceptsSearched);
 
-        LOGGER.info("created {} datasets in {}, total traffic: {} MB", seedFiles.length, stopWatch,
-                HttpRetriever.getTraffic(SizeUnit.MEGABYTES));
+        LOGGER.info("created {} datasets in {}, total traffic: {} MB", seedFiles.length, stopWatch, HttpRetriever.getTraffic(SizeUnit.MEGABYTES));
     }
 
     /**
      * Write meta information about the created dataset.
-     * 
-     * @param stopWatch The stop watch.
+     *
+     * @param stopWatch        The stop watch.
      * @param conceptsSearched The concepts that were searched.
      */
     private void writeMetaInformationFile(StopWatch stopWatch, Set<String> conceptsSearched) {
 
         StringBuilder meta = new StringBuilder();
 
-        meta.append("Start Date of Creation: ")
-        .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
+        meta.append("Start Date of Creation: ").append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
         meta.append("Total Generated Traffic: ").append(HttpRetriever.getTraffic(SizeUnit.MEGABYTES)).append("MB\n");
         meta.append("Search Engine used: ").append(searcher.getName()).append("\n");
@@ -161,15 +150,19 @@ public class DatasetCreator {
 
         // check which concepts have entities with their number of mentions
         for (Object[] object : getConceptsMentions()) {
-            String conceptName = (String)object[0];
-            String entitiesWithFewMentions = (String)object[1];
+            String conceptName = (String) object[0];
+            String entitiesWithFewMentions = (String) object[1];
             if (entitiesWithFewMentions.length() == 0) {
                 entitiesWithFewMentions = "-";
             }
-            Double averageMentionsPerEntity = (Double)object[2];
-            meta.append("  Concept: ").append(conceptName).append("\n  Entities with few mentions: ")
-            .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
-            .append(averageMentionsPerEntity).append("\n\n");
+            Double averageMentionsPerEntity = (Double) object[2];
+            meta.append("  Concept: ")
+                    .append(conceptName)
+                    .append("\n  Entities with few mentions: ")
+                    .append(entitiesWithFewMentions)
+                    .append("\n  Average Mentions per Entity: ")
+                    .append(averageMentionsPerEntity)
+                    .append("\n\n");
         }
 
         meta.append("Concepts Searched (").append(conceptsSearched.size()).append("):\n");
@@ -182,28 +175,26 @@ public class DatasetCreator {
 
     /**
      * Get information about concepts and entities that have too few mentions.
-     * 
+     *
      * @return A set with information about 0: the concept name, 1: the list of entities with too few mentions, 2: the
-     *         average mentions per entity.
+     * average mentions per entity.
      */
     private Set<Object[]> getConceptsMentions() {
-
-        Set<Object[]> objectSet = new HashSet<Object[]>();
+        Set<Object[]> objectSet = new HashSet<>();
 
         if (conceptSeeds == null) {
-            conceptSeeds = new HashMap<String, List<String>>();
+            conceptSeeds = new HashMap<>();
 
             File[] seedFiles = FileHelper.getFiles(datasetLocation.getPath());
             for (File file : seedFiles) {
                 String conceptName = FileHelper.getFileName(file.getName());
-                List<String> seeds = FileHelper.readFileToArray(new File(datasetLocation, conceptName
-                        + "/seeds/seeds.txt"));
+                List<String> seeds = FileHelper.readFileToArray(new File(datasetLocation, conceptName + "/seeds/seeds.txt"));
 
                 if (seeds.isEmpty()) {
                     continue;
                 }
 
-                List<String> seedNames = new ArrayList<String>();
+                List<String> seedNames = new ArrayList<>();
                 for (String string : seeds) {
                     String[] seedLine = string.split("###");
                     seedNames.add(seedLine[0]);
@@ -214,14 +205,13 @@ public class DatasetCreator {
 
         // iterate over all concepts (seed files)
         for (Entry<String, List<String>> conceptSeedEntry : conceptSeeds.entrySet()) {
-
             String seedFileName = conceptSeedEntry.getKey();
 
             Object[] o = new Object[3];
             o[0] = seedFileName;
 
             File[] markedUpFiles = FileHelper.getFiles(new File(datasetLocation, seedFileName).getPath());
-            Bag<String> countMap = Bag.create();
+            Bag<String> countMap = new Bag();
             for (File markedUpFile : markedUpFiles) {
                 if (markedUpFile.isDirectory()) {
                     continue;
@@ -250,7 +240,7 @@ public class DatasetCreator {
                 totalMentions += count;
             }
             o[1] = entitiesWithFewMentions;
-            o[2] = totalMentions / (double)countMap.size();
+            o[2] = totalMentions / (double) countMap.size();
 
             objectSet.add(o);
         }
@@ -261,7 +251,7 @@ public class DatasetCreator {
     /**
      * File names can contain "_partX" which should be ignored for concept tagging.<br>
      * politician_part1 => politician
-     * 
+     *
      * @param fileName The name of the seed file.
      * @return The name of the concept.
      */
@@ -271,9 +261,9 @@ public class DatasetCreator {
 
     /**
      * Create the dataset for one certain concept.
-     * 
+     *
      * @param seedFileName The name of the concept (equals the name of the seed file).
-     * @param seedFile The file with entity seeds.
+     * @param seedFile     The file with entity seeds.
      */
     private void createDatasetForConcept(String seedFileName, File seedFile) {
 
@@ -305,8 +295,7 @@ public class DatasetCreator {
             progressMonitor.increment();
             LOGGER.info("start processing seed entity {} ({})", seedEntity, seedFileName);
 
-            seedFileCopy.append(seedEntity).append("###")
-            .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
+            seedFileCopy.append(seedEntity).append("###").append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
             List<String> urls = getWebPages(seedEntity, seedFileName);
 
@@ -324,8 +313,7 @@ public class DatasetCreator {
                 markupWebPage(document, seedFileName, seedEntities);
                 urlCount++;
 
-                LOGGER.debug("marked up page {} {}/{}, {}/{}", document.getDocumentURI(), entityCount,
-                        seedEntities.size(), urlCount, urls.size());
+                LOGGER.debug("marked up page {} {}/{}, {}/{}", document.getDocumentURI(), entityCount, seedEntities.size(), urlCount, urls.size());
             }
 
             LOGGER.info("processed seed entity: {} ({}) in {}", seedEntity, seedFileName, sw);
@@ -341,8 +329,8 @@ public class DatasetCreator {
 
     /**
      * Get a list of URLs to web pages that contain the seed entity.
-     * 
-     * @param seedEntity The name of the seed entity.
+     *
+     * @param seedEntity  The name of the seed entity.
      * @param conceptName The name of the concept.
      * @return A list of URLs containing the seed entity.
      */
@@ -363,8 +351,8 @@ public class DatasetCreator {
 
     /**
      * Mark up all seed entities for the concept on the web page. Save the marked up html and text.
-     * 
-     * @param webPage The web page to mark up.
+     *
+     * @param webPage      The web page to mark up.
      * @param seedFileName The name of the concept.
      * @param seedEntities A list of seed entities that should be searched after and marked up.
      */
@@ -407,25 +395,21 @@ public class DatasetCreator {
                     String lastName = seedEntity.substring(seedEntity.lastIndexOf(' ') + 1, seedEntity.length());
                     escapedSeed = "(" + Pattern.quote(seedEntity) + "|" + Pattern.quote(lastName) + ")";
                 }
-                String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
-                        + "(?=(\\s|[.,!?]))";
+                String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed + "(?=(\\s|[.,!?]))";
 
                 if (webPageText.contains(seedEntity)) {
                     foundMarkup = true;
 
                     // mark up html
                     webPageContent = webPageContent.replaceAll(searchRegexp,
-                            "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">"
-                                    + seedEntity + "</" + conceptName.toUpperCase() + ">");
+                            "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">" + seedEntity + "</" + conceptName.toUpperCase() + ">");
 
                     // mark up text
-                    webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">"
-                            + seedEntity + "</" + conceptName.toUpperCase() + ">");
+                    webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">" + seedEntity + "</" + conceptName.toUpperCase() + ">");
 
                 }
             } catch (Exception t) {
-                LOGGER.error("something went wrong marking up the page content with seed {}, {}", seedEntity,
-                        t.getMessage());
+                LOGGER.error("something went wrong marking up the page content with seed {}, {}", seedEntity, t.getMessage());
             }
             LOGGER.debug("marked up page {} with entity {}", webPage.getDocumentURI(), seedEntity);
         }
@@ -433,17 +417,15 @@ public class DatasetCreator {
         // save web page
         if (webPageContent.length() > 100 && foundMarkup) {
             FileHelper.writeToFile(
-                    new File(datasetLocation, seedFileName + "/html/"
-                            + StringHelper.makeSafeName(UrlHelper.getCleanUrl(webPage.getDocumentURI()), 30) + ".html")
-                    .getPath(), webPageContent);
+                    new File(datasetLocation, seedFileName + "/html/" + StringHelper.makeSafeName(UrlHelper.getCleanUrl(webPage.getDocumentURI()), 30) + ".html").getPath(),
+                    webPageContent);
             LOGGER.debug("saved html file");
         }
 
         // save text
         if (webPageText.length() > 50 && foundMarkup) {
 
-            File filePath = new File(datasetLocation, seedFileName + "/"
-                    + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml");
+            File filePath = new File(datasetLocation, seedFileName + "/" + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml");
             FileHelper.writeToFile(filePath.getPath(), webPageText);
 
             FileHelper.removeDuplicateLines(filePath.getPath(), filePath.getPath());
@@ -501,8 +483,7 @@ public class DatasetCreator {
 
         // copy the meta information file to the new directory
         if (copyToNewFolder) {
-            FileHelper.copyFile(new File(datasetLocation, "/metaInformation.txt").getPath(), new File(targetLocation,
-                    "/metaInformation.txt").getPath());
+            FileHelper.copyFile(new File(datasetLocation, "/metaInformation.txt").getPath(), new File(targetLocation, "/metaInformation.txt").getPath());
         }
 
         LOGGER.info("dataset cleansed in {}", stopWatch);
@@ -511,9 +492,9 @@ public class DatasetCreator {
     /**
      * Remove sets of short lines which are usually tables or other irrelevant content that was incorrectly added as
      * page content.
-     * 
+     *
      * @param inputText The text that should be cleansed.
-     * @param tagName The name of the tag.
+     * @param tagName   The name of the tag.
      * @return The cleansed text.
      */
     private static String cleanText(String inputText, String tagName) {
@@ -533,8 +514,7 @@ public class DatasetCreator {
             // text = matcher.replaceAll("");
 
             // remove lines without context around the entity
-            pattern = Pattern.compile("^<" + tagName.toUpperCase() + ">.*?</" + tagName.toUpperCase() + ">$",
-                    Pattern.MULTILINE);
+            pattern = Pattern.compile("^<" + tagName.toUpperCase() + ">.*?</" + tagName.toUpperCase() + ">$", Pattern.MULTILINE);
             matcher = pattern.matcher(text);
             text = matcher.replaceAll("");
 
@@ -568,8 +548,7 @@ public class DatasetCreator {
         for (File file : seedFiles) {
             String seedFileName = FileHelper.getFileName(file.getName());
 
-            String conceptName = StringHelper.makeCamelCase(
-                    WordTransformer.wordToSingular(seedFileName, Language.ENGLISH), true);
+            String conceptName = StringHelper.makeCamelCase(WordTransformer.wordToSingular(seedFileName, Language.ENGLISH), true);
 
             if (seedFileName.length() == 0) {
                 continue;
@@ -598,8 +577,8 @@ public class DatasetCreator {
                     }
 
                     counter++;
-                    content = "\n\n----------------------------------------------- NEW DOCUMENT (#" + counter + " / "
-                            + conceptName + ") -----------------------------------------------\n\n" + content;
+                    content = "\n\n----------------------------------------------- NEW DOCUMENT (#" + counter + " / " + conceptName
+                            + ") -----------------------------------------------\n\n" + content;
 
                     combinedFile.write(content);
                     combinedFile.write("\n");
@@ -617,8 +596,7 @@ public class DatasetCreator {
             combinedFile = new FileWriter(new File(dataSetLocation, "all.xml"));
             for (File combinedFilePath : combinedFilePaths) {
                 String content = FileHelper.readFileToString(combinedFilePath);
-                content = "\n\n----------------------------------------------- NEW CONCEPT -----------------------------------------------"
-                        + content;
+                content = "\n\n----------------------------------------------- NEW CONCEPT -----------------------------------------------" + content;
                 combinedFile.write(content);
                 combinedFile.flush();
             }
@@ -635,9 +613,9 @@ public class DatasetCreator {
      * <p>
      * Generate a dataset from the given seed file.
      * </p>
-     * 
+     *
      * @param seedFile The file containing the entity seeds, not <code>null</code>. File must be in tab-separated column
-     *            format.
+     *                 format.
      */
     public void generateDataset(File seedFile) {
         Validate.notNull(seedFile, "seedFile must not be null");
@@ -651,7 +629,7 @@ public class DatasetCreator {
      * <p>
      * Generate a dataset from the given annotations.
      * </p>
-     * 
+     *
      * @param annotations The annotations with value/tag type.
      */
     public void generateDataset(Collection<? extends Annotation> annotations) {
@@ -659,9 +637,7 @@ public class DatasetCreator {
 
         StopWatch stopWatch = new StopWatch();
 
-        LOGGER.info("start generating dataset with {} seeds per concept and at least {} mentions per seed",
-                seedsPerConcept, mentionsPerSeed);
-
+        LOGGER.info("start generating dataset with {} seeds per concept and at least {} mentions per seed", seedsPerConcept, mentionsPerSeed);
 
         // write the seeds to files
         Map<String, StringBuilder> fileMap = new HashMap<String, StringBuilder>();
@@ -729,18 +705,17 @@ public class DatasetCreator {
      * <p>
      * Generate datasets with increasing number of seeds.
      * </p>
-     * 
+     *
      * @param datasetLocation The location to the directory where to store the dataset, not <code>null</code>.
-     * @param searcher The {@link WebSearcher} to use for searching, not <code>null</code>.
-     * @param seedFile The file containing the entity seeds, not <code>null</code>. File must be in tab-separated column
-     *            format.
-     * @param minSeeds Starting/minimum number number of seeds, greater zero.
-     * @param maxSeeds Ending/maximum number of seeds, greater minSeeds.
+     * @param searcher        The {@link WebSearcher} to use for searching, not <code>null</code>.
+     * @param seedFile        The file containing the entity seeds, not <code>null</code>. File must be in tab-separated column
+     *                        format.
+     * @param minSeeds        Starting/minimum number number of seeds, greater zero.
+     * @param maxSeeds        Ending/maximum number of seeds, greater minSeeds.
      * @param mentionsPerSeed The minimum mentions which each seed entity should have at least, greater zero. This
-     *            basically resembles the number of queries to the search engine per entity.
+     *                        basically resembles the number of queries to the search engine per entity.
      */
-    public static void generateDatasets(File datasetLocation, Searcher<WebContent> searcher, File seedFile,
-            int minSeeds, int maxSeeds, int mentionsPerSeed) {
+    public static void generateDatasets(File datasetLocation, Searcher<WebContent> searcher, File seedFile, int minSeeds, int maxSeeds, int mentionsPerSeed) {
         Validate.notNull(datasetLocation, "datasetLocation must not be null");
         if (!datasetLocation.exists() && !datasetLocation.mkdirs()) {
             throw new IllegalStateException("Could not create directory " + datasetLocation);
@@ -757,8 +732,7 @@ public class DatasetCreator {
             dsc.generateDataset(seedFile);
 
             // copy the cleansed, combined "allColumn.txt" from each subfolder in the main folder
-            FileHelper.copyFile(new File(currentLocation, "allColumn.txt").getPath(), new File(datasetLocation,
-                    "seedsTest" + seeds + ".txt").getPath());
+            FileHelper.copyFile(new File(currentLocation, "allColumn.txt").getPath(), new File(datasetLocation, "seedsTest" + seeds + ".txt").getPath());
         }
     }
 

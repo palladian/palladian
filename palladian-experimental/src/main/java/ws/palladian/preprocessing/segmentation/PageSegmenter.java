@@ -1,32 +1,10 @@
 package ws.palladian.preprocessing.segmentation;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ConfigHolder;
@@ -38,15 +16,24 @@ import ws.palladian.helper.math.SetSimilarities;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+
 /**
  * <p>
  * The PageSegmenter segments a given URL into independent parts and rates the importance for each part.
  * </p>
- * 
+ *
  * @author Silvio Rabe
  * @author David Urbansky
  * @author Philipp Katz
- * 
  */
 public class PageSegmenter {
 
@@ -114,11 +101,11 @@ public class PageSegmenter {
      * Colors the segments of the document based on a comparison with similar documents. Every conflict node will be
      * evaluated in all documents to get a similarity value. Based on this value a colored border is placed.
      * </p>
-     * 
+     *
      * @param chosenSegmentsInput A list of segments to color. Either a list of xPaths as string
-     *            or a list of Segments.
-     * @param kindOfColoring Defines the kind of the coloring of segments. true for borders,
-     *            false for background
+     *                            or a list of Segments.
+     * @param kindOfColoring      Defines the kind of the coloring of segments. true for borders,
+     *                            false for background
      */
     @SuppressWarnings("unchecked")
     public void colorSegments(List<?> chosenSegmentsInput, Boolean kindOfColoring) {
@@ -136,11 +123,9 @@ public class PageSegmenter {
         String colorString = "\n.myPageSegmenterBorder_dummy_NOTINUSE { border: 2px solid blue; }\n";
         for (int i = 0; i < colorScale.length; i++) {
             if (kindOfColoring) {
-                colorString = colorString + ".myPageSegmenterBorder" + i + " { border: 2px solid " + colorScale[i]
-                        + "; }\n";
+                colorString = colorString + ".myPageSegmenterBorder" + i + " { border: 2px solid " + colorScale[i] + "; }\n";
             } else {
-                colorString = colorString + ".myPageSegmenterBorder" + i + " { background-color: " + colorScale[i]
-                        + "; }\n";
+                colorString = colorString + ".myPageSegmenterBorder" + i + " { background-color: " + colorScale[i] + "; }\n";
             }
         }
 
@@ -171,7 +156,7 @@ public class PageSegmenter {
         }
 
         if (chosenSegmentsInput.get(0).getClass().getSimpleName().equals("Segment")) {
-            chosenSegments = (List<Segment>)chosenSegmentsInput;
+            chosenSegments = (List<Segment>) chosenSegmentsInput;
         }
 
         // checks the similarity of ALL nodes
@@ -179,7 +164,7 @@ public class PageSegmenter {
             Segment testSeg = chosenSegments.get(i);
             LOGGER.info(testSeg.getVariability() + " " + testSeg.getColor() + " " + testSeg.getXPath());
 
-            Element e2 = (Element)XPathHelper.getXhtmlNode(document, testSeg.getXPath());
+            Element e2 = (Element) XPathHelper.getXhtmlNode(document, testSeg.getXPath());
 
             String border = "";
             Segment.Color color = testSeg.getColor();
@@ -242,8 +227,7 @@ public class PageSegmenter {
                 }
 
                 if (index2 < index3 && index1 != -1) {
-                    webpage = webpage.substring(0, index2) + "></" + tag + "><!--fixedForPageSegmenter-->"
-                            + webpage.substring(index2 + 2, webpage.length());
+                    webpage = webpage.substring(0, index2) + "></" + tag + "><!--fixedForPageSegmenter-->" + webpage.substring(index2 + 2, webpage.length());
                 }
 
                 if (index2 <= index3) {
@@ -263,7 +247,7 @@ public class PageSegmenter {
         try {
             print = new FileOutputStream(newStoreLocation);
             for (int i = 0; i < webpage.length(); i++) {
-                print.write((byte)webpage.charAt(i));
+                print.write((byte) webpage.charAt(i));
             }
             print.close();
         } catch (FileNotFoundException e) {
@@ -285,18 +269,17 @@ public class PageSegmenter {
      * non-conflict-nodes. A conflict is described as a node(and its subtree) that is not equal in both documents. A
      * maximum tree depth to check can be defined.
      * </p>
-     * 
-     * @param document1 The document that needs to be segmented.
-     * @param document2 A document with high similarity to document1.
-     * @param conflictNodes A list of all xpaths to conflict-nodes. Recursively built.
+     *
+     * @param document1        The document that needs to be segmented.
+     * @param document2        A document with high similarity to document1.
+     * @param conflictNodes    A list of all xpaths to conflict-nodes. Recursively built.
      * @param nonConflictNodes A list of all xpaths to non-conflict-nodes. Recursively built.
-     * @param level The level(depth)of the tree to check.
-     * @param xPath The xPath generated by recursion.
+     * @param level            The level(depth)of the tree to check.
+     * @param xPath            The xPath generated by recursion.
      * @return A list of two ArrayLists. Conflict-nodes and non-conflict-nodes.
      */
     @SuppressWarnings("unchecked")
-    private List<List<String>>[] compareDocuments(Document document1, Document document2, List<String> conflictNodes,
-            List<String> nonConflictNodes, int level, String xPath) {
+    private List<List<String>>[] compareDocuments(Document document1, Document document2, List<String> conflictNodes, List<String> nonConflictNodes, int level, String xPath) {
         NodeList helpList1 = document1.getFirstChild().getChildNodes();
         NodeList helpList2 = document2.getFirstChild().getChildNodes();
 
@@ -359,7 +342,7 @@ public class PageSegmenter {
             }
         }
 
-        return new List[] {conflictNodes, nonConflictNodes};
+        return new List[]{conflictNodes, nonConflictNodes};
     }
 
     /**
@@ -367,8 +350,8 @@ public class PageSegmenter {
      * Creates a fingerprint for a given {@link Document}. The fingerprint is a map of tag-q-grams combined with their
      * quantity.
      * </p>
-     * 
-     * @param url The URL of the document.
+     *
+     * @param url    The URL of the document.
      * @param number The limit of q-grams.
      * @param length The length of the q-grams.
      * @return A map of q-grams and their quantity.
@@ -382,8 +365,8 @@ public class PageSegmenter {
             tagList.append(" ").append(tag);
         }
 
-        Bag<String> tagBag = Bag.create(Tokenizer.calculateWordNGramsAsList(tagList.toString(), length));
-        Bag<String> highest = Bag.create();
+        Bag<String> tagBag = new Bag<>(Tokenizer.calculateWordNGramsAsList(tagList.toString(), length));
+        Bag<String> highest = new Bag<>();
         for (Entry<String, Integer> entry : tagBag.unique()) {
             highest.add(entry.getKey(), entry.getValue());
         }
@@ -394,9 +377,9 @@ public class PageSegmenter {
      * <p>
      * Finds the main segments.
      * </p>
-     * 
+     *
      * @param segments A list of segments to find the main segments for. Can be prefiltered, e.g.
-     *            find only the RED and GREEN main segments.
+     *                 find only the RED and GREEN main segments.
      * @return A list of main segments.
      */
     public List<Segment> findMainSegments(List<Segment> segments) {
@@ -413,8 +396,7 @@ public class PageSegmenter {
                 for (int i2 = 0; i2 < segments.size(); i2++) {
                     Segment seg2 = segments.get(i2);
 
-                    if (seg2.getNode().isSameNode(node3) && !seg2.equals(seg1)
-                            && seg2.getColor().equals(seg1.getColor())) {
+                    if (seg2.getNode().isSameNode(node3) && !seg2.equals(seg1) && seg2.getColor().equals(seg1.getColor())) {
                         segments.remove(seg1);
                         i1--;
                         cancel = true;
@@ -444,17 +426,15 @@ public class PageSegmenter {
      * <p>
      * Find similar files for an given {@link Document}.
      * </p>
-     * 
-     * @param document The document to search similar files for.
-     * @param qgramNumber The number of q-grams to use.
-     * @param qgramLength The length of q-grams to use.
+     *
+     * @param document       The document to search similar files for.
+     * @param qgramNumber    The number of q-grams to use.
+     * @param qgramLength    The length of q-grams to use.
      * @param similarityNeed Defines how much similarity is needed to be similar. Value between 0 and 1, e.g. 0.88)
-     * @param limit The maximum of similar files to find.
-     * 
+     * @param limit          The maximum of similar files to find.
      * @return A list of documents similar to the given URL.
      */
-    private List<Document> findSimilarFiles(Document document, int qgramNumber, int qgramLength, double similarityNeed,
-            int limit) {
+    private List<Document> findSimilarFiles(Document document, int qgramNumber, int qgramLength, double similarityNeed, int limit) {
         Map<Document, Double> result = new LinkedHashMap<Document, Double>();
 
         Document d = document;
@@ -524,8 +504,7 @@ public class PageSegmenter {
         for (int i = 0; i < size; i++) {
             String currentURL = te2.get(i);
             String currentLabel = PageSegmenterHelper.getLabelOfURL(currentURL);
-            if (!label.equals(currentLabel) && label.matches("^[0-9]+$") && !currentLabel.matches("^[0-9]+$")
-                    || !label.equals(currentLabel) && !label.matches("^[0-9]+$")) {
+            if (!label.equals(currentLabel) && label.matches("^[0-9]+$") && !currentLabel.matches("^[0-9]+$") || !label.equals(currentLabel) && !label.matches("^[0-9]+$")) {
                 te2.remove(i);
                 i--;
                 te2.add(size - 1, currentURL);
@@ -563,19 +542,17 @@ public class PageSegmenter {
                 Double vari = SimilarityCalculator.calculateSimilarity(page1, page2);
                 Double jacc = SetSimilarities.JACCARD.getSimilarity(page1.uniqueItems(), page2.uniqueItems());
 
-                String variString = ((Double)((1 - vari) * 100)).toString();
+                String variString = ((Double) ((1 - vari) * 100)).toString();
                 variString = variString.substring(0, Math.min(5, variString.length()));
 
                 double erg = (1 - vari + jacc) / 2;
 
                 if (erg >= similarityNeed && erg < 1.0) {
                     result.put(currentDocument, erg);
-                    LOGGER.info("Seiten verwenden wahrscheinlich dasselbe Template. (" + variString + "%, Jaccard="
-                            + jacc + ")----------" + result.size());
+                    LOGGER.info("Seiten verwenden wahrscheinlich dasselbe Template. (" + variString + "%, Jaccard=" + jacc + ")----------" + result.size());
 
                 } else {
-                    LOGGER.info("Unterschied zu groß. Seiten verwenden wahrscheinlich nicht dasselbe Template. ("
-                            + variString + "%, Jaccard=" + jacc + ")");
+                    LOGGER.info("Unterschied zu groß. Seiten verwenden wahrscheinlich nicht dasselbe Template. (" + variString + "%, Jaccard=" + jacc + ")");
                 }
 
                 LOGGER.info("----------------------------------------------------------------------------------------");
@@ -604,20 +581,19 @@ public class PageSegmenter {
      * <p>
      * Generates a list of segments after the segmentation has been done.
      * </p>
-     * 
-     * @param document The original document.
-     * @param conflictNodes The conflict nodes of the document.
+     *
+     * @param document         The original document.
+     * @param conflictNodes    The conflict nodes of the document.
      * @param nonConflictNodes The non-conflict nodes of the document.
      * @return A list of segments.
      */
-    private List<Segment> generateListOfSegments(Document document, Map<String, Double> conflictNodes,
-            List<String> nonConflictNodes) {
+    private List<Segment> generateListOfSegments(Document document, Map<String, Double> conflictNodes, List<String> nonConflictNodes) {
 
         List<Segment> allSegments = new ArrayList<Segment>();
 
         for (int i = 0; i < nonConflictNodes.size(); i++) {
             String xPath = nonConflictNodes.get(i);
-            Element node = (Element)XPathHelper.getXhtmlNode(document, xPath);
+            Element node = (Element) XPathHelper.getXhtmlNode(document, xPath);
             if (node == null) {
                 continue;
             }
@@ -630,7 +606,7 @@ public class PageSegmenter {
         for (Map.Entry<String, Double> pairs : conflictNodes.entrySet()) {
             String xPath = pairs.getKey();
             Double significance = pairs.getValue();
-            Element node = (Element)XPathHelper.getXhtmlNode(document, xPath);
+            Element node = (Element) XPathHelper.getXhtmlNode(document, xPath);
             if (node == null) {
                 continue;
             }
@@ -647,7 +623,7 @@ public class PageSegmenter {
      * <p>
      * Returns all segments. {@link #startPageSegmentation()} has to be used first.
      * </p>
-     * 
+     *
      * @return A list of Segments.
      */
     public List<Segment> getAllSegments() {
@@ -658,7 +634,7 @@ public class PageSegmenter {
      * <p>
      * Returns only the xPaths of the segments.
      * </p>
-     * 
+     *
      * @return A list of XPaths.
      */
     public List<String> getAllXPaths() {
@@ -675,7 +651,7 @@ public class PageSegmenter {
      * <p>
      * Returns the list of similar files.
      * </p>
-     * 
+     *
      * @return A list of similar files.
      */
     public List<Document> getSimilarFiles() {
@@ -686,9 +662,9 @@ public class PageSegmenter {
      * <p>
      * Returns segments in the range from beginValue to endValue.
      * </p>
-     * 
+     *
      * @param beginValue The begin value of variability
-     * @param endValue The end value of variability
+     * @param endValue   The end value of variability
      * @return A list of Segments.
      */
     public List<Segment> getSpecificSegments(double beginValue, double endValue) {
@@ -708,7 +684,7 @@ public class PageSegmenter {
      * <p>
      * Returns only segments specified by color.
      * </p>
-     * 
+     *
      * @param color The color of segments to return. E.g. "Segment.Color.RED"
      * @return A list of Segments.
      */
@@ -736,17 +712,16 @@ public class PageSegmenter {
         PageSegmenter.amountOfQGrams = config.getInt("pageSegmentation.amountOfQGrams", DEFAULT_AMOUNT_OF_Q_GRAMS);
         PageSegmenter.similarityNeed = config.getDouble("pageSegmentation.similarityNeed", DEFAULT_SIMILARITY_NEED);
         PageSegmenter.maxDepth = config.getInt("pageSegmentation.maxDepth", DEFAULT_MAX_DEPTH);
-        PageSegmenter.numberOfSimilarDocuments = config.getInt("pageSegmentation.numberOfSimilarDocuments",
-                DEFAULT_NUM_SIMILAR_DOCUMENTS);
+        PageSegmenter.numberOfSimilarDocuments = config.getInt("pageSegmentation.numberOfSimilarDocuments", DEFAULT_NUM_SIMILAR_DOCUMENTS);
     }
 
     /**
      * <p>
      * Tries to find a mutual xPath for the given segments and returns all the segments under that path.
      * </p>
-     * 
+     *
      * @param allSegments A list of segments. Can be prefiltered, like only RED.
-     * @param level The number of rounds. 1 is enough.
+     * @param level       The number of rounds. 1 is enough.
      * @return A list of segments under the mutual xPath.
      */
     public List<String> makeMutual(List<Segment> allSegments, int level) {
@@ -816,8 +791,7 @@ public class PageSegmenter {
         // "if" makes it possible to set similar files; e.g. for the evaluation
         if (similarFiles == null) {
             LOGGER.info("Start findSimilarFiles------------------");
-            similarFiles = findSimilarFiles(document, amountOfQGrams, lengthOfQGrams, similarityNeed,
-                    numberOfSimilarDocuments);
+            similarFiles = findSimilarFiles(document, amountOfQGrams, lengthOfQGrams, similarityNeed, numberOfSimilarDocuments);
         }
 
         // End of step 1 and 2 of the algorithm ////////////////////////////////////////////////////////
@@ -840,23 +814,20 @@ public class PageSegmenter {
             Document doc2 = PageSegmenterHelper.transformNodeToDocument(bodyNode2);
 
             // returns a list of xpaths of all conflict and a second of all non-conflict nodes of the actual compare
-            List[] allNodes = compareDocuments(doc1, doc2, new ArrayList<String>(), new ArrayList<String>(), maxDepth,
-                    "/html/body");
+            List[] allNodes = compareDocuments(doc1, doc2, new ArrayList<String>(), new ArrayList<String>(), maxDepth, "/html/body");
 
-            LOGGER.info(allNodes[0].size() + "-" + conflictNodes.size() + "="
-                    + (allNodes[0].size() - conflictNodes.size()) + " zu " + conflictNodes.size() * 50 / 100);
-            if (allNodes[0].size() - conflictNodes.size() < conflictNodes.size() * 50 / 100
-                    || conflictNodes.size() == 0) {
+            LOGGER.info(allNodes[0].size() + "-" + conflictNodes.size() + "=" + (allNodes[0].size() - conflictNodes.size()) + " zu " + conflictNodes.size() * 50 / 100);
+            if (allNodes[0].size() - conflictNodes.size() < conflictNodes.size() * 50 / 100 || conflictNodes.size() == 0) {
                 // adds the new conflict nodes to the list of all conflict nodes
                 for (int j = 0; j < allNodes[0].size(); j++) {
                     if (!conflictNodes.contains(allNodes[0].get(j))) {
-                        conflictNodes.add((String)allNodes[0].get(j));
+                        conflictNodes.add((String) allNodes[0].get(j));
                     }
                 }
                 // adds the new non-conflict nodes to the list of all non-conflict nodes
                 for (int j = 0; j < allNodes[1].size(); j++) {
                     if (!nonConflictNodes.contains(allNodes[1].get(j))) {
-                        nonConflictNodes.add((String)allNodes[1].get(j));
+                        nonConflictNodes.add((String) allNodes[1].get(j));
                     }
                 }
                 LOGGER.info("Size conflictNodes: " + conflictNodes.size());
@@ -885,8 +856,7 @@ public class PageSegmenter {
 
         // Start of rating the segments (step 4) ////////////////////////////////////////////////////////
 
-        Map<String, Double> conflictNodesIncSim = SimilarityCalculator.calculateSimilarityForAllNodes(document,
-                conflictNodes, similarFiles);
+        Map<String, Double> conflictNodesIncSim = SimilarityCalculator.calculateSimilarityForAllNodes(document, conflictNodes, similarFiles);
 
         segments = generateListOfSegments(document, conflictNodesIncSim, nonConflictNodes);
 
@@ -900,8 +870,8 @@ public class PageSegmenter {
     /**
      * Main function to test PageSegmenter
      */
-    public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException,
-            TransformerFactoryConfigurationError, TransformerException, PageContentExtractorException {
+    public static void main(String[] args)
+            throws SAXException, IOException, ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException, PageContentExtractorException {
 
         // Crawler c = new Crawler();
         // String URL="http://blogalm.de/";
@@ -909,8 +879,7 @@ public class PageSegmenter {
 
         LOGGER.info("test: " + lengthOfQGrams);
         PageSegmenter seg = new PageSegmenter();
-        LOGGER.info("test: " + lengthOfQGrams + " " + amountOfQGrams + " " + similarityNeed + " " + maxDepth + " "
-                + numberOfSimilarDocuments);
+        LOGGER.info("test: " + lengthOfQGrams + " " + amountOfQGrams + " " + similarityNeed + " " + maxDepth + " " + numberOfSimilarDocuments);
 
         // seg.setDocument("http://www.informatikforum.de/forumdisplay.php?f=98");
         // seg.setDocument("http://www.informatikforum.de/showthread.php?t=1381");

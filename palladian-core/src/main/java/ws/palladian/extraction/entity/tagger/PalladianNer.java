@@ -1,24 +1,8 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static ws.palladian.core.Annotation.TAG_CONVERTER;
-import static ws.palladian.core.Token.VALUE_CONVERTER;
-import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
-import static ws.palladian.helper.functional.Predicates.not;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.text.*;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
@@ -37,6 +21,21 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static ws.palladian.core.Annotation.TAG_CONVERTER;
+import static ws.palladian.core.Token.VALUE_CONVERTER;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.LanguageIndependent;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
+import static ws.palladian.helper.functional.Predicates.not;
 
 /**
  * <p>
@@ -244,7 +243,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      * @param filePath The path to the dictionary file.
      */
     public void setEntityDictionary(String filePath) {
-        final DictionaryBuilder entityDictionaryBuilder = createDictionaryBuilder(); // FIXME not here?
+        final DictionaryBuilder entityDictionaryBuilder = createDictionaryBuilder(); // XXX not here?
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
             @Override
             public void performAction(String line, int lineNumber) {
@@ -265,7 +264,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
     private DictionaryBuilder createDictionaryBuilder() {
         DictionaryTrieModel.Builder builder = new DictionaryTrieModel.Builder();
         int minCount = 1;
-        // FIXME what's going on here, why can this be null?
+        // XXX what's going on here, why can this be null?
         if (trainingSettings != null) {
             minCount = trainingSettings.getMinDictionaryCount();
         }
@@ -355,7 +354,7 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
 
         if (trainingSettings.isEqualizeTypeCounts()) {
             // XXX also add to trainLanguageIndependent?
-            Bag<String> typeCounts = Bag.create(CollectionHelper.convert(fileAnnotations, TAG_CONVERTER));
+            Bag<String> typeCounts = new Bag<>(CollectionHelper.convert(fileAnnotations, TAG_CONVERTER));
             int minCount = typeCounts.getMin().getValue();
             Annotations<Annotation> equalizedSampling = new Annotations<>();
             for (String type : typeCounts.uniqueItems()) {
@@ -592,7 +591,6 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
         annotations.addAll(toAdd);
     }
 
-
     private void unwrapWithContext(Set<Annotation> annotations) {
         Set<Annotation> toAdd = new HashSet<>();
         Set<Annotation> toRemove = new HashSet<>();
@@ -697,8 +695,8 @@ public class PalladianNer extends TrainableNamedEntityRecognizer implements Clas
      */
     private Set<String> buildLeftContexts(String text, Annotations<Annotation> annotations) {
         LOGGER.info("Building left contexts");
-        Bag<String> leftContextCounts = Bag.create();
-        Bag<String> insideAnnotationCounts = Bag.create();
+        Bag<String> leftContextCounts = new Bag<>();
+        Bag<String> insideAnnotationCounts = new Bag<>();
         for (Annotation annotation : annotations) {
             leftContextCounts.addAll(NerHelper.getLeftContexts(annotation, text, 3));
             String[] split = annotation.getValue().split("\\s");

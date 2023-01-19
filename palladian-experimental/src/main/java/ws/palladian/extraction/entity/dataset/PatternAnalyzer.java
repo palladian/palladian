@@ -12,8 +12,8 @@ public class PatternAnalyzer {
 
     private StringBuilder analyzePatterns(String type, String xml, Pattern pattern) {
 
-        Bag<String> patternPrefixCounts = Bag.create();
-        Bag<String> patternSuffixCounts = Bag.create();
+        Bag<String> patternPrefixCounts = new Bag<>();
+        Bag<String> patternSuffixCounts = new Bag<>();
 
         Matcher matcher = pattern.matcher(xml);
         while (matcher.find()) {
@@ -48,8 +48,7 @@ public class PatternAnalyzer {
         String[] types = {"LOCATION", "ORGANIZATION", "PERSON"};
 
         String w = "[\\w,:;-]+";
-        String p = "(" + w + "\\s" + w + "\\s" + w + ")\\s\\<TYPE\\>.*?\\</TYPE\\>\\s(" + w + "\\s" + w + "\\s" + w
-                + ")";
+        String p = "(" + w + "\\s" + w + "\\s" + w + ")\\s\\<TYPE\\>.*?\\</TYPE\\>\\s(" + w + "\\s" + w + "\\s" + w + ")";
 
         String xml = FileHelper.tryReadFileToString(filePath);
 

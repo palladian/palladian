@@ -27,7 +27,7 @@ public class LocalFeatureExtractor implements FeatureExtractor {
 
     @Override
     public FeatureVector extract(BufferedImage image) {
-        // FIXME following block is copied from GridSimilarityExtractor
+        // TODO following block is copied from GridSimilarityExtractor
         int cellWidth = image.getWidth() / divisions;
         int cellHeight = image.getHeight() / divisions;
         BufferedImage[] cells = new BufferedImage[divisions * divisions];

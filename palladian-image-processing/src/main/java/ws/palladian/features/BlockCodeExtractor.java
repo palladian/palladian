@@ -26,7 +26,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
     }
 
     public enum BlockSize {
-        // FIXME should be (1) but for evaluation purposes this was a dirty fix
+        // TODO should be (1) but for evaluation purposes this was a dirty fix
         ONE_BY_ONE(2), TWO_BY_TWO(2), THREE_BY_THREE(3), FOUR_BY_FOUR(4), FIVE_BY_FIVE(5);
 
         int length;
@@ -57,8 +57,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
     /** Whether to include the number of colors in a certain pixel block in the block code. */
     private boolean numberOfColorsInCode = false;
 
-    public BlockCodeExtractor(Colors numberOfColors, int pixelationSize, BlockSize blockSize, BlockSize imageSections,
-            boolean numberOfColorsInCode) {
+    public BlockCodeExtractor(Colors numberOfColors, int pixelationSize, BlockSize blockSize, BlockSize imageSections, boolean numberOfColorsInCode) {
         this.numberOfColors = numberOfColors;
         this.pixelationSize = pixelationSize;
         this.blockSize = blockSize;
@@ -159,10 +158,10 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 double[] doubles = ColorSpaceConverter.rgbToHsb(color);
                 doubles[2] = 0.25 * 256;
                 int[] ints = ColorSpaceConverter.hsbToRrb(doubles);
-                Color shiftedColor1 = new Color(ints[0],ints[1],ints[2]);
+                Color shiftedColor1 = new Color(ints[0], ints[1], ints[2]);
                 doubles[2] = 0.75 * 256;
                 ints = ColorSpaceConverter.hsbToRrb(doubles);
-                Color shiftedColor2 = new Color(ints[0],ints[1],ints[2]);
+                Color shiftedColor2 = new Color(ints[0], ints[1], ints[2]);
                 colorsToAdd.add(shiftedColor1);
                 colorsToAdd.add(shiftedColor2);
             }
@@ -184,8 +183,8 @@ public class BlockCodeExtractor implements FeatureExtractor {
         // int blockSize = 2;
 
         // each image is divided into sections and when creating a block, we need to know which section it belongs to
-        int sectionWidth = (int)((double)image.getWidth() / imageSections.getLength());
-        int sectionHeight = (int)((double)image.getHeight() / imageSections.getLength());
+        int sectionWidth = (int) ((double) image.getWidth() / imageSections.getLength());
+        int sectionHeight = (int) ((double) image.getHeight() / imageSections.getLength());
 
         // word length, number of pixels (in one dimension, e.g. blocksize 2x2 and pixelation size of 4 makes 2*4=8
         // pixel word length
@@ -193,11 +192,11 @@ public class BlockCodeExtractor implements FeatureExtractor {
 
         String entireCode = "";
 
-        int i1 = (int)((double)image.getWidth() / wordLength);
-        int i2 = (int)((double)image.getHeight() / wordLength);
+        int i1 = (int) ((double) image.getWidth() / wordLength);
+        int i2 = (int) ((double) image.getHeight() / wordLength);
 
         switch (blockSize) {
-            // FIXME, this is confusing, ONE_BY_ONE means only 2x2 but discard the shape code later
+            // TODO, this is confusing, ONE_BY_ONE means only 2x2 but discard the shape code later
             case ONE_BY_ONE:
             case TWO_BY_TWO:
                 for (int j = 0; j < i2; j++) {
@@ -206,8 +205,8 @@ public class BlockCodeExtractor implements FeatureExtractor {
                         int blockY = wordLength * j;
 
                         // which section does the block fall into?
-                        int sx = (int)((double)blockX / sectionWidth) + 1;
-                        int sy = (int)((double)blockY / sectionHeight);
+                        int sx = (int) ((double) blockX / sectionWidth) + 1;
+                        int sy = (int) ((double) blockY / sectionHeight);
                         int sectionNumber = sy * imageSections.getLength() + sx;
 
                         Color[] block = new Color[4];
@@ -227,8 +226,8 @@ public class BlockCodeExtractor implements FeatureExtractor {
                         int blockY = wordLength * j;
 
                         // which section does the block fall into?
-                        int sx = (int)((double)blockX / sectionWidth) + 1;
-                        int sy = (int)((double)blockY / sectionHeight);
+                        int sx = (int) ((double) blockX / sectionWidth) + 1;
+                        int sy = (int) ((double) blockY / sectionHeight);
                         int sectionNumber = sy * imageSections.getLength() + sx;
 
                         Color[] block = new Color[9];
@@ -262,7 +261,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
      * 4. sectionCode
      * NOTE: we end each word with ! to prevent the stemmer from taking our "s"
      * An example word would be 3a5p!
-     * 
+     *
      * @param block
      * @param imageSection The number of the section where we found the
      * @return
@@ -272,7 +271,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
         String mainColorCode = "";
         int shapeCode = 0;
 
-        Bag<Color> colorCounter = Bag.create();
+        Bag<Color> colorCounter = new Bag<>();
         double averageBlockBrightness = 0;
         for (Color aBlock : block) {
             colorCounter.add(aBlock);
@@ -287,7 +286,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
             int pos = 97;
             for (Color color : palette) {
                 if (s.equals(color)) {
-                    mainColorCode = Character.toString((char)pos);
+                    mainColorCode = Character.toString((char) pos);
                     break;
                 }
                 pos++;
@@ -323,18 +322,15 @@ public class BlockCodeExtractor implements FeatureExtractor {
                 if (numberOfColors == 1) {
                     // all the same
                     shapeCode = 1;
-                } else if ((block[0].equals(block[3]) && block[0].equals(block[6]))
-                        || (block[1].equals(block[4]) && block[1].equals(block[7]))
-                        || (block[2].equals(block[5]) && block[2].equals(block[8]))) {
+                } else if ((block[0].equals(block[3]) && block[0].equals(block[6])) || (block[1].equals(block[4]) && block[1].equals(block[7])) || (block[2].equals(block[5])
+                        && block[2].equals(block[8]))) {
                     // |
                     shapeCode = 2;
-                } else if ((block[0].equals(block[1]) && block[0].equals(block[2]))
-                        || (block[3].equals(block[4]) && block[3].equals(block[5]))
-                        || (block[6].equals(block[7]) && block[6].equals(block[8]))) {
+                } else if ((block[0].equals(block[1]) && block[0].equals(block[2])) || (block[3].equals(block[4]) && block[3].equals(block[5])) || (block[6].equals(block[7])
+                        && block[6].equals(block[8]))) {
                     // -
                     shapeCode = 3;
-                } else if ((block[0].equals(block[4]) && block[0].equals(block[8]))
-                        || (block[2].equals(block[4]) && block[2].equals(block[6]))) {
+                } else if ((block[0].equals(block[4]) && block[0].equals(block[8])) || (block[2].equals(block[4]) && block[2].equals(block[6]))) {
                     // X
                     shapeCode = 4;
                 }
@@ -368,7 +364,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
             default:
         }
         if (quantificationLevel > 0) {
-            int brightnessNormalized = (int)(quantificationLevel * averageBlockBrightness / 256);
+            int brightnessNormalized = (int) (quantificationLevel * averageBlockBrightness / 256);
             brightness = String.valueOf(brightnessNormalized);
         }
 
@@ -396,7 +392,7 @@ public class BlockCodeExtractor implements FeatureExtractor {
             mainColorCode = brightness;
         }
 
-        blockCode += mainColorCode + shapeCode + Character.toString((char)(96 + imageSection)) + "!";
+        blockCode += mainColorCode + shapeCode + Character.toString((char) (96 + imageSection)) + "!";
 
         return blockCode;
     }

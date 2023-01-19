@@ -1,35 +1,32 @@
-package ws.palladian.extraction.multimedia;
+package ws.palladian.utils;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.extraction.multimedia.ImageHandler;
+import ws.palladian.helper.math.NumericMatrix;
+import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.math.NumericMatrix;
-import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
-
 /**
  * The {@link HeatGridGenerator} visualizes numeric matrices with intensity values [0,1].
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
 public final class HeatGridGenerator {
-
     /**
      * A ColorCoder maps a given intensity to a Color.
-     * 
+     *
      * @author Philipp Katz
      */
     public static interface ColorCoder {
         /**
          * Transform the given intensity to a Color.
-         * 
+         *
          * @param intensity The intensity in range [0,1].
          * @return The Color for the given intensity.
          */
@@ -70,7 +67,7 @@ public final class HeatGridGenerator {
 
         @Override
         public Color getColor(double intensity) {
-            int bucket = (int)Math.round(intensity * (palette.size() - 1));
+            int bucket = (int) Math.round(intensity * (palette.size() - 1));
             return palette.get(bucket);
         }
 
@@ -91,7 +88,7 @@ public final class HeatGridGenerator {
 
         @Override
         public Color getColor(double intensity) {
-            int alpha = (int)Math.round(intensity * 255);
+            int alpha = (int) Math.round(intensity * 255);
             return new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), alpha);
         }
 
@@ -104,9 +101,9 @@ public final class HeatGridGenerator {
 
     /**
      * Create a new {@link HeatGridGenerator}.
-     * 
+     *
      * @param colorCoder The {@link ColorCoder} for transforming the numeric values to colors, not <code>null</code>.
-     * @param tileSize The size of the tiles in pixels, must be greater zero.
+     * @param tileSize   The size of the tiles in pixels, must be greater zero.
      */
     public HeatGridGenerator(ColorCoder colorCoder, int tileSize) {
         Validate.notNull(colorCoder, "colorCoder must not be null");
@@ -120,8 +117,8 @@ public final class HeatGridGenerator {
      * Generate a heat grid from the given data matrix <code>M(n,m)</code>. The grid will contain <code>n*m</code>
      * squares with intensity values in the range [0,1] depending on the value at M(n,m) = intensity.
      * </p>
-     * 
-     * @param data The data matrix with intensity values in the range [0,1], not <code>null</code>.
+     *
+     * @param data      The data matrix with intensity values in the range [0,1], not <code>null</code>.
      * @param imagePath The path where the image should be saved to, not <code>null</code> or empty.
      */
     public <T> void generateHeatGrid(NumericMatrix<T> data, String imagePath) {

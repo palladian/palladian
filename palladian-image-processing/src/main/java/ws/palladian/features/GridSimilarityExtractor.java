@@ -13,7 +13,6 @@ import java.io.IOException;
 
 import static ws.palladian.features.SymmetryFeatureExtractor.similarity;
 import static ws.palladian.features.color.Luminosity.LUMINOSITY;
-import static ws.palladian.utils.ImageUtils.getRGB;
 
 public class GridSimilarityExtractor implements FeatureExtractor {
     private final int divisions;
@@ -34,7 +33,7 @@ public class GridSimilarityExtractor implements FeatureExtractor {
             for (int yIdx = 0; yIdx < divisions; yIdx++) {
                 int x = xIdx * cellWidth;
                 int y = yIdx * cellHeight;
-                cells[xIdx * divisions + yIdx] = getRGB(image.getSubimage(x, y, cellWidth, cellHeight));
+                cells[xIdx * divisions + yIdx] = ImageHandler.getRGB(image.getSubimage(x, y, cellWidth, cellHeight));
             }
         }
         Stats stats = new FatStats();

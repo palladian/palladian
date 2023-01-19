@@ -10,8 +10,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-import static ws.palladian.utils.ImageUtils.*;
-
 /**
  * Detect similarity in an image when mirroring horizontally/vertically/both. A
  * high "horizontal similarity" e.g. denotes that an image is similar to itself,
@@ -30,11 +28,11 @@ public class SymmetryFeatureExtractor implements FeatureExtractor {
     @Override
     public FeatureVector extract(BufferedImage image) {
         InstanceBuilder instanceBuilder = new InstanceBuilder();
-        int[] rgbImage = getRGB(image);
-        int[] flippedVertically = getRGB(flipVertically(image));
-        int[] flippedHorizontally = getRGB(flipHorizontally(image));
-        int[] flippedBoth = getRGB(flipVertically(flipHorizontally(image)));
-        int[] rotated180 = getRGB(rotate180(image));
+        int[] rgbImage = ImageHandler.getRGB(image);
+        int[] flippedVertically = ImageHandler.getRGB(ImageHandler.flipVertically(image));
+        int[] flippedHorizontally = ImageHandler.getRGB(ImageHandler.flipHorizontally(image));
+        int[] flippedBoth = ImageHandler.getRGB(ImageHandler.flipVertically(ImageHandler.flipHorizontally(image)));
+        int[] rotated180 = ImageHandler.getRGB(ImageHandler.rotate180(image));
         for (ColorExtractor extractor : extractors) {
             double simHorizontal = similarity(rgbImage, flippedVertically, extractor);
             double simVertical = similarity(rgbImage, flippedHorizontally, extractor);

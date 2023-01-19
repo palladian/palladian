@@ -14,7 +14,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
 
 /**
  * Wrapper for the {@link PalladianTextClassifier} for classifying image BOWs.
- * 
+ *
  * @author pk
  */
 public class PalladianDictionaryClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
@@ -51,13 +51,13 @@ public class PalladianDictionaryClassifier implements Learner<DictionaryModel>, 
 
     @Override
     public DictionaryModel train(Dataset dataset) {
-        // FIXME
+        // TODO
         throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
     public DictionaryModel train(Dataset training, Dataset validation) {
-        // FIXME
+        // TODO
         throw new UnsupportedOperationException("not yet implemented");
     }
 
@@ -73,7 +73,7 @@ public class PalladianDictionaryClassifier implements Learner<DictionaryModel>, 
         for (VectorEntry<String, Value> entry : vector) {
             if (entry.value() instanceof NumericValue) {
                 // XXX introduce "BagOfWordsValue"?
-                NumericValue count = (NumericValue)entry.value();
+                NumericValue count = (NumericValue) entry.value();
                 for (long i = 0; i < count.getLong(); i++) {
                     dummyText.append(entry.key());
                     dummyText.append(" ");

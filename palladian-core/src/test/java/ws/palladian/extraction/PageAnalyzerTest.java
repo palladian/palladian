@@ -1,15 +1,7 @@
 package ws.palladian.extraction;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.FileNotFoundException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Test;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.PageAnalyzer;
@@ -17,16 +9,22 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.io.FileNotFoundException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * Test cases for the XPath handling via PageAnalyzer.
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz
  */
 public class PageAnalyzerTest {
-
-    // FIXME PageAnalyzer is in palladian-retrieval, test in palladian-core,
+    // TODO PageAnalyzer is in palladian-retrieval, test in palladian-core,
     // but test resources in palladian-core, so I cannot just move it.
 
     private final DocumentParser parser = ParserFactory.createHtmlParser();
@@ -58,47 +56,34 @@ public class PageAnalyzerTest {
         assertEquals(PageAnalyzer.nodeInTable("/div/table/tr/xhtml:td[6]/div[3]/p", 3), true);
 
         // test find last box section
-        assertEquals(PageAnalyzer.findLastBoxSection("/xhtml:table/xhtml:tr/xhtml:td/xhtml:div[4]/xhtml:span/xhtml:b/xhtml:a"),
-                "/xhtml:table/xhtml:tr/xhtml:td/xhtml:div[4]");
+        assertEquals(PageAnalyzer.findLastBoxSection("/xhtml:table/xhtml:tr/xhtml:td/xhtml:div[4]/xhtml:span/xhtml:b/xhtml:a"), "/xhtml:table/xhtml:tr/xhtml:td/xhtml:div[4]");
 
         // test get next sibling
         // assertEquals("/div/p/table/tr/td/a/b", PageAnalyzer.getNextSibling("/div/p/table/tr/td/a/b"));
         assertEquals(PageAnalyzer.getNextSibling("/div/p/table[4]/tr[6]/td[1]/a/b"), "/div/p/table[4]/tr[6]/td[2]/a/b");
         assertEquals(PageAnalyzer.getNextSibling("/div/p/table[4]/tr[6]/xhtml:th/b/a"), "/div/p/table[4]/tr[6]/xhtml:td[1]/b/a");
-        assertEquals(PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/xhtml:th/div[6]/a"),
-                "/div/p/table[4]/tr[6]/xhtml:td[1]/div[6]/a");
-        assertEquals(PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"),
-                "/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i");
-        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i",
-                PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/td/div[6]/p[8]/a/i"));
-        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i",
-                PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/th/div[6]/p[8]/a/i"));
-        assertEquals("/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i",
-                PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"));
+        assertEquals(PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/xhtml:th/div[6]/a"), "/div/p/table[4]/tr[6]/xhtml:td[1]/div[6]/a");
+        assertEquals(PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"), "/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i");
+        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i", PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/td/div[6]/p[8]/a/i"));
+        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i", PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/th/div[6]/p[8]/a/i"));
+        assertEquals("/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i", PageAnalyzer.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"));
 
         // test get parent node
         assertEquals(PageAnalyzer.getParentNode("/table[6]/tr/td[5]/div/a"), "/table[6]/tr/td[5]/div");
 
         // test remove counts
-        assertEquals("/html/body/div/div/div/div/ul/li",
-                PageAnalyzer.removeXPathIndices("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]"));
+        assertEquals("/html/body/div/div/div/div/ul/li", PageAnalyzer.removeXPathIndices("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]"));
 
-        assertEquals(
-                "/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li/small",
-                PageAnalyzer
-                .removeXPathIndicesFromLastCountNode("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]/small"));
+        assertEquals("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li/small",
+                PageAnalyzer.removeXPathIndicesFromLastCountNode("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]/small"));
 
         // test remove count not
-        String[] rcElements = { "ul", "div" };
-        String xPath = PageAnalyzer
-                .removeXPathIndicesNot(
-                        "/html/body/div/div[1]/div/div[2]/table[2]/tbody/tr[3]/td/div/div/table[1]/tbody/tr/td/table/tbody/tr[13]/td[2]/div/span[7]/a",
-                        rcElements);
+        String[] rcElements = {"ul", "div"};
+        String xPath = PageAnalyzer.removeXPathIndicesNot(
+                "/html/body/div/div[1]/div/div[2]/table[2]/tbody/tr[3]/td/div/div/table[1]/tbody/tr/td/table/tbody/tr[13]/td[2]/div/span[7]/a", rcElements);
         // System.out.println(xPath);
-        assertEquals(
-                "/html/body/div/div[1]/div/div[2]/table/tbody/tr/td/div/div/table/tbody/tr/td/table/tbody/tr/td/div/span/a",
-                xPath);
-        String[] rcElements2 = { "ul", "div" };
+        assertEquals("/html/body/div/div[1]/div/div[2]/table/tbody/tr/td/div/div/table/tbody/tr/td/table/tbody/tr/td/div/span/a", xPath);
+        String[] rcElements2 = {"ul", "div"};
         xPath = PageAnalyzer.removeXPathIndicesNot("/html/body/div/div[1]/div/div[2]/ul[1]/li[1]", rcElements2);
         assertEquals("/html/body/div/div[1]/div/div[2]/ul[1]/li", xPath);
 
@@ -146,22 +131,16 @@ public class PageAnalyzerTest {
 
         // System.out.println(PageAnalyzer.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website27.html"),"/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website27.html"));
-        assertEquals(
-                3,
-                PageAnalyzer.getNumberOfTableColumns(
-                        doc,
-                        "/html/body/form/table/tbody/tr[2]/td/div/table/tbody/tr/td/table/tbody/tr/td[1]/table/tbody/tr[3]/td/div/table/tbody/tr/td[2]/div/div/span/span/span/table[1]/tbody/tr/td[2]/font"));
+        assertEquals(3, PageAnalyzer.getNumberOfTableColumns(doc,
+                "/html/body/form/table/tbody/tr[2]/td/div/table/tbody/tr/td/table/tbody/tr/td[1]/table/tbody/tr[3]/td/div/table/tbody/tr/td[2]/div/div/span/span/span/table[1]/tbody/tr/td[2]/font"));
 
         // System.out.println(PageAnalyzer.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website29.html"),"/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website29.html"));
-        assertEquals(5,
-                PageAnalyzer.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td"));
+        assertEquals(5, PageAnalyzer.getNumberOfTableColumns(doc, "/html/body/center/table[1]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td"));
 
         // System.out.println(PageAnalyzer.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website33.html"),"/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website33.html"));
-        assertEquals(2,
-                PageAnalyzer.getNumberOfTableColumns(doc,
-                        "/html/body/div/div/div/table/tbody/tr/td/table[3]/tbody/tr/td[2]/table/tbody/tr/td/a/span"));
+        assertEquals(2, PageAnalyzer.getNumberOfTableColumns(doc, "/html/body/div/div/div/table/tbody/tr/td/table[3]/tbody/tr/td[2]/table/tbody/tr/td/a/span"));
 
         // System.out.println(PageAnalyzer.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website65.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/DIV/TABLE[1]/TR/TD"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website65.html"));
@@ -173,8 +152,7 @@ public class PageAnalyzerTest {
 
         // System.out.println(PageAnalyzer.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website69.html"),"/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
         doc = parser.parse(ResourceHelper.getResourceFile("/webPages/website69.html"));
-        assertEquals(4, PageAnalyzer.getNumberOfTableColumns(doc,
-                "/html/body/div/div/layer/div/table/tbody/tr/td[3]/div/table/tbody/tr/td/table/tbody/tr/td/font/a"));
+        assertEquals(4, PageAnalyzer.getNumberOfTableColumns(doc, "/html/body/div/div/layer/div/table/tbody/tr/td[3]/div/table/tbody/tr/td/table/tbody/tr/td/font/a"));
 
     }
 

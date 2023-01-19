@@ -1,19 +1,9 @@
 package ws.palladian.extraction;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -27,6 +17,8 @@ import ws.palladian.helper.nlp.StringMetric;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
+
+import java.util.*;
 
 /**
  * <p>
@@ -43,7 +35,7 @@ import ws.palladian.retrieval.XPathSet;
  * <p>
  * If no good list is found, an empty string is returned.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class ListDiscoverer {
@@ -91,7 +83,7 @@ public class ListDiscoverer {
      * </p>
      * TODO also find "next" and "previous" button if no other pagination is given
      * TODO find pagination in drop down boxes
-     * 
+     *
      * @return A set of URLs.
      */
     public Set<String> findPaginationURLs() {
@@ -113,13 +105,9 @@ public class ListDiscoverer {
                 String nodeText = StringHelper.trim(currentNode.getTextContent());
                 nodeText = nodeText.replaceAll("\\[", "").replaceAll("\\]", "");
                 // System.out.println(nodeText+" | "+currentNode.getTextContent());
-                if (nodeText.length() > 0
-                        && (nodeText.length() <= 3 && StringHelper.isNumber(nodeText) || nodeText.length() == 1
-                                && StringHelper.isCompletelyUppercase(nodeText) || nodeText.toLowerCase().indexOf(
-                                "next") > -1
-                                && nodeText.length() < 8)) {
-                    paginationPaths.add(PageAnalyzer.removeXPathIndices(PageAnalyzer.constructXPath(currentNode),
-                            removeCountElements));
+                if (nodeText.length() > 0 && (nodeText.length() <= 3 && StringHelper.isNumber(nodeText) || nodeText.length() == 1 && StringHelper.isCompletelyUppercase(nodeText)
+                        || nodeText.toLowerCase().indexOf("next") > -1 && nodeText.length() < 8)) {
+                    paginationPaths.add(PageAnalyzer.removeXPathIndices(PageAnalyzer.constructXPath(currentNode), removeCountElements));
                 }
             }
 
@@ -148,7 +136,7 @@ public class ListDiscoverer {
                         hrefTexts.add(hrefText);
                     }
 
-                    if ((double)samePageLinks / (double)hrefNodes.size() > 0.5) {
+                    if ((double) samePageLinks / (double) hrefNodes.size() > 0.5) {
                         paginationXPath = "";
                         return paginationURLs;
                     }
@@ -190,9 +178,9 @@ public class ListDiscoverer {
                 int count = paginationPaths.getCountOfXPath(paginationXPath);
                 // System.out.println("one element: "+pa.getTextByXpath(document, paginationXPath));
                 if (count == 1/*
-                               * || (count == 2 && !StringHelper.trim(pa.getTextByXpath(document,
-                               * paginationXPath)).equals("1,2"))
-                               */) {
+                 * || (count == 2 && !StringHelper.trim(pa.getTextByXpath(document,
+                 * paginationXPath)).equals("1,2"))
+                 */) {
                     String pathText = StringHelper.trim(PageAnalyzer.getTextByXPath(document, paginationXPath));
                     if (pathText.toLowerCase().indexOf("next") == -1 && !pathText.equals("1")) {
                         paginationXPath = "";
@@ -200,14 +188,14 @@ public class ListDiscoverer {
                     }
 
                 }/*
-                  * else if (count > 1 && count < 20) { String pathText = StringHelper.trim(pa.getTextByXpath(document,
-                  * paginationXPath)); String[] entries =
-                  * pathText.split(","); int numericCount = 0; for (int i = 0; i < entries.length; i++) { if
-                  * (StringHelper.isNumericExpression(entries[i]))
-                  * numericCount++; } if ((double) numericCount / (double) entries.length < 0.4 &&
-                  * (pathText.indexOf("A") == -1 || pathText.indexOf("B") == -1
-                  * || pathText.indexOf("C") == -1)) { paginationXPath = ""; } }
-                  */
+                 * else if (count > 1 && count < 20) { String pathText = StringHelper.trim(pa.getTextByXpath(document,
+                 * paginationXPath)); String[] entries =
+                 * pathText.split(","); int numericCount = 0; for (int i = 0; i < entries.length; i++) { if
+                 * (StringHelper.isNumericExpression(entries[i]))
+                 * numericCount++; } if ((double) numericCount / (double) entries.length < 0.4 &&
+                 * (pathText.indexOf("A") == -1 || pathText.indexOf("B") == -1
+                 * || pathText.indexOf("C") == -1)) { paginationXPath = ""; } }
+                 */
 
             } else {
                 // TODO link similarity check: http://openwetware.org/wiki/OpenWetWare:Feature_list/Lab_notebook
@@ -295,7 +283,7 @@ public class ListDiscoverer {
      * </p>
      */
     private void filterPaginationUrls() {
-        Bag<Integer> countMap = Bag.create();
+        Bag<Integer> countMap = new Bag();
         for (String url : paginationURLs) {
             countMap.add(url.length());
         }
@@ -327,13 +315,12 @@ public class ListDiscoverer {
 
     /**
      * Get a set of xPaths.
-     * 
+     *
      * @param document The document the xPaths are constructed for.
      * @return A set of xPaths.
      */
     public XPathSet getXPathSet(Document document) {
-        String[] listElements = {"//ul/li", "//ol/li", "//td", "//h2", "//h3", "//h4", "//h5", "//h6", "//a", "//i",
-                "//div", "//strong", "//span"};
+        String[] listElements = {"//ul/li", "//ol/li", "//td", "//h2", "//h3", "//h4", "//h5", "//h6", "//a", "//i", "//div", "//strong", "//span"};
         XPathSet xPathSet = new XPathSet();
 
         // pa.printDOM(document.getLastChild()," ");
@@ -509,7 +496,7 @@ public class ListDiscoverer {
 
         // if almost everything is the same, it indicates that it is the same page but with another url (e.g. different
         // sorting etc.)
-        if ((double)samePathContent / (double)xPathSet.getXPathMap().entrySet().size() >= 0.9) {
+        if ((double) samePathContent / (double) xPathSet.getXPathMap().entrySet().size() >= 0.9) {
             LOGGER.info("sibling url was probably the same as source url");
             return xPathSet;
         }
@@ -519,7 +506,6 @@ public class ListDiscoverer {
 
     public int findEntityColumn(Document document, String entityXPath) {
         int entityColumn = 0; // 0 means all columns are uniform and can be taken for extraction
-
 
         // find out how many columns the table has
         int columnCount = PageAnalyzer.getNumberOfTableColumns(document, entityXPath);
@@ -532,8 +518,7 @@ public class ListDiscoverer {
         for (int i = 1; i <= columnCount; i++) {
             List<String> columnEntries = new ArrayList<String>();
             List<Node> columnNodes = XPathHelper.getXhtmlNodes(document, setIndex(entityXPath, "td", i));
-            List<Node> pureColumnNodes = XPathHelper.getXhtmlNodes(document,
-                    PageAnalyzer.getTableCellPath(setIndex(entityXPath, "td", i)));
+            List<Node> pureColumnNodes = XPathHelper.getXhtmlNodes(document, PageAnalyzer.getTableCellPath(setIndex(entityXPath, "td", i)));
             for (int j = 0; j < columnNodes.size(); j++) {
                 columnEntries.add(columnNodes.get(j).getTextContent());
             }
@@ -574,8 +559,7 @@ public class ListDiscoverer {
             if (index == 0) {
                 updatedXPath += xPath.substring(elementIndex).replaceAll(element + "\\[(\\d)+\\]", element);
             } else {
-                updatedXPath += xPath.substring(elementIndex).replaceAll(element + "\\[(\\d)+\\]",
-                        element + "[" + index + "]");
+                updatedXPath += xPath.substring(elementIndex).replaceAll(element + "\\[(\\d)+\\]", element + "[" + index + "]");
             }
         } else if (index > 0) {
             updatedXPath += xPath.substring(elementIndex).replaceAll(element, element + "[" + index + "]");
@@ -595,7 +579,7 @@ public class ListDiscoverer {
      * <li>there are not more than 10% entries that have duplicates</li>
      * <li>there are not more than 10% entries missing</li>
      * </ul>
-     * 
+     *
      * @param entries
      * @return True if the list entries are uniform, else false.
      */
@@ -646,22 +630,22 @@ public class ListDiscoverer {
             }
         }
 
-        if ((double)numericEntries / (double)totalEntries > 0.15) {
+        if ((double) numericEntries / (double) totalEntries > 0.15) {
             LOGGER.info("entries not uniform because too many numeric entries");
             return false;
         }
-        if ((double)completelyCapitalized / (double)totalEntries > 0.5) {
+        if ((double) completelyCapitalized / (double) totalEntries > 0.5) {
             LOGGER.info("entries not uniform because too many entirely capitalized entries");
             return false;
         }
-        if ((double)totalWordLength / (double)totalEntries > 12) {
+        if ((double) totalWordLength / (double) totalEntries > 12) {
             LOGGER.info("entries not uniform because average word length too long");
             return false;
         }
-        if (tableDuplicateCheck && (double)duplicateCount / (double)totalEntries > 0.1) {
+        if (tableDuplicateCheck && (double) duplicateCount / (double) totalEntries > 0.1) {
             LOGGER.info("entries not uniform because too many duplicates");
             return false;
-        } else if (!tableDuplicateCheck && (double)duplicateWordCount / (double)duplicateCountSet.size() > 0.6) {
+        } else if (!tableDuplicateCheck && (double) duplicateWordCount / (double) duplicateCountSet.size() > 0.6) {
             LOGGER.info("entries not uniform because too many duplicate words");
             return false;
         }
@@ -690,6 +674,7 @@ public class ListDiscoverer {
     }
 
     // TODO save pages where entities are extracted and that have attributes on them
+
     /**
      * @param args
      */

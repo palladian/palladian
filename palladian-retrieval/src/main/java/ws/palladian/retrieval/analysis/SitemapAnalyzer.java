@@ -1,28 +1,12 @@
 package ws.palladian.retrieval.analysis;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
-import java.util.function.Consumer;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -34,18 +18,27 @@ import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.services.SemRush;
 
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
 /**
  * <p>
  * Retrieve all pages listed in a sitemap and create a reporting file, that looks as follows:
  * </p>
- * 
+ *
  * <pre>
  * URL   |  accessible | internal-links-in | internal-links-out | external-links in | external-links out | #words | size-in-KB | indexed-by-Google
  * -----------------------------------------------------------------------------------------------------------------------------------------------
  * </pre>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class SitemapAnalyzer {
     /** The logger for this class. */
@@ -62,7 +55,7 @@ public class SitemapAnalyzer {
 
     public SitemapAnalyzer() {
         resultTable = new ConcurrentHashMap<>();
-        internalInboundLinkMap = Bag.create();
+        internalInboundLinkMap = new Bag<>();
     }
 
     public int getNumThreads() {
@@ -106,7 +99,7 @@ public class SitemapAnalyzer {
                 }
 
                 try {
-                    HttpResult httpResult = (HttpResult)document.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
+                    HttpResult httpResult = (HttpResult) document.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
                     map.put("accessible", httpResult.getStatusCode() < 400);
                 } catch (Exception e) {
                 }
@@ -155,17 +148,15 @@ public class SitemapAnalyzer {
             }
         };
 
-        LOGGER.info("starting to process each page (" + urls.size() + " in total), time elapsed: "
-                + stopWatch.getElapsedTimeString());
+        LOGGER.info("starting to process each page (" + urls.size() + " in total), time elapsed: " + stopWatch.getElapsedTimeString());
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        httpRetriever.setConnectionTimeout((int)TimeUnit.SECONDS.toMillis(120));
-        httpRetriever.setSocketTimeout((int)TimeUnit.SECONDS.toMillis(120));
+        httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(120));
+        httpRetriever.setSocketTimeout((int) TimeUnit.SECONDS.toMillis(120));
         DocumentRetriever documentRetriever = new DocumentRetriever(httpRetriever);
         documentRetriever.setNumThreads(getNumThreads());
         documentRetriever.getWebDocuments(urls, retrieverCallback);
 
-        LOGGER.info("gathering all internal inbound link information, time elapsed: "
-                + stopWatch.getElapsedTimeString());
+        LOGGER.info("gathering all internal inbound link information, time elapsed: " + stopWatch.getElapsedTimeString());
         for (String url : urls) {
             Map<String, Object> map = resultTable.get(url);
             if (map != null) {
@@ -177,8 +168,7 @@ public class SitemapAnalyzer {
         LOGGER.info("saving the result table, time elapsed: " + stopWatch.getElapsedTimeString());
         Writer writer = null;
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(analysisResultFilePath, true),
-                    "UTF-8"));
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(analysisResultFilePath, true), "UTF-8"));
             writer.append("page;accessible;in-int;out-int;in-ext;out-ext;#words;size KB;indexed\n");
             for (Entry<String, Map<String, Object>> entry : resultTable.entrySet()) {
                 writer.append(entry.getKey() + ";");

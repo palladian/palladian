@@ -21,10 +21,9 @@ import ws.palladian.helper.io.LineAction;
  * <p>
  * A co-occurrence matrix.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <T> The type of objects this {@link CooccurrenceMatrix} keeps.
+ * @author Philipp Katz
  */
 public final class CooccurrenceMatrix implements Serializable {
 
@@ -42,7 +41,7 @@ public final class CooccurrenceMatrix implements Serializable {
 
     public CooccurrenceMatrix() {
         pairs = new CountMatrix<String>(new PairMatrix<String, Integer>());
-        items = Bag.create();
+        items = new Bag<>();
     }
 
     public CooccurrenceMatrix add(String itemA, String itemB) {
@@ -52,8 +51,8 @@ public final class CooccurrenceMatrix implements Serializable {
 
     public CooccurrenceMatrix add(String itemA, String itemB, int count) {
         pairs.add(itemB, itemA, count);
-//        items.add(itemA, count);
-//        items.add(itemB, count);
+        //        items.add(itemA, count);
+        //        items.add(itemB, count);
         return this;
     }
 
@@ -100,11 +99,11 @@ public final class CooccurrenceMatrix implements Serializable {
     public double getProbability(String item) {
         return getProbability(item, false);
     }
-    
+
     public double getProbability(String item, boolean smoothing) {
         int s1 = smoothing ? 1 : 0;
         int s2 = smoothing ? getNumUniqueItems() : 0;
-        return (double)(getCount(item) + s1) / (getNumItems() + s2);
+        return (double) (getCount(item) + s1) / (getNumItems() + s2);
     }
 
     /**
@@ -112,7 +111,7 @@ public final class CooccurrenceMatrix implements Serializable {
      * Get the conditional probability P(itemA|itemB), i.e. the probability for itemA, given itemB. Calculated as
      * <code>P(itemA|itemB) = count(itemB,itemA) / count(itemB)</code>.
      * </p>
-     * 
+     *
      * @param itemA First item, not <code>null</code>.
      * @param itemB Second item, not <code>null</code>.
      * @return
@@ -128,7 +127,7 @@ public final class CooccurrenceMatrix implements Serializable {
         // consider implementing better smoothing algorithm, see lecture PDFs, page 71 ff.
         int s1 = smoothing ? 1 : 0;
         int s2 = smoothing ? items.unique().size() : 0;
-        return (double)(getCount(itemB, itemA) + s1) / (getCount(itemB) + s2);
+        return (double) (getCount(itemB, itemA) + s1) / (getCount(itemB) + s2);
     }
 
     /**
@@ -144,8 +143,8 @@ public final class CooccurrenceMatrix implements Serializable {
     public void save(OutputStream stream) {
         PrintWriter writer = null;
         try {
-            long totalCount = (long)items.uniqueItems().size();
-            totalCount += (long)pairs.getRowKeys().size() * pairs.getColumnKeys().size();
+            long totalCount = (long) items.uniqueItems().size();
+            totalCount += (long) pairs.getRowKeys().size() * pairs.getColumnKeys().size();
             ProgressMonitor monitor = new ProgressMonitor();
             monitor.startTask(null, totalCount);
             writer = new PrintWriter(stream);
@@ -219,7 +218,7 @@ public final class CooccurrenceMatrix implements Serializable {
         builder.append("]");
         return builder.toString();
     }
-    
+
     public String toVerboseString() {
         StringBuilder builder = new StringBuilder();
         builder.append("numItems: ").append(getNumItems()).append('\n');

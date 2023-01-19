@@ -9,7 +9,6 @@ import org.apache.http.protocol.HttpContext;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLProtocolException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -36,7 +35,7 @@ class CustomSslSocketFactory extends SSLSocketFactory {
      * Unfortunately we need this to create a new socket on a retry.
      */
     private Socket createSocketCustom(HttpContext context) throws IOException {
-        Socket sock = super.createSocket(context); // FIXME help <- context (enable sni) is ignored in create socket super
+        Socket sock = super.createSocket(context); // TODO help <- context (enable sni) is ignored in create socket super
         sock.setSoTimeout(socketConfig.getSoTimeout());
         sock.setReuseAddress(socketConfig.isSoReuseAddress());
         sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
@@ -48,14 +47,8 @@ class CustomSslSocketFactory extends SSLSocketFactory {
         return sock;
     }
 
-    private Socket connectSocketSni(
-            final int connectTimeout,
-            final Socket socket,
-            final HttpHost host,
-            final InetSocketAddress remoteAddress,
-            final InetSocketAddress localAddress,
-            HttpContext context,
-            final boolean enableSni) throws IOException {
+    private Socket connectSocketSni(final int connectTimeout, final Socket socket, final HttpHost host, final InetSocketAddress remoteAddress, final InetSocketAddress localAddress,
+            HttpContext context, final boolean enableSni) throws IOException {
         try {
             if (context == null) {
                 context = new BasicHttpContext();
@@ -63,7 +56,7 @@ class CustomSslSocketFactory extends SSLSocketFactory {
             return super.connectSocket(connectTimeout, socket, host, remoteAddress, localAddress, context);
         } catch (SSLHandshakeException e) {
             if (enableSni && e.getMessage() != null && e.getMessage().contains("unrecognized_name")) {
-//                System.out.println("Server received saw wrong SNI host, retrying without SNI, host: " + host);
+                //                System.out.println("Server received saw wrong SNI host, retrying without SNI, host: " + host);
                 context.setAttribute(ENABLE_SNI, false);
                 // We need to create a new socket to retry (the first one is closed after IOException)
                 // Is there a clean way to do this?
@@ -75,30 +68,21 @@ class CustomSslSocketFactory extends SSLSocketFactory {
     }
 
     @Override
-    public Socket connectSocket(
-            final int connectTimeout,
-            final Socket socket,
-            final HttpHost host,
-            final InetSocketAddress remoteAddress,
-            final InetSocketAddress localAddress,
+    public Socket connectSocket(final int connectTimeout, final Socket socket, final HttpHost host, final InetSocketAddress remoteAddress, final InetSocketAddress localAddress,
             final HttpContext context) throws IOException {
-//        context.setAttribute(ENABLE_SNI, true);
+        //        context.setAttribute(ENABLE_SNI, true);
         return this.connectSocketSni(connectTimeout, socket, host, remoteAddress, localAddress, context, true);
     }
 
     @Override
-    public Socket createLayeredSocket(
-            final Socket socket,
-            final String target,
-            final int port,
-            final HttpContext context) throws IOException {
-    	boolean enableSni = true;
-    	if (context != null) {
-    		Object enableSniValue = context.getAttribute(ENABLE_SNI);
-    		if (enableSniValue instanceof Boolean) {
-    			enableSni = ((Boolean)enableSniValue).booleanValue();
-    		}
-    	}
+    public Socket createLayeredSocket(final Socket socket, final String target, final int port, final HttpContext context) throws IOException {
+        boolean enableSni = true;
+        if (context != null) {
+            Object enableSniValue = context.getAttribute(ENABLE_SNI);
+            if (enableSniValue instanceof Boolean) {
+                enableSni = ((Boolean) enableSniValue).booleanValue();
+            }
+        }
         return super.createLayeredSocket(socket, enableSni ? target : "", port, context);
     }
 }

@@ -1,10 +1,11 @@
-package ws.palladian.extraction.multimedia;
+package ws.palladian.utils;
 
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 

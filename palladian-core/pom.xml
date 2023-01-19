@@ -83,7 +83,7 @@
         </pluginManagement>
     </build>
     <properties>
-        <lucene-version>8.11.1</lucene-version>
+        <lucene-version>8.11.2</lucene-version>
     </properties>
     <dependencies>
         <dependency>
@@ -113,30 +113,19 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.16</version>
+            <version>8.0.31</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.21</version>
+            <version>1.22</version>
         </dependency>
         <dependency>
             <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
             <version>1.0.19</version>
         </dependency>
-        <!-- TODO think about including those JavaIO Plugins -->
-        <!--<dependency>-->
-        <!--<groupId>com.twelvemonkeys.imageio</groupId>-->
-        <!--<artifactId>imageio</artifactId>-->
-        <!--<version>3.2.1</version>-->
-        <!--</dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.javatuples</groupId>-->
-        <!--            <artifactId>javatuples</artifactId>-->
-        <!--            <version>1.2</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>org.imgscalr</groupId>
             <artifactId>imgscalr-lib</artifactId>

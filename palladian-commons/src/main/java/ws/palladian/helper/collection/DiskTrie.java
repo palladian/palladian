@@ -31,9 +31,6 @@ public class DiskTrie<V> extends Trie<V> {
     private boolean dataWrittenToDisk = false;
     private File dataFolder;
 
-    /**
-     * FIXME do we really need to return something here?
-     */
     @Override
     public V put(String key, V value) {
         Validate.notEmpty(key, "key must not be empty");

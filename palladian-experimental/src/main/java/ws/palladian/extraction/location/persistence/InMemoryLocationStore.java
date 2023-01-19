@@ -30,10 +30,10 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
  * <p>
  * In-memory location store; location lookup by name is pretty fast; ID lookup is slow, because the underlying array
  * needs to be iterated (this functionality is no commonly used though).
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://stackoverflow.com/questions/10064422/java-on-memory-efficient-key-value-store">Foundation for
- *      code: Stack Overflow: Java On-Memory Efficient Key-Value Store</a>
+ * code: Stack Overflow: Java On-Memory Efficient Key-Value Store</a>
  */
 public final class InMemoryLocationStore extends SingleQueryLocationSource implements LocationStore {
 
@@ -53,7 +53,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
 
     /**
      * Initialize in-memory store from another {@link LocationSource} by copying all content.
-     * 
+     *
      * @param source The location source from which to copy locations.
      */
     public InMemoryLocationStore(LocationSource source) {
@@ -105,13 +105,13 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
 
     @Override
     public Iterator<Location> getLocations() {
-        // FIXME iterator gives duplicates; only return locations here, where hash key matches primary name?
-        return new AbstractIterator2<Location>() {
+        // TODO iterator gives duplicates; only return locations here, where hash key matches primary name?
+        return new AbstractIterator2<>() {
             int idx = 0;
 
             @Override
             protected Location getNext() {
-                for (; idx < locations.length;) {
+                for (; idx < locations.length; ) {
                     LocationContainer locationContainer = locations[idx++];
                     if (locationContainer != null) {
                         return locationContainer.createLocation();
@@ -163,7 +163,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
     /**
      * More memory efficient storage than a {@link Location}. Avoids memory intensive collection and wrapper objects and
      * uses primitive data types as far as possible.
-     * 
+     *
      * @author Philipp Katz
      */
     private static final class LocationContainer {
@@ -216,13 +216,13 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
                 }
             }
             GeoCoordinate coordinate = location.getCoordinate();
-            this.lat = coordinate != null ? (float)coordinate.getLatitude() : Float.NaN;
-            this.lng = coordinate != null ? (float)coordinate.getLongitude() : Float.NaN;
+            this.lat = coordinate != null ? (float) coordinate.getLatitude() : Float.NaN;
+            this.lng = coordinate != null ? (float) coordinate.getLongitude() : Float.NaN;
         }
 
         /**
          * Encode all names of the location into a compressed char[].
-         * 
+         *
          * @param location The location.
          * @return The char[] which contains all name information.
          */
@@ -303,7 +303,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
     @Override
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -311,12 +311,12 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
         // TODO Auto-generated method stub
         return 0;
     }
-    
+
     @Override
     public void startImport() {
         // nothing to to
     }
-    
+
     @Override
     public void finishImport() {
         // nothing to to

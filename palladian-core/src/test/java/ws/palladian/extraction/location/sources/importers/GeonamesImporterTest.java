@@ -1,8 +1,13 @@
 package ws.palladian.extraction.location.sources.importers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.sources.CollectionLocationStore;
+import ws.palladian.extraction.location.sources.importers.GeonamesImporter.InputStreamProvider;
+import ws.palladian.helper.constants.Language;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,15 +16,9 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationType;
-import ws.palladian.extraction.location.sources.CollectionLocationStore;
-import ws.palladian.extraction.location.sources.importers.GeonamesImporter.InputStreamProvider;
-import ws.palladian.helper.constants.Language;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 public class GeonamesImporterTest {
     private static final class FileInputStreamProvider implements InputStreamProvider {
@@ -42,10 +41,8 @@ public class GeonamesImporterTest {
         locationStore = new CollectionLocationStore();
         GeonamesImporter importer = new GeonamesImporter(locationStore, null);
         InputStreamProvider hierarchyFile = new FileInputStreamProvider(getResourceFile("/geonames.org/hierarchy.txt"));
-        InputStreamProvider locationFile = new FileInputStreamProvider(
-                getResourceFile("/geonames.org/locationData.txt"));
-        InputStreamProvider alternateNamesFile = new FileInputStreamProvider(
-                getResourceFile("/geonames.org/alternateNames.txt"));
+        InputStreamProvider locationFile = new FileInputStreamProvider(getResourceFile("/geonames.org/locationData.txt"));
+        InputStreamProvider alternateNamesFile = new FileInputStreamProvider(getResourceFile("/geonames.org/alternateNames.txt"));
         importer.importLocations(locationFile, hierarchyFile, alternateNamesFile);
     }
 
@@ -345,7 +342,7 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getLocation(7533618).getAncestorIds();
         checkHierarchy(hierarchy, 1819730, 6255147, 6295630);
 
-        // FIXME gives one wrong entry in hierarchy
+        // TODO gives one wrong entry in hierarchy
         // S.HTL > A.ADM1 > ...
         // hierarchy = locationStore.getLocation(6506150).getParentIds();
         // checkHierarchy(hierarchy, 6201196, 69543, 6255147, 6295630);
@@ -362,17 +359,17 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getLocation(2515819).getAncestorIds();
         checkHierarchy(hierarchy, 2511173, 2593110, 2510769, 6255148, 6295630);
 
-        // FIXME gives one additional entry in hierarchy (PPLX)
+        // TODO gives one additional entry in hierarchy (PPLX)
         // P.PPL > A.ADM1 > ...
         // hierarchy = locationStore.getLocation(2934163).getParentIds();
         // checkHierarchy(hierarchy, 2911297, 2921044, 6255148, 6295630);
 
-        // FIXME gives one wrong entry in hierarchy
+        // TODO gives one wrong entry in hierarchy
         // P.PPLL > A.ADM1 > ...
         // hierarchy = locationStore.getLocation(3480877).getParentIds();
         // checkHierarchy(hierarchy, 3631462, 3625428, 6255150, 6295630);
 
-        // FIXME gives one wrong entry in hierarchy
+        // TODO gives one wrong entry in hierarchy
         // P.PPLA3 > A.ADM3 > ...
         // hierarchy = locationStore.getLocation(2643741).getParentIds();
         // checkHierarchy(hierarchy, 2643744, 2648110, 6269131, 2635167, 6255148, 6295630);
@@ -385,7 +382,7 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getLocation(2509951).getAncestorIds();
         checkHierarchy(hierarchy, 2593113, 2510769, 6255148, 6295630);
 
-        // FIXME
+        // TODO
         // P.PPLA2 > A.ADM2 > ...
         // hierarchy = locationStore.getLocation(5125771).getParentIds();
         // checkHierarchy(hierarchy, 5128594, 5128638, 6252001, 6255149, 6295630);
@@ -396,7 +393,7 @@ public class GeonamesImporterTest {
         // checkHierarchy(hierarchy, 2953481, 2921044, 6255148, 6295630);
         checkHierarchy(hierarchy, 6255148, 6295630);
 
-        // FIXME gives a wrong entry in the hierarchy (taken from hierarchy.txt instead of admin hierarchy)
+        // TODO gives a wrong entry in the hierarchy (taken from hierarchy.txt instead of admin hierarchy)
         // L.PRK > A.ADM1 > ...
         // hierarchy = locationStore.getLocation(3183559).getParentIds();
         // checkHierarchy(hierarchy, 3183560, 3175395, 6255148, 6295630);
@@ -422,12 +419,12 @@ public class GeonamesImporterTest {
         hierarchy = locationStore.getLocation(2515699).getAncestorIds();
         checkHierarchy(hierarchy, 2515271, 2593110, 2510769, 6255148, 6295630);
 
-        // FIXME gives one additional step in the hierarchy
+        // TODO gives one additional step in the hierarchy
         // S.HSE > A.ADM2 > ...
         // hierarchy = locationStore.getLocation(5322473).getParentIds();
         // checkHierarchy(hierarchy, 5393021, 5332921, 6252001, 6255149, 6295630);
 
-        // FIXME gives one additional step in the hierarchy
+        // TODO gives one additional step in the hierarchy
         // L.LCTY > A.ADM2 > ...
         // hierarchy = locationStore.getLocation(3253374).getParentIds();
         // checkHierarchy(hierarchy, 3294874, 3230000, 3277605, 6255148, 6295630);

@@ -20,7 +20,7 @@ public class DocumentRetrieverTest {
     @Test
     public void testDocumentUriInCaseOfRedirects() {
         // will redirect to http://example.com
-        String redirectingUrl = "https://httpbingo.org/redirect-to?url=http%3A%2F%2Fexample.com%2F"; // FIXME returns 403 now, forbidden link redirect
+        String redirectingUrl = "https://httpbingo.org/redirect-to?url=http%3A%2F%2Fexample.com%2F"; // TODO returns 403 now, forbidden link redirect
         Document document = new DocumentRetriever().getWebDocument(redirectingUrl);
         assertEquals("http://example.com/", document.getDocumentURI());
     }

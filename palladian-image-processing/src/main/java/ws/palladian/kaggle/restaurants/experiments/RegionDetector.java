@@ -143,7 +143,7 @@ public class RegionDetector {
         ImageHandler.saveImage(croppedImage, "data/temp/pics/one-shape.jpg");
 
         // write colored surfaces
-//        ImageHandler.saveImage(subimage, "data/temp/pics/shape.bmp");
+        //        ImageHandler.saveImage(subimage, "data/temp/pics/shape.bmp");
 
         instanceBuilder.set("number_regions", regions.size());
         instanceBuilder.set("number_main_regions", numberOfMainRegions);
@@ -164,6 +164,6 @@ public class RegionDetector {
         BufferedImage original = ImageHandler.load("data/temp/pics/" + n + ".jpg");
         BufferedImage reduced = ImageHandler.reduceColors(original, 8);
         ImageHandler.saveImage(reduced, "data/temp/pics/" + n + "-ot.png");
-        RegionDetector.fillMainShape(ImageHandler.load("data/temp/pics/" +n+"-ot.png"));
+        RegionDetector.fillMainShape(ImageHandler.load("data/temp/pics/" + n + "-ot.png"));
     }
 }

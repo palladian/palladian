@@ -1,18 +1,17 @@
 package ws.palladian.retrieval.wiki;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MediaWikiUtilTest {
 
@@ -34,8 +33,7 @@ public class MediaWikiUtilTest {
     @Test
     public void testExtractTag() {
 
-        List<MarkupCoordinate> locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|0|N|30|W|type:waterbody_scale:100000000|display=title}}");
+        List<MarkupCoordinate> locations = MediaWikiUtil.extractCoordinateTag("{{Coord|0|N|30|W|type:waterbody_scale:100000000|display=title}}");
         assertEquals(1, locations.size());
 
         locations = MediaWikiUtil.extractCoordinateTag("{{Coord|57|18|22|N|4|27|32|W|display=title}}");
@@ -50,13 +48,12 @@ public class MediaWikiUtilTest {
         assertEquals(1, locations.size());
         assertEquals("title", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|44.117|-87.913|dim:30_region:US-WI_type:event|display=inline,title|name=accident site}}");
+        locations = MediaWikiUtil.extractCoordinateTag("{{Coord|44.117|-87.913|dim:30_region:US-WI_type:event|display=inline,title|name=accident site}}");
         assertEquals(1, locations.size());
         assertEquals("inline,title", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{coord|61.1631|-149.9721|type:landmark_globe:earth_region:US-AK_scale:150000_source:gnis|name=Kulis Air National Guard Base}}");
+        locations = MediaWikiUtil.extractCoordinateTag(
+                "{{coord|61.1631|-149.9721|type:landmark_globe:earth_region:US-AK_scale:150000_source:gnis|name=Kulis Air National Guard Base}}");
         assertEquals(1, locations.size());
         assertEquals("landmark", locations.get(0).getType());
 
@@ -81,19 +78,16 @@ public class MediaWikiUtilTest {
         assertEquals(1, locations.size());
         assertEquals("inline", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|51|1|41|N|13|43|36|E|type:edu_region:DE-SN|display=title}}");
+        locations = MediaWikiUtil.extractCoordinateTag("{{Coord|51|1|41|N|13|43|36|E|type:edu_region:DE-SN|display=title}}");
         assertEquals(1, locations.size());
         assertEquals("title", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{coord|51|3|7|N|13|44|30|E|display=it|region:DE_type:landmark}}");
+        locations = MediaWikiUtil.extractCoordinateTag("{{coord|51|3|7|N|13|44|30|E|display=it|region:DE_type:landmark}}");
         assertEquals(1, locations.size());
         assertEquals("landmark", locations.get(0).getType());
         assertEquals("it", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|38.89767|-77.03655|region:US-DC_type:landmark|display=title}}");
+        locations = MediaWikiUtil.extractCoordinateTag("{{Coord|38.89767|-77.03655|region:US-DC_type:landmark|display=title}}");
         assertEquals(1, locations.size());
         assertEquals("landmark", locations.get(0).getType());
         assertEquals("title", locations.get(0).getDisplay());
@@ -102,8 +96,7 @@ public class MediaWikiUtilTest {
         assertEquals(1, locations.size());
         assertEquals("inline", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|40|44|54.36|N|73|59|08.36|W|region:US-NY_type:landmark|name=Empire State Building|display=inline,title}}");
+        locations = MediaWikiUtil.extractCoordinateTag("{{Coord|40|44|54.36|N|73|59|08.36|W|region:US-NY_type:landmark|name=Empire State Building|display=inline,title}}");
         assertEquals(1, locations.size());
         assertEquals("landmark", locations.get(0).getType());
         assertEquals("inline,title", locations.get(0).getDisplay());
@@ -111,14 +104,13 @@ public class MediaWikiUtilTest {
         locations = MediaWikiUtil.extractCoordinateTag("{{coord|22|S|43|W}}");
         assertEquals(1, locations.size());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{coord|52|28|N|1|55|W|region:GB_type:city|notes=<ref>{{cite web|url=http://www.fallingrain.com/world/UK/0/Birmingham.html|title=Birmingham}}</ref>|display=inline,title}}");
+        locations = MediaWikiUtil.extractCoordinateTag(
+                "{{coord|52|28|N|1|55|W|region:GB_type:city|notes=<ref>{{cite web|url=http://www.fallingrain.com/world/UK/0/Birmingham.html|title=Birmingham}}</ref>|display=inline,title}}");
         assertEquals(1, locations.size());
         assertEquals("city", locations.get(0).getType());
         assertEquals("inline,title", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|51|30|N|9|26|W|region:IE_type:isle|display=title,inline}}");
+        locations = MediaWikiUtil.extractCoordinateTag("{{Coord|51|30|N|9|26|W|region:IE_type:isle|display=title,inline}}");
         assertEquals(1, locations.size());
         assertEquals("isle", locations.get(0).getType());
         assertEquals("title,inline", locations.get(0).getDisplay());
@@ -128,12 +120,10 @@ public class MediaWikiUtilTest {
         assertEquals("landmark", locations.get(0).getType());
         assertEquals("t", locations.get(0).getDisplay());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|display=title|41.5|N|100|W|region:US-NE_type:adm1st_scale:3000000}}");
-        // FIXME assertEquals(1, locations.size());
+        locations = MediaWikiUtil.extractCoordinateTag("{{Coord|display=title|41.5|N|100|W|region:US-NE_type:adm1st_scale:3000000}}");
+        // TODO assertEquals(1, locations.size());
 
-        locations = MediaWikiUtil
-                .extractCoordinateTag("{{Coord|40|N|86|W|display=title|region:US-IN_type:adm1st_scale:3000000}}");
+        locations = MediaWikiUtil.extractCoordinateTag("{{Coord|40|N|86|W|display=title|region:US-IN_type:adm1st_scale:3000000}}");
         assertEquals(1, locations.size());
         assertEquals(40., locations.get(0).getLatitude(), 0.00001);
         assertEquals(-86., locations.get(0).getLongitude(), 0.00001);
@@ -143,18 +133,15 @@ public class MediaWikiUtilTest {
     @Test
     public void testExtractExtraterrestical() {
         // example : http://en.wikipedia.org/wiki/Umbriel_(moon)
-        List<MarkupCoordinate> coordinates = MediaWikiUtil
-                .extractCoordinateTag("{{coord|7.9|S|273.6|E|dim:131.0km_globe:umbriel_type:landmark}}");
+        List<MarkupCoordinate> coordinates = MediaWikiUtil.extractCoordinateTag("{{coord|7.9|S|273.6|E|dim:131.0km_globe:umbriel_type:landmark}}");
         assertTrue(coordinates.isEmpty());
-        coordinates = MediaWikiUtil
-                .extractCoordinateTag("{{coord|37.4|S|44.3|E|dim:43.0km_globe:umbriel_type:landmark}}");
+        coordinates = MediaWikiUtil.extractCoordinateTag("{{coord|37.4|S|44.3|E|dim:43.0km_globe:umbriel_type:landmark}}");
         assertTrue(coordinates.isEmpty());
     }
 
     @Test
     public void testExtractCoordinateMarkupFromPages() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/San_Francisco_Bay_Area.wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/San_Francisco_Bay_Area.wikipedia"));
         WikiPage page = new WikiPage(0, 0, "San Francisco Bay Area", markup);
         List<MarkupCoordinate> markupLocations = MediaWikiUtil.extractCoordinateTag(page.getMarkup());
         assertEquals(1, markupLocations.size());
@@ -168,8 +155,7 @@ public class MediaWikiUtilTest {
         // assertEquals(41.5, CollectionHelper.getFirst(markupLocations).getLatitude(), 0.000001);
         // assertEquals(-100, CollectionHelper.getFirst(markupLocations).getLongitude(), 0.000001);
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/University_of_Pennsylvania.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/University_of_Pennsylvania.wikipedia"));
         page = new WikiPage(0, 0, "University of Pennsylvania", markup);
         markupLocations = MediaWikiUtil.extractCoordinateTag(page.getMarkup());
         assertEquals(1, markupLocations.size());
@@ -193,16 +179,14 @@ public class MediaWikiUtilTest {
         assertEquals(49.249444, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-122.979722, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Lancaster_Girls'_Grammar_School.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Lancaster_Girls'_Grammar_School.wikipedia"));
         page = new WikiPage(0, 0, "Lancaster Girls' Grammar School", markup);
         coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(54.04573, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-2.80332, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Saint_Kitts_and_Nevis.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Saint_Kitts_and_Nevis.wikipedia"));
         page = new WikiPage(0, 0, "Saint Kitts and Nevis", markup);
         coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
@@ -216,16 +200,14 @@ public class MediaWikiUtilTest {
         assertEquals(32.796389, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-79.765, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
         page = new WikiPage(0, 0, "Dry Fork (Cheat River)", markup);
         coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
         assertEquals(38.733611, CollectionHelper.getFirst(coordinates).getLatitude(), DELTA);
         assertEquals(-79.647778, CollectionHelper.getFirst(coordinates).getLongitude(), DELTA);
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Spice_Run_Wilderness.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Spice_Run_Wilderness.wikipedia"));
         page = new WikiPage(0, 0, "Spice Run Wilderness", markup);
         coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
@@ -239,8 +221,7 @@ public class MediaWikiUtilTest {
         // coordinates = WikipediaUtil.extractCoordinatesFromInfobox(data);
         // assertEquals(1, coordinates.size());
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/CraigsvilleWestVirginia.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/CraigsvilleWestVirginia.wikipedia"));
         page = new WikiPage(0, 0, "Craigsville, West Virginia", markup);
         coordinates = page.getInfoboxes().get(0).getCoordinates();
         assertEquals(1, coordinates.size());
@@ -257,14 +238,12 @@ public class MediaWikiUtilTest {
         assertEquals(44999, cleanText.length());
         assertEquals(82215810, cleanText.hashCode());
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/LutonAirportParkwayRailwayStation.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/LutonAirportParkwayRailwayStation.wikipedia"));
         cleanText = MediaWikiUtil.stripMediaWikiMarkup(markup);
         assertEquals(2743, cleanText.length());
         assertEquals(-1897009842, cleanText.hashCode());
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/MiddlesbroughTransporterBridge.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/MiddlesbroughTransporterBridge.wikipedia"));
         cleanText = MediaWikiUtil.stripMediaWikiMarkup(markup);
         assertEquals(6376, cleanText.length());
         assertEquals(-2062978054, cleanText.hashCode());
@@ -294,14 +273,12 @@ public class MediaWikiUtilTest {
         assertEquals(" c f", MediaWikiUtil.removeBetween("{{{{a}}b}}c{{d{{e}}}}f", '{', '{', '}', '}'));
         assertEquals(" c", MediaWikiUtil.removeBetween("{{{{a}}b}}c", '{', '{', '}', '}'));
         assertEquals("a \n\nb", MediaWikiUtil.removeBetween("a{{c}}\n\nb", '{', '{', '}', '}'));
-        assertEquals("abc   gh   l",
-                MediaWikiUtil.removeBetween("abc {{d:{{e{{f}}}}}} gh {{ijk}} l", '{', '{', '}', '}'));
+        assertEquals("abc   gh   l", MediaWikiUtil.removeBetween("abc {{d:{{e{{f}}}}}} gh {{ijk}} l", '{', '{', '}', '}'));
     }
 
     @Test
     public void testRemoveLang() {
-        assertEquals("She said: \"''Je suis française.''\"",
-                MediaWikiUtil.replaceLangPattern("She said: \"''{{lang|fr|Je suis française.}}''\""));
+        assertEquals("She said: \"''Je suis française.''\"", MediaWikiUtil.replaceLangPattern("She said: \"''{{lang|fr|Je suis française.}}''\""));
         assertEquals("español", MediaWikiUtil.replaceLangPattern("{{lang-es|español}}"));
     }
 

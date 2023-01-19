@@ -3,7 +3,6 @@ package ws.palladian.retrieval.ip;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -26,7 +25,7 @@ public final class IpStackIpLookup implements IpLookup {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(IpStackIpLookup.class);
 
-    // FIXME limited to 10k requests per month
+    // limited to 10k requests per month
     private static final String API_KEY = "9bed92b977d5272196d9980b8a823b19";
 
     @Override
@@ -64,11 +63,11 @@ public final class IpStackIpLookup implements IpLookup {
             builder.setRegionName(jsonResult.getString("region_name"));
             builder.setCity(jsonResult.getString("city"));
             builder.setZipCode(jsonResult.getString("zip"));
-//            builder.setTimeZone(jsonResult.getString("time_zone"));
+            //            builder.setTimeZone(jsonResult.getString("time_zone"));
             double lat = jsonResult.getDouble("latitude");
             double lng = jsonResult.getDouble("longitude");
             builder.setCoordinate(GeoCoordinate.from(lat, lng));
-//            builder.setMetroCode(jsonResult.getString("metro_code"));
+            //            builder.setMetroCode(jsonResult.getString("metro_code"));
 
         } catch (JsonException e) {
             throw new IpLookupException("JSON parse error for result \"" + stringResult + "\".", e);

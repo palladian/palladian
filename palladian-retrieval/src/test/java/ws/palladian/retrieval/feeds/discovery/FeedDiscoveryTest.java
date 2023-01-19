@@ -1,18 +1,17 @@
 package ws.palladian.retrieval.feeds.discovery;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Ignore;
+import org.junit.Test;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 public class FeedDiscoveryTest {
 
-    // FIXME enable again
+    // TODO enable again
     @Test
     @Ignore
     public void testFeedDiscovery() throws FileNotFoundException {
@@ -35,13 +34,11 @@ public class FeedDiscoveryTest {
         List<DiscoveredFeed> feeds = FeedDiscovery.discoverFeeds(ResourceHelper.getResourceFile("/pageContentExtractor/test001.html"));
         assertEquals("http://www.tagesschau.de/xml/rss2", feeds.get(0).getFeedLink());
 
-        
         feeds = FeedDiscovery.discoverFeeds(ResourceHelper.getResourceFile("/pageContentExtractor/test004.html"));
         assertEquals(3, feeds.size());
         assertEquals("http://www.neustadt-ticker.de/feed/", feeds.get(0).getFeedLink());
         assertEquals("http://www.neustadt-ticker.de/feed/atom/", feeds.get(1).getFeedLink());
         assertEquals("http://www.neustadt-ticker.de/nachrichten/burgerversammlung-in-der-leipziger-vorstadt/feed/", feeds.get(2).getFeedLink());
-
 
     }
 
@@ -55,7 +52,6 @@ public class FeedDiscoveryTest {
         for (DiscoveredFeed t : temp) {
             assertEquals("http://www.example.com/xml/atom.xml", t.getFeedLink());
         }
-
 
     }
 }

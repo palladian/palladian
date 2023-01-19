@@ -1,24 +1,23 @@
 package ws.palladian.extraction.feature;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import ws.palladian.extraction.content.PageContentExtractorException;
+import ws.palladian.extraction.content.PalladianContentExtractor;
+import ws.palladian.extraction.token.Tokenizer;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.Bag;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.DocumentRetriever;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-
-import ws.palladian.extraction.content.PageContentExtractorException;
-import ws.palladian.extraction.content.PalladianContentExtractor;
-import ws.palladian.extraction.token.Tokenizer;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.Bag;
 import java.util.function.Consumer;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 
 public class InformativenessAssigner {
 
@@ -71,7 +70,7 @@ public class InformativenessAssigner {
 
     public void initTokenFrequencyMap() throws IOException {
 
-        Bag<String> tokenFrequencyMap = Bag.create();
+        Bag<String> tokenFrequencyMap = new Bag<>();
 
         for (int i = 0; i < 2; i++) {
             // get texts from web pages
@@ -94,8 +93,7 @@ public class InformativenessAssigner {
                 tokenFrequencies.put(token, (double) count / totalTokens);
             }
 
-            LOGGER.debug("added another set of " + texts.size() + " texts, number of tokens now "
-                    + tokenFrequencies.keySet().size());
+            LOGGER.debug("added another set of " + texts.size() + " texts, number of tokens now " + tokenFrequencies.keySet().size());
 
             if ((i + 1) % 10 == 0) {
                 LOGGER.debug("saving frequency map (i = " + i + "...");
@@ -105,8 +103,8 @@ public class InformativenessAssigner {
         }
         saveFrequencyMap();
 
-//        FileHelper.writeToFile("data/temp/tfmap.txt",
-//                CollectionHelper.getPrint(tokenFrequencyMap.getSortedMap().entrySet()));
+        //        FileHelper.writeToFile("data/temp/tfmap.txt",
+        //                CollectionHelper.getPrint(tokenFrequencyMap.getSortedMap().entrySet()));
     }
 
     private List<String> getTexts() {
@@ -158,7 +156,7 @@ public class InformativenessAssigner {
         List<String> tokens = Tokenizer.tokenize(text);
 
         // count the occurrences of the tokens
-        Bag<String> cm = Bag.create();
+        Bag<String> cm = new Bag<>();
         for (String token : tokens) {
             cm.add(token);
         }
@@ -238,7 +236,7 @@ public class InformativenessAssigner {
 
     /**
      * @param args
-     * @throws IOException 
+     * @throws IOException
      */
     public static void main(String[] args) throws IOException {
 

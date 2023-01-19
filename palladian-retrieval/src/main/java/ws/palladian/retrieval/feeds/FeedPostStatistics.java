@@ -1,28 +1,22 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Capture some statistics about the posts of a feed. When reading the statistics, make sure
  * {@link #isValidStatistics()} returns <code>true</code>!
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Sandro Reichert
- * 
  */
 public class FeedPostStatistics {
 
@@ -109,7 +103,7 @@ public class FeedPostStatistics {
         }
         Stats timeDistanceStats = new FatStats(intervals);
 
-        // FIXME: do we really need to set these fake values? In case the feed has an empty window, we set two fake
+        // TODO: do we really need to set these fake values? In case the feed has an empty window, we set two fake
         // timestamps and calculate some statistics that are not valid. I think this code is very old. In the past, we
         // ignored empty and single item feeds. -- Sandro 15.07.2011
         if (timeList.size() > 0) {
@@ -117,14 +111,12 @@ public class FeedPostStatistics {
             // entries are newer
             if (timeNewestEntry == 0) {
                 timeNewestEntry = System.currentTimeMillis();
-                warnings.append("\nDid not find a valid timestamp, setting timeNewestEntry to current timestamp. Feed id: "
-                        + feed.getId());
+                warnings.append("\nDid not find a valid timestamp, setting timeNewestEntry to current timestamp. Feed id: " + feed.getId());
             }
             // in case no pub date was found correctly, we set the oldest entry time one week in the past
             if (timeOldestEntry == Long.MAX_VALUE) {
                 timeOldestEntry = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
-                warnings.append("\nDid not find a valid timestamp, setting timeOldestEntry to current timestamp - one week. Feed id: "
-                        + feed.getId());
+                warnings.append("\nDid not find a valid timestamp, setting timeOldestEntry to current timestamp - one week. Feed id: " + feed.getId());
             }
 
             if (warnings.length() > 0) {
@@ -148,18 +140,18 @@ public class FeedPostStatistics {
             timeOldestItem = timeOldestEntry;
 
             if (timeList.size() > 1) {
-                medianPostInterval = (long)timeDistanceStats.getMedian();
-                averagePostInterval = getTimeRange() / ((double)feedPubdates.size() - 1);
+                medianPostInterval = (long) timeDistanceStats.getMedian();
+                averagePostInterval = getTimeRange() / ((double) feedPubdates.size() - 1);
                 // XXX this was the code before, but this calculates the standard deviation for the timestamps, not the
                 // intervals! I changed it, test work fine. -- Philipp, 2013-10-13
                 // postIntervalStandardDeviation = (long)MathHelper.getStandardDeviation(timeArray);
-                postIntervalStandardDeviation = (long)timeDistanceStats.getStandardDeviation();
-                longestPostInterval = (long)timeDistanceStats.getMax();
+                postIntervalStandardDeviation = (long) timeDistanceStats.getStandardDeviation();
+                longestPostInterval = (long) timeDistanceStats.getMax();
                 validStatistics = true;
             }
         }
 
-        avgItemsPerDay = (double)feedPubdates.size() / (double)getTimeRangeInDays();
+        avgItemsPerDay = (double) feedPubdates.size() / (double) getTimeRangeInDays();
     }
 
     public long getDelayToNewestPost() {
@@ -171,14 +163,14 @@ public class FeedPostStatistics {
     }
 
     int getTimeRangeInDays() {
-        return Math.max(1, (int)(getTimeRange() / TimeUnit.DAYS.toMillis(1)));
+        return Math.max(1, (int) (getTimeRange() / TimeUnit.DAYS.toMillis(1)));
     }
 
     /**
      * The difference between the publish date of the newest item and the current system time. Be careful when
      * processing persisted data since you may want to get the time between the publish date of the newest item and the
      * time the feed has been polled the last time.
-     * 
+     *
      * @return The difference between the publish date of the newest item and the current system time.
      * @see #getTimeDifferenceNewestPostToLastPollTime()
      */
@@ -190,9 +182,9 @@ public class FeedPostStatistics {
      * The difference between the publish date of the newest item and the time of the last poll. This is safe when
      * processing persisted data. In case the http date is unknown or was not set by the server,
      * {@link #getTimeDifferenceNewestPostToCurrentTime()} is returned for convenience.
-     * 
+     *
      * @return The difference between the publish date of the newest item and the time of the last poll or the value
-     *         returned by {@link #getTimeDifferenceNewestPostToCurrentTime()}.
+     * returned by {@link #getTimeDifferenceNewestPostToCurrentTime()}.
      */
     public long getTimeDifferenceNewestPostToLastPollTime() {
         if (lastPollTime == null) {
@@ -242,11 +234,11 @@ public class FeedPostStatistics {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("FeedPostStatistics [longestPostGap=");
-        builder.append((double)longestPostInterval / TimeUnit.MINUTES.toMillis(1));
+        builder.append((double) longestPostInterval / TimeUnit.MINUTES.toMillis(1));
         builder.append("min. , medianPostGap=");
-        builder.append((double)medianPostInterval / TimeUnit.MINUTES.toMillis(1));
+        builder.append((double) medianPostInterval / TimeUnit.MINUTES.toMillis(1));
         builder.append("min. , time to newest post=");
-        builder.append((double)getTimeDifferenceNewestPostToCurrentTime() / TimeUnit.MINUTES.toMillis(1));
+        builder.append((double) getTimeDifferenceNewestPostToCurrentTime() / TimeUnit.MINUTES.toMillis(1));
         builder.append("min. , postGapStandardDeviation=");
         builder.append(postIntervalStandardDeviation);
         builder.append(", timeNewestPost=");

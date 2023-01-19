@@ -1,4 +1,4 @@
-package ws.palladian.extraction.multimedia;
+package ws.palladian.utils;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -7,13 +7,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
+import ws.palladian.extraction.multimedia.ImageHandler;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryValueComparator;
 import ws.palladian.helper.collection.FixedSizePriorityQueue;
 import ws.palladian.helper.io.FileHelper;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;

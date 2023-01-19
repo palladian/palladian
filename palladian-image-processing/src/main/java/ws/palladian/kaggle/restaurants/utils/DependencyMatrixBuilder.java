@@ -19,10 +19,10 @@ public class DependencyMatrixBuilder {
 
         // get order straight
         for (int i = 0; i <= 8; i++) {
-            matrix.set(i,i, 0.);
+            matrix.set(i, i, 0.);
         }
 
-        Bag<Integer> counts = Bag.create();
+        Bag<Integer> counts = new Bag<>();
         List<String> strings = FileHelper.readFileToArray(Config.CONFIG.getString("dataset.yelp.restaurants.train.csv"));
         for (String string : strings) {
             // skip header
@@ -47,7 +47,7 @@ public class DependencyMatrixBuilder {
             }
         }
         System.out.println(matrix.toString());
-        FileHelper.writeToFile(Config.CONFIG.getString("dataset.yelp.restaurants.results") +"/matrix.tsv", matrix.toString("\t"));
+        FileHelper.writeToFile(Config.CONFIG.getString("dataset.yelp.restaurants.results") + "/matrix.tsv", matrix.toString("\t"));
 
         Map<Integer, Double> labelPriors = new HashMap<>();
         for (int i = 0; i <= 8; i++) {
@@ -63,7 +63,7 @@ public class DependencyMatrixBuilder {
             }
         }
 
-        FileHelper.writeToFile(Config.CONFIG.getString("dataset.yelp.restaurants.results") +"/matrix-asymmetric.tsv", matrix.toString("\t").replace(".", ","));
+        FileHelper.writeToFile(Config.CONFIG.getString("dataset.yelp.restaurants.results") + "/matrix-asymmetric.tsv", matrix.toString("\t").replace(".", ","));
 
         return new DependencyMatrix(matrix);
     }

@@ -1,9 +1,9 @@
 package ws.palladian.helper.collection;
 
+import ws.palladian.helper.functional.Factory;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
@@ -11,35 +11,22 @@ import ws.palladian.helper.functional.Factory;
  * are requested using {@link #get(Object)}. Therefore the LazyMap is initialized with a {@link Factory} closure which
  * takes care of creating the object as necessary.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <K> Key.
  * @param <V> Value.
+ * @author Philipp Katz
  */
 public final class LazyMap<K, V> extends MapDecorator<K, V> {
 
     private final Factory<? extends V> factory;
 
-    public LazyMap(Map<K,V> map, Factory<? extends V> factory) {
+    public LazyMap(Map<K, V> map, Factory<? extends V> factory) {
         super(map);
         this.factory = factory;
     }
-    
-    public LazyMap(Factory<? extends V> factory) {
-    	this(new HashMap<>(), factory);
-    }
 
-    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
-    @Deprecated
-    public static <K, V> LazyMap<K, V> create(Factory<? extends V> factory) {
-        return new LazyMap<>(new HashMap<>(), factory);
-    }
-    
-    /** @deprecated This was a convenience constructor; starting with Java 1.7, prefer using the real constructor with diamonds. */
-    @Deprecated
-    public static <K, V> LazyMap<K, V> create(Map<K,V> map, Factory<? extends V> factory) {
-        return new LazyMap<>(map, factory);
+    public LazyMap(Factory<? extends V> factory) {
+        this(new HashMap<>(), factory);
     }
 
     @Override
@@ -48,7 +35,7 @@ public final class LazyMap<K, V> extends MapDecorator<K, V> {
         V value = getMap().get(key);
         if (value == null) {
             value = factory.create();
-            put((K)key, value);
+            put((K) key, value);
         }
         return value;
     }
@@ -61,5 +48,4 @@ public final class LazyMap<K, V> extends MapDecorator<K, V> {
         builder.append("]");
         return builder.toString();
     }
-
 }

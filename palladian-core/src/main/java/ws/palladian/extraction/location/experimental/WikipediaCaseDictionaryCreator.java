@@ -1,43 +1,37 @@
 package ws.palladian.extraction.location.experimental;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
 import ws.palladian.extraction.token.Tokenizer;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.SizeUnit;
-import java.util.function.Consumer;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.WikiPage;
 
+import java.io.*;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+
 class WikipediaCaseDictionaryCreator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikipediaCaseDictionaryCreator.class);
 
-    private static final Bag<String> wordCounts = Bag.create();
+    private static final Bag<String> wordCounts = new Bag<>();
 
-    private static final Bag<String> uppercaseCounts = Bag.create();
+    private static final Bag<String> uppercaseCounts = new Bag<>();
 
     /**
      * @param wikipediaDump Path to the Wikipedia dump file (in .bz2 format).
-     * @param outputFile The CSV to which to write (existing files will be overwritten).
-     * @param limit Number of pages to read.
+     * @param outputFile    The CSV to which to write (existing files will be overwritten).
+     * @param limit         Number of pages to read.
      */
     public static void mineCaseDictionary(File wikipediaDump, File outputFile, final int limit) {
         if (!wikipediaDump.isFile()) {
@@ -45,7 +39,7 @@ class WikipediaCaseDictionaryCreator {
         }
         Validate.isTrue(limit > 0, "limit must be greater zero");
         try {
-            final int[] counter = new int[] {0};
+            final int[] counter = new int[]{0};
             MediaWikiUtil.parseDump(wikipediaDump, new Consumer<WikiPage>() {
                 @Override
                 public void accept(WikiPage page) {
@@ -111,7 +105,7 @@ class WikipediaCaseDictionaryCreator {
 
     public static void clean(File caseDictionaryInput, File caseDictionaryOutput) {
         final Writer[] writer = new Writer[1];
-        final int[] counter = new int[] {0};
+        final int[] counter = new int[]{0};
         try {
             writer[0] = new BufferedWriter(new FileWriter(caseDictionaryOutput));
             int lines = FileHelper.performActionOnEveryLine(caseDictionaryInput.getPath(), new LineAction() {

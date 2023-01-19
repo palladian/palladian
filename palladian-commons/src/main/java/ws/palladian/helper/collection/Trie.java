@@ -73,9 +73,6 @@ public class Trie<V> implements Map.Entry<String, V>, Iterable<Map.Entry<String,
         }
     }
 
-    /**
-     * FIXME do we really need to return something here?
-     */
     public V put(String key, V value) {
         Validate.notEmpty(key, "key must not be empty");
         Trie<V> node = getNode(key, true);

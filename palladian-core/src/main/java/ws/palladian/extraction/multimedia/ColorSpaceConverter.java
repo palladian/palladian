@@ -30,16 +30,12 @@ public class ColorSpaceConverter {
     /**
      * sRGB to XYZ conversion matrix
      */
-    public double[][] M = {{0.4124, 0.3576, 0.1805},
-            {0.2126, 0.7152, 0.0722},
-            {0.0193, 0.1192, 0.9505}};
+    public double[][] M = {{0.4124, 0.3576, 0.1805}, {0.2126, 0.7152, 0.0722}, {0.0193, 0.1192, 0.9505}};
 
     /**
      * XYZ to sRGB conversion matrix
      */
-    public double[][] Mi = {{3.2406, -1.5372, -0.4986},
-            {-0.9689, 1.8758, 0.0415},
-            {0.0557, -0.2040, 1.0570}};
+    public double[][] Mi = {{3.2406, -1.5372, -0.4986}, {-0.9689, 1.8758, 0.0415}, {0.0557, -0.2040, 1.0570}};
 
     /**
      * Default constructor, uses D65 for the white point
@@ -161,6 +157,7 @@ public class ColorSpaceConverter {
     public static double[] rgbToHsb(Color color) {
         return rgbToHsb(color.getRed(), color.getGreen(), color.getBlue());
     }
+
     public static double[] rgbToHsb(int R, int G, int B) {
         double[] result = new double[3];
         float[] hsb = new float[3];

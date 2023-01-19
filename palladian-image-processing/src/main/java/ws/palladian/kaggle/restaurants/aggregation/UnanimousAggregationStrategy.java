@@ -27,7 +27,7 @@ public class UnanimousAggregationStrategy implements AggregationStrategy {
             result.put(label, 0.);
         }
 
-        Bag<Label> votes = Bag.create();
+        Bag<Label> votes = new Bag<>();
         for (Map<Label, Double> classifiedImage : classifiedImages) {
             for (Entry<Label, Double> labelProbability : classifiedImage.entrySet()) {
                 if (labelProbability.getValue() > threshold) {

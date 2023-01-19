@@ -1,10 +1,24 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static ws.palladian.core.AnnotationFilters.range;
-import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
-import static ws.palladian.helper.collection.CollectionHelper.filterList;
-import static ws.palladian.helper.functional.Predicates.NONE;
-import static ws.palladian.helper.functional.Predicates.fileExtension;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.NameSample;
+import opennlp.tools.namefind.TokenNameFinderFactory;
+import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.sentdetect.SentenceDetector;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.util.*;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.core.*;
+import ws.palladian.extraction.entity.Annotations;
+import ws.palladian.extraction.entity.FileFormatParser;
+import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
+import ws.palladian.extraction.location.ClassifiedAnnotation;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.io.FileHelper;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -16,41 +30,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.NameSample;
-import opennlp.tools.namefind.TokenNameFinderFactory;
-import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.sentdetect.SentenceDetector;
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.util.CollectionObjectStream;
-import opennlp.tools.util.InvalidFormatException;
-import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.Span;
-import opennlp.tools.util.TrainingParameters;
-
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.AnnotationFilters;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.ClassifyingTagger;
-import ws.palladian.extraction.entity.Annotations;
-import ws.palladian.extraction.entity.FileFormatParser;
-import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
-import ws.palladian.extraction.location.ClassifiedAnnotation;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.LazyMap;
-import ws.palladian.helper.io.FileHelper;
+import static ws.palladian.core.AnnotationFilters.range;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.helper.collection.CollectionHelper.filterList;
+import static ws.palladian.helper.functional.Predicates.NONE;
+import static ws.palladian.helper.functional.Predicates.fileExtension;
 
 /**
  * <p>
  * This class wraps the <a href="https://opennlp.apache.org">OpenNLP</a> Named Entity Recognizer which uses a maximum
  * entropy approach.
- * 
+ *
  * <p>
  * The following models exist already for this recognizer:
  * <ul>
@@ -62,12 +52,12 @@ import ws.palladian.helper.io.FileHelper;
  * <li>Person
  * <li>Time
  * </ul>
- * 
- * @see <a href="https://opennlp.apache.org/documentation/1.5.3/manual/opennlp.html#tools.namefind">Apache OpenNLP
- *      Developer Documentation: Name Finder</a>
- * @see <a href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP Tools Models</a>
+ *
  * @author David Urbansky
  * @author Philipp Katz
+ * @see <a href="https://opennlp.apache.org/documentation/1.5.3/manual/opennlp.html#tools.namefind">Apache OpenNLP
+ * Developer Documentation: Name Finder</a>
+ * @see <a href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP Tools Models</a>
  */
 public class OpenNlpNer extends TrainableNamedEntityRecognizer implements ClassifyingTagger {
 
@@ -86,8 +76,8 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
 
     /**
      * Create a new {@link OpenNlpNer}. The NER requires a tokenizer and a sentence detector in order to work properly.
-     * 
-     * @param tokenizer The tokenizer to use, not <code>null</code>.
+     *
+     * @param tokenizer        The tokenizer to use, not <code>null</code>.
      * @param sentenceDetector The sentence detector to use, not <code>null</code>.
      */
     public OpenNlpNer(Tokenizer tokenizer, SentenceDetector sentenceDetector) {
@@ -101,7 +91,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
      * <p>
      * Load the models for the entity recognizer. All files in the specified directory with the file name extension
      * ".bin" are considered as OpenNLP {@link TokenNameFinderModel}s.
-     * 
+     *
      * @param configModelFilePath The path to the folder where the models lie.
      */
     @Override
@@ -239,10 +229,10 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
 
     /**
      * Transform the training annotations to an array of OpenNLP spans.
-     * 
+     *
      * @param sentenceOffset The character offset of the current sentence.
-     * @param annotations The training annotations.
-     * @param tokenSpans The tokens of the current sentence.
+     * @param annotations    The training annotations.
+     * @param tokenSpans     The tokens of the current sentence.
      * @return An array of spans representing the annotated and tagged entities.
      */
     private static Span[] getSpans(int sentenceOffset, List<Annotation> annotations, Span[] tokenSpans) {
@@ -260,7 +250,7 @@ public class OpenNlpNer extends TrainableNamedEntityRecognizer implements Classi
                 }
             }
             if (start == -1 || end == -1) {
-                // FIXME I currently don't know, why the end position is sometimes -1
+                // TODO I currently don't know, why the end position is sometimes -1
                 LOGGER.warn("Could not properly align {} (start={}, end={})", annotation, start, end);
             } else {
                 spans.add(new Span(start, end, annotation.getTag()));

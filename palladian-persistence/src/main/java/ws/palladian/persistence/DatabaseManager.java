@@ -157,7 +157,7 @@ public class DatabaseManager {
         return affectedRows;
     }
 
-    // FIXME
+    // TODO
     public final long runBatchInsertLongId(String sql, BatchDataProvider provider) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(provider, "provider must not be null");
@@ -253,7 +253,7 @@ public class DatabaseManager {
         return result;
     }
 
-    /** FIXME */
+    /** TODO */
     public final long[] runBatchInsertReturnLongIds(String sql, final List<List<Object>> batchArgs) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(batchArgs, "batchArgs must not be null");
@@ -445,7 +445,7 @@ public class DatabaseManager {
     }
 
     /**
-     * FIXME
+     * TODO
      */
     public long runInsertReturnLongId(String sql, Object... args) {
         Connection connection = null;

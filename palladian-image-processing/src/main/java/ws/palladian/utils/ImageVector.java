@@ -1,4 +1,4 @@
-package ws.palladian.extraction.multimedia;
+package ws.palladian.utils;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
 

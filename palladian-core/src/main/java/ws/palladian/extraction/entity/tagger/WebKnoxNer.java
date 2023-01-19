@@ -1,35 +1,27 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
  * The WebKnoxNer wraps the PalladianNer and offers the functionality over a REST API. See here for more information
  * http://localhost/webknox/api#!/text/entities_GET.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class WebKnoxNer extends NamedEntityRecognizer {
 
@@ -76,9 +68,9 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                 } else {
                     LOGGER.debug("Ignore malformed entry in JSON response.");
                     /**
-                     * FIXME There is a bug in the REST service, which might return things like the following, where one
+                     * TODO There is a bug in the REST service, which might return things like the following, where one
                      * entry in the array is just empty. This should be fixed in WebKnox. 2013-02-12, Philipp.
-                     * 
+                     *
                      * <pre>
                      *        […]
                      *        {
@@ -89,7 +81,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                      *            "offset":3267
                      *         },
                      *         {
-                     * 
+                     *
                      *         },
                      *         {
                      *            "entity":"Ronnie Scott",
@@ -104,8 +96,7 @@ public class WebKnoxNer extends NamedEntityRecognizer {
                 }
             }
         } catch (JsonException e) {
-            throw new IllegalStateException("JSON parse error while processing response '" + content + "': "
-                    + e.getMessage(), e);
+            throw new IllegalStateException("JSON parse error while processing response '" + content + "': " + e.getMessage(), e);
         }
 
         return annotations;

@@ -1,16 +1,12 @@
 package ws.palladian;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.commons.codec.binary.Base64OutputStream;
+import org.jfree.chart.encoders.ImageFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.extraction.multimedia.ImageHandler;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -21,16 +17,12 @@ import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
-import org.apache.commons.codec.binary.Base64OutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.extraction.multimedia.ImageHandler;
-import ws.palladian.extraction.multimedia.PdfToImageConverter;
-import ws.palladian.extraction.multimedia.PdfToImageConverter.ImageFormat;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.List;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LatexToMhtmlConverter {
 
@@ -80,8 +72,7 @@ public class LatexToMhtmlConverter {
         Matcher matcher = Pattern.compile("(?<=[^%])\\\\include\\{(.*?)\\}").matcher(latex);
 
         while (matcher.find()) {
-            latex = latex
-                    .replace(matcher.group(), FileHelper.tryReadFileToString(basePath + matcher.group(1) + ".tex"));
+            latex = latex.replace(matcher.group(), FileHelper.tryReadFileToString(basePath + matcher.group(1) + ".tex"));
         }
 
         FileHelper.writeToFile(basePath + "merged.tex", latex);
@@ -112,8 +103,7 @@ public class LatexToMhtmlConverter {
         converted = converted.replaceAll("\\\\subparagraph\\{(.*?)\\}", "<h6>$1</h6>");
 
         // symbols
-        converted = converted.replaceAll("\\$?\\\\checkmark\\$?", "<img src=\"data:image/gif;base64," + IMAGE_CHECKMARK
-                + "\" />");
+        converted = converted.replaceAll("\\$?\\\\checkmark\\$?", "<img src=\"data:image/gif;base64," + IMAGE_CHECKMARK + "\" />");
 
         // structure
         converted = converted.replaceAll(NLB + "\\\\begin\\{itemize\\}", "<ul>");
@@ -155,33 +145,22 @@ public class LatexToMhtmlConverter {
         // converted = converted.replaceAll(
         // "\\\\begin\\{figure\\}.*?\\\\includegraphics.*?\\{(.*?)\\}.*\\\\end\\{figure\\}", "<img src=\"$1\" />");
         // pdf embeds TODO: http://pdfobject.com/instructions.php
-        converted = Pattern
-                .compile(
-                        "\\\\begin\\{figure\\}(\\[.*?\\])?(.{0,60}?)\\\\includegraphics[^{]*?\\{([^.]{1,50}?\\.pdf)\\}(.*?)\\\\end\\{figure\\}",
-                        Pattern.DOTALL | Pattern.CASE_INSENSITIVE)
-                        .matcher(converted)
-                        .replaceAll(
-                                "$2\n<div class=\"pdfContainer\"><object type=\"application/pdf\" data=\"$3#zoom=85&scrollbar=0&toolbar=0&navpanes=0\" class=\"pdfObject\"></object></div>\n$4");
+        converted = Pattern.compile("\\\\begin\\{figure\\}(\\[.*?\\])?(.{0,60}?)\\\\includegraphics[^{]*?\\{([^.]{1,50}?\\.pdf)\\}(.*?)\\\\end\\{figure\\}",
+                Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted).replaceAll(
+                "$2\n<div class=\"pdfContainer\"><object type=\"application/pdf\" data=\"$3#zoom=85&scrollbar=0&toolbar=0&navpanes=0\" class=\"pdfObject\"></object></div>\n$4");
 
-        converted = Pattern
-                .compile(
-                        "\\\\begin\\{figure\\}.{0,60}?\\\\includegraphics[^{]*?\\{([^.]{1,50}?\\.(png|jpg|gif))\\}.*?(<a.*?a>).*?\\\\end\\{figure\\}",
-                        Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted)
-                        .replaceAll("$3\n<div class=\"imgContainer\"><img src=\"$1\" class=\"figure\"/></div>");
+        converted = Pattern.compile("\\\\begin\\{figure\\}.{0,60}?\\\\includegraphics[^{]*?\\{([^.]{1,50}?\\.(png|jpg|gif))\\}.*?(<a.*?a>).*?\\\\end\\{figure\\}",
+                Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted).replaceAll("$3\n<div class=\"imgContainer\"><img src=\"$1\" class=\"figure\"/></div>");
 
         // tables
-        converted = Pattern
-                .compile("\\\\begin\\{table\\}(\\[.*?\\])?(.*?)(?=\\\\begin\\{tab)", Pattern.DOTALL | Pattern.MULTILINE)
-                .matcher(converted).replaceAll("$2\n<table cellpadding=\"0\" cellmargin=\"0\" class=\"tablesorter\">");
+        converted = Pattern.compile("\\\\begin\\{table\\}(\\[.*?\\])?(.*?)(?=\\\\begin\\{tab)", Pattern.DOTALL | Pattern.MULTILINE).matcher(converted).replaceAll(
+                "$2\n<table cellpadding=\"0\" cellmargin=\"0\" class=\"tablesorter\">");
         converted = processTables(converted);
-        converted = Pattern.compile("(?<=\\<\\/tbody\\>)(.*?)\\\\end\\{table\\}", Pattern.DOTALL | Pattern.MULTILINE)
-                .matcher(converted).replaceAll("</table>\n$1");
+        converted = Pattern.compile("(?<=\\<\\/tbody\\>)(.*?)\\\\end\\{table\\}", Pattern.DOTALL | Pattern.MULTILINE).matcher(converted).replaceAll("</table>\n$1");
 
         // equations (wrap for js replacement)
-        converted = Pattern
-                .compile("\\\\begin\\{equation\\}.*?(<a.*?a>\n)(.*?)\\\\end\\{equation\\}",
-                        Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted)
-                        .replaceAll("$1\n<div class=\"equation\" lang=\"latex\">\n $2</div>");
+        converted = Pattern.compile("\\\\begin\\{equation\\}.*?(<a.*?a>\n)(.*?)\\\\end\\{equation\\}", Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted).replaceAll(
+                "$1\n<div class=\"equation\" lang=\"latex\">\n $2</div>");
 
         // captions
         converted = converted.replaceAll("\\\\caption\\{(.*?)\\}", "<div class=\"caption\">$1</div>");
@@ -202,8 +181,7 @@ public class LatexToMhtmlConverter {
 
     private String processTables(String converted) {
 
-        Matcher matcher = Pattern.compile("\\\\begin\\{tabular.?\\}(.*?)\\\\end\\{tabular.?\\}",
-                Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted);
+        Matcher matcher = Pattern.compile("\\\\begin\\{tabular.?\\}(.*?)\\\\end\\{tabular.?\\}", Pattern.DOTALL | Pattern.CASE_INSENSITIVE).matcher(converted);
 
         while (matcher.find()) {
 
@@ -310,8 +288,7 @@ public class LatexToMhtmlConverter {
         out.close();
     }
 
-    public void convert(String latexFilePath, String cssFilePath, String jsFilePath) throws MessagingException,
-    IOException {
+    public void convert(String latexFilePath, String cssFilePath, String jsFilePath) throws MessagingException, IOException {
 
         String targetFolderPath = FileHelper.getFilePath(latexFilePath);
 
@@ -333,7 +310,6 @@ public class LatexToMhtmlConverter {
 
         converted = writeHeader(css, latex) + converted + writeFooter(js);
 
-
         FileHelper.writeToFile(targetFolderPath + "converted.html", converted);
 
         writeToMhtml(converted, targetFolderPath);
@@ -349,7 +325,7 @@ public class LatexToMhtmlConverter {
             String pdfPath = targetFolderPath + matcher.group(2);
             String targetPath = targetFolderPath + FileHelper.getFileName(pdfPath) + ".png";
             LOGGER.debug(pdfPath + " => " + targetPath);
-            PdfToImageConverter.convertPdfToImage(pdfPath, targetPath);
+            //            PdfToImageConverter.convertPdfToImage(pdfPath, targetPath);
             converted = converted.replaceAll(matcher.group(2), matcher.group(2).replace(".pdf", ".png"));
         }
 
@@ -425,9 +401,7 @@ public class LatexToMhtmlConverter {
         // converter.convert("documentation/latex2pdf/thesis/tex/main.tex",
         // "documentation/latex2pdf/thesis/tex/styles.css", "documentation/latex2pdf/thesis/tex/js.js");
 
-        converter.convert("documentation/latex2pdf/sample.tex", "documentation/latex2pdf/styles.css",
-                "documentation/latex2pdf/js.js");
-
+        converter.convert("documentation/latex2pdf/sample.tex", "documentation/latex2pdf/styles.css", "documentation/latex2pdf/js.js");
 
         // converter.convert("documentation/book/book.tex", "documentation/book/res/styles.css",
         // "documentation/book/res/js.js");
