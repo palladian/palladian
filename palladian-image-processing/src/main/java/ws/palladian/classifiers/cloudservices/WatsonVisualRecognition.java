@@ -1,28 +1,26 @@
 package ws.palladian.classifiers.cloudservices;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
-import org.apache.commons.configuration.Configuration;
-
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
 import com.ibm.watson.visual_recognition.v3.VisualRecognition;
 import com.ibm.watson.visual_recognition.v3.model.*;
-
+import org.apache.commons.configuration.Configuration;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
 import ws.palladian.core.ImmutableCategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
 /**
  * Watson Visual Recognition
  *
- * @see https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3
  * @author David Urbansky
+ * @see https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3
  */
 public class WatsonVisualRecognition implements ImageClassifier {
     private static final String apiKeyKey = "api.watson.key";
@@ -67,7 +65,7 @@ public class WatsonVisualRecognition implements ImageClassifier {
     /**
      * Classify an image.
      *
-     * @param image The image to classify.
+     * @param image         The image to classify.
      * @param classifierIds Comma-separated list of classifier ids, possible ids are "default" and "food".
      * @return
      * @throws IOException
@@ -77,7 +75,9 @@ public class WatsonVisualRecognition implements ImageClassifier {
         Category mostLikely = new ImmutableCategory("unknown", 0.);
 
         InputStream imagesStream = new FileInputStream(image);
-        ClassifyOptions classifyOptions = new ClassifyOptions.Builder().imagesFile(imagesStream).imagesFilename(image.getName()).classifierIds(Arrays.asList(classifierIds))
+        ClassifyOptions classifyOptions = new ClassifyOptions.Builder().imagesFile(imagesStream)
+                .imagesFilename(image.getName())
+                .classifierIds(Arrays.asList(classifierIds))
                 .build();
         ClassifiedImages result = service.classify(classifyOptions).execute().getResult();
 

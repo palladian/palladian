@@ -51,7 +51,7 @@ public class DependencyConsultationAggregationStrategy implements AggregationStr
                     Double otherProbability = otherLabelProbability.getValue();
                     Double dependency = dependencyMatrix.getDependency(otherLabel, label);
                     score += otherPrior * dependency * otherProbability;
-//             score += dependency * otherProbability;
+                    //             score += dependency * otherProbability;
                 }
 
                 Double currentScore = result.get(labelProbability.getKey());

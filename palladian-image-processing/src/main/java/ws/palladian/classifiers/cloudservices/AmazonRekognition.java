@@ -1,15 +1,5 @@
 package ws.palladian.classifiers.cloudservices;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.configuration.Configuration;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -18,14 +8,22 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.*;
 import com.amazonaws.util.IOUtils;
-
+import org.apache.commons.configuration.Configuration;
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Amazon Rekognition image classifier.
- * 
- * @see http://docs.aws.amazon.com/rekognition/latest/dg/get-started-exercise-detect-labels.html
+ *
  * @author David Urbansky
+ * @see http://docs.aws.amazon.com/rekognition/latest/dg/get-started-exercise-detect-labels.html
  */
 public class AmazonRekognition implements ImageClassifier {
     private AWSCredentials credentials = null;
@@ -63,8 +61,8 @@ public class AmazonRekognition implements ImageClassifier {
             maxLabels = 1;
         }
 
-        com.amazonaws.services.rekognition.AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion(Regions.DEFAULT_REGION)
-                .withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+        com.amazonaws.services.rekognition.AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion(Regions.DEFAULT_REGION).withCredentials(
+                new AWSStaticCredentialsProvider(credentials)).build();
 
         ByteBuffer imageBytes;
         try (InputStream inputStream = new FileInputStream(image)) {

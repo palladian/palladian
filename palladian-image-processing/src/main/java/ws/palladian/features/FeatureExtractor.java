@@ -5,5 +5,5 @@ import ws.palladian.core.FeatureVector;
 import java.awt.image.BufferedImage;
 
 public interface FeatureExtractor {
-	FeatureVector extract(BufferedImage image);
+    FeatureVector extract(BufferedImage image);
 }

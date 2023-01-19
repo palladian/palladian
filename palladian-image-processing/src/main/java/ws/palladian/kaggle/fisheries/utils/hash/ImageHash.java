@@ -4,6 +4,6 @@ import java.awt.image.BufferedImage;
 
 public interface ImageHash {
 
-	String hash(BufferedImage image);
+    String hash(BufferedImage image);
 
 }

@@ -23,6 +23,6 @@ public class DependencyMatrix {
     }
 
     public Double getDependency(Label fromLabel, Label toLabel) {
-        return matrix.get(toLabel.getLabelId(),fromLabel.getLabelId());
+        return matrix.get(toLabel.getLabelId(), fromLabel.getLabelId());
     }
 }

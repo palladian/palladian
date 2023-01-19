@@ -1,5 +1,15 @@
 package ws.palladian.classifiers.cloudservices;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,22 +17,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.io.IOUtils;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
-
 /**
  * Google Cloud Vision API for label detection (using large generic model).
- * 
- * @see https://cloud.google.com/vision/docs/
+ *
  * @author David Urbansky
+ * @see https://cloud.google.com/vision/docs/
  */
 public class GoogleCloudVision implements ImageClassifier {
     private final String apiKey;
@@ -59,7 +58,7 @@ public class GoogleCloudVision implements ImageClassifier {
         String body = "{\"requests\":[{\"image\":{\"content\":\"XXX\"},\"features\":[{" + "\"type\":\"LABEL_DETECTION\",\"maxResults\":" + maxNumberOfLabels + "}]}]}";
 
         FileInputStream fileInputStreamReader = new FileInputStream(image);
-        byte[] bytes = new byte[(int)image.length()];
+        byte[] bytes = new byte[(int) image.length()];
         fileInputStreamReader.read(bytes);
         String encodedFile = Base64.getEncoder().encodeToString(bytes);
         body = body.replace("XXX", encodedFile);
@@ -99,7 +98,7 @@ public class GoogleCloudVision implements ImageClassifier {
         String body = "{\"requests\": [{\"image\":{\"content\":\"XXX\"},\"features\": [{\"type\": \"DOCUMENT_TEXT_DETECTION\"}]}]}";
 
         FileInputStream fileInputStreamReader = new FileInputStream(image);
-        byte[] bytes = new byte[(int)image.length()];
+        byte[] bytes = new byte[(int) image.length()];
         fileInputStreamReader.read(bytes);
         String encodedFile = Base64.getEncoder().encodeToString(bytes);
         body = body.replace("XXX", encodedFile);

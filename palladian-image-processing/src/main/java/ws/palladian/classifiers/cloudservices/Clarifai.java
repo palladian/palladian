@@ -1,13 +1,5 @@
 package ws.palladian.classifiers.cloudservices;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.configuration.Configuration;
-
 import clarifai2.api.ClarifaiBuilder;
 import clarifai2.api.ClarifaiClient;
 import clarifai2.api.ClarifaiResponse;
@@ -15,17 +7,24 @@ import clarifai2.dto.input.ClarifaiInput;
 import clarifai2.dto.model.ConceptModel;
 import clarifai2.dto.model.output.ClarifaiOutput;
 import clarifai2.dto.prediction.Concept;
+import org.apache.commons.configuration.Configuration;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
 import ws.palladian.core.ImmutableCategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Clarifai image classifier (with option to use different models).
- * 
- * @see https://developer.clarifai.com/guide/#getting-started
+ *
  * @author David Urbansky
+ * @see https://developer.clarifai.com/guide/#getting-started
  */
 public class Clarifai implements ImageClassifier {
     private final ClarifaiClient client;

@@ -1,10 +1,5 @@
 package ws.palladian.classifiers.cloudservices;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.*;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,7 +9,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
@@ -23,11 +17,16 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+
 /**
  * Microsoft Azure Computer Vision API for label detection (using large generic model).
- * 
- * @see https://docs.microsoft.com/en-us/azure/cognitive-services/computer-vision/quickstarts/java#AnalyzeImage
+ *
  * @author David Urbansky
+ * @see https://docs.microsoft.com/en-us/azure/cognitive-services/computer-vision/quickstarts/java#AnalyzeImage
  */
 public class MicrosoftComputerVision implements ImageClassifier {
     private final String endpoint;

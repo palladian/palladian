@@ -1,12 +1,8 @@
 package ws.palladian.classifiers.cloudservices;
 
-import java.io.File;
-import java.util.*;
-
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import org.apache.commons.configuration.Configuration;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
@@ -15,11 +11,14 @@ import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.io.File;
+import java.util.*;
+
 /**
  * Imagga image labeling.
- * 
- * @see https://docs.imagga.com/
+ *
  * @author David Urbansky
+ * @see https://docs.imagga.com/
  */
 public class Imagga implements ImageClassifier {
     private final String apiKey;

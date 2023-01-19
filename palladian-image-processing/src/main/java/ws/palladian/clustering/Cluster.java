@@ -1,13 +1,13 @@
 package ws.palladian.clustering;
 
 public interface Cluster {
-	int SIZE_UNKNOWN = -1;
+    int SIZE_UNKNOWN = -1;
 
-	double[] center();
+    double[] center();
 
-	/**
-	 * @return The size of the cluster, or {@link #SIZE_UNKNOWN}, in case it is
-	 *         not known.
-	 */
-	int size();
+    /**
+     * @return The size of the cluster, or {@link #SIZE_UNKNOWN}, in case it is
+     * not known.
+     */
+    int size();
 }
