@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  * Create binary values for numeric values; values greater zero are mapped to
  * true, values equal or smaller than zero are mapped to false.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class InstanceValueBinarizer implements DatasetTransformer {
     private final Predicate<? super String> filter;

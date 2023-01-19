@@ -6,7 +6,7 @@ import java.util.function.Predicate;
  * This filter simply accepts a certain fraction of series of data, which is
  * defined by a modulo value and a remainder.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public final class ModuloFilter implements Predicate<Object> {
 

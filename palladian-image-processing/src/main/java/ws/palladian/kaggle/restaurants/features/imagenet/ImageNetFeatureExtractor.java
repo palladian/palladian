@@ -65,7 +65,7 @@
 // * Architecture for Computer Vision</a>; Christian Szegedy, Vincent Vanhouck,
 // * Sergey Ioffe, Jonathon Shlens, Zbigniew Wojn; 2015.
 // * 
-// * @author pk
+// * @author Philipp Katz
 // */
 //public class ImageNetFeatureExtractor implements FeatureExtractor, Closeable {
 //

@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 
 /**
  * Compares two {@link Entry}s by their keys (keys may also be null).
- * 
- * @author pk
+ *
+ * @author Philipp Katz
  */
 public final class EntryKeyComparator<K extends Comparable<K>> implements Comparator<Entry<K, ?>> {
     @Override

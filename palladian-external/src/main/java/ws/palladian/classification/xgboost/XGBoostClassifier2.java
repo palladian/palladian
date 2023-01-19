@@ -32,7 +32,7 @@ package ws.palladian.classification.xgboost;
 // * {@link XGBoostLearner}. Then convert the model using
 // * {@link #convertModel(XGBoostModel)} and supply it to this classifier.
 // * 
-// * @author pk
+// * @author Philipp Katz
 // */
 //public class XGBoostClassifier2 implements Classifier<XGBoostClassifier2.XGBoostClassifier2Model> {
 //

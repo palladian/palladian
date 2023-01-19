@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toList;
  * {@link DescriptorExtractor} based on
  * <a href="https://github.com/axtimwalde/mpicbg">mpicbg</a>.
  *
- * @author pk
+ * @author Philipp Katz
  */
 abstract class MpicbgDescriptorExtractor implements DescriptorExtractor {
 

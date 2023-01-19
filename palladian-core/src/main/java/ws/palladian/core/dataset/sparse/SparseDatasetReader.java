@@ -46,7 +46,7 @@
 ///**
 // * Reader for the sparse dataset format, written by {@link SparseDatasetWriter}.
 // * 
-// * @author pk
+// * @author Philipp Katz
 // */
 //public class SparseDatasetReader extends AbstractDataset {
 //

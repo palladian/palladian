@@ -10,7 +10,7 @@
 //  * methods are invoked when traversing the tree, starting at each tree's root
 //  * node, in depth first order.
 //  * 
-//  * @author pk
+//  * @author Philipp Katz
 //  */
 // public interface TreeVisitor {
 // 	/**

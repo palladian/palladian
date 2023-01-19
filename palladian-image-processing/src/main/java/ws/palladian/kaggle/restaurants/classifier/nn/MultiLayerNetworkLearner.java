@@ -51,7 +51,7 @@
 // * training mechanism which automatically stops when the optimal number of
 // * epochs have been reached.
 // * 
-// * @author pk
+// * @author Philipp Katz
 // */
 //public class MultiLayerNetworkLearner extends AbstractLearner<MultiLayerNetworkModel> {
 //	

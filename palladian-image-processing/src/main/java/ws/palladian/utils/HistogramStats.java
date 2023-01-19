@@ -13,7 +13,7 @@ import java.util.function.IntConsumer;
  * Optimized {@link Stats} for image processing (use int array with fixed size
  * for storage, much faster than {@link FatStats}).
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class HistogramStats extends AbstractStats {
 

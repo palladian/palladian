@@ -11,42 +11,42 @@ import ws.palladian.core.Instance;
  * actual transformation of the {@link FeatureVector} can be lazily executed
  * when needed, thus making iteration over the dataset much faster, when the
  * feature vector is not requested.
- * 
+ *
  * In case the set of features is modified (feature added, feature removed, type
  * changed), override {@link #getFeatureInformation(FeatureInformation)} and
  * return the updated meta information.
- * 
- * @author pk
+ *
+ * @author Philipp Katz
  */
 public abstract class AbstractDatasetFeatureVectorTransformer implements DatasetTransformer {
 
-	@Override
-	public final Instance apply(final Instance input) {
-		return new AbstractInstance() {
-			@Override
-			public int getWeight() {
-				return input.getWeight();
-			}
+    @Override
+    public final Instance apply(final Instance input) {
+        return new AbstractInstance() {
+            @Override
+            public int getWeight() {
+                return input.getWeight();
+            }
 
-			@Override
-			public FeatureVector getVector() {
-				return apply(input.getVector());
-			}
+            @Override
+            public FeatureVector getVector() {
+                return apply(input.getVector());
+            }
 
-			@Override
-			public String getCategory() {
-				return input.getCategory();
-			}
-		};
-	}
+            @Override
+            public String getCategory() {
+                return input.getCategory();
+            }
+        };
+    }
 
-	// TODO refactor this to compute(FeatureInformation, FeatureVector)
-	public abstract FeatureVector apply(FeatureVector featureVector);
-	
-	@Override
-	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
-		// per default, assume that only feature values are updated
-		return featureInformation;
-	}
+    // TODO refactor this to compute(FeatureInformation, FeatureVector)
+    public abstract FeatureVector apply(FeatureVector featureVector);
+
+    @Override
+    public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+        // per default, assume that only feature values are updated
+        return featureInformation;
+    }
 
 }

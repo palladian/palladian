@@ -15,7 +15,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
 /**
  * Wrapper for the {@link PalladianTextClassifier} for classifying image BOWs.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class PalladianDictionaryClassifier implements Learner<DictionaryModel>, Classifier<DictionaryModel> {
 

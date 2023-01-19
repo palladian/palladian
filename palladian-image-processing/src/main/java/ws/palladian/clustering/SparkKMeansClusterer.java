@@ -33,7 +33,7 @@ package ws.palladian.clustering;
 // * Open <a href="http://localhost:4040">http://localhost:4040</a> for progress
 // * monitoring.
 // * 
-// * @author pk
+// * @author Philipp Katz
 // */
 //public final class SparkKMeansClusterer implements Clusterer {
 //	

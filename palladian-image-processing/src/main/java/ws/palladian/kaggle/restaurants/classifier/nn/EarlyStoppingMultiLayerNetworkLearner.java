@@ -15,7 +15,7 @@
 // * {@link MultiLayerNetworkLearner#trainWithEarlyStopping(ws.palladian.kaggle.restaurants.utils.TrainTestSplit, int)}
 // * with a 75:25 split on the given dataset.
 // *
-// * @author pk
+// * @author Philipp Katz
 // */
 //public class EarlyStoppingMultiLayerNetworkLearner extends AbstractLearner<MultiLayerNetworkModel> {
 //	private final int batchSize;

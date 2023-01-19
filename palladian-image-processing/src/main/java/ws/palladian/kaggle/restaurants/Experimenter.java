@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Batch evaluation of binary classification problems.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class Experimenter {
     private static final class Experiment {

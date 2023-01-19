@@ -8,7 +8,7 @@ import static org.imgscalr.Scalr.Mode.FIT_EXACT;
 import static org.imgscalr.Scalr.OP_GRAYSCALE;
 
 /**
- * @author pk
+ * @author Philipp Katz
  * see <a href=
  * "http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html">Kind
  * of Like That</a>

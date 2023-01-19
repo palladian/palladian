@@ -31,7 +31,7 @@
 //  * for each training instance, but keep values in an array and store index/names
 //  * in one shared map.
 //  * 
-//  * @author pk
+//  * @author Philipp Katz
 //  */
 // class FlyweightAttributesMap extends AbstractMap<String, Serializable> {
 
@@ -111,14 +111,14 @@
 // 			}
 // 		};
 // 	}
-	
+
 // 	// additional overrides for efficiency
-	
+
 // 	@Override
 // 	public Serializable get(Object key) {
 // 		return data[keysIndices.get(key)];
 // 	}
-	
+
 // 	@Override
 // 	public boolean containsKey(Object key) {
 // 		return keysIndices.containsKey(key);

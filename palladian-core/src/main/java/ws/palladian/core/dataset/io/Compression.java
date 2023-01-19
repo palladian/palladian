@@ -7,42 +7,37 @@ import java.io.OutputStream;
 
 /**
  * Defines a compression format which can be used as input for the CSV reader.
- * 
- * @author pk
+ *
+ * @author Philipp Katz
  * @see Compressions
  */
 public interface Compression {
 
-	/**
-	 * Get an input stream for the specified file.
-	 * 
-	 * @param file
-	 *            The file.
-	 * @return The input stream with the data.
-	 * @throws IOException
-	 *             In case anything with I/O goes berserk.
-	 */
-	InputStream getInputStream(File file) throws IOException;
+    /**
+     * Get an input stream for the specified file.
+     *
+     * @param file The file.
+     * @return The input stream with the data.
+     * @throws IOException In case anything with I/O goes berserk.
+     */
+    InputStream getInputStream(File file) throws IOException;
 
-	/**
-	 * Get an output stream to write the specified file.
-	 * 
-	 * @param file
-	 *            The file.
-	 * @return The output stream for writing to the file.
-	 * @throws IOException
-	 *             In case of any I/O havoc.
-	 */
-	OutputStream getOutputStream(File file) throws IOException;
+    /**
+     * Get an output stream to write the specified file.
+     *
+     * @param file The file.
+     * @return The output stream for writing to the file.
+     * @throws IOException In case of any I/O havoc.
+     */
+    OutputStream getOutputStream(File file) throws IOException;
 
-	/**
-	 * Determine by file extension, whether the given file is supported by this
-	 * compression strategy.
-	 * 
-	 * @param file
-	 *            The file.
-	 * @return <code>true</code> in case the implementation can handle the file.
-	 */
-	boolean fileExtensionSupported(File file);
+    /**
+     * Determine by file extension, whether the given file is supported by this
+     * compression strategy.
+     *
+     * @param file The file.
+     * @return <code>true</code> in case the implementation can handle the file.
+     */
+    boolean fileExtensionSupported(File file);
 
 }

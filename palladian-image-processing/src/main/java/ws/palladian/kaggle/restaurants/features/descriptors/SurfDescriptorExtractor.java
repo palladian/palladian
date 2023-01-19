@@ -14,7 +14,7 @@ import java.util.List;
 import static boofcv.factory.feature.detdesc.FactoryDetectDescribe.surfStable;
 
 /**
- * @author pk
+ * @author Philipp Katz
  * @see <a href="http://boofcv.org/index.php?title=Example_SURF_Feature">Example
  * </a>
  */

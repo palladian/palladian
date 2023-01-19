@@ -18,7 +18,7 @@ import java.util.Arrays;
  * names have been kept as in the JS, so that future changes can be integrated
  * more easily. Based on Git commit ef9e1ed.
  *
- * @author pk
+ * @author Philipp Katz
  */
 public class Blockhash implements ImageHash {
     private static final class ImageData {
