@@ -270,7 +270,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<>(new Object2IntOpenHashMap(sorted), size);
+        return new Bag<>(new Object2IntOpenHashMap<>(sorted), size);
     }
 
     /**
@@ -317,7 +317,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeInt(map.size());
-        for (Entry<T, Integer> entry : map.entrySet()) {
+        for (Entry<T, Integer> entry : map.object2IntEntrySet()) {
             out.writeObject(entry.getKey());
             out.writeInt(entry.getValue());
         }
