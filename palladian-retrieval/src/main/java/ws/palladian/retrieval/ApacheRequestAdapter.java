@@ -1,14 +1,14 @@
 package ws.palladian.retrieval;
 
-import java.net.URI;
-import java.util.Map.Entry;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.message.BasicNameValuePair;
+
+import java.net.URI;
+import java.util.Map.Entry;
 
 final class ApacheRequestAdapter extends HttpEntityEnclosingRequestBase implements HttpUriRequest {
 

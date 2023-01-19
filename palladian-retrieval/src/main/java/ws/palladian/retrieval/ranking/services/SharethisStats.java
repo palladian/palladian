@@ -1,13 +1,9 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -18,6 +14,9 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation sharing statistics gathered from sharethis.com. Total value is counted, this includes
@@ -27,7 +26,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * Limit at 150 requests/hour, whitelisting possible.
  * </p>
  * TODO also use inbound value? (users that clicked on the shared link)
- * 
+ *
  * @author Julien Schmehl
  * @see http://www.sharethis.com/
  * @see http://help.sharethis.com/api/sharing-api#social-destinations
@@ -51,8 +50,7 @@ public final class SharethisStats extends AbstractRankingService implements Rank
     private static final String SERVICE_ID = "sharethis";
 
     /** The ranking value types of this service **/
-    public static final RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats",
-            "The number of shares via multiple services measured on sharethis.com.");
+    public static final RankingType SHARES = new RankingType("sharethis_stats", "ShareThis stats", "The number of shares via multiple services measured on sharethis.com.");
     /** All available ranking types by {@link SharethisStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(SHARES);
 
@@ -60,9 +58,9 @@ public final class SharethisStats extends AbstractRankingService implements Rank
      * <p>
      * Create a new {@link SharethisStats} ranking service.
      * </p>
-     * 
+     *
      * @param configuration The configuration which must provide an API key (<tt>api.sharethis.key</tt>) and a secret (
-     *            <tt>api.sharethis.secret</tt>) for accessing the service.
+     *                      <tt>api.sharethis.secret</tt>) for accessing the service.
      */
     public SharethisStats(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY), configuration.getString(CONFIG_SECRET));
@@ -72,7 +70,7 @@ public final class SharethisStats extends AbstractRankingService implements Rank
      * <p>
      * Create a new {@link SharethisStats} ranking service.
      * </p>
-     * 
+     *
      * @param apiKey The required API key for accessing the service.
      * @param secret The required secret for accessing the service.
      */
@@ -89,8 +87,7 @@ public final class SharethisStats extends AbstractRankingService implements Rank
 
         try {
             String encUrl = UrlHelper.encodeParameter(url);
-            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key="
-                    + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
+            HttpResult httpResult = retriever.httpGet("http://rest.sharethis.com/reach/getUrlInfo.php?pub_key=" + getApiKey() + "&access_key=" + getSecret() + "&url=" + encUrl);
             JsonObject json = new JsonObject(httpResult.getStringContent());
             int total = json.getJsonObject("total").getInt("outbound");
             builder.add(SHARES, total);

@@ -1,5 +1,12 @@
 package ws.palladian.helper.geo;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.math3.util.FastMath;
+
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import static java.lang.Math.asin;
 import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
@@ -8,18 +15,11 @@ import static org.apache.commons.math3.util.FastMath.cos;
 import static org.apache.commons.math3.util.FastMath.sin;
 import static ws.palladian.helper.geo.GeoUtils.EARTH_RADIUS_KM;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.math3.util.FastMath;
-
 /**
  * <p>
  * Default implementation for {@link GeoCoordinate} with implemented utility functionality.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class AbstractGeoCoordinate implements GeoCoordinate {
@@ -65,9 +65,9 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
 
     /**
      * Produce something like <code>51°1′59″N,13°43′59″E</code>.
-     * 
+     *
      * @param dmsParts date, minute, seconds parts; zero values will be cut.
-     * @param suffix The suffix to append [NSEW].
+     * @param suffix   The suffix to append [NSEW].
      * @return The formatted string.
      */
     private static String formatDms(int[] dmsParts, String suffix) {
@@ -87,15 +87,15 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         int[] parts = new int[3];
         double temp = Math.abs(decimal);
 
-        parts[0] = (int)temp;
+        parts[0] = (int) temp;
 
         double mod = temp % 1;
         temp = mod * 60;
-        parts[1] = (int)temp;
+        parts[1] = (int) temp;
 
         mod = temp % 1;
         temp = mod * 60;
-        parts[2] = (int)temp;
+        parts[2] = (int) temp;
         return parts;
     }
 
@@ -107,7 +107,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         double lat2 = getLatitude() + distance / 111.2;
         double lng1 = getLongitude() - distance / Math.abs(FastMath.cos(Math.toRadians(getLatitude())) * 111.2);
         double lng2 = getLongitude() + distance / Math.abs(FastMath.cos(Math.toRadians(getLatitude())) * 111.2);
-        return new double[] {lat1, lng1, lat2, lng2};
+        return new double[]{lat1, lng1, lat2, lng2};
     }
 
     @Override
@@ -119,8 +119,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         double bearingRad = toRadians(bearing);
         double d = distance / EARTH_RADIUS_KM;
         double resultLatRad = asin(sin(latRad) * cos(d) + cos(latRad) * sin(d) * cos(bearingRad));
-        double resultLngRad = lngRad
-                + atan2(sin(bearingRad) * sin(d) * cos(latRad), cos(d) - sin(latRad) * sin(resultLatRad));
+        double resultLngRad = lngRad + atan2(sin(bearingRad) * sin(d) * cos(latRad), cos(d) - sin(latRad) * sin(resultLatRad));
         double resultLat = toDegrees(resultLatRad);
         double resultLng = GeoUtils.normalizeLongitude(toDegrees(resultLngRad));
         return GeoCoordinate.from(resultLat, resultLng);
@@ -138,9 +137,9 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         int result = 1;
         long temp;
         temp = Double.doubleToLongBits(getLatitude());
-        result = prime * result + (int)(temp ^ (temp >>> 32));
+        result = prime * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(getLongitude());
-        result = prime * result + (int)(temp ^ (temp >>> 32));
+        result = prime * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
@@ -152,7 +151,7 @@ public abstract class AbstractGeoCoordinate implements GeoCoordinate {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        AbstractGeoCoordinate other = (AbstractGeoCoordinate)obj;
+        AbstractGeoCoordinate other = (AbstractGeoCoordinate) obj;
         if (Double.doubleToLongBits(getLatitude()) != Double.doubleToLongBits(other.getLatitude()))
             return false;
         if (Double.doubleToLongBits(getLongitude()) != Double.doubleToLongBits(other.getLongitude()))

@@ -1,24 +1,20 @@
 package ws.palladian.extraction.pos;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.core.Tagger;
-import ws.palladian.core.TextTokenizer;
-import ws.palladian.core.Token;
+import ws.palladian.core.*;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * <p>
  * This is the abstract base class for all Part of Speech taggers offered by Palladian.
  * </p>
- * 
+ *
  * @author Martin Wunderwald
  * @author David Urbansky
  * @author Philipp Katz
@@ -54,7 +50,7 @@ public abstract class AbstractPosTagger implements Tagger {
      * . Per default, a {@link RegExTokenizer} is returned, subclasses may override this method, if a specific
      * {@link TextTokenizer} is required.
      * </p>
-     * 
+     *
      * @return The {@link TextTokenizer} to use.
      */
     protected TextTokenizer getTokenizer() {
@@ -63,7 +59,7 @@ public abstract class AbstractPosTagger implements Tagger {
 
     /**
      * Get a list of tags for the given tokens.
-     * 
+     *
      * @param tokens The tokens to tag.
      * @return The POS tags. The returned list must have the same size as the given tokens list.
      */

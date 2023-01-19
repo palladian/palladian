@@ -9,9 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>
  * A simple, thread-safe round robin list.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class RoundRobinList<E> {
 

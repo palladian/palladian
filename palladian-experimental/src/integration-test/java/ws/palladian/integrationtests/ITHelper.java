@@ -1,25 +1,22 @@
 package ws.palladian.integrationtests;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import ws.palladian.helper.ProcessHelper;
+import ws.palladian.helper.constants.SizeUnit;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-
-import ws.palladian.helper.ProcessHelper;
-import ws.palladian.helper.constants.SizeUnit;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * Helper methods for integration testing.
- * 
+ *
  * @author Philipp Katz
  */
 public final class ITHelper {
@@ -33,7 +30,7 @@ public final class ITHelper {
 
     /**
      * Make sure, all given paths are pointing to directories.
-     * 
+     *
      * @param paths The paths to check.
      */
     public static void assertDirectory(String... paths) {
@@ -45,10 +42,10 @@ public final class ITHelper {
 
     /**
      * Assert, that a value is greater/equal than a specified value.
-     * 
-     * @param valueName The name of the value (for meaningful failure messages).
+     *
+     * @param valueName       The name of the value (for meaningful failure messages).
      * @param minimumExpected The minimum expected value (i.e. actualValue must be >= minimumExpected).
-     * @param actualValue The actual value.
+     * @param actualValue     The actual value.
      */
     public static void assertMin(String valueName, double minimumExpected, double actualValue) {
         String msg = valueName + " must be greater/equal " + minimumExpected + ", but was " + actualValue;
@@ -57,10 +54,10 @@ public final class ITHelper {
 
     /**
      * Assert, that a value is less/equal than a specified value.
-     * 
-     * @param valueName The name of the value (for meaningful failure messages).
+     *
+     * @param valueName       The name of the value (for meaningful failure messages).
      * @param minimumExpected The maximum expected value (i.e. actualValue must be >= minimumExpected).
-     * @param actualValue The actual value.
+     * @param actualValue     The actual value.
      */
     public static void assertMax(String valueName, double maximumExpected, double actualValue) {
         String msg = valueName + " must be less/equal " + maximumExpected + ", but was " + actualValue;
@@ -69,7 +66,7 @@ public final class ITHelper {
 
     /**
      * Assert, that we have enough free heap memory.
-     * 
+     *
      * @param size The size.
      * @param unit The unit.
      */
@@ -78,9 +75,7 @@ public final class ITHelper {
         long freeMemory = ProcessHelper.getFreeMemory();
         if (freeMemory < unit.toBytes(size)) {
             long freeUnit = unit.convert(freeMemory, SizeUnit.BYTES);
-            String msg = String
-                    .format("Not enough memory. This test requires at least %d %s of heap memory, but only %d %s are available.",
-                            size, unit, freeUnit, unit);
+            String msg = String.format("Not enough memory. This test requires at least %d %s of heap memory, but only %d %s are available.", size, unit, freeUnit, unit);
             fail(msg);
         }
     }
@@ -99,7 +94,7 @@ public final class ITHelper {
 
     /**
      * Get the configuration for the integration tests.
-     * 
+     *
      * @return The configuration.
      * @throws IllegalStateException In any case the configuration could not be loaded (not found, ...).
      */
@@ -119,9 +114,9 @@ public final class ITHelper {
      * <p>
      * Verify that the given files with datasets exist. If not, output a warning message and skip the test.
      * </p>
-     * 
+     *
      * @param datasetName The name of the dataset, used for log output in case the files do not exist.
-     * @param filePaths The paths whose existence to verify.
+     * @param filePaths   The paths whose existence to verify.
      */
     public static void assumeFile(String datasetName, String... filePaths) {
         boolean runTest = true;
@@ -131,16 +126,15 @@ public final class ITHelper {
                 break;
             }
         }
-        assumeTrue("Dataset for '" + datasetName
-                + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.", runTest);
+        assumeTrue("Dataset for '" + datasetName + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.", runTest);
     }
 
     /**
      * <p>
      * Verify that the given files with datasets exist. If not, output a warning message and skip the test.
      * </p>
-     * 
-     * @param datasetName The name of the dataset, used for log output in case the files do not exist.
+     *
+     * @param datasetName    The name of the dataset, used for log output in case the files do not exist.
      * @param directoryPaths The paths whose existence to verify.
      */
     public static void assumeDirectory(String datasetName, String... directoryPaths) {
@@ -151,8 +145,7 @@ public final class ITHelper {
                 break;
             }
         }
-        assumeTrue("Dataset for '" + datasetName
-                + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.", runTest);
+        assumeTrue("Dataset for '" + datasetName + "' is missing, test is skipped. Adjust palladian-test.properties to set the correct paths.", runTest);
     }
 
 }

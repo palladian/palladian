@@ -5,9 +5,8 @@ import ws.palladian.helper.date.ExtractedDateImpl;
 
 /**
  * Represents a date found in an archive.
- * 
+ *
  * @author Martin Greogr
- * 
  */
 public final class ArchiveDate extends ExtractedDateImpl {
 

@@ -1,29 +1,27 @@
 package ws.palladian.extraction.location.sources.importers;
 
-import java.io.IOException;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.persistence.DatabaseManagerFactory;
+
+import java.io.IOException;
 
 /**
  * <p>
  * This class reads the HotelBase CSV locations and imports them into a given {@link LocationStore}.
  * </p>
- * 
- * @see <a href="http://api.hotelsbase.org/apiAccess.php">HotelBase</a>
+ *
  * @author David Urbansky
+ * @see <a href="http://api.hotelsbase.org/apiAccess.php">HotelBase</a>
  */
 public final class HotelsBaseImporter {
 
@@ -37,7 +35,7 @@ public final class HotelsBaseImporter {
      * <p>
      * Create a new {@link HotelsBaseImporter}.
      * </p>
-     * 
+     *
      * @param locationStore The {@link LocationStore} where to store the data, not <code>null</code>.
      */
     public HotelsBaseImporter(LocationStore locationStore) {
@@ -46,7 +44,6 @@ public final class HotelsBaseImporter {
     }
 
     public void importLocations(String locationFilePath) {
-
 
         // get the currently highest id
         final int maxId = locationStore.getHighestId();

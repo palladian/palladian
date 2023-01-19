@@ -1,19 +1,18 @@
 package ws.palladian.helper.nlp;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.math.SetSimilarities;
 import ws.palladian.helper.math.SetSimilarity;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>
  * Similarity measure based on n-gram overlap (without considering positional attributes).
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class CharacterNGramSimilarity extends AbstractStringMetric {
@@ -25,8 +24,8 @@ public class CharacterNGramSimilarity extends AbstractStringMetric {
      * <p>
      * Create a new n-gram based {@link StringMetric} with the specified length for the n-grams.
      * </p>
-     * 
-     * @param n The length of the n-grams, must be greater or equal 2.
+     *
+     * @param n             The length of the n-grams, must be greater or equal 2.
      * @param setSimilarity The similarity measure used for the sets, not <code>null</code>.
      */
     public CharacterNGramSimilarity(int n, SetSimilarity setSimilarity) {
@@ -40,7 +39,7 @@ public class CharacterNGramSimilarity extends AbstractStringMetric {
      * <p>
      * Create a new n-gram based {@link StringMetric} with the specified length for the n-grams.
      * </p>
-     * 
+     *
      * @param n The length of the n-grams, must be greater or equal 2.
      */
     public CharacterNGramSimilarity(int n) {
@@ -66,7 +65,7 @@ public class CharacterNGramSimilarity extends AbstractStringMetric {
      * Create n-grams with padding at beginning/end. E.g. for "word", the following n-grams are created: ["##w", "#wo",
      * "wor", "ord", "rd#", "d##"].
      * </p>
-     * 
+     *
      * @param s The string.
      * @param n The length of the n-grams to create.
      * @return The n-grams.

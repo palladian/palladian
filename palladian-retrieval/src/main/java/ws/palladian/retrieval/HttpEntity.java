@@ -4,7 +4,7 @@ import java.io.InputStream;
 
 /**
  * An HTTP entity; this represents content sent during HTTP requests (typically POST, PUT).
- * 
+ *
  * @author Philipp Katz
  */
 public interface HttpEntity {

@@ -3,10 +3,9 @@
  */
 package ws.palladian.classification;
 
-import org.apache.commons.lang.Validate;
-
 import libsvm.svm;
 import libsvm.svm_node;
+import org.apache.commons.lang.Validate;
 import ws.palladian.core.AbstractClassifier;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
@@ -16,7 +15,7 @@ import ws.palladian.core.FeatureVector;
  * <p>
  * A wrapper classifier for the LIBSVM machine learning library.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @version 2.0
@@ -33,8 +32,7 @@ public final class LibSvmClassifier extends AbstractClassifier<LibSvmModel> {
         Validate.notNull(featureVector, "featureVector must not be null");
         Validate.notNull(model, "model must not be null");
 
-        svm_node[] libsvmFeatureVector = LibSvmLearner.convertFeatureVector(featureVector, model.getSchema(),
-                model.getNormalization(), model.getDummyCoder());
+        svm_node[] libsvmFeatureVector = LibSvmLearner.convertFeatureVector(featureVector, model.getSchema(), model.getNormalization(), model.getDummyCoder());
         double[] probabilities = new double[model.getCategories().size()];
         svm.svm_predict_probability(model.getModel(), libsvmFeatureVector, probabilities);
 

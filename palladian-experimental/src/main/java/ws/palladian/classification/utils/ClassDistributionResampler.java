@@ -1,18 +1,8 @@
 package ws.palladian.classification.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.zeror.ZeroRLearner;
 import ws.palladian.classification.zeror.ZeroRModel;
 import ws.palladian.core.Instance;
@@ -20,12 +10,14 @@ import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factories;
 
+import java.util.*;
+
 /**
  * <p>
  * Re-sample the class distribution of a given data set, so that the class counts a roughly equal. One can also specify
  * a desired class distribution, using the {@link #ClassDistributionResampler(Iterable, Map)} constructor.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class ClassDistributionResampler implements Iterable<Instance> {
@@ -47,20 +39,20 @@ public class ClassDistributionResampler implements Iterable<Instance> {
 
     /**
      * Create a new {@link ClassDistributionResampler} for the given data set.
-     * 
+     *
      * @param data The data set, not <code>null</code>.
      */
     public ClassDistributionResampler(Iterable<Instance> data) {
-        this(data, Collections.<String, Double> emptyMap());
+        this(data, Collections.<String, Double>emptyMap());
     }
 
     /**
      * Create a new {@link ClassDistributionResampler} for the given data set, and allow to weight different classes
      * (e.g. take twice as much samples from class 'A').
-     * 
-     * @param data The data set, not <code>null</code>.
+     *
+     * @param data    The data set, not <code>null</code>.
      * @param weights A map with weights for the classes, empty map to do no re-weighting (i.e. make class counts
-     *            roughly equal). Values denote, how much the class occurrence is multiplied.
+     *                roughly equal). Values denote, how much the class occurrence is multiplied.
      */
     public ClassDistributionResampler(Iterable<Instance> data, Map<String, Double> weights) {
         Validate.notNull(data, "data must not be null");
@@ -81,7 +73,7 @@ public class ClassDistributionResampler implements Iterable<Instance> {
         Bag<String> temp = new Bag<>();
         for (Instance trainable : data) {
             String targetClass = trainable.getCategory();
-			// XXX use reservoir sampling to obtain exactly same amounts? 
+            // XXX use reservoir sampling to obtain exactly same amounts?
             // use MathHelper#sample
             double probability = minProbability / probabilities.get(targetClass) * weights.get(targetClass);
             if (RANDOM.nextDouble() <= probability) {

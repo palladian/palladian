@@ -24,7 +24,7 @@
 //  * @author Philipp Katz
 //  */
 // public class QuickMlModel implements Model {
-	
+
 // 	private static final class ToStringVistor implements TreeVisitor {
 // 		final StringBuilder builder = new StringBuilder();
 // 		int treeCount = 0;
@@ -90,7 +90,7 @@
 // 	public String toString() {
 // 		return traverseModel(new ToStringVistor()).toString();
 // 	}
-	
+
 // 	/**
 // 	 * Allows to traverse the model using a visitor.
 // 	 * 

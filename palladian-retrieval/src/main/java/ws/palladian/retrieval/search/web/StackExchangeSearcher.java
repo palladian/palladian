@@ -1,14 +1,9 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
@@ -25,9 +20,13 @@ import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * Searcher for the <a href="http://stackexchange.com">Stack Exchange network</a>.
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://api.stackexchange.com">Stack Exchange API</a>
  */
@@ -60,8 +59,7 @@ public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebC
             throw new SearcherException("Error while accessing \"" + queryUrl + "\"", e);
         }
         if (httpResult.errorStatus()) {
-            throw new SearcherException("Encountered HTTP status " + httpResult.getStatusCode() + " while accessing \""
-                    + queryUrl + "\"");
+            throw new SearcherException("Encountered HTTP status " + httpResult.getStatusCode() + " while accessing \"" + queryUrl + "\"");
         }
         try {
             List<WebContent> resultList = new ArrayList<>();

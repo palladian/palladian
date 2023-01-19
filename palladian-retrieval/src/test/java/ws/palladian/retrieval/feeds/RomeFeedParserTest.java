@@ -1,24 +1,9 @@
 package ws.palladian.retrieval.feeds;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -26,6 +11,16 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+
+import static org.junit.Assert.assertEquals;
 
 public class RomeFeedParserTest {
 
@@ -37,7 +32,7 @@ public class RomeFeedParserTest {
     /**
      * Test, if feeds can be parsed. This is a very primitive way of testing, as we just assert no
      * {@link FeedParserException}s.
-     * 
+     *
      * @throws FeedParserException
      * @throws FileNotFoundException
      */
@@ -105,7 +100,7 @@ public class RomeFeedParserTest {
      * Test, if standard conform formats from constructed test set can be parsed. This means, that in contrast to
      * {@link #testFeedParsing()}, the feed data which is checked below is taken from synthetic sample data, not
      * "from the wild".
-     * 
+     *
      * @throws FeedParserException
      * @throws ParseException
      * @throws FileNotFoundException
@@ -148,9 +143,9 @@ public class RomeFeedParserTest {
     /**
      * Build a list of feeds causing problems from a testset with feed URLs.
      * The current definition of "problem" is:
-     * 
+     *
      * a) Feed cannot be parsed
-     * 
+     *
      * b) Feed's items have no publish date (this needs to be verified manually: for some feeds, the publish date cannot
      * be parsed, but some feeds contain no publish dates at all)
      */
@@ -206,7 +201,8 @@ public class RomeFeedParserTest {
 
     /**
      * Performance test concerning date recognition.
-     * @throws FileNotFoundException 
+     *
+     * @throws FileNotFoundException
      */
     @Test
     @Ignore
@@ -233,8 +229,8 @@ public class RomeFeedParserTest {
     }
 
     public static void main(String[] args) throws Exception {
-         RomeFeedParserTest feedRetrieverTest = new RomeFeedParserTest();
-         feedRetrieverTest.evaluateDateParsing();
+        RomeFeedParserTest feedRetrieverTest = new RomeFeedParserTest();
+        feedRetrieverTest.evaluateDateParsing();
         // feedRetrieverTest.buildTestsetWithErrors("data/_feeds_testset.txt", "data/_feeds_errors.txt");
     }
 

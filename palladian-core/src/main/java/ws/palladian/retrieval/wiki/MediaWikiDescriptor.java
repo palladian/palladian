@@ -1,20 +1,19 @@
 package ws.palladian.retrieval.wiki;
 
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
 
 /**
  * <p>
  * Denotes a specific MediaWiki platform, identified by its API endpoint. Use the {@link Builder} to instantiate.
- * 
+ *
  * @author Philipp Katz
  */
 public interface MediaWikiDescriptor {
     /**
      * @return The URL of the MediaWiki API endpoint (e.g. <code>http://en.wikipedia.org/w/api.php</code> for the
-     *         English Wikipedia).
+     * English Wikipedia).
      */
     String getEndpoint();
 

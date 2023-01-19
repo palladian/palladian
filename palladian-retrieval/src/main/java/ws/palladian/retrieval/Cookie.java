@@ -2,7 +2,7 @@ package ws.palladian.retrieval;
 
 /**
  * A HTTP cookie.
- * 
+ *
  * @author Philipp Katz
  */
 public interface Cookie {

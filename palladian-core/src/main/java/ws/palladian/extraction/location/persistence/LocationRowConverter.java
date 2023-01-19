@@ -1,12 +1,8 @@
 package ws.palladian.extraction.location.persistence;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
@@ -15,12 +11,15 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.helper.SqlHelper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
  * {@link RowConverter} from the location database schema to a {@link Location} instance. Supports a full and a simple
  * mode; {@link #FULL} converts {@link AlternativeName}s and requires a sophisticated query (used by the prepared
  * statement as defined in the database schema). {@link #SIMPLE} on the other hand only converts the locations table,
  * omitting the alternative names.
- * 
+ *
  * @author Philipp Katz
  */
 public final class LocationRowConverter implements RowConverter<Location> {

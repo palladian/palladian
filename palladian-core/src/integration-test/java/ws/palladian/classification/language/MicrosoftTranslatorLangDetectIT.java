@@ -1,15 +1,14 @@
 package ws.palladian.classification.language;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.integrationtests.ITHelper;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MicrosoftTranslatorLangDetectIT {
 
@@ -22,8 +21,7 @@ public class MicrosoftTranslatorLangDetectIT {
         testClientId = config.getString("api.azure.clientId");
         testClientSecret = config.getString("api.azure.clientSecret");
         assertTrue("palladian-test.properties must provide an Azure client ID", StringUtils.isNotBlank(testClientId));
-        assertTrue("palladian-test.properties must provide an Azure client secret",
-                StringUtils.isNotBlank(testClientSecret));
+        assertTrue("palladian-test.properties must provide an Azure client secret", StringUtils.isNotBlank(testClientSecret));
     }
 
     @Test

@@ -1,25 +1,25 @@
 package ws.palladian.helper.collection;
 
+import org.apache.commons.lang3.Validate;
+
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
  * Common {@link Matrix} functionality (override existent methods in subclasses, in case it gives a performance
  * benefit, see interface documentation for more information).
  * </p>
- * 
- * @author Philipp Katz
+ *
  * @param <K> key.
  * @param <V> value.
+ * @author Philipp Katz
  */
 public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
 
     /**
      * Iterator over a {@link Matrix} rows.
-     * 
+     *
      * @author Philipp Katz
      */
     private final class RowIterator implements Iterator<MatrixVector<K, V>> {
@@ -45,7 +45,7 @@ public abstract class AbstractMatrix<K, V> implements Matrix<K, V> {
 
     /**
      * Iterator over a {@link Matrix} columns.
-     * 
+     *
      * @author Philipp Katz
      */
     private final class ColumnIterator implements Iterator<MatrixVector<K, V>> {

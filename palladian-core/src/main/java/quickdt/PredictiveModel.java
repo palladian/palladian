@@ -1,7 +1,5 @@
 package quickdt;
 
-import quickdt.Attributes;
-
 import java.io.Serializable;
 
 /**

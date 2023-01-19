@@ -486,7 +486,8 @@ public class DocumentRetriever extends WebDocumentRetriever {
         List<Node> httpEquivMeta = XPathHelper.getXhtmlNodes(doc, "//meta[@http-equiv]");
         if (!httpEquivMeta.isEmpty()) {
             for (Node node : httpEquivMeta) {
-                if (node.getAttributes() == null) continue;
+                if (node.getAttributes() == null)
+                    continue;
                 Node headerNameAttr = node.getAttributes().getNamedItem("http-equiv");
                 Node headerContentAttr = node.getAttributes().getNamedItem("content");
                 String headerName = headerNameAttr != null ? headerNameAttr.getTextContent() : null;

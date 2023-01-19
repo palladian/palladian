@@ -1,8 +1,5 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.dates.RatedDate;
@@ -11,11 +8,13 @@ import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class rates structure dates by keywords.
- * 
+ *
  * @author Martin Gregor
- * 
  */
 public class StructureDateRater extends TechniqueDateRater<StructureDate> {
 
@@ -47,7 +46,7 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * There for keywords are distinct into classes. See {@link KeyWords#getKeywordPriority(String)}.<br>
      * Only best class will be rated, all other get value of 0. <br>
      * Also a weight in dependency of number of dates will be set.
-     * 
+     *
      * @param structDates
      * @return
      */
@@ -88,13 +87,12 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
      * Calculates the rate for dates.<br>
      * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
      * Example: datesToSet.size()=5; 3/5 and 2/5.
-     * 
+     *
      * @param <T>
      * @param datesToSet
      * @param dates
      */
-    private static <T extends ExtractedDate> void setRateWheightedByGroups(List<T> datesToSet, List<RatedDate<T>> dates,
-            DateExactness compareDepth) {
+    private static <T extends ExtractedDate> void setRateWheightedByGroups(List<T> datesToSet, List<RatedDate<T>> dates, DateExactness compareDepth) {
         List<List<T>> groupedDates = DateExtractionHelper.cluster(datesToSet, compareDepth);
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {

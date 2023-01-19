@@ -4,7 +4,7 @@ package ws.palladian.retrieval.feeds;
  * <p>
  * Possible activity/update classes for feeds.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public enum FeedActivityPattern {
@@ -52,7 +52,7 @@ public enum FeedActivityPattern {
      * <p>
      * Get a {@link FeedActivityPattern} by its identifier.
      * </p>
-     * 
+     *
      * @param identifier
      * @return The FeedActivityPattern with the specified identifier.
      * @throws IllegalArgumentException in case no FeedActivityPattern with the specified identifier exists.

@@ -1,17 +1,16 @@
 package ws.palladian.extraction.location;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.core.Annotation;
+import ws.palladian.extraction.entity.StringTagger;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.extraction.entity.StringTagger;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 public class AnnotationRuleEngineTest {
 

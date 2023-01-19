@@ -1,26 +1,12 @@
 package ws.palladian.classification.text;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.MultiTerms;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -28,10 +14,17 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
-
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.AbstractIterator2;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.function.Predicate;
 
 /**
@@ -39,7 +32,7 @@ import java.util.function.Predicate;
  * A Lucene-based {@link DictionaryModel}. The idea is, to use an in-memory model for building the dictionary (because,
  * permanently updating the Lucene index is terribly slow), and creating the dictionary use
  * {@link #index(DictionaryModel, File)} to transfer the dictionary to the Lucene index.
- * 
+ *
  * @author Philipp Katz
  */
 @SuppressWarnings("serial")
@@ -48,7 +41,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     /**
      * Builder for a {@link LuceneDictionaryModel} which creates an in-memory trie first, which is then written to a
      * Lucene index.
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class Builder implements DictionaryBuilder {
@@ -130,8 +123,8 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
     /**
      * <p>
      * Create a Lucene index from a given {@link DictionaryModel} instance.
-     * 
-     * @param dictionary The dictionary model to index.
+     *
+     * @param dictionary    The dictionary model to index.
      * @param directoryPath The path where to store the Lucene index.
      * @return The {@link LuceneDictionaryModel}.
      * @throws IOException In case something goes wrong.
@@ -140,8 +133,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
         Validate.notNull(dictionary, "dictionary must not be null");
         Validate.notNull(directoryPath, "directoryPath must not be null");
         if (directoryPath.exists()) {
-            throw new IllegalStateException("Path '" + directoryPath
-                    + " already exists. Delete first or pick different path.");
+            throw new IllegalStateException("Path '" + directoryPath + " already exists. Delete first or pick different path.");
         }
         FSDirectory directory = null;
         IndexWriter writer = null;
@@ -214,10 +206,9 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
             Map<String, String> commitUserData = reader.getIndexCommit().getUserData();
             this.featureSetting = getFeatureSetting(commitUserData);
             this.name = commitUserData.get(PROPERTY_NAME);
-            this.documentCounts = getCategoryEntries(new TermQuery(new Term(FIELD_COUNTS, VALUE_DOCUMENT_COUNTS)),
-                    FIELD_DOC_CAT);
+            this.documentCounts = getCategoryEntries(new TermQuery(new Term(FIELD_COUNTS, VALUE_DOCUMENT_COUNTS)), FIELD_DOC_CAT);
             this.termCounts = fetchTermCounts();
-            this.numUniqueTerms = (int)MultiTerms.getTerms(reader, FIELD_TERM).size();
+            this.numUniqueTerms = (int) MultiTerms.getTerms(reader, FIELD_TERM).size();
             this.numEntries = Integer.parseInt(commitUserData.get(PROPERTY_NUM_ENTRIES));
         } catch (IOException e) {
             throw new IllegalStateException("Error while accessing the directory", e);
@@ -238,7 +229,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
 
     /**
      * Get {@link CategoryEntries} for the given {@link Query}.
-     * 
+     *
      * @param query The query for retrieving the desired {@link Document}.
      * @return The {@link CategoryEntries} with counts from the term vector.
      * @throws IOException In case something goes wrong.
@@ -254,7 +245,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
 
     /**
      * Get {@link CategoryEntries} for a Lucene term vector.
-     * 
+     *
      * @param terms The term vector.
      * @return The {@link CategoryEntries} with counts from the term vector.
      * @throws IOException In case something goes wrong.
@@ -266,7 +257,7 @@ public final class LuceneDictionaryModel extends AbstractDictionaryModel impleme
         while ((bytesRef = termsEnum.next()) != null) {
             long categoryCount = termsEnum.totalTermFreq();
             String categoryName = bytesRef.utf8ToString();
-            builder.add(categoryName, (int)categoryCount);
+            builder.add(categoryName, (int) categoryCount);
         }
         return builder.create();
     }

@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -14,11 +10,14 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation to find the "Webutation" of a domain.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see http://www.webutation.net
  */
@@ -31,8 +30,7 @@ public final class Webutation extends AbstractRankingService implements RankingS
     private static final String SERVICE_ID = "webutation";
 
     /** The ranking value types of this service **/
-    public static final RankingType WEBUTATION = new RankingType("webutation", "Webutation",
-            "The Webutation of a domain");
+    public static final RankingType WEBUTATION = new RankingType("webutation", "Webutation", "The Webutation of a domain");
 
     /** All available ranking types by {@link Webutation}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(WEBUTATION);
@@ -60,14 +58,14 @@ public final class Webutation extends AbstractRankingService implements RankingS
             throw new RankingServiceException(e.getMessage());
         }
 
-        return builder.add(WEBUTATION, (float)webutation).create();
+        return builder.add(WEBUTATION, (float) webutation).create();
     }
 
     /**
      * <p>
      * Build the request URL.
      * </p>
-     * 
+     *
      * @param url The URL to search for.
      * @return The request URL.
      */

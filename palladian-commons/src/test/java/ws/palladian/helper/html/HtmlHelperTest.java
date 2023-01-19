@@ -1,22 +1,19 @@
 package ws.palladian.helper.html;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
-
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 
-import javax.swing.text.html.parser.DocumentParser;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * <p>
  * Test cases for the {@link HtmlHelper} class.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
@@ -28,8 +25,7 @@ public class HtmlHelperTest {
         assertEquals(4, HtmlHelper.countTags("<br />everybody is <b>here</b> to do some <p>work"));
         assertEquals(4, HtmlHelper.countTags("<br />everybody<br /> is <b>here</b> to do some <p>work", true));
         assertEquals(7, HtmlHelper.countTags("<br /><a>abc</a>everybody<br /> is <b>here</b> to do some <p>work"));
-        assertEquals(6, HtmlHelper.countTags(
-                "<br /><a>abc</a>everybody<br /> is <b>here</b> to do some <a>abc</a> <p>work", true));
+        assertEquals(6, HtmlHelper.countTags("<br /><a>abc</a>everybody<br /> is <b>here</b> to do some <a>abc</a> <p>work", true));
     }
 
     @Test
@@ -66,18 +62,16 @@ public class HtmlHelperTest {
         //        Assert.assertEquals(DigestUtils.md5Hex(stripped), DigestUtils.md5Hex(result));
         //        assertThat(result,is(stripped));
 
-        htmlContent = HtmlHelper
-                .joinTagsAndRemoveNewLines("<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>");
+        htmlContent = HtmlHelper.joinTagsAndRemoveNewLines("<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>");
         assertEquals("some text1", HtmlHelper.stripHtmlTags(htmlContent));
-        htmlContent = HtmlHelper
-                .joinTagsAndRemoveNewLines("<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />");
+        htmlContent = HtmlHelper.joinTagsAndRemoveNewLines("<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />");
         assertEquals("some text 2", HtmlHelper.stripHtmlTags(htmlContent));
-        
+
         htmlContent = "It weights <3 tons<br />(bridge)";
         String stripped = HtmlHelper.stripHtmlTags(htmlContent);
         assertEquals("It weights <3 tons(bridge)", stripped);
     }
-    
+
     //    @Test
     //    public void testDocumentToReadableText() throws FileNotFoundException {
     //        DocumentParser htmlParser = ParserFactory.createHtmlParser();

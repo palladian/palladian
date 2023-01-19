@@ -1,17 +1,17 @@
 package ws.palladian.helper.collection;
 
-import java.util.LinkedList;
-
 import org.apache.commons.lang3.Validate;
+
+import java.util.LinkedList;
 
 /**
  * <p>
  * A queue with a fixed size, new items are appended to the end, and in case the specified maximum size is exceeded, the
  * oldest (i.e. first added elements) are removed.
  * </p>
- * 
- * @author Philipp Katz
+ *
  * @param <E> Type of items.
+ * @author Philipp Katz
  */
 public class FixedSizeQueue<E> extends LinkedList<E> {
 
@@ -23,7 +23,7 @@ public class FixedSizeQueue<E> extends LinkedList<E> {
      * <p>
      * Create a new {@link FixedSizeQueue} with the specified maximum size.
      * </p>
-     * 
+     *
      * @param maxSize The maximum size, i.e. the maximum number of items to keep. Must be greater zero.
      * @return The {@link FixedSizeQueue}.
      */
@@ -43,6 +43,8 @@ public class FixedSizeQueue<E> extends LinkedList<E> {
             super.remove();
         }
         return true;
-    };
+    }
+
+    ;
 
 }

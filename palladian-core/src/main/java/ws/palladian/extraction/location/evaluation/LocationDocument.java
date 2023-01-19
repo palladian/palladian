@@ -1,16 +1,16 @@
 package ws.palladian.extraction.location.evaluation;
 
-import java.util.List;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
+
+import java.util.List;
 
 /**
  * <p>
  * A text document with {@link LocationAnnotation}s and optionally a main {@link Location}. Used mainly during
  * evaluation and for training.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class LocationDocument {

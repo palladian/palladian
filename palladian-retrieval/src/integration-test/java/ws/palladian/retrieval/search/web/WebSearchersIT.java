@@ -1,12 +1,5 @@
 package ws.palladian.retrieval.search.web;
 
-import static org.junit.Assert.fail;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -16,7 +9,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.search.Searcher;
@@ -29,11 +21,18 @@ import ws.palladian.retrieval.search.socialmedia.TwitterSearcher;
 import ws.palladian.retrieval.search.videos.VimeoSearcher;
 import ws.palladian.retrieval.search.videos.YouTubeSearcher;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.fail;
+
 /**
  * <p>
  * Web tests for different {@link WebSearcher}s. These tests are run as integration tests.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 @RunWith(Parameterized.class)
@@ -55,14 +54,14 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new GooglePlusSearcher(configuration)});
         // searchers.add(new Object[] {new GoogleCustomSearcher(configuration)});
         // searchers.add(new Object[] {new TopsyUrlSearcher(configuration)});
-        searchers.add(new Object[] {new WebKnoxSearcher(configuration)});
-        searchers.add(new Object[] {new WikipediaSearcher()});
+        searchers.add(new Object[]{new WebKnoxSearcher(configuration)});
+        searchers.add(new Object[]{new WikipediaSearcher()});
 
         // social media searchers
-        searchers.add(new Object[] {new InstagramSearcher(configuration)});
+        searchers.add(new Object[]{new InstagramSearcher(configuration)});
         // searchers.add(new Object[] {new FacebookSearcher(configuration)});
-        searchers.add(new Object[] {new TwitterSearcher(configuration)});
-        searchers.add(new Object[] {new RedditSearcher()});
+        searchers.add(new Object[]{new TwitterSearcher(configuration)});
+        searchers.add(new Object[]{new RedditSearcher()});
         // searchers.add(new Object[] {new YelpSearcher(configuration)});
 
         // news searchers
@@ -71,12 +70,12 @@ public class WebSearchersIT {
         // searchers.add(new Object[] {new FarooNewsSearcher()});
 
         // video searchers
-        searchers.add(new Object[] {new VimeoSearcher(configuration)});
-        searchers.add(new Object[] {new YouTubeSearcher(configuration)});
+        searchers.add(new Object[]{new VimeoSearcher(configuration)});
+        searchers.add(new Object[]{new YouTubeSearcher(configuration)});
 
         // image searchers
-        searchers.add(new Object[] {new FlickrSearcher(configuration)});
-        searchers.add(new Object[] {new PixabaySearcher(configuration)});
+        searchers.add(new Object[]{new FlickrSearcher(configuration)});
+        searchers.add(new Object[]{new PixabaySearcher(configuration)});
 
         return searchers;
     }
@@ -94,7 +93,7 @@ public class WebSearchersIT {
      * Check, that search request is processed in under 30 seconds and that no exceptions occur. We do no further
      * checking about the actual results, as this is to fragile.
      * </p>
-     * 
+     *
      * @throws SearcherException
      */
     @Test(timeout = 30000)
@@ -109,7 +108,7 @@ public class WebSearchersIT {
                 fail();
             }
         } catch (SearcherException e) {
-            LOGGER.error("Fail for {}: {}", new Object[] {searcher.getName(), e.getMessage(), e});
+            LOGGER.error("Fail for {}: {}", new Object[]{searcher.getName(), e.getMessage(), e});
             fail();
         }
     }

@@ -44,8 +44,7 @@ public class HttpResult implements Serializable {
      * @deprecated Use {@link HttpResult#HttpResult(String, byte[], Map, int, long, List)}
      */
     @Deprecated
-    public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode,
-                      long transferedBytes) {
+    public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode, long transferedBytes) {
         this(url, content, headers, statusCode, transferedBytes, Collections.emptyList());
     }
 
@@ -62,8 +61,7 @@ public class HttpResult implements Serializable {
      * @param locations       All redirected locations; last entry in the list represents the final target.
      * @since 2.0
      */
-    public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode,
-                      long transferedBytes, List<String> locations) {
+    public HttpResult(String url, byte[] content, Map<String, List<String>> headers, int statusCode, long transferedBytes, List<String> locations) {
         this.url = url;
         this.content = content;
         // field names of the header are case-insensitive: http://www.ietf.org/rfc/rfc2616.txt

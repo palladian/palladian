@@ -20,12 +20,11 @@ import java.util.*;
  * <p>
  * The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Sandro Reichert
- * 
  */
 public class FeedDatabase extends DatabaseManager implements FeedStore {
     /** The logger for this class. */
@@ -59,10 +58,10 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     /**
      * Truncate a string to 255 chars to store it as varchar(255). Additionally, control characters are removed.
      * In case the string is truncated, a message is written to error log.
-     * 
+     *
      * @param input The string to truncate.
-     * @param name The name of the input like "title" or "feedUrl", required to write meaningful log message.
-     * @param feed Something to identify the feed. Use id or feedUrl. Required to write meaningful log message.
+     * @param name  The name of the input like "title" or "feedUrl", required to write meaningful log message.
+     * @param feed  Something to identify the feed. Use id or feedUrl. Required to write meaningful log message.
      * @return The input string, truncated to 255 chars if longer. <code>null</code> if input was <code>null</code>.
      */
     protected static String truncateToVarchar255(String input, String name, String feed) {
@@ -71,8 +70,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             output = StringHelper.removeControlCharacters(output);
             if (output.length() > 255) {
                 output = output.substring(0, 255);
-                LOGGER.error(
-                        "Truncated " + name + " of feed " + feed + " to fit database. Original value was: " + input);
+                LOGGER.error("Truncated " + name + " of feed " + feed + " to fit database. Original value was: " + input);
             }
         }
         return output;
@@ -80,9 +78,9 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     /**
      * Adds a feed and its meta information. The item cache is <b>not</b> not serialized!
-     * 
+     *
      * @return <code>true</code> if feed and meta information have been added, <code>false</code> if at least one of
-     *         feed or meta information have not been added.
+     * feed or meta information have not been added.
      */
     @Override
     public boolean addFeed(Feed feed) {
@@ -204,8 +202,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     /**
      * Update feed in database.
-     * 
-     * @param feed The feed to update
+     *
+     * @param feed               The feed to update
      * @param replaceCachedItems If <code>true</code>, the cached items are replaced by the ones contained in the feed.
      * @return <code>true</code> if (all) update(s) successful.
      */
@@ -250,22 +248,19 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         if (updated) {
             updated = updateMetaInformation(feed);
             if (!updated) {
-                LOGGER.error("Updating meta information for feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                        + ") failed.");
+                LOGGER.error("Updating meta information for feed id " + feed.getId() + " (" + feed.getFeedUrl() + ") failed.");
             }
         }
 
         if (updated && replaceCachedItems) {
             updated = deleteCachedItemById(feed.getId());
             if (!updated) {
-                LOGGER.error(
-                        "Deleting cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl() + ") failed.");
+                LOGGER.error("Deleting cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl() + ") failed.");
             }
             if (updated) {
                 updated = addCacheItems(feed);
                 if (!updated) {
-                    LOGGER.error("Adding new cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                            + ") failed.");
+                    LOGGER.error("Adding new cached items for feed id " + feed.getId() + " (" + feed.getFeedUrl() + ") failed.");
                 }
             }
         }
@@ -346,7 +341,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     /**
      * Add the feed's cached items (item hash and corrected publish date) to database.
-     * 
+     *
      * @param feed The feed for which we want to cache the items.
      * @return true if all items have been added.
      */
@@ -369,7 +364,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     /**
      * Get all cached items (hash, publish date) from this feed.
-     * 
+     *
      * @param id The feed id.
      * @return All cached items (hash, publish date) or empty map if no item is cached. Never <code>null</code>.
      */
@@ -386,7 +381,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     /**
      * Deletes the feed's cached items (item hash and corrected publish date)
-     * 
+     *
      * @param id the feed whose items are to delete
      * @return <code>true</code> if items were deleted, <code>false</code> in case of an error.
      */
@@ -397,7 +392,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     /**
      * Load the average change rates for algorithm IndHist. For each hour of the day 0-23, there is a single value
      * representing the feeds average change rate in this hour.
-     * 
+     *
      * @param feedId The feed the load the model for.
      * @return Array containing the average change rate per hour
      */
@@ -420,7 +415,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
         for (int[] oneHour : hourlyData) {
             // estimate changeRate per Hour as newItems/observationPeriod
-            changeRate[oneHour[0]] = (double)oneHour[1] / (double)oneHour[2];
+            changeRate[oneHour[0]] = (double) oneHour[1] / (double) oneHour[2];
         }
         return changeRate;
     }

@@ -40,10 +40,6 @@ public class SearchIntentSort {
 
     @Override
     public String toString() {
-        return "SearchIntentSort{" +
-                "key='" + key + '\'' +
-                ", direction=" + direction +
-                ", rankingStrategyId=" + rankingStrategyId +
-                '}';
+        return "SearchIntentSort{" + "key='" + key + '\'' + ", direction=" + direction + ", rankingStrategyId=" + rankingStrategyId + '}';
     }
 }

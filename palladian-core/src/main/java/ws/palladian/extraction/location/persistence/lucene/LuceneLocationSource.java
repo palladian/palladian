@@ -1,15 +1,5 @@
 package ws.palladian.extraction.location.persistence.lucene;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
@@ -22,24 +12,13 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.LatLonDocValuesField;
 import org.apache.lucene.document.LatLonPoint;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.MultiBits;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopFieldDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Bits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationType;
@@ -50,6 +29,12 @@ import ws.palladian.helper.collection.DefaultMultiMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * A location source backed by a Lucene index.
@@ -192,9 +177,9 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     /**
      * Use the given query to find locations in the index.
      *
-     * @param query The query.
+     * @param query    The query.
      * @param searcher The Lucene searcher.
-     * @param reader The Lucene reader.
+     * @param reader   The Lucene reader.
      * @return A {@link Collection} with matching {@link Location}s, or an empty Collection, never <code>null</code>.
      */
     private static List<Location> queryLocations(Query query, IndexSearcher searcher, IndexReader reader) {
@@ -263,8 +248,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     @Override
     public List<Location> getLocations(final GeoCoordinate coordinate, double distance) {
         BooleanQuery query = createQuery(null, null, coordinate, distance);
-        Sort sort = new Sort(LatLonDocValuesField.newDistanceSort(FIELD_LAT_LNG_SORT, coordinate.getLatitude(),
-                coordinate.getLongitude()));
+        Sort sort = new Sort(LatLonDocValuesField.newDistanceSort(FIELD_LAT_LNG_SORT, coordinate.getLatitude(), coordinate.getLongitude()));
         StopWatch stopWatch = new StopWatch();
         try {
             TopFieldDocs result = searcher.search(query, Integer.MAX_VALUE, sort);
@@ -280,8 +264,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
     }
 
     @Override
-    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
-            GeoCoordinate coordinate, double distance) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages, GeoCoordinate coordinate, double distance) {
         MultiMap<String, Location> result = DefaultMultiMap.createWithSet();
         for (String locationName : locationNames) {
             BooleanQuery query = createQuery(locationName, languages, coordinate, distance);
@@ -290,8 +273,7 @@ public class LuceneLocationSource extends SingleQueryLocationSource implements C
         return result;
     }
 
-    private static BooleanQuery createQuery(String locationName, Set<Language> languages, GeoCoordinate coordinate,
-            double distance) {
+    private static BooleanQuery createQuery(String locationName, Set<Language> languages, GeoCoordinate coordinate, double distance) {
         BooleanQuery.Builder query = new BooleanQuery.Builder();
         if (locationName != null) {
             // location name also needs to be processed by analyzer; after all we could just lowercase here,

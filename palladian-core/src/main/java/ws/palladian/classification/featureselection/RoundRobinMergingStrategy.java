@@ -1,20 +1,20 @@
 package ws.palladian.classification.featureselection;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
  * <p>
  * Merges feature rankings for multiple classes by always selecting the top N per class.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  */
 public final class RoundRobinMergingStrategy implements SelectedFeatureMergingStrategy {

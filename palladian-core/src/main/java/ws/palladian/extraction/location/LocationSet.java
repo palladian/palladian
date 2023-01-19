@@ -1,27 +1,21 @@
 package ws.palladian.extraction.location;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
+import ws.palladian.helper.math.FatStats;
+import ws.palladian.helper.math.Stats;
+
+import java.util.*;
+import java.util.function.Predicate;
+
 import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 import static ws.palladian.extraction.location.LocationFilters.coordinate;
 import static ws.palladian.helper.collection.CollectionHelper.convertSet;
 import static ws.palladian.helper.collection.CollectionHelper.filterSet;
 import static ws.palladian.helper.functional.Predicates.equal;
 import static ws.palladian.helper.functional.Predicates.not;
-
-import java.util.AbstractSet;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import java.util.function.Predicate;
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.GeoUtils;
-import ws.palladian.helper.math.FatStats;
-import ws.palladian.helper.math.Stats;
 
 /**
  * Provides various statistics for sets of {@link Location}s.
@@ -57,7 +51,7 @@ public class LocationSet extends AbstractSet<Location> {
      *
      * @param filter The filter, not <code>null</code>.
      * @return A {@link LocationSet} with all items matching the filter, or the current locations, in case the filtered
-     *         result would be empty.
+     * result would be empty.
      * @see LocationFilters
      */
     public LocationSet whereConditionally(Predicate<? super Location> filter) {
@@ -70,7 +64,7 @@ public class LocationSet extends AbstractSet<Location> {
 
     /**
      * @return The geographic midpoint of all locations in this set, or a {@link GeoCoordinate#NULL} in case this set
-     *         was empty.
+     * was empty.
      * @see GeoUtils#getMidpoint(Collection)
      */
     public GeoCoordinate midpoint() {
@@ -80,7 +74,7 @@ public class LocationSet extends AbstractSet<Location> {
 
     /**
      * @return The geographic center of all locations in this set, or a {@link GeoCoordinate#NULL} in case this set was
-     *         empty.
+     * empty.
      * @see GeoUtils#getCenterOfMinimumDistance(Collection)
      */
     public GeoCoordinate center() {
@@ -90,7 +84,7 @@ public class LocationSet extends AbstractSet<Location> {
 
     /**
      * @return The largest distance between any pair in this set, or {@link GeoUtils#EARTH_MAX_DISTANCE_KM} in case this
-     *         set contained two or more locations without coordinates.
+     * set contained two or more locations without coordinates.
      */
     public double largestDistance() {
         Set<GeoCoordinate> coordinates = coordinates();
@@ -103,7 +97,7 @@ public class LocationSet extends AbstractSet<Location> {
     /**
      * Get distance statistics from the given location to all locations in this set (except the given location, in case
      * it is also in this set).
-     * 
+     *
      * @param location The location, not <code>null</code>.
      * @return Distance statistics (e.g. mean, min, max, median, ...)
      */
@@ -159,7 +153,7 @@ public class LocationSet extends AbstractSet<Location> {
 
     /**
      * @return The biggest location in this set, or <code>null</code> in case this set was empty, or none of the
-     *         locations had a population value.
+     * locations had a population value.
      * @see Location#getPopulation()
      */
     public Location biggest() {
@@ -237,10 +231,10 @@ public class LocationSet extends AbstractSet<Location> {
     public Iterator<Location> iterator() {
         return locations.iterator();
     }
-    
+
     /**
      * @return The first location in this set (determined by {@link Location#getId()}, or <code>null</code> in case this
-     *         set was empty.
+     * set was empty.
      */
     public Location first() {
         Location first = null;

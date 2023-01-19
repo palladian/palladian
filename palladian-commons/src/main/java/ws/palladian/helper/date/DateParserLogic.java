@@ -1,12 +1,12 @@
 package ws.palladian.helper.date;
 
+import ws.palladian.helper.constants.DateFormat;
+import ws.palladian.helper.constants.RegExp;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import ws.palladian.helper.constants.DateFormat;
-import ws.palladian.helper.constants.RegExp;
 
 /**
  * <p>
@@ -15,7 +15,7 @@ import ws.palladian.helper.constants.RegExp;
  * intended to be used by the outside world. Instances are created by the {@link DateParser} only and discarded
  * immediately, after an {@link ExtractedDate} has been constructed.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
@@ -38,7 +38,7 @@ final class DateParserLogic {
      * <p>
      * Initialize the date parse logic with the provided date string and the given format used for parsing.
      * </p>
-     * 
+     *
      * @param dateString The date string to be parsed, not <code>null</code>.
      * @param dateFormat The format describing the structure of the date string, not <code>null</code>.
      */
@@ -53,7 +53,7 @@ final class DateParserLogic {
         this.second = -1;
         this.timeZone = null;
     }
-    
+
     DateParserLogic() {
         this(null, null);
     }
@@ -136,15 +136,15 @@ final class DateParserLogic {
         } else if (format.equals(RegExp.DATE_USA_MMMM_D_Y)) {
             dateString = dateString.replaceAll(",\\s|,|\\s", " ");
             // try {
-                String[] parts = dateString.split("\\s");
-                if (parts.length == 2) {
-                    String[] tempParts = new String[3];
-                    tempParts[0] = parts[0].split("\\.")[0];
-                    tempParts[1] = parts[0].split("\\.")[1];
-                    tempParts[2] = parts[1];
-                    parts = tempParts;
-                }
-                setDateValues(parts, 2, 0, 1);
+            String[] parts = dateString.split("\\s");
+            if (parts.length == 2) {
+                String[] tempParts = new String[3];
+                tempParts[0] = parts[0].split("\\.")[0];
+                tempParts[1] = parts[0].split("\\.")[1];
+                tempParts[2] = parts[1];
+                parts = tempParts;
+            }
+            setDateValues(parts, 2, 0, 1);
             // } catch (Exception e) {
             // }
         } else if (format.equals(RegExp.DATE_USA_MMMM_D_Y_SEP)) {
@@ -284,9 +284,9 @@ final class DateParserLogic {
      * <p>
      * Removes <code>AM</code> and <code>PM</code> from a date string and delete double whitespace.
      * </p>
-     * 
+     *
      * @param dateString The date string to be cleared.
-     * @param meridiem <code>AM</code> or <code>PM</code> to be removed from the string.
+     * @param meridiem   <code>AM</code> or <code>PM</code> to be removed from the string.
      * @return The string without the meridiem value, with double whitespace removed.
      */
     private static String removeAmPm(String dateString, String meridiem) {
@@ -297,7 +297,7 @@ final class DateParserLogic {
      * <p>
      * Checks for <code>AM</code> and <code>PM</code> in a string, and return the value if found.
      * </p>
-     * 
+     *
      * @param dateString The date string to be checked.
      * @return <code>AM</code> or <code>PM</code> if found (or lower case), or <code>null</code>.
      */
@@ -322,7 +322,7 @@ final class DateParserLogic {
      * Change the hour of the date to 24h system, if this date has an hour and the date string has <code>AM</code> or
      * <code>PM</code> values.
      * </p>
-     * 
+     *
      * @param meridiem <code>AM</code> or <code>PM</code>
      */
     private void set24h(String meridiem) {
@@ -341,9 +341,9 @@ final class DateParserLogic {
      * Calculate day, month, and year for a date given by week and day. If no day is given, the first day of the week
      * will be set, using ISO8601 standard (first week of a year has four or more days, first day of a week is Monday).
      * </p>
-     * 
-     * @param dateString The string with the date.
-     * @param withDay <code>true</code> if the date string contains a day.
+     *
+     * @param dateString    The string with the date.
+     * @param withDay       <code>true</code> if the date string contains a day.
      * @param withSeparator <code>true</code> if date string contains a separator.
      */
     private void setDateByWeekOfYear(String dateString, boolean withDay, boolean withSeparator) {
@@ -383,8 +383,8 @@ final class DateParserLogic {
      * Calculate day, month, year for a date which is given by year and day of year, using ISO8601 standard (first week
      * of a year has four or more days, first day of a week is Monday).
      * </p>
-     * 
-     * @param dateString The string with the date.
+     *
+     * @param dateString    The string with the date.
      * @param withSeparator <code>true</code> if date string contains a separator.
      */
     private void setDateByDayOfYear(String dateString, boolean withSeparator) {
@@ -416,7 +416,7 @@ final class DateParserLogic {
      * <code>+|- HH:MM</code>, <code>+|- HH</code> or <code>Z</code> (stands for UTC timezone). <b>Important:</b> Call
      * after setting date parts like year, month and day!
      * </p>
-     * 
+     *
      * @param timeString The string containing the time.
      */
     private void setTimeValues(String timeString) {
@@ -456,7 +456,7 @@ final class DateParserLogic {
      * The year is unknown, what day is following <code>February 28th</code>? <code>February 29th</code> or
      * <code>March 1st</code>? 2) If day is unknown, what is following <code>23:59:59</code>?
      * </p>
-     * 
+     *
      * @param time The string with the time in format <code>HH:MM</code> or <code>HH</code>.
      * @param sign The sign, either <code>+</code> or <code>-</code>.
      */
@@ -505,7 +505,7 @@ final class DateParserLogic {
      * Set hour, minute, and second by extracting from time string. The date string must have any of the following
      * forms: HH:MM:SS, HH:MM, or HH. Only the given parts will be set, leaving the non given parts untouched.
      * </p>
-     * 
+     *
      * @param timeString The string containing the time in any of the mentioned forms.
      */
     private void setActualTimeValues(String timeString) {
@@ -530,11 +530,11 @@ final class DateParserLogic {
      * Set year, month and day by from an array of values, given the explicit positions of each value in the array. A
      * value of <code>-1</code> signifies that the given value array contains no such value.
      * </p>
-     * 
+     *
      * @param dateParts An array with date parts.
-     * @param yearPos The position in the array containing the year, <code>-1</code> if array contains no year.
-     * @param monthPos The position in the array containing the month, <code>-1</code> if array contains no month.
-     * @param dayPos The position in the array containing the day, <code>-1</code> if array contains no day.
+     * @param yearPos   The position in the array containing the year, <code>-1</code> if array contains no year.
+     * @param monthPos  The position in the array containing the month, <code>-1</code> if array contains no month.
+     * @param dayPos    The position in the array containing the day, <code>-1</code> if array contains no day.
      */
     private void setDateValues(String[] dateParts, int yearPos, int monthPos, int dayPos) {
         if (yearPos != -1) {
@@ -557,7 +557,7 @@ final class DateParserLogic {
      * <p>
      * Normalizes a year string by removing apostrophes (e.g. '99) and and transforming it four digits (e.g. 1999).
      * </p>
-     * 
+     *
      * @param year The string with the year to normalize.
      * @return A four digit year.
      */
@@ -569,14 +569,14 @@ final class DateParserLogic {
      * <p>
      * Sets the year in four digits format. For transformation, the current year is considered as a context. Examples:
      * </p>
-     * 
+     *
      * <ul>
      * <li>year = 20; current year = 2010 -> year > 10 -> result = 1920</li>
      * <li>year = 7; current year = 2010 -> year < 10 -> result = 2007</li>
      * <li>year = 10; current year = 2010 -> year > 10 -> result = 2010</li>
      * <li>year = 99; current year = 2010 -> year > 10 -> result = 1999</li>
      * </ul>
-     * 
+     *
      * @param date int value representing the year to transform to four digit representation.
      * @return The supplied value with four digits.
      */
@@ -597,7 +597,7 @@ final class DateParserLogic {
      * Removes the symbols <code>'</code> from year (e.g. '99), <code>,</code> and <code>st</code>, <code>nd</code>,
      * <code>rd</code>, <code>th</code> from day (e.g. 3rd, June).
      * </p>
-     * 
+     *
      * @param dateString The string containing the date.
      * @return the The supplied date string with the described characters removed.
      */
@@ -641,10 +641,10 @@ final class DateParserLogic {
      * <p>
      * Split time zone acronyms (as defined in {@link RegExp#TIMEZONE}) from the specified date string.
      * </p>
-     * 
+     *
      * @param dateString The date string potentially containing a time zone acronym.
      * @return An array with two items, the first being the time part, the second the time zone, or <code>null</code>,
-     *         if the date string did not contain any time zone information.
+     * if the date string did not contain any time zone information.
      */
     static String[] splitTimeZone(String dateString) {
         Matcher matcher = TIME_ZONE_PATTERN.matcher(dateString);
@@ -652,7 +652,7 @@ final class DateParserLogic {
         if (matcher.find()) {
             String timeZonePart = matcher.group().trim();
             String timePart = matcher.replaceAll(" ").replace("  ", " ");
-            return new String[] {timePart, timeZonePart};
+            return new String[]{timePart, timeZonePart};
         }
 
         return null;
@@ -662,11 +662,11 @@ final class DateParserLogic {
      * <p>
      * Get a regular expression for splitting the supplied date string.
      * </p>
-     * 
+     *
      * @param dateString A date string, where year, month and day are separated by one of <code>.</code>,
-     *            </code>/</code>, <code>_</code> or <code>-</code>.
+     *                   </code>/</code>, <code>_</code> or <code>-</code>.
      * @return A regex for splitting the supplied date string, or <code>null</code>, if none of the given separator
-     *         characters could be found.
+     * characters could be found.
      */
     static String getSeparatorRegEx(String dateString) {
         if (dateString.contains(".")) {

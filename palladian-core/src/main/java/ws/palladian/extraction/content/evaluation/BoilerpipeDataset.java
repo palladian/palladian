@@ -1,17 +1,8 @@
 package ws.palladian.extraction.content.evaluation;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -20,11 +11,19 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Reader for the L3S-GN1 Dataset, which was used for the evaluation by Christian Kohlschuetter, Peter Fankhauser,
  * Wolfgang Nejdl; 'Boilerplate Detection using Shallow Text Features', WSDM 2010: Third ACM International Conference on
  * Web Search and Data Mining New York City, NY USA.
- * 
+ *
  * @author Philipp Katz
  */
 public final class BoilerpipeDataset implements ContentExtractionDataset {
@@ -36,8 +35,7 @@ public final class BoilerpipeDataset implements ContentExtractionDataset {
          * Consider main content and comments as ground truth; i.e. elements within span class='x-nc-sel2' and
          * 'x-nc-sel5'.
          */
-        WHOLE_CONTENT(
-                "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2' or ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel5']");
+        WHOLE_CONTENT("//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2' or ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel5']");
         private final String xPath;
 
         Mode(String xPath) {
@@ -63,7 +61,7 @@ public final class BoilerpipeDataset implements ContentExtractionDataset {
 
     /**
      * Read the file "url-mapping.txt", which contains a list of UUIDs with their URLs.
-     * 
+     *
      * @param boilerpipeDatasetDirectory The path to the dataset directory.
      * @return A {@link Map} with UUIDs as keys, URLs as values.
      */

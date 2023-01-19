@@ -1,14 +1,13 @@
 package ws.palladian.helper.math;
 
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.util.Set;
 
 /**
  * Predefined {@link SetSimilarity} implementations.
- * 
+ *
  * @author Philipp Katz
  */
 public final class SetSimilarities {
@@ -33,7 +32,7 @@ public final class SetSimilarities {
         /**
          * Calculate similarity here, at this point, we have verified that neither of the sets is <code>null</code> and
          * that both sets contain at least one element.
-         * 
+         *
          * @param s1 The first set.
          * @param s2 The second set.
          * @return The similarity.
@@ -43,7 +42,7 @@ public final class SetSimilarities {
 
     /**
      * <a href="http://en.wikipedia.org/wiki/Sørensen–Dice_coefficient">Sørensen-Dice coefficient</a>:
-     * 
+     *
      * <pre>
      *               2 | A intersect B |
      * Dice(A, B) = ---------------------
@@ -59,7 +58,7 @@ public final class SetSimilarities {
             if (intersection.isEmpty()) {
                 return 0;
             }
-            return (double)(2 * intersection.size()) / (s1.size() + s2.size());
+            return (double) (2 * intersection.size()) / (s1.size() + s2.size());
         }
 
         @Override
@@ -70,7 +69,7 @@ public final class SetSimilarities {
 
     /**
      * <a href="http://en.wikipedia.org/wiki/Jaccard_index">Jaccard coefficient</a>:
-     * 
+     *
      * <pre>
      *                  | A intersect B |
      * Jaccard(A, B) = -------------------
@@ -87,18 +86,20 @@ public final class SetSimilarities {
                 return 0;
             }
             int unionSize = s1.size() + s2.size() - intersection.size();
-            return (double)intersection.size() / unionSize;
+            return (double) intersection.size() / unionSize;
         }
 
         @Override
         public String toString() {
             return NAME;
-        };
+        }
+
+        ;
     };
 
     /**
      * <a href="http://en.wikipedia.org/wiki/Overlap_coefficient">Overlap coefficient</a>:
-     * 
+     *
      * <pre>
      *                   | A intersect B |
      * Overlap(A, B) = ---------------------
@@ -111,13 +112,15 @@ public final class SetSimilarities {
         @Override
         public double calculateSimilarity(Set<? extends Object> s1, Set<? extends Object> s2) {
             Set<Object> intersection = CollectionHelper.intersect(s1, s2);
-            return (double)intersection.size() / Math.min(s1.size(), s2.size());
+            return (double) intersection.size() / Math.min(s1.size(), s2.size());
         }
 
         @Override
         public String toString() {
             return NAME;
-        };
+        }
+
+        ;
     };
 
 }

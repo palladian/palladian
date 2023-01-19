@@ -1,26 +1,17 @@
 package ws.palladian.core;
 
-import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.core.value.*;
+import ws.palladian.helper.collection.Vector.VectorEntry;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.core.value.ImmutableBooleanValue;
-import ws.palladian.core.value.ImmutableDoubleValue;
-import ws.palladian.core.value.ImmutableFloatValue;
-import ws.palladian.core.value.ImmutableIntegerValue;
-import ws.palladian.core.value.ImmutableLongValue;
-import ws.palladian.core.value.ImmutableStringValue;
-import ws.palladian.core.value.ImmutableTextValue;
-import ws.palladian.core.value.NullValue;
-import ws.palladian.core.value.Value;
-import ws.palladian.helper.collection.Vector.VectorEntry;
+import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
 
 /**
  * A builder for conveniently creating {@link Instance}s and {@link FeatureVector}s.
- * 
+ *
  * @author Philipp Katz
  */
 public final class InstanceBuilder {
@@ -31,8 +22,8 @@ public final class InstanceBuilder {
 
     /**
      * Set a double value (overwrite an existing value with the same name, in case it exists).
-     * 
-     * @param name Name of the value to set, not <code>null</code> or empty.
+     *
+     * @param name  Name of the value to set, not <code>null</code> or empty.
      * @param value Value to set.
      * @return The builder instance for method chaining.
      */
@@ -41,53 +32,51 @@ public final class InstanceBuilder {
         valueMap.put(name, new ImmutableDoubleValue(value));
         return this;
     }
-    
+
     /**
      * Set a float value (overwrite an existing value with the same name, in case it exists).
-     * 
-     * @param name Name of the value to set, not <code>null</code> or empty.
+     *
+     * @param name  Name of the value to set, not <code>null</code> or empty.
      * @param value Value to set.
      * @return The builder instance for method chaining.
      */
     public InstanceBuilder set(String name, float value) {
-    	Validate.notEmpty(name, "name must not be empty");
-    	valueMap.put(name, new ImmutableFloatValue(value));
-    	return this;
+        Validate.notEmpty(name, "name must not be empty");
+        valueMap.put(name, new ImmutableFloatValue(value));
+        return this;
     }
-    
+
     /**
      * Set a long value (overwrite an existing value with the same name, in case it exists).
      *
-     * @param name Name of the value to set, not <code>null</code> or empty.
+     * @param name  Name of the value to set, not <code>null</code> or empty.
      * @param value Value to set.
      * @return The builder instance for method chaining.
      */
     public InstanceBuilder set(String name, long value) {
-    	Validate.notEmpty(name, "name must not be empty");
-    	valueMap.put(name, ImmutableLongValue.valueOf(value));
-    	return this;
-	}
+        Validate.notEmpty(name, "name must not be empty");
+        valueMap.put(name, ImmutableLongValue.valueOf(value));
+        return this;
+    }
 
-	/**
-	 * Set an integer value (overwrite an existing value with the same name, in
-	 * case it exists).
-	 * 
-	 * @param name
-	 *            Name of the value to set, not <code>null</code> or empty.
-	 * @param value
-	 *            Value to set.
-	 * @return The builder instance for method chaining.
-	 */
-	public InstanceBuilder set(String name, int value) {
-		Validate.notEmpty(name, "name must not be empty");
-		valueMap.put(name, ImmutableIntegerValue.valueOf(value));
-		return this;
-	}
+    /**
+     * Set an integer value (overwrite an existing value with the same name, in
+     * case it exists).
+     *
+     * @param name  Name of the value to set, not <code>null</code> or empty.
+     * @param value Value to set.
+     * @return The builder instance for method chaining.
+     */
+    public InstanceBuilder set(String name, int value) {
+        Validate.notEmpty(name, "name must not be empty");
+        valueMap.put(name, ImmutableIntegerValue.valueOf(value));
+        return this;
+    }
 
     /**
      * Set a String value (overwrite an existing value with the same name, in case it exists).
-     * 
-     * @param name Name of the value to set, not <code>null</code> or empty.
+     *
+     * @param name  Name of the value to set, not <code>null</code> or empty.
      * @param value Value to set, not <code>null</code>.
      * @return The builder instance for method chaining.
      */
@@ -100,8 +89,8 @@ public final class InstanceBuilder {
 
     /**
      * Set a boolean value (overwrite an existing value with the same name, in case it exists).
-     * 
-     * @param name Name of the value to set, not <code>null</code> or empty.
+     *
+     * @param name  Name of the value to set, not <code>null</code> or empty.
      * @param value Value to set.
      * @return The builder instance for method chaining.
      */
@@ -113,8 +102,8 @@ public final class InstanceBuilder {
 
     /**
      * Set a value (overwrite an existing value with the same name, in case it exists).
-     * 
-     * @param name Name of the value to set, not <code>null</code> or empty.
+     *
+     * @param name  Name of the value to set, not <code>null</code> or empty.
      * @param value Value to set, not <code>null</code>.
      * @return The builder instance for method chaining.
      */
@@ -127,7 +116,7 @@ public final class InstanceBuilder {
 
     /**
      * Set the text value (overwrite existing text, in case it exists).
-     * 
+     *
      * @param text The text to set, not <code>null</code> or empty.
      * @return The builder instance for method chaining.
      */
@@ -139,7 +128,7 @@ public final class InstanceBuilder {
 
     /**
      * Explicitly set a value to {@link NullValue}.
-     * 
+     *
      * @param name Name of the value to set, not <code>null</code> or empty.
      * @return The builder instance for method chaining.
      */
@@ -151,7 +140,7 @@ public final class InstanceBuilder {
 
     /**
      * Add all values from a given feature vector (overwriting already existing values with the same names).
-     * 
+     *
      * @param featureVector The featue vector, not <code>null</code>.
      * @return The builder instance for method chaining.
      */
@@ -166,7 +155,7 @@ public final class InstanceBuilder {
     /**
      * Set a weight which will be considered when creating an instance using {@link #create(boolean)} or
      * {@link #create(String)}.
-     * 
+     *
      * @param weight The weight, equal/greater one.
      * @return The builder instance for method chaining.
      * @see Instance#getWeight()
@@ -179,7 +168,7 @@ public final class InstanceBuilder {
 
     /**
      * Create a feature vector.
-     * 
+     *
      * @return A new (immutable) feature vector.
      */
     public FeatureVector create() {
@@ -188,7 +177,7 @@ public final class InstanceBuilder {
 
     /**
      * Create an instance.
-     * 
+     *
      * @param category The category for the instance, not <code>null</code>.
      * @return A new (immutable) instance.
      */
@@ -199,7 +188,7 @@ public final class InstanceBuilder {
 
     /**
      * Create an instance.
-     * 
+     *
      * @param category The category for the instance.
      * @return A new (immutable) instance.
      */

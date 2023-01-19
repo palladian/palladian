@@ -1,23 +1,21 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.helper.constants.RegExp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
  * This class evaluates an url-date and rates it in dependency of found format.<br>
- * 
+ *
  * @author Martin Gregor
- * 
  */
 public class UrlDateRater extends TechniqueDateRater<UrlDate> {
 
-	@Override
+    @Override
     public List<RatedDate<UrlDate>> rate(List<UrlDate> list) {
         return evaluateURLDate(list);
     }
@@ -25,7 +23,7 @@ public class UrlDateRater extends TechniqueDateRater<UrlDate> {
     /**
      * Evaluates the URL dates.<br>
      * Evaluated rate depends on format of date.<br>
-     * 
+     *
      * @param dates
      * @return
      */

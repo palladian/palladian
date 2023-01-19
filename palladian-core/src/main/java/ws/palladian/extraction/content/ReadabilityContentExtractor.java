@@ -1,17 +1,16 @@
 package ws.palladian.extraction.content;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.*;
+import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.nlp.StringHelper;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
-
-import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 // possible improvements:
 // TODO add frame handling? -> low priority
@@ -21,6 +20,7 @@ import ws.palladian.helper.nlp.StringHelper;
 // - http://crimewatch.gaeatimes.com/2010/08/29/two-police-officers-among-12-killed-in-chechnya-46005/
 // - http://www.codinghorror.com/blog/2010/05/on-working-remotely.html
 // need to test this extensively though
+
 /**
  * <p>
  * A quick <s>and dirty</s> port of the JavaScript browser bookmarklet "Readability" by Arc90 -- a great tool for
@@ -28,13 +28,13 @@ import ws.palladian.helper.nlp.StringHelper;
  * more enjoyable reading experience. [...] its success rate is pretty respectable (we'd guess over 90% of web sites are
  * handled properly)"</i>.
  * </p>
- * 
+ *
  * <p>
  * Note, that this is not designed for front pages like <a href="http://cnn.com">http://cnn.com</a>, but for articles
  * and blog entries with one topic. The result should be just the actual content, without irrelevant elements like
  * navigation menus, headers, footers, ads, etc.
  * </p>
- * 
+ *
  * <p>
  * How it works, in a nutshell: Readability operates on the document's DOM tree. Basically, it assigns all elements a
  * score for their contents. Metrics for the scoring are length of their text content, number of commas and link
@@ -42,19 +42,16 @@ import ws.palladian.helper.nlp.StringHelper;
  * contain unlikely actual content in contrast to elements with class "article". After the top element has been
  * determined, the algorithm also checks its siblings whether they contain content, too.
  * </p>
- * 
+ *
  * <p>
  * Score on boilerplate dataset: 0.9090505 (r1505);
  * </p>
- * 
- * @version Based on: SVN r152, Jun 28, 2010
- * 
- * @see <a href="http://lab.arc90.com/experiments/readability">Website</a>
- * @see <a href="http://code.google.com/p/arc90labs-readability">JavaScript Source</a>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
- * 
+ * @version Based on: SVN r152, Jun 28, 2010
+ * @see <a href="http://lab.arc90.com/experiments/readability">Website</a>
+ * @see <a href="http://code.google.com/p/arc90labs-readability">JavaScript Source</a>
  */
 public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
@@ -185,7 +182,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Enable to write dumps of the DOM document with calculated weight.
-     * 
+     *
      * @param writeDump
      */
     public void setWriteDump(boolean writeDump) {
@@ -216,14 +213,14 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Runs readability.
-     * 
+     *
      * Workflow:<br>
      * 1. Prep the document by removing script tags, css, etc.<br>
      * 2. Build readability's DOM tree.<br>
      * 3. Grab the article content from the current dom tree.<br>
      * 4. Replace the current DOM tree with the new one.<br>
      * 5. Read peacefully.
-     * 
+     *
      * @return void
      **/
     private Document init(Document document) throws PageContentExtractorException {
@@ -276,7 +273,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             // postprocessing, replace <p style="display:inline"> with normal Text nodes again -- Philipp.
             NodeList pElements = result.getElementsByTagName("p");
             for (int i = pElements.getLength() - 1; i >= 0; i--) {
-                Element element = (Element)pElements.item(i);
+                Element element = (Element) pElements.item(i);
                 if (element.getAttribute("style").equals("display:inline")) {
                     Text textNode = result.createTextNode(element.getTextContent());
                     element.getParentNode().replaceChild(textNode, element);
@@ -286,7 +283,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             // strip out class+readability attributes, as we dont need them
             NodeList elements = result.getElementsByTagName("*");
             for (int i = 0; i < elements.getLength(); i++) {
-                Element element = (Element)elements.item(i);
+                Element element = (Element) elements.item(i);
                 element.removeAttribute("class");
                 element.removeAttribute(READABILITY_ATTR);
             }
@@ -297,7 +294,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Get the article title as an H1.
-     * 
+     *
      * @return void
      **/
     private String getArticleTitle(Document document) {
@@ -307,7 +304,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
         NodeList titleElements = document.getElementsByTagName("title");
         if (titleElements.getLength() == 1) {
-            curTitle = origTitle = getInnerText((Element)titleElements.item(0));
+            curTitle = origTitle = getInnerText((Element) titleElements.item(0));
         }
 
         if (Pattern.compile(" [\\|\\-] ").matcher(curTitle).find()) {
@@ -323,7 +320,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         } else if (curTitle.length() > 150 || curTitle.length() < 15) {
             NodeList hOnes = document.getElementsByTagName("h1");
             if (hOnes.getLength() == 1) {
-                curTitle = getInnerText((Element)hOnes.item(0));
+                curTitle = getInnerText((Element) hOnes.item(0));
             }
         }
 
@@ -340,7 +337,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     /**
      * Prepare the HTML document for readability to scrape it. This includes things like stripping javascript, CSS, and
      * handling terrible markup.
-     * 
+     *
      * @return void
      **/
     private void prepDocument(Document document) {
@@ -363,7 +360,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * Prepare the article node for display. Clean out any inline styles, iframes, forms, strip extraneous
      * <p>
      * tags, etc.
-     * 
+     *
      * @param Element
      * @return void
      **/
@@ -401,7 +398,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         /* Remove extra paragraphs */
         NodeList articleParagraphs = articleContent.getElementsByTagName("p");
         for (int i = articleParagraphs.getLength() - 1; i >= 0; i--) {
-            Element currentParagraph = (Element)articleParagraphs.item(i);
+            Element currentParagraph = (Element) articleParagraphs.item(i);
             int imgCount = currentParagraph.getElementsByTagName("img").getLength();
             int embedCount = currentParagraph.getElementsByTagName("embed").getLength();
             int objectCount = currentParagraph.getElementsByTagName("object").getLength();
@@ -422,7 +419,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     /**
      * Initialize a node with the readability object. Also checks the className/id for special names to add to its
      * score.
-     * 
+     *
      * @param Element
      * @return void
      **/
@@ -451,7 +448,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * grabArticle - Using a variety of metrics (content score, classname, element types), find the content that is most
      * likely to be the stuff a user wants to
      * read. Then return it wrapped up in a div.
-     * 
+     *
      * @return Element
      **/
     private Document grabArticle(Document document) {
@@ -463,21 +460,21 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
          * First, node prepping. Trash nodes that look cruddy (like ones with the class name "comment", etc), and turn
          * divs into P tags where they have been
          * used inappropriately (as in, where they contain no other block level elements.)
-         * 
+         *
          * Note: Assignment from index for performance. See
          * http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5
-         * 
+         *
          * todo: Shouldn't this be a reverse traversal?
          **/
         List<Element> nodesToScore = new LinkedList<Element>();
         NodeList allElements = document.getElementsByTagName("*");
         for (int nodeIndex = 0; nodeIndex < allElements.getLength(); nodeIndex++) {
-            Element node = (Element)allElements.item(nodeIndex);
+            Element node = (Element) allElements.item(nodeIndex);
             /* Remove unlikely candidates */
             if (stripUnlikelyCandidates) {
                 String unlikelyMatchString = node.getAttribute("class") + node.getAttribute("id");
-                if (UNLIKELY_CANDIDATES_RE.matcher(unlikelyMatchString).find() && !OK_MAYBE_ITS_A_CANDIDATE_RE.matcher(unlikelyMatchString).find()
-                        && !node.getTagName().equalsIgnoreCase("body")) {
+                if (UNLIKELY_CANDIDATES_RE.matcher(unlikelyMatchString).find() && !OK_MAYBE_ITS_A_CANDIDATE_RE.matcher(unlikelyMatchString).find() && !node.getTagName()
+                        .equalsIgnoreCase("body")) {
                     LOGGER.debug("Removing unlikely candidate - {}", unlikelyMatchString);
                     node.getParentNode().removeChild(node);
                     nodeIndex--;
@@ -501,7 +498,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                     for (int i = 0; i < node.getChildNodes().getLength(); i++) {
                         Node childNode = node.getChildNodes().item(i);
                         if (childNode.getNodeType() == Node.TEXT_NODE &&
-                        // added by Philipp to prevent creation of empty p nodes
+                                // added by Philipp to prevent creation of empty p nodes
                                 childNode.getTextContent().trim().length() > 0) {
                             LOGGER.debug("replacing text node with a p tag with the same content.");
                             Element p = document.createElement("p");
@@ -517,7 +514,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         /**
          * Loop through all paragraphs, and assign a score to them based on how content-y they look. Then add their
          * score to their parent node.
-         * 
+         *
          * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
          **/
         List<Element> candidates = new LinkedList<Element>();
@@ -546,11 +543,11 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             contentScore += innerText.split(",").length;
 
             /* For every 100 characters in this paragraph, add another point. Up to 3 points. */
-            contentScore += Math.min(Math.floor((float)innerText.length() / 100), 3);
+            contentScore += Math.min(Math.floor((float) innerText.length() / 100), 3);
 
             // if parent is ELEMENT_NODE, initialize readability and add score -- Philipp.
             if (parentNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element parentElement = (Element)parentNode;
+                Element parentElement = (Element) parentNode;
                 if (!hasReadability(parentElement)) {
                     initializeNode(parentElement);
                     candidates.add(parentElement);
@@ -560,12 +557,12 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
             // if grandparent is ELEMENT_NODE, initialize readability, add half of the score -- Philipp.
             if (grandParentNode != null && grandParentNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element grandParentElement = (Element)grandParentNode;
+                Element grandParentElement = (Element) grandParentNode;
                 if (!hasReadability(grandParentElement)) {
                     initializeNode(grandParentElement);
                     candidates.add(grandParentElement);
                 }
-                setReadability(grandParentElement, getReadability(grandParentElement) + contentScore / (float)2);
+                setReadability(grandParentElement, getReadability(grandParentElement) + contentScore / (float) 2);
             }
 
         }
@@ -585,7 +582,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             contentScore = contentScore * (1 - getLinkDensity(candidate));
             setReadability(candidate, contentScore);
 
-            LOGGER.debug("Candidate: {} ({}:{}) with score {}", new Object[] {candidate, candidate.getAttribute("class"), candidate.getAttribute("id"), contentScore});
+            LOGGER.debug("Candidate: {} ({}:{}) with score {}", new Object[]{candidate, candidate.getAttribute("class"), candidate.getAttribute("id"), contentScore});
 
             if (topCandidate == null || contentScore > getReadability(topCandidate)) {
                 topCandidate = candidate;
@@ -600,7 +597,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             LOGGER.debug("No top candidate found, using the body");
             NodeList bodyNodes = document.getElementsByTagName("body");
             if (bodyNodes.getLength() > 0) {
-                topCandidate = (Element)bodyNodes.item(0);
+                topCandidate = (Element) bodyNodes.item(0);
                 document.renameNode(topCandidate, topCandidate.getNamespaceURI(), "div");
             } else {
                 return null;
@@ -625,11 +622,11 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
             if (!(siblingNodes.item(s).getNodeType() == Node.ELEMENT_NODE)) {
                 continue;
             }
-            Element siblingNode = (Element)siblingNodes.item(s);
+            Element siblingNode = (Element) siblingNodes.item(s);
             boolean append = false;
 
-            LOGGER.debug("Looking at sibling node: {} ({}:{}) {}", new Object[] {siblingNode, siblingNode.getAttribute("class"), siblingNode.getAttribute("id"),
-                    (hasReadability(siblingNode) ? " with score " + getReadability(siblingNode) : "")});
+            LOGGER.debug("Looking at sibling node: {} ({}:{}) {}", new Object[]{siblingNode, siblingNode.getAttribute("class"), siblingNode.getAttribute("id"), (hasReadability(
+                    siblingNode) ? " with score " + getReadability(siblingNode) : "")});
 
             if (siblingNode == topCandidate) {
                 append = true;
@@ -668,7 +665,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                      * accident.
                      */
                     LOGGER.debug("Altering siblingNode of {} to div.", siblingNode.getNodeName());
-                    nodeToAppend = (Element)document.renameNode(siblingNode, siblingNode.getNamespaceURI(), "div");
+                    nodeToAppend = (Element) document.renameNode(siblingNode, siblingNode.getNamespaceURI(), "div");
                 } else {
                     nodeToAppend = siblingNode;
                 }
@@ -694,7 +691,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Get the inner text of a node - cross browser compatibly. This also strips out any excess whitespace to be found.
-     * 
+     *
      * @param Element
      * @return string
      **/
@@ -716,9 +713,9 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Remove the style attribute on every e and under.
-     * 
+     *
      * todo: Test if getElementsByTagName(*) is faster.
-     * 
+     *
      * @param Element
      * @return void
      **/
@@ -736,7 +733,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         while (cur != null) {
             if (cur.getNodeType() == Node.ELEMENT_NODE) {
                 // Remove style attribute(s) :
-                Element curElement = (Element)cur;
+                Element curElement = (Element) cur;
                 curElement.removeAttribute("style");
                 cleanStyles(curElement);
             }
@@ -748,7 +745,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     /**
      * Get the density of links as a percentage of the content This is the amount of text that is inside a link divided
      * by the total text in the node.
-     * 
+     *
      * @param Element
      * @return number (float)
      **/
@@ -758,17 +755,17 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         int textLength = getInnerText(e).length();
         int linkLength = 0;
         for (int i = 0; i < links.getLength(); i++) {
-            Element linkElement = (Element)links.item(i);
+            Element linkElement = (Element) links.item(i);
             linkLength += getInnerText(linkElement).length();
         }
-        float linkDensity = textLength != 0 ? (float)linkLength / textLength : 0;
+        float linkDensity = textLength != 0 ? (float) linkLength / textLength : 0;
 
         return linkDensity;
     }
 
     /**
      * Get an elements class/id weight. Uses regular expressions to tell if this element looks good or bad.
-     * 
+     *
      * @param Element
      * @return number (Integer)
      **/
@@ -808,9 +805,9 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Clean a node of all elements of type "tag". (Unless it's a youtube/vimeo video. People love movies.)
-     * 
+     *
      * @param Element
-     * @param string tag to clean
+     * @param string  tag to clean
      * @return void
      **/
     private void clean(Element e, String tag) {
@@ -848,7 +845,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * Clean an element of all tags of type "tag" if they look fishy. "Fishy" is an algorithm based on content length,
      * classnames, link density, number of
      * images & embeds, etc.
-     * 
+     *
      * @return void
      **/
     private void cleanConditionally(Element e, String tag) {
@@ -863,17 +860,18 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         /**
          * Gather counts for other typical elements embedded within. Traverse backwards so we can remove nodes at the
          * same time without effecting the traversal.
-         * 
+         *
          * todo: Consider taking into account original contentScore here.
          **/
         for (int i = curTagsLength - 1; i >= 0; i--) {
-            Element element = (Element)tagsList.item(i);
+            Element element = (Element) tagsList.item(i);
 
             int weight = getClassIdWeight(element);
             float contentScore = getReadability(element);
 
-            LOGGER.debug("Cleaning Conditionally {} ({}:{}) {}",
-                    new Object[] {element, element.getAttribute("class"), element.getAttribute("id"), (hasReadability(element) ? " with score " + getReadability(element) : "")});
+            LOGGER.debug("Cleaning Conditionally {} ({}:{}) {}", new Object[]{element, element.getAttribute("class"), element.getAttribute("id"), (hasReadability(element) ?
+                    " with score " + getReadability(element) :
+                    "")});
 
             if (weight + contentScore < 0) {
                 element.getParentNode().removeChild(element);
@@ -891,7 +889,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                 int embedCount = 0;
                 NodeList embeds = element.getElementsByTagName("embed");
                 for (int ei = 0; ei < embeds.getLength(); ei++) {
-                    Element embedElement = (Element)embeds.item(ei);
+                    Element embedElement = (Element) embeds.item(ei);
                     if (VIDEO_RE.matcher(embedElement.getAttribute("src")).find()) {
                         embedCount++;
                     }
@@ -905,7 +903,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
                     toRemove = true;
                 } else if (li > p && !tag.equalsIgnoreCase("ul") && !tag.equalsIgnoreCase("ol")) {
                     toRemove = true;
-                } else if (input > Math.floor(p / (double)3)) {
+                } else if (input > Math.floor(p / (double) 3)) {
                     toRemove = true;
                 } else if (contentLength < 25 && (img == 0 || img > 2)) {
                     toRemove = true;
@@ -927,7 +925,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Clean out spurious headers from an Element. Checks things like classnames and link density.
-     * 
+     *
      * @param Element
      * @return void
      **/
@@ -935,7 +933,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
         for (int headerIndex = 1; headerIndex < 7; headerIndex++) {
             NodeList headers = e.getElementsByTagName("h" + headerIndex);
             for (int i = headers.getLength() - 1; i >= 0; i--) {
-                Element current = (Element)headers.item(i);
+                Element current = (Element) headers.item(i);
                 if (getClassIdWeight(current) < 0 || getLinkDensity(current) > 0.33) {
                     current.getParentNode().removeChild(current);
                 }
@@ -967,7 +965,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Usage example for the book.
-     * 
+     *
      * @throws Exception
      */
     @SuppressWarnings("unused")

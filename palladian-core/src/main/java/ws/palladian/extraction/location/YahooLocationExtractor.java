@@ -1,43 +1,29 @@
 package ws.palladian.extraction.location;
 
-import static ws.palladian.retrieval.HttpMethod.POST;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.util.*;
+
+import static ws.palladian.retrieval.HttpMethod.POST;
 
 /**
  * <p>
  * Place extraction using Yahoo Placespotter. Provides 2000 queries (per day, I assume, although not stated) for
  * non-commercial use.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://developer.yahoo.com/boss/geo/">Yahoo! BOSS Geo Services</a>
  * @see <a href="http://developer.yahoo.com/boss/geo/docs/free_YQL.html">Non-Commercial usage of Yahoo Geo API's</a>
  * @see <a href="http://developer.yahoo.com/geo/geoplanet/guide/concepts.html#placetypes">Overview over available
- *      types</a>
+ * types</a>
  */
 public class YahooLocationExtractor extends LocationExtractor {
 
@@ -79,7 +65,7 @@ public class YahooLocationExtractor extends LocationExtractor {
 
     @Override
     public List<LocationAnnotation> getAnnotations(String inputText) {
-        
+
         HttpRequest2Builder requestBuilder = new HttpRequest2Builder(POST, "http://query.yahooapis.com/v1/public/yql");
         requestBuilder.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         requestBuilder.addHeader("Accept", "application/json");
@@ -179,8 +165,7 @@ public class YahooLocationExtractor extends LocationExtractor {
                 LOGGER.error("Unmapped type {}", type);
                 continue;
             }
-            Location location = new ImmutableLocation(woeId, actualName, alternatives, mappedType, coordinate, null,
-                    null);
+            Location location = new ImmutableLocation(woeId, actualName, alternatives, mappedType, coordinate, null, null);
             result.add(new LocationAnnotation(startOffset, actualName, location));
         }
         return result;

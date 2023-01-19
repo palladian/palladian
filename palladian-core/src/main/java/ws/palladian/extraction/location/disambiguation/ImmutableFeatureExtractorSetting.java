@@ -1,12 +1,12 @@
 package ws.palladian.extraction.location.disambiguation;
 
+import ws.palladian.extraction.location.scope.ScopeDetector;
+import ws.palladian.retrieval.search.Searcher;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import ws.palladian.extraction.location.scope.ScopeDetector;
-import ws.palladian.retrieval.search.Searcher;
 
 final class ImmutableFeatureExtractorSetting implements FeatureExtractorSetting {
 
@@ -71,7 +71,7 @@ final class ImmutableFeatureExtractorSetting implements FeatureExtractorSetting 
     public Set<String> getEntityCategories() {
         return Collections.unmodifiableSet(entityCategories);
     }
-    
+
     @Override
     public boolean useHierarchyFeatures() {
         return hierarchyFeatures;

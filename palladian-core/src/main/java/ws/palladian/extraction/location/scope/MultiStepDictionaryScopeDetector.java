@@ -1,15 +1,8 @@
 package ws.palladian.extraction.location.scope;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.PalladianTextClassifier;
@@ -21,6 +14,12 @@ import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.wiki.WikiPage;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * <p>
  * A multi-level text-classification-based {@link ScopeDetector}. Conceptually, it uses several coarse grids first to do
@@ -31,7 +30,7 @@ import ws.palladian.retrieval.wiki.WikiPage;
  * <p>
  * Use {@link DictionaryScopeDetector#train(Iterable, ws.palladian.classification.text.FeatureSetting, double)} to
  * create a model.
- * 
+ *
  * @author Philipp Katz
  */
 public class MultiStepDictionaryScopeDetector implements ScopeDetector {
@@ -54,11 +53,11 @@ public class MultiStepDictionaryScopeDetector implements ScopeDetector {
     /**
      * Create a {@link MultiStepDictionaryScopeDetector} using the
      * {@link DictionaryScopeDetector#DEFAULT_SCORER}.
-     * 
-     * @param model The model to use, not <code>null</code>.
+     *
+     * @param model            The model to use, not <code>null</code>.
      * @param coarserGridSizes The simulated coarser grid sizes; must be sorted in descending order, starting with the
-     *            biggest grid size. Each grid size must be at least twice as big as its successor, and the last given
-     *            grid size must be at least twice as big as the grid size supplied by the used model.
+     *                         biggest grid size. Each grid size must be at least twice as big as its successor, and the last given
+     *                         grid size must be at least twice as big as the grid size supplied by the used model.
      * @throws IllegalArgumentException In case any of the given conditions is not fulfilled.
      */
     public MultiStepDictionaryScopeDetector(DictionaryScopeModel model, double... coarserGridSizes) {
@@ -67,16 +66,15 @@ public class MultiStepDictionaryScopeDetector implements ScopeDetector {
 
     /**
      * Create a {@link MultiStepDictionaryScopeDetector}.
-     * 
-     * @param model The model to use, not <code>null</code>.
-     * @param scorer The scorer to use for text classification, not <code>null</code>.
+     *
+     * @param model            The model to use, not <code>null</code>.
+     * @param scorer           The scorer to use for text classification, not <code>null</code>.
      * @param coarserGridSizes The simulated coarser grid sizes; must be sorted in descending order, starting with the
-     *            biggest grid size. Each grid size must be at least twice as big as its successor, and the last given
-     *            grid size must be at least twice as big as the grid size supplied by the used model.
+     *                         biggest grid size. Each grid size must be at least twice as big as its successor, and the last given
+     *                         grid size must be at least twice as big as the grid size supplied by the used model.
      * @throws IllegalArgumentException In case any of the given conditions is not fulfilled.
      */
-    public MultiStepDictionaryScopeDetector(DictionaryScopeModel model, Scorer scorer,
-            double... coarserGridSizes) {
+    public MultiStepDictionaryScopeDetector(DictionaryScopeModel model, Scorer scorer, double... coarserGridSizes) {
         validateParameters(model, scorer, coarserGridSizes);
         int numSteps = coarserGridSizes.length + 1;
         this.dictionaryModels = new DictionaryModel[numSteps];
@@ -108,8 +106,8 @@ public class MultiStepDictionaryScopeDetector implements ScopeDetector {
         }
         if (coarserGridSizes.length > 0) {
             Validate.isTrue(model.gridSize * 2 <= coarserGridSizes[coarserGridSizes.length - 1],
-                    "size of smallest coarse grid should at least be twice as much as fine grid; (coarse="
-                            + coarserGridSizes[coarserGridSizes.length - 1] + ",fine=" + model.gridSize + ")");
+                    "size of smallest coarse grid should at least be twice as much as fine grid; (coarse=" + coarserGridSizes[coarserGridSizes.length - 1] + ",fine="
+                            + model.gridSize + ")");
         } else {
             LOGGER.warn("No coarser grid sizes given, using only the original size of {}°", model.gridSize);
         }
@@ -164,8 +162,7 @@ public class MultiStepDictionaryScopeDetector implements ScopeDetector {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " gridSizes=" + Arrays.toString(gridSizes) + ", scorer=" + scorer + ", "
-                + dictionaryModels[dictionaryModels.length - 1];
+        return getClass().getSimpleName() + " gridSizes=" + Arrays.toString(gridSizes) + ", scorer=" + scorer + ", " + dictionaryModels[dictionaryModels.length - 1];
     }
 
     public static void main(String[] args) throws IOException {
@@ -173,7 +170,7 @@ public class MultiStepDictionaryScopeDetector implements ScopeDetector {
         ScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(model, 5, 2.5, 1, 0.5);
         // ScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(model);
         // ScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(model, 0.1);
-        
+
         String content = FileHelper.readFileToString("/Users/pk/Desktop/WikipediaScopeDataset-2014/split-2/Ballantyne_Park.mediawiki");
         String text = new WikiPage(0, 0, null, content).getCleanText();
         System.out.println(scopeDetector.getScope(text));
@@ -187,10 +184,10 @@ public class MultiStepDictionaryScopeDetector implements ScopeDetector {
 
         content = FileHelper.readFileToString("/Users/pk/Desktop/text_stripped.txt");
         System.out.println(scopeDetector.getScope(content));
-        
+
         content = FileHelper.readFileToString("/Users/pk/Desktop/text2.txt");
         System.out.println(scopeDetector.getScope(content));
-        
+
         content = FileHelper.readFileToString("/Users/pk/Desktop/text2_stripped.txt");
         System.out.println(scopeDetector.getScope(content));
     }

@@ -8,13 +8,13 @@ import ws.palladian.helper.math.NumericMatrix;
  * to decide which implementation to use, you probably would want to try the {@link AverageMergingStrategy}, which just
  * computes the final ranking based on the arithmetic mean of the per class scores for each feature.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  */
 public interface SelectedFeatureMergingStrategy {
     /**
      * Merges the ranked features provided by {@code rankedFeaturesPerClass} into a {@link FeatureRanking}.
-     * 
+     *
      * @param chiSquareMatrix The chi-squared scores to merge with this merging strategy.
      * @return A merged ranking of the provided features.
      */

@@ -1,11 +1,7 @@
 package ws.palladian.helper.collection;
 
 public enum ComparisonType {
-    LESS("<"),
-    LESS_EQUALS("<="),
-    MORE(">"),
-    MORE_EQUALS(">="),
-    EQUALS("=");
+    LESS("<"), LESS_EQUALS("<="), MORE(">"), MORE_EQUALS(">="), EQUALS("=");
 
     private String operator;
 

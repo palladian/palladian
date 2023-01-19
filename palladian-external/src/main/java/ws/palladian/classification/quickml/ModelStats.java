@@ -43,7 +43,7 @@
 // 			return Double.compare(o.getDepthScore(), this.getDepthScore());
 // 		}
 // 	}
-	
+
 // 	int numTrees = 0;
 // 	int numCategoricalBranches = 0;
 // 	int numNumericalBranches = 0;

@@ -1,19 +1,15 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static ws.palladian.extraction.location.LocationType.CITY;
-import static ws.palladian.extraction.location.LocationType.CONTINENT;
-import static ws.palladian.extraction.location.LocationType.POI;
-import static ws.palladian.extraction.location.LocationType.UNIT;
+import org.junit.Test;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.Test;
-
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static ws.palladian.extraction.location.LocationType.*;
 
 public class HeuristicDisambiguationTest {
 
@@ -34,36 +30,27 @@ public class HeuristicDisambiguationTest {
 
     @Test
     public void test_chosesNestedLocationOverParent() {
-        Location l1 = new LocationBuilder().setId(2968815).setPrimaryName("Paris").setType(UNIT)
-                .setAncestorIds("/6295630/6255148/3017382/3012874/").create();
-        Location l2 = new LocationBuilder().setId(2988506).setPrimaryName("Paris").setType(UNIT)
-                .setAncestorIds("/6295630/6255148/3017382/3012874/2968815/").create();
-        Location l3 = new LocationBuilder().setId(6455259).setPrimaryName("Paris").setType(UNIT)
-                .setAncestorIds("/6295630/6255148/3017382/3012874/2968815/2988506/").create();
+        Location l1 = new LocationBuilder().setId(2968815).setPrimaryName("Paris").setType(UNIT).setAncestorIds("/6295630/6255148/3017382/3012874/").create();
+        Location l2 = new LocationBuilder().setId(2988506).setPrimaryName("Paris").setType(UNIT).setAncestorIds("/6295630/6255148/3017382/3012874/2968815/").create();
+        Location l3 = new LocationBuilder().setId(6455259).setPrimaryName("Paris").setType(UNIT).setAncestorIds("/6295630/6255148/3017382/3012874/2968815/2988506/").create();
         Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2, l3));
         assertEquals(l3, result);
     }
 
     @Test
     public void test_chosesHigherPopulatedLocation() {
-        Location l1 = new LocationBuilder().setId(6942553).setPrimaryName("Paris").setType(CITY).setPopulation(12310l)
-                .create();
-        Location l2 = new LocationBuilder().setId(2988507).setPrimaryName("Paris").setType(CITY).setPopulation(2190327l)
-                .create();
-        Location l3 = new LocationBuilder().setId(3703358).setPrimaryName("Paris").setType(CITY).setPopulation(894l)
-                .create();
+        Location l1 = new LocationBuilder().setId(6942553).setPrimaryName("Paris").setType(CITY).setPopulation(12310l).create();
+        Location l2 = new LocationBuilder().setId(2988507).setPrimaryName("Paris").setType(CITY).setPopulation(2190327l).create();
+        Location l3 = new LocationBuilder().setId(3703358).setPrimaryName("Paris").setType(CITY).setPopulation(894l).create();
         Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2, l3));
         assertEquals(l2, result);
     }
 
     @Test
     public void test_chosesCityOverNonCity() {
-        Location l1 = new LocationBuilder().setId(2968815).setPrimaryName("Paris").setType(UNIT).setPopulation(2165423L)
-                .create();
-        Location l2 = new LocationBuilder().setId(2988507).setPrimaryName("Paris").setType(CITY).setPopulation(2138551L)
-                .create();
-        Location l3 = new LocationBuilder().setId(6455259).setPrimaryName("Paris").setType(UNIT).setPopulation(2190327L)
-                .create();
+        Location l1 = new LocationBuilder().setId(2968815).setPrimaryName("Paris").setType(UNIT).setPopulation(2165423L).create();
+        Location l2 = new LocationBuilder().setId(2988507).setPrimaryName("Paris").setType(CITY).setPopulation(2138551L).create();
+        Location l3 = new LocationBuilder().setId(6455259).setPrimaryName("Paris").setType(UNIT).setPopulation(2190327L).create();
         Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2, l3));
         assertEquals(l2, result);
     }

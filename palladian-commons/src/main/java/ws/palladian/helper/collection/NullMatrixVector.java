@@ -1,21 +1,20 @@
 package ws.palladian.helper.collection;
 
+import ws.palladian.helper.collection.Matrix.MatrixVector;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
-import ws.palladian.helper.collection.Matrix.MatrixVector;
-
 /**
  * <p>
  * A vector which can be used instead of <code>null</code> (null object pattern).
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <K>
  * @param <V>
+ * @author Philipp Katz
  */
 final class NullMatrixVector<K, V> implements MatrixVector<K, V> {
 
@@ -27,7 +26,7 @@ final class NullMatrixVector<K, V> implements MatrixVector<K, V> {
 
     @Override
     public Iterator<VectorEntry<K, V>> iterator() {
-        return Collections.<VectorEntry<K, V>> emptySet().iterator();
+        return Collections.<VectorEntry<K, V>>emptySet().iterator();
     }
 
     @Override

@@ -3,7 +3,6 @@ package ws.palladian.extraction.content;
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -16,7 +15,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * <p>
  * The {@link RepustateContentExtractor} extracts clean sentences from (English) texts.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see <a href="https://www.repustate.com/docs/#api-7">Repustate: Clean HTML</a>
  */

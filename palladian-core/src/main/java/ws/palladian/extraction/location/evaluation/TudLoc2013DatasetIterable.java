@@ -1,19 +1,7 @@
 package ws.palladian.extraction.location.evaluation;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -26,14 +14,19 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
+import java.io.File;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * {@link Iterable} TUD-Loc-2013 dataset (and datasets which have been converted to this format).
- * 
+ *
  * @author Philipp Katz
  */
 public final class TudLoc2013DatasetIterable implements Iterable<LocationDocument> {
@@ -58,8 +51,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
         coordinates = readCoordinates(coordinateFile);
         numFiles = files.size();
         this.datasetDirectory = datasetDirectory;
-        this.progressReporterSupplier = progressReporterSupplier != null ? progressReporterSupplier
-                : () -> NoProgress.INSTANCE;
+        this.progressReporterSupplier = progressReporterSupplier != null ? progressReporterSupplier : () -> NoProgress.INSTANCE;
     }
 
     @Override
@@ -101,7 +93,7 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
 
     /**
      * Get the index of the annotation marked with <code>role="main"</code>.
-     * 
+     *
      * @param text The text.
      * @return The main index, or -1 if no annotation was marked as such.
      */
@@ -127,11 +119,11 @@ public final class TudLoc2013DatasetIterable implements Iterable<LocationDocumen
      * specify the coordinates, but may be empty, <code>sourceId</code> is a unique, source specific identifier for the
      * location.
      * </p>
-     * 
+     *
      * @param coordinateFile The path to the coordinate file, not <code>null</code>.
      * @return A nested map; first key is the docId, second key is the character offset, value are {@link GeoCoordinate}
-     *         s. In case, the coordinates did not specify longitude/latitude values, the values in the GeoCoordinate
-     *         are also <code>null</code>.
+     * s. In case, the coordinates did not specify longitude/latitude values, the values in the GeoCoordinate
+     * are also <code>null</code>.
      */
     static Map<String, Map<Integer, GeoCoordinate>> readCoordinates(File coordinateFile) {
         Validate.notNull(coordinateFile, "coordinateFile must not be null");

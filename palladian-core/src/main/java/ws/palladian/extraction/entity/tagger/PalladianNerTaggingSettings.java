@@ -1,12 +1,11 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.English;
-import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
+
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode.English;
+import static ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode.Complete;
 
 public final class PalladianNerTaggingSettings {
 

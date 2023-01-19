@@ -1,17 +1,8 @@
 package ws.palladian.retrieval.search.events;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
@@ -22,6 +13,9 @@ import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.search.SearcherException;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -69,16 +63,15 @@ public class EventbriteSearcher extends EventSearcher {
      * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing Eventbrite, which must be
-     *            provided
-     *            as string via key {@value EventbriteSearcher#CONFIG_API_KEY} in the configuration.
+     *                      provided
+     *                      as string via key {@value EventbriteSearcher#CONFIG_API_KEY} in the configuration.
      */
     public EventbriteSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override
-    public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType, int maxResults) throws SearcherException {
+    public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate, EventType eventType, int maxResults) throws SearcherException {
         List<Event> events = new ArrayList<>();
 
         String requestUrl = buildRequest(keywords, location, radius, startDate, endDate, eventType);
@@ -146,8 +139,7 @@ public class EventbriteSearcher extends EventSearcher {
         return events;
     }
 
-    private String buildRequest(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType) {
+    private String buildRequest(String keywords, String location, Integer radius, Date startDate, Date endDate, EventType eventType) {
 
         String url = "https://www.eventbrite.com/json/event_search?app_key=" + this.apiKey;
         if (keywords != null && !keywords.isEmpty()) {

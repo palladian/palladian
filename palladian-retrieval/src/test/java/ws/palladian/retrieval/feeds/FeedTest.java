@@ -1,14 +1,14 @@
 package ws.palladian.retrieval.feeds;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class FeedTest {
-    
+
     @Test
     public void testFeed() {
         // test distinct dates of feed.getLastButOneFeedEntry() and feed.getLastFeedEntry()
@@ -55,7 +55,7 @@ public class FeedTest {
         // add items to feed
         feed.setLastPollTime(new Date());
         feed.setItems(items);
-        
+
         assertEquals(baseTime + 3 * 3600000, feed.getLastButOneFeedEntry().getTime());
         assertEquals(baseTime + 4 * 3600000, feed.getLastFeedEntry().getTime());
     }

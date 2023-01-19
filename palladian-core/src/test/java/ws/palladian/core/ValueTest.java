@@ -1,15 +1,10 @@
 package ws.palladian.core;
 
+import org.junit.Test;
+import ws.palladian.core.value.*;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
-import ws.palladian.core.value.BooleanValue;
-import ws.palladian.core.value.ImmutableBooleanValue;
-import ws.palladian.core.value.ImmutableDoubleValue;
-import ws.palladian.core.value.ImmutableStringValue;
-import ws.palladian.core.value.NullValue;
 
 public class ValueTest {
 

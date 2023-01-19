@@ -14,7 +14,7 @@ public final class ExperimentalScorers {
      * <p>
      * Scorer, which normalizes the result scores by the prior category probability. This may improve classification
      * results for data with skewed class counts.
-     * 
+     *
      * @author Philipp Katz
      */
     public static class CategoryEqualizationScorer extends DefaultScorer {
@@ -29,19 +29,18 @@ public final class ExperimentalScorers {
      * <p>
      * Scorer for the text classifier which weights the squared term-category probabilities additionally with the TF-IDF
      * score determined from the model.
-     * 
+     *
      * @author Philipp Katz
      * @deprecated Best results were achieved using the {@link BayesScorer}.
      */
     @Deprecated
     public static final class FrequencyScorer extends PalladianTextClassifier.DefaultScorer {
         @Override
-        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-                int categorySum, int numUniqTerms, int numDocs, int numTerms) {
+        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum, int numUniqTerms, int numDocs, int numTerms) {
             if (dictCount == 0) { // prevent zero division
                 return 0;
             }
-            double termCategoryProbability = (double)termCategoryCount / dictCount;
+            double termCategoryProbability = (double) termCategoryCount / dictCount;
             double squaredTermCategoryProb = termCategoryProbability * termCategoryProbability;
             double idf = FastMath.log((numDocs + 1) / (dictCount + 1));
             double weight = FastMath.log(docCount + 1) * idf;
@@ -54,19 +53,18 @@ public final class ExperimentalScorers {
      * Scorer for the text classifier which weights the squared term-category probabilities additionally with the number
      * of documents in the dictionary, which contain the term. This way, we weight terms with more observations in the
      * training data higher than those with only few observations.
-     * 
+     *
      * @author Philipp Katz
      * @deprecated Best results were achieved using the {@link BayesScorer}.
      */
     @Deprecated
     public static final class LogCountScorer extends PalladianTextClassifier.DefaultScorer {
         @Override
-        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-                int categorySum, int numUniqTerms, int numDocs, int numTerms) {
+        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum, int numUniqTerms, int numDocs, int numTerms) {
             if (dictCount == 0) { // prevent zero division
                 return 0;
             }
-            double termCategoryProbability = (double)termCategoryCount / dictCount;
+            double termCategoryProbability = (double) termCategoryCount / dictCount;
             double squaredTermCategoryProb = termCategoryProbability * termCategoryProbability;
             // return squaredTermCategoryProb * FastMath.log(1 + dictCount);
             return squaredTermCategoryProb * (1 + FastMath.log(dictCount));
@@ -78,7 +76,7 @@ public final class ExperimentalScorers {
      * Scorer using the <a href="http://en.wikipedia.org/wiki/Kullback–Leibler_divergence">Kullback-Leibler
      * divergence</a>. Basically, it measures the similarity between the probability distributions of the document to
      * score and each category in the model based on the term frequencies (including some backoff).
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class KLScorer implements Scorer {
@@ -91,19 +89,18 @@ public final class ExperimentalScorers {
         }
 
         @Override
-        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-                int categorySum, int numUniqTerms, int numDocs, int numTerms) {
+        public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum, int numUniqTerms, int numDocs, int numTerms) {
             // backoff, similar to a Naive Bayes; pretend, we have seen each term once more than actually
-            double p = (double)(docCount + 1) / numUniqTerms;
-            double q = (double)(termCategoryCount + 1) / (categorySum + numUniqTerms);
+            double p = (double) (docCount + 1) / numUniqTerms;
+            double q = (double) (termCategoryCount + 1) / (categorySum + numUniqTerms);
             return p * FastMath.log(p / q);
         }
 
         @Override
         public double scoreCategory(String category, double summedTermScore, double categoryProbability, boolean matched) {
-			// return -summedTermScore;
-        	// value becomes negative in some cases?
-			return Math.max(0, -summedTermScore);
+            // return -summedTermScore;
+            // value becomes negative in some cases?
+            return Math.max(0, -summedTermScore);
         }
 
         @Override

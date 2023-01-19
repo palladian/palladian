@@ -1,24 +1,23 @@
 package ws.palladian.classification.discretization;
 
-import static java.lang.Double.NEGATIVE_INFINITY;
-import static java.lang.Double.POSITIVE_INFINITY;
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.junit.Test;
-
 import ws.palladian.classification.discretization.Binner.Interval;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.dataset.DefaultDataset;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static java.lang.Double.NEGATIVE_INFINITY;
+import static java.lang.Double.POSITIVE_INFINITY;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 public class DiscretizationTest {
 
@@ -61,8 +60,7 @@ public class DiscretizationTest {
         assertFuzzyEquals(asList(1.27), discretization.getBinner("proanthocyanins").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(3.46, 7.55), discretization.getBinner("colorIntensity").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(0.785, 0.975, 1.295), discretization.getBinner("hue").getBoundaries(), DELTA);
-        assertFuzzyEquals(asList(2.115, 2.475), discretization.getBinner("od280/od315ofDilutedWines").getBoundaries(),
-                DELTA);
+        assertFuzzyEquals(asList(2.115, 2.475), discretization.getBinner("od280/od315ofDilutedWines").getBoundaries(), DELTA);
         assertFuzzyEquals(asList(468., 755., 987.5), discretization.getBinner("proline").getBoundaries(), DELTA);
     }
 

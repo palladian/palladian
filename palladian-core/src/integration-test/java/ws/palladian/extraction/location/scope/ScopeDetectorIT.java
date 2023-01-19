@@ -1,10 +1,5 @@
 package ws.palladian.extraction.location.scope;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
@@ -12,7 +7,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.DefaultCandidateExtractor;
 import ws.palladian.extraction.location.LocationExtractor;
@@ -29,6 +23,11 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.integrationtests.ITHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertTrue;
 
 public class ScopeDetectorIT {
 
@@ -66,19 +65,16 @@ public class ScopeDetectorIT {
         ITHelper.assertDirectory(validationPath);
         documentIterator = new TudLoc2013DatasetIterable(new File(validationPath));
 
-        LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, dbUrl, dbUsername,
-                dbPassword);
+        LocationSource locationSource = DatabaseManagerFactory.create(LocationDatabase.class, dbUrl, dbUsername, dbPassword);
         if (locationSource.size() != EXPECTED_DB_LOCATION_COUNT) {
-            LOGGER.warn(
-                    "LocationSource does not contain the expected amount of locations; make sure to use the correct database ({} instead of {}).",
-                    locationSource.size(), EXPECTED_DB_LOCATION_COUNT);
+            LOGGER.warn("LocationSource does not contain the expected amount of locations; make sure to use the correct database ({} instead of {}).", locationSource.size(),
+                    EXPECTED_DB_LOCATION_COUNT);
         }
         QuickDtModel disambiguationModel;
         try {
             disambiguationModel = FileHelper.deserialize(ResourceHelper.getResourcePath(DISAMBIGUATION_PATH));
         } catch (IOException e) {
-            throw new IllegalStateException("Could not deserialize disambiguation model from '" + DISAMBIGUATION_PATH
-                    + "'.");
+            throw new IllegalStateException("Could not deserialize disambiguation model from '" + DISAMBIGUATION_PATH + "'.");
         }
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0);
         extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
@@ -160,8 +156,7 @@ public class ScopeDetectorIT {
 
     @Test
     public void testFeatureBasedScopeDetector_existingModel() throws IOException {
-        QuickDtModel model = FileHelper.deserialize(ResourceHelper
-                .getResourcePath("/model/locationScopeModel_tud_1409780094255.ser.gz"));
+        QuickDtModel model = FileHelper.deserialize(ResourceHelper.getResourcePath("/model/locationScopeModel_tud_1409780094255.ser.gz"));
         FeatureBasedScopeDetector detector = new FeatureBasedScopeDetector(extractor, model);
         Stats evaluationResult = ScopeDetectorEvaluator.evaluateScopeDetection(detector, documentIterator, false);
         // System.out.println(evaluationResult);

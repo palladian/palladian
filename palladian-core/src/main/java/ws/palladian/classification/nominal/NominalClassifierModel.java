@@ -1,9 +1,9 @@
 package ws.palladian.classification.nominal;
 
-import java.util.Set;
-
 import ws.palladian.core.Model;
 import ws.palladian.helper.collection.CountMatrix;
+
+import java.util.Set;
 
 public final class NominalClassifierModel implements Model {
 

@@ -1,20 +1,19 @@
 package ws.palladian.extraction.location;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import ws.palladian.core.Annotation;
+import ws.palladian.extraction.entity.StringTagger;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.extraction.entity.StringTagger;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 public class EntityPreprocessingTaggerTest {
 
@@ -54,22 +53,18 @@ public class EntityPreprocessingTaggerTest {
 
     @Test
     public void testCorrectCapitalization() {
-        assertEquals("senior U.S. military official visits Georgia.",
-                tagger.correctCapitalization("Senior U.S. Military Official Visits Georgia."));
-        assertEquals("by RACHEL E. SHEELEY staff writer",
-                tagger.correctCapitalization("BY RACHEL E. SHEELEY STAFF WRITER"));
-        assertEquals("OSCE envoy condemns Dvani attack that killed one policeman.",
-                tagger.correctCapitalization("OSCE Envoy Condemns Dvani Attack that Killed One Policeman."));
-        assertEquals(
-                "competitive growth on imposition of special duties on importation of passenger cars.",
+        assertEquals("senior U.S. military official visits Georgia.", tagger.correctCapitalization("Senior U.S. Military Official Visits Georgia."));
+        assertEquals("by RACHEL E. SHEELEY staff writer", tagger.correctCapitalization("BY RACHEL E. SHEELEY STAFF WRITER"));
+        assertEquals("OSCE envoy condemns Dvani attack that killed one policeman.", tagger.correctCapitalization("OSCE Envoy Condemns Dvani Attack that Killed One Policeman."));
+        assertEquals("competitive growth on imposition of special duties on importation of passenger cars.",
                 tagger.correctCapitalization("Competitive Growth On Imposition Of Special Duties On Importation Of Passenger Cars."));
         assertEquals("at MAGAZAN BEACH resort", tagger.correctCapitalization("AT MAGAZAN BEACH RESORT"));
     }
 
     @Test
     public void testLongAnnotationSplit() {
-        List<Annotation> annotations = StringTagger.INSTANCE
-                .getAnnotations("Rocky Hill Tax Credits Available. Jordan Elementary School Principal Stacy DeCorsey shows her students an oversized check made out to the school for $1,825.40. Former Bloomfield Town Councilman Richard Days Dead At 79. Platte County Attorney Sandra Allen Calls Tourism Australia Managing Director Andrew McEvoy.");
+        List<Annotation> annotations = StringTagger.INSTANCE.getAnnotations(
+                "Rocky Hill Tax Credits Available. Jordan Elementary School Principal Stacy DeCorsey shows her students an oversized check made out to the school for $1,825.40. Former Bloomfield Town Councilman Richard Days Dead At 79. Platte County Attorney Sandra Allen Calls Tourism Australia Managing Director Andrew McEvoy.");
         List<Annotation> splitAnnotations = tagger.getLongAnnotationSplit(annotations, 3);
 
         assertEquals(9, splitAnnotations.size());

@@ -1,22 +1,21 @@
 package ws.palladian.retrieval.search;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.resources.WebContent;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Searcher decorator which waits, when a {@link RateLimitedException} happens. <b>Important</b>: For this to work, the
  * Searcher must throw dedicated {@link RateLimitedException}s, in case it is blocked because of rate limits.
  * </p>
- * 
- * @author Philipp Katz
+ *
  * @param <R> Concrete type of search results.
+ * @author Philipp Katz
  */
 public final class RateLimitedWaitingSearcher<R extends WebContent> extends AbstractMultifacetSearcher<R> {
 
@@ -24,7 +23,7 @@ public final class RateLimitedWaitingSearcher<R extends WebContent> extends Abst
     private static final Logger LOGGER = LoggerFactory.getLogger(RateLimitedWaitingSearcher.class);
 
     /** The default interval to wait, in case the searcher does not give an interval. */
-    public static final int DEFAULT_WAIT_INTERVAL = (int)TimeUnit.MINUTES.toSeconds(1);
+    public static final int DEFAULT_WAIT_INTERVAL = (int) TimeUnit.MINUTES.toSeconds(1);
 
     /** The wrapped searcher. */
     private final Searcher<R> searcher;
@@ -33,7 +32,7 @@ public final class RateLimitedWaitingSearcher<R extends WebContent> extends Abst
      * <p>
      * Create a new {@link RateLimitedWaitingSearcher} with the specified {@link Searcher}.
      * </p>
-     * 
+     *
      * @param searcher The searcher to wrap, not <code>null</code>.
      * @return A new {@link RateLimitedWaitingSearcher}.
      */
@@ -53,7 +52,7 @@ public final class RateLimitedWaitingSearcher<R extends WebContent> extends Abst
 
     @Override
     public SearchResults<R> search(MultifacetQuery query) throws SearcherException {
-        for (;;) {
+        for (; ; ) {
             try {
                 return searcher.search(query);
             } catch (RateLimitedException rle) {

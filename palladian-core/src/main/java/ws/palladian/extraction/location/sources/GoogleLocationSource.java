@@ -1,16 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
@@ -19,7 +10,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -28,11 +18,13 @@ import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.util.*;
+
 /**
  * <p>
  * <a href="http://developers.google.com/maps/documentation/geocoding/">Google Geocoding API</a> {@link LocationSource}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class GoogleLocationSource extends SingleQueryLocationSource {
@@ -88,14 +80,14 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
         this.apiKey = apiKey;
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
+
     public GoogleLocationSource() {
         this(null);
     }
 
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
-        String url = String.format("https://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false",
-                UrlHelper.encodeParameter(locationName));
+        String url = String.format("https://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false", UrlHelper.encodeParameter(locationName));
 
         if (apiKey != null) {
             url += "&key=" + apiKey;
@@ -175,8 +167,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
 
     @Override
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
-        String url = String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&sensor=true",
-                coordinate.getLatitude(), coordinate.getLongitude());
+        String url = String.format("https://maps.googleapis.com/maps/api/geocode/json?latlng=%s,%s&sensor=true", coordinate.getLatitude(), coordinate.getLongitude());
 
         if (apiKey != null) {
             url += "&key=" + apiKey;
@@ -191,8 +182,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
         } catch (HttpException e) {
             throw new IllegalStateException(e);
         } catch (JsonException e) {
-            throw new IllegalStateException("Error while parsing JSON, input was '" + httpResult.getStringContent()
-                    + "'.", e);
+            throw new IllegalStateException("Error while parsing JSON, input was '" + httpResult.getStringContent() + "'.", e);
         }
     }
 
@@ -201,8 +191,7 @@ public class GoogleLocationSource extends SingleQueryLocationSource {
         // Collection<Location> locations = locationSource.getLocations("The Firehouse", null);
         // Collection<Location> locations = locationSource.getLocations("Heir Island", null);
         // Collection<Location> locations = locationSource.getLocations("Dun Aengus", null);
-        Collection<Location> locations = locationSource.getLocations(GeoCoordinate.from(40.714224, -73.961452),
-                0);
+        Collection<Location> locations = locationSource.getLocations(GeoCoordinate.from(40.714224, -73.961452), 0);
         CollectionHelper.print(locations);
     }
 

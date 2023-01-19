@@ -1,20 +1,19 @@
 package ws.palladian.helper.geo;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-
 import ws.palladian.helper.StopWatch;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+
+import static org.junit.Assert.*;
 
 public class GeoUtilsTest {
     @Rule
@@ -112,7 +111,7 @@ public class GeoUtilsTest {
 
     @Test
     public void testComputeDistance() {
-        collector.checkThat(GeoUtils.computeDistance(52.52437, 13.41053, 51.50853, -0.12574), Matchers.closeTo(931.75,0.05));
+        collector.checkThat(GeoUtils.computeDistance(52.52437, 13.41053, 51.50853, -0.12574), Matchers.closeTo(931.75, 0.05));
         System.out.println(GeoUtils.approximateDistance(52.52437, 13.41053, 51.50853, -0.12574));
     }
 
@@ -139,7 +138,8 @@ public class GeoUtilsTest {
         assertTrue(exact < approximate);
         assertTrue(approximate < exact * 1.1);
 
-        collector.checkThat(GeoUtils.approximateDistance(c1, c2), Matchers.is(GeoUtils.approximateDistance(c1.getLatitude(), c1.getLongitude(), c2.getLatitude(), c2.getLongitude())));
+        collector.checkThat(GeoUtils.approximateDistance(c1, c2),
+                Matchers.is(GeoUtils.approximateDistance(c1.getLatitude(), c1.getLongitude(), c2.getLatitude(), c2.getLongitude())));
 
     }
 
@@ -160,7 +160,7 @@ public class GeoUtilsTest {
             GeoUtils.approximateDistance(c1, c2);
         }
         System.out.println("Time with approximate distance: " + stopApproximate);
-        System.out.println("Speedup: " + (double)stopExact.getElapsedTime() / stopApproximate.getElapsedTime());
+        System.out.println("Speedup: " + (double) stopExact.getElapsedTime() / stopApproximate.getElapsedTime());
         // speedup is about 90x!
     }
 
@@ -194,11 +194,10 @@ public class GeoUtilsTest {
         assertEquals(976.3, GeoUtils.getLargestDistance(coordinates1), 0.1);
         assertEquals(10848.7, GeoUtils.getLargestDistance(coordinates2), 0.1);
         assertEquals(0, GeoUtils.getLargestDistance(coordinates3), 0.1);
-        assertEquals(0, GeoUtils.getLargestDistance(Collections.<GeoCoordinate> singleton(null)), 0.1);
-        assertEquals(GeoUtils.EARTH_MAX_DISTANCE_KM,
-                GeoUtils.getLargestDistance(Arrays.<GeoCoordinate> asList(null, null)), 0.1);
+        assertEquals(0, GeoUtils.getLargestDistance(Collections.<GeoCoordinate>singleton(null)), 0.1);
+        assertEquals(GeoUtils.EARTH_MAX_DISTANCE_KM, GeoUtils.getLargestDistance(Arrays.<GeoCoordinate>asList(null, null)), 0.1);
     }
-    
+
     @Test
     public void testGetGeohash() {
         // https://en.wikipedia.org/wiki/Geohash#Typical_and_main_usages

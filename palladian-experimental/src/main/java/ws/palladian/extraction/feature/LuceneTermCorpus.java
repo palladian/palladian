@@ -1,8 +1,5 @@
 package ws.palladian.extraction.feature;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
@@ -10,9 +7,11 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.File;
+import java.io.IOException;
 
 // http://stackoverflow.com/questions/19423889/getting-term-counts-in-lucene-4-index
 public class LuceneTermCorpus extends AbstractTermCorpus {
@@ -57,7 +56,7 @@ public class LuceneTermCorpus extends AbstractTermCorpus {
 
     /**
      * Fetch the # of docs from the index. Only performed once, than cached.
-     * 
+     *
      * @return The # of docs in the index.
      */
     private int fetchNumDocs() {

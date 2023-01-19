@@ -1,16 +1,12 @@
 package ws.palladian.semantics;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
  * This class represents a single word which is held in the {@link WordDB}.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class Word {
@@ -110,7 +106,7 @@ public class Word {
      * <p>
      * For example, the path to "banana" could be [fruit,food,thing]
      * </p>
-     * 
+     *
      * @return A sorted list of words where each entry is the hypernym of the preceding entry.
      */
     public List<String> getPath(WordDB wordDb) {

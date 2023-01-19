@@ -1,29 +1,28 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Implementation of LRU-2 update strategy. At every poll, the new interval is set to the interval between the two
  * newest items known.
- * 
+ *
  * </p>
- * 
+ *
  * @author Sandro Reichert
  */
 public class LRU2UpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LRU2UpdateStrategy.class);
-    
+
     private final FeedUpdateMode updateMode;
 
     public LRU2UpdateStrategy(int lowestInterval, int highestInterval, FeedUpdateMode updateMode) {
@@ -36,9 +35,9 @@ public class LRU2UpdateStrategy extends AbstractUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
      */
     @Override
@@ -64,7 +63,7 @@ public class LRU2UpdateStrategy extends AbstractUpdateStrategy {
         // make sure we have an interval > 0, do not set checkInterval to 0 if the last two items have the same
         // (corrected) publish date
         if (intervalLength > 0) {
-            checkInterval = (int)(intervalLength / TimeUnit.MINUTES.toMillis(1));
+            checkInterval = (int) (intervalLength / TimeUnit.MINUTES.toMillis(1));
         }
 
         // set the (new) check interval to feed

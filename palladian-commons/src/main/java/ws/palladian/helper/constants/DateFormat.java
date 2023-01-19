@@ -1,14 +1,14 @@
 package ws.palladian.helper.constants;
 
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
+
+import java.util.regex.Pattern;
 
 /**
  * <p>
  * Container for a date format and associated regex.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class DateFormat {
@@ -22,8 +22,8 @@ public final class DateFormat {
      * Initialize a new {@link DateFormat} with the specified regex and format description. Constructor is
      * package-private as it is intended to create instances of this class only as constants in {@link RegExp}.
      * </p>
-     * 
-     * @param regex The regex to match the DateFormat, not <code>null</code>.
+     *
+     * @param regex  The regex to match the DateFormat, not <code>null</code>.
      * @param format The format description (e.g. <code>YYYY-MM-DD HH:MM:SS</code>), not <code>null</code>.
      */
     DateFormat(String regex, String format) {
@@ -88,7 +88,7 @@ public final class DateFormat {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        DateFormat other = (DateFormat)obj;
+        DateFormat other = (DateFormat) obj;
         if (format == null) {
             if (other.format != null)
                 return false;

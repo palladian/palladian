@@ -1,8 +1,8 @@
 package ws.palladian.retrieval.cooccurrence;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class PhraseProbabilityCalculatorTest {
 

@@ -1,16 +1,15 @@
 package ws.palladian.retrieval.helper;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import ws.palladian.helper.StopWatch;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
-
-import ws.palladian.helper.StopWatch;
+import static org.junit.Assert.assertTrue;
 
 public class TimeWindowRequestThrottleTest {
-    
+
     @Test
     public void testTimeWindowRequestThrottle() throws InterruptedException {
         TimeWindowRequestThrottle throttle = new TimeWindowRequestThrottle(1, TimeUnit.SECONDS, 3);
@@ -22,11 +21,11 @@ public class TimeWindowRequestThrottleTest {
             Thread.sleep(millisToSleep);
             assertTrue(throttle.getNumRequestsInWindow() <= 3);
         }
-        
+
         // time spent blocking must be 1000 ms + 900 ms + 800 ms = 2700 ms
         assertTrue(2600 < throttle.getTotalThrottledTime());
         assertTrue(2800 > throttle.getTotalThrottledTime());
-        
+
         // total time spent must be 1000 ms + 100 ms + 900 ms + 100 ms + 100 ms + 800 ms + 100 = 3100 ms
         assertTrue(2900 < stopWatch.getElapsedTime());
         assertTrue(3200 > stopWatch.getElapsedTime());

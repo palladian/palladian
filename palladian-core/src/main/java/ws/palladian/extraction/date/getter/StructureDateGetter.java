@@ -1,20 +1,19 @@
 package ws.palladian.extraction.date.getter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.XPathHelper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>
@@ -22,11 +21,11 @@ import ws.palladian.helper.html.XPathHelper;
  * inside the <code>body</code> section of the document are considered. Example for such a {@link StructureDate} within
  * a HTML {@link Document}:
  * </p>
- * 
+ *
  * <pre>
  * &lt;div id="spShortDate" itemprop="datePublished"  content="2010-07-18T11:32:01+0200"&gt; […] &lt/div&gt;
  * </pre>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
@@ -46,11 +45,11 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * <p>
      * Recursively searches for {@link StructureDate}s in a {@link Node} and its children.
      * </p>
-     * 
-     * @param node The Node to be searched.
+     *
+     * @param node  The Node to be searched.
      * @param depth The depth of the Node in the hierarchy.
      * @return A {@link List} of StructureDates extracted from the Node, or an empty List if no dates could be
-     *         extracted, never <code>null</code>.
+     * extracted, never <code>null</code>.
      */
     private List<StructureDate> getChildrenDates(Node node, int depth) {
         List<StructureDate> dates = new ArrayList<>();
@@ -85,7 +84,7 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
      * date, else wise the attribute name is considered as context. The <code>href</code> attribute is not checked, as
      * this task is carried out by {@link ReferenceDateGetter}.
      * </p>
-     * 
+     *
      * @param node The {@link Node} to check, not <code>null</code>.
      * @return A {@link StructureDate} if one could be extracted, <code>null</code> otherwise.
      */

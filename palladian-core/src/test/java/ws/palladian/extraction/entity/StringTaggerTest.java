@@ -1,12 +1,11 @@
 package ws.palladian.extraction.entity;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.core.Annotation;
 
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.core.Annotation;
+import static org.junit.Assert.assertEquals;
 
 public class StringTaggerTest {
 

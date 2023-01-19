@@ -1,15 +1,12 @@
 package ws.palladian.helper.collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class CompositeIteratorTest {
 
@@ -19,13 +16,13 @@ public class CompositeIteratorTest {
         List<Integer> list2 = Arrays.asList(3, 4);
         CompositeIterator<Integer> iterator = new CompositeIterator<Integer>(list1.iterator(), list2.iterator());
         assertTrue(iterator.hasNext());
-        assertEquals((Integer)1, iterator.next());
+        assertEquals((Integer) 1, iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals((Integer)2, iterator.next());
+        assertEquals((Integer) 2, iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals((Integer)3, iterator.next());
+        assertEquals((Integer) 3, iterator.next());
         assertTrue(iterator.hasNext());
-        assertEquals((Integer)4, iterator.next());
+        assertEquals((Integer) 4, iterator.next());
         assertFalse(iterator.hasNext());
 
         try {
@@ -36,11 +33,11 @@ public class CompositeIteratorTest {
         }
 
     }
-    
+
     @Test
     public void testEmptyCompositeIterator() {
-    	CompositeIterator<Object> iterator = new CompositeIterator<>();
-    	assertFalse(iterator.hasNext());
+        CompositeIterator<Object> iterator = new CompositeIterator<>();
+        assertFalse(iterator.hasNext());
     }
 
 }

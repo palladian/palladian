@@ -8,8 +8,8 @@ public abstract class LineAction {
      * <p>
      * The action to perform for every line. To cancel the loop, invoke {@link #breakLineLoop()}.
      * </p>
-     * 
-     * @param line The string content of the line.
+     *
+     * @param line       The string content of the line.
      * @param lineNumber The number of the line, starting with <code>0</code>.
      */
     public abstract void performAction(String line, int lineNumber);

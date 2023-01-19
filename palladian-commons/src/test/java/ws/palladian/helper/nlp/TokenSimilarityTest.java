@@ -1,14 +1,13 @@
 package ws.palladian.helper.nlp;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-
 import org.junit.Test;
-
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.SetSimilarities;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 public class TokenSimilarityTest {
 

@@ -1,15 +1,7 @@
 package ws.palladian.extraction.location.scope.evaluation;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.lang3.Validate;
-
-import ws.palladian.classification.text.DictionaryBuilder;
-import ws.palladian.classification.text.DictionaryTrieModel;
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSettingBuilder;
-import ws.palladian.classification.text.PruningStrategies;
+import ws.palladian.classification.text.*;
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -17,20 +9,22 @@ import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
 import ws.palladian.helper.collection.CollectionHelper;
-import java.util.function.Consumer;
 import ws.palladian.helper.functional.ConsumerIteratorAdapter;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.wiki.MarkupCoordinate;
 import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.WikiPage;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 /**
  * Evaluation script for the text-based scope detection using the big Wikipedia dump.
- * 
+ *
  * @author Philipp Katz
  */
 @SuppressWarnings("unused")
@@ -114,56 +108,55 @@ public class WikipediaBigDatasetEvaluation {
                 // Iterable<WikipediaPage> testingPages = CollectionHelper.filter(iterable, new ModSplitter(10, 9, 9));
                 Iterable<LocationDocument> trainingLocations = CollectionHelper.convert(trainingPages, CONVERTER);
                 // Iterable<LocationDocument> testingLocations = CollectionHelper.convert(testingPages, CONVERTER);
-                
+
                 // FeatureSetting setting = FeatureSettingBuilder.chars(6, 9).create();
                 FeatureSetting setting = FeatureSettingBuilder.words(1, 2).create();
                 DictionaryBuilder builder = new DictionaryTrieModel.Builder();
                 builder.setPruningStrategy(new PruningStrategies.TermCountPruningStrategy(2));
                 DictionaryScopeDetectorLearner learner = new DictionaryScopeDetectorLearner(setting, builder, 1);
                 DictionaryScopeModel model = learner.train(trainingLocations);
-                
+
                 try {
                     FileHelper.serialize(model, "enwiki-20140614-locations-1-2-words-1.0.ser");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
+
                 // File indexFile = new File("/Users/pk/temp/nearestNeighborScopeModel_wikipedia_90-train");
                 // FeatureSetting featureSetting = FeatureSettingBuilder.words(1).create();
                 // NearestNeighborScopeDetectorLearner learner = new NearestNeighborScopeDetectorLearner(indexFile, featureSetting);
                 // learner.train(trainingLocations);
-                
+
                 // trainingLocations = CollectionHelper.limit(trainingLocations, 20000);
                 // testingLocations = CollectionHelper.limit(testingLocations, 10);
-                
+
                 // DictionaryScopeModel model = FileHelper.tryDeserialize("/Volumes/iMac HD/temp/wikipediaLocationGridModel_0.1.ser.gz");
-                
+
                 // double fineGridSize = 0.1;
                 // double coarseGridSize = 2.5;
                 // ScopeDetector detector = new SimulatedTwoLevelTextClassifierScopeDetector(model, coarseGridSize);
                 // evaluateScopeDetection(detector, testingLocations, true);
-                
+
                 // Scorer scorer = new BayesScorer(LAPLACE, PRIORS, FREQUENCIES, COMPLEMENT);
-                
+
                 // way too slow with the BayesScorer
                 // DictionaryScopeDetector scopeDetector = new DictionaryScopeDetector(model, scorer);
-                
+
                 // ScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(model, scorer, 10.0, 5.0, 2.5, 1.0, 0.5);
                 // evaluateScopeDetection(scopeDetector, testingLocations, true);
-                
+
                 // MultiStepDictionaryScopeDetector scopeDetector = new MultiStepDictionaryScopeDetector(model, scorer, 2.5);
                 // evaluateScopeDetection(scopeDetector, testingLocations, true);
-                
-                
-//                FeatureSetting featureSetting = FeatureSettingBuilder.chars(6, 9).create();
-//                DictionaryScopeModel model = DictionaryScopeDetector.train(trainingLocations, featureSetting, fineGridSize);
-//                
-//                // write the huge model, for later, just in case :)
-//                try {
-//                    FileHelper.serialize(model, "/Volumes/iMac HD/temp/wikipediaLocationGridModel_0.1.ser.gz");
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+
+                //                FeatureSetting featureSetting = FeatureSettingBuilder.chars(6, 9).create();
+                //                DictionaryScopeModel model = DictionaryScopeDetector.train(trainingLocations, featureSetting, fineGridSize);
+                //
+                //                // write the huge model, for later, just in case :)
+                //                try {
+                //                    FileHelper.serialize(model, "/Volumes/iMac HD/temp/wikipediaLocationGridModel_0.1.ser.gz");
+                //                } catch (IOException e) {
+                //                    e.printStackTrace();
+                //                }
             }
         };
 

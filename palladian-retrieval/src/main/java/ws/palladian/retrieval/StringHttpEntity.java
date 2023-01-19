@@ -1,15 +1,15 @@
 package ws.palladian.retrieval;
 
+import org.apache.commons.lang3.Validate;
+import org.apache.http.entity.ContentType;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.lang3.Validate;
-import org.apache.http.entity.ContentType;
-
 /**
  * {@link HttpEntity} which is provided as a {@link String}.
- * 
+ *
  * @author Philipp Katz
  */
 public final class StringHttpEntity implements HttpEntity {
@@ -20,8 +20,8 @@ public final class StringHttpEntity implements HttpEntity {
 
     /**
      * Create a new {@link StringHttpEntity}.
-     * 
-     * @param string The content, not <code>null</code>.
+     *
+     * @param string      The content, not <code>null</code>.
      * @param contentType The content type.
      */
     public StringHttpEntity(String string, String contentType) {
@@ -29,6 +29,7 @@ public final class StringHttpEntity implements HttpEntity {
         this.string = string;
         this.contentType = contentType;
     }
+
     public StringHttpEntity(String string, ContentType contentType) {
         Validate.notNull(string, "string must not be null");
         this.string = string;

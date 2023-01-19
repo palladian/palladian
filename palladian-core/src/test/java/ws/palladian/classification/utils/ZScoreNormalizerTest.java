@@ -1,15 +1,14 @@
 package ws.palladian.classification.utils;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.InstanceBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
+import static org.junit.Assert.assertEquals;
 
 public class ZScoreNormalizerTest {
 

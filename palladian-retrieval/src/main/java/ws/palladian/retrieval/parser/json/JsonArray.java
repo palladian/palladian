@@ -4,14 +4,12 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Config;
 import com.jsoniter.spi.JsoniterSpi;
-import com.jsoniter.spi.TypeLiteral;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Philipp Katz, David Urbansky

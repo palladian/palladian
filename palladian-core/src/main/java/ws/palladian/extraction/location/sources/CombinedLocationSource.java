@@ -1,15 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractorUtils;
 import ws.palladian.extraction.location.LocationSource;
@@ -18,12 +10,14 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
+import java.util.*;
+
 /**
  * <p>
  * {@link LocationSource} for combining multiple sources. Only retrieval by name and coordinate is allowed, because ID
  * retrieval makes no sense over multiple sources.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class CombinedLocationSource extends MultiQueryLocationSource {

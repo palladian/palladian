@@ -2,7 +2,6 @@ package ws.palladian.retrieval.wiki;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import java.util.function.Predicate;
 
 public final class NamespaceFilter implements Predicate<WikiPageReference> {

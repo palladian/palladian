@@ -3,18 +3,14 @@ package ws.palladian.extraction.location;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
  * This interface defines a geographic location, like a city, country, continent, etc. Use {@link AbstractLocation} for
  * your own implementation.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface Location {
@@ -29,7 +25,7 @@ public interface Location {
      * Get the primary name of this location. This is usually the location name of the location (e.g. "München").
      * Alternative spellings or variants in other languages can be retrieved via {@link #getAlternativeNames()}.
      * </p>
-     * 
+     *
      * @return The primary name of this location, never <code>null</code>.
      */
     String getPrimaryName();
@@ -39,17 +35,18 @@ public interface Location {
      * Get alternative spellings or variants in different languages for this location. For example, for the city
      * "München", there is the English variant "Munich", the Italian variant "Monaco", etc.
      * </p>
-     * 
+     *
      * @return Alternative names for this location, or an empty {@link Collection} if no such names exist. Never
-     *         <code>null</code>.
+     * <code>null</code>.
      * @see #collectAlternativeNames()
      */
     Collection<AlternativeName> getAlternativeNames();
+
     Collection<String> getAlternativeNameStrings();
 
     /**
      * @return The type of this location. {@link LocationType#UNDETERMINED} if no type was specified, but never
-     *         <code>null</code>.
+     * <code>null</code>.
      */
     LocationType getType();
 
@@ -65,9 +62,9 @@ public interface Location {
      * is <b>not</b> included in the returned hierarchy. The order of the returned list is from specific to general
      * (e.g. the last element in the list would be "Earth").
      * </p>
-     * 
+     *
      * @return The hierarchy as list of parent IDs, or an empty {@link List}, if no hierarchy was found, never
-     *         <code>null</code>.
+     * <code>null</code>.
      */
     List<Integer> getAncestorIds();
 
@@ -75,7 +72,7 @@ public interface Location {
      * <p>
      * Determine, whether this location is hierarchical descendant of the given location.
      * </p>
-     * 
+     *
      * @param other The other location, not <code>null</code>.
      * @return <code>true</code> in case this location is descendant of the specified one, <code>false</code> otherwise.
      * @see #getAncestorIds()
@@ -86,7 +83,7 @@ public interface Location {
      * <p>
      * Determine, whether this location is hierarchical child of the given location.
      * </p>
-     * 
+     *
      * @param other The other location, not <code>null</code>.
      * @return <code>true</code> in case this location is child of the specified one, <code>false</code> otherwise.
      * @see #getAncestorIds()
@@ -98,7 +95,7 @@ public interface Location {
      * Determine, whether this location and the given one share a common name. Names are normalized according to the
      * rules given in {@link LocationExtractorUtils#normalizeName(String)}.
      * </p>
-     * 
+     *
      * @param other The other location, not <code>null</code>.
      * @return <code>true</code> in case at least one common name exists, <code>false</code> otherwise.
      */
@@ -108,7 +105,7 @@ public interface Location {
      * <p>
      * Get a {@link Set} of all names for this location, i.e. the primary name and all alternative names.
      * </p>
-     * 
+     *
      * @return {@link Set} with all alternative names.
      * @see #getAlternativeNames()
      */
@@ -142,12 +139,12 @@ public interface Location {
      * <p>
      * Determine, whether this location has a specified (primary or alternative) name, either with no explicit language
      * or with the language specified as parameter.
-     * 
-     * @param name The name for which to check, not <code>null</code>. Match is case insensitive.
+     *
+     * @param name      The name for which to check, not <code>null</code>. Match is case insensitive.
      * @param languages The languages which match (alternative names without language are always considered), not
-     *            <code>null</code>.
+     *                  <code>null</code>.
      * @return <code>true</code> in case the location the name in the specified language(s), or in case it has the name
-     *         without explicitly defined language or as primary name.
+     * without explicitly defined language or as primary name.
      */
     boolean hasName(String name, Set<Language> languages);
 

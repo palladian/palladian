@@ -11,7 +11,7 @@ import java.util.*;
  * <p>
  * Complexity: O(n)
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
@@ -19,8 +19,8 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
      * <p>
      * Given a seed and a comparison type, get all values that adhere to the condition.
      * </p>
-     * 
-     * @param seed The seed value.
+     *
+     * @param seed           The seed value.
      * @param comparisonType The comparison type.
      * @return An ordered list of values.
      */
@@ -47,10 +47,8 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
             boolean bigger = v1 > v;
             boolean biggerEquals = v1 >= v;
 
-            if ((comparisonType == ComparisonType.LESS && smaller)
-                    || (comparisonType == ComparisonType.LESS_EQUALS && smallerEquals)
-                    || (comparisonType == ComparisonType.MORE && bigger)
-                    || (comparisonType == ComparisonType.MORE_EQUALS && biggerEquals)) {
+            if ((comparisonType == ComparisonType.LESS && smaller) || (comparisonType == ComparisonType.LESS_EQUALS && smallerEquals) || (comparisonType == ComparisonType.MORE
+                    && bigger) || (comparisonType == ComparisonType.MORE_EQUALS && biggerEquals)) {
 
                 values.addAll(entry.getValue());
 
@@ -67,7 +65,7 @@ public class RangeMap<K extends Number, V> extends TreeMap<K, Collection<V>> {
      * <p>
      * Get all values within [lowerBound,upperBound].
      * </p>
-     * 
+     *
      * @param lowerBound The minimum number (inclusive).
      * @param upperBound The maximum number (inclusive).
      * @return A list of object within the given range.

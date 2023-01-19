@@ -1,14 +1,13 @@
 package ws.palladian.extraction.location;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import ws.palladian.helper.constants.Language;
 
 import java.util.EnumSet;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import ws.palladian.helper.constants.Language;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class AbstractLocationTest {
 

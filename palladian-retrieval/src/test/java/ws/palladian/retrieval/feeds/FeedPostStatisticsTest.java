@@ -1,15 +1,14 @@
 package ws.palladian.retrieval.feeds;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.FileNotFoundException;
-
 import org.junit.Test;
-
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+
+import java.io.FileNotFoundException;
+
+import static org.junit.Assert.assertEquals;
 
 public class FeedPostStatisticsTest {
 

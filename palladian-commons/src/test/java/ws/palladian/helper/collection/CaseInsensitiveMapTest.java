@@ -1,11 +1,11 @@
 package ws.palladian.helper.collection;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class CaseInsensitiveMapTest {
 
@@ -17,10 +17,10 @@ public class CaseInsensitiveMapTest {
         map.put("ORANGE", 7);
         map.put("Banana", 3);
 
-        assertEquals(1, (int)map.get("apple"));
-        assertEquals(1, (int)map.get("Apple"));
-        assertEquals(3, (int)map.get("Banana"));
-        assertEquals(7, (int)map.get("orange"));
+        assertEquals(1, (int) map.get("apple"));
+        assertEquals(1, (int) map.get("Apple"));
+        assertEquals(3, (int) map.get("Banana"));
+        assertEquals(7, (int) map.get("orange"));
 
         // test copying an existing map
         Map<String, Integer> existingMap = new HashMap<String, Integer>();
@@ -30,10 +30,10 @@ public class CaseInsensitiveMapTest {
         existingMap.put("Banana", 3);
         map = new CaseInsensitiveMap<Integer>(existingMap);
 
-        assertEquals(1, (int)map.get("apple"));
-        assertEquals(1, (int)map.get("Apple"));
-        assertEquals(3, (int)map.get("Banana"));
-        assertEquals(7, (int)map.get("orange"));
+        assertEquals(1, (int) map.get("apple"));
+        assertEquals(1, (int) map.get("Apple"));
+        assertEquals(3, (int) map.get("Banana"));
+        assertEquals(7, (int) map.get("orange"));
 
     }
 

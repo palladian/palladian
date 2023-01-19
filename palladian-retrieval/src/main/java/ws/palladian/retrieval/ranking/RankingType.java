@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate;
  * A ranking value type for a RankingService, since every service can have more than one distinct ranking values. A
  * RankingType is defined by a unique id-String. It holds a name, description and the commitment value.
  * </p>
- * 
+ *
  * @author Julien Schmehl
  * @author Philipp Katz
  */
@@ -22,9 +22,9 @@ public class RankingType {
      * <p>
      * Initialize a new RankingType with the specified parameters.
      * </p>
-     * 
-     * @param id A unique id for this type, max. 31 chars, without whitespaces, e.g. 'bitly_clicks'
-     * @param name A human readable name for this type
+     *
+     * @param id          A unique id for this type, max. 31 chars, without whitespaces, e.g. 'bitly_clicks'
+     * @param name        A human readable name for this type
      * @param description A short description of this type
      */
     public RankingType(String id, String name, String description) {
@@ -39,8 +39,8 @@ public class RankingType {
      * <p>
      * Initialize a new RankingType with the specified parameters.
      * </p>
-     * 
-     * @param id A unique id for this type, max. 31 chars, without whitespaces, e.g. 'bitly_clicks'
+     *
+     * @param id   A unique id for this type, max. 31 chars, without whitespaces, e.g. 'bitly_clicks'
      * @param name A human readable name for this type
      */
     public RankingType(String id, String name) {
@@ -80,7 +80,7 @@ public class RankingType {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        RankingType other = (RankingType)obj;
+        RankingType other = (RankingType) obj;
         if (!id.equals(other.id)) {
             return false;
         }

@@ -28,7 +28,7 @@ final class SubProgressReporter extends AbstractProgressReporter {
     @Override
     public void increment(long count) {
         steps += count;
-        add(totalSteps > 0 ? (double)count / totalSteps : 1);
+        add(totalSteps > 0 ? (double) count / totalSteps : 1);
     }
 
     @Override
@@ -46,7 +46,7 @@ final class SubProgressReporter extends AbstractProgressReporter {
 
     @Override
     public double getProgress() {
-        return (double)steps / totalSteps;
+        return (double) steps / totalSteps;
     }
 
 }

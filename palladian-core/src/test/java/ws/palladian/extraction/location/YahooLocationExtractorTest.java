@@ -1,22 +1,20 @@
 package ws.palladian.extraction.location;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 public class YahooLocationExtractorTest {
 
     @Test
     public void testParse() throws Exception {
         String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("testText.txt"));
-        String responseJson = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("apiResponse/yahooPlaceSpotter.json"));
+        String responseJson = FileHelper.readFileToString(ResourceHelper.getResourceFile("apiResponse/yahooPlaceSpotter.json"));
         List<LocationAnnotation> annotations = YahooLocationExtractor.parseJson(text, responseJson);
 
         assertEquals(15, annotations.size());
@@ -33,8 +31,7 @@ public class YahooLocationExtractorTest {
         assertEquals(2481927, location.getLocation().getId());
 
         text = "The Prime Minister of Mali Cheick Modibo Diarra resigns himself and his government on television after his arrest hours earlier by leaders of the recent Malian coup d'état. (AFP via The Telegraph) (BBC) (Reuters)";
-        responseJson = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("apiResponse/yahooPlaceSpotter2.json"));
+        responseJson = FileHelper.readFileToString(ResourceHelper.getResourceFile("apiResponse/yahooPlaceSpotter2.json"));
         annotations = YahooLocationExtractor.parseJson(text, responseJson);
 
         assertEquals(2, annotations.size());
@@ -45,9 +42,8 @@ public class YahooLocationExtractorTest {
         assertEquals(153, annotations.get(1).getStartPosition());
 
         // no annotations
-        annotations = YahooLocationExtractor
-                .parseJson("No locations in here",
-                        "{\"query\":{\"count\":1,\"created\":\"2013-04-18T15:04:16Z\",\"lang\":\"en-US\",\"results\":{\"matches\":null}}}");
+        annotations = YahooLocationExtractor.parseJson("No locations in here",
+                "{\"query\":{\"count\":1,\"created\":\"2013-04-18T15:04:16Z\",\"lang\":\"en-US\",\"results\":{\"matches\":null}}}");
         assertEquals(0, annotations.size());
     }
 

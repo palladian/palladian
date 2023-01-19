@@ -1,28 +1,26 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.Calendar;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
+import java.util.Calendar;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 /**
  * An implementation of the update strategy called IndHist [BGR2006]
- * 
- * 
+ *
+ *
  * <p>
- * [BGR2006] Bright, L.; Gal, A. & Raschid, L. Adaptive pull-based policies for wide area data delivery, 
+ * [BGR2006] Bright, L.; Gal, A. & Raschid, L. Adaptive pull-based policies for wide area data delivery,
  * ACM Transactions on Database Systems, ACM, 2006, 31, 631-671, http://doi.acm.org/10.1145/1138394.1138399
  * </p>
- * 
+ *
  * @author Sandro Reichert
- * 
  */
 public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
 
@@ -47,11 +45,11 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
 
     /**
      * @param thresholdTheta The threshold theta to be used. Usually, 0 <= theta < 1.
-     *            If the algorithms estimates that this many new entries are pending, the next poll is scheduled.<br />
-     *            See [BGR2006] Bright, L.; Gal, A. &amp; Raschid, L. Adaptive pull-based policies for wide area data
-     *            delivery ACM Transactions on Database Systems, ACM, 2006, 31, 631-671,
-     *            http://doi.acm.org/10.1145/1138394.1138399
-     * @param feedDb The db to load the model from.
+     *                       If the algorithms estimates that this many new entries are pending, the next poll is scheduled.<br />
+     *                       See [BGR2006] Bright, L.; Gal, A. &amp; Raschid, L. Adaptive pull-based policies for wide area data
+     *                       delivery ACM Transactions on Database Systems, ACM, 2006, 31, 631-671,
+     *                       http://doi.acm.org/10.1145/1138394.1138399
+     * @param feedDb         The db to load the model from.
      */
     public IndHistUpdateStrategy(int lowestInterval, int highestInterval, double thresholdTheta, FeedDatabase feedDb) {
         super(lowestInterval, highestInterval);
@@ -63,9 +61,9 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics. Ignored.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics. Ignored.
      * @param trainingMode Flag to indicate whether the update model should be trained or not.
      */
     @Override
@@ -81,13 +79,12 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
 
     /**
      * Update the feed's check interval in normal (non-training) mode, using the trained model.
-     * 
+     *
      * @param feed The feed to update.
      */
     protected void updateCheckInterval(Feed feed) {
         if (feed.getLastPollTime() == null) {
-            LOGGER.error("Feed id " + feed.getId()
-                    + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
+            LOGGER.error("Feed id " + feed.getId() + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
             feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));
 
         } else {
@@ -102,7 +99,7 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
                 feed.setUpdateInterval(getAllowedInterval(checkInterval));
 
             } else {
-                
+
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(feed.getLastPollTime());
 
@@ -134,8 +131,7 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
                     // loop complete days if possible. stop looping if we would exceed the threshold in this hour or
                     // if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case there
                     // is no upper bound)
-                    while (pendingItems + dailyRate < thresholdTheta
-                            && (checkInterval + 1440 < getHighestInterval() || getHighestInterval() == -1)) {
+                    while (pendingItems + dailyRate < thresholdTheta && (checkInterval + 1440 < getHighestInterval() || getHighestInterval() == -1)) {
                         pendingItems += dailyRate;
                         checkInterval += 1440;
                     }
@@ -143,8 +139,7 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
                     // loop over hours, add full hours only. stop looping if we would exceed the threshold in this
                     // hour or if we reach the checkInterval's upper bound (getHighestUpdateInterval() == -1 in case
                     // there is no upper bound)
-                    while (pendingItems + hourlyRates[simulatedHour] < thresholdTheta
-                            && (checkInterval + 60 < getHighestInterval() || getHighestInterval() == -1)) {
+                    while (pendingItems + hourlyRates[simulatedHour] < thresholdTheta && (checkInterval + 60 < getHighestInterval() || getHighestInterval() == -1)) {
                         pendingItems += hourlyRates[simulatedHour];
                         simulatedHour = (simulatedHour + 1) % 24;
                         checkInterval += 60;
@@ -160,11 +155,10 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
         }
     }
 
-
     /**
      * Loads the feed's model from db and stores model as additional data with the feed. The model has been trained
      * externally since this is much faster.
-     * 
+     *
      * @param feed
      */
     protected void getModelFromDB(Feed feed) {
@@ -177,9 +171,8 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
         // step 2: store model in feed to load it in normal mode.
         Map<String, Object> additionalData = feed.getAdditionalData();
         if (additionalData.containsKey(MODEL_IDENTIFIER)) {
-            LOGGER.warn("Feed id " + feed.getId() + " already containd a model for strategy IndHist, identified by \""
-                    + MODEL_IDENTIFIER + "\". This is not expected since the model is to be trained only once. "
-                    + "Current model has been replaced by model from database.");
+            LOGGER.warn("Feed id " + feed.getId() + " already containd a model for strategy IndHist, identified by \"" + MODEL_IDENTIFIER
+                    + "\". This is not expected since the model is to be trained only once. " + "Current model has been replaced by model from database.");
         }
         additionalData.put(MODEL_IDENTIFIER, hourlyRates);
         feed.setAdditionalData(additionalData);
@@ -187,7 +180,7 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
 
     /**
      * Updates the chechInterval properly to indicate that training is completed.
-     * 
+     *
      * @param feed
      */
     protected void setTrainingCompleted(Feed feed) {
@@ -209,7 +202,7 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
 
     /**
      * Get model from the feed. In case there is no model, get it from db.
-     * 
+     *
      * @param feed
      * @return The trained model for the current feed, i.e. hourly update rates for hours 0-23.
      */
@@ -220,8 +213,7 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
             LOGGER.error("Feed id " + feed.getId() + " contains no model for strategy IndHist, reloading it from db.");
             getModelFromDB(feed);
             if (!additionalData.containsKey(MODEL_IDENTIFIER)) {
-                LOGGER.error("Feed id " + feed.getId()
-                        + " db contains no model for strategy IndHist, assuming update rate of 0.0 .");
+                LOGGER.error("Feed id " + feed.getId() + " db contains no model for strategy IndHist, assuming update rate of 0.0 .");
                 return hourlyRates;
             }
         }
@@ -230,7 +222,7 @@ public class IndHistUpdateStrategy extends AbstractUpdateStrategy {
 
     /**
      * Sum up all hourly rates to get the daily update rate.
-     * 
+     *
      * @param hourlyRates the hourly update rates.
      * @return the daily update rate.
      */

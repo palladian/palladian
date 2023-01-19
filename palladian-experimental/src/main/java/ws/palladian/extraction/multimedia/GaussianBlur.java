@@ -1,16 +1,15 @@
 package ws.palladian.extraction.multimedia;
 
-import static java.lang.Math.PI;
-import static java.lang.Math.sqrt;
+import org.apache.commons.lang3.Validate;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.awt.image.WritableRaster;
-
-import org.apache.commons.lang3.Validate;
-
 import java.util.function.Function;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.sqrt;
 
 public final class GaussianBlur implements Function<BufferedImage, BufferedImage> {
 
@@ -31,11 +30,11 @@ public final class GaussianBlur implements Function<BufferedImage, BufferedImage
         // http://www.blitzbasic.com/Community/posts.php?topic=84166
         float[] matrix = new float[width * 2 + 1];
         float sigma = width / 3f;
-        float norm = (float)(1f / (sqrt(2 * PI) * sigma));
+        float norm = (float) (1f / (sqrt(2 * PI) * sigma));
         float coeff = 2f * sigma * sigma;
         float total = 0;
         for (int x = -width; x <= width; x++) {
-            float g = (float)(norm * Math.exp(-x * x / coeff));
+            float g = (float) (norm * Math.exp(-x * x / coeff));
             matrix[x + width] = g;
             total += g;
         }
@@ -83,8 +82,7 @@ public final class GaussianBlur implements Function<BufferedImage, BufferedImage
         fillRect(nRaster, 0, 0, by, by, oRaster.getPixel(0, 0, new double[nBands])); // TL
         fillRect(nRaster, nWidth - by, 0, by, by, oRaster.getPixel(oWidth - 1, 0, new double[nBands])); // TR
         fillRect(nRaster, 0, nHeight - by, by, by, oRaster.getPixel(0, oHeight - 1, new double[nBands])); // BL
-        fillRect(nRaster, nWidth - by, nHeight - by, by, by,
-                oRaster.getPixel(oWidth - 1, oHeight - 1, new double[nBands])); // BR
+        fillRect(nRaster, nWidth - by, nHeight - by, by, by, oRaster.getPixel(oWidth - 1, oHeight - 1, new double[nBands])); // BR
         // 4) copy original image
         double[] oRect = oRaster.getPixels(0, 0, oWidth, oHeight, new double[oWidth * oHeight * nBands]);
         nRaster.setPixels(by, by, oWidth, oHeight, oRect);

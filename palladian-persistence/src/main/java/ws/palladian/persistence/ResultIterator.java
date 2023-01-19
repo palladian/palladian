@@ -1,5 +1,8 @@
 package ws.palladian.persistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -8,16 +11,13 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * <p>
  * This class enables iterations of database results. Database resources are kept open while iterating, until the whole
  * result has been iterated through. If you abort iterating before the whole iteration, you <b>must</b> call
  * {@link #close()}, elsewise resources will leak.
  * </p>
- * 
+ *
  * @param <T> Type of the processed objects.
  * @author Philipp Katz
  */
@@ -26,7 +26,7 @@ public class ResultIterator<T> implements Iterator<T>, Closeable {
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultIterator.class);
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static final class NullIterator extends ResultIterator {
 
         public NullIterator() {

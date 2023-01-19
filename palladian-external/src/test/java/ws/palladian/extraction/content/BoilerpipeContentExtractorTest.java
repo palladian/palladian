@@ -1,11 +1,10 @@
 package ws.palladian.extraction.content;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
-
 import ws.palladian.helper.io.ResourceHelper;
+
+import static org.junit.Assert.assertEquals;
 
 public class BoilerpipeContentExtractorTest {
     @Test

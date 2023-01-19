@@ -1,12 +1,12 @@
 package ws.palladian.retrieval.search.intents;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.beanutils.ConvertUtilsBean;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSearchIntentFilter> {
     /** Actions might modify the query, e.g. remove parts so we need to get the updated query. */
@@ -41,14 +41,13 @@ public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSea
 
     @Override
     public String toString() {
-        return "ActivatedSearchIntentAction{" +
-                "modifiedQuery='" + modifiedQuery + '\'' +
-                '}';
+        return "ActivatedSearchIntentAction{" + "modifiedQuery='" + modifiedQuery + '\'' + '}';
     }
 
     public void setIntentTrigger(SearchIntentTrigger intentTrigger) {
-        this.intentTrigger=intentTrigger;
+        this.intentTrigger = intentTrigger;
     }
+
     public SearchIntentTrigger getIntentTrigger() {
         return intentTrigger;
     }

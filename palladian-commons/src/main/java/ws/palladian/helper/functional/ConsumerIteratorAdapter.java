@@ -1,19 +1,18 @@
 package ws.palladian.helper.functional;
 
+import ws.palladian.helper.collection.AbstractIterator2;
+
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import ws.palladian.helper.collection.AbstractIterator2;
-
 /**
  * Adapter between a producer which uses a {@link Consumer} callback and an {@link Iterator}.
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <T>
+ * @author Philipp Katz
  */
 public abstract class ConsumerIteratorAdapter<T> {
 
@@ -31,7 +30,7 @@ public abstract class ConsumerIteratorAdapter<T> {
 
     /** State to signal the producer when to stop. */
     private volatile boolean producing = true;
-    
+
     /** Count the number of threads, only for debugging purposes. */
     private int threadCount = 0;
 
@@ -46,7 +45,7 @@ public abstract class ConsumerIteratorAdapter<T> {
     /**
      * <p>
      * Implementors override this method and connect the given action to the producer.
-     * 
+     *
      * @param action The action.
      * @throws Exception In case, something goes wrong.
      */
@@ -55,7 +54,7 @@ public abstract class ConsumerIteratorAdapter<T> {
     /**
      * <p>
      * Implementors override this method and use the provided iterator as desired.
-     * 
+     *
      * @param iterator The iterator with data from the producer.
      */
     protected abstract void consume(Iterable<T> iterable);
@@ -80,7 +79,7 @@ public abstract class ConsumerIteratorAdapter<T> {
                 throw new IllegalStateException(e);
             }
             try {
-                queue.put((T)POISON);
+                queue.put((T) POISON);
             } catch (InterruptedException e) {
                 throw new IllegalStateException(e);
             }
@@ -91,14 +90,15 @@ public abstract class ConsumerIteratorAdapter<T> {
         @Override
         public Iterator<T> iterator() {
             final BlockingQueue<T> queue = new LinkedBlockingQueue<T>(QUEUE_SIZE);
-            new ProducerThread(queue).start();;
+            new ProducerThread(queue).start();
+            ;
             return new AbstractIterator2<T>() {
                 @Override
                 protected T getNext() {
                     try {
                         T element = queue.take();
                         if (element == POISON) {
-                        	return finished();
+                            return finished();
                         }
                         return element;
                     } catch (InterruptedException e) {

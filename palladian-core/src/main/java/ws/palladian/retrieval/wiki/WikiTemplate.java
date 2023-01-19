@@ -1,28 +1,23 @@
 package ws.palladian.retrieval.wiki;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoUtils;
+
+import java.util.*;
 
 /**
  * <p>
  * Template (infobox, geobox, etc.) on a Wikipedia page.
  * </p>
- * 
- * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
  */
 public class WikiTemplate {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(WikiTemplate.class);
 
@@ -36,7 +31,7 @@ public class WikiTemplate {
 
     /**
      * @return The name of this template, in case it is a infobox or a geobox, that value is trimmed (e.g. type
-     *         <code>geobox|river</code> returns <code>river</code>.
+     * <code>geobox|river</code> returns <code>river</code>.
      * @deprecated Prefer getting the complete template name using {@link #getTemplateName()}.
      */
     @Deprecated
@@ -90,7 +85,7 @@ public class WikiTemplate {
      * <p>
      * Extract coordinates which typically occur in a Wikipedia infobox.
      * </p>
-     * 
+     *
      * @return Set with all extracted {@link MarkupCoordinate}s, or an empty Set, never <code>null</code>.
      */
     public Set<MarkupCoordinate> getCoordinates() {
@@ -128,13 +123,11 @@ public class WikiTemplate {
             } catch (Exception e) {
                 try {
                     // try DMS format
-                    coordinates
-                            .add(new MarkupCoordinate(GeoUtils.parseDms(lat), GeoUtils.parseDms(lng), display, type));
+                    coordinates.add(new MarkupCoordinate(GeoUtils.parseDms(lat), GeoUtils.parseDms(lng), display, type));
                 } catch (Exception e1) {
                     // try decdeg markup
                     try {
-                        coordinates.add(new MarkupCoordinate(MediaWikiUtil.parseDecDeg(lat), MediaWikiUtil
-                                .parseDecDeg(lng), display, type));
+                        coordinates.add(new MarkupCoordinate(MediaWikiUtil.parseDecDeg(lat), MediaWikiUtil.parseDecDeg(lng), display, type));
                     } catch (Exception e2) {
                         LOGGER.warn("Error while parsing: {} and/or {}: {}", lat, lng, e2.getMessage());
                     }

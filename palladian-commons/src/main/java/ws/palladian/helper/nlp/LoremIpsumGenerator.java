@@ -26,7 +26,7 @@ public class LoremIpsumGenerator {
             if (Math.random() < 0.15) {
                 randomCharacter = ' ';
             } else {
-                randomCharacter = (char)(Math.random() * 26 + 97);
+                randomCharacter = (char) (Math.random() * 26 + 97);
             }
             text.append(randomCharacter);
         }

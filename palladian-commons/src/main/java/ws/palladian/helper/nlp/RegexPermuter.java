@@ -51,8 +51,7 @@ public class RegexPermuter {
         return permutations;
     }
 
-    private static List<String> permuteRecursively(List<String> permutations, List<String[]> bracketSplits,
-            String currentPermutation) {
+    private static List<String> permuteRecursively(List<String> permutations, List<String[]> bracketSplits, String currentPermutation) {
 
         if (bracketSplits.isEmpty()) {
             permutations.add(currentPermutation.replace("_", "").trim());
@@ -61,8 +60,7 @@ public class RegexPermuter {
 
         String[] split = bracketSplits.get(0);
         for (String string : split) {
-            permuteRecursively(permutations, bracketSplits.subList(1, bracketSplits.size()), currentPermutation + ""
-                    + string);
+            permuteRecursively(permutations, bracketSplits.subList(1, bracketSplits.size()), currentPermutation + "" + string);
         }
 
         return permutations;

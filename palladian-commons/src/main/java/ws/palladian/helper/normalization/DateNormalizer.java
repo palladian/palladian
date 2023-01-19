@@ -1,5 +1,8 @@
 package ws.palladian.helper.normalization;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,14 +11,11 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The DateNormalizer normalizes dates.
  */
 public class DateNormalizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DateNormalizer.class);
 
@@ -24,8 +24,8 @@ public class DateNormalizer {
         Calendar c = Calendar.getInstance(Locale.ENGLISH);
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         c.setTime(date);
-        String dateString = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DATE) + " "
-        + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND);
+        String dateString = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DATE) + " " + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE)
+                + ":" + c.get(Calendar.SECOND);
         return normalizeDateFormat(dateString, format);
     }
 

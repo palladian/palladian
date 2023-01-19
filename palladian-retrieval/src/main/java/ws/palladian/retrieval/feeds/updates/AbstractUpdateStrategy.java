@@ -4,7 +4,7 @@ package ws.palladian.retrieval.feeds.updates;
  * <p>
  * Update strategies determine when feeds are updated.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public abstract class AbstractUpdateStrategy implements UpdateStrategy {
@@ -26,8 +26,7 @@ public abstract class AbstractUpdateStrategy implements UpdateStrategy {
     private final int highestInterval;
 
     /**
-     * 
-     * @param lowestInterval The lowestCheckInterval in minutes to set, -1 means no lowest interval.
+     * @param lowestInterval  The lowestCheckInterval in minutes to set, -1 means no lowest interval.
      * @param highestInterval The highestCheckInterval to set, -1 means no highest interval.
      */
     public AbstractUpdateStrategy(int lowestInterval, int highestInterval) {
@@ -37,7 +36,7 @@ public abstract class AbstractUpdateStrategy implements UpdateStrategy {
 
     /**
      * @return The lowest allowed interval in which feeds should be read (independent of checking mode). -1 = no lowest
-     *         interval.
+     * interval.
      */
     public int getLowestInterval() {
         return lowestInterval;
@@ -45,7 +44,7 @@ public abstract class AbstractUpdateStrategy implements UpdateStrategy {
 
     /**
      * @return The highest allowed interval in which feeds should be read (independent of checking mode). -1 = no
-     *         highest interval.
+     * highest interval.
      */
     public int getHighestInterval() {
         return highestInterval;
@@ -55,7 +54,7 @@ public abstract class AbstractUpdateStrategy implements UpdateStrategy {
      * <p>
      * Check whether the computed highest check interval complies with the allowed highestCheckInterval.
      * </p>
-     * 
+     *
      * @param updateInterval The computed highestCheckInterval.
      * @return The computed interval if it is in the limit.
      */

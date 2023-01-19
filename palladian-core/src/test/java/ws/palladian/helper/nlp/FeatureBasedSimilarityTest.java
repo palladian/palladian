@@ -1,12 +1,10 @@
 package ws.palladian.helper.nlp;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static ws.palladian.classification.text.FeatureSettingBuilder.chars;
-import static ws.palladian.helper.math.SetSimilarities.DICE;
-import static ws.palladian.helper.math.SetSimilarities.JACCARD;
-import static ws.palladian.helper.math.SetSimilarities.OVERLAP;
-
-import org.junit.Test;
+import static ws.palladian.helper.math.SetSimilarities.*;
 
 public class FeatureBasedSimilarityTest {
 

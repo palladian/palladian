@@ -6,7 +6,7 @@ import org.apache.commons.lang3.Validate;
  * <p>
  * Simple, immutable proxy implementation.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class ImmutableProxy implements Proxy {
@@ -20,9 +20,9 @@ public final class ImmutableProxy implements Proxy {
      * <p>
      * Create a new {@link ImmutableProxy}.
      * </p>
-     * 
-     * @param address The address, not empty or <code>null</code>.
-     * @param port The port, in the range of 1 to 65535.
+     *
+     * @param address  The address, not empty or <code>null</code>.
+     * @param port     The port, in the range of 1 to 65535.
      * @param username The username for authentication, or <code>null</code> if proxy requires no authentication.
      * @param password The password for authentication, or <code>null</code> if proxy requires no authentication.
      */
@@ -40,9 +40,9 @@ public final class ImmutableProxy implements Proxy {
      * <p>
      * Create a new {@link ImmutableProxy} without authentication.
      * </p>
-     * 
+     *
      * @param address The address, not empty or <code>null</code>.
-     * @param port The port, in the range of 1 to 65535.
+     * @param port    The port, in the range of 1 to 65535.
      */
     public ImmutableProxy(String address, int port) {
         this(address, port, null, null);

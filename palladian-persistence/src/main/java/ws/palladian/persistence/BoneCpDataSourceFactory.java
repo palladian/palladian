@@ -1,19 +1,19 @@
 package ws.palladian.persistence;
 
-import javax.sql.DataSource;
-
 import com.jolbox.bonecp.BoneCPConfig;
 import com.jolbox.bonecp.BoneCPDataSource;
+
+import javax.sql.DataSource;
 
 /**
  * <p>
  * This class acts as a factory for {@link DataSource}s maintained by BoneCP connection pool.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="https://jolbox.com/">BoneCP</p>.
- * @deprecated This is currently still the default unless overridden in {@link DatabaseManagerFactory#dataSourceFactory}. 
- *             It's deprecated in favor of HikariCP; see {@link HikariCpDataSourceFactory}.
+ * @deprecated This is currently still the default unless overridden in {@link DatabaseManagerFactory#dataSourceFactory}.
+ * It's deprecated in favor of HikariCP; see {@link HikariCpDataSourceFactory}.
  */
 @Deprecated
 public final class BoneCpDataSourceFactory implements DataSourceFactory {

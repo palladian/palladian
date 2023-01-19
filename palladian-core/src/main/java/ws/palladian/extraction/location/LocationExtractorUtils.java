@@ -1,14 +1,13 @@
 package ws.palladian.extraction.location;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.geo.GeoCoordinate;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
-
 import java.util.function.Function;
-import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * @author Philipp Katz
@@ -38,10 +37,10 @@ public final class LocationExtractorUtils {
      * Check, whether at least two of the given locations in the {@link Collection} have different names (i.e. the
      * intersection of all names of each {@link Location} is empty).
      * </p>
-     * 
+     *
      * @param locations The locations, not <code>null</code>.
      * @return <code>true</code> in case there is at least one pair in the given collection which does not share at
-     *         least one name.
+     * least one name.
      */
     public static boolean differentNames(Collection<Location> locations) {
         Set<String> allNames = new HashSet<>();
@@ -62,7 +61,7 @@ public final class LocationExtractorUtils {
     public static boolean sameNames(Collection<Location> locations) {
         return !differentNames(locations);
     }
-    
+
     public static Comparator<Location> distanceComparator(final GeoCoordinate coordinate) {
         Validate.notNull(coordinate, "coordinate must not be null");
         return (o1, o2) -> {

@@ -1,16 +1,8 @@
 package ws.palladian.classification.liblinear;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
+import de.bwaldvogel.liblinear.Parameter;
+import de.bwaldvogel.liblinear.SolverType;
 import org.junit.Test;
-
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.classification.utils.NoNormalizer;
 import ws.palladian.classification.utils.ZScoreNormalizer;
@@ -19,8 +11,15 @@ import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.math.ConfusionMatrix;
-import de.bwaldvogel.liblinear.Parameter;
-import de.bwaldvogel.liblinear.SolverType;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 public class LibLinearTest {
 
@@ -38,7 +37,7 @@ public class LibLinearTest {
         // assertEquals("2", liblinear.classify(data.get(3), model).getMostLikelyCategory());
         assertEquals("3", classifier.classify(data.get(4).getVector(), model).getMostLikelyCategory());
     }
-    
+
     @Test
     public void testLiblinearNonProbabilistic() {
         List<Instance> data = createSampleData();
@@ -56,16 +55,14 @@ public class LibLinearTest {
         data.add(new InstanceBuilder().set("a", 0.).set("b", 0.1).set("c", 0.3).set("d", -1.2).set("e", 0.).create("2"));
         data.add(new InstanceBuilder().set("a", 0.4).set("b", 0.).set("c", 0.).set("d", 0.).set("e", 0.).create("1"));
         data.add(new InstanceBuilder().set("a", 0.).set("b", 0.1).set("c", 0.).set("d", 1.4).set("e", 0.5).create("2"));
-        data.add(new InstanceBuilder().set("a", -0.1).set("b", -0.2).set("c", 0.1).set("d", 1.1).set("e", 0.1)
-                .create("3"));
+        data.add(new InstanceBuilder().set("a", -0.1).set("b", -0.2).set("c", 0.1).set("d", 1.1).set("e", 0.1).create("3"));
         return data;
     }
 
     @Test
     public void testUntrainedFeature() {
         LibLinearModel model = new LibLinearLearner().train(createSampleData());
-        FeatureVector featureVector = new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("e", 0)
-                .set("f", 0).create();
+        FeatureVector featureVector = new InstanceBuilder().set("a", 0.4).set("b", 0).set("c", 0).set("e", 0).set("f", 0).create();
         assertEquals("1", new LibLinearClassifier().classify(featureVector, model).getMostLikelyCategory());
     }
 
@@ -82,7 +79,7 @@ public class LibLinearTest {
         ConfusionMatrix confusionMatrix = evaluate(new LibLinearLearner(), new LibLinearClassifier(), instances);
         assertTrue(confusionMatrix.getAccuracy() > 0.80);
     }
-    
+
     /**
      * We do not support LibLinear's support vector regression, an exception must be thrown in case one tries to use it.
      * (the reason is, that the current Learner/Classifier/Instance API is not intended for regression. In the future,

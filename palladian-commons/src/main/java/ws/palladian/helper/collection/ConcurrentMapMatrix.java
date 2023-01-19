@@ -1,14 +1,17 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
  * A performant map matrix designed for highly concurrent scenarios. Slow column access is not permitted.
  * </p>
- * 
+ *
  * @param <K> Type of the keys.
  * @param <V> Type of the values.
  */
@@ -27,9 +30,9 @@ public class ConcurrentMapMatrix<K, V> implements Serializable {
         return new ConcurrentMapMatrix<>();
     }
 
-     public Map<K, V> getRow(K y) {
-         // return Optional.ofNullable(matrix.get(y)).orElse(new HashMap<K, V>());
-    	 return matrix.get(y);
+    public Map<K, V> getRow(K y) {
+        // return Optional.ofNullable(matrix.get(y)).orElse(new HashMap<K, V>());
+        return matrix.get(y);
     }
 
     public void set(K x, K y, V value) {

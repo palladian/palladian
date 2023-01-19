@@ -11,16 +11,16 @@ import java.util.Set;
 public final class HashMapAttributes implements Attributes, Serializable {
 
     private static final long serialVersionUID = 1251740682190367389L;
-    
+
     private HashMap<String, Serializable> delegatedHashMap = Maps.newHashMap();
 
-	public static Attributes create(final Serializable... inputs) {
-		final HashMapAttributes a = new HashMapAttributes();
-		for (int x = 0; x < inputs.length; x += 2) {
-			a.put((String) inputs[x], inputs[x + 1]);
-		}
-		return a;
-	}
+    public static Attributes create(final Serializable... inputs) {
+        final HashMapAttributes a = new HashMapAttributes();
+        for (int x = 0; x < inputs.length; x += 2) {
+            a.put((String) inputs[x], inputs[x + 1]);
+        }
+        return a;
+    }
 
     @Override
     public int size() {
@@ -83,7 +83,7 @@ public final class HashMapAttributes implements Attributes, Serializable {
     }
 
     @Override
-    public Set<Entry<String,Serializable>> entrySet() {
+    public Set<Entry<String, Serializable>> entrySet() {
         return delegatedHashMap.entrySet();
     }
 

@@ -1,21 +1,17 @@
 package ws.palladian.classification;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Instances;
 import ws.palladian.core.Model;
 
+import java.util.*;
+
 /**
  * <p>
  * A Palladian model wrapping a Weka classifier and all information necessary to apply that classifier.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author Klemens Muthmann
  * @version 1.0
@@ -36,7 +32,7 @@ public final class WekaModel implements Model {
         Enumeration<?> schema = data.enumerateAttributes();
         this.schema = new HashMap<String, Attribute>();
         while (schema.hasMoreElements()) {
-            Attribute attribute = (Attribute)schema.nextElement();
+            Attribute attribute = (Attribute) schema.nextElement();
             this.schema.put(attribute.name(), attribute);
         }
         this.dataset = data;
@@ -62,7 +58,7 @@ public final class WekaModel implements Model {
         Enumeration<?> values = dataset.classAttribute().enumerateValues();
         Set<String> categories = new HashSet<>();
         while (values.hasMoreElements()) {
-            String category = (String)values.nextElement();
+            String category = (String) values.nextElement();
             if (category.equals(WekaLearner.DUMMY_CLASS)) {
                 // ignore this dummy class, see comment at constant.
                 continue;

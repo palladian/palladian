@@ -1,7 +1,9 @@
 package ws.palladian.helper.collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import ws.palladian.helper.collection.CollectionHelper.Order;
+import ws.palladian.helper.io.FileHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,11 +13,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import ws.palladian.helper.collection.CollectionHelper.Order;
-import ws.palladian.helper.io.FileHelper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BagTest {
 
@@ -93,10 +92,10 @@ public class BagTest {
         Iterator<Entry<String, Integer>> iterator = sorted.unique().iterator();
         Entry<String, Integer> entry = iterator.next();
         assertEquals(ELEMENT2, entry.getKey());
-        assertEquals(5, (int)entry.getValue());
+        assertEquals(5, (int) entry.getValue());
         entry = iterator.next();
         assertEquals(ELEMENT1, entry.getKey());
-        assertEquals(3, (int)entry.getValue());
+        assertEquals(3, (int) entry.getValue());
     }
 
     @Test
@@ -114,7 +113,7 @@ public class BagTest {
         assertEquals(8, bag1.size());
         assertEquals(2, bag1.unique().size());
     }
-    
+
     @Test
     public void testSet2() {
         bag1.set("four", 5);
@@ -146,9 +145,9 @@ public class BagTest {
     public void testToMap() {
         Map<String, Integer> map = bag1.toMap();
         assertEquals(3, map.size());
-        assertEquals(3, (int)map.get(ELEMENT1));
-        assertEquals(5, (int)map.get(ELEMENT2));
-        assertEquals(2, (int)map.get(ELEMENT3));
+        assertEquals(3, (int) map.get(ELEMENT1));
+        assertEquals(5, (int) map.get(ELEMENT2));
+        assertEquals(2, (int) map.get(ELEMENT3));
     }
 
     @Test
@@ -165,20 +164,20 @@ public class BagTest {
         Bag<String> copy = new Bag<>(bag1);
         assertTrue(copy.equals(bag1));
     }
-    
+
     @Test
     public void testAdd() {
-    	assertEquals(4, bag1.add(ELEMENT1, 1));
-    	assertEquals(10, bag1.add(ELEMENT1, 6));
+        assertEquals(4, bag1.add(ELEMENT1, 1));
+        assertEquals(10, bag1.add(ELEMENT1, 6));
     }
-    
-	@Test
-	public void test_setCountOnInit() {
-		Map<String, Integer> counts = new HashMap<>();
-		counts.put("one", 1);
-		counts.put("two", 2);
-		Bag<String> bag = new Bag<>(counts);
-		assertEquals(3, bag.size());
-	}
+
+    @Test
+    public void test_setCountOnInit() {
+        Map<String, Integer> counts = new HashMap<>();
+        counts.put("one", 1);
+        counts.put("two", 2);
+        Bag<String> bag = new Bag<>(counts);
+        assertEquals(3, bag.size());
+    }
 
 }

@@ -1,20 +1,23 @@
 package ws.palladian.extraction.location.scope;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class CoordinateStats {
 
-    /** Factory for creating {@link CoordinateStats} instances. 
-     * @deprecated Use <dode>CoordinateStats::new</code> in Java 8. */
-	@Deprecated
+    /**
+     * Factory for creating {@link CoordinateStats} instances.
+     *
+     * @deprecated Use <dode>CoordinateStats::new</code> in Java 8.
+     */
+    @Deprecated
     public static final Factory<CoordinateStats> FACTORY = new Factory<CoordinateStats>() {
         @Override
         public CoordinateStats create() {
@@ -47,7 +50,7 @@ public class CoordinateStats {
         }
         return stats;
     }
-    
+
     public int size() {
         return coordinates.size();
     }

@@ -1,8 +1,8 @@
 package ws.palladian.helper.collection;
 
-import java.util.Map.Entry;
-
 import ws.palladian.helper.collection.Vector.VectorEntry;
+
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 public final class EntryConverter<K, V> implements Function<Entry<K, V>, VectorEntry<K, V>> {
@@ -20,7 +20,7 @@ public final class EntryConverter<K, V> implements Function<Entry<K, V>, VectorE
             public V value() {
                 return input.getValue();
             }
-            
+
             @Override
             public String toString() {
                 return key() + "=" + value();

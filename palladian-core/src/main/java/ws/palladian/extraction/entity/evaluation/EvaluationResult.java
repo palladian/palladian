@@ -1,15 +1,6 @@
 package ws.palladian.extraction.entity.evaluation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -17,6 +8,9 @@ import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -31,7 +25,7 @@ import ws.palladian.helper.math.MathHelper;
  * For more information see <a
  * href="http://nlp.cs.nyu.edu/sekine/papers/li07.pdf">http://nlp.cs.nyu.edu/sekine/papers/li07.pdf</a> page 14.
  * </p>
- * 
+ *
  * <p>
  * We can evaluate using two approaches:
  * <ol>
@@ -42,7 +36,7 @@ import ws.palladian.helper.math.MathHelper;
  * points</li>
  * </ol>
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -81,7 +75,7 @@ public class EvaluationResult {
          * <p>
          * Get an explanation about the result type.
          * </p>
-         * 
+         *
          * @return Explanation for result type.
          */
         public String getDescription() {
@@ -122,14 +116,14 @@ public class EvaluationResult {
      * precision = 6 / 20 = 30%<br>
      * tag averaged precision = 33+20 / 2 = 26.5%<br>
      * <br>
-     * 
+     *
      * The resulting recall would be:<br>
      * recall(phone) = 5 / 35 ~ 14%<br>
      * recall(person) = 5 / 5 = 100%<br>
      * recall = 10 / 40 = 25%<br>
      * tag averaged recall = (14+100) / 2 = 57%
      * </p>
-     * 
+     *
      * <p>
      * MUC example (for error3 and error4 1 point each, correct = 2 points):<br>
      * class |error1|error2|error3|error4|error5|correct|possible<br>
@@ -146,7 +140,7 @@ public class EvaluationResult {
      * precision = (12 + 22) / (32 + 42 ) = 34 / 48 ~ 46%<br>
      * tag averaged precision = 37.5+52 / 2 = 44.75%<br>
      * <br>
-     * 
+     *
      * The resulting recall would be:<br>
      * POS = 2*possible<br>
      * recall(tag) = COR / POS<br>
@@ -164,7 +158,7 @@ public class EvaluationResult {
      * <p>
      * Create a new {@link EvaluationResult} based on the given gold standard.
      * </p>
-     * 
+     *
      * @param goldStandard The gold standard, not <code>null</code>.
      */
     public EvaluationResult(List<? extends Annotation> goldStandard) {
@@ -191,10 +185,9 @@ public class EvaluationResult {
             correctAssignments = getWeightedMuc(tagName);
             actualAssignments *= 2;
         } else if (type == EvaluationMode.RECOGNITION) {
-            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT)
-                    + getResultTypeCount(tagName, ResultType.ERROR3);
+            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT) + getResultTypeCount(tagName, ResultType.ERROR3);
         }
-        return (double)correctAssignments / actualAssignments;
+        return (double) correctAssignments / actualAssignments;
     }
 
     public double getRecallFor(String tagName, EvaluationMode type) {
@@ -209,16 +202,14 @@ public class EvaluationResult {
             correctAssignments = getWeightedMuc(tagName);
             possibleAssignments *= 2;
         } else if (type == EvaluationMode.RECOGNITION) {
-            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT)
-                    + getResultTypeCount(tagName, ResultType.ERROR3);
+            correctAssignments = getResultTypeCount(tagName, ResultType.CORRECT) + getResultTypeCount(tagName, ResultType.ERROR3);
         }
-        return (double)correctAssignments / possibleAssignments;
+        return (double) correctAssignments / possibleAssignments;
     }
 
     /** Get correct assignments weighted by MUC scheme. */
     private int getWeightedMuc(String tagName) {
-        return getResultTypeCount(tagName, ResultType.ERROR3) + getResultTypeCount(tagName, ResultType.ERROR4)
-                + 2 * getResultTypeCount(tagName, ResultType.CORRECT);
+        return getResultTypeCount(tagName, ResultType.ERROR3) + getResultTypeCount(tagName, ResultType.ERROR4) + 2 * getResultTypeCount(tagName, ResultType.CORRECT);
     }
 
     public double getF1For(String tagName, EvaluationMode type) {
@@ -289,11 +280,10 @@ public class EvaluationResult {
             } else if (type == EvaluationMode.MUC) {
                 sumCorrect += getWeightedMuc(tagName);
             } else if (type == EvaluationMode.RECOGNITION) {
-                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT)
-                        + getResultTypeCount(tagName, ResultType.ERROR3);
+                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT) + getResultTypeCount(tagName, ResultType.ERROR3);
             }
         }
-        return (double)sumCorrect / sumTotal;
+        return (double) sumCorrect / sumTotal;
     }
 
     public double getRecall(EvaluationMode type) {
@@ -308,11 +298,10 @@ public class EvaluationResult {
             } else if (type == EvaluationMode.MUC) {
                 sumCorrect += getWeightedMuc(tagName);
             } else if (type == EvaluationMode.RECOGNITION) {
-                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT)
-                        + getResultTypeCount(tagName, ResultType.ERROR3);
+                sumCorrect += getResultTypeCount(tagName, ResultType.CORRECT) + getResultTypeCount(tagName, ResultType.ERROR3);
             }
         }
-        return (double)sumCorrect / sumPossible;
+        return (double) sumCorrect / sumPossible;
     }
 
     public double getF1(EvaluationMode type) {
@@ -379,8 +368,7 @@ public class EvaluationResult {
         tagOrder.add(OTHER_MARKER);
         results.append(OTHER_MARKER).append(";");
 
-        results.append(
-                "#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
+        results.append("#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1\n");
 
         int totalTagAssignments = 0;
         for (String predictedTag : assignments.keySet()) {
@@ -423,25 +411,19 @@ public class EvaluationResult {
         results.append(totalTagAssignments).append(";");
 
         // precision, recall, and F1 for exact match
-        results.append("tag averaged:").append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4))
-                .append(", overall:");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.EXACT_MATCH), 4)).append(", overall:");
         results.append(MathHelper.round(getPrecision(EvaluationMode.EXACT_MATCH), 4)).append(";");
-        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4))
-                .append(", overall:");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.EXACT_MATCH), 4)).append(", overall:");
         results.append(MathHelper.round(getRecall(EvaluationMode.EXACT_MATCH), 4)).append(";");
-        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.EXACT_MATCH), 4))
-                .append(", overall:");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.EXACT_MATCH), 4)).append(", overall:");
         results.append(MathHelper.round(getF1(EvaluationMode.EXACT_MATCH), 4)).append(";");
 
         // precision, recall, and F1 for MUC score
-        results.append("tag averaged:").append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.MUC), 4))
-                .append(", overall:");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedPrecision(EvaluationMode.MUC), 4)).append(", overall:");
         results.append(MathHelper.round(getPrecision(EvaluationMode.MUC), 4)).append(";");
-        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.MUC), 4))
-                .append(", overall:");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedRecall(EvaluationMode.MUC), 4)).append(", overall:");
         results.append(MathHelper.round(getRecall(EvaluationMode.MUC), 4)).append(";");
-        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.MUC), 4))
-                .append(", overall:");
+        results.append("tag averaged:").append(MathHelper.round(getTagAveragedF1(EvaluationMode.MUC), 4)).append(", overall:");
         results.append(MathHelper.round(getF1(EvaluationMode.MUC), 4)).append("\n");
 
         results.append("\n\n");
@@ -511,8 +493,7 @@ public class EvaluationResult {
 
     public Collection<Annotation> getAnnotations(ResultType resultType) {
         Collection<Annotation> annotations = resultAnnotations.get(resultType);
-        return annotations != null ? Collections.unmodifiableCollection(annotations)
-                : Collections.<Annotation> emptyList();
+        return annotations != null ? Collections.unmodifiableCollection(annotations) : Collections.<Annotation>emptyList();
     }
 
     /**
@@ -520,12 +501,12 @@ public class EvaluationResult {
      * Add data to this evaluation result, consisting of a {@link ResultType}, the real annotation from the gold
      * standard, and the assigned {@link Annotation} from an NER.
      * </p>
-     * 
-     * @param resultType The type of the result, not <code>null</code>.
+     *
+     * @param resultType     The type of the result, not <code>null</code>.
      * @param realAnnotation The real annotation from the gold standard, or <code>null</code> in case of
-     *            {@link ResultType#ERROR1} (something was tagged, which is not in the gold standard).
-     * @param nerAnnotation The annotation assigned by the NER, or <code>null</code> in case of
-     *            {@link ResultType#ERROR2} (something from the gold standard was not tagged at all).
+     *                       {@link ResultType#ERROR1} (something was tagged, which is not in the gold standard).
+     * @param nerAnnotation  The annotation assigned by the NER, or <code>null</code> in case of
+     *                       {@link ResultType#ERROR2} (something from the gold standard was not tagged at all).
      */
     public void add(ResultType resultType, Annotation realAnnotation, Annotation nerAnnotation) {
         Validate.notNull(resultType, "resultType must not be null");

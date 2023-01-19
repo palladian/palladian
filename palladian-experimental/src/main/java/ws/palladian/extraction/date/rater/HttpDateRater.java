@@ -1,9 +1,5 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.MetaDate;
@@ -12,54 +8,58 @@ import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * This class rates HTTP-dates by constant and age of date.
- * 
+ *
  * @author Martin Greogr
- * 
  */
 public class HttpDateRater extends TechniqueDateRater<MetaDate> {
 
     private ExtractedDate actualDate;
-	public HttpDateRater(PageDateType dateType) {
-		super(dateType);
-	}
 
-	@Override
+    public HttpDateRater(PageDateType dateType) {
+        super(dateType);
+    }
+
+    @Override
     public List<RatedDate<MetaDate>> rate(List<MetaDate> list) {
-    	return evaluateHTTPDate(list);
+        return evaluateHTTPDate(list);
     }
 
     /**
      * Evaluates HTTP dates.<br>
      * Therefore, a date older then 12 hours from this point of time will be rated with 0.75.
      * If more then one date exists, a weight reduces each rating in dependency of age.
-     * 
+     *
      * @param httpDates
      * @return
      */
     private List<RatedDate<MetaDate>> evaluateHTTPDate(List<MetaDate> httpDates) {
-    	ExtractedDate current = actualDate;
-    	if(current == null){
-    		current = new ExtractedDateImpl();
-    	}
-    	return evaluateHTTPDate(httpDates, current);
+        ExtractedDate current = actualDate;
+        if (current == null) {
+            current = new ExtractedDateImpl();
+        }
+        return evaluateHTTPDate(httpDates, current);
     }
 
     /**
      * Evaluates HTTP dates.<br>
      * Therefore, a date older then 12 hours from this point of time will be rated with 0.75.
      * If more then one date exists, a weight reduces each rating in dependency of age.
-     * 
+     *
      * @param httpDates
      * @return
      */
-    public List<RatedDate<MetaDate>> evaluateHTTPDate(List<MetaDate> httpDates,ExtractedDate downloadedDate) {
+    public List<RatedDate<MetaDate>> evaluateHTTPDate(List<MetaDate> httpDates, ExtractedDate downloadedDate) {
         List<RatedDate<MetaDate>> result = new ArrayList<>();
         double rate = 0;
         for (int i = 0; i < httpDates.size(); i++) {
             MetaDate date = httpDates.get(i);
-            
+
             double timedifference = httpDates.get(i).getDifference(downloadedDate, TimeUnit.HOURS);
 
             if (timedifference > 12) {
@@ -89,7 +89,8 @@ public class HttpDateRater extends TechniqueDateRater<MetaDate> {
 
         return result;
     }
-    public void setActualDate(ExtractedDate actualDate){
-    	this.actualDate = actualDate;
+
+    public void setActualDate(ExtractedDate actualDate) {
+        this.actualDate = actualDate;
     }
 }

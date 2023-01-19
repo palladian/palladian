@@ -1,21 +1,10 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.EXACT_MATCH;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
-
-import java.io.File;
-import java.util.Set;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.Builder;
@@ -23,10 +12,18 @@ import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.integrationtests.ITHelper;
 
+import java.io.File;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static ws.palladian.extraction.entity.TaggingFormat.COLUMN;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.EXACT_MATCH;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
+
 /**
  * <p>
  * Tests the functionality of Palladian's NER.
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz

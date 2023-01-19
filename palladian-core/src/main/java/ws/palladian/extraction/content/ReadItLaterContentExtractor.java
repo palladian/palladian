@@ -1,11 +1,8 @@
 package ws.palladian.extraction.content;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -17,11 +14,13 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.util.Arrays;
+
 /**
  * <p>
  * The ReadItLaterContentExtractor extracts clean sentences from (English) texts using the ReadItLater API.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class ReadItLaterContentExtractor extends WebPageContentExtractor {

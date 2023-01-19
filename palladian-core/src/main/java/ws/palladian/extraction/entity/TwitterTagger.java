@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
  * <p>
  * Tag twitter hashtags and user name mentions (words preceded by # or @).
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class TwitterTagger extends RegExTagger {

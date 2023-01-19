@@ -1,12 +1,6 @@
 package ws.palladian.extraction.date.getter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import org.w3c.dom.Document;
-
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
@@ -16,16 +10,20 @@ import ws.palladian.extraction.date.dates.ReferenceDate;
 import ws.palladian.extraction.date.rater.ContentDateRater;
 import ws.palladian.helper.html.HtmlHelper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 /**
  * This class tries get dates in linked pages.<br>
  * Therefore it uses all the other techniques.
- * 
- * 
+ *
+ *
  * A crawler searches links of document.<br>
  * Each linked page will be researched for dates, these will be rated too.
- * 
+ *
  * @author Martin Gregor
- * 
  */
 public class ReferenceDateGetter extends TechniqueDateGetter<ReferenceDate> {
 

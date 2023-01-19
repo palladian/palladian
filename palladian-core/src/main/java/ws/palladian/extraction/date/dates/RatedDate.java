@@ -1,23 +1,21 @@
 package ws.palladian.extraction.date.dates;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.ExtractedDate;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.date.DateExactness;
-import ws.palladian.helper.date.ExtractedDate;
 
 /**
  * <p>
  * A {@link RatedDate} decorates an {@link ExtractedDate} and adds rating capabilities. The wrapped
  * {@link ExtractedDate} with its specific type can be accessed using {@link #getDate()}.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <D> (Sub)type of the decorated {@link ExtractedDate}.
+ * @author Philipp Katz
  */
 public final class RatedDate<D extends ExtractedDate> implements ExtractedDate {
 
@@ -40,7 +38,7 @@ public final class RatedDate<D extends ExtractedDate> implements ExtractedDate {
      * <p>
      * Create a new {@link RatedDate}.
      * </p>
-     * 
+     *
      * @param date The {@link ExtractedDate} to decorate, not <code>null</code>.
      * @param rate The rate to assign to the ExtractedDate.
      */
@@ -89,10 +87,10 @@ public final class RatedDate<D extends ExtractedDate> implements ExtractedDate {
         return date.getTimeZone();
     }
 
-//    @Override
-//    public void set(int field, int value) {
-//        date.set(field, value);
-//    }
+    //    @Override
+    //    public void set(int field, int value) {
+    //        date.set(field, value);
+    //    }
 
     @Override
     public DateExactness getExactness() {
@@ -113,7 +111,7 @@ public final class RatedDate<D extends ExtractedDate> implements ExtractedDate {
      * <p>
      * Get the wrapped date.
      * </p>
-     * 
+     *
      * @return the date
      */
     public D getDate() {
@@ -124,7 +122,7 @@ public final class RatedDate<D extends ExtractedDate> implements ExtractedDate {
      * <p>
      * Get the assigned rate value.
      * </p>
-     * 
+     *
      * @return the rate
      */
     public double getRate() {

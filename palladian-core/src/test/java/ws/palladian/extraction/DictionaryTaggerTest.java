@@ -1,19 +1,13 @@
 package ws.palladian.extraction;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Test;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
+
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
 
 public class DictionaryTaggerTest {
 

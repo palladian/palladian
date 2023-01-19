@@ -1,12 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpMethod;
@@ -19,11 +14,15 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * <p>
  * RankingService implementation to find whether a certain URL has been cached by Google.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public final class GoogleCachedPage extends AbstractRankingService implements RankingService {
@@ -35,17 +34,16 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
     private static final String SERVICE_ID = "Google Cache";
 
     /** The ranking value types of this service **/
-    public static final RankingType GOOGLE_CACHED = new RankingType("googlecached", "Google Indexed",
-            "Whether the page is in Google's Cache");
+    public static final RankingType GOOGLE_CACHED = new RankingType("googlecached", "Google Indexed", "Whether the page is in Google's Cache");
 
     /** All available ranking types by {@link GoogleCachedPage}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(GOOGLE_CACHED);
 
     /** Fields to check the service availability. */
     private long sleepTime = TimeUnit.SECONDS.toMillis(10);
-    
+
     /** The time in milliseconds we wait between two requests. */
-    private static final RequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1000, TimeUnit.MILLISECONDS); 
+    private static final RequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1000, TimeUnit.MILLISECONDS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {

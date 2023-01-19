@@ -13,7 +13,7 @@ public abstract class AbstractValue implements Value {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        Value value = (Value)obj;
+        Value value = (Value) obj;
         return equalsValue(value);
     }
 
@@ -21,10 +21,10 @@ public abstract class AbstractValue implements Value {
 
     @Override
     public abstract String toString();
-    
+
     @Override
     public final boolean isNull() {
-    	return this == NullValue.NULL;
+        return this == NullValue.NULL;
     }
 
 }

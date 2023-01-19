@@ -1,12 +1,8 @@
 package ws.palladian.extraction.date.getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
 import ws.palladian.extraction.date.dates.ContentDate;
@@ -15,12 +11,15 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.ParserException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * This class uses "The Internet Wayback Machine" aka. <a href="http://archive.org">archive.org</a> to determine the
  * date of a page.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */

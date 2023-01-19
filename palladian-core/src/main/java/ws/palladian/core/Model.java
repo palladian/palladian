@@ -10,14 +10,14 @@ import java.util.Set;
  * persisting of models. Take care which data needs to be saved, and try to keep backwards compatibility when you
  * perform any modifications.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface Model extends Serializable {
 
     /**
      * @return The categories supported by this Model. These are usually the categories (classes) on which the model was
-     *         trained.
+     * trained.
      */
     Set<String> getCategories();
 

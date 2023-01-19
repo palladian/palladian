@@ -1,18 +1,17 @@
 package ws.palladian.helper;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import ws.palladian.helper.collection.FixedSizeQueue;
+import ws.palladian.helper.date.DateHelper;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
-import org.slf4j.Logger;
-import ws.palladian.helper.collection.FixedSizeQueue;
-import ws.palladian.helper.date.DateHelper;
 
 /**
  * <p>

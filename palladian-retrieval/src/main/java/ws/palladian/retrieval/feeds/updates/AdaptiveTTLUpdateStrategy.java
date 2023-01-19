@@ -1,15 +1,14 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.FeedReader;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -17,7 +16,7 @@ import ws.palladian.retrieval.feeds.FeedReader;
  * M*(lastPollTime-newestItemTimestamp). If we don't have any item, use {@link FeedReader#DEFAULT_CHECK_TIME} instead. M
  * is 0,1 by default and can be set to any value M>0. In Web caching, M is usually set to 0.1 or 0.2.
  * </p>
- * 
+ *
  * @author Sandro Reichert
  */
 public class AdaptiveTTLUpdateStrategy extends AbstractUpdateStrategy {
@@ -30,12 +29,12 @@ public class AdaptiveTTLUpdateStrategy extends AbstractUpdateStrategy {
      * usually set to 0.1 or 0.2.
      */
     private final double weightM;
-    
+
     private final FeedUpdateMode updateMode;
 
     /**
      * @param weightM A positive, nonzero weight that is multiplied with the interval pollTime-newestItem. In Web
-     *            caching, this is usually set to 0.1 or 0.2.
+     *                caching, this is usually set to 0.1 or 0.2.
      */
     public AdaptiveTTLUpdateStrategy(int lowestInterval, int highestInterval, double weightM, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval);
@@ -49,9 +48,9 @@ public class AdaptiveTTLUpdateStrategy extends AbstractUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
      */
     @Override
@@ -75,7 +74,7 @@ public class AdaptiveTTLUpdateStrategy extends AbstractUpdateStrategy {
         // make sure we have an interval > 0, do not set checkInterval to 0 if (corrected) publish date and pollTime are
         // equal.
         if (intervalLength > 0) {
-            checkInterval = (int)(weightM * intervalLength / TimeUnit.MINUTES.toMillis(1));
+            checkInterval = (int) (weightM * intervalLength / TimeUnit.MINUTES.toMillis(1));
         }
 
         // set the (new) check interval to feed

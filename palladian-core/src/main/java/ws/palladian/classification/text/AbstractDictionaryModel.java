@@ -1,21 +1,14 @@
 package ws.palladian.classification.text;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.PrintStream;
+import java.util.*;
 import java.util.function.Function;
 
 public abstract class AbstractDictionaryModel implements DictionaryModel {
@@ -136,7 +129,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        AbstractDictionaryModel other = (AbstractDictionaryModel)obj;
+        AbstractDictionaryModel other = (AbstractDictionaryModel) obj;
         if (getFeatureSetting() == null) {
             if (other.getFeatureSetting() != null) {
                 return false;
@@ -162,7 +155,7 @@ public abstract class AbstractDictionaryModel implements DictionaryModel {
         }
         return true;
     }
-    
+
     // serialization code
 
     // Implementation note: in case you make any incompatible changes to the serialization protocol, provide backwards

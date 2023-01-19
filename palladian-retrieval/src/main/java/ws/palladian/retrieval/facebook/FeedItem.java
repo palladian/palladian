@@ -33,8 +33,7 @@ public class FeedItem {
 
     @Override
     public String toString() {
-        return "FeedItem [id=" + id + ", createdTime=" + createdTime + ", message=" + message + ", story=" + story
-                + "]";
+        return "FeedItem [id=" + id + ", createdTime=" + createdTime + ", message=" + message + ", story=" + story + "]";
     }
 
 }

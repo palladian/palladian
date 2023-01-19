@@ -1,26 +1,19 @@
 package ws.palladian.extraction.date.helper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import ws.palladian.extraction.date.dates.*;
+import ws.palladian.helper.constants.RegExp;
+import ws.palladian.helper.date.DateExactness;
+import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.date.ExtractedDateImpl;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.extraction.date.dates.ArchiveDate;
-import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.extraction.date.dates.KeywordDate;
-import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.extraction.date.dates.UrlDate;
-import ws.palladian.helper.constants.RegExp;
-import ws.palladian.helper.date.DateExactness;
-import ws.palladian.helper.date.DateParser;
-import ws.palladian.helper.date.ExtractedDate;
-import ws.palladian.helper.date.ExtractedDateImpl;
+import static org.junit.Assert.*;
 
 public class DateExtractionHelperTest {
 
@@ -142,13 +135,13 @@ public class DateExtractionHelperTest {
         ExtractedDate date6 = DateParser.parseDate("2012-08-30 12:05:31", RegExp.DATE_ISO8601_YMD_T);
         ExtractedDate date7 = DateParser.parseDate("2012-08-30", RegExp.DATE_ISO8601_YMD_SEPARATOR);
         List<ExtractedDate> dateList = Arrays.asList(date1, date2, date3, date4, date5, date6, date7);
-        
+
         List<ExtractedDate> exactestDates = DateExtractionHelper.filterExactest(dateList);
         assertEquals(2, exactestDates.size());
         assertEquals(date5, exactestDates.get(0));
         assertEquals(date6, exactestDates.get(1));
     }
-    
+
     @Test
     public void testIsDateInRange() {
 

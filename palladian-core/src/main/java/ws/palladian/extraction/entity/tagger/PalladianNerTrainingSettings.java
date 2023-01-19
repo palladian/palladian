@@ -1,11 +1,10 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static ws.palladian.classification.text.FeatureSettingBuilder.chars;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.helper.functional.Factory;
+
+import static ws.palladian.classification.text.FeatureSettingBuilder.chars;
 
 /**
  * @author David Urbansky

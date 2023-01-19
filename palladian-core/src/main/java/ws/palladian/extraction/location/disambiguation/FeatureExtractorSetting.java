@@ -1,19 +1,14 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.extraction.location.scope.ScopeDetector;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.Searcher;
+
+import java.util.*;
 
 public interface FeatureExtractorSetting {
 
@@ -63,11 +58,11 @@ public interface FeatureExtractorSetting {
 
     /**
      * @return The categories for which to extract probabilities for each annotation (as supplied by the
-     *         {@link ClassifyingTagger}). When using e.g. a CoNLL model, you would typically specify
-     *         <code>[PER, LOC, ORG, MISC]</code> here.
+     * {@link ClassifyingTagger}). When using e.g. a CoNLL model, you would typically specify
+     * <code>[PER, LOC, ORG, MISC]</code> here.
      */
     Set<String> getEntityCategories();
-    
+
     /**
      * @return <code>true</code> to extract hierarchy features.
      */
@@ -126,7 +121,7 @@ public interface FeatureExtractorSetting {
             this.entityCategories = CollectionHelper.newHashSet(entityCategories);
             return this;
         }
-        
+
         public Builder setHierarchyFeatures(boolean enable) {
             this.hierarchyFeatures = enable;
             return this;

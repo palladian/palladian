@@ -12,12 +12,12 @@ public interface UpdateStrategy {
      * <p>
      * Update the minimal and maximal update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode If the {@link UpdateStrategy} distinguishes between training and normal mode, set to
-     *            <code>true</code> to use training mode. For normal mode, or if you don't know, set to
-     *            <code>false</code>. See also {@link #hasExplicitTrainingMode()}.
+     *                     <code>true</code> to use training mode. For normal mode, or if you don't know, set to
+     *                     <code>false</code>. See also {@link #hasExplicitTrainingMode()}.
      */
     void update(Feed feed, FeedPostStatistics fps, boolean trainingMode);
 
@@ -28,7 +28,7 @@ public interface UpdateStrategy {
 
     /**
      * @return <code>true</code> in case the strategy has an explicit training mode to learn a model, <code>false</code>
-     *         otherwise.
+     * otherwise.
      */
     boolean hasExplicitTrainingMode();
 

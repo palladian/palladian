@@ -1,15 +1,15 @@
 package ws.palladian.retrieval.helper;
 
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * A request throttle which waits for a specified time interval between each request.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class FixedIntervalRequestThrottle implements RequestThrottle {

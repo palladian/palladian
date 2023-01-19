@@ -35,16 +35,16 @@ public class SearchIntentTrigger {
         this.text = text;
     }
 
-    public Language getLanguage() {return language;}
+    public Language getLanguage() {
+        return language;
+    }
 
-    public void setLanguage(Language language) {this.language = language;}
+    public void setLanguage(Language language) {
+        this.language = language;
+    }
 
     @Override
     public String toString() {
-        return "SearchIntentTrigger{" +
-                "matchType=" + matchType +
-                ", text='" + text + '\'' +
-                ", language=" + language +
-                '}';
+        return "SearchIntentTrigger{" + "matchType=" + matchType + ", text='" + text + '\'' + ", language=" + language + '}';
     }
 }

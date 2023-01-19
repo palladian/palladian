@@ -9,7 +9,7 @@ import ws.palladian.core.FeatureVector;
  * <p>
  * Baseline classifier which does not consider any features but just predicts the most common class from training.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://www.saedsayad.com/zeror.htm">ZeroR</a>
  */

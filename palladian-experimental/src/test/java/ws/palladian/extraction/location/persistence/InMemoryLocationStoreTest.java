@@ -4,7 +4,7 @@ import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.sources.LocationStore;
 
 public class InMemoryLocationStoreTest extends AbstractLocationStoreTest {
-    
+
     private InMemoryLocationStore store;
 
     @Override
@@ -17,7 +17,7 @@ public class InMemoryLocationStoreTest extends AbstractLocationStoreTest {
     public LocationSource createLocationSource() {
         return store;
     }
-    
+
     @Override
     public void testGetLocationByRadius() {
         // nop

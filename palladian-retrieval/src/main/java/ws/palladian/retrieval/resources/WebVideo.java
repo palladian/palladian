@@ -24,7 +24,7 @@ public interface WebVideo extends WebContent {
 
     /**
      * @return The rating of this video in a range [0, 1], where higher values denote a better rating, or
-     *         <code>null</code> in case no rating was specified.
+     * <code>null</code> in case no rating was specified.
      */
     Double getRating();
 

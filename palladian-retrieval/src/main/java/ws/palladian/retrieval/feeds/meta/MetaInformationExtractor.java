@@ -1,13 +1,20 @@
 package ws.palladian.retrieval.feeds.meta;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import com.rometools.rome.feed.rss.Guid;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.util.Iterator;
 import java.util.List;
@@ -16,36 +23,18 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.parser.ParserFactory;
-
-import com.rometools.rome.feed.rss.Guid;
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.io.FeedException;
-import com.rometools.rome.io.SyndFeedInput;
-
 /**
  * <p>Helper to process a {@link HttpResult} and extract some Headers. Code taken from {@link MetaInformationCreationTask}.</p>
- * 
+ *
  * @author Sandro Reichert
  * @author Philipp Katz
- * 
  */
 public class MetaInformationExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MetaInformationExtractor.class);
 
-    private static final Pattern[] VALID_FEED_PATTERNS = new Pattern[] { Pattern.compile("<rss"),
-            Pattern.compile("<feed"), Pattern.compile("<rdf:RDF") };
+    private static final Pattern[] VALID_FEED_PATTERNS = new Pattern[]{Pattern.compile("<rss"), Pattern.compile("<feed"), Pattern.compile("<rdf:RDF")};
 
     private HttpResult httpResult = null;
 
@@ -60,7 +49,7 @@ public class MetaInformationExtractor {
 
     /**
      * Retrieves the following information from the local {@link HttpResult} and updates the {@link FeedMetaInformation}
-     * 
+     *
      * <ul>
      * <li>isAccessibleFeed</li>
      * <li>supportsPubSubHubBub</li>
@@ -75,7 +64,7 @@ public class MetaInformationExtractor {
      * <li>hasSkipHours</li>
      * <li>conditionalGetResponseSize</li>
      * </ul>
-     * 
+     *
      * @param feedMetaInformation The {@link FeedMetaInformation} to update.
      */
     public void updateFeedMetaInformation(FeedMetaInformation feedMetaInformation) {
@@ -105,7 +94,7 @@ public class MetaInformationExtractor {
 
     /**
      * Get the {@link HttpResult}'s content as {@link String} using UTF-8 encoding.
-     * 
+     *
      * @param httpResult *
      * @return
      */
@@ -139,12 +128,11 @@ public class MetaInformationExtractor {
      * Checks whether the {@link HttpResult} contains an accessible feed. Returns <code>true</code> if the status code
      * is nor 403 or 404 and if the content contains one of the patterns that are typical for feeds, <code>false</code>
      * otherwise.
-     * 
+     *
      * @return <code>true</code> if the result seems to contain a feed.
      */
     private boolean isAccessibleFeed() {
-        if (HttpURLConnection.HTTP_NOT_FOUND == httpResult.getStatusCode()
-                || HttpURLConnection.HTTP_FORBIDDEN == httpResult.getStatusCode()) {
+        if (HttpURLConnection.HTTP_NOT_FOUND == httpResult.getStatusCode() || HttpURLConnection.HTTP_FORBIDDEN == httpResult.getStatusCode()) {
             return false;
         }
 
@@ -161,7 +149,7 @@ public class MetaInformationExtractor {
 
     /**
      * Checks whether the feed supports the PubSubHubbub protocol.
-     * 
+     *
      * @return <code>true</code> if the feed supports the PubSubHubbub protocol.
      */
     private boolean getFeedSupportsPubSubHubBub() {
@@ -174,7 +162,7 @@ public class MetaInformationExtractor {
 
     /**
      * Get the feed format and version, e.g. RSS 2.0
-     * 
+     *
      * @return The feed format and version, e.g. RSS 2.0
      */
     private String getFeedFormat() {
@@ -188,7 +176,7 @@ public class MetaInformationExtractor {
 
     /**
      * Tries to build a {@link SyndFeed} from the {@link HttpResult}'s content.
-     * 
+     *
      * @return
      */
     private SyndFeed getSyndFeed() {
@@ -219,7 +207,7 @@ public class MetaInformationExtractor {
      * <li>hasPublished</li>
      * </ul>
      * The meta information is written to the feed's meta information.
-     * 
+     *
      * @param feedMetaInformation The feed to update.
      */
     private void determineAtomMetaInformation(FeedMetaInformation feedMetaInformation) {
@@ -227,8 +215,7 @@ public class MetaInformationExtractor {
             Iterator<?> it = syndFeed.getEntries().iterator();
             if (it.hasNext()) {
                 SyndEntry syndEntry = (SyndEntry) it.next();
-                com.rometools.rome.feed.atom.Entry atomEntry = (com.rometools.rome.feed.atom.Entry) syndEntry
-                        .getWireEntry();
+                com.rometools.rome.feed.atom.Entry atomEntry = (com.rometools.rome.feed.atom.Entry) syndEntry.getWireEntry();
                 String rawId = atomEntry.getId();
 
                 feedMetaInformation.setHasItemIds(rawId != null && !rawId.isEmpty());
@@ -249,7 +236,7 @@ public class MetaInformationExtractor {
      * <li>hasSkipHours</li>
      * </ul>
      * The meta information is written to the feed's meta information.
-     * 
+     *
      * @param syndFeed
      * @param metaInformation
      */
@@ -259,8 +246,7 @@ public class MetaInformationExtractor {
             SyndEntry syndEntry = (SyndEntry) it.next();
 
             com.rometools.rome.feed.rss.Item rssItem = (com.rometools.rome.feed.rss.Item) syndEntry.getWireEntry();
-            com.rometools.rome.feed.rss.Channel channel = (com.rometools.rome.feed.rss.Channel) syndFeed
-                    .originalWireFeed();
+            com.rometools.rome.feed.rss.Channel channel = (com.rometools.rome.feed.rss.Channel) syndFeed.originalWireFeed();
             Guid guid = rssItem.getGuid();
 
             feedMetaInformation.setHasItemIds(guid != null && !guid.getValue().isEmpty());

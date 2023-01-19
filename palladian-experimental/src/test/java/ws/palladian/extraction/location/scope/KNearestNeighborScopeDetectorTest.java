@@ -1,17 +1,8 @@
 package ws.palladian.extraction.location.scope;
 
-import static org.junit.Assert.assertEquals;
-import static ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.BOOLEAN_QUERY_CREATOR;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
-
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.extraction.location.ImmutableLocation;
@@ -22,7 +13,14 @@ import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeDetectorLearner;
 import ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.NearestNeighborScopeModel;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static ws.palladian.extraction.location.scope.KNearestNeighborScopeDetector.BOOLEAN_QUERY_CREATOR;
 
 public class KNearestNeighborScopeDetectorTest {
 
@@ -35,8 +33,7 @@ public class KNearestNeighborScopeDetectorTest {
     public void testNearestNeighborScopeDetector() throws IOException {
         FeatureSetting featureSetting = FeatureSettingBuilder.words().create();
         List<LocationDocument> docs = getTestDocs();
-        NearestNeighborScopeModel model = new NearestNeighborScopeDetectorLearner(new RAMDirectory(), featureSetting)
-                .train(docs);
+        NearestNeighborScopeModel model = new NearestNeighborScopeDetectorLearner(new RAMDirectory(), featureSetting).train(docs);
 
         ScopeDetector detector = new KNearestNeighborScopeDetector(model, 1, BOOLEAN_QUERY_CREATOR);
         GeoCoordinate scope = detector.getScope(TEST_TEXT);
@@ -61,7 +58,7 @@ public class KNearestNeighborScopeDetectorTest {
     private static LocationDocument createDoc(String text, double lat, double lng) {
         GeoCoordinate coordinate = GeoCoordinate.from(lat, lng);
         Location location = new ImmutableLocation(0, StringUtils.EMPTY, LocationType.UNDETERMINED, coordinate, null);
-        return new LocationDocument(StringUtils.EMPTY, text, Collections.<LocationAnnotation> emptyList(), location);
+        return new LocationDocument(StringUtils.EMPTY, text, Collections.<LocationAnnotation>emptyList(), location);
     }
 
 }

@@ -1,24 +1,19 @@
 package ws.palladian.extraction.location;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
+
+import java.util.*;
 
 /**
  * <p>
  * Common implementation of {@link Location} interface with utility functionality. {@link #hashCode()} and
  * {@link #equals(Object)} are determined via the {@link Location} ID ({@link #getId()}).
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class AbstractLocation implements Location {
@@ -136,7 +131,7 @@ public abstract class AbstractLocation implements Location {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        AbstractLocation other = (AbstractLocation)obj;
+        AbstractLocation other = (AbstractLocation) obj;
         return getId() == other.getId();
     }
 

@@ -1,5 +1,16 @@
 package ws.palladian.retrieval;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.tuple.Pair;
+import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.EntryKeyComparator;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.retrieval.OAuthParams.SignatureMethod;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -8,26 +19,13 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.tuple.Pair;
-
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.EntryKeyComparator;
-import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.OAuthParams.SignatureMethod;
-
 /**
  * <p>
  * Utility for creating OAuth signed {@link HttpRequest}s. Implemented according to Twitter's <a
  * href="https://dev.twitter.com/docs/auth/authorizing-request">instructions</a>, but can be used for general OAuth 1.0
  * signing purposes.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://hueniverse.com/oauth/guide/authentication/">The OAuth 1.0 Guide</a>
  * @see <a href="https://dev.twitter.com/docs/auth/authorizing-request">Twitter: Authorizing a request</a>
@@ -54,7 +52,7 @@ public class OAuthUtil {
      * void. <b>Attention:</b> Currently, only query parameters are considered, not the request's body! In case you need
      * more power, use the more flexible {@link #createAuthorization(HttpMethod, String, List)} instead.
      * </p>
-     * 
+     *
      * @param httpRequest The HttpRequest2 to sign, not <code>null</code>.
      * @return The signed HttpRequest2.
      */
@@ -62,20 +60,17 @@ public class OAuthUtil {
         Validate.notNull(httpRequest, "httpRequest must not be null");
         HttpRequest2Builder builder = new HttpRequest2Builder(httpRequest.getMethod(), httpRequest.getUrl());
         builder.addHeaders(httpRequest.getHeaders());
-        builder.addHeader(
-                AUTHORIZATION_HEADER_KEY,
-                createAuthorization(httpRequest.getMethod(), 
-                        UrlHelper.parseBaseUrl(httpRequest.getUrl()),
-                        UrlHelper.parseParams(httpRequest.getUrl())));
+        builder.addHeader(AUTHORIZATION_HEADER_KEY,
+                createAuthorization(httpRequest.getMethod(), UrlHelper.parseBaseUrl(httpRequest.getUrl()), UrlHelper.parseParams(httpRequest.getUrl())));
         builder.setEntity(httpRequest.getEntity());
         return builder.create();
     }
 
     /**
      * Create the OAuth authorization data for the specified parameters.
-     * 
+     *
      * @param method The HTTP method, not <code>null</code>.
-     * @param url The base URL (i.e. without query or hash parameters), not <code>null</code> or empty.
+     * @param url    The base URL (i.e. without query or hash parameters), not <code>null</code> or empty.
      * @param params The parameters.
      * @return The authorization value.
      * @throws IllegalArgumentException in case the given URL was no base URL.
@@ -106,8 +101,7 @@ public class OAuthUtil {
         String oauthSignature;
         if (this.oAuthParams.getSignatureMethod() == SignatureMethod.PLAINTEXT) {
             // see https://datatracker.ietf.org/doc/html/rfc5849#section-3.4.4
-            oauthSignature = urlEncode(oAuthParams.getConsumerSecret()) + "&" +
-                             urlEncode(Optional.ofNullable(oAuthParams.getAccessTokenSecret()).orElse(""));
+            oauthSignature = urlEncode(oAuthParams.getConsumerSecret()) + "&" + urlEncode(Optional.ofNullable(oAuthParams.getAccessTokenSecret()).orElse(""));
         } else {
             String sigBaseString = createSignatureBaseString(method, url, allParams);
             String sigKey = createSigningKey(oAuthParams.getConsumerSecret(), oAuthParams.getAccessTokenSecret());
@@ -128,8 +122,7 @@ public class OAuthUtil {
             authorization.append(String.format("%s=\"%s\"", urlEncode(pair.getKey()), urlEncode(pair.getValue())));
         }
 
-        this.oAuthParams.getAdditionalParameters()
-            .ifPresent(additionalParams -> authorization.append(", ").append(additionalParams));
+        this.oAuthParams.getAdditionalParameters().ifPresent(additionalParams -> authorization.append(", ").append(additionalParams));
 
         return authorization.toString();
 
@@ -194,8 +187,7 @@ public class OAuthUtil {
         } catch (InvalidKeyException e) {
             throw new IllegalStateException("InvalidKeyException when creating OAuth signature: " + e.getMessage(), e);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(
-                    "NoSuchAlgorithmException when creating OAuth signature: " + e.getMessage(), e);
+            throw new IllegalStateException("NoSuchAlgorithmException when creating OAuth signature: " + e.getMessage(), e);
         } catch (IllegalStateException e) {
             throw new IllegalStateException("IllegalStateException when creating OAuth signature: " + e.getMessage(), e);
         }

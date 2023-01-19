@@ -1,14 +1,6 @@
 package ws.palladian.classification;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instances;
@@ -25,15 +17,17 @@ import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
+import java.util.*;
+
 /**
  * <p>
  * Learner wrapper for Weka classifiers.
  * </p>
- * 
- * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>
+ *
  * @author Philipp Katz
  * @author Klemens Muthmann
  * @version 3.1
+ * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>
  * @since 0.1.7
  */
 public final class WekaLearner extends AbstractLearner<WekaModel> {
@@ -54,7 +48,7 @@ public final class WekaLearner extends AbstractLearner<WekaModel> {
      * <p>
      * Create a new {@link WekaLearner} with the specified Weka {@link Classifier} implementation.
      * </p>
-     * 
+     *
      * @param classifier The classifier to use, not <code>null</code>.
      */
     public WekaLearner(weka.classifiers.Classifier classifier) {
@@ -74,7 +68,7 @@ public final class WekaLearner extends AbstractLearner<WekaModel> {
         Set<String> classes = new HashSet<>();
         List<String> instanceClasses = new ArrayList<>();
         for (Instance instance : dataset) {
-            Map<Integer, Double> wekaFeatureSet = createWekaFeatureSet(instance.getVector(),data, dataset);
+            Map<Integer, Double> wekaFeatureSet = createWekaFeatureSet(instance.getVector(), data, dataset);
             wekaFeatureSets.add(wekaFeatureSet);
             classes.add(instance.getCategory());
             instanceClasses.add(instance.getCategory());
@@ -120,8 +114,7 @@ public final class WekaLearner extends AbstractLearner<WekaModel> {
         return new WekaModel(classifier, data);
     }
 
-    private Map<Integer, Double> createWekaFeatureSet(FeatureVector vector, Instances data,
-            Iterable<? extends Instance> instances) {
+    private Map<Integer, Double> createWekaFeatureSet(FeatureVector vector, Instances data, Iterable<? extends Instance> instances) {
         Map<Integer, Double> ret = new HashMap<>();
         for (VectorEntry<String, Value> entry : vector) {
             String effectiveFeatureName = entry.key();
@@ -134,7 +127,7 @@ public final class WekaLearner extends AbstractLearner<WekaModel> {
                     data.insertAttributeAt(featureAttribute, data.numAttributes());
                     featureAttribute = data.attribute(effectiveFeatureName);
                 }
-                NominalValue nominalValue = (NominalValue)value;
+                NominalValue nominalValue = (NominalValue) value;
                 double featureValue = featureAttribute.indexOfValue(nominalValue.getString());
                 ret.put(featureAttribute.index(), featureValue);
             } else if (value instanceof NumericValue) {
@@ -144,7 +137,7 @@ public final class WekaLearner extends AbstractLearner<WekaModel> {
                     data.insertAttributeAt(featureAttribute, data.numAttributes());
                     featureAttribute = data.attribute(effectiveFeatureName);
                 }
-                NumericValue numericValue = (NumericValue)value;
+                NumericValue numericValue = (NumericValue) value;
                 ret.put(featureAttribute.index(), numericValue.getDouble());
             }
         }
@@ -152,13 +145,14 @@ public final class WekaLearner extends AbstractLearner<WekaModel> {
     }
 
     // get domain for nominal feature, i.e. possible values
+
     /**
      * <p>
      * Extracts all possible values for a {@link NominalFeature}. This is necessary for Weka to know the domain and thus
      * declare all valid values within its schema.
      * </p>
-     * 
-     * @param name The name of the {@link NominalFeature} to create the domain for.
+     *
+     * @param name       The name of the {@link NominalFeature} to create the domain for.
      * @param trainables The instances to use to create the domain.
      * @return A {@link FastVector} containing all values.
      */
@@ -169,7 +163,7 @@ public final class WekaLearner extends AbstractLearner<WekaModel> {
             if (value == null || value == NullValue.NULL) {
                 continue;
             }
-            NominalValue nominalValue = (NominalValue)value;
+            NominalValue nominalValue = (NominalValue) value;
             nominalValues.add(nominalValue.getString());
         }
         FastVector fvNominalValues = new FastVector(nominalValues.size());

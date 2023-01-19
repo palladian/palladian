@@ -1,27 +1,11 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import static ws.palladian.helper.constants.Language.CHINESE;
-import static ws.palladian.helper.constants.Language.ENGLISH;
-import static ws.palladian.helper.constants.Language.JAPANESE;
-import static ws.palladian.helper.constants.Language.KOREAN;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
@@ -33,11 +17,13 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.Facet;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.*;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static ws.palladian.helper.constants.Language.*;
 
 /**
  * <p>
@@ -81,8 +67,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
     /**
      * Pattern for extracting the status ID from a twitter URL.
      */
-    private static final Pattern URL_STATUS_PATTERN = Pattern
-            .compile("https?://twitter.com/[A-Za-z0-9_]*/status/(\\d+)");
+    private static final Pattern URL_STATUS_PATTERN = Pattern.compile("https?://twitter.com/[A-Za-z0-9_]*/status/(\\d+)");
 
     /**
      * Pattern to determine from the text content, whether the tweet is likely a retweet.
@@ -123,7 +108,6 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
         this(configuration.getString(CONFIG_API_KEY));
     }
 
-
     @Override
     public String getName() {
         return SEARCHER_NAME;
@@ -142,8 +126,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
             try {
                 httpResult = retriever.httpGet(queryUrl);
             } catch (HttpException e) {
-                throw new SearcherException("HTTP error while searching with URL \"" + query + "\": " + e.getMessage(),
-                        e);
+                throw new SearcherException("HTTP error while searching with URL \"" + query + "\": " + e.getMessage(), e);
             }
             String jsonString = httpResult.getStringContent();
             LOGGER.debug("JSON = {}", jsonString);
@@ -170,8 +153,7 @@ public final class MultifacetTopsySearcher extends AbstractMultifacetSearcher<We
                     }
                 }
             } catch (JsonException e) {
-                throw new SearcherException("Error parsing the JSON response " + e.getMessage() + ", JSON was \""
-                        + jsonString + "\"", e);
+                throw new SearcherException("Error parsing the JSON response " + e.getMessage() + ", JSON was \"" + jsonString + "\"", e);
             }
         }
         LOGGER.debug("Skipped {} retweets", skippedRetweets);

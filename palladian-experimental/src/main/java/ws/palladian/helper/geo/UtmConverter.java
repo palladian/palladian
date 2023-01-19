@@ -1,15 +1,8 @@
 package ws.palladian.helper.geo;
 
-import static java.lang.Math.cos;
-import static java.lang.Math.floor;
-import static java.lang.Math.pow;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
-import static java.lang.Math.tan;
-import static java.lang.Math.toDegrees;
-import static java.lang.Math.toRadians;
-
 import org.apache.commons.lang3.Validate;
+
+import static java.lang.Math.*;
 
 /**
  * <p>
@@ -17,15 +10,15 @@ import org.apache.commons.lang3.Validate;
  * code of this class was mainly ported from Chuck Taylor's JavaScript-based Geographic/UTM Coordinate Converter (see
  * link below).
  * </p>
- * 
+ *
+ * @author Philipp Katz
  * @see <a href="http://home.hiwaay.net/~taylorc/toolbox/geography/geoutm.html">Geographic/UTM Coordinate Converter</a>
  * @see <a
- *      href="http://stackoverflow.com/questions/9186496/determining-utm-zone-to-convert-from-longitude-latitude">Stack
- *      Overflow: Determining UTM zone (to convert) from longitude/latitude</a>
+ * href="http://stackoverflow.com/questions/9186496/determining-utm-zone-to-convert-from-longitude-latitude">Stack
+ * Overflow: Determining UTM zone (to convert) from longitude/latitude</a>
  * @see <a
- *      href="http://gis.stackexchange.com/questions/13291/is-there-a-simple-way-to-compute-the-utm-zone-from-a-lat-long-point">Stack
- *      Exchange: Is there a simple way to compute the UTM Zone from a lat/long point?</a>
- * @author Philipp Katz
+ * href="http://gis.stackexchange.com/questions/13291/is-there-a-simple-way-to-compute-the-utm-zone-from-a-lat-long-point">Stack
+ * Exchange: Is there a simple way to compute the UTM Zone from a lat/long point?</a>
  */
 public final class UtmConverter {
 
@@ -46,7 +39,7 @@ public final class UtmConverter {
      * Computes the ellipsoidal distance from the equator to a point at a given latitude. Reference: Hoffmann-Wellenhof,
      * B., Lichtenegger, H., and Collins, J., GPS: Theory and Practice, 3rd ed. New York: Springer-Verlag Wien, 1994.
      * </p>
-     * 
+     *
      * @param phi Latitude of the point, in radians.
      * @return The ellipsoidal distance of the point from the equator, in meters.
      */
@@ -64,18 +57,17 @@ public final class UtmConverter {
         /* Precalculate epsilon */
         double epsilon = (315.0 * pow(n, 4.0) / 512.0);
         /* Now calculate the sum of the series and return */
-        return alpha
-                * (phi + (beta * sin(2.0 * phi)) + (gamma * sin(4.0 * phi)) + (delta * sin(6.0 * phi)) + (epsilon * sin(8.0 * phi)));
+        return alpha * (phi + (beta * sin(2.0 * phi)) + (gamma * sin(4.0 * phi)) + (delta * sin(6.0 * phi)) + (epsilon * sin(8.0 * phi)));
     }
 
     /**
      * <p>
      * Determines the central meridian for the given UTM zone.
      * </p>
-     * 
+     *
      * @param zone An integer value designating the UTM zone, range [1,60].
      * @return The central meridian for the given UTM zone, in radians, or zero if the UTM zone parameter is outside the
-     *         range [1,60]. Range of the central meridian is the radian equivalent of [-177,+177].
+     * range [1,60]. Range of the central meridian is the radian equivalent of [-177,+177].
      */
     private static double utmCentralMeridian(int zone) {
         return toRadians(-183.0 + (zone * 6.0));
@@ -87,7 +79,7 @@ public final class UtmConverter {
      * Reference: Hoffmann-Wellenhof, B., Lichtenegger, H., and Collins, J., GPS: Theory and Practice, 3rd ed. New York:
      * Springer-Verlag Wien, 1994.
      * </p>
-     * 
+     *
      * @param y The UTM northing coordinate, in meters.
      * @return The footpoint latitude, in radians.
      */
@@ -108,8 +100,7 @@ public final class UtmConverter {
         /* Precalculate epsilon_ (Eq. 10.22) */
         double epsilon_ = (1097.0 * pow(n, 4.0) / 512.0);
         /* Now calculate the sum of the series (Eq. 10.21) */
-        return y_ + (beta_ * sin(2.0 * y_)) + (gamma_ * sin(4.0 * y_)) + (delta_ * sin(6.0 * y_))
-                + (epsilon_ * sin(8.0 * y_));
+        return y_ + (beta_ * sin(2.0 * y_)) + (gamma_ * sin(4.0 * y_)) + (delta_ * sin(6.0 * y_)) + (epsilon_ * sin(8.0 * y_));
     }
 
     /**
@@ -119,9 +110,9 @@ public final class UtmConverter {
      * Hoffmann-Wellenhof, B., Lichtenegger, H., and Collins, J., GPS: Theory and Practice, 3rd ed. New York:
      * Springer-Verlag Wien, 1994.
      * </p>
-     * 
+     *
      * @param coordinate The GeoCoordinate of the point to convert.
-     * @param lambda0 Longitude of the central meridian to be used, in radians.
+     * @param lambda0    Longitude of the central meridian to be used, in radians.
      * @return A 2-element array containing the x and y coordinates of the computed point.
      */
     private static double[] mapLatLonToXY(GeoCoordinate coordinate, double lambda0) {
@@ -153,14 +144,11 @@ public final class UtmConverter {
 
         double[] result = new double[2];
         /* Calculate easting (x) */
-        result[0] = N * cos(phi) * l + (N / 6.0 * pow(cos(phi), 3.0) * l3coef * pow(l, 3.0))
-                + (N / 120.0 * pow(cos(phi), 5.0) * l5coef * pow(l, 5.0))
-                + (N / 5040.0 * pow(cos(phi), 7.0) * l7coef * pow(l, 7.0));
+        result[0] = N * cos(phi) * l + (N / 6.0 * pow(cos(phi), 3.0) * l3coef * pow(l, 3.0)) + (N / 120.0 * pow(cos(phi), 5.0) * l5coef * pow(l, 5.0)) + (N / 5040.0 * pow(cos(phi),
+                7.0) * l7coef * pow(l, 7.0));
         /* Calculate northing (y) */
-        result[1] = arcLengthOfMeridian(phi) + (t / 2.0 * N * pow(cos(phi), 2.0) * pow(l, 2.0))
-                + (t / 24.0 * N * pow(cos(phi), 4.0) * l4coef * pow(l, 4.0))
-                + (t / 720.0 * N * pow(cos(phi), 6.0) * l6coef * pow(l, 6.0))
-                + (t / 40320.0 * N * pow(cos(phi), 8.0) * l8coef * pow(l, 8.0));
+        result[1] = arcLengthOfMeridian(phi) + (t / 2.0 * N * pow(cos(phi), 2.0) * pow(l, 2.0)) + (t / 24.0 * N * pow(cos(phi), 4.0) * l4coef * pow(l, 4.0)) + (t / 720.0 * N * pow(
+                cos(phi), 6.0) * l6coef * pow(l, 6.0)) + (t / 40320.0 * N * pow(cos(phi), 8.0) * l8coef * pow(l, 8.0));
         return result;
     }
 
@@ -171,11 +159,10 @@ public final class UtmConverter {
      * Hoffmann-Wellenhof, B., Lichtenegger, H., and Collins, J., GPS: Theory and Practice, 3rd ed. New York:
      * Springer-Verlag Wien, 1994.
      * </p>
-     * 
-     * @param x The easting of the point, in meters.
-     * @param y The northing of the point, in meters.
+     *
+     * @param x       The easting of the point, in meters.
+     * @param y       The northing of the point, in meters.
      * @param lambda0 Longitude of the central meridian to be used, in radians.
-     * 
      * @return A 2-element array containing the latitude and longitude in radians.
      */
     private static double[] mapXYToLatLon(double x, double y, double lambda0) {
@@ -233,8 +220,7 @@ public final class UtmConverter {
          */
         double x2poly = -1.0 - nuf2;
         double x3poly = -1.0 - 2 * tf2 - nuf2;
-        double x4poly = 5.0 + 3.0 * tf2 + 6.0 * nuf2 - 6.0 * tf2 * nuf2 - 3.0 * (nuf2 * nuf2) - 9.0 * tf2
-                * (nuf2 * nuf2);
+        double x4poly = 5.0 + 3.0 * tf2 + 6.0 * nuf2 - 6.0 * tf2 * nuf2 - 3.0 * (nuf2 * nuf2) - 9.0 * tf2 * (nuf2 * nuf2);
         double x5poly = 5.0 + 28.0 * tf2 + 24.0 * tf4 + 6.0 * nuf2 + 8.0 * tf2 * nuf2;
         double x6poly = -61.0 - 90.0 * tf2 - 45.0 * tf4 - 107.0 * nuf2 + 162.0 * tf2 * nuf2;
         double x7poly = -61.0 - 662.0 * tf2 - 1320.0 * tf4 - 720.0 * (tf4 * tf2);
@@ -243,12 +229,10 @@ public final class UtmConverter {
         double[] phiLambda = new double[2];
 
         /* Calculate latitude */
-        phiLambda[0] = phif + x2frac * x2poly * (x * x) + x4frac * x4poly * pow(x, 4.0) + x6frac * x6poly * pow(x, 6.0)
-                + x8frac * x8poly * pow(x, 8.0);
+        phiLambda[0] = phif + x2frac * x2poly * (x * x) + x4frac * x4poly * pow(x, 4.0) + x6frac * x6poly * pow(x, 6.0) + x8frac * x8poly * pow(x, 8.0);
 
         /* Calculate longitude */
-        phiLambda[1] = lambda0 + x1frac * x + x3frac * x3poly * pow(x, 3.0) + x5frac * x5poly * pow(x, 5.0) + x7frac
-                * x7poly * pow(x, 7.0);
+        phiLambda[1] = lambda0 + x1frac * x + x3frac * x3poly * pow(x, 3.0) + x5frac * x5poly * pow(x, 5.0) + x7frac * x7poly * pow(x, 7.0);
 
         return phiLambda;
     }
@@ -257,7 +241,7 @@ public final class UtmConverter {
      * <p>
      * Converts a latitude/longitude pair to x and y coordinates in the Universal Transverse Mercator projection.
      * </p>
-     * 
+     *
      * @param coordinate The coordinate of the point to convert, not <code>null</code>.
      * @return A UTM coordinate of the given point.
      */
@@ -278,10 +262,10 @@ public final class UtmConverter {
      * <p>
      * Converts x and y coordinates in the Universal Transverse Mercator projection to a latitude/longitude pair.
      * </p>
-     * 
-     * @param easting The easting of the point, in meters.
-     * @param northing The northing of the point, in meters.
-     * @param zone The UTM zone in which the point lies.
+     *
+     * @param easting   The easting of the point, in meters.
+     * @param northing  The northing of the point, in meters.
+     * @param zone      The UTM zone in which the point lies.
      * @param southHemi <code>true</code> if the point is in the southern hemisphere; <code>false</code> otherwise.
      * @return A latitude/longitude coordinate for the given point.
      */
@@ -305,7 +289,7 @@ public final class UtmConverter {
      * Get the UTM zone for the given latitude/longitude coordinate. This method handles the <a
      * href="http://www.dmap.co.uk/utmworld.htm">exceptions</a> for Norway and Svalbard correctly.
      * </p>
-     * 
+     *
      * @param coordinate The coordinate for which to get the UTM zone, not <code>null</code>.
      * @return The UTM zone [1,60]
      */
@@ -314,7 +298,7 @@ public final class UtmConverter {
         Validate.notNull(coordinate, "coordinate must not be null");
         double lat = coordinate.getLatitude();
         double lng = coordinate.getLongitude();
-        int zone = (int)floor((lng + 180.0) / 6) + 1;
+        int zone = (int) floor((lng + 180.0) / 6) + 1;
 
         // Norway
         if (lat >= 56.0 && lat < 64.0 && lng >= 3.0 && lng < 12.0) {
@@ -339,14 +323,14 @@ public final class UtmConverter {
      * <p>
      * Get the UTM band for the given latitude.
      * </p>
-     * 
+     *
      * @param lat The latitude for which to get the UTM letter.
      * @return The UTM latitude band as char [CDEFGHJKLMNPQRSTUVWXX], or Z in case the latitude was not valid.
      */
     public static char utmBand(double lat) {
         // code taken from: http://www.igorexchange.com/node/927
         // XXX I guess, there are exceptions for artic/antarctic region?
-        return (-80 <= lat && lat <= 84) ? UTM_BAND_CHARS.charAt((int)(lat + 80) / 8) : 'Z';
+        return (-80 <= lat && lat <= 84) ? UTM_BAND_CHARS.charAt((int) (lat + 80) / 8) : 'Z';
     }
 
     /**
@@ -354,15 +338,15 @@ public final class UtmConverter {
      * Converts a given grid zone, such as <code>10S</code> to an approximate latitude/longitude {@link GeoCoordinate}.
      * We take the center of the grid zone as resulting coordinate.
      * </p>
-     * 
+     *
      * @param gridZone The grid zone to convert, in a format like <code>10S</code> (zone followed directly by band). Not
-     *            <code>null</code> or empty.
+     *                 <code>null</code> or empty.
      * @return A {@link GeoCoordinate} in the center of the given grid zone.
      * @throws IllegalArgumentException In case the given value was in an invalid format or could not be parsed.
      */
     public static GeoCoordinate gridZoneToLatLon(String gridZone) {
         Validate.notEmpty(gridZone, "gridZone must not be empty");
-        
+
         // asked about this here:
         // http://gis.stackexchange.com/questions/84218/get-approximate-lat-long-coordinate-for-utm-grid-zone
 

@@ -4,6 +4,6 @@ import java.time.LocalDate;
 
 public interface LocalDateValue extends Value {
 
-	LocalDate getLocalDate();
+    LocalDate getLocalDate();
 
 }

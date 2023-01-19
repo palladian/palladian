@@ -1,21 +1,20 @@
 package ws.palladian.extraction.date.comparators;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 public class DateComparatorTest {
-    
+
     private ExtractedDate date1;
     private ExtractedDate date2;
     private ExtractedDate date3;
@@ -65,107 +64,107 @@ public class DateComparatorTest {
         assertEquals(date2.getDateString(), dates.get(8).getDateString());
         assertEquals(date2.getDateString(), dates.get(9).getDateString());
     }
-    
+
     @Test
     public void testDateComparator2() {
         DateComparator comparator = new DateComparator(DateExactness.DAY);
         assertEquals(0, comparator.compare(date7, date8));
         assertEquals(-1, comparator.compare(date6, date7));
-        
+
         comparator = new DateComparator(DateExactness.HOUR);
         assertEquals(0, comparator.compare(date7, date9));
         assertEquals(-1, comparator.compare(date7, date8));
     }
 
-//    /**
-//     * <p>
-//     * Trying to reproduce Comparator problem with Java 1.7
-//     * </p>
-//     * 
-//     * @see https://bitbucket.org/palladian/palladian/issue/3/error-in-testgetdatetime
-//     */
-//    @Test
-//    public void testComparisonContract() {
-//        List<int[]> data = new ArrayList<int[]>();
-//        data.add(new int[] {-1, 2, 2, -1, -1, -1});
-//        data.add(new int[] {1950, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1951, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1951, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1951, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1951, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1952, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1952, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1953, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1953, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1954, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1955, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1955, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1947, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1956, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1956, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1956, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1957, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1958, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1957, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1958, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1959, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1960, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1959, 6, -1, -1, -1, -1});
-//        data.add(new int[] {-1, 5, 14, -1, -1, -1});
-//        data.add(new int[] {-1, 8, 1, -1, -1, -1});
-//        data.add(new int[] {1959, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1959, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1934, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1950, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1934, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1932, 5, -1, -1, -1, -1});
-//        data.add(new int[] {1970, 11, -1, -1, -1, -1});
-//        data.add(new int[] {1960, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1970, 11, -1, -1, -1, -1});
-//        data.add(new int[] {1970, 11, -1, -1, -1, -1});
-//        data.add(new int[] {1934, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1950, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1960, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1995, 5, -1, -1, -1, -1});
-//        data.add(new int[] {1995, 5, -1, -1, -1, -1});
-//        data.add(new int[] {1995, 5, -1, -1, -1, -1});
-//        data.add(new int[] {1958, 3, -1, -1, -1, -1});
-//        data.add(new int[] {1961, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1961, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1962, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1962, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1963, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1963, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1964, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1964, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1964, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1965, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1965, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1963, 6, -1, -1, -1, -1});
-//        data.add(new int[] {1967, 3, -1, -1, -1, -1});
-//        data.add(new int[] {1928, 3, -1, -1, -1, -1});
-//        data.add(new int[] {1928, 3, -1, -1, -1, -1});
-//        data.add(new int[] {1952, 3, -1, -1, -1, -1});
-//        data.add(new int[] {1967, 3, -1, -1, -1, -1});
-//        data.add(new int[] {1930, 5, 21, -1, -1, -1});
-//        data.add(new int[] {-1, 4, 1, -1, -1, -1});
-//        data.add(new int[] {-1, 1, 7, -1, -1, -1});
-//        data.add(new int[] {-1, 1, 7, -1, -1, -1});
-//        data.add(new int[] {-1, 1, 8, -1, -1, -1});
-//        List<ExtractedDate> extractedDates = new ArrayList<ExtractedDate>();
-//        for (int[] d : data) {
-//            ExtractedDate extractedDate = new ExtractedDate();
-//            extractedDate.set(AbstractDate.YEAR, d[0]);
-//            extractedDate.set(AbstractDate.MONTH, d[1]);
-//            extractedDate.set(AbstractDate.DAY, d[2]);
-//            extractedDate.set(AbstractDate.HOUR, d[3]);
-//            extractedDate.set(AbstractDate.MINUTE, d[4]);
-//            extractedDate.set(AbstractDate.SECOND, d[5]);
-//            extractedDates.add(extractedDate);
-//        }
-//        Collections.sort(extractedDates, new DateComparator());
-//    }
-    
+    //    /**
+    //     * <p>
+    //     * Trying to reproduce Comparator problem with Java 1.7
+    //     * </p>
+    //     *
+    //     * @see https://bitbucket.org/palladian/palladian/issue/3/error-in-testgetdatetime
+    //     */
+    //    @Test
+    //    public void testComparisonContract() {
+    //        List<int[]> data = new ArrayList<int[]>();
+    //        data.add(new int[] {-1, 2, 2, -1, -1, -1});
+    //        data.add(new int[] {1950, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1951, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1951, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1951, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1951, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1952, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1952, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1953, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1953, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1954, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1955, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1955, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1947, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1956, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1956, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1956, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1957, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1958, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1957, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1958, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1959, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1960, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1959, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {-1, 5, 14, -1, -1, -1});
+    //        data.add(new int[] {-1, 8, 1, -1, -1, -1});
+    //        data.add(new int[] {1959, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1959, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1934, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1950, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1934, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1932, 5, -1, -1, -1, -1});
+    //        data.add(new int[] {1970, 11, -1, -1, -1, -1});
+    //        data.add(new int[] {1960, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1970, 11, -1, -1, -1, -1});
+    //        data.add(new int[] {1970, 11, -1, -1, -1, -1});
+    //        data.add(new int[] {1934, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1950, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1960, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1995, 5, -1, -1, -1, -1});
+    //        data.add(new int[] {1995, 5, -1, -1, -1, -1});
+    //        data.add(new int[] {1995, 5, -1, -1, -1, -1});
+    //        data.add(new int[] {1958, 3, -1, -1, -1, -1});
+    //        data.add(new int[] {1961, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1961, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1962, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1962, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1963, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1963, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1964, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1964, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1964, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1965, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1965, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1963, 6, -1, -1, -1, -1});
+    //        data.add(new int[] {1967, 3, -1, -1, -1, -1});
+    //        data.add(new int[] {1928, 3, -1, -1, -1, -1});
+    //        data.add(new int[] {1928, 3, -1, -1, -1, -1});
+    //        data.add(new int[] {1952, 3, -1, -1, -1, -1});
+    //        data.add(new int[] {1967, 3, -1, -1, -1, -1});
+    //        data.add(new int[] {1930, 5, 21, -1, -1, -1});
+    //        data.add(new int[] {-1, 4, 1, -1, -1, -1});
+    //        data.add(new int[] {-1, 1, 7, -1, -1, -1});
+    //        data.add(new int[] {-1, 1, 7, -1, -1, -1});
+    //        data.add(new int[] {-1, 1, 8, -1, -1, -1});
+    //        List<ExtractedDate> extractedDates = new ArrayList<ExtractedDate>();
+    //        for (int[] d : data) {
+    //            ExtractedDate extractedDate = new ExtractedDate();
+    //            extractedDate.set(AbstractDate.YEAR, d[0]);
+    //            extractedDate.set(AbstractDate.MONTH, d[1]);
+    //            extractedDate.set(AbstractDate.DAY, d[2]);
+    //            extractedDate.set(AbstractDate.HOUR, d[3]);
+    //            extractedDate.set(AbstractDate.MINUTE, d[4]);
+    //            extractedDate.set(AbstractDate.SECOND, d[5]);
+    //            extractedDates.add(extractedDate);
+    //        }
+    //        Collections.sort(extractedDates, new DateComparator());
+    //    }
+
     @Test
     public void testCompareDepth() {
         DateExactness depth1 = DateExactness.YEAR;

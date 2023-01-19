@@ -306,9 +306,8 @@ public final class FeedDiscovery {
 
         stopWatch = new StopWatch();
 
-        LOGGER.info(
-                "Start finding feeds with {} queries and {} results per query = max. {} URLs to check for feeds; number of threads = {}",
-                queryQueue.size(), numResults, numResults * queryQueue.size(), numThreads);
+        LOGGER.info("Start finding feeds with {} queries and {} results per query = max. {} URLs to check for feeds; number of threads = {}", queryQueue.size(), numResults,
+                numResults * queryQueue.size(), numThreads);
 
         // prevent running through the discovery step when no search results are available yet.
         final Object lock = new Object();
@@ -332,8 +331,8 @@ public final class FeedDiscovery {
                     currentQuery++;
                     float percentage = (float) 100 * currentQuery / totalQueries;
                     float querySpeed = TimeUnit.MINUTES.toMillis(currentQuery / stopWatch.getElapsedTime());
-                    LOGGER.info("Queried {}/{}: '{}'; # results: {}; progress: {}%; query speed: {} queries/min",
-                            currentQuery, totalQueries, query, foundSites.size(), percentage, querySpeed);
+                    LOGGER.info("Queried {}/{}: '{}'; # results: {}; progress: {}%; query speed: {} queries/min", currentQuery, totalQueries, query, foundSites.size(), percentage,
+                            querySpeed);
 
                 }
                 LOGGER.info("Finished queries in {}", stopWatch.getElapsedTimeString());
@@ -391,8 +390,7 @@ public final class FeedDiscovery {
                                 float feedThroughput = feedCounter.get() / elapsedMinutes;
                                 LOGGER.info(
                                         "# checked pages: {}; # discovered feeds: {}; # errors: {}; elapsed time: {}; throughput: {} pages/min; discovery speed: {} feeds/min; url queue size: {}",
-                                        pageCounter.intValue(), feedCounter.intValue(), errorCounter.intValue(),
-                                        stopWatch.getElapsedTimeString(), pageThroughput, feedThroughput,
+                                        pageCounter.intValue(), feedCounter.intValue(), errorCounter.intValue(), stopWatch.getElapsedTimeString(), pageThroughput, feedThroughput,
                                         urlQueue.size());
                             }
 

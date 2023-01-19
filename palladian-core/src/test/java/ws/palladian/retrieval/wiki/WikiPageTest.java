@@ -1,15 +1,14 @@
 package ws.palladian.retrieval.wiki;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 public class WikiPageTest {
 
@@ -24,8 +23,7 @@ public class WikiPageTest {
 
     @Test
     public void testGetInfoboxes() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
         WikiPage page = new WikiPage(0, 0, "Dry Fork (Cheat River)", markup);
         List<WikiTemplate> infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
@@ -58,8 +56,7 @@ public class WikiPageTest {
                 "84 ({{as of|2013|02|15|alt=February 2013}})<ref name=\"alexa\">{{cite web|url= http://www.alexa.com/siteinfo/stackoverflow.com |title= Stackoverflow.com Site Info | publisher= [[Alexa Internet]] |accessdate= 2013-02-15 }}</ref>",
                 infobox.getEntry("alexa"));
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
         page = new WikiPage(0, 0, "Dry Fork (Cheat River)", markup);
         infoboxes = page.getInfoboxes();
         assertEquals(1, infoboxes.size());
@@ -67,8 +64,7 @@ public class WikiPageTest {
         assertEquals("river", infobox.getName());
         assertEquals(70, infobox.size());
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Muskingum_University.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Muskingum_University.wikipedia"));
         page = new WikiPage(0, 0, "Muskingum University", markup);
         infoboxes = page.getInfoboxes();
         assertEquals(2, infoboxes.size());
@@ -102,16 +98,14 @@ public class WikiPageTest {
 
     @Test
     public void testGetAlternativeNames() throws IOException {
-        String markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
+        String markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/Dry_Fork_(Cheat_River).wikipedia"));
         WikiPage page = new WikiPage(0, 0, "Dry Fork (Cheat River)", markup);
         List<String> alternativeTitles = page.getAlternativeTitles();
         assertEquals(2, alternativeTitles.size());
         assertEquals("Dry Fork", alternativeTitles.get(0));
         assertEquals("Dry Run", alternativeTitles.get(1));
 
-        markup = FileHelper.readFileToString(ResourceHelper
-                .getResourceFile("/wikipedia/University_of_Pennsylvania.wikipedia"));
+        markup = FileHelper.readFileToString(ResourceHelper.getResourceFile("/wikipedia/University_of_Pennsylvania.wikipedia"));
         page = new WikiPage(0, 0, "University of Pennsylvania", markup);
         alternativeTitles = page.getAlternativeTitles();
         assertEquals(3, alternativeTitles.size());

@@ -1,19 +1,10 @@
 package ws.palladian.retrieval.search.web;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
@@ -29,16 +20,24 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * <p>
  * {@link WebSearcher} for Russian search engine <a href="http://www.yandex.com/">Yandex</a>. To use Yandex, you need to
  * sign up for the service (see link below). Without verifying one's phone number, one can perform only 10 requests/day.
  * With a verified phone number, 1.000 requests/day are allowed.
  * </p>
- * 
+ *
+ * @author Philipp Katz
  * @see <a href="http://help.yandex.com/xml/faq.xml?id=1116498">Necessary steps for sign up</a>
  * @see <a href="http://help.yandex.com/xml/?id=1116467">API documentation</a>
- * @author Philipp Katz
  */
 public final class YandexSearcher extends AbstractSearcher<WebContent> {
 
@@ -63,7 +62,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
     private final String yandexSearchUrl;
     /** The parser used for processing the returned XML data. */
     private final DocumentParser xmlParser;
-    
+
     private final HttpRetriever retriever;
 
     /**
@@ -73,7 +72,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * page. Keep in mind, that before searching, you must activate your IP at the web interface, elsewise Yandex
      * refuses to perform searches.
      * </p>
-     * 
+     *
      * @param yandexSearchUrl The necessary endpoint URL from Yandex, not <code>null</code> or empty.
      */
     public YandexSearcher(String yandexSearchUrl) {
@@ -90,9 +89,9 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * is account specific and can be obtained from the Yandex web page. Keep in mind, that before searching, you must
      * activate your IP at the web interface, elsewise Yandex refuses to perform searches.
      * </p>
-     * 
+     *
      * @param configuration The configuration which must provide an individual search URL for accessing Yandex as a
-     *            string via key {@value #CONFIG_SEARCH_URL} in the configuration.
+     *                      string via key {@value #CONFIG_SEARCH_URL} in the configuration.
      */
     public YandexSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_SEARCH_URL));
@@ -110,7 +109,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * Check the validity of the supplied search URL, throw an {@link IllegalArgumentException} if URL is not valid.
      * Package private to allow unit testing.
      * </p>
-     * 
+     *
      * @param yandexSearchUrl
      * @throws IllegalArgumentException When provided URL is not valid, empty or <code>null</code>.
      */
@@ -132,7 +131,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
 
-        int necessaryPages = (int)Math.ceil((double)resultCount / MAX_RESULTS_PER_PAGE);
+        int necessaryPages = (int) Math.ceil((double) resultCount / MAX_RESULTS_PER_PAGE);
         int pageSize = Math.min(MAX_RESULTS_PER_PAGE, resultCount);
         List<WebContent> results = new ArrayList<WebContent>();
 
@@ -146,8 +145,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
                 httpResult = retriever.httpGet(requestUrl);
                 TOTAL_REQUEST_COUNT.incrementAndGet();
             } catch (HttpException e) {
-                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                        + e.getMessage(), e);
+                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage(), e);
             }
             try {
                 Document document = xmlParser.parse(httpResult);
@@ -158,8 +156,8 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
                 }
                 results.addAll(currentResults);
             } catch (ParserException e) {
-                throw new SearcherException("Error parsing the XML response for query \"" + query + "\" with "
-                        + getName() + " (request url: \"" + requestUrl + "\"): " + e.getMessage(), e);
+                throw new SearcherException(
+                        "Error parsing the XML response for query \"" + query + "\" with " + getName() + " (request url: \"" + requestUrl + "\"): " + e.getMessage(), e);
             }
         }
 
@@ -172,7 +170,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * case, the document contains an error message, throw a {@link SearcherException}. Package private to allow unit
      * testing.
      * </p>
-     * 
+     *
      * @param document
      * @return
      * @throws SearcherException
@@ -220,7 +218,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * {@link SearcherException}, except when error code is 15, which means "no results for query", which we do not
      * consider as real error.
      * </p>
-     * 
+     *
      * @param responseNode
      * @throws SearcherException
      */
@@ -232,9 +230,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
                 String errorCode = errorAttribute.getNodeValue();
                 if (!"15".equals(errorCode)) {
                     throw new SearcherException(
-                            "Encountered error (code "
-                                    + errorCode
-                                    + "). See \"http://help.yandex.com/xml/?id=1116470\" for a list of errors and their meanings.");
+                            "Encountered error (code " + errorCode + "). See \"http://help.yandex.com/xml/?id=1116470\" for a list of errors and their meanings.");
                 }
             } else {
                 throw new SearcherException("Encountered error (unspecified)");
@@ -246,7 +242,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * <p>
      * Parse the given date string using the {@link #DATE_PATTERN}.
      * </p>
-     * 
+     *
      * @param dateString
      * @return The parsed date, or <code>null</code> when date could not be parsed.
      */
@@ -266,10 +262,10 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * Build the request URL for yandex. See <a href="http://help.yandex.com/xml/?id=1116461">here</a> for more
      * information.
      * </p>
-     * 
+     *
      * @param query The query to search for (will be encoded by this method, no pre-escaping necessary.
      * @param count The number of items to retrieve.
-     * @param page The page offset, 0 means no offset.
+     * @param page  The page offset, 0 means no offset.
      * @return
      */
     String buildRequestUrl(String searchUrl, String query, int count, int page) {
@@ -288,7 +284,7 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
      * <p>
      * Gets the number of HTTP requests sent to Yandex.
      * </p>
-     * 
+     *
      * @return
      */
     public static int getRequestCount() {

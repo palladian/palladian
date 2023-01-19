@@ -1,12 +1,7 @@
 package ws.palladian.extraction.location.scope.evaluation;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -14,15 +9,18 @@ import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.wiki.WikiPage;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * <p>
  * Iterator for the Wikipedia scope location dataset.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class WikipediaLocationScopeIterator implements Iterable<LocationDocument> {
@@ -34,9 +32,9 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
      * <p>
      * Create a new Wikipedia scope dataset iterator where files are iterated in alphabetical order.
      * </p>
-     * 
+     *
      * @param datasetPath The path to the dataset, which contains files with MediaWiki markup with file name extension
-     *            ".mediawiki", not <code>null</code>.
+     *                    ".mediawiki", not <code>null</code>.
      */
     public WikipediaLocationScopeIterator(File datasetPath) {
         this(datasetPath, false);
@@ -46,11 +44,11 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
      * <p>
      * Create a new Wikipedia scope dataset iterator.
      * </p>
-     * 
+     *
      * @param datasetPath The path to the dataset, which contains files with MediaWiki markup with file name extension
-     *            ".mediawiki", not <code>null</code>.
-     * @param shuffle <code>true</code> to shuffle the files randomly (useful, in case the filenames have the pages'
-     *            titles, but degrades reproducibility in later runs), <code>false</code> to keep the file names' order.
+     *                    ".mediawiki", not <code>null</code>.
+     * @param shuffle     <code>true</code> to shuffle the files randomly (useful, in case the filenames have the pages'
+     *                    titles, but degrades reproducibility in later runs), <code>false</code> to keep the file names' order.
      */
     public WikipediaLocationScopeIterator(File datasetPath, boolean shuffle) {
         Validate.notNull(datasetPath, "datasetPath must not be null");
@@ -72,7 +70,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
         return new Iterator<LocationDocument>() {
             private int idx = 0;
             private final ProgressMonitor monitor = new ProgressMonitor();
-            
+
             {
                 monitor.startTask(null, wikiPages.length);
             }
@@ -98,8 +96,7 @@ public final class WikipediaLocationScopeIterator implements Iterable<LocationDo
                     // save some memory, we don't need all that additional information in MarkupGeoCoordinate
                     scope = GeoCoordinate.from(scope.getLatitude(), scope.getLongitude());
                 }
-                Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
-                        LocationType.UNDETERMINED, scope, null);
+                Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED, LocationType.UNDETERMINED, scope, null);
                 return new LocationDocument(currentFile.getName(), page.getCleanText(), null, scopeLocation);
             }
 

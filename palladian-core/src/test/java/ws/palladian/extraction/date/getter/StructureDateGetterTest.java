@@ -1,24 +1,23 @@
 package ws.palladian.extraction.date.getter;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.File;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
-
 import ws.palladian.extraction.date.dates.StructureDate;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.io.File;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 public class StructureDateGetterTest {
-    
+
     private final DocumentParser htmlParser = ParserFactory.createHtmlParser();
     private StructureDateGetter structureDateGetter;
-    
+
     @Before
     public void setUp() {
         this.structureDateGetter = new StructureDateGetter();
@@ -37,39 +36,39 @@ public class StructureDateGetterTest {
         assertEquals("published", dates.get(0).getKeyword());
         assertEquals("span", dates.get(0).getTag());
         assertEquals(12, dates.get(0).get(StructureDate.STRUCTURE_DEPTH));
-        
+
         assertEquals("2010-07-20T11:50:47-05:00", dates.get(1).getDateString());
         assertEquals("published", dates.get(1).getKeyword());
         assertEquals("span", dates.get(1).getTag());
         assertEquals(12, dates.get(1).get(StructureDate.STRUCTURE_DEPTH));
-        
+
         assertEquals("2010-07-13T14:55:57-05:00", dates.get(2).getDateString());
         assertEquals("published", dates.get(2).getKeyword());
         assertEquals("span", dates.get(2).getTag());
         assertEquals(12, dates.get(2).get(StructureDate.STRUCTURE_DEPTH));
-        
+
         assertEquals("2010-07-13T14:46:56-05:00", dates.get(3).getDateString());
         assertEquals("published", dates.get(3).getKeyword());
         assertEquals("span", dates.get(3).getTag());
         assertEquals(12, dates.get(3).get(StructureDate.STRUCTURE_DEPTH));
-        
+
         assertEquals("2010-07-20", dates.get(4).getDateString());
         assertEquals("published", dates.get(4).getKeyword());
         assertEquals("abbr", dates.get(4).getTag());
         assertEquals(10, dates.get(4).get(StructureDate.STRUCTURE_DEPTH));
-        
+
         assertEquals("2010-07-16", dates.get(5).getDateString());
         assertEquals("published", dates.get(5).getKeyword());
         assertEquals("abbr", dates.get(5).getTag());
         assertEquals(10, dates.get(5).get(StructureDate.STRUCTURE_DEPTH));
-        
+
         assertEquals("2010-07-07", dates.get(6).getDateString());
         assertEquals("published", dates.get(6).getKeyword());
         assertEquals("abbr", dates.get(6).getTag());
         assertEquals(10, dates.get(6).get(StructureDate.STRUCTURE_DEPTH));
-        
+
     }
-    
+
     @Test
     public void testGetStructureDates2() throws Exception {
 
@@ -80,9 +79,9 @@ public class StructureDateGetterTest {
         assertEquals(2, dates.size());
         assertEquals("2002-08-06T03:08", dates.get(0).getDateString());
         assertEquals("2002-08-06T00:00", dates.get(1).getDateString());
-        
+
     }
-    
+
     @Test
     public void testGetStructureDates3() throws Exception {
 
@@ -96,9 +95,9 @@ public class StructureDateGetterTest {
         assertEquals("published", dates.get(0).getKeyword());
         assertEquals(6, dates.get(0).get(StructureDate.STRUCTURE_DEPTH));
         assertEquals("div", dates.get(0).getTag());
-        
+
     }
-    
+
     @Test
     public void testGetStructureDates4() throws Exception {
 

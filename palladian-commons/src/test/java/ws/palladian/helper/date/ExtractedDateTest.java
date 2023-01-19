@@ -1,16 +1,15 @@
 package ws.palladian.helper.date;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+import ws.palladian.helper.constants.RegExp;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import ws.palladian.helper.constants.RegExp;
+import static org.junit.Assert.assertEquals;
 
 public class ExtractedDateTest {
 
@@ -81,10 +80,10 @@ public class ExtractedDateTest {
     public void testGetNormalizedDate() throws Exception {
         Calendar c = new GregorianCalendar();
 
-    	c.set(2010, 5 ,12, 0, 0, 0);
+        c.set(2010, 5, 12, 0, 0, 0);
         assertEquals(date1.getDateString(), c.getTime().toString(), date1.getNormalizedDate().toString());
-        
-        c.set(2010, 5 ,7, 0, 0, 0);
+
+        c.set(2010, 5, 7, 0, 0, 0);
         assertEquals(date2.getDateString(), c.getTime().toString(), date2.getNormalizedDate().toString());
         assertEquals(date3.getDateString(), c.getTime().toString(), date3.getNormalizedDate().toString());
         assertEquals(date4.getDateString(), c.getTime().toString(), date4.getNormalizedDate().toString());
@@ -96,23 +95,22 @@ public class ExtractedDateTest {
         assertEquals(date10.getDateString(), c.getTime().toString(), date10.getNormalizedDate().toString());
         assertEquals(date11.getDateString(), c.getTime().toString(), date11.getNormalizedDate().toString());
         assertEquals(date12.getDateString(), c.getTime().toString(), date12.getNormalizedDate().toString());
-        
-        c.set(2010, 5 ,1, 0, 0, 0);
+
+        c.set(2010, 5, 1, 0, 0, 0);
         assertEquals(date13.getDateString(), c.getTime().toString(), date13.getNormalizedDate().toString());
         assertEquals(date14.getDateString(), c.getTime().toString(), date14.getNormalizedDate().toString());
         assertEquals(date15.getDateString(), c.getTime().toString(), date15.getNormalizedDate().toString());
-        
-        c.set(2010, 5 ,7, 7, 6, 5);
+
+        c.set(2010, 5, 7, 7, 6, 5);
         assertEquals(date18.getDateString(), c.getTime().toString(), date18.getNormalizedDate().toString());
 
         // XXX we should think about setting default timezone globally to UTC
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
-        c.set(2010, 5 ,7, 7, 6, 5);
+        c.set(2010, 5, 7, 7, 6, 5);
         assertEquals(date16.getDateString(), c.getTime().toString(), date16.getNormalizedDate().toString());
         assertEquals(date17.getDateString(), c.getTime().toString(), date17.getNormalizedDate().toString());
     }
 
-    
     @Test
     public void testSetDateParts() {
         assertEquals(2010, date1.get(ExtractedDate.YEAR));
@@ -129,7 +127,7 @@ public class ExtractedDateTest {
         assertEquals(6, date18.get(ExtractedDate.MINUTE));
         assertEquals(5, date18.get(ExtractedDate.SECOND));
     }
-    
+
     @Test
     public void testGetExactness() {
         assertEquals(DateExactness.DAY, date1.getExactness());
@@ -151,7 +149,7 @@ public class ExtractedDateTest {
         assertEquals(DateExactness.SECOND, date17.getExactness());
         assertEquals(DateExactness.SECOND, date18.getExactness());
     }
-    
+
     @Test
     public void testGetDifference() {
         assertEquals(432000, date1.getDifference(date2, TimeUnit.SECONDS), 0);
@@ -160,12 +158,12 @@ public class ExtractedDateTest {
         assertEquals(5, date1.getDifference(date2, TimeUnit.DAYS), 0);
         assertEquals(0, date1.getDifference(date1, TimeUnit.SECONDS), 0);
     }
-    
+
     @Test
     public void testGet2Digits() {
         assertEquals("00", ExtractedDateImpl.get2Digits(0));
         assertEquals("09", ExtractedDateImpl.get2Digits(9));
         assertEquals("10", ExtractedDateImpl.get2Digits(10));
     }
-    
+
 }

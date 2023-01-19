@@ -1,10 +1,7 @@
 package ws.palladian.extraction.content;
 
-import java.util.List;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.StringInputStream;
@@ -16,11 +13,13 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.util.List;
+
 /**
  * <p>
  * The JustTextContentExtractor extracts clean sentences from (English) texts.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see http://nlp.fi.muni.cz/projects/justext/
  */

@@ -1,21 +1,20 @@
 package ws.palladian.retrieval.wiki;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Maps infobox types from the Wikipedia to CoNLL or TUD-Loc-2013 entity types.
- * 
+ *
  * @author Philipp Katz
  */
 public final class InfoboxTypeMapper {

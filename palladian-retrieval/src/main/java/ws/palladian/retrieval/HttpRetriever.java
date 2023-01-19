@@ -379,7 +379,6 @@ public class HttpRetriever {
      * <p>
      * Converts the Header type from Apache to a more generic Map.
      * </p>
-     *
      */
     private static Map<String, List<String>> convertHeaders(Header[] headers) {
         Map<String, List<String>> result = new HashMap<>();
@@ -413,20 +412,20 @@ public class HttpRetriever {
         try {
             HttpContext context = new BasicHttpContext();
 
-//                SSLContext sslContext = SSLContext.getInstance("SSL");
-//                sslContext.init(null, new TrustManager[]{new HttpRetrieverFactory.ShadyTrustManager()}, new SecureRandom());
-//
-//                context = new BasicHttpContext();
-//                HostnameVerifier verifier = new HostnameVerifier() {
-//                    @Override
-//                    public boolean verify(String s, SSLSession sslSession) {
-//                        return true;
-//                    }
-//                };
-////                CustomSslSocket sslSocketFactory = new CustomSslSocket(SocketConfig.DEFAULT, sslContext, verifier);
-//                CustomSslSocketFactory sslSocketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, verifier);
-//
-//                CloseableHttpClient client = HttpClientBuilder.create().setSSLHostnameVerifier(verifier).setSSLSocketFactory(sslSocketFactory).build();
+            //                SSLContext sslContext = SSLContext.getInstance("SSL");
+            //                sslContext.init(null, new TrustManager[]{new HttpRetrieverFactory.ShadyTrustManager()}, new SecureRandom());
+            //
+            //                context = new BasicHttpContext();
+            //                HostnameVerifier verifier = new HostnameVerifier() {
+            //                    @Override
+            //                    public boolean verify(String s, SSLSession sslSession) {
+            //                        return true;
+            //                    }
+            //                };
+            ////                CustomSslSocket sslSocketFactory = new CustomSslSocket(SocketConfig.DEFAULT, sslContext, verifier);
+            //                CustomSslSocketFactory sslSocketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, verifier);
+            //
+            //                CloseableHttpClient client = HttpClientBuilder.create().setSSLHostnameVerifier(verifier).setSSLSocketFactory(sslSocketFactory).build();
             DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
             HttpResponse response = client.execute(request, context);
@@ -443,8 +442,7 @@ public class HttpRetriever {
                 byte[] buffer = new byte[1024];
                 for (; ; ) {
                     if (maxFileSize != -1 && out.size() >= maxFileSize) {
-                        LOGGER.debug("Cancel transfer of {}, as max. file size limit of {} bytes was reached", url,
-                                maxFileSize);
+                        LOGGER.debug("Cancel transfer of {}, as max. file size limit of {} bytes was reached", url, maxFileSize);
                         maxFileSizeReached = true;
                         break;
                     }
@@ -481,8 +479,7 @@ public class HttpRetriever {
             result.setMaxFileSizeReached(maxFileSizeReached);
             addDownload(receivedBytes);
 
-            if (proxyRemoveStatusCodes.contains(statusCode)
-                    || proxyRemoveCallback != null && proxyRemoveCallback.shouldRemove(result)) {
+            if (proxyRemoveStatusCodes.contains(statusCode) || proxyRemoveCallback != null && proxyRemoveCallback.shouldRemove(result)) {
                 proxyProvider.removeProxy(proxyUsed, statusCode);
                 throw new HttpException("invalid result, remove proxy: " + proxyUsed + ", URL: " + url);
             } else {
@@ -570,13 +567,11 @@ public class HttpRetriever {
                 if (statusCode >= 300 && statusCode < 400) {
                     Header[] locationHeaders = response.getHeaders("location");
                     if (locationHeaders.length == 0) {
-                        throw new HttpException("Got HTTP status code " + statusCode
-                                + ", but no \"location\" field was provided.");
+                        throw new HttpException("Got HTTP status code " + statusCode + ", but no \"location\" field was provided.");
                     } else {
                         url = locationHeaders[0].getValue();
                         if (ret.contains(url)) {
-                            throw new HttpException("Detected redirect loop for \"" + url
-                                    + "\". URLs collected so far: " + StringUtils.join(ret, ","));
+                            throw new HttpException("Detected redirect loop for \"" + url + "\". URLs collected so far: " + StringUtils.join(ret, ","));
                         }
 
                         if (!url.startsWith("http")) {
@@ -653,12 +648,10 @@ public class HttpRetriever {
      *                                   content.
      * @return <tt>true</tt> if everything worked properly, <tt>false</tt> otherwise.
      */
-    public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders,
-                                   boolean includeHttpResponseHeaders) {
+    public boolean downloadAndSave(String url, String filePath, Map<String, String> requestHeaders, boolean includeHttpResponseHeaders) {
         boolean result = false;
         try {
-            HttpResult httpResult = execute(new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(requestHeaders)
-                    .create());
+            HttpResult httpResult = execute(new HttpRequest2Builder(HttpMethod.GET, url).addHeaders(requestHeaders).create());
             if (httpResult.getStatusCode() != 200) {
                 throw new HttpException("status code != 200 (code: " + httpResult.getStatusCode() + ") for " + url);
             }

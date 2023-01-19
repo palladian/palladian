@@ -1,12 +1,9 @@
 package ws.palladian.extraction.location.scope;
 
-import java.io.File;
-
 import org.apache.commons.configuration.Configuration;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
@@ -19,6 +16,8 @@ import ws.palladian.extraction.location.scope.evaluation.WikipediaLocationScopeI
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.integrationtests.ITHelper;
+
+import java.io.File;
 
 public class DictionaryScopeDetectorIT {
 

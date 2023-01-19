@@ -1,9 +1,9 @@
 package ws.palladian.retrieval.search;
 
-import java.util.List;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.resources.WebContent;
+
+import java.util.List;
 
 /**
  * <p>
@@ -11,10 +11,9 @@ import ws.palladian.retrieval.resources.WebContent;
  * the {@link MultifacetQuery} is more flexible; you only need to implement {@link #search(MultifacetQuery)}, and pick
  * the facets you support in your searcher. The old API methods delegate to this one.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <R>
+ * @author Philipp Katz
  */
 public abstract class AbstractMultifacetSearcher<R extends WebContent> extends AbstractSearcher<R> {
     @Override
@@ -38,8 +37,7 @@ public abstract class AbstractMultifacetSearcher<R extends WebContent> extends A
         builder.setResultCount(1);
         Long resultCount = search(builder.create()).getResultCount();
         if (resultCount == null) {
-            throw new SearcherException("Obtaining the total number of results is not supported or implemented by "
-                    + getName() + ".");
+            throw new SearcherException("Obtaining the total number of results is not supported or implemented by " + getName() + ".");
         }
         return resultCount;
     }

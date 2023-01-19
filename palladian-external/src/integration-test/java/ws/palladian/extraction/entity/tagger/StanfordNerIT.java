@@ -1,21 +1,20 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.integrationtests.ITHelper;
+
+import java.io.File;
+
+import static org.junit.Assert.assertTrue;
 
 public class StanfordNerIT {
 

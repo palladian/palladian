@@ -1,16 +1,15 @@
 package ws.palladian.helper.collection;
 
+import org.apache.commons.lang3.Validate;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang3.Validate;
-
 /**
  * Iterator for an (object) array.
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <T>
+ * @author Philipp Katz
  */
 public final class ArrayIterator<T> implements Iterator<T> {
 

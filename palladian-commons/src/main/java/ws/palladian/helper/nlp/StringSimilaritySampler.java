@@ -1,21 +1,20 @@
 package ws.palladian.helper.nlp;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.math.SetSimilarities;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.math.SetSimilarities;
 
 final class StringSimilaritySampler {
 
     /**
      * Try out different {@link StringMetric} measures on a given set of Strings. The method prints out the
      * similarity measures for each combination of the given strings.
-     * 
-     * @param strings The example strings.
+     *
+     * @param strings      The example strings.
      * @param similarities The similarity measures to test.
      */
     public static void printSimilarities(List<String> strings, List<? extends StringMetric> similarities) {

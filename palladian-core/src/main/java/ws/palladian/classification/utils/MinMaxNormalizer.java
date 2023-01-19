@@ -1,23 +1,18 @@
 package ws.palladian.classification.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.math.Stats;
+
+import java.util.*;
 
 /**
  * <p>
  * This class stores minimum and maximum values for a list of numeric features. It can be used to perform a Min-Max
  * normalization
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */

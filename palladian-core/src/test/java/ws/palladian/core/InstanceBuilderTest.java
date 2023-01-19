@@ -1,18 +1,15 @@
 package ws.palladian.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import ws.palladian.core.value.NominalValue;
+import ws.palladian.core.value.NullValue;
+import ws.palladian.core.value.Value;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import ws.palladian.core.value.NominalValue;
-import ws.palladian.core.value.NullValue;
-import ws.palladian.core.value.Value;
+import static org.junit.Assert.*;
 
 public class InstanceBuilderTest {
 
@@ -42,7 +39,7 @@ public class InstanceBuilderTest {
         Value value = featureVector.get("testFeature1");
         assertNotNull(value);
         assertTrue(value instanceof NominalValue);
-        NominalValue nominalValue = (NominalValue)value;
+        NominalValue nominalValue = (NominalValue) value;
         assertEquals("test", nominalValue.getString());
     }
 

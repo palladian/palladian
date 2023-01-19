@@ -17,22 +17,22 @@ import ws.palladian.extraction.text.vector.TextVectorizer;
  */
 public class NbSvmClassifier implements Classifier<NbSvmModel> {
 
-	private final LibLinearClassifier classifier = new LibLinearClassifier();
+    private final LibLinearClassifier classifier = new LibLinearClassifier();
 
-	private final TextVectorizer vectorizer;
+    private final TextVectorizer vectorizer;
 
-	public NbSvmClassifier(TextVectorizer vectorizer) {
-		this.vectorizer = vectorizer;
-	}
+    public NbSvmClassifier(TextVectorizer vectorizer) {
+        this.vectorizer = vectorizer;
+    }
 
-	@Override
-	public CategoryEntries classify(FeatureVector featureVector, NbSvmModel model) {
-		FeatureVector vectorized = vectorizer.apply(featureVector);
-		FeatureVector transformedVector = NbSvmLearner.transform(model.dictionary, model.r, vectorized);
-		// TODO the paper describes an interpolation between MNB and SVN (with a
-		// parameter "beta"); I tried implementing it, but it did not improve results.
-		// Or I implemented it the wrong way. D'oh!
-		return classifier.classify(transformedVector, model.libLinearModel);
-	}
+    @Override
+    public CategoryEntries classify(FeatureVector featureVector, NbSvmModel model) {
+        FeatureVector vectorized = vectorizer.apply(featureVector);
+        FeatureVector transformedVector = NbSvmLearner.transform(model.dictionary, model.r, vectorized);
+        // TODO the paper describes an interpolation between MNB and SVN (with a
+        // parameter "beta"); I tried implementing it, but it did not improve results.
+        // Or I implemented it the wrong way. D'oh!
+        return classifier.classify(transformedVector, model.libLinearModel);
+    }
 
 }

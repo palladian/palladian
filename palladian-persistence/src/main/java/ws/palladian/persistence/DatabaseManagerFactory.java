@@ -3,14 +3,6 @@
  */
 package ws.palladian.persistence;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -19,6 +11,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -67,8 +66,7 @@ public final class DatabaseManagerFactory {
                 LOGGER.debug("Trying to load configuration from {}", configFile.getAbsolutePath());
                 configuration = new XMLConfiguration(DB_CONFIG_FILE);
             } catch (ConfigurationException e) {
-                throw new IllegalStateException("Error loading the configuration file from \"" + DB_CONFIG_FILE + "\": "
-                        + e.getMessage());
+                throw new IllegalStateException("Error loading the configuration file from \"" + DB_CONFIG_FILE + "\": " + e.getMessage());
             }
         }
         return configuration;
@@ -117,8 +115,7 @@ public final class DatabaseManagerFactory {
                 return create(managerClass, driver, url, username, password);
             }
         }
-        throw new IllegalStateException("The persistence configuration with the name \"" + persistenceName
-                + "\" was not found.");
+        throw new IllegalStateException("The persistence configuration with the name \"" + persistenceName + "\" was not found.");
     }
 
     /**
@@ -172,8 +169,7 @@ public final class DatabaseManagerFactory {
      * {@link #create(Class, String, String, String)} instead
      */
     @Deprecated
-    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName,
-                                                       String jdbcConnectionUrl, String username, String password) {
+    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcDriverClassName, String jdbcConnectionUrl, String username, String password) {
         try {
             Constructor<D> dbManagerConstructor = managerClass.getDeclaredConstructor(DataSource.class);
             dbManagerConstructor.setAccessible(true);
@@ -197,8 +193,7 @@ public final class DatabaseManagerFactory {
      * @return A configured DatabaseManager with access to a connection pool
      * @throws IllegalStateException In case the initialization fails.
      */
-    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcConnectionUrl,
-                                                       String username, String password) {
+    public static <D extends DatabaseManager> D create(Class<D> managerClass, String jdbcConnectionUrl, String username, String password) {
         return create(managerClass, null, jdbcConnectionUrl, username, password);
     }
 

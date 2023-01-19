@@ -21,7 +21,7 @@ import ws.palladian.helper.math.Stats;
  * (prediction) is nominal. More information about Naive Bayes can be found <a
  * href="http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf">here</a>.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -46,10 +46,10 @@ public final class NaiveBayesLearner extends AbstractLearner<NaiveBayesModel> {
                 Value value = entry.value();
 
                 if (value instanceof NominalValue) {
-                    String nominalValue = ((NominalValue)value).getString();
+                    String nominalValue = ((NominalValue) value).getString();
                     nominalCounts.get(featureName, nominalValue).add(category);
                 } else if (value instanceof NumericValue) {
-                    double numericValue = ((NumericValue)value).getDouble();
+                    double numericValue = ((NumericValue) value).getDouble();
                     stats.get(featureName, category).add(numericValue);
                 }
             }
@@ -69,10 +69,10 @@ public final class NaiveBayesLearner extends AbstractLearner<NaiveBayesModel> {
 
         return new NaiveBayesModel(nominalCounts.getMatrix(), categories, sampleMeans, standardDeviations);
     }
-    
+
     @Override
     public String toString() {
-    	return getClass().getSimpleName();
+        return getClass().getSimpleName();
     }
 
 }

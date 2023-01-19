@@ -1,22 +1,21 @@
 package ws.palladian.retrieval.wiki;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import ws.palladian.helper.StopWatch;
+
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
  * <p>
  * SAX handler for processing Wikipedia XML dumps. Mapping each page to a {@link WikiPage}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 class MediaWikiPageContentHandler extends DefaultHandler {
@@ -43,7 +42,7 @@ class MediaWikiPageContentHandler extends DefaultHandler {
      * <p>
      * Create a new {@link MediaWikiPageContentHandler}.
      * </p>
-     * 
+     *
      * @param callback The callback to trigger for parsed pages, not <code>null</code>.
      */
     MediaWikiPageContentHandler(Consumer<WikiPage> callback) {
@@ -81,7 +80,7 @@ class MediaWikiPageContentHandler extends DefaultHandler {
 
     private void processPage() {
         if (++pageCounter % 1000 == 0) {
-            float throughput = (float)pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
+            float throughput = (float) pageCounter / TimeUnit.MILLISECONDS.toSeconds(stopWatch.getElapsedTime());
             LOGGER.debug("Processed {} pages, throughput {} pages/second.", pageCounter, Math.round(throughput));
         }
         callback.accept(new WikiPage(pageId, namespaceId, title, text));

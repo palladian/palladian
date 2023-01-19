@@ -1,11 +1,11 @@
 package ws.palladian.helper.math;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class NumericVectorTest {
 
@@ -49,7 +49,7 @@ public class NumericVectorTest {
         assertEquals(0.44, vector1.cosine(vector2), 0.01);
         assertEquals(0, vector1.cosine(vector3), 0.01);
         assertEquals(5.83, vector1.euclidean(vector2), 0.01);
-        
+
         NumericVector<String> addedVector = vector1.add(vector2);
         assertEquals(4, addedVector.get("cow"), 0.01);
         assertEquals(4, addedVector.get("pig"), 0.01);

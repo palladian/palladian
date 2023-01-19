@@ -1,32 +1,16 @@
 package ws.palladian.retrieval.wiki;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
-import java.util.function.Consumer;
 import ws.palladian.helper.geo.GeoUtils;
 import ws.palladian.helper.html.HtmlElement;
 import ws.palladian.helper.html.HtmlHelper;
@@ -42,13 +26,27 @@ import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * <p>
  * Utility functionality for working with <a href="http://www.mediawiki.org/">MediaWiki</a> markup.
  * </p>
- * 
- * @see <a href="http://en.wikipedia.org/wiki/Help:Wiki_markup">Wiki markup</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://en.wikipedia.org/wiki/Help:Wiki_markup">Wiki markup</a>
  */
 public final class MediaWikiUtil {
 
@@ -57,14 +55,12 @@ public final class MediaWikiUtil {
 
     static final Pattern REF_PATTERN = Pattern.compile("<ref(?:\\s[^>]*)?>[^<]*</ref>|<ref[^/>]*/>", Pattern.MULTILINE);
     public static final Pattern HEADING_PATTERN = Pattern.compile("^={1,6}\\s*([^=]*)\\s*={1,6}", Pattern.MULTILINE);
-    private static final Pattern CONVERT_PATTERN = Pattern
-            .compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
+    private static final Pattern CONVERT_PATTERN = Pattern.compile("\\{\\{convert\\|([\\d.]+)\\|([\\w°]+)(\\|[^}]*)?\\}\\}");
     static final Pattern LANG_PATTERN = Pattern.compile("\\{\\{(?:lang\\|[^|]*|lang-\\w{2})\\|([^|]*)\\}\\}");
     public static final Pattern INTERNAL_LINK_PATTERN = Pattern.compile("\\[\\[([^|\\]]*)(?:\\|([^|\\]]*))?\\]\\]");
     static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("\\[http([^\\s]+)(?:\\s([^\\]]+))\\]");
 
-    public static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]",
-            Pattern.CASE_INSENSITIVE);
+    public static final Pattern REDIRECT_PATTERN = Pattern.compile("#redirect\\s*:?\\s*\\[\\[(.*)\\]\\]", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern OPEN_TAG_PATTERN = Pattern.compile("<\\w+[^>/]*>");
     private static final Pattern CLOSE_TAG_PATTERN = Pattern.compile("</\\w+[^>]*>");
@@ -89,7 +85,7 @@ public final class MediaWikiUtil {
 
         // strip everything in <ref> tags
         String result = REF_PATTERN.matcher(markup).replaceAll("");
-        
+
         // strip everything in <gallery> tags
         // XXX I guess there is some utility method for that in HtmlHelper
         result = result.replaceAll("<gallery(?:\\s[^>]*)?>[^<]*</gallery>", "");
@@ -108,7 +104,7 @@ public final class MediaWikiUtil {
 
         // replace {{convert|...}} tags
         result = CONVERT_PATTERN.matcher(result).replaceAll("$1 $2");
-        
+
         // replace {{lang|...}} tags
         result = replaceLangPattern(result);
 
@@ -138,7 +134,7 @@ public final class MediaWikiUtil {
 
     /**
      * Replace <a href="http://en.wikipedia.org/wiki/Template:Lang">lang</a> template.
-     * 
+     *
      * @param text The text, not <code>null</code>.
      * @return The text with removed lang template and the lang elements' text integrated.
      */
@@ -166,12 +162,12 @@ public final class MediaWikiUtil {
     /**
      * Remove portions of text which are in between two opening and two closing characters. This is typically for texts
      * like {{abc}}.
-     * 
+     *
      * @param string The text.
      * @param begin1 The first opening character.
      * @param begin2 The second opening character.
-     * @param end1 The first closing character.
-     * @param end2 The second closing character.
+     * @param end1   The first closing character.
+     * @param end2   The second closing character.
      * @return The text with parts in between opening/closing characters removed.
      */
     static String removeBetween(String string, char begin1, char begin2, char end1, char end2) {
@@ -214,31 +210,30 @@ public final class MediaWikiUtil {
         result = result.trim();
         return result;
     }
-    
+
     /**
      * <p>
      * Retrieve a {@link WikiPage} directly from the web. (note: This method does not follow redirects, you can use
      * {@link WikiPage#isRedirect()} to check, whether the retrieved page is a redirect and follow the redirect by
      * making another request using {@link WikiPage#getRedirectTitle()}).
      * </p>
-     * 
+     *
      * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
-     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
-     * @param title The title to retrieve; will be escaped automatically.
+     *                   {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
+     * @param title      The title to retrieve; will be escaped automatically.
      * @return The {@link WikiPage} for the given title, or <code>null</code> in case no article with that title
-     *         was given.
+     * was given.
      */
     public static final WikiPage retrieveArticle(MediaWikiDescriptor descriptor, String title) {
         Validate.notNull(descriptor, "descriptor must not be null");
         Validate.notEmpty(title, "title must not be empty");
-        
+
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult httpResult;
         try {
             String escapedTitle = title.replace(" ", "_");
             escapedTitle = UrlHelper.encodeParameter(escapedTitle);
-            String url = String.format("%s?action=query"
-                    + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", descriptor.getEndpoint(), escapedTitle);
+            String url = String.format("%s?action=query" + "&prop=revisions&rvlimit=1&rvprop=content&format=json&titles=%s", descriptor.getEndpoint(), escapedTitle);
             httpResult = retriever.httpGet(url);
         } catch (HttpException e) {
             throw new IllegalStateException(e);
@@ -269,8 +264,7 @@ public final class MediaWikiUtil {
             }
             return null;
         } catch (JsonException e) {
-            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
-                    + stringResult + "'", e);
+            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='" + stringResult + "'", e);
         }
     }
 
@@ -278,22 +272,21 @@ public final class MediaWikiUtil {
      * <p>
      * Retrieve {@link WikiPageReference}s in the specified category.
      * </p>
-     * 
-     * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
-     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
+     *
+     * @param descriptor   The descriptor for the MediaWiki which should be retrieved, see
+     *                     {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
      * @param categoryName The name of the category, not <code>null</code>.
      * @return A list of {@link WikiPageReference}s in the specified category, or an empty list, never
-     *         <code>null</code>.
+     * <code>null</code>.
      */
-    public static final List<WikiPageReference> retrieveArticlesForCategory(MediaWikiDescriptor descriptor,
-            String categoryName) {
+    public static final List<WikiPageReference> retrieveArticlesForCategory(MediaWikiDescriptor descriptor, String categoryName) {
         Validate.notNull(descriptor, "descriptor must not be null");
         Validate.notEmpty(categoryName, "categoryName must not be empty");
         List<WikiPageReference> pages = new ArrayList<>();
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         String trimmedCategoryName = categoryName.replaceAll("[Cc]ategory:", "");
         String cmTitle = "Category:" + UrlHelper.encodeParameter(trimmedCategoryName);
-        for (String cmContinue = null;;) {
+        for (String cmContinue = null; ; ) {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(descriptor.getEndpoint());
             urlBuilder.append("?action=query&list=categorymembers&cmtitle=");
@@ -326,8 +319,7 @@ public final class MediaWikiUtil {
                     break;
                 }
             } catch (JsonException e) {
-                throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
-                        + httpResult.getStringContent() + "'", e);
+                throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='" + httpResult.getStringContent() + "'", e);
             }
         }
         return pages;
@@ -337,14 +329,14 @@ public final class MediaWikiUtil {
      * <p>
      * Retrieve a random article from the main namespace (ID 0).
      * </p>
-     * 
+     *
      * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
-     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
+     *                   {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
      * @return A {@link WikiPageReference} for a random article.
      */
     public static final WikiPageReference retrieveRandomArticle(MediaWikiDescriptor descriptor) {
         Validate.notNull(descriptor, "descriptor must not be null");
-        
+
         String url = String.format("%s?action=query&list=random&rnnamespace=0&format=json", descriptor.getEndpoint());
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         HttpResult httpResult;
@@ -360,18 +352,17 @@ public final class MediaWikiUtil {
             String title = jsonResult.queryString("/query/random[0]/title");
             return new WikiPageReference(pageId, namespaceId, title);
         } catch (JsonException e) {
-            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
-                    + httpResult.getStringContent() + "'", e);
+            throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='" + httpResult.getStringContent() + "'", e);
         }
     }
 
     /**
      * <p>
      * Retrieve backlinks on a given MediaWiki page.
-     * 
+     *
      * @param descriptor The descriptor for the MediaWiki which should be retrieved, see
-     *            {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
-     * @param pageName The name of the page for which to get backlinks, not <code>null</code>.
+     *                   {@link MediaWikiDescriptor.Builder}. Not <code>null</code>.
+     * @param pageName   The name of the page for which to get backlinks, not <code>null</code>.
      * @return A list with Wiki page references linking on the given page, or an empty list, never <code>null</code>.
      */
     public static final List<WikiPageReference> retrieveBacklinks(MediaWikiDescriptor descriptor, String pageName) {
@@ -380,7 +371,7 @@ public final class MediaWikiUtil {
 
         HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
         List<WikiPageReference> result = new ArrayList<>();
-        for (String blContinue = null;;) {
+        for (String blContinue = null; ; ) {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append(descriptor.getEndpoint());
             urlBuilder.append("?action=query&list=backlinks&blnamespace=0&bllimit=500&format=json");
@@ -410,8 +401,7 @@ public final class MediaWikiUtil {
                     break;
                 }
             } catch (JsonException e) {
-                throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='"
-                        + httpResult.getStringContent() + "'", e);
+                throw new IllegalStateException("Error while parsing the JSON: " + e.getMessage() + ", JSON='" + httpResult.getStringContent() + "'", e);
             }
         }
         return result;
@@ -421,15 +411,15 @@ public final class MediaWikiUtil {
      * <p>
      * Extract key-value pairs from Wikipedia template markup.
      * </p>
-     * 
+     *
      * @param markup The markup, not <code>null</code>.
      * @return A {@link Map} containing extracted key-value pairs from the template, entries in the map have the same
-     *         order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
+     * order as in the markup. Entries without a key are are indexed by running numbers as strings (0,1,2…).
      * @see <a href="http://en.wikipedia.org/wiki/Help:Template">Help:Template</a>
      */
     public static WikiTemplate extractTemplate(String markup) {
         Validate.notNull(markup, "markup must not be null");
-        
+
         Map<String, String> properties = new LinkedHashMap<String, String>();
         // trim surrounding {{ and }}
         String content = markup.substring(2, markup.length() - 2);
@@ -458,8 +448,7 @@ public final class MediaWikiUtil {
 
         return new WikiTemplate(templateName, properties);
     }
-    
-    
+
     private static final String getTemplateName(String markup) {
         Pattern pattern = Pattern.compile("(?:geobox\\|)?[^|<}]+");
         Matcher matcher = pattern.matcher(markup.toLowerCase());
@@ -483,15 +472,15 @@ public final class MediaWikiUtil {
 
     /**
      * Check, whether opening/closing brackets are in balance.
-     * 
+     *
      * @param markup The markup.
      * @return <code>true</code>, if number of opening = number of closing characters.
      */
     private static final boolean isBracketBalanced(String markup) {
         // check the balance of bracket-like characters
-//        int open = markup.replace("{{", "").replace("[", "").replace("<", "").length();
-//        int close = markup.replace("}}", "").replace("]", "").replace(">", "").length();
-//        return open - close == 0;
+        //        int open = markup.replace("{{", "").replace("[", "").replace("<", "").length();
+        //        int close = markup.replace("}}", "").replace("]", "").replace(">", "").length();
+        //        return open - close == 0;
         if (StringHelper.countOccurrences(markup, "{{") != StringHelper.countOccurrences(markup, "}}")) {
             return false;
         }
@@ -515,11 +504,11 @@ public final class MediaWikiUtil {
      * <p>
      * Extract geographical data from Wikipedia page markup.
      * </p>
-     * 
-     * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject
-     *      Geographical coordinates</a>
+     *
      * @param text The markup, not <code>null</code>.
      * @return {@link List} of extracted {@link MarkupCoordinate}s, or an empty list, never <code>null</code>.
+     * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject
+     * Geographical coordinates</a>
      */
     static List<MarkupCoordinate> extractCoordinateTag(String text) {
         Validate.notNull(text, "text must not be null");
@@ -596,10 +585,10 @@ public final class MediaWikiUtil {
 
     /**
      * Parse DMS components. The only part which must not be <code>null</code> is deg.
-     * 
-     * @param deg Degree part, not <code>null</code> or empty.
-     * @param min Minute part, may be <code>null</code>.
-     * @param sec Second part, may be <code>null</code>.
+     *
+     * @param deg  Degree part, not <code>null</code> or empty.
+     * @param min  Minute part, may be <code>null</code>.
+     * @param sec  Second part, may be <code>null</code>.
      * @param nsew NSEW modifier, should be in [NSEW], may be <code>null</code>.
      * @return Parsed double value.
      */
@@ -611,14 +600,14 @@ public final class MediaWikiUtil {
         int sgn = ("S".equals(nsew) || "W".equals(nsew)) ? -1 : 1;
         return sgn * (parsedDeg + parsedMin / 60. + parsedSec / 3600.);
     }
-    
+
     /**
      * <p>
      * Get the content of markup area between double curly braces, like {{infobox …}}, {{quote …}}, etc.
      * </p>
-     * 
+     *
      * @param markup The media wiki markup, not <code>null</code>.
-     * @param names The names, like <code>infobox</code>, <code>quote</code>, etc.
+     * @param names  The names, like <code>infobox</code>, <code>quote</code>, etc.
      * @return The content in the markup, or an empty list of not found, never <code>null</code>.
      */
     public static List<String> getNamedMarkup(String markup, String... names) {
@@ -658,7 +647,7 @@ public final class MediaWikiUtil {
      * Parse markup in {{decdeg|...}} element (decimal degrees for geographic coordinates). See <a
      * href="http://en.wikipedia.org/wiki/Template:Decdeg/sandbox">here</a> for more details.
      * </p>
-     * 
+     *
      * @param docDegMarkup The markup, not <code>null</code>.
      * @return The double value with the coordinates.
      * @throws NumberFormatException in case the string could not be parsed.
@@ -691,45 +680,44 @@ public final class MediaWikiUtil {
             throw new NumberFormatException("The coordinate data from \"" + docDegMarkup + "\" could not be parsed.");
         }
     }
-    
+
     /**
      * Process the given Wikipedia dump.
-     *  
+     *
      * @param wikipediaDump Path to the dump file, in multistream bz2 format.
-     * @param action The action to perform for each parsed page.
-     * @param progress For progress monitoring.
-     * @throws IOException In case the file cannot be read.
+     * @param action        The action to perform for each parsed page.
+     * @param progress      For progress monitoring.
+     * @throws IOException  In case the file cannot be read.
      * @throws SAXException In case parsing fails.
      */
     public static void parseDump(File wikipediaDump, Consumer<WikiPage> action, ProgressReporter progress) throws IOException, SAXException {
-    	Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
-    	Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
-    	Validate.notNull(action, "action must not be null");
-    	Validate.notNull(progress, "progress msut not be null");
-    	try (InputStream inputStream = new MultiStreamBZip2InputStream(new ProgressReporterInputStream(wikipediaDump,
-    			progress))) {
-    		parseDump(inputStream, action);
-    	}
+        Validate.notNull(wikipediaDump, "wikipediaDump must not be null");
+        Validate.isTrue(wikipediaDump.isFile(), "wikipediaDump does not exist or is not a file");
+        Validate.notNull(action, "action must not be null");
+        Validate.notNull(progress, "progress msut not be null");
+        try (InputStream inputStream = new MultiStreamBZip2InputStream(new ProgressReporterInputStream(wikipediaDump, progress))) {
+            parseDump(inputStream, action);
+        }
     }
 
     /**
      * Process the given Wikipedia dump.
-     * 
+     *
      * @param wikipediaDump Path to the dump file, in multistream bz2 format.
-     * @param action The action to perform for each parsed page.
-     * @throws IOException In case the file cannot be read.
+     * @param action        The action to perform for each parsed page.
+     * @throws IOException  In case the file cannot be read.
      * @throws SAXException In case parsing fails.
      */
     public static void parseDump(File wikipediaDump, Consumer<WikiPage> action) throws IOException, SAXException {
-    	parseDump(wikipediaDump, action, new ProgressMonitor());
+        parseDump(wikipediaDump, action, new ProgressMonitor());
     }
 
     /**
      * Process the given Wikipedia dump.
-     * 
+     *
      * @param inputStream The input stream for the dump.
-     * @param action The action to perform for each parsed page.
-     * @throws IOException In case reading the input stream fails.
+     * @param action      The action to perform for each parsed page.
+     * @throws IOException  In case reading the input stream fails.
      * @throws SAXException In case parsing fails.
      */
     public static void parseDump(InputStream inputStream, Consumer<WikiPage> action) throws IOException, SAXException {

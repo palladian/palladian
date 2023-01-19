@@ -1,23 +1,23 @@
 package ws.palladian.retrieval.resources;
 
+import ws.palladian.helper.geo.GeoCoordinate;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-
-import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * <p>
  * An arbitrary instance of content from the Web (like a Web page, feed entry, link, image, etc.)
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface WebContent {
 
     /**
      * @return Internal identifier of this content, used in case this item is stored in a database, or <code>-1</code>,
-     *         in case no identifier exists or the item has not been persisted.
+     * in case no identifier exists or the item has not been persisted.
      */
     int getId();
 
@@ -53,7 +53,7 @@ public interface WebContent {
 
     /**
      * @return A set of (usually) human-assigned tags or keyword about the content, or an empty set if no tags were
-     *         assigned.
+     * assigned.
      */
     Set<String> getTags();
 
@@ -64,7 +64,7 @@ public interface WebContent {
 
     /**
      * @return A map, with arbitrary additional content. An empty map, in case no additional data exists, never
-     *         <code>null</code>.
+     * <code>null</code>.
      */
     Map<String, Object> getAdditionalData();
 

@@ -1,12 +1,12 @@
 package ws.palladian.extraction.token;
 
-import java.util.Iterator;
-
+import cmu.arktweetnlp.Twokenize;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
-import cmu.arktweetnlp.Twokenize;
+
+import java.util.Iterator;
 
 /**
  * <p>
@@ -14,7 +14,7 @@ import cmu.arktweetnlp.Twokenize;
  * href="https://github.com/brendano/tweetmotif">here</a>. This class uses the ported Scala version delivered with <a
  * href="http://code.google.com/p/ark-tweet-nlp/">ark-tweet-nlp</a>.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class TwokenizeTokenizer implements TextTokenizer {

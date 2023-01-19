@@ -1,10 +1,6 @@
 package ws.palladian.extraction.location.scope;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.AbstractDictionaryModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
@@ -14,15 +10,17 @@ import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Predicates;
+
+import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
  * This decorator for a {@link DictionaryModel} only classifies into a given (sub)set of categories. This way, a little
  * speedup during classification can be achieved.
- * 
+ *
  * @author Philipp Katz
- * 
  */
 final class FocusDictionaryDecorator extends AbstractDictionaryModel implements DictionaryModel {
 
@@ -64,7 +62,7 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
     private final DictionaryModel decorated;
 
     private final Predicate<String> categoryFilter;
-    
+
     public FocusDictionaryDecorator(DictionaryModel decorated, Set<String> categories) {
         this(decorated, Predicates.equal(categories));
     }
@@ -86,30 +84,30 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
         });
     }
 
-//    @Override
-//    public Iterator<TermCategoryEntries> iterator() {
-//        throw new UnsupportedOperationException();
-//    }
+    //    @Override
+    //    public Iterator<TermCategoryEntries> iterator() {
+    //        throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public String getName() {
         return decorated.getName();
     }
 
-//    @Override
-//    public void setName(String name) {
-//        throw new UnsupportedOperationException();
-//    }
+    //    @Override
+    //    public void setName(String name) {
+    //        throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public FeatureSetting getFeatureSetting() {
         return decorated.getFeatureSetting();
     }
 
-//    @Override
-//    public void addDocument(Collection<String> terms, String category) {
-//        throw new UnsupportedOperationException();
-//    }
+    //    @Override
+    //    public void addDocument(Collection<String> terms, String category) {
+    //        throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public CategoryEntries getCategoryEntries(String term) {
@@ -142,10 +140,10 @@ final class FocusDictionaryDecorator extends AbstractDictionaryModel implements 
         return new FocusedCategoryEntries(decorated.getTermCounts(), categoryFilter);
     }
 
-//    @Override
-//    public void toCsv(PrintStream printStream) {
-//        throw new UnsupportedOperationException();
-//    }
+    //    @Override
+    //    public void toCsv(PrintStream printStream) {
+    //        throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public int getNumUniqTerms() {

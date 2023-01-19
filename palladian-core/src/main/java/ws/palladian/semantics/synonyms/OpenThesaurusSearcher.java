@@ -1,26 +1,20 @@
 package ws.palladian.semantics.synonyms;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.util.*;
 
 /**
  * <p>
  * Search Open Thesuaurus for synonyms of German words.
  * </p>
- * 
- * @see http://www.openthesaurus.de/
+ *
  * @author David Urbansky
- * 
+ * @see http://www.openthesaurus.de/
  */
 public class OpenThesaurusSearcher {
 
@@ -61,7 +55,7 @@ public class OpenThesaurusSearcher {
      * <p>
      * Get synonyms for a word.
      * </p>
-     * 
+     *
      * @param inputWord The word for which you need different synonyms.
      * @return All synonyms of that word.
      */

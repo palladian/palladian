@@ -1,18 +1,13 @@
 package ws.palladian.classification.nominal;
 
-import java.util.Set;
-
-import ws.palladian.core.AbstractLearner;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
+import ws.palladian.core.*;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.core.value.NominalValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.Vector.VectorEntry;
+
+import java.util.Set;
 
 /**
  * @author David Urbansky
@@ -31,7 +26,7 @@ public final class NominalClassifier extends AbstractLearner<NominalClassifierMo
             for (VectorEntry<String, Value> entry : featureVector) {
                 Value value = entry.value();
                 if (value instanceof NominalValue) {
-                    cooccurrenceMatrix.add(categoryName, ((NominalValue)value).getString());
+                    cooccurrenceMatrix.add(categoryName, ((NominalValue) value).getString());
                 }
             }
         }
@@ -53,11 +48,11 @@ public final class NominalClassifier extends AbstractLearner<NominalClassifierMo
         for (VectorEntry<String, Value> entry : featureVector) {
             Value value = entry.value();
             if (value instanceof NominalValue) {
-                String nominalValue = ((NominalValue)value).getString();
+                String nominalValue = ((NominalValue) value).getString();
                 for (String category : categories) {
                     int cooccurrences = cooccurrenceMatrix.getCount(category, nominalValue);
                     int rowSum = cooccurrenceMatrix.getRow(nominalValue).getSum();
-                    double score = (double)cooccurrences / rowSum;
+                    double score = (double) cooccurrences / rowSum;
                     builder.add(category, score);
                 }
             }

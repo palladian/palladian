@@ -1,22 +1,20 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.Calendar;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 
+import java.util.Calendar;
+import java.util.Map;
+
 /**
  * An implementation of the update strategy described in [LIHZ08]
- * 
+ *
  * [LIHZ08] Lee, B. S.; Im, J. W.; Hwang, B. & Zhang, D. Design of an RSS Crawler with Adaptive Revisit Manager Proc. of
  * 20th International Conference on Software Engineering and Knowledge Engineering--SEKE'08, 2008
- * 
+ *
  * @author Sandro Reichert
- * 
  */
 public class LIHZUpdateStrategy extends AbstractUpdateStrategy {
 
@@ -43,8 +41,7 @@ public class LIHZUpdateStrategy extends AbstractUpdateStrategy {
     @Override
     public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
         if (feed.getLastPollTime() == null) {
-            LOGGER.error("Feed id " + feed.getId()
-                    + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
+            LOGGER.error("Feed id " + feed.getId() + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
             feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));
 
         } else {
@@ -92,8 +89,7 @@ public class LIHZUpdateStrategy extends AbstractUpdateStrategy {
                     double cumProb = 0;
 
                     // done at least once, loop as many days as required to reach the threshold
-                    while (cumProb < thresholdTheta
-                            && (checkInterval + 1440 <= getHighestInterval() || getHighestInterval() == -1)) {
+                    while (cumProb < thresholdTheta && (checkInterval + 1440 <= getHighestInterval() || getHighestInterval() == -1)) {
                         // increase for last iteration
                         dailyRates[simulatedDayOfWeek][1]++;
                         dailyRates[7][1]++;
@@ -117,14 +113,13 @@ public class LIHZUpdateStrategy extends AbstractUpdateStrategy {
      * @return
      */
     private double getProbability(int[][] dailyRates, int simulatedDayOfWeek) {
-        double cumProb = LIHZ_ALPHA * dailyRates[simulatedDayOfWeek][0] / dailyRates[simulatedDayOfWeek][1]
-                + (1 - LIHZ_ALPHA) * dailyRates[7][0] / dailyRates[7][1];
+        double cumProb = LIHZ_ALPHA * dailyRates[simulatedDayOfWeek][0] / dailyRates[simulatedDayOfWeek][1] + (1 - LIHZ_ALPHA) * dailyRates[7][0] / dailyRates[7][1];
         return cumProb;
     }
 
     /**
      * Get model from the feed. In case there is no model, get it from db.
-     * 
+     *
      * @param feed
      * @return The trained model for the current feed, i.e. hourly update rates for hours 0-23.
      */
@@ -144,7 +139,7 @@ public class LIHZUpdateStrategy extends AbstractUpdateStrategy {
             }
             return dailyRates;
         }
-        return (int[][])feed.getAdditionalData().get(MODEL_IDENTIFIER);
+        return (int[][]) feed.getAdditionalData().get(MODEL_IDENTIFIER);
     }
 
     @Override

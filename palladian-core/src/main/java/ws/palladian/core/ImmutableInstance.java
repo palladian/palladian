@@ -7,9 +7,9 @@ public final class ImmutableInstance extends AbstractInstance {
     private final int weight;
 
     public ImmutableInstance(FeatureVector vector, String category) {
-    	this(vector, category, 1);
+        this(vector, category, 1);
     }
-    
+
     public ImmutableInstance(FeatureVector vector, String category, int weight) {
         this.vector = vector;
         this.category = category;

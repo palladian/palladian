@@ -1,11 +1,13 @@
 package ws.palladian.classification.nb;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
+import org.junit.Test;
+import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.math.ConfusionMatrix;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,20 +16,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.junit.Test;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.*;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
-import ws.palladian.classification.utils.CsvDatasetReader;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.math.ConfusionMatrix;
 /**
  * <p>
  * Tests for {@link NaiveBayesClassifier}.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -92,7 +90,7 @@ public class NaiveBayesClassifierTest {
         instances.add(new InstanceBuilder().set("f", 290.0).create("Phone"));
 
         NaiveBayesModel model = new NaiveBayesLearner().train(instances);
-        
+
         assertEquals(1, model.getLearnedFeatures().size());
         assertEquals(new HashSet<>(asList("f")), model.getLearnedFeatures());
 
@@ -116,7 +114,7 @@ public class NaiveBayesClassifierTest {
         ConfusionMatrix matrix = evaluate(new NaiveBayesLearner(), new NaiveBayesClassifier(), instances);
         assertTrue(matrix.getAccuracy() > 0.77);
     }
-    
+
     @Test
     public void testSerialization() throws IOException {
         List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false).readAll();
@@ -124,7 +122,7 @@ public class NaiveBayesClassifierTest {
         NaiveBayesModel model = learner.train(instances);
         String tempFile = new File(FileHelper.getTempDir(), "naiveBayes.model").getPath();
         FileHelper.serialize(model, tempFile);
-        
+
         NaiveBayesModel deserialized = FileHelper.deserialize(tempFile);
         assertNotNull(deserialized);
     }

@@ -1,17 +1,16 @@
 package ws.palladian.extraction.pos;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.semantics.Word;
+import ws.palladian.semantics.WordDB;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.semantics.Word;
-import ws.palladian.semantics.WordDB;
 
 public class WiktionaryPosTagger extends AbstractPosTagger {
 
@@ -39,15 +38,14 @@ public class WiktionaryPosTagger extends AbstractPosTagger {
     }
 
     private final WordDB wordDb;
-    
+
     public WiktionaryPosTagger(File wordDatabase) {
         wordDb = new WordDB(wordDatabase.getPath());
     }
 
     @Override
     protected List<String> getTags(List<String> tokens) {
-        
-        
+
         // int lastIndex = -1;
         List<String> tags = new ArrayList<>();
 
@@ -140,20 +138,20 @@ public class WiktionaryPosTagger extends AbstractPosTagger {
                     }
 
                 }
-                
+
                 tags.add(type);
             }
 
         }
-        
+
         return tags;
-        
+
     }
 
     /**
      * Test the Wiktionary POS Tagger. You would need the model (either in data/temp/wordDatabaseEnglish or you have to
      * specify the path). Also you probably want to give more RAM using the -Xmx flag (-Xmx1800M) to run this code.
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {

@@ -1,13 +1,12 @@
 package ws.palladian.extraction.token;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.Iterator;
 
-import org.junit.Test;
-
-import ws.palladian.core.Token;
-import ws.palladian.helper.collection.CollectionHelper;
+import static org.junit.Assert.assertEquals;
 
 public class OpenNlpTokenizerTest {
 

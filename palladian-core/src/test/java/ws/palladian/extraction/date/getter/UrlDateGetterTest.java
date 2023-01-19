@@ -1,11 +1,11 @@
 package ws.palladian.extraction.date.getter;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class UrlDateGetterTest {
-    
+
     @Test
     public void testGetUrlDate() {
         // Cases with given day

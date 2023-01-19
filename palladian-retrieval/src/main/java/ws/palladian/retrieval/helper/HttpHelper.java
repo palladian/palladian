@@ -1,31 +1,22 @@
 package ws.palladian.retrieval.helper;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+
+import java.io.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * <p>
@@ -86,8 +77,7 @@ public final class HttpHelper {
                     }
 
                     if (date == null) {
-                        LOGGER.error("Could not parse http header value for " + headerName + ": \"" + dateString
-                                + "\". " + e.getMessage());
+                        LOGGER.error("Could not parse http header value for " + headerName + ": \"" + dateString + "\". " + e.getMessage());
                     }
                 }
             }
@@ -279,9 +269,7 @@ public final class HttpHelper {
     @SuppressWarnings("deprecation")
     public static void main(String[] args) {
 
-
         HttpRetrieverFactory.getHttpRetriever().downloadAndSave("http://dev-api.semknox.com/products/healthcheck", "aa.gz");
-
 
         // DateUtils.parseDate fails here since it is not RFC 1123, RFC 1036 or ANSI C asctime()
         String dateString = "Thu, 22 Jul 2010 15:15:59GMT";

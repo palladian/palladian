@@ -1,13 +1,9 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -19,6 +15,9 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation to get the number of posts containing a given URL on plurk.com. Does fulltext search,
@@ -28,7 +27,7 @@ import ws.palladian.retrieval.ranking.RankingType;
  * Current limit is 50.000 calls pr. day
  * </p>
  * TODO implement follow up request if has_more:true
- * 
+ *
  * @author Julien Schmehl
  * @see http://www.plurk.com
  */
@@ -47,8 +46,7 @@ public final class PlurkPosts extends AbstractRankingService implements RankingS
     private static final String SERVICE_ID = "plurk";
 
     /** The ranking value types of this service **/
-    public static final RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts",
-            "The number of posts on plurk.com mentioning this url.");
+    public static final RankingType POSTS = new RankingType("plurk_posts", "Plurk.com posts", "The number of posts on plurk.com mentioning this url.");
     /** All available ranking types by {@link PlurkPosts}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(POSTS);
 
@@ -56,9 +54,9 @@ public final class PlurkPosts extends AbstractRankingService implements RankingS
      * <p>
      * Create a new {@link PlurkPosts} ranking service.
      * </p>
-     * 
+     *
      * @param configuration The configuration which must provide an API key (<tt>api.plurk.key</tt>) for accessing the
-     *            service.
+     *                      service.
      */
     public PlurkPosts(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -68,7 +66,7 @@ public final class PlurkPosts extends AbstractRankingService implements RankingS
      * <p>
      * Create a new {@link PlurkPosts} ranking service.
      * </p>
-     * 
+     *
      * @param apiKey The required API key for accessing the service, not <code>null</code> or empty.
      */
     public PlurkPosts(String apiKey) {
@@ -82,8 +80,7 @@ public final class PlurkPosts extends AbstractRankingService implements RankingS
 
         try {
             String encUrl = UrlHelper.encodeParameter(url);
-            HttpResult httpResult = retriever.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key="
-                    + getApiKey() + "&query=" + encUrl);
+            HttpResult httpResult = retriever.httpGet("http://www.plurk.com/API/PlurkSearch/search?api_key=" + getApiKey() + "&query=" + encUrl);
             JsonObject json = new JsonObject(httpResult.getStringContent());
             JsonArray plurks = json.getJsonArray("plurks");
             builder.add(POSTS, plurks.size());

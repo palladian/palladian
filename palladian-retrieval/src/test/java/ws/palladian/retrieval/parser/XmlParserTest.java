@@ -1,23 +1,23 @@
 package ws.palladian.retrieval.parser;
 
-import java.io.FileNotFoundException;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import ws.palladian.helper.io.ResourceHelper;
 
+import java.io.FileNotFoundException;
+
 public class XmlParserTest {
-    
+
     private XmlParser xmlParser;
 
     @Before
     public void setUp() {
         xmlParser = new XmlParser();
     }
-    
+
     /**
      * <p>Test for parsing faulty and ill-formed XML.</p>
+     *
      * @throws FileNotFoundException
      * @throws ParserException
      */

@@ -3,7 +3,7 @@ package ws.palladian.helper.math;
 /**
  * Simple stats to compute precision, recall, accuracy and F1 for tagging.
  * Created by David Urbansky on 22.05.2016.
- * 
+ *
  * @author David Urbansky
  */
 public class SimpleTaggingStats {
@@ -30,11 +30,11 @@ public class SimpleTaggingStats {
     }
 
     public double getPrecision() {
-        return truePositives / ((double)truePositives + falsePositives);
+        return truePositives / ((double) truePositives + falsePositives);
     }
 
     public double getRecall() {
-        return truePositives / ((double)truePositives + falseNegatives);
+        return truePositives / ((double) truePositives + falseNegatives);
     }
 
     public double getF1() {

@@ -5,20 +5,20 @@ import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.core.value.io.ValueParserException;
 
 public final class ImmutableBooleanValue extends AbstractValue implements BooleanValue {
-	
-	public static final ValueParser PARSER = new AbstractValueParser(ImmutableBooleanValue.class) {
 
-		@Override
-		public Value parse(String input) throws ValueParserException {
-			if ("true".equalsIgnoreCase(input)) {
-				return TRUE;
-			} else if ("false".equalsIgnoreCase(input)) {
-				return FALSE;
-			}
-			throw new ValueParserException();
-		}
-		
-	};
+    public static final ValueParser PARSER = new AbstractValueParser(ImmutableBooleanValue.class) {
+
+        @Override
+        public Value parse(String input) throws ValueParserException {
+            if ("true".equalsIgnoreCase(input)) {
+                return TRUE;
+            } else if ("false".equalsIgnoreCase(input)) {
+                return FALSE;
+            }
+            throw new ValueParserException();
+        }
+
+    };
 
     private final boolean booleanValue;
 
@@ -56,7 +56,7 @@ public final class ImmutableBooleanValue extends AbstractValue implements Boolea
 
     @Override
     protected boolean equalsValue(Value value) {
-        ImmutableBooleanValue other = (ImmutableBooleanValue)value;
+        ImmutableBooleanValue other = (ImmutableBooleanValue) value;
         return this.booleanValue == other.booleanValue;
     }
 

@@ -1,20 +1,16 @@
 package ws.palladian.classification.text.evaluation;
 
-import java.io.File;
-import java.io.IOException;
-
-import ws.palladian.classification.text.BayesScorer;
+import ws.palladian.classification.text.*;
 import ws.palladian.classification.text.BayesScorer.Options;
-import ws.palladian.classification.text.DictionaryModel;
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSettingBuilder;
-import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.core.Instance;
 import ws.palladian.helper.collection.CollectionHelper;
-import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.function.Predicate;
 
 public class TwitterSentimentClassification {
 
@@ -54,7 +50,7 @@ public class TwitterSentimentClassification {
         textClassifier = new PalladianTextClassifier(model.getFeatureSetting(), new BayesScorer(Options.LAPLACE));
         confusionMatrix = ClassifierEvaluation.evaluate(textClassifier, testData, model);
         FileHelper.writeToFile("bayesScorerConfusions_noFreqencies.txt", confusionMatrix.toString());
-        
+
         // textClassifier = new PalladianTextClassifier(model.getFeatureSetting(), KLScorer.INSTANCE);
         // confusionMatrix = ClassifierEvaluation.evaluate(textClassifier, testData, model);
         // FileHelper.writeToFile("KLConfusions.txt", confusionMatrix.toString());

@@ -4,7 +4,7 @@ package ws.palladian.retrieval.helper;
  * <p>
  * No-operation {@link RequestThrottle}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class NoThrottle implements RequestThrottle {

@@ -1,44 +1,41 @@
 package ws.palladian.extraction.location;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator;
-import ws.palladian.extraction.location.sources.importers.GeonamesUtil;
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
-
 import com.bericotech.clavin.ClavinException;
 import com.bericotech.clavin.GeoParser;
 import com.bericotech.clavin.GeoParserFactory;
 import com.bericotech.clavin.extractor.LocationOccurrence;
 import com.bericotech.clavin.gazetteer.GeoName;
 import com.bericotech.clavin.resolver.ResolvedLocation;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator;
+import ws.palladian.extraction.location.sources.importers.GeonamesUtil;
+import ws.palladian.helper.geo.GeoCoordinate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
  * Wrapper for CLAVIN (Cartographic Location And Vicinity INdexer) by Berico Technologies. Description from the website:
  * <i>CLAVIN (Cartographic Location And Vicinity INdexer) is an award-winning open source software package for document
  * geotagging and geoparsing that employs context-based geographic entity resolution.<br />
- * 
+ *
  * It extracts location names from unstructured text and resolves them against a gazetteer to produce data-rich
  * geographic entities.<br />
- * 
+ *
  * CLAVIN does not simply look up location names – it uses intelligent heuristics to identify exactly which Springfield
  * (for example) was intended by the author, based on the context of the document. CLAVIN also employs fuzzy search to
  * handle incorrectly-spelled location names, and it recognizes alternative names (e.g., Ivory Coast and Côte d'Ivoire)
  * as referring to the same geographic entity.<br />
- * 
+ *
  * By enriching text documents with structured geo data, CLAVIN enables hierarchical geospatial search and advanced
  * geospatial analytics on unstructured data.</i>
  * </p>
- * 
- * @see <a href="http://clavin.bericotechnologies.com">CLAVIN</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://clavin.bericotechnologies.com">CLAVIN</a>
  */
 public final class ClavinLocationExtractor extends LocationExtractor {
 
@@ -51,15 +48,14 @@ public final class ClavinLocationExtractor extends LocationExtractor {
      * <p>
      * Create a new {@link ClavinLocationExtractor}.
      * </p>
-     * 
+     *
      * @param pathToLuceneIndex The path to the previously created Lucene index. See <a
-     *            href="http://clavin.bericotechnologies.com/site/tutorials/installation.html">here, step 6</a>.
+     *                          href="http://clavin.bericotechnologies.com/site/tutorials/installation.html">here, step 6</a>.
      */
     public ClavinLocationExtractor(String pathToLuceneIndex) {
         Validate.notEmpty(pathToLuceneIndex, "pathToLuceneIndex must not be empty");
         try {
-            this.parser = GeoParserFactory.getDefault(pathToLuceneIndex, 1/* maxHitDepth */, 1/* maxContentWindow */,
-                    false);
+            this.parser = GeoParserFactory.getDefault(pathToLuceneIndex, 1/* maxHitDepth */, 1/* maxContentWindow */, false);
         } catch (ClavinException e) {
             throw new IllegalStateException(e);
         }

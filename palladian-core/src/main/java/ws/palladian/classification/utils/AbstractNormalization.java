@@ -1,7 +1,6 @@
 package ws.palladian.classification.utils;
 
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.core.dataset.AbstractDatasetFeatureVectorTransformer;
@@ -15,7 +14,7 @@ import ws.palladian.helper.collection.Vector.VectorEntry;
  * <p>
  * Abstract {@link Normalization} functionality.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class AbstractNormalization extends AbstractDatasetFeatureVectorTransformer implements Normalization {
@@ -28,7 +27,7 @@ public abstract class AbstractNormalization extends AbstractDatasetFeatureVector
             String name = entry.key();
             Value value = entry.value();
             if (value instanceof NumericValue) {
-                double normalizedValue = normalize(name, ((NumericValue)value).getDouble());
+                double normalizedValue = normalize(name, ((NumericValue) value).getDouble());
                 builder.set(name, normalizedValue);
             } else {
                 builder.set(name, value);
@@ -36,21 +35,21 @@ public abstract class AbstractNormalization extends AbstractDatasetFeatureVector
         }
         return builder.create();
     }
-    
+
     @Override
     public Dataset normalize(final Dataset dataset) {
-    	Validate.notNull(dataset, "dataset must not be null");
-    	return dataset.transform(this);
+        Validate.notNull(dataset, "dataset must not be null");
+        return dataset.transform(this);
     }
-    
+
     @Override
     public FeatureVector apply(FeatureVector featureVector) {
-    	return normalize(featureVector);
+        return normalize(featureVector);
     }
-    
+
     @Override
     public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
-    	return featureInformation;
+        return featureInformation;
     }
 
 }

@@ -1,16 +1,15 @@
 package ws.palladian.extraction.token;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Optional;
-import java.util.Queue;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator2;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.Queue;
 
 public final class NGramWrapperIterator extends AbstractIterator2<Token> {
 

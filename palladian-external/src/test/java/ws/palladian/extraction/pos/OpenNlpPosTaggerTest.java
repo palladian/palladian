@@ -1,16 +1,15 @@
 package ws.palladian.extraction.pos;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+import ws.palladian.core.Annotation;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 public class OpenNlpPosTaggerTest {
 

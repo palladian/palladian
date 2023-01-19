@@ -1,22 +1,20 @@
 package ws.palladian.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * <p>
  * Test for the {@link DatabaseManager} using H2 in-memory database.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class DatabaseManagerTest {
@@ -92,8 +90,7 @@ public class DatabaseManagerTest {
     public void testRunQueryWithIterator() {
         databaseManager.runInsertReturnId(INSERT_TEST, d1);
         databaseManager.runInsertReturnId(INSERT_TEST, d2);
-        ResultIterator<SampleClazz> iterator = databaseManager.runQueryWithIterator(new SampleClazzRowConverter(),
-                GET_TEST);
+        ResultIterator<SampleClazz> iterator = databaseManager.runQueryWithIterator(new SampleClazzRowConverter(), GET_TEST);
         assertTrue(iterator.hasNext());
         assertEquals("bob", iterator.next().getName());
         assertTrue(iterator.hasNext());
@@ -104,7 +101,7 @@ public class DatabaseManagerTest {
     @Test
     public void testRunBatchInsert() {
         final List<SampleClazz> test = Arrays.asList(c1, c2, c3, c4);
-        final int[] expectedIds = new int[] {1, 2, 3, 4};
+        final int[] expectedIds = new int[]{1, 2, 3, 4};
         int insertedRows = databaseManager.runBatchInsert(INSERT_TEST, new BatchDataProvider() {
 
             @Override
@@ -139,8 +136,7 @@ public class DatabaseManagerTest {
     @Test
     public void testRunBatchInsertWithoutIDs() {
         final List<SampleClazz> test = Arrays.asList(c1, c2, c3, c4);
-        int insertedRows = databaseManager.runBatchInsert(INSERT_TEST_2, new CollectionBatchDataProvider<SampleClazz>(
-                test) {
+        int insertedRows = databaseManager.runBatchInsert(INSERT_TEST_2, new CollectionBatchDataProvider<SampleClazz>(test) {
             @Override
             public List<? extends Object> getData(SampleClazz nextItem) {
                 List<Object> data = new ArrayList<>();
@@ -167,8 +163,7 @@ public class DatabaseManagerTest {
     @Test
     public void testRollback() {
         final List<SampleClazz> test = Arrays.asList(c1, c2, c3, c1);
-        int insertedRows = databaseManager.runBatchInsert(INSERT_TEST_2, new CollectionBatchDataProvider<SampleClazz>(
-                test) {
+        int insertedRows = databaseManager.runBatchInsert(INSERT_TEST_2, new CollectionBatchDataProvider<SampleClazz>(test) {
             @Override
             public void insertedItemLongId(int number, long generatedId) {
                 // no op
@@ -185,8 +180,7 @@ public class DatabaseManagerTest {
             }
         });
         assertEquals(0, insertedRows);
-        assertEquals(0,
-                (int)databaseManager.runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM test2;"));
+        assertEquals(0, (int) databaseManager.runSingleQuery(RowConverters.INTEGER, "SELECT COUNT(*) FROM test2;"));
     }
 
     @Test

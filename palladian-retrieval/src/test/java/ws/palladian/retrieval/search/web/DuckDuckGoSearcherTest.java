@@ -1,16 +1,14 @@
 package ws.palladian.retrieval.search.web;
 
-import static org.hamcrest.core.Is.is;
-
-import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.resources.WebContent;
+
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
 
 /**
  * Created by sky on 06.11.2016.

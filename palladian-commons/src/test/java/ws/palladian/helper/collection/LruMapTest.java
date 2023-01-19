@@ -1,12 +1,12 @@
 package ws.palladian.helper.collection;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class LruMapTest {
     @Test

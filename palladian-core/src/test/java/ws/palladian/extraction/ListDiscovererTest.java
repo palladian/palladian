@@ -1,31 +1,30 @@
 package ws.palladian.extraction;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * <p>
  * Test cases for the list discoverer.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class ListDiscovererTest {
-    
+
     private final DocumentParser htmlParser = ParserFactory.createHtmlParser();
 
     @Test
@@ -79,29 +78,22 @@ public class ListDiscovererTest {
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website5.html"));
         assertEquals(1, ld.findEntityColumn(document, "/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD/P"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website9.html"));
-        assertEquals(0,
-                ld.findEntityColumn(document, "/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A/B"));
+        assertEquals(0, ld.findEntityColumn(document, "/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A/B"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website11.html"));
         assertEquals(1, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website17.html"));
         assertEquals(0, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[4]/TR/TD/UL/LI/A"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website27.html"));
-        assertEquals(
-                3,
-                ld.findEntityColumn(
-                        document,
-                        "/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
+        assertEquals(3, ld.findEntityColumn(document,
+                "/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website29.html"));
-        assertEquals(-1,
-                ld.findEntityColumn(document, "/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
+        assertEquals(-1, ld.findEntityColumn(document, "/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website33.html"));
-        assertEquals(2,
-                ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
+        assertEquals(2, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website67.html"));
         assertEquals(2, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD/I/A"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website69.html"));
-        assertEquals(3, ld.findEntityColumn(document,
-                "/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
+        assertEquals(3, ld.findEntityColumn(document, "/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
         document = htmlParser.parse(ResourceHelper.getResourceFile("data/benchmarkSelection/entities/google8/website87.html"));
         assertEquals(0, ld.findEntityColumn(document, "/HTML/BODY/TABLE[3]/TR/TD/UL/LI"));
     }
@@ -124,12 +116,11 @@ public class ListDiscovererTest {
      * <li>list too short or detail list</li>
      * <li>think about indices (keep last index only?) TODO</li>
      * </ol>
-     * 
+     *
      * </p>
      * <p>current precision': 34/44 ~ 0.7727 (correct assignment or empty path although pass expected)<br>
      *  current accuracy: 34/60 ~ 0.5667 total tests: 60</p>
-     */
-    public void testDiscoverEntityXPath() throws FileNotFoundException, ParserException {
+     */ public void testDiscoverEntityXPath() throws FileNotFoundException, ParserException {
 
         ListDiscoverer ld = new ListDiscoverer();
 
@@ -148,8 +139,7 @@ public class ListDiscovererTest {
         // for (Node node : nodes) {
         // System.out.println(node.getTextContent());
         // }
-        assertEquals("//div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/ul/li/a",
-                discoverdEntityXPath);
+        assertEquals("//div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/ul/li/a", discoverdEntityXPath);
         assertEquals(644, nodes.size());
         assertEquals("A Beautiful Life (2008)", nodes.get(0).getTextContent());
 
@@ -168,23 +158,19 @@ public class ListDiscovererTest {
         document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination13.html"));
         discoverdEntityXPath = ld.discoverEntityXPath(document);
         nodes = XPathHelper.getXhtmlNodes(document, discoverdEntityXPath);
-        assertEquals("//center/table[7]/tbody/tr/td/table[2]/tbody/tr/td/table[6]/tbody/tr/td/table[1]/tbody/tr/td/table/tbody/tr/td[2]/font/a",
-                discoverdEntityXPath);
+        assertEquals("//center/table[7]/tbody/tr/td/table[2]/tbody/tr/td/table[6]/tbody/tr/td/table[1]/tbody/tr/td/table/tbody/tr/td[2]/font/a", discoverdEntityXPath);
         assertEquals(30, nodes.size());
         assertEquals("Avatar", nodes.get(0).getTextContent());
 
         if (false) {
             // // lists should be found
             // mixed
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A",
-                    ld.discoverEntityXPath("http://simple.wikipedia.org/wiki/List_of_diseases"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A", ld.discoverEntityXPath("http://simple.wikipedia.org/wiki/List_of_diseases"));
             // TODO Problem 7 (currently empty list)
             // assertEquals("/HTML/BODY/TABLE/TR/TD[2]",ld.discoverEntityXPath("http://www.novamedia.de/devices/supportedPhones.php?s=flk"));
-            assertEquals(
-                    "/HTML/BODY/DIV/TABLE[3]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/FONT/A",
+            assertEquals("/HTML/BODY/DIV/TABLE[3]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/FONT/A",
                     ld.discoverEntityXPath("http://www.fantasycars.com/derek/list.html"));
-            assertEquals(
-                    "/HTML/BODY/DIV/TABLE[1]/TR/TD/DIV/UL/LI/A",
+            assertEquals("/HTML/BODY/DIV/TABLE[1]/TR/TD/DIV/UL/LI/A",
                     ld.discoverEntityXPath("http://www.racv.com.au/wps/wcm/connect/Internet/Primary/my+car/advice+%26+information/compare+cars/list+of+all+cars/"));
             // TODO Problem 6 (currently partly correct => wrong)
             // assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/NYT_TEXT/DIV/TABLE[3]/TR/TD[1]/A",ld.discoverEntityXPath("http://www.nytimes.com/ref/movies/1000best.html"));
@@ -192,49 +178,34 @@ public class ListDiscovererTest {
             // assertEquals("/HTML/BODY/TABLE[1]/TR/TD/P/TABLE/TR/TD/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/BLOCKQUOTE/P/FONT/A",ld.discoverEntityXPath("http://www.state.gov/misc/list/index.htm"));
             // TODO Problem 3 (currently gets wrong list)
             // assertEquals("/HTML/BODY/DIV/TABLE[1]/TR/TD/TABLE[2]/TR/TD[2]/A",ld.discoverEntityXPath("http://www.who.int/countries/en/"));
-            assertEquals("/HTML/BODY/UL/UL/UL/UL/UL/UL/UL/UL/P/UL/LI/A",
-                    ld.discoverEntityXPath("http://www.theodora.com/wfb/abc_world_fact_book.html"));
-            assertEquals("/HTML/BODY/TABLE[1]/TR/TD/P/TABLE[1]/TR/TD/UL/LI/B/A",
-                    ld.discoverEntityXPath("http://www.austlii.edu.au/catalog/215.html"));
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/P/A",
-                    ld.discoverEntityXPath("http://www.imf.org/external/country/index.htm"));
+            assertEquals("/HTML/BODY/UL/UL/UL/UL/UL/UL/UL/UL/P/UL/LI/A", ld.discoverEntityXPath("http://www.theodora.com/wfb/abc_world_fact_book.html"));
+            assertEquals("/HTML/BODY/TABLE[1]/TR/TD/P/TABLE[1]/TR/TD/UL/LI/B/A", ld.discoverEntityXPath("http://www.austlii.edu.au/catalog/215.html"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/P/A", ld.discoverEntityXPath("http://www.imf.org/external/country/index.htm"));
             // TODO Problem 2 (currently finds wrong list)
             // assertEquals("/HTML/BODY/DIV/DIV/DIV/TABLE/TR/TD[2]/DIV/A",ld.discoverEntityXPath("http://research.cars.com/go/crp/buyingGuides/Story.jsp?year=New&section=Sports&subject=Sports&story=highperformance"));
             // TODO Problem 1 (currently finds wrong list)
             // assertEquals("/HTML/BODY/TABLE[1]/TR/TD/TABLE/TR/TD/A",
             // ld.discoverEntityXPath("http://www.hollywoodteenmovies.com/A.html"));
-            assertEquals(
-                    "/HTML/BODY/TABLE[1]/TR/TD/P/SPAN",
-                    ld.discoverEntityXPath("http://naturalhealthtechniques.com/ExamForms-MedicalIntuitive/list_of_sports.htm"));
+            assertEquals("/HTML/BODY/TABLE[1]/TR/TD/P/SPAN", ld.discoverEntityXPath("http://naturalhealthtechniques.com/ExamForms-MedicalIntuitive/list_of_sports.htm"));
             // TODO Problem 6 (currently partly correct => wrong)
             // assertEquals("/HTML/BODY/DIV/DIV/TABLE/TR/TD/A",ld.discoverEntityXPath("http://www.mic.ki.se/Diseases/alphalist.html"));
-            assertEquals("/HTML/BODY/TABLE[1]/TR/TD/FONT/B/A",
-                    ld.discoverEntityXPath("http://www.stanford.edu/~petelat1/birdlist.html"));
-            assertEquals("/HTML/BODY/DIV/DIV/P/SPAN/A",
-                    ld.discoverEntityXPath("http://www.georgia.gov/00/topic_index_channel/0,2092,4802_5081,00.html"));
+            assertEquals("/HTML/BODY/TABLE[1]/TR/TD/FONT/B/A", ld.discoverEntityXPath("http://www.stanford.edu/~petelat1/birdlist.html"));
+            assertEquals("/HTML/BODY/DIV/DIV/P/SPAN/A", ld.discoverEntityXPath("http://www.georgia.gov/00/topic_index_channel/0,2092,4802_5081,00.html"));
 
             // concept: country
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A",
-                    ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_countries"));
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD[2]/A",
-                    ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_countries_by_population"));
-            assertEquals("/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD[1]",
-                    ld.discoverEntityXPath("http://www.internetworldstats.com/list2.htm"));
-            assertEquals("/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A",
-                    ld.discoverEntityXPath("http://dir.yahoo.com/regional/countries/"));
-            assertEquals(
-                    "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD[1]",
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A", ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_countries"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD[2]/A", ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_countries_by_population"));
+            assertEquals("/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD[1]", ld.discoverEntityXPath("http://www.internetworldstats.com/list2.htm"));
+            assertEquals("/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A", ld.discoverEntityXPath("http://dir.yahoo.com/regional/countries/"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD[1]",
                     ld.discoverEntityXPath("http://www.auswaertiges-amt.de/diplo/en/WillkommeninD/EinreiseUndAufenthalt/StaatenlisteVisumpflicht.html"));
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/CENTER/TABLE[1]/TR/TD[1]",
-                    ld.discoverEntityXPath("http://www.cellular-news.com/car_bans/"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/CENTER/TABLE[1]/TR/TD[1]", ld.discoverEntityXPath("http://www.cellular-news.com/car_bans/"));
             // TODO Problem 8 (currently finds wrong list) also http://en.wikipedia.org/wiki/Lists_of_films
             // assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/CENTER/TABLE[1]/TR/TD[1]",ld.discoverEntityXPath("http://www.worldatlas.com/geoquiz/thelist.htm"));
 
             // concept: car
-            assertEquals("/HTML/BODY/TABLE[5]/TR/TD/TABLE[4]/TR/TD/A",
-                    ld.discoverEntityXPath("http://wallpaper.diq.ru/17_map.htm"));
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A",
-                    ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_Asian_cars"));
+            assertEquals("/HTML/BODY/TABLE[5]/TR/TD/TABLE[4]/TR/TD/A", ld.discoverEntityXPath("http://wallpaper.diq.ru/17_map.htm"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A", ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_Asian_cars"));
             assertEquals("/HTML/BODY/DIV/DIV/UL/LI/A", ld.discoverEntityXPath("http://www.rsportscars.com/cars/"));
             assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/UL/LI/A",
                     ld.discoverEntityXPath("http://www.time.com/time/specials/2007/completelist/0,,1658545,00.html"));
@@ -249,8 +220,7 @@ public class ListDiscovererTest {
 
             // concept: mobile phone
             // TODO getTextByXPath should be updated
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD[2]/A",
-                    ld.discoverEntityXPath("http://www.esato.com/phones/"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD[2]/A", ld.discoverEntityXPath("http://www.esato.com/phones/"));
             // TODO Problem 2,7 (currently empty list)
             // assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A",ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_best-selling_mobile_phones"));
             // TODO Problem 4 (currently empty list)
@@ -262,8 +232,7 @@ public class ListDiscovererTest {
             assertEquals("", ld.discoverEntityXPath("http://123simlock.nl/alletoestellen.php"));
 
             // concept: notebook
-            assertEquals(
-                    "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/UL/LI",
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/DIV/UL/LI",
                     ld.discoverEntityXPath("http://danstechnstuff.com/2008/08/08/dell-adds-to-list-of-notebooks-with-nvidia-gpu-problems/"));
             // TODO Problem 2,11 (currently empty list)
             // assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/TABLE[1]/TR/TD/TABLE[1]/TBODY/TR/TD/B/A",ld.discoverEntityXPath("http://asia.cnet.com/reviews/notebooks/0,39050495,39315110,00.htm"));
@@ -271,18 +240,13 @@ public class ListDiscovererTest {
             // concept: movie
             // TODO worked before but now incorrect page
             // retrieved:assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD[2]/I/A",ld.discoverEntityXPath("http://en.wikipedia.org/wiki/100_Years...100_Movies"));
-            assertEquals("/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD[3]/FONT/A",
-                    ld.discoverEntityXPath("http://www.imdb.com/top_250_films"));
-            assertEquals(
-                    "/HTML/BODY/DIV/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD[2]/A",
+            assertEquals("/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD[3]/FONT/A", ld.discoverEntityXPath("http://www.imdb.com/top_250_films"));
+            assertEquals("/HTML/BODY/DIV/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD[2]/A",
                     ld.discoverEntityXPath("http://www.imdb.com/TitlesByYear?year=2008&start=A&nav=/Sections/Years/2008/include-titles"));
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/I/A",
-                    ld.discoverEntityXPath("http://en.wikiquote.org/wiki/List_of_films"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/I/A", ld.discoverEntityXPath("http://en.wikiquote.org/wiki/List_of_films"));
             // TODO Problem 11 (currently empty list)
             // assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/H4",ld.discoverEntityXPath("http://www.firstshowing.net/2007/12/18/why-2008-will-be-an-awesome-year-for-movies/"));
-            assertEquals(
-                    "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/OL/LI",
-                    ld.discoverEntityXPath("http://www.berbecuta.com/2008/03/14/1001-movie-you-must-see-before-you-die/"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/OL/LI", ld.discoverEntityXPath("http://www.berbecuta.com/2008/03/14/1001-movie-you-must-see-before-you-die/"));
             // TODO Problem 6 (currently empty list)
             // assertEquals("/HTML/BODY/TABLE[1]/TR/TD/SPAN/TABLE/TR/TD/P/SPAN/FONT/B/A",ld.discoverEntityXPath("http://www.john-bauer.com/movies.htm"));
             // TODO Problem 2,7 (currently empty list)
@@ -293,18 +257,14 @@ public class ListDiscovererTest {
             // assertEquals("/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE/TR/TD[2]/A/H3",ld.discoverEntityXPath("http://www.blu-ray.com/movies/movies.php?genre=action"));
             // TODO Problem ? (currently empty list)
             // assertEquals("/HTML/BODY/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/P/FONT/A",ld.discoverEntityXPath("http://www.comingsoon.net/database.php"));
-            assertEquals("/HTML/BODY/DIV/DIV/TABLE[1]/TR/TD[1]",
-                    ld.discoverEntityXPath("http://www.actorscelebs.com/actor/Edward_Norton/"));
+            assertEquals("/HTML/BODY/DIV/DIV/TABLE[1]/TR/TD[1]", ld.discoverEntityXPath("http://www.actorscelebs.com/actor/Edward_Norton/"));
             // TODO Problem 2,7 (currently empty list) (check xpath)
             // assertEquals("/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[2]/TR/TD[2]/A",ld.discoverEntityXPath("http://www.filmcrave.com/list_top_movie.php"));
 
             // concept: actor
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A",
-                    ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_French_actors"));
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/UL/LI/A",
-                    ld.discoverEntityXPath("http://www.atpictures.com/index.php%3Fview%3Dall"));
-            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A",
-                    ld.discoverEntityXPath("http://www.djmick.co.uk/actors_pictures.htm"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A", ld.discoverEntityXPath("http://en.wikipedia.org/wiki/List_of_French_actors"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/UL/LI/A", ld.discoverEntityXPath("http://www.atpictures.com/index.php%3Fview%3Dall"));
+            assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A", ld.discoverEntityXPath("http://www.djmick.co.uk/actors_pictures.htm"));
             // TODO Problem 2,8 (currently empty list)
             // assertEquals("/HTML/BODY/DIV/DIV/DIV/DIV/UL/LI/A",ld.discoverEntityXPath("http://koreanfilm.org/actors.html"));
             assertEquals("/HTML/BODY/DIV/DIV/A", ld.discoverEntityXPath("http://www.actorscelebs.com/browse/d/"));
@@ -314,8 +274,7 @@ public class ListDiscovererTest {
             assertEquals("", ld.discoverEntityXPath("http://www.sealcoveautomuseum.org/list.html"));
 
             // concept: mobile phone
-            assertEquals("",
-                    ld.discoverEntityXPath("http://wordpress.com/tag/price-list-of-mobile-phones-in-pakistan/"));
+            assertEquals("", ld.discoverEntityXPath("http://wordpress.com/tag/price-list-of-mobile-phones-in-pakistan/"));
             // TODO Problem 4, crawler finds wrong sibling because of unproper linking on the page
             // assertEquals("",ld.discoverEntityXPath("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html"));
             // TODO Problem 10 (currently wrong list is found)
@@ -335,9 +294,7 @@ public class ListDiscovererTest {
             assertEquals("", ld.discoverEntityXPath("http://rruff.geo.arizona.edu/AMS/all_minerals.php"));
 
             // concept: plant TODO
-            assertEquals(
-                    "",
-                    ld.discoverEntityXPath("http://131.230.176.4/cgi-bin/dol/dol_terminal.pl?taxon_name=Albizia_coriaria"));
+            assertEquals("", ld.discoverEntityXPath("http://131.230.176.4/cgi-bin/dol/dol_terminal.pl?taxon_name=Albizia_coriaria"));
 
             // concept: song TODO
             assertEquals("", ld.discoverEntityXPath("http://catamountjazz.com/Pictures2/Ultimate.html"));
@@ -350,9 +307,7 @@ public class ListDiscovererTest {
             assertEquals("", ld.discoverEntityXPath("http://www.pestcontrolcanada.com/INSECTS/insects%202.htm"));
 
             // concept: tv show TODO
-            assertEquals(
-                    "",
-                    ld.discoverEntityXPath("http://www.fancast.com/full_episodes;jsessionid=A3DE50C0E7A4F9D0D9BA53A3AE4FD312"));
+            assertEquals("", ld.discoverEntityXPath("http://www.fancast.com/full_episodes;jsessionid=A3DE50C0E7A4F9D0D9BA53A3AE4FD312"));
 
         }
     }
@@ -850,8 +805,7 @@ public class ListDiscovererTest {
     /**
      * <p>Test the accuracy of recognizing pagination xPaths.</p>
      * <p>Current accuracy: 17/17 = 1.0, total tests: 17</p>
-     */
-    public void testGetPaginationXPath() throws FileNotFoundException, ParserException {
+     */ public void testGetPaginationXPath() throws FileNotFoundException, ParserException {
 
         ListDiscoverer ld = new ListDiscoverer();
         String url = "http://www.example.com/";
@@ -944,8 +898,7 @@ public class ListDiscovererTest {
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
-        assertEquals("//div[1]/form[1]/div[2]/div[3]/div[1]/div[3]/div[2]/table[1]/tbody/tr/td/ul/li/a/@href",
-                ld.getPaginationXPath());
+        assertEquals("//div[1]/form[1]/div[2]/div[3]/div[1]/div[3]/div[2]/table[1]/tbody/tr/td/ul/li/a/@href", ld.getPaginationXPath());
         assertEquals(4, ld.getPaginationURLs().size());
 
         document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/webPageEntityList5.html"));
@@ -966,16 +919,14 @@ public class ListDiscovererTest {
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
-        assertEquals("//div[1]/div[3]/div[1]/div[1]/center[2]/table[1]/tbody/tr/td/center[1]/a/@href",
-                ld.getPaginationXPath());
+        assertEquals("//div[1]/div[3]/div[1]/div[1]/center[2]/table[1]/tbody/tr/td/center[1]/a/@href", ld.getPaginationXPath());
         assertEquals(24, ld.getPaginationURLs().size());
 
         document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/website2.html"));
         ld.setDocument(document);
         ld.setPaginationXPath("");
         ld.findPaginationURLs();
-        assertEquals("//div[1]/table[2]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td/font[1]/b/a/@href",
-                ld.getPaginationXPath());
+        assertEquals("//div[1]/table[2]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td/table[1]/tbody/tr/td/font[1]/b/a/@href", ld.getPaginationXPath());
         assertEquals(49, ld.getPaginationURLs().size());
 
         document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/website4.html"));
@@ -1006,8 +957,7 @@ public class ListDiscovererTest {
 
         ld.findPaginationURLs("http://www.softwaretipsandtricks.com/virus/");
         System.out.println(ld.getPaginationXPath().toLowerCase());
-        assertEquals("/html/body/div[1]/table[2]/tr/td/table[1]/tr/td/table[1]/tr/td/table[1]/tr/td/font[1]/b/a/@href",
-                ld.getPaginationXPath().toLowerCase());
+        assertEquals("/html/body/div[1]/table[2]/tr/td/table[1]/tr/td/table[1]/tr/td/table[1]/tr/td/font[1]/b/a/@href", ld.getPaginationXPath().toLowerCase());
 
     }
 }

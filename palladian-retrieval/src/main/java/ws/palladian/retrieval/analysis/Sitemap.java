@@ -1,7 +1,5 @@
 package ws.palladian.retrieval.analysis;
 
-import ws.palladian.helper.functional.Collector;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;

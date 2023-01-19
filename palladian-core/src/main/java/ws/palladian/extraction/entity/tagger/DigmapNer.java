@@ -1,28 +1,23 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.html.XPathHelper;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -31,13 +26,13 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * href="http://www.digmap.eu/doku.php">web page</a>: <i>DIGMAP developed solutions for georeferenced digital libraries,
  * especially focused on historical materials and in the promoting of our cultural and scientific heritage.</i>
  * </p>
- * 
- * @see <a href="http://digimap.edina.ac.uk/digimap/home#">Digimap</a>
+ *
  * @author Katja Pfeifer
  * @author Philipp Katz
+ * @see <a href="http://digimap.edina.ac.uk/digimap/home#">Digimap</a>
  */
 public class DigmapNer extends NamedEntityRecognizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DigmapNer.class);
 
@@ -49,6 +44,7 @@ public class DigmapNer extends NamedEntityRecognizer {
 
     /** Mapping for the XML namespace. */
     private static final Map<String, String> NAMESPACE_MAPPING;
+
     static {
         NAMESPACE_MAPPING = new HashMap<>();
         NAMESPACE_MAPPING.put("gp", "http://www.opengis.net/gp");
@@ -110,8 +106,7 @@ public class DigmapNer extends NamedEntityRecognizer {
             } catch (HttpException e) {
                 throw new IllegalStateException("Error while performing HTTP request: " + e.getMessage(), e);
             } catch (ParserException e) {
-                throw new IllegalStateException("Error while parsing the result XML: " + e.getMessage()
-                        + ", XML content was: " + httpResult.getStringContent(), e);
+                throw new IllegalStateException("Error while parsing the result XML: " + e.getMessage() + ", XML content was: " + httpResult.getStringContent(), e);
             }
         }
 

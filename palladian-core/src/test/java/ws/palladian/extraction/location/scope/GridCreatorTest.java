@@ -1,18 +1,14 @@
 package ws.palladian.extraction.location.scope;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
 import org.junit.Ignore;
 import org.junit.Test;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class GridCreatorTest {
 

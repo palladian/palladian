@@ -8,7 +8,7 @@ import ws.palladian.helper.geo.GeoCoordinate;
  * detection algorithms implement {@link RankingScopeDetector} (see interface documentation for an explanation). This
  * interface is for some experimental purposes.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface ScopeDetector {
@@ -17,7 +17,7 @@ public interface ScopeDetector {
      * <p>
      * Detect the geographic scope for the given text.
      * </p>
-     * 
+     *
      * @param text The text for which to determine the scope.
      * @return A coordinate representing the scope, or <code>null</code> in case no scope could be determined.
      */

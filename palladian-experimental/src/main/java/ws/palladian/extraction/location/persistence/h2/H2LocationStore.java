@@ -1,23 +1,17 @@
 package ws.palladian.extraction.location.persistence.h2;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
 import org.h2.jdbcx.JdbcConnectionPool;
-
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverters;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Store location data in an H2 database.

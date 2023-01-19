@@ -12,7 +12,7 @@ import ws.palladian.core.FeatureVector;
  * <p>
  * Classifier for models built with {@link QuickDtLearner}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class QuickDtClassifier implements Classifier<QuickDtModel> {

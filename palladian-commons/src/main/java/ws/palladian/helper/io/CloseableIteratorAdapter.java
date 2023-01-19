@@ -6,34 +6,34 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public class CloseableIteratorAdapter<T> implements CloseableIterator<T> {
-	
-	private final Iterator<? extends T> iterator;
 
-	public CloseableIteratorAdapter(Iterator<? extends T> iterator) {
-		this.iterator = Objects.requireNonNull(iterator, "iterator must not be null");
-	}
+    private final Iterator<? extends T> iterator;
 
-	@Override
-	public boolean hasNext() {
-		return iterator.hasNext();
-	}
+    public CloseableIteratorAdapter(Iterator<? extends T> iterator) {
+        this.iterator = Objects.requireNonNull(iterator, "iterator must not be null");
+    }
 
-	@Override
-	public T next() {
-		return iterator.next();
-	}
+    @Override
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
 
-	@Override
-	public void remove() {
-		iterator.remove();
-	}
+    @Override
+    public T next() {
+        return iterator.next();
+    }
 
-	@Override
-	public void close() throws IOException {
-		if (iterator instanceof Closeable) {
-			Closeable closeableIterator = (Closeable) iterator;
-			closeableIterator.close();
-		}
-	}
+    @Override
+    public void remove() {
+        iterator.remove();
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (iterator instanceof Closeable) {
+            Closeable closeableIterator = (Closeable) iterator;
+            closeableIterator.close();
+        }
+    }
 
 }

@@ -1,12 +1,11 @@
 package ws.palladian.retrieval.search.intents;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.nlp.StringHelper;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class ActivatedSearchIntentFilter extends SearchIntentFilter {
     private Double min;
@@ -40,12 +39,7 @@ public class ActivatedSearchIntentFilter extends SearchIntentFilter {
 
     @Override
     public String toString() {
-        return "{" +
-                "key='" + getKey() + '\'' +
-                ", values=" + CollectionHelper.joinReadable(getValues()) +
-                ", min='" + min + '\'' +
-                ", max='" + max + '\'' +
-                ", boolean=" + getBooleanValue() +
-                '}';
+        return "{" + "key='" + getKey() + '\'' + ", values=" + CollectionHelper.joinReadable(getValues()) + ", min='" + min + '\'' + ", max='" + max + '\'' + ", boolean="
+                + getBooleanValue() + '}';
     }
 }

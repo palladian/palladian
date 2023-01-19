@@ -1,26 +1,25 @@
 package ws.palladian.classification.text;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexableField;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.AbstractIterator2;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * <p>
  * This class serves as adapter between a {@link CategoryEntries} instance and {@link Iterable} {@link IndexableField}s
  * which are given to the Lucene {@link IndexWriter}.
- * 
+ *
  * @author Philipp Katz
  */
 class CategoryEntriesDoc implements Iterable<IndexableField> {
@@ -51,8 +50,7 @@ class CategoryEntriesDoc implements Iterable<IndexableField> {
         Validate.notNull(categoryEntries, "categoryEntries must not be null");
         this.fieldName = fieldName;
         this.categoryEntries = categoryEntries;
-        this.additionalFields = additionalFields != null ? Arrays.asList(additionalFields) : Collections
-                .<IndexableField> emptyList();
+        this.additionalFields = additionalFields != null ? Arrays.asList(additionalFields) : Collections.<IndexableField>emptyList();
     }
 
     @Override

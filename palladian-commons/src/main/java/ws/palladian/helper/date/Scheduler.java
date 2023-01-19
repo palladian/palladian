@@ -128,7 +128,7 @@ public class Scheduler {
             public void run() {
                 System.out.println("I'm on schedule 2 / " + System.currentTimeMillis());
                 ThreadHelper.deepSleep(150000);
-                System.out.println("Schedule 2 finished / "  + System.currentTimeMillis());
+                System.out.println("Schedule 2 finished / " + System.currentTimeMillis());
             }
         };
         Thread runnable3 = new Thread() {

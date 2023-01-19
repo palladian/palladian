@@ -4,7 +4,7 @@ import java.util.Collection;
 
 /**
  * A cookie store is responsible for storing cookies.
- * 
+ *
  * @author Philipp Katz
  */
 public interface CookieStore {
@@ -16,7 +16,7 @@ public interface CookieStore {
 
     /**
      * Adds a cookie to this cookie store.
-     * 
+     *
      * @param cookie The cookie to add, not <code>null</code>.
      */
     void addCookie(Cookie cookie);

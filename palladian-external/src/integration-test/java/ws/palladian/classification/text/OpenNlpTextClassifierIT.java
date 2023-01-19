@@ -1,14 +1,11 @@
 package ws.palladian.classification.text;
 
-import static org.junit.Assert.assertTrue;
 import opennlp.tools.doccat.BagOfWordsFeatureGenerator;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import ws.palladian.classification.text.OpenNlpTextClassifier.OpenNlpTextClassifierModel;
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
@@ -16,11 +13,13 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.integrationtests.ITHelper;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * <p>
  * "Integration Test" for the {@link OpenNlpTextClassifier}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class OpenNlpTextClassifierIT {
@@ -82,9 +81,9 @@ public class OpenNlpTextClassifierIT {
      * <p>
      * Use the training set, train a classifier, check accuracy on test set.
      * </p>
-     * 
-     * @param trainFile The training data.
-     * @param testFile The testing data.
+     *
+     * @param trainFile   The training data.
+     * @param testFile    The testing data.
      * @param minAccuracy The minimum expected accuracy on the test data.
      */
     private static void assertAccuracy(String trainFile, String testFile, double minAccuracy) {
@@ -94,8 +93,7 @@ public class OpenNlpTextClassifierIT {
         TextDatasetIterator testIterator = new TextDatasetIterator(testFile, " ", true);
         ConfusionMatrix evaluation = ClassifierEvaluation.evaluate(classifier, testIterator, model);
         System.out.println("accuracy on " + testFile + " : " + evaluation.getAccuracy());
-        assertTrue("expected accuracy: " + minAccuracy + ", actual accuracy: " + evaluation.getAccuracy(),
-                evaluation.getAccuracy() >= minAccuracy);
+        assertTrue("expected accuracy: " + minAccuracy + ", actual accuracy: " + evaluation.getAccuracy(), evaluation.getAccuracy() >= minAccuracy);
     }
 
 }

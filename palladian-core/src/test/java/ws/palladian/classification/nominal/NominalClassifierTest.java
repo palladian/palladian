@@ -1,16 +1,15 @@
 package ws.palladian.classification.nominal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class NominalClassifierTest {
 

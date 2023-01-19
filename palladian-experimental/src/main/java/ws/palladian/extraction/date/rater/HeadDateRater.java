@@ -1,10 +1,5 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import ws.palladian.extraction.date.KeyWords;
 import ws.palladian.extraction.date.PageDateType;
 import ws.palladian.extraction.date.comparators.DateComparator;
@@ -14,36 +9,40 @@ import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.date.ExtractedDateImpl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 /**
  * This class evaluates date of HTML-head.<br>
- * 
+ *
  * @author Martin Gregor
- * 
  */
 public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 
-	protected final byte hightPriority;
-	protected final byte middlePriority;
-	protected final byte lowPriority;
-	
-	private ExtractedDate currentDate;
-	
-    public HeadDateRater(PageDateType dateType) {
-		super(dateType);
-		if(this.dateType.equals(PageDateType.PUBLISH)){
-			hightPriority = KeyWords.PUBLISH_KEYWORD;
-			middlePriority = KeyWords.MODIFIED_KEYWORD;
-			lowPriority = KeyWords.OTHER_KEYWORD;
-		}else{
-			hightPriority = KeyWords.MODIFIED_KEYWORD;
-			middlePriority = KeyWords.PUBLISH_KEYWORD;
-			lowPriority = KeyWords.OTHER_KEYWORD;
-		}
-	}
+    protected final byte hightPriority;
+    protected final byte middlePriority;
+    protected final byte lowPriority;
 
-	@Override
+    private ExtractedDate currentDate;
+
+    public HeadDateRater(PageDateType dateType) {
+        super(dateType);
+        if (this.dateType.equals(PageDateType.PUBLISH)) {
+            hightPriority = KeyWords.PUBLISH_KEYWORD;
+            middlePriority = KeyWords.MODIFIED_KEYWORD;
+            lowPriority = KeyWords.OTHER_KEYWORD;
+        } else {
+            hightPriority = KeyWords.MODIFIED_KEYWORD;
+            middlePriority = KeyWords.PUBLISH_KEYWORD;
+            lowPriority = KeyWords.OTHER_KEYWORD;
+        }
+    }
+
+    @Override
     public List<RatedDate<MetaDate>> rate(List<MetaDate> list) {
-	    List<RatedDate<MetaDate>> returnDates = evaluateMetaDates(list);
+        List<RatedDate<MetaDate>> returnDates = evaluateMetaDates(list);
         return returnDates;
     }
 
@@ -54,7 +53,7 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
     /**
      * Evaluates the head-dates.<br>
      * Rating by check keywords and age difference between dates.
-     * 
+     *
      * @param {@link List} of {@link MetaDate}s.
      * @return {@link Map} with dates and ratings.
      */
@@ -85,9 +84,9 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
             result.addAll(DateExtractionHelper.setRate(lowRatedDates, 0.0));
 
         } else {
-        	if(currentDate == null){
-        		currentDate = new ExtractedDateImpl();
-        	}
+            if (currentDate == null) {
+                currentDate = new ExtractedDateImpl();
+            }
             for (int i = 0; i < lowRatedDates.size(); i++) {
                 double rate = 0.75;
                 if (currentDate.getDifference(lowRatedDates.get(i), TimeUnit.HOURS) < 12) {
@@ -99,16 +98,16 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
 
         DateComparator dc = new DateComparator();
         RatedDate<MetaDate> tempDate;
-        switch(dateType){
-	        case PUBLISH:
-	        	tempDate = dc.getOldestDate(DateExtractionHelper.filterExactest(result));
-	        	break;
-	        case LAST_MODIFIED:
-	        	tempDate = dc.getYoungestDate(DateExtractionHelper.filterExactest(result));
-	        	break;
-        	default:
-        		tempDate = dc.getOldestDate(DateExtractionHelper.filterExactest(result));
-        		break;
+        switch (dateType) {
+            case PUBLISH:
+                tempDate = dc.getOldestDate(DateExtractionHelper.filterExactest(result));
+                break;
+            case LAST_MODIFIED:
+                tempDate = dc.getYoungestDate(DateExtractionHelper.filterExactest(result));
+                break;
+            default:
+                tempDate = dc.getOldestDate(DateExtractionHelper.filterExactest(result));
+                break;
         }
 
         List<RatedDate<MetaDate>> dates = dc.orderDates(result, false);
@@ -122,11 +121,11 @@ public class HeadDateRater extends TechniqueDateRater<MetaDate> {
             double newRate = oldRate - oldRate * (diff / 24.0);
             result.add(RatedDate.create(date.getDate(), Math.round(newRate * 10000) / 10000.0));
         }
-        
+
         return result;
     }
 
-    public void setCurrentDate(ExtractedDate actualDate){
-    	this.currentDate = actualDate;
+    public void setCurrentDate(ExtractedDate actualDate) {
+        this.currentDate = actualDate;
     }
 }

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * <p>
  * Immutable default implementation of a {@link Location}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class ImmutableLocation extends AbstractLocation {
@@ -28,18 +28,18 @@ public final class ImmutableLocation extends AbstractLocation {
      * <p>
      * Create a new location with the specified attributes.
      * </p>
-     * 
-     * @param id The unique identifier of the location.
-     * @param primaryName The primary name of the location, not <code>null</code>.
+     *
+     * @param id               The unique identifier of the location.
+     * @param primaryName      The primary name of the location, not <code>null</code>.
      * @param alternativeNames A list of potential alternative names for the location, may be <code>null</code>, if no
-     *            alternative names exist.
-     * @param type The type of the location, not <code>null</code>.
-     * @param coordinate The geographical coordinate, or <code>null</code> if no coordinates exist.
-     * @param population The population, or <code>null</code> if no population values exist.
-     * @param ancestorIds The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
+     *                         alternative names exist.
+     * @param type             The type of the location, not <code>null</code>.
+     * @param coordinate       The geographical coordinate, or <code>null</code> if no coordinates exist.
+     * @param population       The population, or <code>null</code> if no population values exist.
+     * @param ancestorIds      The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
      */
-    public ImmutableLocation(int id, String primaryName, Collection<AlternativeName> alternativeNames,
-            LocationType type, GeoCoordinate coordinate, Long population, List<Integer> ancestorIds, Map<String, Object> metaData) {
+    public ImmutableLocation(int id, String primaryName, Collection<AlternativeName> alternativeNames, LocationType type, GeoCoordinate coordinate, Long population,
+            List<Integer> ancestorIds, Map<String, Object> metaData) {
         Validate.notNull(primaryName, "primaryName must not be null");
         Validate.notNull(type, "type must not be null");
         this.id = id;
@@ -57,17 +57,17 @@ public final class ImmutableLocation extends AbstractLocation {
      * Create a new location with the specified attributes.
      * </p>
      *
-     * @param id The unique identifier of the location.
-     * @param primaryName The primary name of the location, not <code>null</code>.
+     * @param id               The unique identifier of the location.
+     * @param primaryName      The primary name of the location, not <code>null</code>.
      * @param alternativeNames A list of potential alternative names for the location, may be <code>null</code>, if no
-     *            alternative names exist.
-     * @param type The type of the location, not <code>null</code>.
-     * @param coordinate The geographical coordinate, or <code>null</code> if no coordinates exist.
-     * @param population The population, or <code>null</code> if no population values exist.
-     * @param ancestorIds The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
+     *                         alternative names exist.
+     * @param type             The type of the location, not <code>null</code>.
+     * @param coordinate       The geographical coordinate, or <code>null</code> if no coordinates exist.
+     * @param population       The population, or <code>null</code> if no population values exist.
+     * @param ancestorIds      The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
      */
-    public ImmutableLocation(int id, String primaryName, Collection<AlternativeName> alternativeNames,
-            LocationType type, GeoCoordinate coordinate, Long population, List<Integer> ancestorIds) {
+    public ImmutableLocation(int id, String primaryName, Collection<AlternativeName> alternativeNames, LocationType type, GeoCoordinate coordinate, Long population,
+            List<Integer> ancestorIds) {
         this(id, primaryName, alternativeNames, type, coordinate, population, ancestorIds, null);
     }
 
@@ -75,12 +75,12 @@ public final class ImmutableLocation extends AbstractLocation {
      * <p>
      * Create a new location with the specified attributes.
      * </p>
-     * 
-     * @param id The unique identifier of the location.
+     *
+     * @param id          The unique identifier of the location.
      * @param primaryName The primary name of the location, not <code>null</code>.
-     * @param type The type of the location, not <code>null</code>.
-     * @param coordinate The geographical coordinate, or <code>null</code> if no coordinates exist.
-     * @param population The population, or <code>null</code> if no population values exist.
+     * @param type        The type of the location, not <code>null</code>.
+     * @param coordinate  The geographical coordinate, or <code>null</code> if no coordinates exist.
+     * @param population  The population, or <code>null</code> if no population values exist.
      */
     public ImmutableLocation(int id, String primaryName, LocationType type, GeoCoordinate coordinate, Long population) {
         this(id, primaryName, null, type, coordinate, population, null);
@@ -91,30 +91,29 @@ public final class ImmutableLocation extends AbstractLocation {
      * Create a new location with the specified attributes.
      * </p>
      *
-     * @param id The unique identifier of the location.
+     * @param id          The unique identifier of the location.
      * @param primaryName The primary name of the location, not <code>null</code>.
-     * @param type The type of the location, not <code>null</code>.
-     * @param coordinate The geographical coordinate, or <code>null</code> if no coordinates exist.
-     * @param population The population, or <code>null</code> if no population values exist.
-     * @param metaData Meta data of the location.
+     * @param type        The type of the location, not <code>null</code>.
+     * @param coordinate  The geographical coordinate, or <code>null</code> if no coordinates exist.
+     * @param population  The population, or <code>null</code> if no population values exist.
+     * @param metaData    Meta data of the location.
      */
     public ImmutableLocation(int id, String primaryName, LocationType type, GeoCoordinate coordinate, Long population, Map<String, Object> metaData) {
-        this(id, primaryName, null, type, coordinate, population, null,metaData);
+        this(id, primaryName, null, type, coordinate, population, null, metaData);
     }
 
     /**
      * <p>
      * Copy an existing {@link Location} and add alternative names and ancestor IDs.
      * </p>
-     * 
-     * @param location The {@link Location} for which to create a copy, not <code>null</code>.
+     *
+     * @param location         The {@link Location} for which to create a copy, not <code>null</code>.
      * @param alternativeNames A list of potential alternative names for the location, may be <code>null</code>, if no
-     *            alternative names exist.
-     * @param ancestorIds The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
+     *                         alternative names exist.
+     * @param ancestorIds      The IDs of ancestor {@link ImmutableLocation}s, or <code>null</code> if no ancestors exist.
      */
     public ImmutableLocation(Location location, Collection<AlternativeName> alternativeNames, List<Integer> ancestorIds) {
-        this(location.getId(), location.getPrimaryName(), alternativeNames, location.getType(), location
-                .getCoordinate(), location.getPopulation(), ancestorIds);
+        this(location.getId(), location.getPrimaryName(), alternativeNames, location.getType(), location.getCoordinate(), location.getPopulation(), ancestorIds);
     }
 
     @Override
@@ -131,6 +130,7 @@ public final class ImmutableLocation extends AbstractLocation {
     public Collection<AlternativeName> getAlternativeNames() {
         return Collections.unmodifiableCollection(alternativeNames);
     }
+
     @Override
     public Collection<String> getAlternativeNameStrings() {
         if (alternativeNames == null) {

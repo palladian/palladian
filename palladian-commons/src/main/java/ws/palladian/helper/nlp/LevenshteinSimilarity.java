@@ -7,13 +7,13 @@ import org.apache.commons.lang3.Validate;
  * <p>
  * Levenshtein similarity using Apache {@link StringUtils}. The similarity is calculated from the Levenshtein distance
  * (also known as edit distance) as follows:
- * 
+ *
  * <pre>
  *                                 LevenshteinDistance(S1, S2)
- * LevenshteinSimilarity(S1,S2) = ----------------------------- 
+ * LevenshteinSimilarity(S1,S2) = -----------------------------
  *                                     max( | S1 |, | S2 |)
  * </pre>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a>
  */
@@ -33,7 +33,7 @@ public class LevenshteinSimilarity extends AbstractStringMetric {
         if (maxLength == 0) {
             return 1;
         }
-        return 1 - (double)distance / maxLength;
+        return 1 - (double) distance / maxLength;
     }
 
     @Override

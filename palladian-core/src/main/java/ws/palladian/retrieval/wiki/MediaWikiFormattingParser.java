@@ -1,16 +1,16 @@
 package ws.palladian.retrieval.wiki;
 
+import org.apache.commons.lang3.Validate;
+
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * A parser for MediaWiki text, which can interpret bold and italic formatting. Because of the beloved apostrophe junge,
  * this task is more complicated than it sounds. See <a
  * href="http://www.mediawiki.org/wiki/Markup_spec/BNF/Inline_text">here</a> for an explanation of the syntax, which
  * also served as foundation for this implementation.
- * 
+ *
  * @author Philipp Katz
  */
 public final class MediaWikiFormattingParser {
@@ -26,7 +26,7 @@ public final class MediaWikiFormattingParser {
 
     /**
      * Callback, which is triggered during parsing.
-     * 
+     *
      * @author Philipp Katz
      */
     public static interface ParserCallback {
@@ -75,8 +75,8 @@ public final class MediaWikiFormattingParser {
 
     /**
      * Parse the given text and produce callbacks in the specified interface.
-     * 
-     * @param text The text to parse.
+     *
+     * @param text     The text to parse.
      * @param callback Instance of the callback interface.
      */
     public static final void parse(String text, ParserCallback callback) {
@@ -90,7 +90,7 @@ public final class MediaWikiFormattingParser {
         this.apostropheMap = createApostropheMap(text);
         this.callback = callback;
         this.chars = text.toCharArray();
-        for (; parseIdx < chars.length;) {
+        for (; parseIdx < chars.length; ) {
             Integer apostrophes = apostropheMap.get(parseIdx);
             if (apostrophes != null) {
                 processApostrophes(apostrophes);

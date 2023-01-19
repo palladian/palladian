@@ -1,10 +1,10 @@
 package ws.palladian.retrieval.feeds.persistence;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.retrieval.feeds.FeedItem;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class FeedItemRowConverter implements RowConverter<FeedItem> {
 

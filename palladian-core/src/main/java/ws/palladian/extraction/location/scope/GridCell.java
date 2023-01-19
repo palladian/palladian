@@ -2,7 +2,6 @@ package ws.palladian.extraction.location.scope;
 
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 public class GridCell {
 
@@ -71,9 +70,9 @@ public class GridCell {
         return GeoCoordinate.from(lat, lng);
     }
 
-//    public boolean contains(GridCell other) {
-//        throw new UnsupportedOperationException("Implement me");
-//    }
+    //    public boolean contains(GridCell other) {
+    //        throw new UnsupportedOperationException("Implement me");
+    //    }
 
     public boolean intersects(GridCell other) {
         return lat1 < other.lat1 && other.lat1 < lat2 || //
@@ -84,21 +83,21 @@ public class GridCell {
 
     @Override
     public String toString() {
-//        StringBuilder builder = new StringBuilder();
-//        builder.append("GridCell [xId=");
-//        builder.append(xId);
-//        builder.append(", yId=");
-//        builder.append(yId);
-//        builder.append(", lat1=");
-//        builder.append(lat1);
-//        builder.append(", lat2=");
-//        builder.append(lat2);
-//        builder.append(", lng1=");
-//        builder.append(lng1);
-//        builder.append(", lng2=");
-//        builder.append(lng2);
-//        builder.append("]");
-//        return builder.toString();
+        //        StringBuilder builder = new StringBuilder();
+        //        builder.append("GridCell [xId=");
+        //        builder.append(xId);
+        //        builder.append(", yId=");
+        //        builder.append(yId);
+        //        builder.append(", lat1=");
+        //        builder.append(lat1);
+        //        builder.append(", lat2=");
+        //        builder.append(lat2);
+        //        builder.append(", lng1=");
+        //        builder.append(lng1);
+        //        builder.append(", lng2=");
+        //        builder.append(lng2);
+        //        builder.append("]");
+        //        return builder.toString();
         return getIdentifier();
     }
 
@@ -119,7 +118,7 @@ public class GridCell {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        GridCell other = (GridCell)obj;
+        GridCell other = (GridCell) obj;
         if (xId != other.xId)
             return false;
         if (yId != other.yId)

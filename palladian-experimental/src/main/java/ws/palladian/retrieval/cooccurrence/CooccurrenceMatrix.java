@@ -1,21 +1,15 @@
 package ws.palladian.retrieval.cooccurrence;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CountMatrix;
 import ws.palladian.helper.collection.PairMatrix;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 /**
  * <p>

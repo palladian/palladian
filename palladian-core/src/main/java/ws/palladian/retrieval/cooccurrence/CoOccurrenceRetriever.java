@@ -44,20 +44,18 @@ public class CoOccurrenceRetriever {
 
     private final Language language;
 
-    public CoOccurrenceRetriever(CoOccurrenceContext coOccurrenceContext, int numberOfResults,
-                                 Language language) {
+    public CoOccurrenceRetriever(CoOccurrenceContext coOccurrenceContext, int numberOfResults, Language language) {
         this.coOccurrenceContext = coOccurrenceContext;
         this.numberOfResults = numberOfResults;
         this.language = language;
     }
 
-    public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2,
-                                                            Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
+    public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2, Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
         return getCoOccurrenceStatistics(term1, term2, new HashSet<>(), searchers, caseInsensitive);
     }
 
-    public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2,
-                                                            Collection<String> contextTerms, Collection<Searcher<WebContent>> searchers, boolean caseInsensitive) {
+    public CoOccurrenceStatistics getCoOccurrenceStatistics(String term1, String term2, Collection<String> contextTerms, Collection<Searcher<WebContent>> searchers,
+            boolean caseInsensitive) {
 
         CoOccurrenceStatistics coOccurrenceStatistics = new CoOccurrenceStatistics(term1, term2);
 
@@ -101,8 +99,7 @@ public class CoOccurrenceRetriever {
         return query;
     }
 
-    private void findCoOccurrences(String pageText, CoOccurrenceStatistics stats, Searcher<WebContent> searcher,
-                                   boolean caseInsensitive) {
+    private void findCoOccurrences(String pageText, CoOccurrenceStatistics stats, Searcher<WebContent> searcher, boolean caseInsensitive) {
 
         String term1 = stats.getTerm1();
         String term2 = stats.getTerm2();
@@ -152,8 +149,7 @@ public class CoOccurrenceRetriever {
      * </p>
      */
     public static void main(String[] args) {
-        CoOccurrenceRetriever coOccurrenceRetriever = new CoOccurrenceRetriever(CoOccurrenceContext.CONTEXT_200_CHARS,
-                10, Language.GERMAN);
+        CoOccurrenceRetriever coOccurrenceRetriever = new CoOccurrenceRetriever(CoOccurrenceContext.CONTEXT_200_CHARS, 10, Language.GERMAN);
 
         Collection<Searcher<WebContent>> searchers = new HashSet<Searcher<WebContent>>();
         // searchers.add(new GoogleSearcher());
@@ -162,8 +158,7 @@ public class CoOccurrenceRetriever {
         // CoOccurrenceStatistics stats = coOccurrenceRetriever.getCoOccurrenceStatistics("Hugo Cabret", "oscar",
         // searchers, true);
 
-        CoOccurrenceStatistics stats = coOccurrenceRetriever.getCoOccurrenceStatistics("financial meltdown", "2008",
-                searchers, true);
+        CoOccurrenceStatistics stats = coOccurrenceRetriever.getCoOccurrenceStatistics("financial meltdown", "2008", searchers, true);
 
         // document: [term1=Hugo Cabret, term2=oscar, coOccurrences={Google=10, Twitter=7}]
         // sentence: [term1=Hugo Cabret, term2=oscar, coOccurrences={Google=33, Twitter=2}]

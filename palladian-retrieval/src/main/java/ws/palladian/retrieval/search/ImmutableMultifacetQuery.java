@@ -1,22 +1,16 @@
 package ws.palladian.retrieval.search;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 /**
  * Default implementation of a {@link MultifacetQuery}.
- * 
+ *
  * @author Philipp Katz
  */
 class ImmutableMultifacetQuery implements MultifacetQuery {
@@ -64,7 +58,7 @@ class ImmutableMultifacetQuery implements MultifacetQuery {
 
     @Override
     public Set<String> getTags() {
-        return tags != null ? Collections.unmodifiableSet(tags) : Collections.<String> emptySet();
+        return tags != null ? Collections.unmodifiableSet(tags) : Collections.<String>emptySet();
     }
 
     @Override

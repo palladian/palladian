@@ -1,6 +1,12 @@
 package ws.palladian.retrieval.feeds;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.feeds.parser.FeedParser;
+import ws.palladian.retrieval.feeds.parser.FeedParserException;
+import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 
 import java.io.FileNotFoundException;
 import java.text.DateFormat;
@@ -9,14 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.feeds.parser.FeedParser;
-import ws.palladian.retrieval.feeds.parser.FeedParserException;
-import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
+import static org.junit.Assert.assertEquals;
 
 public class FeedClassifierTest {
 
@@ -34,7 +33,7 @@ public class FeedClassifierTest {
      * XXX rethink how to test this, not trivial since time in feed is fixed and classification algorithm uses time
      * differences which change at execution
      * can not test this since it depends on current time (works though)
-     * 
+     *
      * @throws FeedParserException
      * @throws FileNotFoundException
      * @throws ParseException

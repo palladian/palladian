@@ -1,19 +1,8 @@
 package ws.palladian.retrieval.feeds.evaluation;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
@@ -28,6 +17,12 @@ import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.feeds.updates.MavStrategyDatasetCreation;
 
+import java.io.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 /**
  * <p>
  * Creates a dataset of feed posts.
@@ -35,7 +30,7 @@ import ws.palladian.retrieval.feeds.updates.MavStrategyDatasetCreation;
  * <p>
  * For each feed, a csv file is created in the data/datasets/feedPosts/ folder. Each file contains all distinct posts
  * collected over a period of time. Each file follows the follwowing layout:<br>
- * 
+ *
  * <pre>
  * ITEM_TIMESTAMP;POLL_TIMESTAMP;HASH;"TITLE";"LINK";WINDOWSIZE;
  * </pre>
@@ -43,11 +38,10 @@ import ws.palladian.retrieval.feeds.updates.MavStrategyDatasetCreation;
  * If the creator finds a completely new window it must assume that it missed some entries and adds a line containing
  * <tt>MISS;;;;;;</tt>.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Sandro Reichert
- * 
  */
 public class DatasetCreator {
 
@@ -55,8 +49,8 @@ public class DatasetCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatasetCreator.class);
 
     /** Path to the folder where the dataset is stored. */
-    public static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets"
-            + System.getProperty("file.separator") + "feedPosts" + System.getProperty("file.separator");
+    public static final String DATASET_PATH = "data" + System.getProperty("file.separator") + "datasets" + System.getProperty("file.separator") + "feedPosts" + System.getProperty(
+            "file.separator");
 
     /** We need this many file handles to process one FeedTask. */
     public static final int FILE_HANDLES_PER_TASK = 20;
@@ -122,9 +116,8 @@ public class DatasetCreator {
                 // String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
                 // .replaceAll("(\n)(?=.)", "");
 
-                String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
-                        .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
+                String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"").replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "").replaceAll(
+                        "(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
 
@@ -182,7 +175,7 @@ public class DatasetCreator {
 
                 // System.out.println("cleansed " + file.getName());
                 if (c % 500 == 0) {
-                    LOGGER.info(MathHelper.round((double)100 * c / fileCount, 2) + "% of the files cleansed");
+                    LOGGER.info(MathHelper.round((double) 100 * c / fileCount, 2) + "% of the files cleansed");
                 }
 
             }
@@ -240,7 +233,7 @@ public class DatasetCreator {
             }
 
             c++;
-            LOGGER.info("percent done: " + MathHelper.round(100 * c / (double)files.length, 2));
+            LOGGER.info("percent done: " + MathHelper.round(100 * c / (double) files.length, 2));
         }
 
         try {
@@ -281,8 +274,7 @@ public class DatasetCreator {
      */
     public void createDataset() {
 
-        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance()
-                .getConfig());
+        final FeedStore feedStore = DatabaseManagerFactory.create(FeedDatabase.class, ConfigHolder.getInstance().getConfig());
 
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);
@@ -316,8 +308,8 @@ public class DatasetCreator {
     /**
      * Relative path to feed and the name of its csv file.<br />
      * e.g. data/datasets/feedPosts/0/7/7_http___0_tqn_com_6_g_80music_b.csv
-     * 
-     * @param feedID The feedID
+     *
+     * @param feedID       The feedID
      * @param safeFeedName The feeds safe name
      * @return Relative path to feed and the name of its csv file
      * @see #getSafeFeedName(String)
@@ -328,28 +320,27 @@ public class DatasetCreator {
 
     /**
      * Relative path to feed, * e.g. data/datasets/feedPosts/0/7/
-     * 
+     *
      * @param feedID The feedID to get the path for.
      * @return Relative path to feed
      */
     public static String getFolderPath(int feedID) {
-        return DATASET_PATH + getSlice(feedID) + System.getProperty("file.separator") + feedID
-                + System.getProperty("file.separator");
+        return DATASET_PATH + getSlice(feedID) + System.getProperty("file.separator") + feedID + System.getProperty("file.separator");
     }
 
     /**
      * Name of folder to group feeds. Math.floor(feedID / 1000.0)
-     * 
+     *
      * @param feedID The feedID to get the slice for.
      * @return Math.floor(feedID / 1000.0)
      */
     public static int getSlice(int feedID) {
-        return (int)Math.floor(feedID / 1000.0);
+        return (int) Math.floor(feedID / 1000.0);
     }
 
     /**
      * e.g. http___0_tqn_com_6_g_80music_b
-     * 
+     *
      * @param feed The url to make safe
      * @return The safe feed name
      */
@@ -359,7 +350,7 @@ public class DatasetCreator {
 
     /**
      * Create the directories and the csv file for that feed if they do not exist.
-     * 
+     *
      * @param feed The feed to create the directories and the csv file for.
      * @return <code>true</code> if folders and file were created or already existed, false on every error.
      */
@@ -367,8 +358,7 @@ public class DatasetCreator {
 
         boolean success = false;
         // get the path of the feed's folder and csv file
-        String csvFilePath = DatasetCreator.getCSVFilePath(feed.getId(),
-                DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
+        String csvFilePath = DatasetCreator.getCSVFilePath(feed.getId(), DatasetCreator.getSafeFeedName(feed.getFeedUrl()));
         if (FileHelper.fileExists(csvFilePath)) {
             success = true;
         } else {
@@ -395,12 +385,8 @@ public class DatasetCreator {
                 + "Check palladian.properties > feedReader.threadPoolSize to get number of threads.\n"
                 + "Run ulimit -n in a terminal to see the current soft limit of file descriptors for one session.\n"
                 + "Run cat /proc/sys/fs/file-max to display maximum number of open file descriptors.\n"
-                + "To increase the number of file descriptors, modify /etc/security/limits.conf (su required), add\n"
-                + "<username> soft nofile <minimum-required-size>\n"
-                + "<username> hard nofile <minimum-required-size>+1024\n"
-                + "example"
-                + "feeduser soft nofile 31744\n"
-                + "feeduser hard nofile 32768\n"
+                + "To increase the number of file descriptors, modify /etc/security/limits.conf (su required), add\n" + "<username> soft nofile <minimum-required-size>\n"
+                + "<username> hard nofile <minimum-required-size>+1024\n" + "example" + "feeduser soft nofile 31744\n" + "feeduser hard nofile 32768\n"
                 + "Restart your system afterwards or find out which process needs to be restartet to let the changes take effect.\n"
                 + "See http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/ for more details.";
 
@@ -427,8 +413,7 @@ public class DatasetCreator {
                     LOGGER.info("ulimit -n: " + input);
                     fileDescriptors = Integer.parseInt(input);
                 } catch (NumberFormatException e) {
-                    LOGGER.error("Could not process number of available file handles: " + e.getLocalizedMessage()
-                            + "\n" + stdErrorMsg);
+                    LOGGER.error("Could not process number of available file handles: " + e.getLocalizedMessage() + "\n" + stdErrorMsg);
                 }
             }
             if (fileDescriptors <= 0) {
@@ -447,10 +432,8 @@ public class DatasetCreator {
              * data set.
              */
             if (threadPoolSize * FILE_HANDLES_PER_TASK <= fileDescriptors) {
-                LOGGER.error("More file handles required! \n" + "threadPoolSize=" + threadPoolSize
-                        + ", available file descriptors=" + fileDescriptors
-                        + ", minimum required file descriptors would be " + threadPoolSize * FILE_HANDLES_PER_TASK
-                        + "\n" + stdErrorMsg);
+                LOGGER.error("More file handles required! \n" + "threadPoolSize=" + threadPoolSize + ", available file descriptors=" + fileDescriptors
+                        + ", minimum required file descriptors would be " + threadPoolSize * FILE_HANDLES_PER_TASK + "\n" + stdErrorMsg);
                 System.exit(-1);
             }
 
@@ -464,7 +447,7 @@ public class DatasetCreator {
 
     /**
      * Run creation of the feed dataset from all feeds in the database if possible.
-     * 
+     *
      * @param args Command line arguments are ignored.
      */
     public static void main(String[] args) {

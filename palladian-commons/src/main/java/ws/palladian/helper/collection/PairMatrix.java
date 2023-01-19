@@ -1,12 +1,11 @@
 package ws.palladian.helper.collection;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.util.function.Predicate;
 
 public class PairMatrix<K, V> extends AbstractMatrix<K, V> {

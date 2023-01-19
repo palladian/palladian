@@ -1,6 +1,9 @@
 package ws.palladian.retrieval.email;
 
-import com.sendgrid.*;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Attachments;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
  * </p>
  *
  * Created 24.01.2018
+ *
  * @author David Urbansky
  */
 public class SendGridMailer {
@@ -61,6 +65,7 @@ public class SendGridMailer {
     public boolean sendMail(String fromEmail, String fromName, String toEmail, String subject, String textMessage, String mailBody) {
         return sendMail(fromEmail, fromName, buildRecipientMap(toEmail), subject, textMessage, mailBody, new ArrayList<>());
     }
+
     public boolean sendMail(String fromEmail, String fromName, String toEmail, String subject, String textMessage, String mailBody, Map<String, String> responseHeaders) {
         return sendMail(fromEmail, fromName, buildRecipientMap(toEmail), subject, textMessage, mailBody, new ArrayList<>(), null, responseHeaders);
     }
@@ -73,26 +78,27 @@ public class SendGridMailer {
         return sendMail(fromEmail, fromName, recipientMap, subject, textMessage, htmlMessage, new ArrayList<>(), null);
     }
 
-    public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType,List<String>> recipientMap, String subject, String htmlMessage) {
+    public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String htmlMessage) {
         return sendMail(fromEmail, fromName, recipientMap, subject, null, htmlMessage, new ArrayList<>(), null);
     }
 
     public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage,
-                            List<File> attachmentFiles) {
+            List<File> attachmentFiles) {
         return sendMail(fromEmail, fromName, recipientMap, subject, textMessage, htmlMessage, attachmentFiles, null);
     }
 
-    public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage, String replyTo) {
+    public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage,
+            String replyTo) {
         return sendMail(fromEmail, fromName, recipientMap, subject, textMessage, htmlMessage, new ArrayList<>(), replyTo);
     }
 
     public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage,
-                            List<File> attachmentFiles, String replyTo) {
+            List<File> attachmentFiles, String replyTo) {
         return sendMail(fromEmail, fromName, recipientMap, subject, textMessage, htmlMessage, attachmentFiles, replyTo, null);
     }
 
     public boolean sendMail(String fromEmail, String fromName, Map<Message.RecipientType, List<String>> recipientMap, String subject, String textMessage, String htmlMessage,
-                            List<File> attachmentFiles, String replyTo, Map<String,String> responseHeaders) {
+            List<File> attachmentFiles, String replyTo, Map<String, String> responseHeaders) {
         List<String> toEmails = Optional.ofNullable(recipientMap.get(Message.RecipientType.TO)).orElse(new ArrayList<>());
 
         toEmails = toEmails.stream().filter(tm -> !tm.equalsIgnoreCase("undefined") && tm.contains("@")).collect(Collectors.toList());

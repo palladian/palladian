@@ -1,20 +1,19 @@
 package ws.palladian.helper.geo;
 
-import static java.lang.Math.sqrt;
-import static java.lang.Math.toRadians;
-import static org.apache.commons.math3.util.FastMath.cos;
-import static org.apache.commons.math3.util.FastMath.sin;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.math3.util.FastMath;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.functional.Distance;
 
 import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.math3.util.FastMath;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.functional.Distance;
+import static java.lang.Math.sqrt;
+import static java.lang.Math.toRadians;
+import static org.apache.commons.math3.util.FastMath.cos;
+import static org.apache.commons.math3.util.FastMath.sin;
 
 /**
  * <p>
@@ -163,7 +162,7 @@ public final class GeoUtils {
      * 315].
      *
      * @param coordinate The center coordinate.
-     * @param distance The distance.
+     * @param distance   The distance.
      * @return An array with eight coordinates around the specified coordinate, each with the specified distance.
      */
     static GeoCoordinate[] getTestPoints(GeoCoordinate coordinate, double distance) {
@@ -260,7 +259,7 @@ public final class GeoUtils {
      * @param lat The latitude.
      * @param lng The longitude.
      * @return <code>true</code> in case the latitude and longitude are valid for a coordinate, <code>false</code>
-     *         otherwise.
+     * otherwise.
      */
     public static boolean isValidCoordinateRange(double lat, double lng) {
         return -90 <= lat && lat <= 90 && -180 <= lng && lng <= 180;
@@ -328,7 +327,7 @@ public final class GeoUtils {
      *
      * @param locations {@link Collection} of {@link GeoCoordinate}s, not <code>null</code>.
      * @return The maximum distance between any pair in the given {@link Collection}, or zero in case the collection was
-     *         empty.
+     * empty.
      * @see #largestDistanceBelow(double, Collection) is faster, if you just care about a maximum value.
      */
     public static double getLargestDistance(Collection<? extends GeoCoordinate> coordinates) {
@@ -354,22 +353,22 @@ public final class GeoUtils {
     /**
      * Converts the given coordinate to a
      * <a href="https://en.wikipedia.org/wiki/Geohash">Geohash</a>.
-     * 
+     *
      * <p>
      * A geohash is a single string of letters and digits of an arbitrary length –
      * the longer, the more precise. A geohash guarantees, that two hashes with a
      * shared prefix are close together (however the reverse is not guaranteed).
      * This still makes geohashes useful e.g. for indexation, etc.
-     * 
+     *
      * <p>
      * A hash can be shortened at the end, which means losing precision. For the
      * precision depending on the number of characters, see <a href=
      * "https://en.wikipedia.org/wiki/Geohash#Digits_and_precision_in_km">here</a>.
-     * 
+     *
      * <p>
      * For a coordinate of <code>42.605, -5.603</code>, the geohash of length 5 is
      * <code>ezs42</code>.
-     * 
+     *
      * @param coordinate The coordinate for which to calculate the hash.
      * @param length     The length of the hash in characters (at least one).
      * @return The hash.
@@ -418,10 +417,10 @@ public final class GeoUtils {
 
     /**
      * Parse the given geohash into a latitude and longitude coordinates pair.
-     * 
+     *
      * <p>
      * For more details see {@link #getGeohash(GeoCoordinate, int)}.
-     * 
+     *
      * @param geohash The geohash.
      * @return The parsed coordinate.
      * @throws IllegalArgumentException If the hash contains unexpected characters.

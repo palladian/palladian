@@ -1,20 +1,19 @@
 package ws.palladian.retrieval.search;
 
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.LruMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.resources.WebContent;
+
+import java.util.List;
 
 /**
  * <p>
  * Cache for an arbitrary {@link Searcher}.
  * </p>
- * 
- * @author Philipp Katz
+ *
  * @param <R> The result type of the {@link Searcher}.
+ * @author Philipp Katz
  */
 public class CachingSearcher<R extends WebContent> extends AbstractSearcher<R> {
 
@@ -28,9 +27,9 @@ public class CachingSearcher<R extends WebContent> extends AbstractSearcher<R> {
      * <p>
      * Create a new {@link CachingSearcher}, wrapping another {@link Searcher} (decorator pattern).
      * </p>
-     * 
+     *
      * @param cacheSize Size of the cache, greater zero.
-     * @param searcher The searcher to wrap, not <code>null</code>.
+     * @param searcher  The searcher to wrap, not <code>null</code>.
      * @return A caching searcher for the provided searcher.
      */
     public static <R extends WebContent> CachingSearcher<R> create(int cacheSize, Searcher<R> searcher) {

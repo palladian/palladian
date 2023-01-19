@@ -1,23 +1,21 @@
 package ws.palladian.extraction.content;
 
-import java.io.File;
-import java.net.URL;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import ws.palladian.retrieval.HttpResult;
-
 import com.gravity.goose.Article;
 import com.gravity.goose.Configuration;
 import com.gravity.goose.Goose;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import ws.palladian.retrieval.HttpResult;
+
+import java.io.File;
+import java.net.URL;
 
 /**
  * <p>
  * Content extractor using <a href="https://github.com/jiminoc/goose/wiki">Goose</a>. Goose only accepts URLs on the
  * web, already downloaded {@link HttpResult}s, or local {@link File}s are not supported.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class GooseContentExtractor extends WebPageContentExtractor {

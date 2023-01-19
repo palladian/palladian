@@ -1,13 +1,12 @@
 package ws.palladian.retrieval;
 
-import java.util.Date;
-import java.util.List;
-
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.cookie.BasicClientCookie;
-
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 final class ApacheCookieStoreAdapter implements CookieStore {
@@ -30,16 +29,15 @@ final class ApacheCookieStoreAdapter implements CookieStore {
 
     @Override
     public List<Cookie> getCookies() {
-        return CollectionHelper.convertList(adapted.getCookies(),
-                new Function<ws.palladian.retrieval.Cookie, Cookie>() {
-                    @Override
-                    public Cookie apply(ws.palladian.retrieval.Cookie input) {
-                        BasicClientCookie cookie = new BasicClientCookie(input.getName(), input.getValue());
-                        cookie.setDomain(input.getDomain());
-                        cookie.setPath(cookie.getPath());
-                        return cookie;
-                    }
-                });
+        return CollectionHelper.convertList(adapted.getCookies(), new Function<ws.palladian.retrieval.Cookie, Cookie>() {
+            @Override
+            public Cookie apply(ws.palladian.retrieval.Cookie input) {
+                BasicClientCookie cookie = new BasicClientCookie(input.getName(), input.getValue());
+                cookie.setDomain(input.getDomain());
+                cookie.setPath(cookie.getPath());
+                return cookie;
+            }
+        });
     }
 
     @Override

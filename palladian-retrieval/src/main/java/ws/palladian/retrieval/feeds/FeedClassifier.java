@@ -1,13 +1,7 @@
 package ws.palladian.retrieval.feeds;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.retrieval.HttpException;
@@ -19,11 +13,16 @@ import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 /**
  * <p>
  * The FeedClassifier classifies a feed in terms of their update intervals.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Sandro Reichert
  */
@@ -63,20 +62,19 @@ public class FeedClassifier {
 
         }
 
-        LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: "
-                + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + "MB");
+        LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: " + HttpRetriever.getTraffic(SizeUnit.MEGABYTES) + "MB");
     }
 
     /**
      * Classify a feed directly by its items. Make sure all properties such as windowSize pollTimestamp are set.
-     * 
+     *
      * @param item The feed's items.
      * @return The classification as a numeric value.
      * @deprecated Classifying a feed directly by its items is dangerous since all feeds that do not provide item
-     *             timestamps are classified as {@link #CLASS_ON_THE_FLY}. This is done since missing timestamps are
-     *             replaced by the current timestamp to construct a {@link Feed} from the items in order to calculate
-     *             the {@link FeedPostStatistics}. If you already have the {@link FeedItem}s to be used for
-     *             classification, use {@link #classify(Feed)}.
+     * timestamps are classified as {@link #CLASS_ON_THE_FLY}. This is done since missing timestamps are
+     * replaced by the current timestamp to construct a {@link Feed} from the items in order to calculate
+     * the {@link FeedPostStatistics}. If you already have the {@link FeedItem}s to be used for
+     * classification, use {@link #classify(Feed)}.
      */
     @Deprecated
     public static FeedActivityPattern classify(List<FeedItem> items) {
@@ -88,7 +86,7 @@ public class FeedClassifier {
 
     /**
      * Classify a feed by the items it already provides.
-     * 
+     *
      * @param feed The feed.
      * @return The classification as a numeric value.
      */
@@ -119,20 +117,17 @@ public class FeedClassifier {
             } else {
 
                 // if the last entry is a long time ago and the post gap was not that big, the feed is a zombie
-                if (fps.getTimeDifferenceNewestPostToLastPollTime() >= 8L * fps.getMedianPostGap()
-                        && fps.getTimeDifferenceNewestPostToLastPollTime() > TimeUnit.DAYS.toMillis(8 * 7)) {
+                if (fps.getTimeDifferenceNewestPostToLastPollTime() >= 8L * fps.getMedianPostGap() && fps.getTimeDifferenceNewestPostToLastPollTime() > TimeUnit.DAYS.toMillis(
+                        8 * 7)) {
                     feedClass = FeedActivityPattern.CLASS_ZOMBIE;
                 } else {
 
                     // if post intervals have large standard deviations the post is spontaneous
-                    if (fps.getPostGapStandardDeviation() >= fps.getMedianPostGap() / 10.0
-                            && fps.getMedianPostGap() > TimeUnit.DAYS.toMillis(1)) {
+                    if (fps.getPostGapStandardDeviation() >= fps.getMedianPostGap() / 10.0 && fps.getMedianPostGap() > TimeUnit.DAYS.toMillis(1)) {
                         feedClass = FeedActivityPattern.CLASS_SPONTANEOUS;
                     } else {
                         // long gaps between posts (at night) indicate sliced feeds
-                        if (fps.getLongestPostGap() < 12 * fps.getMedianPostGap()
-                                && fps.getLongestPostGap() < TimeUnit.HOURS.toMillis(2)
-                                && fps.getAvgEntriesPerDay() >= 4) {
+                        if (fps.getLongestPostGap() < 12 * fps.getMedianPostGap() && fps.getLongestPostGap() < TimeUnit.HOURS.toMillis(2) && fps.getAvgEntriesPerDay() >= 4) {
                             feedClass = FeedActivityPattern.CLASS_CONSTANT;
                         } else {
                             feedClass = FeedActivityPattern.CLASS_SLICED;
@@ -150,7 +145,7 @@ public class FeedClassifier {
 
     /**
      * Classify a feed by its given URL. Retrieves and classifies the feed. The retrieved feed is wasted
-     * 
+     *
      * @param feedUrl The URL of the feed.
      * @return The class of the feed.
      */

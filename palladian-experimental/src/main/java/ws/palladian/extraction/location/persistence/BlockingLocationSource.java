@@ -1,15 +1,7 @@
 package ws.palladian.extraction.location.persistence;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.extraction.location.sources.MultiQueryLocationSource;
@@ -19,9 +11,12 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Functions;
-import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class BlockingLocationSource extends MultiQueryLocationSource {
 
@@ -92,7 +87,7 @@ public class BlockingLocationSource extends MultiQueryLocationSource {
 
     @Override
     public String toString() {
-        double blockPercentage = (double)blockedItems / (blockedItems + acceptedItems);
+        double blockPercentage = (double) blockedItems / (blockedItems + acceptedItems);
         StringBuilder builder = new StringBuilder();
         builder.append("BlockingLocationSource [");
         builder.append(wrapped);

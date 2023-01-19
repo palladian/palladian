@@ -1,8 +1,8 @@
 package ws.palladian.helper.nlp;
 
-import java.util.Arrays;
-
 import org.apache.commons.lang3.Validate;
+
+import java.util.Arrays;
 
 /**
  * <p>
@@ -11,13 +11,13 @@ import org.apache.commons.lang3.Validate;
  * "String Comparator Metrics and Enhanced Decision Rules in the Fellegi-Sunter Model of Record Linkage", William E.
  * Winkler, 1990 and "Overview of Record Linkage and Current Research Directions", William E. Winkler, 2006.
  * </p>
- * 
- * @see <a href="http://web.archive.org/web/20100227020019/http://www.census.gov/geo/msb/stand/strcmp.c">Original
- *      Jaro-Winkler implementation in C</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://web.archive.org/web/20100227020019/http://www.census.gov/geo/msb/stand/strcmp.c">Original
+ * Jaro-Winkler implementation in C</a>
  */
 public class JaroWinklerSimilarity extends AbstractStringMetric {
-    
+
     private static final String NAME = "Jaro-Winkler";
 
     @Override
@@ -92,7 +92,7 @@ public class JaroWinklerSimilarity extends AbstractStringMetric {
         }
         t /= 2;
 
-        double jaro = ((double)m / l1 + (double)m / l2 + (double)(m - t) / m) / 3;
+        double jaro = ((double) m / l1 + (double) m / l2 + (double) (m - t) / m) / 3;
 
         // length of common prefix, up to 4 characters max.
         int l = 0;
@@ -100,7 +100,7 @@ public class JaroWinklerSimilarity extends AbstractStringMetric {
         }
         return jaro + l * 0.1 * (1. - jaro);
     }
-    
+
     @Override
     public String toString() {
         return NAME;

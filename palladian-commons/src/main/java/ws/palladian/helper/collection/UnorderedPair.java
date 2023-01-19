@@ -7,9 +7,8 @@ import java.io.Serializable;
  * An unordered tuple of items, so that UnorderedPair(Apple, Banana) == UnorderedPair(Banana, Apple). Useful for word
  * co-occurrences, etc.
  * </p>
- * 
+ *
  * @param <T> Type of the items in this {@link UnorderedPair}.
- * 
  * @author Philipp Katz
  */
 public class UnorderedPair<T> implements Serializable {
@@ -47,7 +46,7 @@ public class UnorderedPair<T> implements Serializable {
         boolean equals = false;
 
         if (obj instanceof UnorderedPair<?>) {
-            UnorderedPair<?> that = (UnorderedPair<?>)obj;
+            UnorderedPair<?> that = (UnorderedPair<?>) obj;
             if (this.getLeft().equals(that.getLeft())) {
                 equals = this.getRight().equals(that.getRight());
             } else if (this.getRight().equals(that.getLeft())) {

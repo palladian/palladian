@@ -1,41 +1,29 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.util.*;
+
 /**
- * 
  * <p>
  * The Alchemy service for Named Entity Recognition. This class uses the Alchemy API and therefore requires the
  * application to have access to the Internet.<br>
  * <a href="http://www.alchemyapi.com/api/entity/textc.html">http://www.alchemyapi.com/api/entity/textc.html</a>
  * </p>
- * 
+ *
  * <p>
  * Alchemy can recognize the following entities:<br>
  * <ul>
@@ -362,12 +350,12 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * <li>GovernmentalJurisdiction</li>
  * </ul>
  * </p>
- * 
- * @see <a href="http://www.alchemyapi.com/api/entity/types.html">http://www.alchemyapi.com/api/entity/types.html</a>
+ *
  * @author David Urbansky
+ * @see <a href="http://www.alchemyapi.com/api/entity/types.html">http://www.alchemyapi.com/api/entity/types.html</a>
  */
 public class AlchemyNer extends NamedEntityRecognizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(AlchemyNer.AlchemyAnnotation.class);
 
@@ -410,7 +398,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
      * <p>
      * Create a new {@link AlchemyNer} with an API key provided by the supplied {@link Configuration} instance.
      * </p>
-     * 
+     *
      * @param configuration The configuration providing the API key via {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
     public AlchemyNer(Configuration configuration) {
@@ -421,7 +409,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
      * <p>
      * Create a new {@link AlchemyNer} with the specified API key.
      * </p>
-     * 
+     *
      * @param apiKey The API key to use for connecting with Alchemy API, not <code>null</code> or empty.
      */
     public AlchemyNer(String apiKey) {
@@ -492,8 +480,7 @@ public class AlchemyNer extends NamedEntityRecognizer {
     }
 
     private HttpResult getHttpResult(String inputText) throws HttpException {
-        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST,
-                "http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
+        HttpRequest2Builder requestBuilder = new HttpRequest2Builder(HttpMethod.POST, "http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
         requestBuilder.addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         requestBuilder.addHeader("Accept", "application/json");
         FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
@@ -512,9 +499,8 @@ public class AlchemyNer extends NamedEntityRecognizer {
         AlchemyNer tagger = new AlchemyNer("");
 
         // // HOW TO USE ////
-        System.out
-                .println(tagger
-                        .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
+        System.out.println(tagger.tag(
+                "The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
         // tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
         System.exit(0);
 

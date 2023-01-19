@@ -1,10 +1,6 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.content.PageContentExtractorException;
 import ws.palladian.extraction.entity.Annotations;
@@ -18,6 +14,9 @@ import ws.palladian.extraction.location.persistence.LocationDatabase;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PalladianNerExperiments {
 
@@ -38,12 +37,10 @@ public class PalladianNerExperiments {
 
         // Annotations annotations = new Annotations();
         String trainingSeedFilePath = "data/namesNerDictionary.txt";
-        Annotations<Annotation> trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath,
-                -1);
+        Annotations<Annotation> trainingAnnotations = FileFormatParser.getSeedAnnotations(trainingSeedFilePath, -1);
         tagger.train(trainingPath, trainingAnnotations, modelPath);
 
-        EvaluationResult evaluationResult = tagger.evaluate("data/datasets/ner/conll/test_final.txt",
-                TaggingFormat.COLUMN);
+        EvaluationResult evaluationResult = tagger.evaluate("data/datasets/ner/conll/test_final.txt", TaggingFormat.COLUMN);
         System.out.println(evaluationResult.getMucResultsReadable());
         System.out.println(evaluationResult.getExactMatchResultsReadable());
         //        FileHelper.writeToFile("data/temp/conllEvaluation", evaluationResult.toString());

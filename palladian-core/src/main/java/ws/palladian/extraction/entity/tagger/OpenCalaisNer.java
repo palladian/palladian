@@ -1,35 +1,28 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TaggingFormat;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.util.List;
 
 /**
  * <p>
  * The Open Calais service for Named Entity Recognition. This class uses the Open Calais API and therefore requires the
  * application to have access to the Internet.
  * </p>
- * 
+ *
  * <p>
  * Open Calais can recognize the following entities:<br>
  * <ul>
@@ -74,14 +67,14 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * <li>URL</li>
  * </ul>
  * </p>
- * 
- * @see <a
- *      href="http://www.opencalais.com/documentation/calais-web-service-api/api-metadata/entity-index-and-definitions">English
- *      Semantic Metadata: Entity/Fact/Event Definitions and Descriptions</a>
+ *
  * @author David Urbansky
+ * @see <a
+ * href="http://www.opencalais.com/documentation/calais-web-service-api/api-metadata/entity-index-and-definitions">English
+ * Semantic Metadata: Entity/Fact/Event Definitions and Descriptions</a>
  */
 public class OpenCalaisNer extends NamedEntityRecognizer {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenCalaisNer.class);
 
@@ -101,7 +94,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
      * <p>
      * Create a new {@link OpenCalaisNer} with an API key provided by the supplied {@link Configuration} instance.
      * </p>
-     * 
+     *
      * @param configuration The configuration providing the API key via {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
     public OpenCalaisNer(Configuration configuration) {
@@ -112,7 +105,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
      * <p>
      * Create a new {@link OpenCalaisNer} with the specified API key.
      * </p>
-     * 
+     *
      * @param apiKey API key to use for connecting with OpenCalais, not <code>null</code> or empty.
      */
     public OpenCalaisNer(String apiKey) {
@@ -162,8 +155,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
                                 // co-reference resolution instances
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
-                                    annotations.add(new ImmutableAnnotation(cumulatedOffset + offset, entityName,
-                                            entityTag));
+                                    annotations.add(new ImmutableAnnotation(cumulatedOffset + offset, entityName, entityTag));
                                 }
                             }
                         }
@@ -192,8 +184,7 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         requestBuilder.addHeader("Accept", "application/json");
         FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
         entityBuilder.addData("content", inputText);
-        entityBuilder.addData(
-                "paramsXML",
+        entityBuilder.addData("paramsXML",
                 "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
         requestBuilder.setEntity(entityBuilder.create());
         return httpRetriever.execute(requestBuilder.create());
@@ -209,9 +200,8 @@ public class OpenCalaisNer extends NamedEntityRecognizer {
         OpenCalaisNer tagger = new OpenCalaisNer("");
 
         // HOW TO USE ////
-        System.out
-                .println(tagger
-                        .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+        System.out.println(tagger.tag(
+                "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
         System.exit(0);
 
         // /////////////////////////// test /////////////////////////////

@@ -1,23 +1,15 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-
 
 /**
  * <p>A simple tree implementation. Identification of the nodes works via the labels. No tree node must have a label of
  * another tree node.</p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
- * 
  */
 public class TreeNode implements Serializable {
 
@@ -41,7 +33,7 @@ public class TreeNode implements Serializable {
 
     /**
      * Add a node as a child to the tree node.
-     * 
+     *
      * @param tn The tree node to add.
      * @return True, if the node was not present, false otherwise.
      */
@@ -68,7 +60,7 @@ public class TreeNode implements Serializable {
 
     /**
      * Get the node with the specified label that is somewhere below this node.
-     * 
+     *
      * @param label The label to search for.
      * @return The sought TreeNode or null if it was not found.
      */
@@ -126,7 +118,7 @@ public class TreeNode implements Serializable {
 
     /**
      * Get all parent nodes until the root node is reached.
-     * 
+     *
      * @return An ordered list of parent nodes, ending with the root node.
      */
     public List<TreeNode> getRootPath() {
@@ -143,7 +135,7 @@ public class TreeNode implements Serializable {
 
     /**
      * Get all child nodes until the leaf node is reached. Follow the path of the highest weights.
-     * 
+     *
      * @return An ordered list of child nodes, ending with the leaf node.
      */
     public List<TreeNode> getLeafPath() {
@@ -176,7 +168,7 @@ public class TreeNode implements Serializable {
 
     /**
      * Get an ordered list of all nodes before and after this node. Follow the children that have the highest weight.
-     * 
+     *
      * @return An ordered list of nodes from the leaf to the root.
      */
     public List<TreeNode> getFullPath() {

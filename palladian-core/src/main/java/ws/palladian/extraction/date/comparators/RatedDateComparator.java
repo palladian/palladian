@@ -1,14 +1,10 @@
 package ws.palladian.extraction.date.comparators;
 
-import java.util.Comparator;
-
-import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.extraction.date.dates.MetaDate;
-import ws.palladian.extraction.date.dates.RatedDate;
-import ws.palladian.extraction.date.dates.StructureDate;
-import ws.palladian.extraction.date.dates.UrlDate;
+import ws.palladian.extraction.date.dates.*;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
+
+import java.util.Comparator;
 
 /**
  * <p>
@@ -22,7 +18,7 @@ import ws.palladian.helper.date.ExtractedDate;
  * <br>
  * <b>Be careful to set rates before using this comparator.</b>
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
@@ -43,7 +39,7 @@ public class RatedDateComparator implements Comparator<RatedDate<? extends Extra
         int result = compareRate(ratedDate1, ratedDate2);
         if (result == 0) {
             if (date1 instanceof ContentDate && date2 instanceof ContentDate) {
-                result = compareDocumentPosition((ContentDate)date1, (ContentDate)date2);
+                result = compareDocumentPosition((ContentDate) date1, (ContentDate) date2);
             } else {
                 result = compareTechnique(date1, date2);
             }
@@ -58,7 +54,7 @@ public class RatedDateComparator implements Comparator<RatedDate<? extends Extra
      * <p>
      * Compare by rate.
      * </p>
-     * 
+     *
      * @param ratedDate1
      * @param ratedDate2
      * @return
@@ -73,7 +69,7 @@ public class RatedDateComparator implements Comparator<RatedDate<? extends Extra
      * <p>
      * Compare {@link ContentDate}s by position in document.
      * </p>
-     * 
+     *
      * @param date1
      * @param date2
      * @return
@@ -88,7 +84,7 @@ public class RatedDateComparator implements Comparator<RatedDate<? extends Extra
      * <p>
      * Compare by technique.
      * </p>
-     * 
+     *
      * @param date1
      * @param date2
      * @return
@@ -119,7 +115,7 @@ public class RatedDateComparator implements Comparator<RatedDate<? extends Extra
      * <p>
      * Compare by age.
      * </p>
-     * 
+     *
      * @param date1
      * @param date2
      * @return

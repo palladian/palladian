@@ -1,20 +1,20 @@
 package ws.palladian.extraction.location.sources.importers;
 
+import ws.palladian.extraction.location.LocationType;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import ws.palladian.extraction.location.LocationType;
 
 /**
  * <p>
  * Utility class which takes care of mapping between Geonames feature class and feature code and Palladian's
  * {@link LocationType}.
  * </p>
- * 
+ *
+ * @author Philipp Katz
  * @see <a href="http://download.geonames.org/export/dump/featureCodes_en.txt">List with feature codes</a>
  * @see <a href="http://www.geonames.org/export/codes.html">List with feature codes (more clear)</a>
- * @author Philipp Katz
  */
 public final class GeonamesUtil {
 

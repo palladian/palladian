@@ -1,34 +1,22 @@
 package ws.palladian.semantics;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.h2.tools.RunScript;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.nlp.LoremIpsumGenerator;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.*;
+import java.sql.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * <p>This is a class for accessing an embedded H2 database holding {@link Word}s.</p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class WordDB {
 
@@ -102,20 +90,18 @@ public class WordDB {
             PreparedStatement psCreateTable2;
             PreparedStatement psCreateTable3;
 
-            psCreateTable1 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS words (id int(10) unsigned NOT NULL auto_increment PRIMARY KEY,`word` varchar("
-                            + MAX_WORD_LENGTH
-                            + ") NOT NULL, `plural` varchar("
+            psCreateTable1 = connection.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS words (id int(10) unsigned NOT NULL auto_increment PRIMARY KEY,`word` varchar(" + MAX_WORD_LENGTH + ") NOT NULL, `plural` varchar("
                             + MAX_WORD_LENGTH
                             + ") NOT NULL,`type` varchar(25) NOT NULL,`language` varchar(20) NOT NULL);CREATE INDEX IF NOT EXISTS iw ON words(word);CREATE INDEX IF NOT EXISTS ip ON words(plural);");
             runUpdate(psCreateTable1);
 
-            psCreateTable2 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS hypernyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
+            psCreateTable2 = connection.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS hypernyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
             runUpdate(psCreateTable2);
 
-            psCreateTable3 = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS synonyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
+            psCreateTable3 = connection.prepareStatement(
+                    "CREATE TABLE IF NOT EXISTS synonyms (wordId1 int(10) unsigned NOT NULL, wordId2 int(10) NOT NULL, relevance double NOT NULL, PRIMARY KEY (wordId1, wordID2));");
             runUpdate(psCreateTable3);
 
             prepareStatements();
@@ -135,16 +121,13 @@ public class WordDB {
              * SELECT wordId2,words.word FROM synonyms,words WHERE wordId1 = 5037 AND words.id = wordId2;
              */
 
-            psGetWord = connection
-                    .prepareStatement("SELECT id, `word`, `plural`, `type`, `language` FROM words WHERE `word` = ? OR `plural` = ?");
+            psGetWord = connection.prepareStatement("SELECT id, `word`, `plural`, `type`, `language` FROM words WHERE `word` = ? OR `plural` = ?");
 
-            psGetWordById = connection
-                    .prepareStatement("SELECT id, `word`, `plural`, `type`, `language` FROM words WHERE id = ?");
+            psGetWordById = connection.prepareStatement("SELECT id, `word`, `plural`, `type`, `language` FROM words WHERE id = ?");
 
             psAddWord = connection.prepareStatement("INSERT INTO words VALUES(DEFAULT,?,?,?,?)");
 
-            psUpdateWord = connection
-                    .prepareStatement("UPDATE words SET `plural` = ?, `type` = ?, `language`= ? WHERE id = ?");
+            psUpdateWord = connection.prepareStatement("UPDATE words SET `plural` = ?, `type` = ?, `language`= ? WHERE id = ?");
 
             // hypernyms
             psAddHypernym = connection.prepareStatement("MERGE INTO hypernyms KEY(wordId1,wordId2) VALUES(?,?,?)");
@@ -173,7 +156,7 @@ public class WordDB {
      * <p>
      * <b>NOTE: Inserts and Updates are only in memory and will be lost after closing the session.</b>
      * </p>
-     * 
+     *
      * @return <tt>True</tt>, if the database was successfully loaded into the memory, <tt>false</tt> otherwise.
      */
     public boolean loadDbToMemory() {
@@ -318,8 +301,8 @@ public class WordDB {
      * Get a word object from the db. The word can be in singular or plural, i.e. "bed" and "beds" will return the same
      * word object.
      * </p>
-     * 
-     * @param word The string of the word we are searching for.
+     *
+     * @param word            The string of the word we are searching for.
      * @param caseInsensitive If true, we search for upper-, and lower-case versions, i.e. bed,Bed,beds,Beds.
      * @return The word object.
      */
@@ -350,7 +333,6 @@ public class WordDB {
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
         }
-
 
         return wordObject;
     }
@@ -408,8 +390,8 @@ public class WordDB {
      * <p>
      * Add a list of synonyms for a word.
      * </p>
-     * 
-     * @param word The word to add synonyms for.
+     *
+     * @param word     The word to add synonyms for.
      * @param synonyms The synonyms for the given word.
      * @throws SQLException
      */
@@ -463,8 +445,8 @@ public class WordDB {
      * <p>
      * <b>Note: All existing synonyms will be deleted! If you just want to add synonyms, use addSynonyms() instead</b>
      * </p>
-     * 
-     * @param word The word to add synonyms for.
+     *
+     * @param word     The word to add synonyms for.
      * @param synonyms The synonyms for the given word.
      * @throws SQLException
      */
@@ -532,8 +514,8 @@ public class WordDB {
      * <b>Note: All existing hypernyms will be deleted! If you just want to add hypernyms, use addHypernyms()
      * instead</b>
      * </p>
-     * 
-     * @param word The word to add synonyms for.
+     *
+     * @param word      The word to add synonyms for.
      * @param hypernyms The hypernyms for the given word.
      * @throws SQLException
      */
@@ -599,8 +581,8 @@ public class WordDB {
      * <p>
      * <b>Note: All existing hyponyms will be deleted! If you just want to add hyponyms, use addHyponyms() instead</b>
      * </p>
-     * 
-     * @param word The word to add synonyms for.
+     *
+     * @param word     The word to add synonyms for.
      * @param hyponyms The hyponyms for the given word.
      * @throws SQLException
      */
@@ -756,8 +738,7 @@ public class WordDB {
             Word word = getWord(LoremIpsumGenerator.getRandomText(8));
             aggregateInformation(word);
         }
-        System.out.println("read word " + numIterations + " times from in-memory database in "
-                + sw.getElapsedTimeString());
+        System.out.println("read word " + numIterations + " times from in-memory database in " + sw.getElapsedTimeString());
 
         // insert into memory db
         // for (int i = 0; i < numIterations; i++) {
@@ -770,7 +751,7 @@ public class WordDB {
 
     /**
      * Check whether a given word string is allowed to be entered into the database.
-     * 
+     *
      * @return <tt>True</tt>, if the word is allowed, <tt>false</tt> otherwise.
      */
     private boolean isAllowedWord(String word) {
@@ -793,7 +774,7 @@ public class WordDB {
      * <p>
      * Check whether word is of a certain type.
      * </p>
-     * 
+     *
      * @param word The word to check.
      * @param type Check whether the word is of this type.
      * @return True, if the word is of the given type and false otherwise.
@@ -811,7 +792,7 @@ public class WordDB {
 
     /**
      * Example usage.
-     * 
+     *
      * @param args
      * @throws SQLException
      * @throws FileNotFoundException
@@ -863,7 +844,7 @@ public class WordDB {
         word = wordDB.getWord("Notebook");
         wordDB.aggregateInformation(word);
         LOGGER.info("{}", word);
-        
+
         word = wordDB.getWord("Walkman");
         wordDB.aggregateInformation(word);
         LOGGER.info("{}", word);

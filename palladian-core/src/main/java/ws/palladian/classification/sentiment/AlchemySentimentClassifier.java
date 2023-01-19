@@ -3,15 +3,9 @@ package ws.palladian.classification.sentiment;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 

@@ -1,19 +1,13 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
 import org.apache.commons.lang3.tuple.Pair;
-
 import ws.palladian.helper.StopWatch;
+
+import java.util.*;
 
 /**
  * Micro benchmark for Set operations.
- * 
+ *
  * @author Philipp Katz
  */
 class CollectionHelperBenchmark {
@@ -21,7 +15,7 @@ class CollectionHelperBenchmark {
     private static interface Tester {
         <K> Set<K> execute(Set<K> setA, Set<K> setB);
     }
-    
+
     private static final Random RANDOM = new Random();
 
     /**
@@ -36,7 +30,7 @@ class CollectionHelperBenchmark {
      * .......... |setA| = 100000, |setB| = 100: 2m:31s:712ms
      * .......... |setA| = 100000, |setB| = 10: 2m:43s:716ms
      * Total time: 13m:39s:891ms
-     * 
+     *
      * new intersect method
      * .......... |setA| = 100000, |setB| = 100000: 52s:6ms
      * .......... |setA| = 10000, |setB| = 100000: 4s:678ms
@@ -58,13 +52,13 @@ class CollectionHelperBenchmark {
         testSets.add(Pair.of(createRandomSet(100), createRandomSet(100000)));
         testSets.add(Pair.of(createRandomSet(10), createRandomSet(100000)));
         testSets.add(Pair.of(createRandomSet(1), createRandomSet(100000)));
-        testSets.add(Pair.of(Collections.<Integer> emptySet(), createRandomSet(100000)));
+        testSets.add(Pair.of(Collections.<Integer>emptySet(), createRandomSet(100000)));
         testSets.add(Pair.of(createRandomSet(100000), createRandomSet(10000)));
         testSets.add(Pair.of(createRandomSet(100000), createRandomSet(1000)));
         testSets.add(Pair.of(createRandomSet(100000), createRandomSet(100)));
         testSets.add(Pair.of(createRandomSet(100000), createRandomSet(10)));
         testSets.add(Pair.of(createRandomSet(100000), createRandomSet(1)));
-        testSets.add(Pair.of(createRandomSet(100000), Collections.<Integer> emptySet()));
+        testSets.add(Pair.of(createRandomSet(100000), Collections.<Integer>emptySet()));
 
         System.out.println("old intersect method");
         benchmark(numRuns, testSets, new Tester() {

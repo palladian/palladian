@@ -10,11 +10,10 @@ import java.io.Reader;
  * http://www.w3.org/TR/xml are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD], [#x10000-#x10FFFF] . In other words -
  * any Unicode character, excluding the surrogate blocks, FFFE, and FFFF.
  * </p>
- * 
+ *
  * @author Philipp Katz
- * 
  * @see <a href="http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html">Skipping Invalid XML
- *      Character with ReaderFilter</a>
+ * Character with ReaderFilter</a>
  */
 class Xml10FilterReader extends FilterReader {
 
@@ -22,9 +21,8 @@ class Xml10FilterReader extends FilterReader {
 
     /**
      * Creates filter reader which skips invalid xml characters.
-     * 
-     * @param in
-     *            original reader
+     *
+     * @param in original reader
      */
     public Xml10FilterReader(Reader in) {
         super(in);
@@ -34,7 +32,7 @@ class Xml10FilterReader extends FilterReader {
      * Every overload of {@link Reader#read()} method delegates to this one so it is enough to override only this one. <br />
      * To skip invalid characters this method shifts only valid chars to left and returns decreased value of the
      * original read method. So after last valid character there will be some unused chars in the buffer.
-     * 
+     *
      * @return Number of read valid characters or <code>-1</code> if end of the underling reader was reached.
      */
     @Override
@@ -71,14 +69,13 @@ class Xml10FilterReader extends FilterReader {
      * <p>
      * Checks, whether the supplied character is a valid XML character.
      * </p>
-     * 
+     *
      * @param c The char to check.
      * @return <code>true</code> if char is allowed XML character, <code>false</code> otherwise.
      */
     // TODO move this method to HtmlHelper.
     private static boolean isValidXmlChar(char c) {
-        return c == 0x9 || c == 0xA || c == 0xD || c >= 0x20 && c <= 0xD7FF || c >= 0xE000 && c <= 0xFFFD
-                || c >= 0x10000 && c <= 0x10FFFF;
+        return c == 0x9 || c == 0xA || c == 0xD || c >= 0x20 && c <= 0xD7FF || c >= 0xE000 && c <= 0xFFFD || c >= 0x10000 && c <= 0x10FFFF;
     }
 
 }

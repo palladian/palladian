@@ -1,12 +1,12 @@
 package ws.palladian.classification.universal;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import ws.palladian.classification.nb.NaiveBayesModel;
 import ws.palladian.classification.numeric.KnnModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.core.Model;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class UniversalClassifierModel implements Model {
 

@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.intents;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class SearchIntent {
@@ -47,10 +46,6 @@ public class SearchIntent {
 
     @Override
     public String toString() {
-        return "SearchIntent{" +
-                "triggers=" + triggers +
-                ", context=" + context +
-                ", action=" + action +
-                '}';
+        return "SearchIntent{" + "triggers=" + triggers + ", context=" + context + ", action=" + action + '}';
     }
 }

@@ -1,30 +1,9 @@
 package ws.palladian.extraction.location.persistence;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
+import com.mysql.cj.jdbc.JdbcStatement;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mysql.cj.jdbc.JdbcStatement;
-
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.sources.LocationStore;
@@ -37,6 +16,14 @@ import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.DatabaseManagerFactory;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.RowConverters;
+
+import javax.sql.DataSource;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Importer for MySQL.
@@ -84,14 +71,14 @@ public class MySQLLocationStore extends DatabaseManager implements LocationStore
         }
 
         String line = Arrays.asList( //
-                location.getId(), //
-                location.getType().toString(), //
-                location.getPrimaryName(), //
-                location.getCoords().map(GeoCoordinate::getLatitude).orElse(null), //
-                location.getCoords().map(GeoCoordinate::getLongitude).orElse(null), //
-                location.getPopulation(), //
-                hierarchyString //
-        ) //
+                        location.getId(), //
+                        location.getType().toString(), //
+                        location.getPrimaryName(), //
+                        location.getCoords().map(GeoCoordinate::getLatitude).orElse(null), //
+                        location.getCoords().map(GeoCoordinate::getLongitude).orElse(null), //
+                        location.getPopulation(), //
+                        hierarchyString //
+                ) //
                 .stream() //
                 .map(value -> Optional.ofNullable(value).map(Object::toString).orElse("")) //
                 .collect(Collectors.joining("\t"));
@@ -112,10 +99,10 @@ public class MySQLLocationStore extends DatabaseManager implements LocationStore
     public void addAlternativeNames(int locationId, Collection<AlternativeName> alternativeNames) {
         for (AlternativeName alternativeName : alternativeNames) {
             String line = Arrays.asList( //
-                    locationId, //
-                    alternativeName.getName(), //
-                    alternativeName.getLang().map(Language::getIso6391).orElse("") //
-            ) //
+                            locationId, //
+                            alternativeName.getName(), //
+                            alternativeName.getLang().map(Language::getIso6391).orElse("") //
+                    ) //
                     .stream() //
                     .map(Object::toString) //
                     .collect(Collectors.joining("\t"));
@@ -160,8 +147,7 @@ public class MySQLLocationStore extends DatabaseManager implements LocationStore
     @Override
     public void finishImport() {
         if (locationsWriter == null || altNamesWriter == null) {
-            throw new IllegalStateException(
-                    "startImport() has not been called, or finishImport() was already called once");
+            throw new IllegalStateException("startImport() has not been called, or finishImport() was already called once");
         }
         // close the temporary files
         try {
@@ -177,8 +163,7 @@ public class MySQLLocationStore extends DatabaseManager implements LocationStore
     }
 
     private void loadDataToDB(File locationsFile, File altNamesFile) {
-        try (Connection connection = getConnection();
-                JdbcStatement statement = connection.createStatement().unwrap(JdbcStatement.class)) {
+        try (Connection connection = getConnection(); JdbcStatement statement = connection.createStatement().unwrap(JdbcStatement.class)) {
 
             LOGGER.info("Truncating tables …");
             statement.executeUpdate("TRUNCATE TABLE locations");
@@ -229,8 +214,7 @@ public class MySQLLocationStore extends DatabaseManager implements LocationStore
         // File alternateNames = new
         // File("/Users/pk/Desktop/Geonames/alternateNames.zip");
         // importer.importLocationsZip(locationFile, hierarchyFile, alternateNames);
-        store.loadDataToDB(new File("/Users/pk/Desktop/locations.tsv"),
-                new File("/Users/pk/Desktop/alternative_names.tsv"));
+        store.loadDataToDB(new File("/Users/pk/Desktop/locations.tsv"), new File("/Users/pk/Desktop/alternative_names.tsv"));
     }
 
 }

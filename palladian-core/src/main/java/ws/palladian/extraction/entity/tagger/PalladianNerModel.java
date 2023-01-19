@@ -1,16 +1,15 @@
 package ws.palladian.extraction.entity.tagger;
 
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
-
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.LanguageMode;
 import ws.palladian.extraction.entity.tagger.PalladianNerTrainingSettings.TrainingMode;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class PalladianNerModel implements Serializable {
 
@@ -56,7 +55,7 @@ public final class PalladianNerModel implements Serializable {
 
     /**
      * Check (case insensitively), if the given value is contained within the entity dictionary.
-     * 
+     *
      * @param value
      * @return
      */

@@ -1,11 +1,11 @@
 package ws.palladian.extraction.location;
 
-import java.io.InputStream;
-import java.util.List;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ClassifyingTagger;
 import ws.palladian.helper.io.FileHelper;
+
+import java.io.InputStream;
+import java.util.List;
 
 public final class DefaultCandidateExtractor implements ClassifyingTagger {
     /** Path to the case dictionary within the resources. */

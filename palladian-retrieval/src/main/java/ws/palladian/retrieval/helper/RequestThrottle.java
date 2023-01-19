@@ -5,9 +5,8 @@ package ws.palladian.retrieval.helper;
  * A {@link RequestThrottle} allows to limit the number of actions (typically requests sent to some web API), in order
  * to avoid being blocked because of rate limits.
  * </p>
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public interface RequestThrottle {
 

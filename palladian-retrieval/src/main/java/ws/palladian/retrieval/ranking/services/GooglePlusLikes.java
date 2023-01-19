@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
@@ -14,11 +10,14 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation to find the number of Google Plus likes of a Web page.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public final class GooglePlusLikes extends AbstractRankingService implements RankingService {
@@ -30,9 +29,8 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
     public static final String SERVICE_ID = "googleplus";
 
     /** The ranking value types of this service **/
-    public static final RankingType LIKES = new RankingType("googlepluslikes", "Google Plus Likes",
-            "The Number of Likes on Google Plus");
-    
+    public static final RankingType LIKES = new RankingType("googlepluslikes", "Google Plus Likes", "The Number of Likes on Google Plus");
+
     /** All available ranking types by {@link GooglePlusLikes}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES);
 
@@ -50,16 +48,16 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
                 googlePlusLikes = 0;
                 // result stays 0 if response empty -> url not found
                 String googleLikes = StringHelper.getSubstringBetween(response, "__SSR = {c: ", " ,").trim();
-                
+
                 googleLikes = googleLikes.replaceAll("\\..*", "");
-                
+
                 if (!googleLikes.isEmpty()) {
                     googlePlusLikes = Integer.valueOf(googleLikes);
                 }
 
                 LOGGER.trace("Google Plus Likes for " + url + " : " + googlePlusLikes);
             }
-            
+
         } catch (Exception e) {
             throw new RankingServiceException("Exception " + e.getMessage(), e);
         }
@@ -70,7 +68,7 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
      * <p>
      * Build the request URL.
      * </p>
-     * 
+     *
      * @param url The URL to search for.
      * @return The request URL.
      */
@@ -94,10 +92,9 @@ public final class GooglePlusLikes extends AbstractRankingService implements Ran
         ranking = gpl.getRanking("http://facebook.com");
         System.out.println(ranking);
 
-        ranking = gpl
-                .getRanking("http://www.cinefreaks.com/news/704/Sex-Beherrscht-den-April-im-Kino%3A-Die-Beste-Filme-zum-Fr%C3%BChling");
+        ranking = gpl.getRanking("http://www.cinefreaks.com/news/704/Sex-Beherrscht-den-April-im-Kino%3A-Die-Beste-Filme-zum-Fr%C3%BChling");
         System.out.println(ranking);
-        
+
         ranking = gpl.getRanking("http://google.com");
         System.out.println(ranking);
     }

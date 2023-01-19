@@ -1,36 +1,29 @@
 package ws.palladian.extraction.feature;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
+import java.io.*;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 /**
  * <p>
  * A corpus with terms from documents. Used typically for IDF calculations.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class MapTermCorpus extends AbstractTermCorpus {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MapTermCorpus.class);
 
@@ -52,8 +45,8 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * <p>
      * Create a new {@link MapTermCorpus} with the specified terms and number of documents.
      * </p>
-     * 
-     * @param terms The terms to add.
+     *
+     * @param terms   The terms to add.
      * @param numDocs The number of documents this corpus contains.
      */
     public MapTermCorpus(Bag<String> terms, int numDocs) {
@@ -65,7 +58,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * <p>
      * Add the terms from the specified document and increment the number of documents counter.
      * </p>
-     * 
+     *
      * @param terms The terms to add.
      */
     public void addTermsFromDocument(Set<String> terms) {
@@ -97,7 +90,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * <p>
      * Load a serialized {@link MapTermCorpus} from the given path.
      * </p>
-     * 
+     *
      * @param filePath The path to the file with the corpus, not <code>null</code>.
      * @return A {@link MapTermCorpus} with the deserialized corpus.
      * @throws IOException In case the file could not be read.
@@ -117,7 +110,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * <p>
      * Load a serialized {@link MapTermCorpus} from the given input stream.
      * </p>
-     * 
+     *
      * @param inputStream The input stream providing the serialized data, not <code>null</code>.
      * @return A {@link MapTermCorpus} with the deserialized corpus.
      */
@@ -129,12 +122,12 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         FileHelper.performActionOnEveryLine(inputStream, new LineAction() {
             @Override
             public void performAction(String text, int number) {
-//                if (number != 0 && number % 100000 == 0) {
-//                    System.out.print('.');
-//                    if (number % 10000000 == 0) {
-//                        System.out.println();
-//                    }
-//                }
+                //                if (number != 0 && number % 100000 == 0) {
+                //                    System.out.print('.');
+                //                    if (number % 10000000 == 0) {
+                //                        System.out.println();
+                //                    }
+                //                }
                 String[] split = text.split(SEPARATOR);
                 if (number > 1) {
                     if (split.length != 2) {
@@ -147,7 +140,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
                 }
             }
         });
-//        System.out.println();
+        //        System.out.println();
         LOGGER.debug("Loaded {} terms in {}", counts.unique().size(), stopWatch);
         return new MapTermCorpus(counts, numDocs[0]);
     }
@@ -184,7 +177,7 @@ public final class MapTermCorpus extends AbstractTermCorpus {
      * <p>
      * Get a new filtered {@link TermCorpus} with high frequency terms only.
      * </p>
-     * 
+     *
      * @param minOccurrenceCount The minimum occurrence count, greater/equal zero.
      * @return The filtered {@link TermCorpus}.
      */
@@ -198,29 +191,28 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         }
         return new MapTermCorpus(resultTerms, numDocs);
     }
-    
-	/**
-	 * Get a reduced version of the term corpus with the specified maximum size
-	 * (i.e. number of unique terms), by taking the highest frequency items.
-	 * 
-	 * @param maxSize
-	 *            The size of the reduced corpus.
-	 * @return The reduced corpus.
-	 */
-	public MapTermCorpus getReducedCorpus(int maxSize) {
-		Validate.isTrue(maxSize > 0, "maxSize must be greater zero.");
-		Bag<String> resultTerms = new Bag<>();
-		Bag<String> sorted = terms.createSorted(Order.DESCENDING);
-		int size = 0;
-		for (String term : sorted.uniqueItems()) {
-			if (++size > maxSize) {
-				break;
-			}
-			int count = terms.count(term);
-			resultTerms.add(term, count);
-		}
-		return new MapTermCorpus(resultTerms, numDocs);
-	}
+
+    /**
+     * Get a reduced version of the term corpus with the specified maximum size
+     * (i.e. number of unique terms), by taking the highest frequency items.
+     *
+     * @param maxSize The size of the reduced corpus.
+     * @return The reduced corpus.
+     */
+    public MapTermCorpus getReducedCorpus(int maxSize) {
+        Validate.isTrue(maxSize > 0, "maxSize must be greater zero.");
+        Bag<String> resultTerms = new Bag<>();
+        Bag<String> sorted = terms.createSorted(Order.DESCENDING);
+        int size = 0;
+        for (String term : sorted.uniqueItems()) {
+            if (++size > maxSize) {
+                break;
+            }
+            int count = terms.count(term);
+            resultTerms.add(term, count);
+        }
+        return new MapTermCorpus(resultTerms, numDocs);
+    }
 
     @Override
     public String toString() {
@@ -232,9 +224,9 @@ public final class MapTermCorpus extends AbstractTermCorpus {
         return sb.toString();
     }
 
-	@Override
-	public Iterator<String> iterator() {
-		return terms.uniqueItems().iterator();
-	}
+    @Override
+    public Iterator<String> iterator() {
+        return terms.uniqueItems().iterator();
+    }
 
 }

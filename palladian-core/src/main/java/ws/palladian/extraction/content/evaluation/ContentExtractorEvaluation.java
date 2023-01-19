@@ -1,13 +1,8 @@
 package ws.palladian.extraction.content.evaluation;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.extraction.content.ReadabilityContentExtractor;
 import ws.palladian.extraction.content.WebPageContentExtractor;
@@ -21,6 +16,10 @@ import ws.palladian.helper.nlp.CharacterNGramSimilarity;
 import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 import ws.palladian.helper.nlp.LevenshteinSimilarity;
 import ws.palladian.helper.nlp.StringMetric;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ContentExtractorEvaluation {
 
@@ -106,8 +105,7 @@ public final class ContentExtractorEvaluation {
                         String expectedStart = expectedText.substring(0, 25);
                         String extractedStart = extractedText.substring(0, 25);
                         String expectedEnd = expectedText.substring(expectedText.length() - 25, expectedText.length());
-                        String extractedEnd = extractedText.substring(extractedText.length() - 25,
-                                extractedText.length());
+                        String extractedEnd = extractedText.substring(extractedText.length() - 25, extractedText.length());
                         startCorrect = expectedStart.equals(extractedStart);
                         endCorrect = expectedEnd.equals(extractedEnd);
                     }
@@ -135,8 +133,8 @@ public final class ContentExtractorEvaluation {
                 fileContent.append('\n');
                 fileContent.append("Average similarities:\n");
                 int numPages = dataset.size();
-                double startCorrectPercentage = 100 * (double)numStartCorrect / numPages;
-                double endCorrectPercentage = 100 * (double)numEndCorrect / numPages;
+                double startCorrectPercentage = 100 * (double) numStartCorrect / numPages;
+                double endCorrectPercentage = 100 * (double) numEndCorrect / numPages;
                 for (int i = 0; i < SIMILARITIES.size(); i++) {
                     fileContent.append(SIMILARITIES.get(i).toString());
                     fileContent.append(": ");
@@ -149,8 +147,7 @@ public final class ContentExtractorEvaluation {
                 fileContent.append('\n');
                 fileContent.append("Individual similarities:\n");
                 fileContent.append(resultCsv);
-                String fileName = "ContentExtractorEvaluation_" + extractor.getExtractorName() + "_"
-                        + dataset.toString() + "_" + System.currentTimeMillis() + ".csv";
+                String fileName = "ContentExtractorEvaluation_" + extractor.getExtractorName() + "_" + dataset.toString() + "_" + System.currentTimeMillis() + ".csv";
                 FileHelper.writeToFile(fileName, fileContent);
                 // summary
                 StringBuilder summaryCsv = new StringBuilder();

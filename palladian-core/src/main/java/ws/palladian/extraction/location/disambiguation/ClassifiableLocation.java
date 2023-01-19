@@ -1,7 +1,6 @@
 package ws.palladian.extraction.location.disambiguation;
 
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.FeatureVector;
 import ws.palladian.extraction.location.Location;
 
@@ -9,7 +8,7 @@ import ws.palladian.extraction.location.Location;
  * <p>
  * A {@link Location} with extracted features represented by a {@link FeatureVector}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class ClassifiableLocation {
@@ -49,7 +48,7 @@ public final class ClassifiableLocation {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ClassifiableLocation other = (ClassifiableLocation)obj;
+        ClassifiableLocation other = (ClassifiableLocation) obj;
         if (!featureVector.equals(other.featureVector)) {
             return false;
         }

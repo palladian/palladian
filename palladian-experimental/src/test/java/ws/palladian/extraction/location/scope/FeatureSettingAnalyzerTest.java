@@ -1,14 +1,13 @@
 package ws.palladian.extraction.location.scope;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.classification.text.FeatureSettingBuilder;
 
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.FeatureSettingBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FeatureSettingAnalyzerTest {
 
@@ -61,16 +60,14 @@ public class FeatureSettingAnalyzerTest {
 
     private static void assertCharLength(int min, int max, List<String> tokens) {
         for (String token : tokens) {
-            assertTrue("token length must be >= " + min + " and <= " + max + ", but was " + token.length(),
-                    token.length() >= min && token.length() <= max);
+            assertTrue("token length must be >= " + min + " and <= " + max + ", but was " + token.length(), token.length() >= min && token.length() <= max);
         }
     }
 
     private static void assertTokenCount(int min, int max, List<String> tokens) {
         for (String token : tokens) {
             int numTokens = token.split("\\s").length;
-            assertTrue("token count must be >= " + min + " and <= " + max + ", but was " + numTokens, numTokens >= min
-                    && numTokens <= max);
+            assertTrue("token count must be >= " + min + " and <= " + max + ", but was " + numTokens, numTokens >= min && numTokens <= max);
         }
     }
 

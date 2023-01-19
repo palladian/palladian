@@ -1,15 +1,14 @@
 package ws.palladian.retrieval;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
+import ws.palladian.retrieval.OAuthParams.SignatureMethod;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
-
-import ws.palladian.retrieval.OAuthParams.SignatureMethod;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Philipp Katz
@@ -23,6 +22,7 @@ public class OAuthUtilTest {
     static final private String CONSUMER_SECRET = "kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw";
     static final private String TOKEN_SECRET = "LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE";
     static final private List<Pair<String, String>> PARAMS = new ArrayList<>();
+
     static {
         PARAMS.add(Pair.of("status", "Hello Ladies + Gentlemen, a signed OAuth request!"));
         PARAMS.add(Pair.of("include_entities", "true"));
@@ -33,6 +33,7 @@ public class OAuthUtilTest {
         PARAMS.add(Pair.of("oauth_token", TOKEN));
         PARAMS.add(Pair.of("oauth_version", "1.0"));
     }
+
     static final private HttpRequest2 HTTP_REQUEST = new HttpRequest2Builder(HTTP_METHOD, BASE_URL).create();
     static final private OAuthParams OAUTH_PARAMS = new OAuthParams(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET);
     static final private OAuthUtil OATH_UTIL_UNDER_TEST = new OAuthUtil(OAUTH_PARAMS) {
@@ -99,12 +100,12 @@ public class OAuthUtilTest {
         String authorizationParam = OATH_UTIL_UNDER_TEST.createAuthorization(HTTP_METHOD, BASE_URL, null);
         assertEquals(EXPECTED_AUTHORIZATION_PARAM, authorizationParam);
     }
-    
+
     @Test
     public void testCreateAuthorization_PLAINTEXT() {
-    	OAuthParams params = new OAuthParams(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET, SignatureMethod.PLAINTEXT, null);
-    	String authorizationParam = new OAuthUtil(params).createAuthorization(HTTP_METHOD, BASE_URL, null);
-    	assertTrue(authorizationParam.contains("oauth_signature=\"kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw%26LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE\""));
+        OAuthParams params = new OAuthParams(CONSUMER_KEY, CONSUMER_SECRET, TOKEN, TOKEN_SECRET, SignatureMethod.PLAINTEXT, null);
+        String authorizationParam = new OAuthUtil(params).createAuthorization(HTTP_METHOD, BASE_URL, null);
+        assertTrue(authorizationParam.contains("oauth_signature=\"kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw%26LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE\""));
     }
 
     @Test

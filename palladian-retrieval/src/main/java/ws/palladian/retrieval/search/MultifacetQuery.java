@@ -1,25 +1,17 @@
 package ws.palladian.retrieval.search;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+
+import java.util.*;
 
 /**
  * <p>
  * A query which combines multiple facets (text, time, space, language). Use the {@link Builder} to create instances.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface MultifacetQuery {
@@ -27,7 +19,7 @@ public interface MultifacetQuery {
      * <p>
      * Builder for creating a {@link MultifacetQuery}.
      * </p>
-     * 
+     *
      * @author Philipp Katz
      */
     class Builder implements Factory<MultifacetQuery> {
@@ -59,7 +51,7 @@ public interface MultifacetQuery {
          * Set a source internal ID for which to query. For Twitter e.g., one might specify the status ID of the Tweet
          * to retrieve. In general, this makes all other parameters unnecessary.
          * </p>
-         * 
+         *
          * @param id The ID to set.
          * @return The builder.
          */
@@ -74,7 +66,7 @@ public interface MultifacetQuery {
         }
 
         public Builder setTags(Collection<String> tags) {
-            this.tags = tags == null ? Collections.<String> emptySet() : new HashSet<String>(tags);
+            this.tags = tags == null ? Collections.<String>emptySet() : new HashSet<String>(tags);
             return this;
         }
 
@@ -113,7 +105,7 @@ public interface MultifacetQuery {
          * <p>
          * Set the distance from the given coordinate.
          * </p>
-         * 
+         *
          * @param radius The distance in kilometers, greater/equal zero.
          * @return The builder.
          */
@@ -208,10 +200,10 @@ public interface MultifacetQuery {
      * Get a searcher-specific additional facet which is not included in this API. The convention is, that additional
      * facets should be specified as static nested classes within the corresponding searcher.
      * </p>
-     * 
+     *
      * @param identifier The identifier of the facet to retrieve, not <code>null</code>.
      * @return The facet for the specified identifier, or <code>null</code> in case no facet with the given identifier
-     *         exists.
+     * exists.
      */
     Facet getFacet(String identifier);
 

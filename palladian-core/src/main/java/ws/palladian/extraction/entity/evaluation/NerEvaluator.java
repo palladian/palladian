@@ -1,12 +1,7 @@
 package ws.palladian.extraction.entity.evaluation;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.TrainableNamedEntityRecognizer;
@@ -14,11 +9,14 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>The NerEvaluator can be used to train and evaluate several NERs on the same data.</p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class NerEvaluator {
 
@@ -43,7 +41,7 @@ public class NerEvaluator {
         for (NamedEntityRecognizer ner : getNerList()) {
 
             if (ner instanceof TrainableNamedEntityRecognizer) {
-                TrainableNamedEntityRecognizer trainableNer = (TrainableNamedEntityRecognizer)ner;
+                TrainableNamedEntityRecognizer trainableNer = (TrainableNamedEntityRecognizer) ner;
 
                 String modelPath = "data/temp/nerEvaluation/" + StringHelper.makeSafeName(ner.getName());
 

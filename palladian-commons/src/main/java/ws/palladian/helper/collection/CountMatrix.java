@@ -1,12 +1,11 @@
 package ws.palladian.helper.collection;
 
+import org.apache.commons.lang3.Validate;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
-
 import java.util.function.Function;
 
 /**
@@ -14,9 +13,8 @@ import java.util.function.Function;
  * A CountMatrix allows counting of items which are indexed by (x, y) coordinates. It is the two-dimensional variant of
  * the {@link CountMap}.
  * </p>
- * 
+ *
  * @param <K> The type of the keys in this CountMatrix.
- * 
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -34,10 +32,9 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
 
     /**
      * A {@link MatrixVector} decorator, which returns {@link IntegerVector}s.
-     * 
-     * @author Philipp Katz
-     * 
+     *
      * @param <K>
+     * @author Philipp Katz
      */
     public static final class IntegerMatrixVector<K> implements MatrixVector<K, Integer> {
 
@@ -107,7 +104,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
      * <p>
      * Shortcut method instead of constructor which allows omitting the type parameter.
      * </p>
-     * 
+     *
      * @return A new CountMatrix.
      */
     public static <T> CountMatrix<T> create() {
@@ -118,7 +115,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
      * <p>
      * Increment the count of the specified cell by one.
      * </p>
-     * 
+     *
      * @param x The column, not <code>null</code>.
      * @param y The row, not <code>null</code>.
      */
@@ -132,9 +129,9 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
      * <p>
      * Increment the count of the specified cell by a certain number.
      * </p>
-     * 
-     * @param x The column, not <code>null</code>.
-     * @param y The row, not <code>null</code>.
+     *
+     * @param x     The column, not <code>null</code>.
+     * @param y     The row, not <code>null</code>.
      * @param value The value to add.
      */
     public void add(K x, K y, int value) {
@@ -148,7 +145,7 @@ public class CountMatrix<K> extends MatrixDecorator<K, Integer> implements Seria
      * <p>
      * Same as {@link #get(Object, Object)}, just to be consistent to CountMap's method.
      * </p>
-     * 
+     *
      * @param x
      * @param y
      * @return

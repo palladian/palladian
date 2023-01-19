@@ -4,7 +4,7 @@ package ws.palladian;
  * <p>
  * This class provides constants with version information and copyright about the Palladian library.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface PalladianVersion {

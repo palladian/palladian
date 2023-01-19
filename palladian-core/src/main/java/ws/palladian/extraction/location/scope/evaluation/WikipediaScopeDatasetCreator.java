@@ -1,11 +1,7 @@
 package ws.palladian.extraction.location.scope.evaluation;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
@@ -15,13 +11,15 @@ import ws.palladian.retrieval.wiki.MediaWikiUtil;
 import ws.palladian.retrieval.wiki.WikiPage;
 import ws.palladian.retrieval.wiki.WikiPageReference;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * <p>
  * Create a scope detection dataset from random Wikipedia articles.
  * </p>
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public class WikipediaScopeDatasetCreator {
 
@@ -33,8 +31,7 @@ public class WikipediaScopeDatasetCreator {
 
     private static final String OUTPUT_DIR = "/Users/pk/Desktop/wikipediaScopeDataset";
 
-    private static final MediaWikiDescriptor WIKIPEDIA_EN = MediaWikiDescriptor.Builder.wikimedia()
-            .language(Language.ENGLISH).create();
+    private static final MediaWikiDescriptor WIKIPEDIA_EN = MediaWikiDescriptor.Builder.wikimedia().language(Language.ENGLISH).create();
 
     private static final int MAX_SUBSEQUENT_ERROR_COUNT = 10;
 
@@ -48,7 +45,7 @@ public class WikipediaScopeDatasetCreator {
 
         @Override
         public void run() {
-            for (;;) {
+            for (; ; ) {
 
                 try {
 
@@ -67,29 +64,25 @@ public class WikipediaScopeDatasetCreator {
                         String articleText = article.getMarkup();
 
                         // save the article
-                        String normalizedTitle = article.getTitle().replaceAll("\\s", "_").replace(';', '_')
-                                .replace('/', '_').replaceAll("_+", "_");
+                        String normalizedTitle = article.getTitle().replaceAll("\\s", "_").replace(';', '_').replace('/', '_').replaceAll("_+", "_");
                         String fileName = normalizedTitle + ".mediawiki";
                         String filePath = OUTPUT_DIR + "/" + fileName;
                         FileHelper.writeToFile(filePath, articleText);
 
                         // save the coordinates to file
-                        String line = fileName + ";" + coordinate.getLatitude() + ";" + coordinate.getLongitude()
-                                + "\n";
+                        String line = fileName + ";" + coordinate.getLatitude() + ";" + coordinate.getLongitude() + "\n";
                         FileHelper.appendFile(OUTPUT_DIR + "/_coordinates.csv", line);
 
                         coordinateCounter.incrementAndGet();
                         errorCounter.set(0);
-                        System.out.println(counter.get() + " requests sent, coordinate fraction: "
-                                + (double)coordinateCounter.get() / counter.get());
+                        System.out.println(counter.get() + " requests sent, coordinate fraction: " + (double) coordinateCounter.get() / counter.get());
                     }
 
                 } catch (IllegalStateException e) {
                     if (errorCounter.incrementAndGet() == MAX_SUBSEQUENT_ERROR_COUNT) {
                         throw e;
                     }
-                    LOGGER.warn("Encountered {}, waiting for some seconds, {} subsequent errors so far", e.toString(),
-                            errorCounter);
+                    LOGGER.warn("Encountered {}, waiting for some seconds, {} subsequent errors so far", e.toString(), errorCounter);
                     ThreadHelper.deepSleep(TimeUnit.SECONDS.toMillis(30));
                 }
             }

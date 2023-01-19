@@ -1,20 +1,19 @@
 package ws.palladian.classification.text;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.constants.Language;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.constants.Language;
 
 /**
  * <p>
  * Save the settings which text features should be used for a classifier. Use the {@link FeatureSettingBuilder} to
  * instantiate.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -53,9 +52,9 @@ public class FeatureSetting implements Serializable {
 
     /** Name of the key for langauge setting. */
     public static final String PROPERTY_LANGUAGE = "language";
-    
+
     public static final String PROPERTY_CREATE_SKIP_GRAMS = "createSkipGrams";
-    
+
     public static final String PROPERTY_USE_TOKEN_COMBINATIONS = "useTokenCombinations";
     public static final String PROPERTY_TOKEN_COMBINATIONS_MIN_TERM_LENGTH = "tokenCombinationsMinNGramLength";
     public static final String PROPERTY_TOKEN_COMBINATIONS_MAX_TERM_LENGTH = "tokenCombinationsMaxNGramLength";
@@ -86,9 +85,9 @@ public class FeatureSetting implements Serializable {
     static final boolean DEFAULT_REMOVE_STOPWORDS = false;
 
     public static final Language DEFAULT_LANGUAGE = Language.ENGLISH;
-    
+
     static final boolean DEFAULT_CREATE_SKIP_GRAMS = false;
-    
+
     static final boolean DEFAULT_USE_TOKEN_COMBINATIONS = false;
     static final int DEFAULT_TOKEN_COMBINATIONS_MIN_NGRAM_LENGTH = 1;
     static final int DEFAULT_TOKEN_COMBINATIONS_MAX_NGRAM_LENGTH = 1;
@@ -138,7 +137,7 @@ public class FeatureSetting implements Serializable {
 
     /** The language used for stemming and stop word removal. */
     private Language language = DEFAULT_LANGUAGE;
-    
+
     /** Whether to create skip grams, e.g. for "the quick brown", a skip gram would be "the brown". */
     private boolean createSkipGrams = DEFAULT_CREATE_SKIP_GRAMS;
 
@@ -200,7 +199,7 @@ public class FeatureSetting implements Serializable {
     /**
      * <p>
      * Create a feature setting from a properties map.
-     * 
+     *
      * @param properties The properties, not <code>null</code>.
      */
     public FeatureSetting(Map<String, String> properties) {
@@ -279,10 +278,10 @@ public class FeatureSetting implements Serializable {
     public Language getLanguage() {
         return language;
     }
-    
+
     public boolean isCreateSkipGrams() {
-		return createSkipGrams;
-	}
+        return createSkipGrams;
+    }
 
     public boolean isUseTokenCombinations() {
         return useTokenCombinations;
@@ -342,7 +341,7 @@ public class FeatureSetting implements Serializable {
             builder.append(", language=").append(language);
         }
         if (isCreateSkipGrams()) {
-        	builder.append(", createSkipGrams");
+            builder.append(", createSkipGrams");
         }
         builder.append("]");
         return builder.toString();
@@ -367,12 +366,12 @@ public class FeatureSetting implements Serializable {
         map.put(PROPERTY_CREATE_SKIP_GRAMS, String.valueOf(createSkipGrams));
         return map;
     }
-    
+
     // hashCode + equals
 
     @Override
     public int hashCode() {
-    	return toMap().hashCode();
+        return toMap().hashCode();
     }
 
     @Override
@@ -383,7 +382,7 @@ public class FeatureSetting implements Serializable {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        FeatureSetting other = (FeatureSetting)obj;
+        FeatureSetting other = (FeatureSetting) obj;
         return toMap().equals(other.toMap());
     }
 }

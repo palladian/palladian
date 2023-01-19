@@ -1,23 +1,6 @@
 package ws.palladian.extraction.entity;
 
-import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.token.Tokenizer;
@@ -28,9 +11,19 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
+
 /**
  * Transform file formats for NER learning.
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -96,9 +89,8 @@ public final class FileFormatParser {
                     }
                 }
                 currentTag = tag;
-                if (parts.length > 0 && value.length() > 0
-                        && (Character.isLetterOrDigit(value.charAt(0)) || StringHelper.isBracket(value.charAt(0)))
-                        && !openTag && lineNumber > 1 && !previousLineBreak) {
+                if (parts.length > 0 && value.length() > 0 && (Character.isLetterOrDigit(value.charAt(0)) || StringHelper.isBracket(value.charAt(0))) && !openTag && lineNumber > 1
+                        && !previousLineBreak) {
                     writer.write(" ");
                 }
                 writer.write(value);
@@ -111,7 +103,7 @@ public final class FileFormatParser {
 
     /**
      * {@link LineAction} to convert from XML tagged format to column format.
-     * 
+     *
      * @author Philipp Katz
      */
     private static final class XmlToColumnAction extends LineAction {
@@ -120,9 +112,9 @@ public final class FileFormatParser {
 
         /**
          * Create a new {@link XmlToColumnAction}.
-         * 
+         *
          * @param columnSeparator The column separator for the output format.
-         * @param writer The writer where the output is appended.
+         * @param writer          The writer where the output is appended.
          */
         private XmlToColumnAction(String columnSeparator, Writer writer) {
             this.columnSeparator = columnSeparator;
@@ -161,9 +153,9 @@ public final class FileFormatParser {
      * <p>
      * Get all tags that are used in the given file. For example ORG, LOC, PER, and MISC in the ConLL 2003 file (O tags
      * are ignored).
-     * 
+     *
      * @param trainingFilePath The path to the training file.
-     * @param separator The separator used.
+     * @param separator        The separator used.
      * @return A set with all tags used.
      */
     public static Set<String> getTagsFromColumnFile(String trainingFilePath, final String separator) {
@@ -219,9 +211,9 @@ public final class FileFormatParser {
      * word3 [tab] type2<br>
      * =><br>
      * &lt;type&gt;word word2&lt;/type&gt;<br>
-     * 
-     * @param inputFilePath The location of the input file.
-     * @param outputFilePath The location where the transformed file should be written to.
+     *
+     * @param inputFilePath   The location of the input file.
+     * @param outputFilePath  The location where the transformed file should be written to.
      * @param columnSeparator The separator for the columns.
      */
     public static void columnToXml(String inputFilePath, String outputFilePath, final String columnSeparator) {
@@ -244,9 +236,9 @@ public final class FileFormatParser {
      * =><br>
      * &lt;type&gt;word&lt;/type&gt;<br>
      * &lt;type&gt;word2&lt;/type&gt;<br>
-     * 
-     * @param inputFilePath The location of the input file.
-     * @param outputFilePath The location where the transformed file should be written to.
+     *
+     * @param inputFilePath   The location of the input file.
+     * @param outputFilePath  The location where the transformed file should be written to.
      * @param columnSeparator The separator for the columns.
      */
     public static void columnToXmlTokenBased(String inputFilePath, String outputFilePath, final String columnSeparator) {
@@ -269,10 +261,8 @@ public final class FileFormatParser {
                     }
                     return;
                 }
-                if (parts.length > 0
-                        && parts[0].length() > 0
-                        && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
-                        && lineNumber > 1 && !previousLineBreak) {
+                if (parts.length > 0 && parts[0].length() > 0 && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0))) && lineNumber > 1
+                        && !previousLineBreak) {
                     transformedText.append(" ");
                 }
                 transformedText.append("<").append(parts[1]).append(">");
@@ -426,8 +416,7 @@ public final class FileFormatParser {
         columnToSlash(columnFilePath, slashFilePath, columnSeparator, "|");
     }
 
-    public static void columnToSlash(String columnFilePath, String slashFilePath, final String columnSeparator,
-            final String slashSign) {
+    public static void columnToSlash(String columnFilePath, String slashFilePath, final String columnSeparator, final String slashSign) {
         final StringBuilder slashFile = new StringBuilder();
         FileHelper.performActionOnEveryLine(columnFilePath, new LineAction() {
             @Override
@@ -451,8 +440,7 @@ public final class FileFormatParser {
 
     public static String bracketToXmlText(String inputText) {
         String outputText = inputText;
-        Pattern pattern = Pattern.compile("\\[(\\w+)\\s([^]]+?)(\\s([^]]+?))*?\\s{0,2}\\]", Pattern.DOTALL
-                | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\[(\\w+)\\s([^]]+?)(\\s([^]]+?))*?\\s{0,2}\\]", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(inputText);
         while (matcher.find()) {
             String tagName = StringHelper.getSubstringBetween(matcher.group(0), "[", " ").trim();
@@ -529,12 +517,12 @@ public final class FileFormatParser {
 
     /**
      * Get XML annotations from a text. Nested annotations are discarded.
-     * 
+     *
      * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
      * @return A list of annotations that were found in the text.
      */
     public static Annotations<Annotation> getAnnotationsFromXmlText(String taggedText) {
-        
+
         Annotations<Annotation> annotations = new Annotations<Annotation>();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
@@ -548,8 +536,7 @@ public final class FileFormatParser {
         // text <PERSON><PHONE>John <PERSON>J</PERSON></PHONE>. <PHONE>Smith</PHONE></PERSON> lives
 
         // get locations of annotations
-        Pattern pattern = Pattern.compile("\\<([A-Z]+)\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL
-                | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\<([A-Z]+)\\>(.{1,1000}?)\\</\\1\\>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(taggedText);
         while (matcher.find()) {
@@ -569,7 +556,7 @@ public final class FileFormatParser {
             cumulatedTagOffset += tagOffset;
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
-            
+
             annotations.add(new ImmutableAnnotation(offset, entityName, conceptName));
 
             // add tag </ + name + > and nested tag length to cumulated tag offset
@@ -590,15 +577,14 @@ public final class FileFormatParser {
      * <p>
      * Get a list of annotations from a tagged file.
      * </p>
-     * 
-     * @param annotatedFilePath The path to the tagged file. The file must be in a tab (\t) separated column column
-     *            format where the first column is the term and the second column is the concept.
+     *
+     * @param annotatedFilePath       The path to the tagged file. The file must be in a tab (\t) separated column column
+     *                                format where the first column is the term and the second column is the concept.
      * @param numberOfSeedsPerConcept The number of annotations that have to be found for each concept. If set to -1 all
-     *            annotations of the file are taken.
+     *                                annotations of the file are taken.
      * @return Annotations with numberOfSeedsPerConcept entries per concept.
      */
-    public static Annotations<Annotation> getSeedAnnotations(String annotatedFilePath,
-            int numberOfSeedsPerConcept) {
+    public static Annotations<Annotation> getSeedAnnotations(String annotatedFilePath, int numberOfSeedsPerConcept) {
         Annotations<Annotation> annotations = new Annotations<Annotation>();
 
         // count the number of collected seeds per concept
@@ -615,8 +601,7 @@ public final class FileFormatParser {
             String conceptName = annotation.getTag();
             int numberOfSeeds = conceptSeedCount.count(conceptName);
 
-            if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1)
-                    && !entitySet.contains(annotation.getValue())) {
+            if ((numberOfSeeds < numberOfSeedsPerConcept || numberOfSeedsPerConcept == -1) && !entitySet.contains(annotation.getValue())) {
                 annotations.add(annotation);
                 entitySet.add(annotation.getValue());
                 conceptSeedCount.add(conceptName);
@@ -644,8 +629,7 @@ public final class FileFormatParser {
         FileFormatParser.xmlToColumn("data/temp/xmlFormat.xml", "data/temp/columnFormat2.tsv", "\\t");
         FileFormatParser.xmlToColumn("data/temp/allTagged.xml", "data/temp/allTaggedColumn.tsv", "\\t");
 
-        FileFormatParser.xmlToColumn("data/datasets/ner/mobilephone/text/all.xml",
-                "data/datasets/ner/mobilephone/text/allColumn.tsv", "\t");
+        FileFormatParser.xmlToColumn("data/datasets/ner/mobilephone/text/all.xml", "data/datasets/ner/mobilephone/text/allColumn.tsv", "\t");
 
         FileFormatParser.columnTrainingToTest("data/temp/allColumn.tsv", "data/temp/allColumnTest.tsv", "\t");
 
@@ -661,8 +645,7 @@ public final class FileFormatParser {
         FileFormatParser.slashToXml("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
         FileFormatParser.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
 
-        List<Annotation> annotations = FileFormatParser
-                .getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
+        List<Annotation> annotations = FileFormatParser.getAnnotationsFromXmlFile("data/temp/xmlFromSlashed.xml");
         CollectionHelper.print(annotations);
     }
 

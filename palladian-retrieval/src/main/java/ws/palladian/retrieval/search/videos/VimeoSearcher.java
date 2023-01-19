@@ -1,5 +1,18 @@
 package ws.palladian.retrieval.search.videos;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.retrieval.resources.BasicWebVideo;
+import ws.palladian.retrieval.resources.WebVideo;
+import ws.palladian.retrieval.search.*;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,37 +21,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest2;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.OAuthParams;
-import ws.palladian.retrieval.OAuthUtil;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
-import ws.palladian.retrieval.resources.BasicWebVideo;
-import ws.palladian.retrieval.resources.WebVideo;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.RateLimitedException;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
-
 /**
  * <p>
  * WebSearcher for <a href="http://vimeo.com/">Vimeo</a>.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://developer.vimeo.com/apis/advanced/methods/vimeo.videos.search">API documentation</a>
  */
@@ -71,7 +58,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
     /**
      * Create a new {@link VimeoSearcher}.
-     * 
+     *
      * @param oAuthParams The parameters for the OAuth-based authentication, not <code>null</code>
      */
     public VimeoSearcher(OAuthParams oAuthParams) {
@@ -84,10 +71,10 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
      * <p>
      * Create a new {@link VimeoSearcher}.
      * </p>
-     * 
-     * @param consumerKey The OAuth consumer key, not <code>null</code> or empty.
-     * @param consumerSecret The OAuth consumer secret, not <code>null</code> or empty.
-     * @param accessToken The OAuth access token, not <code>null</code> or empty.
+     *
+     * @param consumerKey       The OAuth consumer key, not <code>null</code> or empty.
+     * @param consumerSecret    The OAuth consumer secret, not <code>null</code> or empty.
+     * @param accessToken       The OAuth access token, not <code>null</code> or empty.
      * @param accessTokenSecret The OAuth access token secret, not <code>null</code> or empty.
      */
     public VimeoSearcher(String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret) {
@@ -98,14 +85,13 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
      * <p>
      * Create a new {@link VimeoSearcher}.
      * </p>
-     * 
+     *
      * @param configuration A {@link Configuration} instance providing the necessary parameters for OAuth authentication
-     *            ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
-     *            {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
+     *                      ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
+     *                      {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
      */
     public VimeoSearcher(Configuration configuration) {
-        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
-                configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
+        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY), configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
                 configuration.getString(CONFIG_ACCESS_TOKEN_SECRET)));
     }
 
@@ -135,7 +121,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         List<WebVideo> webResults = new ArrayList<>();
         int requestedResults = query.getResultCount();
         Long availableResults = null;
-        for (int page = 0; page < Math.ceil((double)requestedResults / 50); page++) {
+        for (int page = 0; page < Math.ceil((double) requestedResults / 50); page++) {
             int itemsToGet = Math.min(50, requestedResults - page * 50);
             HttpRequest2 request = buildRequest(query, page, itemsToGet);
             LOGGER.debug("request = " + request);
@@ -143,8 +129,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             try {
                 httpResult = retriever.execute(request);
             } catch (HttpException e) {
-                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
-                        + " (request: " + request + "): " + e.getMessage(), e);
+                throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request: " + request + "): " + e.getMessage(), e);
             }
             checkRateLimits(httpResult);
             try {
@@ -156,8 +141,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
                 }
                 webResults.addAll(parsedVideos);
             } catch (JsonException e) {
-                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                        + "\" with " + getName() + ": " + e.getMessage(), e);
+                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage(), e);
             }
         }
         return new SearchResults<WebVideo>(webResults, availableResults);
@@ -170,8 +154,8 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
         int rateLimitReset = Integer.parseInt(httpResult.getHeaderString("X-RateLimit-Reset"));
         LOGGER.debug("Rate limit: " + rateLimit + ", remaining: " + rateLimitRemaining + ", reset: " + rateLimitReset);
         if (rateLimitRemaining == 0) {
-            int timeUntilReset = rateLimitReset - (int)(System.currentTimeMillis() / 1000);
-            throw new RateLimitedException("Rate limit exceeded, rate limit is " + rateLimit, timeUntilReset );
+            int timeUntilReset = rateLimitReset - (int) (System.currentTimeMillis() / 1000);
+            throw new RateLimitedException("Rate limit exceeded, rate limit is " + rateLimit, timeUntilReset);
         }
     }
 

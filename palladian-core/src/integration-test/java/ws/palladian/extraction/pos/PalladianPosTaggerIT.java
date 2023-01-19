@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
  * <p>
  * Tests the Palladian POS Tagger.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class PalladianPosTaggerIT {
@@ -54,12 +54,10 @@ public class PalladianPosTaggerIT {
 
         taggedString = ppt.getTaggedString("I'm here to say that we're about to do that.");
         // System.out.println(taggedString);
-        assertEquals("I/PPSS '/' m/NN here/RN to/TO say/VB that/CS we/PPSS '/' re/QL about/RB to/TO do/DO that/CS ./.",
-                taggedString);
+        assertEquals("I/PPSS '/' m/NN here/RN to/TO say/VB that/CS we/PPSS '/' re/QL about/RB to/TO do/DO that/CS ./.", taggedString);
 
         taggedString = ppt.getTaggedString("The quick brown fox jumps over the lazy dog and eats seven mice.");
-        assertEquals("The/AT quick/RB brown/JJ fox/NN jumps/NNS over/RP the/AT lazy/JJ dog/NN and/CC eats/NNS seven/CD mice/NNS ./.",
-                taggedString);
+        assertEquals("The/AT quick/RB brown/JJ fox/NN jumps/NNS over/RP the/AT lazy/JJ dog/NN and/CC eats/NNS seven/CD mice/NNS ./.", taggedString);
 
         // XXX run evaluation on test data for integration tests
         // String taggedTextFilePath = FileHelper.readFileToString(DATASET_TEST_PATH + "ca01");

@@ -9,26 +9,25 @@ import ws.palladian.extraction.date.rater.TechniqueDateRater;
 
 public class StructureEvaluator {
 
-	private static StructureDateGetter sdg = new StructureDateGetter();
-	private static StructureDateRater sdr = new StructureDateRater(PageDateType.PUBLISH);
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-		TechniqueDateGetter<StructureDate> dg = new StructureDateGetter();
-		TechniqueDateRater<StructureDate> pub_dr = new StructureDateRater(PageDateType.PUBLISH);
-		TechniqueDateRater<StructureDate> mod_dr = new StructureDateRater(PageDateType.LAST_MODIFIED);
-		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
-		evaluate(DBExport.PUB_DATE, dg, pub_dr,file);
-		evaluate(DBExport.MOD_DATE, dg, mod_dr,file);
-		
-		
-	}
+    private static StructureDateGetter sdg = new StructureDateGetter();
+    private static StructureDateRater sdr = new StructureDateRater(PageDateType.PUBLISH);
 
-	public static void evaluate(int pub_mod, TechniqueDateGetter<StructureDate> dg, TechniqueDateRater<StructureDate> dr, String file){
-		Evaluator.evaluate(pub_mod, dg, dr, file);
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+
+        TechniqueDateGetter<StructureDate> dg = new StructureDateGetter();
+        TechniqueDateRater<StructureDate> pub_dr = new StructureDateRater(PageDateType.PUBLISH);
+        TechniqueDateRater<StructureDate> mod_dr = new StructureDateRater(PageDateType.LAST_MODIFIED);
+        String file = "data/evaluation/daterecognition/datasets/dataset.txt";
+        evaluate(DBExport.PUB_DATE, dg, pub_dr, file);
+        evaluate(DBExport.MOD_DATE, dg, mod_dr, file);
+
+    }
+
+    public static void evaluate(int pub_mod, TechniqueDateGetter<StructureDate> dg, TechniqueDateRater<StructureDate> dr, String file) {
+        Evaluator.evaluate(pub_mod, dg, dr, file);
 		/*
 		int truePositiv = 0;
 		int trueNegative = 0;
@@ -99,5 +98,5 @@ public class StructureEvaluator {
 		}
 		System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
 		*/
-	}	
+    }
 }

@@ -1,17 +1,16 @@
 package ws.palladian.classification.featureselection;
 
-import static org.junit.Assert.assertEquals;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
+import org.junit.Test;
+import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.Instance;
+import ws.palladian.helper.ProgressMonitor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.classification.utils.CsvDatasetReader;
-import ws.palladian.core.Instance;
-import ws.palladian.helper.ProgressMonitor;
+import static org.junit.Assert.assertEquals;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 public class ChiSquaredFeatureRankerTest {
     private static final double DELTA = 0.001;
@@ -20,8 +19,7 @@ public class ChiSquaredFeatureRankerTest {
     public void testInformationGain_wineData_average() throws FileNotFoundException {
         File testFile = getResourceFile("/classifier/wineData.csv");
         List<Instance> dataset = new CsvDatasetReader(testFile).readAll();
-        FeatureRanking result = new ChiSquaredFeatureRanker(new AverageMergingStrategy()).rankFeatures(dataset,
-                new ProgressMonitor());
+        FeatureRanking result = new ChiSquaredFeatureRanker(new AverageMergingStrategy()).rankFeatures(dataset, new ProgressMonitor());
         // CollectionHelper.print(result.getAll());
         assertEquals(125.9867, result.getFeature("od280/od315ofDilutedWines").getScore(), DELTA);
         assertEquals(128.5980, result.getFeature("colorIntensity").getScore(), DELTA);
@@ -42,8 +40,7 @@ public class ChiSquaredFeatureRankerTest {
     public void testInformationGain_wineData_roundRobin() throws FileNotFoundException {
         File testFile = getResourceFile("/classifier/wineData.csv");
         List<Instance> dataset = new CsvDatasetReader(testFile).readAll();
-        FeatureRanking result = new ChiSquaredFeatureRanker(new RoundRobinMergingStrategy()).rankFeatures(dataset,
-                new ProgressMonitor());
+        FeatureRanking result = new ChiSquaredFeatureRanker(new RoundRobinMergingStrategy()).rankFeatures(dataset, new ProgressMonitor());
         // CollectionHelper.print(result.getAll());
         assertEquals(37, result.getFeature("od280/od315ofDilutedWines").getScore(), DELTA);
         assertEquals(37, result.getFeature("colorIntensity").getScore(), DELTA);

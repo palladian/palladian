@@ -1,15 +1,10 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
@@ -26,13 +21,17 @@ import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * <p>
  * Searcher for Google Custom Search. The free plan allows max. 100 queries/day. Although not obviously visible, the
  * search engine can be configured to search to <b>entire web</b>; see the links provided below for more information.
  * The searcher return max. 100 items per query.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/custom-search/v1/overview">Overview Google Custom Search</a>
  * @see <a href="http://code.google.com/apis/console/?api=customsearch">Google API console</a>
@@ -58,15 +57,15 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
 
     /** The identifier of the Google Custom Search engine. */
     private final String searchEngineIdentifier;
-    
+
     private final HttpRetriever retriever;
 
     /**
      * <p>
      * Creates a new GoogleCustomSearcher.
      * </p>
-     * 
-     * @param apiKey The API key for accessing Google Custom Search, not empty or <code>null</code>.
+     *
+     * @param apiKey                 The API key for accessing Google Custom Search, not empty or <code>null</code>.
      * @param searchEngineIdentifier The identifier of the custom search, not empty or <code>null</code>.
      */
     public GoogleCustomSearcher(String apiKey, String searchEngineIdentifier) {
@@ -82,9 +81,9 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
      * <p>
      * Creates a new GoogleCustomSearcher.
      * </p>
-     * 
+     *
      * @param configuration The configuration which must provide an API key with the identifier {@value #CONFIG_API_KEY}
-     *            and a search engine identifier {@value #CONFIG_SEARCH_ENGINE_IDENTIFIER}.
+     *                      and a search engine identifier {@value #CONFIG_SEARCH_ENGINE_IDENTIFIER}.
      */
     public GoogleCustomSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY), configuration.getString(CONFIG_SEARCH_ENGINE_IDENTIFIER));
@@ -94,7 +93,7 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
     public String getName() {
         return SEARCHER_NAME;
     }
-    
+
     @Override
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
 
@@ -102,7 +101,7 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
         Long resultCount = null;
 
         // Google Custom Search gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
-        double numChunks = Math.min(10, Math.ceil((double)query.getResultCount() / 10));
+        double numChunks = Math.min(10, Math.ceil((double) query.getResultCount() / 10));
 
         for (int start = 1; start <= numChunks; start++) {
 
@@ -113,8 +112,7 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
             try {
                 httpResult = retriever.httpGet(searchUrl);
             } catch (HttpException e) {
-                throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \""
-                        + searchUrl + "\": " + e.getMessage(), e);
+                throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \"" + searchUrl + "\": " + e.getMessage(), e);
             }
 
             String jsonString = httpResult.getStringContent();
@@ -129,8 +127,7 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
                     resultCount = parseResultCount(jsonString);
                 }
             } catch (JsonException e) {
-                throw new SearcherException("Error parsing the response from URL \"" + searchUrl + "\" (JSON was: \""
-                        + jsonString + "\"): " + e.getMessage(), e);
+                throw new SearcherException("Error parsing the response from URL \"" + searchUrl + "\" (JSON was: \"" + jsonString + "\"): " + e.getMessage(), e);
             }
         }
 
@@ -154,41 +151,76 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
 
     private String getLanguageCode(Language language) {
         switch (language) {
-            case ARABIC: return "lang_ar";
-            case BULGARIAN: return "lang_bg";
-            case CATALAN: return "lang_ca";
-            case CZECH: return "lang_cs";
-            case DANISH: return "lang_da";
-            case GERMAN: return "lang_de";
-            case GREEK: return "lang_el";
-            case ENGLISH: return "lang_en";
-            case SPANISH: return "lang_es";
-            case ESTONIAN: return "lang_et";
-            case FINNISH: return "lang_fi";
-            case FRENCH: return "lang_fr";
-            case CROATIAN: return "lang_hr";
-            case HUNGARIAN: return "lang_hu";
-            case INDONESIAN: return "lang_id";
-            case ICELANDIC: return "lang_is";
-            case ITALIAN: return "lang_it";
-            case HEBREW: return "lang_iw";
-            case JAPANESE: return "lang_ja";
-            case KOREAN: return "lang_ko";
-            case LITHUANIAN: return "lang_lt";
-            case LATVIAN: return "lang_lv";
-            case DUTCH: return "lang_nl";
-            case NORWEGIAN: return "lang_no";
-            case POLISH: return "lang_pl";
-            case PORTUGUESE: return "lang_pt";
-            case ROMANIAN: return "lang_ro";
-            case RUSSIAN: return "lang_ru";
-            case SLOVAK: return "lang_sk";
-            case SLOVENE: return "lang_sl";
-            case SERBIAN: return "lang_sr";
-            case SWEDISH: return "lang_sv";
-            case TURKISH: return "lang_tr";
-            case CHINESE: return "lang_zh-CN";
-            default: throw new IllegalArgumentException("Unsupported language: " + language); 
+            case ARABIC:
+                return "lang_ar";
+            case BULGARIAN:
+                return "lang_bg";
+            case CATALAN:
+                return "lang_ca";
+            case CZECH:
+                return "lang_cs";
+            case DANISH:
+                return "lang_da";
+            case GERMAN:
+                return "lang_de";
+            case GREEK:
+                return "lang_el";
+            case ENGLISH:
+                return "lang_en";
+            case SPANISH:
+                return "lang_es";
+            case ESTONIAN:
+                return "lang_et";
+            case FINNISH:
+                return "lang_fi";
+            case FRENCH:
+                return "lang_fr";
+            case CROATIAN:
+                return "lang_hr";
+            case HUNGARIAN:
+                return "lang_hu";
+            case INDONESIAN:
+                return "lang_id";
+            case ICELANDIC:
+                return "lang_is";
+            case ITALIAN:
+                return "lang_it";
+            case HEBREW:
+                return "lang_iw";
+            case JAPANESE:
+                return "lang_ja";
+            case KOREAN:
+                return "lang_ko";
+            case LITHUANIAN:
+                return "lang_lt";
+            case LATVIAN:
+                return "lang_lv";
+            case DUTCH:
+                return "lang_nl";
+            case NORWEGIAN:
+                return "lang_no";
+            case POLISH:
+                return "lang_pl";
+            case PORTUGUESE:
+                return "lang_pt";
+            case ROMANIAN:
+                return "lang_ro";
+            case RUSSIAN:
+                return "lang_ru";
+            case SLOVAK:
+                return "lang_sk";
+            case SLOVENE:
+                return "lang_sl";
+            case SERBIAN:
+                return "lang_sr";
+            case SWEDISH:
+                return "lang_sv";
+            case TURKISH:
+                return "lang_tr";
+            case CHINESE:
+                return "lang_zh-CN";
+            default:
+                throw new IllegalArgumentException("Unsupported language: " + language);
         }
     }
 

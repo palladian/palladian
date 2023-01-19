@@ -4,25 +4,25 @@ import ws.palladian.core.Instance;
 
 public final class IdentityDatasetTransformer implements DatasetTransformer {
 
-	public static final IdentityDatasetTransformer INSTANCE = new IdentityDatasetTransformer();
+    public static final IdentityDatasetTransformer INSTANCE = new IdentityDatasetTransformer();
 
-	private IdentityDatasetTransformer() {
-		// no no.
-	}
+    private IdentityDatasetTransformer() {
+        // no no.
+    }
 
-	@Override
-	public Instance apply(Instance input) {
-		return input;
-	}
+    @Override
+    public Instance apply(Instance input) {
+        return input;
+    }
 
-	@Override
-	public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
-		return featureInformation;
-	}
-	
-	@Override
-	public String toString() {
-		return getClass().getSimpleName();
-	}
+    @Override
+    public FeatureInformation getFeatureInformation(FeatureInformation featureInformation) {
+        return featureInformation;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
 }

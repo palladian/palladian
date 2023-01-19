@@ -2,12 +2,11 @@ package ws.palladian.retrieval.search.events;
 
 import java.util.Date;
 
-
 /**
  * <p>
  * {@link Event}s represent search results from event searches on web search engines or APIs.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class Event {
@@ -63,7 +62,7 @@ public class Event {
      * <p>
      * Get the duration of the event in milliseconds.
      * </p>
-     * 
+     *
      * @return The duration of the event in milliseconds or null if unknown.
      */
     public Long getDuration() {

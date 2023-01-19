@@ -1,10 +1,5 @@
 package ws.palladian.extraction.location.scope;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -17,17 +12,20 @@ import org.apache.lucene.analysis.shingle.ShingleFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.Version;
-
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A Lucene {@link Analyzer} which can be configured using a Palladian {@link FeatureSetting}.
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public class FeatureSettingAnalyzer extends Analyzer {
 
@@ -54,8 +52,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
             tokenizer = new StandardTokenizer();
         } else {
-            throw new UnsupportedOperationException("Unsupported text feature type: "
-                    + featureSetting.getTextFeatureType());
+            throw new UnsupportedOperationException("Unsupported text feature type: " + featureSetting.getTextFeatureType());
         }
 
         TokenStream stream = new LowerCaseFilter(tokenizer);
@@ -70,8 +67,7 @@ public class FeatureSettingAnalyzer extends Analyzer {
         stream = new LimitTokenCountFilter(stream, featureSetting.getMaxTerms());
 
         if (featureSetting.isWordUnigrams()) {
-            stream = new LengthFilter(stream, featureSetting.getMinimumTermLength(),
-                    featureSetting.getMaximumTermLength());
+            stream = new LengthFilter(stream, featureSetting.getMinimumTermLength(), featureSetting.getMaximumTermLength());
         }
         return new TokenStreamComponents(tokenizer, stream);
     }

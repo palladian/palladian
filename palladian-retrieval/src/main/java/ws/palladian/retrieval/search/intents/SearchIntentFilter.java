@@ -79,15 +79,7 @@ public class SearchIntentFilter {
 
     @Override
     public String toString() {
-        return "SearchIntentFilter{" +
-                "key='" + key + '\'' +
-                ", values=" + values +
-                ", minDefinition='" + minDefinition + '\'' +
-                ", maxDefinition='" + maxDefinition + '\'' +
-                ", margin='" + margin + '\'' +
-                ", unit='" + unit + '\'' +
-                ", booleanValue=" + booleanValue +
-                ", without=" + without +
-                '}';
+        return "SearchIntentFilter{" + "key='" + key + '\'' + ", values=" + values + ", minDefinition='" + minDefinition + '\'' + ", maxDefinition='" + maxDefinition + '\''
+                + ", margin='" + margin + '\'' + ", unit='" + unit + '\'' + ", booleanValue=" + booleanValue + ", without=" + without + '}';
     }
 }

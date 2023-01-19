@@ -1,11 +1,7 @@
 package ws.palladian.extraction.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
@@ -15,11 +11,14 @@ import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * Tag dates and times in a text.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class DateAndTimeTagger implements Tagger {
@@ -28,8 +27,7 @@ public class DateAndTimeTagger implements Tagger {
     public static final String DATETIME_TAG_NAME = "DATETIME";
 
     /** All date formats defined by default, plus additionally years in context. */
-    public static final DateAndTimeTagger DEFAULT = new DateAndTimeTagger(ArrayUtils.addAll(
-            RegExp.ALL_DATE_FORMATS, RegExp.DATE_CONTEXT_YYYY));
+    public static final DateAndTimeTagger DEFAULT = new DateAndTimeTagger(ArrayUtils.addAll(RegExp.ALL_DATE_FORMATS, RegExp.DATE_CONTEXT_YYYY));
 
     private final DateFormat[] dateFormats;
 

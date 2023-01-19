@@ -1,30 +1,16 @@
 package ws.palladian.helper.collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-
 import ws.palladian.helper.collection.CollectionHelper.Order;
-import java.util.function.Predicate;
+
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Philipp Katz
@@ -63,19 +49,19 @@ public class CollectionHelperTest {
         map.put(4, 2);
         Map<Integer, Integer> mapSortedByValue = CollectionHelper.sortByValue(map);
         Iterator<Entry<Integer, Integer>> iterator = mapSortedByValue.entrySet().iterator();
-        assertEquals((Integer)1, iterator.next().getValue());
-        assertEquals((Integer)2, iterator.next().getValue());
-        assertEquals((Integer)3, iterator.next().getValue());
-        assertEquals((Integer)2, iterator.next().getKey());
-        assertEquals((Integer)1, iterator.next().getKey());
+        assertEquals((Integer) 1, iterator.next().getValue());
+        assertEquals((Integer) 2, iterator.next().getValue());
+        assertEquals((Integer) 3, iterator.next().getValue());
+        assertEquals((Integer) 2, iterator.next().getKey());
+        assertEquals((Integer) 1, iterator.next().getKey());
 
         Map<Integer, Integer> mapSortedByValueDescending = CollectionHelper.sortByValue(map, Order.DESCENDING);
         iterator = mapSortedByValueDescending.entrySet().iterator();
-        assertEquals((Integer)5, iterator.next().getValue());
-        assertEquals((Integer)4, iterator.next().getValue());
-        assertEquals((Integer)3, iterator.next().getValue());
-        assertEquals((Integer)4, iterator.next().getKey());
-        assertEquals((Integer)5, iterator.next().getKey());
+        assertEquals((Integer) 5, iterator.next().getValue());
+        assertEquals((Integer) 4, iterator.next().getValue());
+        assertEquals((Integer) 3, iterator.next().getValue());
+        assertEquals((Integer) 4, iterator.next().getKey());
+        assertEquals((Integer) 5, iterator.next().getKey());
 
     }
 
@@ -156,10 +142,8 @@ public class CollectionHelperTest {
         hashMap.put("BB", "B");
         hashMap.put("CCC", "C");
 
-        assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, Order.DESCENDING).entrySet().iterator()
-                .next().getKey());
-        assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, Order.ASCENDING).entrySet().iterator().next()
-                .getKey());
+        assertEquals("CCC", CollectionHelper.sortByStringKeyLength(hashMap, Order.DESCENDING).entrySet().iterator().next().getKey());
+        assertEquals("A", CollectionHelper.sortByStringKeyLength(hashMap, Order.ASCENDING).entrySet().iterator().next().getKey());
 
     }
 
@@ -242,7 +226,7 @@ public class CollectionHelperTest {
         }
         assertEquals(10, count);
 
-        iterator = CollectionHelper.limit(Collections.<Integer> emptyList().iterator(), 0);
+        iterator = CollectionHelper.limit(Collections.<Integer>emptyList().iterator(), 0);
         assertFalse(iterator.hasNext());
     }
 
@@ -274,21 +258,21 @@ public class CollectionHelperTest {
         assertEquals(3, intersection.size());
         assertTrue(intersection.containsAll(Arrays.asList(3, 4, 5)));
     }
-    
+
     @Test
     public void testCreateIndexMap() {
-    	List<String> list = Arrays.asList("zero", "seven", "one", "one");
-    	Map<String, Integer> indexMap = CollectionHelper.createIndexMap(list);
-    	assertEquals(3, indexMap.size());
-    	assertEquals((Integer) 0, indexMap.get("zero"));
-    	assertEquals((Integer) 1, indexMap.get("seven"));
-    	assertEquals((Integer) 2, indexMap.get("one"));
+        List<String> list = Arrays.asList("zero", "seven", "one", "one");
+        Map<String, Integer> indexMap = CollectionHelper.createIndexMap(list);
+        assertEquals(3, indexMap.size());
+        assertEquals((Integer) 0, indexMap.get("zero"));
+        assertEquals((Integer) 1, indexMap.get("seven"));
+        assertEquals((Integer) 2, indexMap.get("one"));
     }
-    
+
     @Test
     public void testGetLast() {
-    	LinkedHashSet<String> iterable = new LinkedHashSet<>(Arrays.asList("1","2","3","4","5"));
-    	assertEquals("5", CollectionHelper.getLast(iterable));
+        LinkedHashSet<String> iterable = new LinkedHashSet<>(Arrays.asList("1", "2", "3", "4", "5"));
+        assertEquals("5", CollectionHelper.getLast(iterable));
     }
 
 }

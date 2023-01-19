@@ -1,8 +1,8 @@
 package ws.palladian.classification.text;
 
-import java.io.File;
-
 import ws.palladian.helper.io.FileHelper;
+
+import java.io.File;
 
 public class LuceneDictionaryModelTest extends AbstractDictionaryModelTest {
 

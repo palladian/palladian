@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
@@ -18,11 +14,14 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * Get Alexa popularity rank.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  * @see http://www.alexa.com/help/traffic-learn-more
@@ -44,12 +43,11 @@ public final class AlexaRank extends AbstractRankingService implements RankingSe
     public static final RankingType DAILY_PAGE_VIEWS = new RankingType("alexa_daily_page_views", "Daily Page Views", "");
 
     /** All available ranking types by AlexaRank. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POPULARITY_RANK, DAILY_VISITORS,
-            DAILY_PAGE_VIEWS);
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POPULARITY_RANK, DAILY_VISITORS, DAILY_PAGE_VIEWS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        
+
         Ranking.Builder builder = new Ranking.Builder(this, url);
 
         try {
@@ -63,9 +61,9 @@ public final class AlexaRank extends AbstractRankingService implements RankingSe
                 String popularityString = popularityNode.getNodeValue();
                 long popularity = Long.parseLong(popularityString);
                 builder.add(POPULARITY_RANK, popularity);
-                long visitors = (long)Math.floor((double)RANK_TRAFFIC_CONSTANT / popularity);
+                long visitors = (long) Math.floor((double) RANK_TRAFFIC_CONSTANT / popularity);
                 builder.add(DAILY_VISITORS, visitors);
-                builder.add(DAILY_PAGE_VIEWS, (long)Math.floor(PAGE_VIEWS_PER_VISITOR * visitors));
+                builder.add(DAILY_PAGE_VIEWS, (long) Math.floor(PAGE_VIEWS_PER_VISITOR * visitors));
             } else {
                 builder.add(POPULARITY_RANK, 0);
                 builder.add(DAILY_VISITORS, 0);

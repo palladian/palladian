@@ -1,20 +1,9 @@
 package ws.palladian.extraction.location.scope;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ws.palladian.classification.text.BayesScorer;
-import ws.palladian.classification.text.DictionaryBuilder;
-import ws.palladian.classification.text.DictionaryModel;
-import ws.palladian.classification.text.DictionaryTrieModel;
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.*;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.Instance;
@@ -26,15 +15,20 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.LazyMap;
+import ws.palladian.helper.geo.GeoCoordinate;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * Scope detection using the {@link PalladianTextClassifier}. We use a grid of the world (UTM) and use the cells as
  * potential classes. This approach is similar to the one described in
  * "Simple Supervised Document Geolocation with Geodesic Grids", Benjamin P. Wing and Jason Baldridge, 2011.
- * 
+ *
  * @author Philipp Katz
  */
 public class DictionaryScopeDetector implements ScopeDetector {
@@ -44,7 +38,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
 
     /**
      * A scope model which contains a dictionary for the text classifier and grid information.
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class DictionaryScopeModel implements TextClassifierScopeModel, Serializable {
@@ -54,8 +48,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
         public final DictionaryModel dictionaryModel;
         public final Map<String, GeoCoordinate> cellToCoordinate;
 
-        public DictionaryScopeModel(double gridSize, DictionaryModel dictionaryModel,
-                Map<String, GeoCoordinate> cellToCoordinate) {
+        public DictionaryScopeModel(double gridSize, DictionaryModel dictionaryModel, Map<String, GeoCoordinate> cellToCoordinate) {
             this.gridSize = gridSize;
             this.dictionaryModel = dictionaryModel;
             this.cellToCoordinate = cellToCoordinate;
@@ -71,11 +64,11 @@ public class DictionaryScopeDetector implements ScopeDetector {
      * Conversion function from {@link LocationDocument} to a {@link Trainable} instance for the
      * {@link PalladianTextClassifier}. The function converts to the grid, as specified by the grid size in the
      * constructor.
-     * 
+     *
      * @author Philipp Katz
      */
     static final class GridConverter implements Function<LocationDocument, Instance> {
-        
+
         /** Placeholder, where no grid identifier could be applied. */
         public static final String UNDETERMINED = "## undetermined ##";
 
@@ -103,9 +96,9 @@ public class DictionaryScopeDetector implements ScopeDetector {
         /**
          * Loop through the dataset and determine the center point of each cell, by calculating the center of minimum
          * distance of all occurring coordinates in a cell.
-         * 
+         *
          * @return A {@link Map} with mappings from grid cell identifier to {@link GeoCoordinate} representing the most
-         *         common coordinate of that specific cell.
+         * common coordinate of that specific cell.
          */
         public Map<String, GeoCoordinate> getMapping() {
             Map<String, GeoCoordinate> result = new HashMap<>();
@@ -122,7 +115,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
 
     /**
      * Filter out such {@link LocationDocument}s which have no coordinates.
-     * 
+     *
      * @author Philipp Katz
      */
     static final class CoordinateFilter implements Predicate<LocationDocument> {
@@ -150,8 +143,8 @@ public class DictionaryScopeDetector implements ScopeDetector {
 
     /**
      * Create a new {@link DictionaryScopeDetector} with the provided model and scorer.
-     * 
-     * @param model The model, not <code>null</code>.
+     *
+     * @param model  The model, not <code>null</code>.
      * @param scorer The scorer for the text classifier, not <code>null</code>.
      */
     public DictionaryScopeDetector(DictionaryScopeModel model, Scorer scorer) {
@@ -166,7 +159,7 @@ public class DictionaryScopeDetector implements ScopeDetector {
     /**
      * Create a new {@link DictionaryScopeDetector} with the provided model and the {@link BayesScorer} for the
      * text classification.
-     * 
+     *
      * @param model The model, not <code>null</code>.
      */
     public DictionaryScopeDetector(DictionaryScopeModel model) {

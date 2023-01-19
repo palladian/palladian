@@ -1,29 +1,21 @@
 package ws.palladian.extraction.location.evaluation;
 
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.CORRECT;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR2;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR4;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 
+import java.io.File;
+import java.util.*;
+
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.*;
+
 /**
  * <p>
  * Evaluation result for toponym disambiguation.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class GeoEvaluationResult {
@@ -33,8 +25,7 @@ public class GeoEvaluationResult {
 
     private static final class EvaluationItem implements Comparable<EvaluationItem> {
 
-        public EvaluationItem(String file, Annotation annotation, ResultType resultType, GeoCoordinate goldCoordinate,
-                GeoCoordinate taggedCoordinate) {
+        public EvaluationItem(String file, Annotation annotation, ResultType resultType, GeoCoordinate goldCoordinate, GeoCoordinate taggedCoordinate) {
             this.file = file;
             this.annotation = annotation;
             this.resultType = resultType;
@@ -132,7 +123,7 @@ public class GeoEvaluationResult {
     public void addResultFromDocument(LocationDocument document, List<LocationAnnotation> result) {
         addResultFromDocument(document.getFileName(), document.getAnnotations(), result);
     }
-    
+
     public void addResultFromDocument(String fileName, List<LocationAnnotation> gold, List<LocationAnnotation> result) {
         List<EvaluationItem> evaluationList = new ArrayList<>();
         Set<Annotation> taggedAnnotations = new HashSet<>();
@@ -151,21 +142,17 @@ public class GeoEvaluationResult {
                 if (assignedAnnotation.congruent(goldAnnotation)) {
                     // same start and end
                     taggedAnnotations.add(goldAnnotation);
-                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, CORRECT, goldCoordinate,
-                            assignedAnnotation.getLocation().getCoordinate()));
+                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, CORRECT, goldCoordinate, assignedAnnotation.getLocation().getCoordinate()));
                     break;
                 } else if (assignedAnnotation.overlaps(goldAnnotation)) {
                     // overlap
                     taggedOverlap = true;
                     taggedAnnotations.add(goldAnnotation);
-                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate,
-                            assignedAnnotation.getLocation().getCoordinate()));
-                } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition()
-                        || counter == gold.size()) {
+                    evaluationList.add(new EvaluationItem(fileName, goldAnnotation, ERROR4, goldCoordinate, assignedAnnotation.getLocation().getCoordinate()));
+                } else if (assignedAnnotation.getStartPosition() < goldAnnotation.getEndPosition() || counter == gold.size()) {
                     if (!taggedOverlap) {
                         // false alarm
-                        evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null,
-                                assignedAnnotation.getLocation().getCoordinate()));
+                        evaluationList.add(new EvaluationItem(fileName, assignedAnnotation, ERROR1, null, assignedAnnotation.getLocation().getCoordinate()));
                     }
                     break;
                 } else {
@@ -199,11 +186,11 @@ public class GeoEvaluationResult {
     }
 
     public double getPrecision() {
-        return (float)correct / retrieved;
+        return (float) correct / retrieved;
     }
 
     public double getRecall() {
-        return (float)correct / relevant;
+        return (float) correct / relevant;
     }
 
     public double getF1() {
@@ -229,8 +216,7 @@ public class GeoEvaluationResult {
         evaluationDetails.append("#\n");
         evaluationDetails.append("#\n");
 
-        evaluationDetails
-                .append("file;offset;type;value;annotationResult;goldLat;goldLng;taggedLat;taggedLng;distance\n");
+        evaluationDetails.append("file;offset;type;value;annotationResult;goldLat;goldLng;taggedLat;taggedLng;distance\n");
         for (EvaluationItem item : completeEvaluationList) {
             evaluationDetails.append(item.toCsvLine()).append('\n');
         }

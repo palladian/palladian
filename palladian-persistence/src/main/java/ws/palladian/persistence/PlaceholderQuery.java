@@ -1,14 +1,10 @@
 package ws.palladian.persistence;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.Validate;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
@@ -19,17 +15,17 @@ import org.apache.commons.lang3.Validate;
  * be created as constants, {@link ArgumentBuilder}s on the other hand are created method-scoped and discarded after
  * use. Example usage looks like this:
  * </p>
- * 
+ *
  * <pre>
  * // create queries as constants
  * private static final PlaceholderQuery PLACEHOLDER = new PlaceholderQuery(
  *         &quot;SELECT * FROM table WHERE col1 = @value1 AND col2 = @value2&quot;);
- * 
+ *
  * // usage within method
  * Query query = PLACEHOLDER.newArgs().set(&quot;value1&quot;, 1).set(&quot;value2&quot;, 2).create();
  * List&lt;Result&gt; result = databaseManager.runQuery(CONVERTER, query);
  * </pre>
- * 
+ *
  * @author Philipp Katz
  */
 public final class PlaceholderQuery {
@@ -45,7 +41,7 @@ public final class PlaceholderQuery {
      * Create a new {@link PlaceholderQuery} from the given string. Placeholders start with an @ sign followed by
      * alphanumeric characters and underscores.
      * </p>
-     * 
+     *
      * @param query The query, not <code>null</code> or empty.
      */
     public PlaceholderQuery(String query) {
@@ -75,7 +71,7 @@ public final class PlaceholderQuery {
      * Get the SQL query for creating the PreparedStatement. In the query, all placeholders have been replaced by
      * question marks.
      * </p>
-     * 
+     *
      * @return The SQL query.
      */
     public String getSql() {
@@ -86,7 +82,7 @@ public final class PlaceholderQuery {
      * <p>
      * Create a new {@link ArgumentBuilder} for assigning values to placeholders.
      * </p>
-     * 
+     *
      * @return A new {@link ArgumentBuilder}.
      */
     public ArgumentBuilder newArgs() {
@@ -113,10 +109,10 @@ public final class PlaceholderQuery {
          * <p>
          * Set the placeholder in the query to the given value.
          * </p>
-         * 
+         *
          * @param placeholder Name of the placeholder to set, not <code>null</code> (@ at the placeholders' beginnings
-         *            are not necessary, but do no harm).
-         * @param value Value to set for the placeholder.
+         *                    are not necessary, but do no harm).
+         * @param value       Value to set for the placeholder.
          * @return This instance for builder style.
          * @throws IllegalArgumentException In case the given placeholder does not exist in the query.
          */
@@ -138,7 +134,7 @@ public final class PlaceholderQuery {
          * <p>
          * Create the final argument list which can be supplied to the {@link DatabaseManager}.
          * </p>
-         * 
+         *
          * @return The list of parameters in the correct order.
          * @throws IllegalStateException In case not all placeholders have been set.
          */
@@ -159,7 +155,7 @@ public final class PlaceholderQuery {
          * <p>
          * Create the final query which can be supplied to the {@link DatabaseManager}.
          * </p>
-         * 
+         *
          * @return The query.
          * @throws IllegalStateException In case not all placeholders have been set.
          */

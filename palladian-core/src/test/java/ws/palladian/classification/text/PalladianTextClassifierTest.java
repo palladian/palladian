@@ -1,17 +1,16 @@
 package ws.palladian.classification.text;
 
-import static org.junit.Assert.assertEquals;
-import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
-import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
+import org.junit.Test;
+import ws.palladian.core.CategoryEntries;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
+import static org.junit.Assert.assertEquals;
+import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
+import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
 
 public class PalladianTextClassifierTest {
 
@@ -34,8 +33,7 @@ public class PalladianTextClassifierTest {
 
     @Test
     public void testPalladianTextClassifier_PalladianScorer() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting,
-                new PalladianTextClassifier.DefaultScorer());
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new PalladianTextClassifier.DefaultScorer());
         DictionaryModel model = classifier.train(docs);
         CategoryEntries result = classifier.classify(TEST_TEXT, model);
         assertEquals("no", result.getMostLikely().getName());
@@ -53,8 +51,7 @@ public class PalladianTextClassifierTest {
 
     @Test
     public void testPalladianTextClassifier_BayesScorerComplement() {
-        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new BayesScorer(PRIORS,
-                COMPLEMENT));
+        PalladianTextClassifier classifier = new PalladianTextClassifier(featureSetting, new BayesScorer(PRIORS, COMPLEMENT));
         DictionaryModel model = classifier.train(docs);
         CategoryEntries result = classifier.classify(TEST_TEXT, model);
         assertEquals("yes", result.getMostLikely().getName());

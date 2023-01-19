@@ -1,13 +1,9 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
@@ -24,12 +20,15 @@ import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * {@link AbstractWebKnoxSearcher} implementation for WebKnox.
- * 
- * @see <a href="https://webknox.com/">WebKnox</a>
+ *
  * @author David Urbansky
+ * @see <a href="https://webknox.com/">WebKnox</a>
  * @deprecated API is longer working?!
  */
 @Deprecated
@@ -52,7 +51,7 @@ public final class WebKnoxSearcher extends AbstractMultifacetSearcher<WebContent
      * <p>
      * Creates a new WebKnox searcher.
      * </p>
-     * 
+     *
      * @param apiKey The api key for accessing WebKnox.
      */
     public WebKnoxSearcher(String apiKey) {
@@ -65,9 +64,9 @@ public final class WebKnoxSearcher extends AbstractMultifacetSearcher<WebContent
      * <p>
      * Creates a new WebKnox searcher.
      * </p>
-     * 
+     *
      * @param configuration The configuration which must provide an account key for accessing WebKnox, which must be
-     *            provided as string via key <tt>api.webknox.apiKey</tt> in the configuration.
+     *                      provided as string via key <tt>api.webknox.apiKey</tt> in the configuration.
      */
     public WebKnoxSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -84,8 +83,7 @@ public final class WebKnoxSearcher extends AbstractMultifacetSearcher<WebContent
 
             HttpResult httpResult = retriever.httpGet(requestUrl);
             if (httpResult.errorStatus()) {
-                throw new SearcherException("Encountered HTTP status code " + httpResult.getStatusCode()
-                        + " when accessing " + requestUrl + ".");
+                throw new SearcherException("Encountered HTTP status code " + httpResult.getStatusCode() + " when accessing " + requestUrl + ".");
             }
             String jsonString = httpResult.getStringContent();
             LOGGER.debug("JSON = {}", jsonString);
@@ -101,14 +99,12 @@ public final class WebKnoxSearcher extends AbstractMultifacetSearcher<WebContent
                 }
             }
 
-            return new SearchResults<>(webResults, (long)jsonResults.size());
+            return new SearchResults<>(webResults, (long) jsonResults.size());
 
         } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage(), e);
         } catch (JsonException e) {
-            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
-                    + getName() + ": " + e.getMessage(), e);
+            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage(), e);
         }
 
     }

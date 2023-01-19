@@ -101,13 +101,13 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
 
                 sslContext.init(null, new TrustManager[]{new ShadyTrustManager()}, new SecureRandom());
                 socketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-//                socketFactory = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-//                socketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, new HostnameVerifier() {
-//                    @Override
-//                    public boolean verify(String s, SSLSession sslSession) {
-//                        return true;
-//                    }
-//                });
+                //                socketFactory = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                //                socketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, new HostnameVerifier() {
+                //                    @Override
+                //                    public boolean verify(String s, SSLSession sslSession) {
+                //                        return true;
+                //                    }
+                //                });
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
             }

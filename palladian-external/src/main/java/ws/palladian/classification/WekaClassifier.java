@@ -1,9 +1,5 @@
 package ws.palladian.classification;
 
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import weka.core.Attribute;
 import weka.core.SparseInstance;
 import ws.palladian.core.CategoryEntries;
@@ -15,15 +11,19 @@ import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 /**
  * <p>
  * Classifier wrapper for Weka.
  * </p>
- * 
- * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>
+ *
  * @author Philipp Katz
  * @author Klemens Muthmann
  * @version 3.1
+ * @see <a href="http://www.cs.waikato.ac.nz/ml/weka/">Weka 3</a>
  * @since 0.1.7
  */
 public final class WekaClassifier implements Classifier<WekaModel> {
@@ -39,13 +39,13 @@ public final class WekaClassifier implements Classifier<WekaModel> {
             int attributeIndex = attribute.index();
             Value featureValue = feature.value();
             if (featureValue instanceof NominalValue) {
-                NominalValue nominalValue = (NominalValue)featureValue;
+                NominalValue nominalValue = (NominalValue) featureValue;
                 int idx = attribute.indexOfValue(nominalValue.getString());
                 if (idx >= 0) {
-                    indices.put(attributeIndex, (double)idx);
+                    indices.put(attributeIndex, (double) idx);
                 }
             } else if (featureValue instanceof NumericValue) {
-                NumericValue numericValue = (NumericValue)featureValue;
+                NumericValue numericValue = (NumericValue) featureValue;
                 indices.put(attributeIndex, numericValue.getDouble());
             }
         }

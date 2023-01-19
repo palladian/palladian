@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 
 /**
  * Filters for {@link Annotation}s and {@link Token}s.
- * 
+ *
  * @author Philipp Katz
  */
 public final class AnnotationFilters {

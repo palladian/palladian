@@ -2,8 +2,8 @@ package ws.palladian.retrieval;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.github.bonigarcia.wdm.config.DriverManagerType;
-import org.openqa.selenium.*;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -232,7 +232,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 final String cssSelector = selector;
                 new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> webDriver.findElement(By.cssSelector(cssSelector)));
             } else {
-                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor)webDriver).executeScript("return document.readyState").equals("complete"));
+                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
             }
         } catch (Exception e) {
             if (getWaitExceptionCallback() != null) {
@@ -249,7 +249,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * Go to a certain page and wait until a condition is fulfilled (up to x seconds).
      *
-     * @param url The url of the document
+     * @param url       The url of the document
      * @param condition The condition to check
      */
     public void goTo(String url, ExpectedCondition<Boolean> condition) {
@@ -259,8 +259,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * Go to a certain page and wait until a condition is fulfilled.
      *
-     * @param url The url of the document
-     * @param condition The condition to check
+     * @param url              The url of the document
+     * @param condition        The condition to check
      * @param timeoutInSeconds The maximum time to wait in seconds
      */
     public void goTo(String url, ExpectedCondition<Boolean> condition, Integer timeoutInSeconds) {
@@ -312,7 +312,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * Go to a certain page, wait until a condition is fulfilled and retrieve the document
      *
-     * @param url The url of the document
+     * @param url       The url of the document
      * @param condition The condition to check
      * @return The document
      */
@@ -419,7 +419,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
      * Find a DOM node.
      *
      * @param preselector The CSS selector of the context to search
-     * @param selector The CSS selector
+     * @param selector    The CSS selector
      * @return The queried node
      */
     public WebElement find(String preselector, String selector) {
@@ -441,7 +441,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
      * Find all DOM nodes matching the given selector in a specific context.
      *
      * @param preSelector The CSS selector of the context to search.
-     * @param selector The CSS selector.
+     * @param selector    The CSS selector.
      * @return List of queried nodes.
      */
     public List<WebElement> findAll(String preSelector, String selector) {

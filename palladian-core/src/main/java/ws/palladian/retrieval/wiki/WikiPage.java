@@ -1,27 +1,22 @@
 package ws.palladian.retrieval.wiki;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.html.HtmlHelper;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
  * A page in the Wikipedia.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class WikiPage extends WikiPageReference {
@@ -35,11 +30,11 @@ public class WikiPage extends WikiPageReference {
      * <p>
      * Create a new {@link WikiPage}.
      * </p>
-     * 
-     * @param pageId The unique identifier of this page.
+     *
+     * @param pageId      The unique identifier of this page.
      * @param namespaceId The namespace to which this page belongs.
-     * @param title The title of this page.
-     * @param text The raw markup of this page.
+     * @param title       The title of this page.
+     * @param text        The raw markup of this page.
      */
     public WikiPage(int pageId, int namespaceId, String title, String text) {
         super(pageId, namespaceId, title);
@@ -65,9 +60,9 @@ public class WikiPage extends WikiPageReference {
      * Get the individual sections from the page. The beginning of the article is also added to the result, even if it
      * does not start with a section heading.
      * </p>
-     * 
+     *
      * @return List with sections, starting with the original section headings, or empty list if no sections were found,
-     *         never <code>null</code> however.
+     * never <code>null</code> however.
      */
     public List<String> getSections() {
         List<String> result = new ArrayList<>();
@@ -101,7 +96,7 @@ public class WikiPage extends WikiPageReference {
      * <p>
      * Get alternative titles for the current page. On the Wikipedia, they are given in the first paragraph of the page
      * in bold formatting. (example: <a href="http://en.wikipedia.org/wiki/United_States">United States</a>).
-     * 
+     *
      * @return Alternative titles for the current page, or an empty list if no alternative titles were given.
      */
     public List<String> getAlternativeTitles() {
@@ -130,17 +125,17 @@ public class WikiPage extends WikiPageReference {
     private static final List<String> getStringsInBold(String text) {
         // Pattern pattern = Pattern.compile("'''([^']+)'''");
         // like this, it also works for bold text with a ' character:
-//        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
-//        Matcher matcher = pattern.matcher(text);
-//        List<String> result = new ArrayList<>();
-//        while (matcher.find()) {
-//            String group = matcher.group(1);
-//            if (StringUtils.isNotBlank(group) && group.length() > 1) {
-//                result.add(group.trim());
-//            }
-//        }
-//        return result;
-        
+        //        Pattern pattern = Pattern.compile("'''([^'\n]+('[^'\n]+)?)'''");
+        //        Matcher matcher = pattern.matcher(text);
+        //        List<String> result = new ArrayList<>();
+        //        while (matcher.find()) {
+        //            String group = matcher.group(1);
+        //            if (StringUtils.isNotBlank(group) && group.length() > 1) {
+        //                result.add(group.trim());
+        //            }
+        //        }
+        //        return result;
+
         final List<String> result = new ArrayList<>();
         MediaWikiFormattingParser.parse(text, new MediaWikiFormattingParser.ParserAdapter() {
             StringBuilder buffer = new StringBuilder();
@@ -174,7 +169,7 @@ public class WikiPage extends WikiPageReference {
      * <p>
      * Extract the markup content of the first infobox on the page.
      * </p>
-     * 
+     *
      * @return The markup of the infobox, if found, or <code>null</code>.
      * @deprecated Use {@link #getInfoboxes()} instead.
      */
@@ -192,9 +187,9 @@ public class WikiPage extends WikiPageReference {
      * <p>
      * Extract the type of the infobox on the page, if there is any infobox.
      * </p>
-     * 
+     *
      * @return The type of the infobox, or <code>null</code> if the infobox has no type assigned, or the page contains
-     *         no infobox at all.
+     * no infobox at all.
      * @deprecated Use {@link #getInfoboxes()} instead.
      */
     @Deprecated
@@ -218,7 +213,7 @@ public class WikiPage extends WikiPageReference {
 
     /**
      * @return A list of {@link WikiTemplate}es on the page, or an empty list in case no such exist, never
-     *         <code>null</code>.
+     * <code>null</code>.
      */
     public List<WikiTemplate> getInfoboxes() {
         return getTemplates("infobox", "geobox");
@@ -227,7 +222,7 @@ public class WikiPage extends WikiPageReference {
     /**
      * @param templateNames The name(s) of the templates to retrieve, not <code>null</code>.
      * @return A list of {@link WikiTemplate}s with the given name(s) on the page, or an empty list in case no such
-     *         exist, never <code>null</code>.
+     * exist, never <code>null</code>.
      */
     public List<WikiTemplate> getTemplates(String... templateNames) {
         Validate.notNull(templateNames, "templateNames must not be null");
@@ -270,7 +265,7 @@ public class WikiPage extends WikiPageReference {
 
     /**
      * @return A {@link List} with all internal links on the page (sans "category:" links; they can be retrieved using
-     *         {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
+     * {@link #getCategories()}). Empty list, in case no links are on the page, never <code>null</code>.
      */
     public List<WikiLink> getLinks() {
         List<WikiLink> result = new ArrayList<>();
@@ -291,7 +286,7 @@ public class WikiPage extends WikiPageReference {
         }
         return result;
     }
-    
+
     /**
      * Extract a {@link GeoCoordinate} from this Wikipedia page. <code>display</code> type of the coordinate on the
      * Wikipedia page must be <code>title</code> or <code>t</code>.
@@ -312,7 +307,7 @@ public class WikiPage extends WikiPageReference {
         }
         return null;
     }
-    
+
     @Override
     public Set<String> getTags() {
         return new HashSet<String>(getCategories());

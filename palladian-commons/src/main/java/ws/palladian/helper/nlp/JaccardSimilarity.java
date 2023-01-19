@@ -1,17 +1,16 @@
 package ws.palladian.helper.nlp;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.math.MathHelper;
+
 import java.util.Arrays;
 import java.util.HashSet;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.math.MathHelper;
 
 /**
  * <p>
  * Implementation of the Jaccard Similarity.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @deprecated Use {@link TokenSimilarity} instead.
  */
@@ -34,9 +33,8 @@ public class JaccardSimilarity extends AbstractStringMetric {
 
         String[] setA = s1.split("\\s+");
         String[] setB = s2.split("\\s+");
-        
-        return MathHelper.computeJaccardSimilarity(new HashSet<String>(Arrays.asList(setA)),
-                new HashSet<String>(Arrays.asList(setB)));
+
+        return MathHelper.computeJaccardSimilarity(new HashSet<String>(Arrays.asList(setA)), new HashSet<String>(Arrays.asList(setB)));
     }
 
 }

@@ -1,19 +1,19 @@
 package ws.palladian.retrieval.feeds.persistence;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.meta.PollMetaInformation;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
  * A feed source providing feeds from an in-memory collection. The collection is provided to an object of this class
  * upon its creation. Can be used as mock class for testing purposes when no database is available.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @author Sandro Reichert
@@ -27,7 +27,7 @@ public class CollectionFeedSource implements FeedStore {
 
     /**
      * Creates a new feed source for collections, initialized with an existing collection of feeds.
-     * 
+     *
      * @param feeds The collection of feeds this source provides.
      */
     public CollectionFeedSource(final Collection<Feed> feeds) {
@@ -85,23 +85,23 @@ public class CollectionFeedSource implements FeedStore {
         return ret;
     }
 
-//    @Override
-//    public boolean addFeedItem(FeedItem feedItem) {
-//        // TODO Auto-generated method stub
-//        return true;
-//    }
+    //    @Override
+    //    public boolean addFeedItem(FeedItem feedItem) {
+    //        // TODO Auto-generated method stub
+    //        return true;
+    //    }
 
-//    @Override
-//    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
-//        // TODO Auto-generated method stub
-//        return null;
-//    }
+    //    @Override
+    //    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
+    //        // TODO Auto-generated method stub
+    //        return null;
+    //    }
 
-//    @Override
-//    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
-//        // TODO Auto-generated method stub
-//        return null;
-//    }
+    //    @Override
+    //    public List<FeedItem> getFeedItemsBySqlQuery(String sqlQuery) {
+    //        // TODO Auto-generated method stub
+    //        return null;
+    //    }
 
     @Override
     public int addFeedItems(List<FeedItem> items) {
@@ -109,11 +109,11 @@ public class CollectionFeedSource implements FeedStore {
         return 0;
     }
 
-//    @Override
-//    public boolean updateMetaInformation(Feed feed) {
-//        // TODO Auto-generated method stub
-//        return false;
-//    }
+    //    @Override
+    //    public boolean updateMetaInformation(Feed feed) {
+    //        // TODO Auto-generated method stub
+    //        return false;
+    //    }
 
     @Override
     public boolean addFeedPoll(PollMetaInformation pollMetaInfo) {
@@ -127,19 +127,19 @@ public class CollectionFeedSource implements FeedStore {
         return true;
     }
 
-//    @Override
-//    public boolean deleteFeedByUrl(String feedUrl) {
-//        boolean removed = false;
-//        Collection<Feed> temp = new ArrayList<Feed>(feeds.size());
-//        for (Feed feed : feeds) {
-//            if (feed.getFeedUrl().equals(feedUrl)) {
-//                removed = true;
-//                continue;
-//            }
-//            temp.add(feed);
-//        }
-//        feeds = temp;
-//        return removed;
-//    }
+    //    @Override
+    //    public boolean deleteFeedByUrl(String feedUrl) {
+    //        boolean removed = false;
+    //        Collection<Feed> temp = new ArrayList<Feed>(feeds.size());
+    //        for (Feed feed : feeds) {
+    //            if (feed.getFeedUrl().equals(feedUrl)) {
+    //                removed = true;
+    //                continue;
+    //            }
+    //            temp.add(feed);
+    //        }
+    //        feeds = temp;
+    //        return removed;
+    //    }
 
 }

@@ -38,14 +38,14 @@ public interface GeoCoordinate {
 
     /**
      * Create a new coordinate with the given latitude and longitude.
-     * 
-     * @param latitude The latitude, between -90 and 90 inclusive.
+     *
+     * @param latitude  The latitude, between -90 and 90 inclusive.
      * @param longitude The longitude, between -180 and 180 inclusive.
      * @return Coordinate based on the given latitude and longitude.
      * @throws IllegalArgumentException in case latitude/longitude are out of given range.
      */
     @SuppressWarnings("deprecation")
-	public static GeoCoordinate from(double latitude, double longitude) {
+    public static GeoCoordinate from(double latitude, double longitude) {
         return new ImmutableGeoCoordinate(latitude, longitude);
     }
 

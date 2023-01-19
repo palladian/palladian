@@ -1,12 +1,12 @@
 package ws.palladian.extraction.location;
 
+import ws.palladian.extraction.entity.tagger.AlchemyNer;
+import ws.palladian.helper.collection.CollectionHelper;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import ws.palladian.extraction.entity.tagger.AlchemyNer;
-import ws.palladian.helper.collection.CollectionHelper;
 
 public class AlchemyLocationExtractor extends MappingLocationExtractor {
 

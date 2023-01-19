@@ -53,7 +53,7 @@ public abstract class AbstractToken implements Token {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Annotation other = (Annotation)obj;
+        Annotation other = (Annotation) obj;
         if (getEndPosition() != other.getEndPosition()) {
             return false;
         }
@@ -62,7 +62,7 @@ public abstract class AbstractToken implements Token {
         }
         return true;
     }
-    
+
     @Override
     public String toString() {
         return getValue() + " (" + getStartPosition() + "," + getEndPosition() + ")";

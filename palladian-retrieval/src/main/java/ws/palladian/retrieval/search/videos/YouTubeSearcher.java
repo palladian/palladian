@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
@@ -107,8 +106,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         /**
          * @deprecated Use {@link #DATE} instead.
          */
-        @Deprecated
-        PUBLISHED("date");
+        @Deprecated PUBLISHED("date");
 
         private static final String YOUTUBE_RESULT_ORDER = "youtube.resultOrder";
 
@@ -195,8 +193,8 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
 
             webResults = getVideos(videoIds);
         } catch (Exception e) {
-            throw new SearcherException("HTTP error while listing items from playlist \"" + playlistId + "\" with " + getName()
-                    + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
+            throw new SearcherException(
+                    "HTTP error while listing items from playlist \"" + playlistId + "\" with " + getName() + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         }
         return new SearchResults<>(webResults, numResults);
     }
@@ -232,13 +230,13 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         DocumentRetriever simpleRetriever = new DocumentRetriever();
         WebDocumentRetriever retriever = new RenderingDocumentRetriever();
         Document webDocument = retriever.getWebDocument("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
-//        String text = retriever.getText("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
+        //        String text = retriever.getText("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
         String text = HtmlHelper.getInnerXml(webDocument);
         String url = StringHelper.getSubstringBetween(text, "api\\/timedtext", "\\\"");
         if (url.isEmpty()) {
             return "";
         }
-        url = url.replace("\\\\u0026","&");
+        url = url.replace("\\\\u0026", "&");
         url = "https://www.youtube.com/api/timedtext" + url;
         String xml = Optional.ofNullable(simpleRetriever.getText(url)).orElse("");
 
@@ -246,7 +244,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
             return xml;
         }
 
-        xml = HtmlHelper.stripHtmlTags(xml," ");
+        xml = HtmlHelper.stripHtmlTags(xml, " ");
         xml = xml.replaceAll("\\[.*?\\]", "");
         xml = xml.replaceAll("\\n", " ");
 
@@ -289,27 +287,32 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
                         JsonObject thumbnails = itemJson.tryQueryJsonObject("snippet/thumbnails");
                         JsonObject thumb1 = thumbnails.tryGetJsonObject("default");
                         if (thumb1 != null) {
-                            WebImage webImageDefault = new BasicWebImage.Builder().setImageUrl(thumb1.tryGetString("url")).setWidth(thumb1.tryGetInt("width")).setHeight(thumb1.tryGetInt("height")).create();
+                            WebImage webImageDefault = new BasicWebImage.Builder().setImageUrl(thumb1.tryGetString("url")).setWidth(thumb1.tryGetInt("width")).setHeight(
+                                    thumb1.tryGetInt("height")).create();
                             videoPlaylist.getThumbnails().add(webImageDefault);
                         }
                         JsonObject thumb2 = thumbnails.tryGetJsonObject("medium");
                         if (thumb2 != null) {
-                            WebImage webImageMedium = new BasicWebImage.Builder().setImageUrl(thumb2.tryGetString("url")).setWidth(thumb2.tryGetInt("width")).setHeight(thumb2.tryGetInt("height")).create();
+                            WebImage webImageMedium = new BasicWebImage.Builder().setImageUrl(thumb2.tryGetString("url")).setWidth(thumb2.tryGetInt("width")).setHeight(
+                                    thumb2.tryGetInt("height")).create();
                             videoPlaylist.getThumbnails().add(webImageMedium);
                         }
                         JsonObject thumb3 = thumbnails.tryGetJsonObject("standard");
                         if (thumb3 != null) {
-                            WebImage webImageStandard = new BasicWebImage.Builder().setImageUrl(thumb3.tryGetString("url")).setWidth(thumb3.tryGetInt("width")).setHeight(thumb3.tryGetInt("height")).create();
+                            WebImage webImageStandard = new BasicWebImage.Builder().setImageUrl(thumb3.tryGetString("url")).setWidth(thumb3.tryGetInt("width")).setHeight(
+                                    thumb3.tryGetInt("height")).create();
                             videoPlaylist.getThumbnails().add(webImageStandard);
                         }
                         JsonObject thumb4 = thumbnails.tryGetJsonObject("high");
                         if (thumb4 != null) {
-                            WebImage webImageHigh = new BasicWebImage.Builder().setImageUrl(thumb4.tryGetString("url")).setWidth(thumb4.tryGetInt("width")).setHeight(thumb4.tryGetInt("height")).create();
+                            WebImage webImageHigh = new BasicWebImage.Builder().setImageUrl(thumb4.tryGetString("url")).setWidth(thumb4.tryGetInt("width")).setHeight(
+                                    thumb4.tryGetInt("height")).create();
                             videoPlaylist.getThumbnails().add(webImageHigh);
                         }
                         JsonObject thumb5 = thumbnails.tryGetJsonObject("maxres");
                         if (thumb5 != null) {
-                            WebImage webImageMaxres = new BasicWebImage.Builder().setImageUrl(thumb5.tryGetString("url")).setWidth(thumb5.tryGetInt("width")).setHeight(thumb5.tryGetInt("height")).create();
+                            WebImage webImageMaxres = new BasicWebImage.Builder().setImageUrl(thumb5.tryGetString("url")).setWidth(thumb5.tryGetInt("width")).setHeight(
+                                    thumb5.tryGetInt("height")).create();
                             videoPlaylist.getThumbnails().add(webImageMaxres);
                         }
 
@@ -323,8 +326,8 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while try to get playlist for \"" + channelId + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         } catch (JsonException e) {
-            throw new SearcherException("Exception parsing the JSON response while getting playlist for \"" + channelId
-                    + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
+            throw new SearcherException(
+                    "Exception parsing the JSON response while getting playlist for \"" + channelId + "\" with " + getName() + ", JSON was \"" + jsonString + "\": " + e, e);
         }
 
         return playlistResults;
@@ -363,11 +366,9 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
 
             webResults = getVideos(videoIds);
         } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
-                    + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         } catch (JsonException e) {
-            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
-                    + "\" with " + getName() + " " + e, e);
+            throw new SearcherException("Exception parsing the JSON response while searching for \"" + query + "\" with " + getName() + " " + e, e);
         }
         LOGGER.debug("Query {} took {} requests", query, numRequests);
         return new SearchResults<>(webResults, numResults);
@@ -381,8 +382,8 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
      */
     private static void checkForHttpError(HttpResult httpResult) throws SearcherException {
         if (httpResult.errorStatus()) {
-            throw new SearcherException("Encountered HTTP status code " + httpResult.getStatusCode() + " for URL \""
-                    + httpResult.getUrl() + "\": " + httpResult.getStringContent());
+            throw new SearcherException(
+                    "Encountered HTTP status code " + httpResult.getStatusCode() + " for URL \"" + httpResult.getUrl() + "\": " + httpResult.getStringContent());
         }
     }
 
@@ -437,13 +438,12 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         }
         urlBuilder.append("&maxResults=").append(numResults);
         urlBuilder.append("&key=").append(apiKey);
-//        Language language = query.getLanguage();
-//        if (language != null) {
-//            urlBuilder.append("&lr=").append(language.getIso6391());
-//        }
+        //        Language language = query.getLanguage();
+        //        if (language != null) {
+        //            urlBuilder.append("&lr=").append(language.getIso6391());
+        //        }
         if (query.getCoordinate() != null) {
-            LOGGER.warn("Searching by coordinates is currently not supported by YouTube API V3; see: "
-                    + "https://code.google.com/p/gdata-issues/issues/detail?id=4234");
+            LOGGER.warn("Searching by coordinates is currently not supported by YouTube API V3; see: " + "https://code.google.com/p/gdata-issues/issues/detail?id=4234");
         }
         DateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
         if (query.getStartDate() != null) {

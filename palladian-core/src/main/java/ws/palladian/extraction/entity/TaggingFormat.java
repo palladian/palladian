@@ -4,9 +4,8 @@ package ws.palladian.extraction.entity;
  * <p>
  * Different formats for named entity tagging a text.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public enum TaggingFormat {
 

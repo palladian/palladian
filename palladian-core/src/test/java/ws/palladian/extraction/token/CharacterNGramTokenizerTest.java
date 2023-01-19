@@ -1,13 +1,12 @@
 package ws.palladian.extraction.token;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.Iterator;
 
-import org.junit.Test;
-
-import ws.palladian.core.Token;
-import ws.palladian.helper.collection.CollectionHelper;
+import static org.junit.Assert.assertEquals;
 
 public class CharacterNGramTokenizerTest {
 
@@ -28,7 +27,7 @@ public class CharacterNGramTokenizerTest {
         nGrams = new CharacterNGramTokenizer(3, 8).iterateTokens(STRING);
         // CollectionHelper.print(nGrams);
         assertEquals(27, CollectionHelper.count(nGrams));
-        
+
         nGrams = new CharacterNGramTokenizer(3, 3, true).iterateTokens(STRING);
         assertEquals(11, CollectionHelper.count(nGrams));
     }

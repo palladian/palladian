@@ -1,10 +1,9 @@
 package ws.palladian.helper.nlp;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
 import ws.palladian.helper.math.SetSimilarities;
+
+import static org.junit.Assert.assertEquals;
 
 public class CharacterNGramSimilarityTest {
 

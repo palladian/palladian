@@ -1,11 +1,5 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -13,13 +7,15 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
+import java.util.*;
+
 /**
  * <p>
  * Common base class for {@link LocationSource}s which do not support getting multiple entities in one go (like
  * {@link LocationSource#getLocations(List)}). This implementation simply splits such queries to their single-argument
  * counterpart and combines the results.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class SingleQueryLocationSource implements LocationSource {
@@ -34,8 +30,7 @@ public abstract class SingleQueryLocationSource implements LocationSource {
     }
 
     @Override
-    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
-            GeoCoordinate coordinate, double distance) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages, GeoCoordinate coordinate, double distance) {
         throw new UnsupportedOperationException("Not supported by " + getClass().getName() + ".");
     }
 

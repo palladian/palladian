@@ -1,15 +1,15 @@
 package ws.palladian.classification.text;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractDictionaryModelTest {
-    
+
     private static final String CATEGORY_1 = "category1";
     private static final String CATEGORY_2 = "category2";
 
@@ -31,7 +31,7 @@ public abstract class AbstractDictionaryModelTest {
          * d4 = { c1, [word1, word3] }
          * d5 = { c2, [word4] }
          * d6 = { c1, [word3] }
-         * 
+         *
          * word  | c1 | c2 
          * ------+----+----
          * word1 |  2 |  
@@ -39,7 +39,7 @@ public abstract class AbstractDictionaryModelTest {
          * word3 |  3 |  1
          * word4 |    |  3
          * word5 |    |
-         * 
+         *
          * rel(word1,c1) = 100%
          * rel(word2,c2) = 100%
          * rel(word3,c1) = 75%, rel(word3,c2) = 25%
@@ -80,34 +80,33 @@ public abstract class AbstractDictionaryModelTest {
         assertEquals(5, model.getTermCounts().getCount(CATEGORY_2));
     }
 
-//    @Test
-//    public void testRemove() {
-//        TermCategoryEntries entries = model.getCategoryEntries(WORD_3);
-//        Iterator<Category> iterator = entries.iterator();
-//        while (iterator.hasNext()) {
-//            if (iterator.next().getName().equals(CATEGORY_2)) {
-//                iterator.remove();
-//            }
-//        }
-//        assertEquals(3, entries.getTotalCount());
-//        assertEquals(1, entries.getProbability(CATEGORY_1), 0);
-//    }
+    //    @Test
+    //    public void testRemove() {
+    //        TermCategoryEntries entries = model.getCategoryEntries(WORD_3);
+    //        Iterator<Category> iterator = entries.iterator();
+    //        while (iterator.hasNext()) {
+    //            if (iterator.next().getName().equals(CATEGORY_2)) {
+    //                iterator.remove();
+    //            }
+    //        }
+    //        assertEquals(3, entries.getTotalCount());
+    //        assertEquals(1, entries.getProbability(CATEGORY_1), 0);
+    //    }
 
-//    @Test
-//    public void testSerialization() throws IOException {
-//        File tempDir = FileHelper.getTempDir();
-//        String tempFile = new File(tempDir, "dictionaryModel.ser").getPath();
-//        FileHelper.serialize(model, tempFile);
-//        DictionaryModel deserializedModel = FileHelper.deserialize(tempFile);
-//        assertTrue(deserializedModel.equals(model));
-//    }
-//
-//    @Test
-//    public void testBackwardsCompatibility() throws FileNotFoundException, IOException {
-//        DictionaryModel model_v1 = FileHelper.deserialize(ResourceHelper
-//                .getResourcePath("/model/testDictionaryTrieModel_v1.ser"));
-//        assertTrue(model_v1.equals(model));
-//    }
-
+    //    @Test
+    //    public void testSerialization() throws IOException {
+    //        File tempDir = FileHelper.getTempDir();
+    //        String tempFile = new File(tempDir, "dictionaryModel.ser").getPath();
+    //        FileHelper.serialize(model, tempFile);
+    //        DictionaryModel deserializedModel = FileHelper.deserialize(tempFile);
+    //        assertTrue(deserializedModel.equals(model));
+    //    }
+    //
+    //    @Test
+    //    public void testBackwardsCompatibility() throws FileNotFoundException, IOException {
+    //        DictionaryModel model_v1 = FileHelper.deserialize(ResourceHelper
+    //                .getResourcePath("/model/testDictionaryTrieModel_v1.ser"));
+    //        assertTrue(model_v1.equals(model));
+    //    }
 
 }

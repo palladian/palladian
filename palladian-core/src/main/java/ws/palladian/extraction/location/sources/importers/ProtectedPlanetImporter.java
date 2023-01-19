@@ -1,14 +1,8 @@
 package ws.palladian.extraction.location.sources.importers;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationType;
@@ -19,18 +13,22 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.DelimitedStringHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
  * This class reads the Protected Planet CSV locations and imports them into a given {@link LocationStore}.
  * </p>
- * 
- * @see <a href="http://protectedplanet.net/">Protected Planet</a>
+ *
  * @author David Urbansky
+ * @see <a href="http://protectedplanet.net/">Protected Planet</a>
  */
 public final class ProtectedPlanetImporter {
 
@@ -46,8 +44,8 @@ public final class ProtectedPlanetImporter {
      * <p>
      * Create a new {@link ProtectedPlanetImporter}.
      * </p>
-     * 
-     * @param locationStore The {@link LocationStore} where to store the data, not <code>null</code>.
+     *
+     * @param locationStore    The {@link LocationStore} where to store the data, not <code>null</code>.
      * @param progressReporter For reporting the import progress, or <code>null</code> to report not progress.
      */
     public ProtectedPlanetImporter(LocationStore locationStore, ProgressReporter progressReporter) {
@@ -59,7 +57,7 @@ public final class ProtectedPlanetImporter {
     public void importLocations(String locationFilePath) {
 
         // get the currently highest id
-//        final int maxId = locationStore.getHighestId();
+        //        final int maxId = locationStore.getHighestId();
         final int totalLocations = FileHelper.getNumberOfLines(locationFilePath) - 1;
         progressReporter.startTask(null, totalLocations);
         locationStore.startImport();
@@ -82,28 +80,28 @@ public final class ProtectedPlanetImporter {
                 if (!name.equals(origName)) {
                     builder.addAlternativeName(new String(origName), null);
                 }
-                
+
                 builder.setCoordinate(extractSingleCoordinate(parts.get(25)));
 
-//                try {
-//                    int coordinatesIndex;
-//                    // find start of geometry
-//                    for (coordinatesIndex = 25; coordinatesIndex < parts.length; coordinatesIndex++) {
-//                        String string = parts[coordinatesIndex];
-//                        if (string.contains("coordinates")) {
-//                            break;
-//                        }
-//                    }
-//                    String longitudeString = StringHelper.getSubstringBetween(parts[coordinatesIndex], "<coordinates>",
-//                            null);
-//                    double latitude = Double.parseDouble(StringHelper.getSubstringBetween(parts[coordinatesIndex + 1], null, " "));
-//                    double longitude = Double.parseDouble(longitudeString);
-//                    builder.setCoordinate(latitude, longitude);
-//                } catch (Exception e) {
-//                    LOGGER.error("No coordinates in {}", line);
-//                }
-//                int id = maxId + lineNumber;
-//                builder.setId(id);
+                //                try {
+                //                    int coordinatesIndex;
+                //                    // find start of geometry
+                //                    for (coordinatesIndex = 25; coordinatesIndex < parts.length; coordinatesIndex++) {
+                //                        String string = parts[coordinatesIndex];
+                //                        if (string.contains("coordinates")) {
+                //                            break;
+                //                        }
+                //                    }
+                //                    String longitudeString = StringHelper.getSubstringBetween(parts[coordinatesIndex], "<coordinates>",
+                //                            null);
+                //                    double latitude = Double.parseDouble(StringHelper.getSubstringBetween(parts[coordinatesIndex + 1], null, " "));
+                //                    double longitude = Double.parseDouble(longitudeString);
+                //                    builder.setCoordinate(latitude, longitude);
+                //                } catch (Exception e) {
+                //                    LOGGER.error("No coordinates in {}", line);
+                //                }
+                //                int id = maxId + lineNumber;
+                //                builder.setId(id);
                 builder.setType(LocationType.LANDMARK);
                 Location location = builder.create();
                 locationStore.save(location);
@@ -120,7 +118,7 @@ public final class ProtectedPlanetImporter {
 
     /**
      * Parse the KML data, and determine midpoint coordinate from all given coordinates.
-     * 
+     *
      * @param kmlString The KML string.
      * @return The midpoint coordinate, or <code>null</code> in case the data could not be parsed.
      */

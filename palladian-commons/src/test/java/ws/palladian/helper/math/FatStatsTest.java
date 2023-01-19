@@ -1,11 +1,11 @@
 package ws.palladian.helper.math;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FatStatsTest {
 
@@ -101,17 +101,17 @@ public class FatStatsTest {
         assertEquals(2, stats.getPercentile(30), 0);
         assertEquals(11, stats.getPercentile(75), 0);
     }
-    
+
     @Test
     public void testMode() {
-    	Stats stats = new FatStats().add(1., 1., 1., 2., 3., 3., 4.);
-    	assertEquals(1., stats.getMode(), 0);
-    	
-    	stats = new FatStats().add(1., 1., 1., 2., 2., 2., 3., 3., 3., 4., 4., 4.);
-    	assertEquals(1., stats.getMode(), 0);
+        Stats stats = new FatStats().add(1., 1., 1., 2., 3., 3., 4.);
+        assertEquals(1., stats.getMode(), 0);
 
-    	stats = new FatStats().add(1., 2., 3., 4., 5., 6., 7., 8., 9., 10.);
-    	assertEquals(1., stats.getMode(), 0);
+        stats = new FatStats().add(1., 1., 1., 2., 2., 2., 3., 3., 3., 4., 4., 4.);
+        assertEquals(1., stats.getMode(), 0);
+
+        stats = new FatStats().add(1., 2., 3., 4., 5., 6., 7., 8., 9., 10.);
+        assertEquals(1., stats.getMode(), 0);
     }
 
 }

@@ -1,12 +1,5 @@
 package ws.palladian.retrieval.ranking.services;
 
-import static org.junit.Assert.fail;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -16,18 +9,24 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.fail;
+
 /**
  * <p>
  * Web tests for different {@link RankingService}s. These tests are run as integration tests.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 @RunWith(Parameterized.class)
@@ -42,29 +41,29 @@ public class RankingServicesIT {
     public static Collection<Object[]> rankers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
         List<Object[]> rankers = new ArrayList<>();
-        rankers.add(new Object[] {new AlexaRank()});
-        rankers.add(new Object[] {new BibsonomyBookmarks(configuration)});
-        rankers.add(new Object[] {new BitlyClicks(configuration)});
-        rankers.add(new Object[] {new FacebookLinkStats(configuration)});
+        rankers.add(new Object[]{new AlexaRank()});
+        rankers.add(new Object[]{new BibsonomyBookmarks(configuration)});
+        rankers.add(new Object[]{new BitlyClicks(configuration)});
+        rankers.add(new Object[]{new FacebookLinkStats(configuration)});
         // rankers.add(new Object[] {new Foursquare(configuration)});
-        rankers.add(new Object[] {new GoogleCachedPage()});
-        rankers.add(new Object[] {new GooglePageRank()});
-        rankers.add(new Object[] {new GooglePlusLikes()});
-        rankers.add(new Object[] {new HackerNewsRankingService()});
-        rankers.add(new Object[] {new LinkedInShares()});
-        rankers.add(new Object[] {new MajesticSeo(configuration)});
-        rankers.add(new Object[] {new OpenLinkProfiler()});
-        rankers.add(new Object[] {new PinterestPins()});
-        rankers.add(new Object[] {new PlurkPosts(configuration)});
-        rankers.add(new Object[] {new RedditStats()});
-        rankers.add(new Object[] {new SemRush()});
-        rankers.add(new Object[] {new SharedCount(configuration)});
-        rankers.add(new Object[] {new SharethisStats(configuration)});
-        rankers.add(new Object[] {new SistrixVisibilityIndex()});
-        rankers.add(new Object[] {new StumbleUponViews()});
-        rankers.add(new Object[] {new WebOfTrust()});
-        rankers.add(new Object[] {new Webutation()});
-        rankers.add(new Object[] {new YandexCitationIndex()});
+        rankers.add(new Object[]{new GoogleCachedPage()});
+        rankers.add(new Object[]{new GooglePageRank()});
+        rankers.add(new Object[]{new GooglePlusLikes()});
+        rankers.add(new Object[]{new HackerNewsRankingService()});
+        rankers.add(new Object[]{new LinkedInShares()});
+        rankers.add(new Object[]{new MajesticSeo(configuration)});
+        rankers.add(new Object[]{new OpenLinkProfiler()});
+        rankers.add(new Object[]{new PinterestPins()});
+        rankers.add(new Object[]{new PlurkPosts(configuration)});
+        rankers.add(new Object[]{new RedditStats()});
+        rankers.add(new Object[]{new SemRush()});
+        rankers.add(new Object[]{new SharedCount(configuration)});
+        rankers.add(new Object[]{new SharethisStats(configuration)});
+        rankers.add(new Object[]{new SistrixVisibilityIndex()});
+        rankers.add(new Object[]{new StumbleUponViews()});
+        rankers.add(new Object[]{new WebOfTrust()});
+        rankers.add(new Object[]{new Webutation()});
+        rankers.add(new Object[]{new YandexCitationIndex()});
         return rankers;
     }
 

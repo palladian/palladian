@@ -1,24 +1,22 @@
 package ws.palladian.semantics;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -26,7 +24,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * can be found at <a href="http://dumps.wikimedia.org/dewiktionary/">German dumps</a> and <a
  * href="http://dumps.wikimedia.org/enwiktionary/">English dumps</a>. Use pages-articles.xml.bz2.
  * </p>
- * 
+ *
  * <p>
  * The German Word DB can be extended with data from openthesaurus.de. We need to download the SQL database
  * (http://www.openthesaurus.de/about/download) query the hypernyms (SELECT t1.word,t2.word FROM term t1, term t2,
@@ -34,9 +32,8 @@ import ws.palladian.helper.nlp.StringHelper;
  * sl.target_synset_id = s2.id AND sl.link_type_id=1;), export this data to a csv file (word;hypernym), and tell the
  * parser to use this file for additional hypernyms.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class WiktionaryParser {
 
@@ -69,7 +66,6 @@ public class WiktionaryParser {
     }
 
     /**
-     * 
      * @param wiktionaryXmlFilePath
      */
     public void parseAndCreateDB(String wiktionaryXmlFilePath) {
@@ -93,8 +89,7 @@ public class WiktionaryParser {
                 private final StopWatch sw = new StopWatch();
 
                 @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes)
-                        throws SAXException {
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
                     // System.out.println("Start Element :" + qName);
 
@@ -260,8 +255,7 @@ public class WiktionaryParser {
                     //                    wordDB.aggregateInformation(wordObject);
 
                     if (elementsParsed++ % 100 == 0) {
-                        System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +"
-                                + sw.getElapsedTimeString());
+                        System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +" + sw.getElapsedTimeString());
                         sw.start();
                     }
                 }
@@ -351,8 +345,7 @@ public class WiktionaryParser {
                     }
 
                     if (c++ % 100 == 0) {
-                        LOGGER.info(MathHelper.round(100 * c / hypernymArray.size(), 2)
-                                + "% of additional hypernyms processed");
+                        LOGGER.info(MathHelper.round(100 * c / hypernymArray.size(), 2) + "% of additional hypernyms processed");
                     }
 
                 }
@@ -388,8 +381,7 @@ public class WiktionaryParser {
                 private final StopWatch sw = new StopWatch();
 
                 @Override
-                public void startElement(String uri, String localName, String qName, Attributes attributes)
-                        throws SAXException {
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
                     // System.out.println("Start Element :" + qName);
 
@@ -431,8 +423,8 @@ public class WiktionaryParser {
 
                     }
 
-                    if ((singular.startsWith("der ") || singular.startsWith("die ") || singular.startsWith("das "))
-                            && (plural.startsWith("der ") || plural.startsWith("die ") || plural.startsWith("das "))) {
+                    if ((singular.startsWith("der ") || singular.startsWith("die ") || singular.startsWith("das ")) && (plural.startsWith("der ") || plural.startsWith("die ")
+                            || plural.startsWith("das "))) {
 
                         wordFile.append(singular.replaceFirst("\\s", "\t")).append("\t");
                         wordFile.append(plural.replaceFirst("\\s", "\t")).append("\n");
@@ -440,8 +432,7 @@ public class WiktionaryParser {
                     }
 
                     if (elementsParsed++ % 100 == 0) {
-                        System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +"
-                                + sw.getElapsedTimeString());
+                        System.out.println(">" + MathHelper.round(100 * bytesProcessed / bytesToProcess, 2) + "%, +" + sw.getElapsedTimeString());
                         sw.start();
                     }
                 }
@@ -512,7 +503,7 @@ public class WiktionaryParser {
 
     /**
      * The main function.
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {

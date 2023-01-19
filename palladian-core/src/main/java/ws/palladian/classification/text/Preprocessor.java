@@ -1,10 +1,6 @@
 package ws.palladian.classification.text;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.FeatureSetting.TextFeatureType;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
@@ -16,6 +12,8 @@ import ws.palladian.extraction.token.WordTokenizer;
 import ws.palladian.helper.collection.AbstractIterator2;
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -43,8 +41,7 @@ public class Preprocessor implements Function<String, Iterator<String>> {
         int maxNGramLength = featureSetting.getMaxNGramLength();
         Iterator<Token> tokenIterator;
         if (featureSetting.getTextFeatureType() == TextFeatureType.CHAR_NGRAMS) {
-            tokenIterator = new CharacterNGramTokenizer(minNGramLength, maxNGramLength,
-                    featureSetting.isCharacterPadding()).iterateTokens(content);
+            tokenIterator = new CharacterNGramTokenizer(minNGramLength, maxNGramLength, featureSetting.isCharacterPadding()).iterateTokens(content);
         } else if (featureSetting.getTextFeatureType() == TextFeatureType.WORD_NGRAMS) {
             tokenIterator = new WordTokenizer().iterateTokens(content);
             if (featureSetting.isStem()) {
@@ -56,7 +53,7 @@ public class Preprocessor implements Function<String, Iterator<String>> {
             tokenIterator = filterByTermLengths(tokenIterator);
             tokenIterator = new NGramWrapperIterator(tokenIterator, minNGramLength, maxNGramLength);
             if (featureSetting.isCreateSkipGrams()) {
-            	tokenIterator = new SkipGramWrapperIterator(tokenIterator);
+                tokenIterator = new SkipGramWrapperIterator(tokenIterator);
             }
         } else {
             throw new UnsupportedOperationException("Unsupported feature type: " + featureSetting.getTextFeatureType());
@@ -66,7 +63,8 @@ public class Preprocessor implements Function<String, Iterator<String>> {
 
         if (featureSetting.isUseTokenCombinations()) {
             Iterator<Token> combinationTokenIterator = new WordTokenizer().iterateTokens(content);
-            combinationTokenIterator = new NGramWrapperIterator(combinationTokenIterator, featureSetting.getTokenCombinationMinNgram(), featureSetting.getTokenCombinationMaxNgram());
+            combinationTokenIterator = new NGramWrapperIterator(combinationTokenIterator, featureSetting.getTokenCombinationMinNgram(),
+                    featureSetting.getTokenCombinationMaxNgram());
             List<String> list = new ArrayList<>();
             while (combinationTokenIterator.hasNext()) {
                 list.add(combinationTokenIterator.next().getValue());

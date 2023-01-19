@@ -1,15 +1,8 @@
 package ws.palladian.extraction.location.scope.evaluation;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationExtractor;
@@ -19,15 +12,7 @@ import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguatio
 import ws.palladian.extraction.location.evaluation.LocationDocument;
 import ws.palladian.extraction.location.evaluation.TudLoc2013DatasetIterable;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
-import ws.palladian.extraction.location.scope.FeatureBasedScopeDetector;
-import ws.palladian.extraction.location.scope.FirstScopeDetector;
-import ws.palladian.extraction.location.scope.FrequencyScopeDetector;
-import ws.palladian.extraction.location.scope.HighestPopulationScopeDetector;
-import ws.palladian.extraction.location.scope.HighestTrustScopeDetector;
-import ws.palladian.extraction.location.scope.LeastDistanceScopeDetector;
-import ws.palladian.extraction.location.scope.MidpointScopeDetector;
-import ws.palladian.extraction.location.scope.RankingScopeDetector;
-import ws.palladian.extraction.location.scope.ScopeDetector;
+import ws.palladian.extraction.location.scope.*;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.helper.geo.GeoUtils;
@@ -35,6 +20,12 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManagerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ScopeDetectorEvaluator {
 
@@ -75,7 +66,7 @@ public class ScopeDetectorEvaluator {
 
     /**
      * Prints out relevant prediction/error statistics.
-     * 
+     *
      * @param stats The statistics, not <code>null</code>.
      */
     public static void printStats(Stats stats) {
@@ -99,15 +90,14 @@ public class ScopeDetectorEvaluator {
     }
 
     /**
-     * @param scopeDetector The {@link RankingScopeDetector} to evaluate, not <code>null</code>.
+     * @param scopeDetector     The {@link RankingScopeDetector} to evaluate, not <code>null</code>.
      * @param locationExtractor The {@link LocationExtractor} to use for extracting the locations, not <code>null</code>
-     *            .
-     * @param documentIterator The {@link Iterator} over the dataset, not <code>null</code>.
-     * @param detailedResults <code>true</code> to write an additional CSV file with detailed results information.
+     *                          .
+     * @param documentIterator  The {@link Iterator} over the dataset, not <code>null</code>.
+     * @param detailedResults   <code>true</code> to write an additional CSV file with detailed results information.
      * @return The error distance statistics.
      */
-    public static Stats evaluateScopeDetection(ScopeDetector scopeDetector,
-            Iterable<LocationDocument> documentIterator, boolean detailedResults) {
+    public static Stats evaluateScopeDetection(ScopeDetector scopeDetector, Iterable<LocationDocument> documentIterator, boolean detailedResults) {
         Validate.notNull(scopeDetector, "scopeDetector must not be null");
         Validate.notNull(documentIterator, "documentIterator must not be null");
 
@@ -130,7 +120,7 @@ public class ScopeDetectorEvaluator {
             GeoCoordinate reference = mainLocation.getCoordinate();
             GeoCoordinate scopeCoordinate = scopeDetector.getScope(document.getText());
             double distance;
-            if (scopeCoordinate!= null) {
+            if (scopeCoordinate != null) {
                 distance = reference.distance(scopeCoordinate);
             } else {
                 LOGGER.debug("*** no scope detected for {}", document.getFileName());
@@ -148,7 +138,7 @@ public class ScopeDetectorEvaluator {
                 detailedResultsBuilder.append(distance).append('\n');
             }
         }
-        
+
         stopWatch.stop();
 
         String line = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n", //
@@ -163,8 +153,7 @@ public class ScopeDetectorEvaluator {
                 distanceStats.getMax(), //
                 distanceStats.getMse(), //
                 distanceStats.getRmse(), //
-                misses,
-                stopWatch.getElapsedTime(true)); //
+                misses, stopWatch.getElapsedTime(true)); //
         writeHeader();
         FileHelper.appendFile(RESULT_CSV_FILE.getPath(), line);
 
@@ -174,10 +163,9 @@ public class ScopeDetectorEvaluator {
             detailedResultsBuilder.append("Time taken:\n");
             detailedResultsBuilder.append(stopWatch.getElapsedTimeString()).append('\n');
             detailedResultsBuilder.append(stopWatch.getElapsedTime(true)).append(" seconds");
-            FileHelper.writeToFile(String.format(RESULT_DETAILS_FILE, System.currentTimeMillis()),
-                    detailedResultsBuilder);
+            FileHelper.writeToFile(String.format(RESULT_DETAILS_FILE, System.currentTimeMillis()), detailedResultsBuilder);
         }
-        
+
         return distanceStats;
     }
 
@@ -186,8 +174,7 @@ public class ScopeDetectorEvaluator {
 
         // general necessary prerequisites
         LocationDatabase source = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
-        QuickDtModel disambiguationModel = FileHelper
-                .deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
+        QuickDtModel disambiguationModel = FileHelper.deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
 
         // the extractors
         FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(disambiguationModel, 0, new ConfigurableFeatureExtractor());
@@ -195,8 +182,7 @@ public class ScopeDetectorEvaluator {
 
         // the test datasets
         eval.addDataset(new TudLoc2013DatasetIterable(new File("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/3-test")));
-        eval.addDataset(new WikipediaLocationScopeIterator(new File(
-                "/Users/pk/Desktop/WikipediaScopeDataset-2014/split-3")));
+        eval.addDataset(new WikipediaLocationScopeIterator(new File("/Users/pk/Desktop/WikipediaScopeDataset-2014/split-3")));
 
         // the scope detectors under test
         eval.addDetector(new FirstScopeDetector(extractor));

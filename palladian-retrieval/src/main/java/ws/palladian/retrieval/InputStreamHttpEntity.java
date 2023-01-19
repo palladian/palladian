@@ -1,12 +1,8 @@
 package ws.palladian.retrieval;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-
 import org.apache.commons.lang3.Validate;
+
+import java.io.*;
 
 public final class InputStreamHttpEntity implements HttpEntity {
 
@@ -22,14 +18,14 @@ public final class InputStreamHttpEntity implements HttpEntity {
         this.length = length;
         this.contentType = contentType;
     }
-    
+
     public InputStreamHttpEntity(File file, String contentType) throws FileNotFoundException {
-    	this(new FileInputStream(file), file.length(), contentType);
+        this(new FileInputStream(file), file.length(), contentType);
     }
-    
-	public InputStreamHttpEntity(byte[] buffer, String contentType) {
-		this(new ByteArrayInputStream(buffer), buffer.length, contentType);
-	}
+
+    public InputStreamHttpEntity(byte[] buffer, String contentType) {
+        this(new ByteArrayInputStream(buffer), buffer.length, contentType);
+    }
 
     @Override
     public InputStream getInputStream() {

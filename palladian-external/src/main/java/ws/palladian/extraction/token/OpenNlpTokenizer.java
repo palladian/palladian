@@ -1,24 +1,22 @@
 package ws.palladian.extraction.token;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.TextTokenizer;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.io.FileHelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
 
 /**
  * <p>
@@ -28,7 +26,7 @@ import ws.palladian.helper.io.FileHelper;
  * href="http://opennlp.apache.org/documentation/1.5.2-incubating/manual/opennlp.html#tools.tokenizer">section on
  * tokenization</a> in the OpenNLP Developer Documentation.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class OpenNlpTokenizer implements TextTokenizer {
@@ -50,7 +48,7 @@ public final class OpenNlpTokenizer implements TextTokenizer {
      * <p>
      * Create a new {@link OpenNlpTokenizer} using an arbitrary implementation of {@link Tokenizer}.
      * </p>
-     * 
+     *
      * @param tokenizer
      */
     public OpenNlpTokenizer(Tokenizer tokenizer) {
@@ -63,7 +61,7 @@ public final class OpenNlpTokenizer implements TextTokenizer {
      * Create a new {@link OpenNlpTokenizer} based on a learned model. Such learned models are available for example on
      * the <a href="http://opennlp.sourceforge.net/models-1.5/">OpenNLP Tools Models</a> web page.
      * </p>
-     * 
+     *
      * @param modelFile Path to the model file, must not be <code>null</code>.
      */
     public OpenNlpTokenizer(File modelFile) {
@@ -74,8 +72,7 @@ public final class OpenNlpTokenizer implements TextTokenizer {
             modelIn = new FileInputStream(modelFile);
             model = new TokenizerModel(modelIn);
         } catch (IOException e) {
-            throw new IllegalStateException("Error initializing OpenNLP Tokenizer from \""
-                    + modelFile.getAbsolutePath() + "\": " + e.getMessage());
+            throw new IllegalStateException("Error initializing OpenNLP Tokenizer from \"" + modelFile.getAbsolutePath() + "\": " + e.getMessage());
         } finally {
             FileHelper.close(modelIn);
         }

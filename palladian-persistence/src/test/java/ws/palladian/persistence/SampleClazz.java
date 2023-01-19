@@ -22,7 +22,7 @@ final class SampleClazz {
     }
 
     /**
-     * 
+     *
      */
     public SampleClazz() {
         super();

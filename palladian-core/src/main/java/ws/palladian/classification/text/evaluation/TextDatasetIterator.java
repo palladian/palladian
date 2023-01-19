@@ -26,7 +26,6 @@ import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TE
  *
  * @author Philipp Katz
  * @author David Urbansky
- *
  */
 public class TextDatasetIterator extends AbstractDataset {
     /**

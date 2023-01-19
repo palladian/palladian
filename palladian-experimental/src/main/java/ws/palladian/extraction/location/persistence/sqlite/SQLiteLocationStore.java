@@ -1,19 +1,6 @@
 package ws.palladian.extraction.location.persistence.sqlite;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
 import org.sqlite.SQLiteDataSource;
-
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.sources.LocationStore;
@@ -21,6 +8,11 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverters;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Store location data in a single SQLite file.
@@ -35,9 +27,9 @@ public class SQLiteLocationStore extends DatabaseManager implements LocationStor
 
     public static SQLiteLocationStore create(File sqLiteFilePath) {
         Objects.requireNonNull(sqLiteFilePath);
-         if (sqLiteFilePath.exists()) {
-             throw new IllegalArgumentException("File already exists: " + sqLiteFilePath);
-         }
+        if (sqLiteFilePath.exists()) {
+            throw new IllegalArgumentException("File already exists: " + sqLiteFilePath);
+        }
         SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl("jdbc:sqlite:" + sqLiteFilePath.getAbsolutePath());
         return new SQLiteLocationStore(dataSource);
@@ -73,8 +65,7 @@ public class SQLiteLocationStore extends DatabaseManager implements LocationStor
                 location.getId(), //
                 location.getPrimaryName(), //
                 null, //
-                true
-        ));
+                true));
         addAlternativeNames(location.getId(), location.getAlternativeNames());
         flush(false);
     }
@@ -86,8 +77,7 @@ public class SQLiteLocationStore extends DatabaseManager implements LocationStor
                     locationId, //
                     alternativeName.getName(), //
                     Optional.ofNullable(alternativeName.getLanguage()).map(Language::getIso6391).orElse(null), //
-                    false
-            ));
+                    false));
         }
         flush(false);
     }

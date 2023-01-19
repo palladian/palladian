@@ -1,28 +1,20 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.util.*;
 
 public class WebKnoxLocationSource extends SingleQueryLocationSource {
 
@@ -59,8 +51,7 @@ public class WebKnoxLocationSource extends SingleQueryLocationSource {
         List<Location> locations = new ArrayList<>();
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
-        String url = String.format("http://webknox.com/api/entities/search?entityName=%s&apiKey=%s",
-                UrlHelper.encodeParameter(locationName), apiKey);
+        String url = String.format("http://webknox.com/api/entities/search?entityName=%s&apiKey=%s", UrlHelper.encodeParameter(locationName), apiKey);
         LOGGER.debug("check {}", url);
         String jsonString = documentRetriever.getText(url);
         if (jsonString == null) {

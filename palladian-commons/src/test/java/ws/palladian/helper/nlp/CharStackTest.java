@@ -1,10 +1,10 @@
 package ws.palladian.helper.nlp;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.EmptyStackException;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class CharStackTest {
 

@@ -1,33 +1,26 @@
 package ws.palladian.classification.language;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.FormEncodedHttpEntity.Builder;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Language detector using Microsoft Translator API.
  * </p>
- * 
+ *
+ * @author Philipp Katz
  * @see <a href="http://msdn.microsoft.com/en-us/library/dd576287.aspx">Microsoft Translator API doc.</a>
  * @see <a href="https://datamarket.azure.com/dataset/1899a118-d202-492c-aa16-ba21c33c06cb">Azure Marketplace</a>
  * @see <a href="https://datamarket.azure.com/developer/applications/">Get client ID and secret here.</a>
- * @author Philipp Katz
  */
 public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
 
@@ -56,8 +49,8 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
      * <p>
      * Create a new {@link MicrosoftTranslatorLangDetect} with the given authentication data.
      * </p>
-     * 
-     * @param clientId The client ID from the Azure DataMarket, not <code>null</code> or empty.
+     *
+     * @param clientId     The client ID from the Azure DataMarket, not <code>null</code> or empty.
      * @param clientSecret The client secret from the Azure DataMarket, not <code>null</code> or empty.
      */
     public MicrosoftTranslatorLangDetect(String clientId, String clientSecret) {
@@ -110,13 +103,12 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
 
     /**
      * Request an access token, see <a href="http://msdn.microsoft.com/en-us/library/hh454950.aspx">here</a>.
-     * 
+     *
      * @return The access token.
      * @throws IllegalStateException in case of any error.
      */
     private String obtainAccessToken() {
-        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.POST,
-                "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13");
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.POST, "https://datamarket.accesscontrol.windows.net/v2/OAuth2-13");
         Builder entityBuilder = new FormEncodedHttpEntity.Builder();
         entityBuilder.addData("client_id", clientId);
         entityBuilder.addData("client_secret", clientSecret);
@@ -132,8 +124,7 @@ public class MicrosoftTranslatorLangDetect implements LanguageClassifier {
         try {
             return new JsonObject(result.getStringContent()).getString("access_token");
         } catch (JsonException e) {
-            throw new IllegalStateException("JSON parse error while trying to obtain access token: " + e
-                    + ", JSON was: '" + result.getStringContent() + "'", e);
+            throw new IllegalStateException("JSON parse error while trying to obtain access token: " + e + ", JSON was: '" + result.getStringContent() + "'", e);
         }
     }
 

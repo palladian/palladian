@@ -8,10 +8,10 @@ import ws.palladian.helper.geo.GeoUtils;
  * Utility class representing a coordinate extracted from Wikipedia coordinate markup. It provides some additional
  * properties such as 'display' type, population in some case, and a coordinate type.
  * </p>
- * 
- * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject Geographical
- *      coordinates</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://en.wikipedia.org/wiki/Wikipedia:WikiProject_Geographical_coordinates">WikiProject Geographical
+ * coordinates</a>
  */
 public final class MarkupCoordinate extends AbstractGeoCoordinate {
 
@@ -27,8 +27,7 @@ public final class MarkupCoordinate extends AbstractGeoCoordinate {
         this(lat, lng, null, null, display, type, null);
     }
 
-    public MarkupCoordinate(double lat, double lng, String name, Long population, String display, String type,
-            String region) {
+    public MarkupCoordinate(double lat, double lng, String name, Long population, String display, String type, String region) {
         GeoUtils.validateCoordinateRange(lat, lng);
         this.lat = lat;
         this.lng = lng;
@@ -51,7 +50,7 @@ public final class MarkupCoordinate extends AbstractGeoCoordinate {
 
     /**
      * @return The display type of this coordinate on the Wikipedia page, <code>null</code> in case no such information
-     *         exists.
+     * exists.
      */
     public String getDisplay() {
         return display;
@@ -99,9 +98,9 @@ public final class MarkupCoordinate extends AbstractGeoCoordinate {
         result = prime * result + ((display == null) ? 0 : display.hashCode());
         long temp;
         temp = Double.doubleToLongBits(lat);
-        result = prime * result + (int)(temp ^ (temp >>> 32));
+        result = prime * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(lng);
-        result = prime * result + (int)(temp ^ (temp >>> 32));
+        result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((population == null) ? 0 : population.hashCode());
         result = prime * result + ((region == null) ? 0 : region.hashCode());
@@ -117,7 +116,7 @@ public final class MarkupCoordinate extends AbstractGeoCoordinate {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MarkupCoordinate other = (MarkupCoordinate)obj;
+        MarkupCoordinate other = (MarkupCoordinate) obj;
         if (display == null) {
             if (other.display != null)
                 return false;

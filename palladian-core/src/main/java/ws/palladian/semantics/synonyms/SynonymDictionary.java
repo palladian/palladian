@@ -9,9 +9,8 @@ import java.util.List;
  * This is a very simple but fast implementation of a simple synonym dictionary. This dictionary can be created with the
  * {@link SynonymDictionaryCreator} in any language.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class SynonymDictionary extends HashMap<String, List<String>> {
 
@@ -26,7 +25,7 @@ public class SynonymDictionary extends HashMap<String, List<String>> {
 
     public List<String> get(String key) {
         List<String> list = super.get(key);
-        if(list == null){
+        if (list == null) {
             list = new ArrayList<>();
             list.add(key);
             put(key, list);

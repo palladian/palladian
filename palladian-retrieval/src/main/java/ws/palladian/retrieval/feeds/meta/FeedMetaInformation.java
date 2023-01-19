@@ -5,10 +5,9 @@ import java.util.Date;
 
 /**
  * <p>Represents MetaInformation about a Feed. Used for evaluation and statistical purposes.</p>
- * 
+ *
  * @author Philipp Katz
  * @author Sandro Reichert
- * 
  */
 public class FeedMetaInformation {
 
@@ -16,7 +15,7 @@ public class FeedMetaInformation {
 
     /** The URL of the website this feed has been found at. */
     private String siteUrl = null;
-    
+
     /** <code>true</code> if feed is accessible, <code>false</code> if not, <code>null</code> if unknown. */
     private Boolean isAccessible = null;
 
@@ -49,7 +48,6 @@ public class FeedMetaInformation {
      */
     private Integer cgHeaderSize;
 
-
     // ////// RSS specific meta data. \\\\\\\\
 
     /**
@@ -81,7 +79,6 @@ public class FeedMetaInformation {
      * not, <code>null</code> if unknown.
      */
     private Boolean hasSkipDays = null;
-    
 
     // ////// Atom specific meta data. \\\\\\\\
 
@@ -96,9 +93,7 @@ public class FeedMetaInformation {
      * <code>null</code> if unknown.
      */
     private Boolean hasPublished = null;
-    
 
-    
     /**
      * @return <code>true</code> if feed is accessible, <code>false</code> if not, <code>null</code> if unknown.
      */
@@ -108,14 +103,13 @@ public class FeedMetaInformation {
 
     /**
      * Set to <code>true</code> if feed is accessible, <code>false</code> if not, <code>null</code> if unknown.
-     * 
+     *
      * @param isAccessible <code>true</code> if feed is accessible, <code>false</code> if not, <code>null</code> if
-     *            unknown.
+     *                     unknown.
      */
     public void setAccessible(Boolean isAccessible) {
         this.isAccessible = isAccessible;
     }
-
 
     /**
      * @return <code>true</code> if feed supports PubSubHubbub, <code>false</code> if not, <code>null</code> if unknown.
@@ -126,9 +120,9 @@ public class FeedMetaInformation {
 
     /**
      * <code>true</code> if feed supports PubSubHubbub, <code>false</code> if not, <code>null</code> if unknown.
-     * 
+     *
      * @param supportsPubSubHubBub <code>true</code> if feed supports PubSubHubbub, <code>false</code> if not,
-     *            <code>null</code> if unknown.
+     *                             <code>null</code> if unknown.
      */
     public void setSupportsPubSubHubBub(Boolean supportsPubSubHubBub) {
         this.supportsPubSubHubBub = supportsPubSubHubBub;
@@ -143,7 +137,7 @@ public class FeedMetaInformation {
 
     /**
      * The feed's format such as rss 2.0, <code>null</code> if unknown.
-     * 
+     *
      * @param feedVersion The feed's format such as rss 2.0, <code>null</code> if unknown.
      */
     public void setFeedFormat(String feedVersion) {
@@ -152,7 +146,7 @@ public class FeedMetaInformation {
 
     /**
      * @return <code>true</code> if the feed's items have ids (id or guid), <code>false</code> if not, <code>null</code>
-     *         if unknown.
+     * if unknown.
      */
     public Boolean hasItemIds() {
         return hasItemIds;
@@ -161,9 +155,9 @@ public class FeedMetaInformation {
     /**
      * Set to <code>true</code> if the feed's items have ids (id or guid), <code>false</code> if not, <code>null</code>
      * if unknown.
-     * 
+     *
      * @param hasItemIds <code>true</code> if the feed's items have ids (id or guid), <code>false</code> if not,
-     *            <code>null</code> if unknown.
+     *                   <code>null</code> if unknown.
      */
     public void setHasItemIds(Boolean hasItemIds) {
         this.hasItemIds = hasItemIds;
@@ -171,7 +165,7 @@ public class FeedMetaInformation {
 
     /**
      * @return <code>true</code> if the feed's items contain the pubDate attribute (RSS2 specific), <code>false</code>
-     *         if not, <code>null</code> if unknown.
+     * if not, <code>null</code> if unknown.
      */
     public Boolean hasPubDate() {
         return hasPubDate;
@@ -180,9 +174,9 @@ public class FeedMetaInformation {
     /**
      * <code>true</code> if the feed's items contain the pubDate attribute (RSS2 specific), <code>false</code> if not,
      * <code>null</code> if unknown.
-     * 
+     *
      * @param hasPubDate <code>true</code> if the feed's items contain the pubDate attribute (RSS2 specific),
-     *            <code>false</code> if not, <code>null</code> if unknown.
+     *                   <code>false</code> if not, <code>null</code> if unknown.
      */
     public void setHasPubDate(Boolean hasPubDate) {
         this.hasPubDate = hasPubDate;
@@ -190,7 +184,7 @@ public class FeedMetaInformation {
 
     /**
      * @return <code>true</code> if the feed supports the cloud attribute (RSS2 specific) , <code>false</code> if not,
-     *         <code>null</code> if unknown.
+     * <code>null</code> if unknown.
      */
     public Boolean hasCloud() {
         return hasCloud;
@@ -199,9 +193,9 @@ public class FeedMetaInformation {
     /**
      * <code>true</code> if the feed supports the cloud attribute (RSS2 specific) , <code>false</code> if not,
      * <code>null</code> if unknown.
-     * 
+     *
      * @param hasCloud <code>true</code> if the feed supports the cloud attribute (RSS2 specific) , <code>false</code>
-     *            if not, <code>null</code> if unknown.
+     *                 if not, <code>null</code> if unknown.
      */
     public void setHasCloud(Boolean hasCloud) {
         this.hasCloud = hasCloud;
@@ -209,7 +203,7 @@ public class FeedMetaInformation {
 
     /**
      * @return The value of the feed's time to live attribute (RSS2 specific), <code>null</code> if unknown or not
-     *         present.
+     * present.
      */
     public Integer getRssTtl() {
         return ttl;
@@ -218,7 +212,7 @@ public class FeedMetaInformation {
     /**
      * The value of the feed's time to live attribute (RSS2 specific), <code>null</code> if unknown or not
      * present.
-     * 
+     *
      * @param ttl The value of the feed's time to live attribute (RSS2 specific), <code>null</code> if unknown or not
      *            present.
      */
@@ -228,7 +222,7 @@ public class FeedMetaInformation {
 
     /**
      * @return <code>true</code> if the feed supports the skipHours attribute (RSS2 specific), <code>false</code> if
-     *         not, <code>null</code> if unknown.
+     * not, <code>null</code> if unknown.
      */
     public Boolean hasSkipHours() {
         return hasSkipHours;
@@ -237,9 +231,9 @@ public class FeedMetaInformation {
     /**
      * <code>true</code> if the feed supports the skipHours attribute (RSS2 specific), <code>false</code> if
      * not, <code>null</code> if unknown.
-     * 
+     *
      * @param hasSkipHours <code>true</code> if the feed supports the skipHours attribute (RSS2 specific),
-     *            <code>false</code> if not, <code>null</code> if unknown.
+     *                     <code>false</code> if not, <code>null</code> if unknown.
      */
     public void setHasSkipHours(Boolean hasSkipHours) {
         this.hasSkipHours = hasSkipHours;
@@ -247,7 +241,7 @@ public class FeedMetaInformation {
 
     /**
      * @return <code>true</code> if the feed supports the skipDays attribute (RSS2 specific), <code>false</code> if
-     *         not, <code>null</code> if unknown.
+     * not, <code>null</code> if unknown.
      */
     public Boolean hasSkipDays() {
         return hasSkipDays;
@@ -256,9 +250,9 @@ public class FeedMetaInformation {
     /**
      * <code>true</code> if the feed supports the skipDays attribute (RSS2 specific), <code>false</code> if
      * not, <code>null</code> if unknown.
-     * 
+     *
      * @param hasSkipDays <code>true</code> if the feed supports the skipDays attribute (RSS2 specific),
-     *            <code>false</code> if not, <code>null</code> if unknown.
+     *                    <code>false</code> if not, <code>null</code> if unknown.
      */
     public void setHasSkipDays(Boolean hasSkipDays) {
         this.hasSkipDays = hasSkipDays;
@@ -266,7 +260,7 @@ public class FeedMetaInformation {
 
     /**
      * @return <code>true</code> if the feed's items contain the updated attribute (Atom specific), <code>false</code>
-     *         if not, <code>null</code> if unknown.
+     * if not, <code>null</code> if unknown.
      */
     public Boolean hasUpdated() {
         return hasUpdated;
@@ -275,9 +269,9 @@ public class FeedMetaInformation {
     /**
      * <code>true</code> if the feed's items contain the updated attribute (Atom specific), <code>false</code> if not,
      * <code>null</code> if unknown.
-     * 
+     *
      * @param hasUpdated <code>true</code> if the feed's items contain the updated attribute (Atom specific),
-     *            <code>false</code> if not, <code>null</code> if unknown.
+     *                   <code>false</code> if not, <code>null</code> if unknown.
      */
     public void setHasUpdated(Boolean hasUpdated) {
         this.hasUpdated = hasUpdated;
@@ -285,7 +279,7 @@ public class FeedMetaInformation {
 
     /**
      * @return <code>true</code> if the feed's items contain the published attribute (Atom specific), <code>false</code>
-     *         if not, <code>null</code> if unknown.
+     * if not, <code>null</code> if unknown.
      */
     public Boolean hasPublished() {
         return hasPublished;
@@ -294,9 +288,9 @@ public class FeedMetaInformation {
     /**
      * <code>true</code> if the feed's items contain the published attribute (Atom specific), <code>false</code> if not,
      * <code>null</code> if unknown.
-     * 
+     *
      * @param hasPublished <code>true</code> if the feed's items contain the published attribute (Atom specific),
-     *            <code>false</code> if not, <code>null</code> if unknown.
+     *                     <code>false</code> if not, <code>null</code> if unknown.
      */
     public void setHasPublished(Boolean hasPublished) {
         this.hasPublished = hasPublished;
@@ -366,9 +360,10 @@ public class FeedMetaInformation {
     public String getLanguage() {
         return language;
     }
+
     public String getLanguageIso6391() {
         if (language != null) {
-            return language.replaceAll("-.*","").trim();
+            return language.replaceAll("-.*", "").trim();
         }
         return language;
     }

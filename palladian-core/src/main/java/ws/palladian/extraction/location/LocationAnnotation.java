@@ -10,7 +10,7 @@ import ws.palladian.helper.math.MathHelper;
  * value of the associated {@link LocationType}. More information about the specific disambiguated location can be
  * retrieved using {@link #getLocation()}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class LocationAnnotation extends ImmutableAnnotation {
@@ -45,7 +45,7 @@ public class LocationAnnotation extends ImmutableAnnotation {
 
     /**
      * @return A trust value, indicating how sure the location extractor was about the assigned location for this
-     *         annotation. A value of <code>-1</code> indicates, that no trust value was assigned.
+     * annotation. A value of <code>-1</code> indicates, that no trust value was assigned.
      */
     public double getTrust() {
         return trust;
@@ -89,7 +89,7 @@ public class LocationAnnotation extends ImmutableAnnotation {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        LocationAnnotation other = (LocationAnnotation)obj;
+        LocationAnnotation other = (LocationAnnotation) obj;
         if (getEndPosition() != other.getEndPosition())
             return false;
         if (location == null) {

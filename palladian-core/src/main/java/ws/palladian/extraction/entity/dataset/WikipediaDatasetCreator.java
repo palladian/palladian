@@ -1,37 +1,9 @@
 package ws.palladian.extraction.entity.dataset;
 
-import static ws.palladian.core.AnnotationFilters.tag;
-import static ws.palladian.helper.collection.CollectionHelper.remove;
-import static ws.palladian.helper.constants.Language.ENGLISH;
-import static ws.palladian.helper.functional.Predicates.fileExtension;
-import static ws.palladian.helper.functional.Predicates.not;
-import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
-import static ws.palladian.retrieval.wiki.MediaWikiDescriptor.Builder.wikipedia;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.DictionaryTagger;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -44,12 +16,23 @@ import ws.palladian.helper.collection.LruMap;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.retrieval.wiki.InfoboxTypeMapper;
-import ws.palladian.retrieval.wiki.MediaWikiDescriptor;
-import ws.palladian.retrieval.wiki.MediaWikiUtil;
-import ws.palladian.retrieval.wiki.WikiLink;
-import ws.palladian.retrieval.wiki.WikiPage;
-import ws.palladian.retrieval.wiki.WikiPageReference;
+import ws.palladian.retrieval.wiki.*;
+
+import java.io.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static ws.palladian.core.AnnotationFilters.tag;
+import static ws.palladian.helper.collection.CollectionHelper.remove;
+import static ws.palladian.helper.constants.Language.ENGLISH;
+import static ws.palladian.helper.functional.Predicates.fileExtension;
+import static ws.palladian.helper.functional.Predicates.not;
+import static ws.palladian.helper.io.FileHelper.DEFAULT_ENCODING;
+import static ws.palladian.retrieval.wiki.MediaWikiDescriptor.Builder.wikipedia;
 
 /**
  * <p>
@@ -58,7 +41,7 @@ import ws.palladian.retrieval.wiki.WikiPageReference;
  * mines the English Wikipedia and exploits infobox types to determine a page's concept type). The advantage of this
  * method is, that we do not need any manually selected seed entities, however we need a type mapping from the infobox
  * types (which is provided through Palladian's {@link InfoboxTypeMapper}).
- * 
+ *
  * @author Philipp Katz
  */
 @SuppressWarnings({"deprecation"})
@@ -170,7 +153,7 @@ class WikipediaDatasetCreator {
                 }
             }
         }
-        return (double)upper / (upper + lower);
+        return (double) upper / (upper + lower);
     }
 
     private static Map<String, String> resolveLinkedEntities(MediaWikiDescriptor descriptor, List<WikiLink> links) {
@@ -222,7 +205,7 @@ class WikipediaDatasetCreator {
 
     /**
      * Retrieve an article with caching.
-     * 
+     *
      * @param destination The name destination of the article.
      * @return The retrieved article (either from cache, or downloaded).
      */
@@ -331,8 +314,8 @@ class WikipediaDatasetCreator {
 
     /**
      * Start the mining process.
-     * 
-     * @param numThreads The number of threads.
+     *
+     * @param numThreads      The number of threads.
      * @param destinationPath The path to the directory where to store the results.
      */
     public static void mineWikipedia(int numThreads, final File destinationPath) {
@@ -341,15 +324,14 @@ class WikipediaDatasetCreator {
         if (!destinationPath.isDirectory()) {
             Validate.isTrue(destinationPath.mkdirs(), "destinationPath did not exist and could not be created");
         }
-        Validate.isTrue(ProcessHelper.getFreeMemory() > SizeUnit.MEGABYTES.toBytes(750),
-                "assign at least 1 GB heap memory (necessary for caching");
+        Validate.isTrue(ProcessHelper.getFreeMemory() > SizeUnit.MEGABYTES.toBytes(750), "assign at least 1 GB heap memory (necessary for caching");
         final AtomicInteger counter = new AtomicInteger();
         final long startTime = System.currentTimeMillis();
         for (int i = 0; i < numThreads; i++) {
             new Thread() {
                 @Override
                 public void run() {
-                    for (;;) {
+                    for (; ; ) {
                         try {
                             WikiPage article;
                             try {
@@ -361,20 +343,16 @@ class WikipediaDatasetCreator {
                             }
                             String taggedArticle = process(article);
                             if (taggedArticle != null) {
-                                String articleType = CollectionHelper.coalesce(
-                                        InfoboxTypeMapper.getConLLType(article.getInfoboxType()), NO_MAPPED_TYPE);
+                                String articleType = CollectionHelper.coalesce(InfoboxTypeMapper.getConLLType(article.getInfoboxType()), NO_MAPPED_TYPE);
                                 File destinationDirectory = new File(destinationPath, articleType);
-                                String fileNameTitle = article.getTitle().replaceAll("\\s", "_").replace(';', '_')
-                                        .replace('/', '_').replaceAll("_+", "_");
+                                String fileNameTitle = article.getTitle().replaceAll("\\s", "_").replace(';', '_').replace('/', '_').replaceAll("_+", "_");
                                 File file = new File(destinationDirectory, fileNameTitle + ".txt");
                                 FileHelper.writeToFile(file.getPath(), taggedArticle);
                                 int count = counter.incrementAndGet();
                                 if (count % 10 == 0) {
-                                    double throughputHour = (double)TimeUnit.HOURS.toMillis(1) * count
-                                            / (System.currentTimeMillis() - startTime);
+                                    double throughputHour = (double) TimeUnit.HOURS.toMillis(1) * count / (System.currentTimeMillis() - startTime);
                                     NumberFormat format = new DecimalFormat("##");
-                                    LOGGER.info("Processed {} articles, throughput: ~ {} articles/hour", counter,
-                                            format.format(throughputHour));
+                                    LOGGER.info("Processed {} articles, throughput: ~ {} articles/hour", counter, format.format(throughputHour));
                                 }
                             }
                         } catch (Exception e) {

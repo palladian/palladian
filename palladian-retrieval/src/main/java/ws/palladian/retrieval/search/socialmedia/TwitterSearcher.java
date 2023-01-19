@@ -7,7 +7,6 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
@@ -142,8 +141,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
      *                      {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
      */
     public TwitterSearcher(Configuration configuration) {
-        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
-                configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
+        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY), configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
                 configuration.getString(CONFIG_ACCESS_TOKEN_SECRET)));
     }
 
@@ -236,8 +234,7 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
             GeoCoordinate coordinate = query.getCoordinate();
             if (coordinate != null) {
                 double radius = query.getRadius() != null ? query.getRadius() : 10;
-                String geocode = String.format("%s,%s,%skm", coordinate.getLatitude(), coordinate.getLongitude(),
-                        radius);
+                String geocode = String.format("%s,%s,%skm", coordinate.getLatitude(), coordinate.getLongitude(), radius);
                 builder.addUrlParam("geocode", geocode);
 
             }
@@ -302,11 +299,10 @@ public final class TwitterSearcher extends AbstractMultifacetSearcher<WebContent
                 }
             }
         } catch (HttpException e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": "
-                    + e.getMessage(), e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage(), e);
         } catch (JsonException e) {
-            throw new SearcherException("Error parsing the JSON response while searching for \"" + query + "\" with "
-                    + getName() + ": " + e.getMessage() + " (JSON: '" + responseString + "')", e);
+            throw new SearcherException(
+                    "Error parsing the JSON response while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage() + " (JSON: '" + responseString + "')", e);
         }
 
         return new SearchResults<WebContent>(webResults);

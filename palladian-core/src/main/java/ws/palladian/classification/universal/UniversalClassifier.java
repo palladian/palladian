@@ -1,13 +1,8 @@
 package ws.palladian.classification.universal;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.nb.NaiveBayesClassifier;
 import ws.palladian.classification.nb.NaiveBayesLearner;
 import ws.palladian.classification.nb.NaiveBayesModel;
@@ -19,12 +14,12 @@ import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.text.PalladianTextClassifier;
 import ws.palladian.classification.utils.NoNormalizer;
-import ws.palladian.core.AbstractLearner;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVector;
+import ws.palladian.core.*;
 import ws.palladian.core.dataset.Dataset;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class UniversalClassifier extends AbstractLearner<UniversalClassifierModel> implements Classifier<UniversalClassifierModel> {
 

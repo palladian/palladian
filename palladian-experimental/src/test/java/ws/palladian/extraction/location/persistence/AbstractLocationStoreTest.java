@@ -1,35 +1,18 @@
 package ws.palladian.extraction.location.persistence;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationBuilder;
-import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.*;
 import ws.palladian.extraction.location.sources.LocationStore;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 public abstract class AbstractLocationStoreTest {
 
@@ -240,8 +223,7 @@ public abstract class AbstractLocationStoreTest {
 
     @Test
     public void testGetLocationByNameAndRadius() {
-        MultiMap<String, Location> locations = locationSource.getLocations(Arrays.asList("Flein"),
-                EnumSet.of(Language.ENGLISH), GeoCoordinate.from(49, 9), 20);
+        MultiMap<String, Location> locations = locationSource.getLocations(Arrays.asList("Flein"), EnumSet.of(Language.ENGLISH), GeoCoordinate.from(49, 9), 20);
         assertEquals(1, locations.entrySet().size());
         Collection<Location> flein = locations.get("Flein");
         assertEquals(2, flein.size());

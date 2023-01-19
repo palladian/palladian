@@ -1,12 +1,12 @@
 package ws.palladian.extraction.entity.dataset;
 
-import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 import ws.palladian.helper.io.FileHelper;
+
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PatternAnalyzer {
 

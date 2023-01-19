@@ -1,17 +1,16 @@
 package ws.palladian.retrieval;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Set;
-
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
+
+import java.util.Set;
+
+import static org.junit.Assert.assertNotNull;
 
 public class PageAnalyzerTest {
 
@@ -20,8 +19,7 @@ public class PageAnalyzerTest {
         DocumentParser htmlParser = ParserFactory.createHtmlParser();
         Document document = htmlParser.parse(ResourceHelper.getResourceFile("/webPages/test_issue159.html"));
 
-        Set<String> xPaths = PageAnalyzer
-                .constructAllXPaths(document, "Who starred in The Invisible Army", false, true);
+        Set<String> xPaths = PageAnalyzer.constructAllXPaths(document, "Who starred in The Invisible Army", false, true);
         XPathSet xPathSet = new XPathSet();
         xPathSet.add(xPaths);
         String longestXPath = xPathSet.getLongestXPath();

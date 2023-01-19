@@ -1,8 +1,5 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpException;
@@ -12,14 +9,16 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation to find the number of backlinks to the domain and concrete page using the SemRush
  * index.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public final class SemRush extends AbstractRankingService implements RankingService {
 
@@ -27,10 +26,8 @@ public final class SemRush extends AbstractRankingService implements RankingServ
     private static final String SERVICE_ID = "semrush";
 
     /** The ranking value types of this service **/
-    public static final RankingType BACKLINKS_DOMAIN = new RankingType("semrushbacklinksdomain", "Backlinks Domain",
-            "The Number of Backlinks to the Domain");
-    public static final RankingType BACKLINKS_PAGE = new RankingType("semrushbacklinkspage", "Backlinks Page",
-            "The Number of Backlinks to the Page");
+    public static final RankingType BACKLINKS_DOMAIN = new RankingType("semrushbacklinksdomain", "Backlinks Domain", "The Number of Backlinks to the Domain");
+    public static final RankingType BACKLINKS_PAGE = new RankingType("semrushbacklinkspage", "Backlinks Page", "The Number of Backlinks to the Page");
 
     /** All available ranking types by {@link SemRush}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(BACKLINKS_DOMAIN, BACKLINKS_PAGE);
@@ -47,8 +44,7 @@ public final class SemRush extends AbstractRankingService implements RankingServ
         }
         String text = httpResult.getStringContent();
         try {
-            long backlinksDomain = Long.parseLong(StringHelper.getSubstringBetween(text, "<links_domain>",
-                    "</links_domain>"));
+            long backlinksDomain = Long.parseLong(StringHelper.getSubstringBetween(text, "<links_domain>", "</links_domain>"));
             long backlinksPage = Long.parseLong(StringHelper.getSubstringBetween(text, "<links>", "</links>"));
             builder.add(BACKLINKS_DOMAIN, backlinksDomain);
             builder.add(BACKLINKS_PAGE, backlinksPage);

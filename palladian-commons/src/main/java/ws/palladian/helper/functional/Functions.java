@@ -1,12 +1,11 @@
 package ws.palladian.helper.functional;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.collection.CollectionHelper;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 public final class Functions {
 
@@ -35,11 +34,10 @@ public final class Functions {
 
     /**
      * {@link Function} which maps values as determined by a {@link Map}.
-     * 
-     * @author Philipp Katz
-     * 
+     *
      * @param <I> Input type.
      * @param <O> Output type.
+     * @author Philipp Katz
      */
     private static final class MappingFunction<I, O> implements Function<I, O> {
 
@@ -70,8 +68,8 @@ public final class Functions {
      * Creates a {@link Function} which serves as adapter, to return a more common type than the given input type. E.g.
      * return <code>Number</code> for given <code>Double</code>. This is useful, when you need to convert an
      * {@link Iterator} to a more common type using the {@link CollectionHelper}.
-     * 
-     * @param input Type of the input, not <code>null</code>.
+     *
+     * @param input  Type of the input, not <code>null</code>.
      * @param output Type of the output, must be superclass of input, not <code>null</code>.
      * @return The function.
      */
@@ -84,17 +82,18 @@ public final class Functions {
     /**
      * @return A function which simply returns its input.
      */
-	public static <I> Function<I, I> identity() {
-		return new Function<I, I>() {
-			@Override
-			public I apply(I input) {
-				return input;
-			}
-			@Override
-			public String toString() {
-				return "identity";
-			}
-		};
-	}
+    public static <I> Function<I, I> identity() {
+        return new Function<I, I>() {
+            @Override
+            public I apply(I input) {
+                return input;
+            }
+
+            @Override
+            public String toString() {
+                return "identity";
+            }
+        };
+    }
 
 }

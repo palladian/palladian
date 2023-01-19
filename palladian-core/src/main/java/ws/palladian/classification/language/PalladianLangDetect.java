@@ -1,11 +1,7 @@
 package ws.palladian.classification.language;
 
-import java.io.IOException;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
@@ -19,12 +15,14 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 
+import java.io.IOException;
+import java.util.Set;
+
 /**
  * The best setting for medium to long texts is to use word n-grams with 1<=n<=3.
  * Evaluation results can be found in the Palladian book.
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class PalladianLangDetect implements LanguageClassifier {
 
@@ -32,7 +30,7 @@ public class PalladianLangDetect implements LanguageClassifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianLangDetect.class);
 
     private final PalladianTextClassifier textClassifier;
-    
+
     private final DictionaryModel dictionaryModel;
 
     /** We can specify which classes are possible and discard all others for the classification task. */
@@ -57,8 +55,8 @@ public class PalladianLangDetect implements LanguageClassifier {
 
     /**
      * Train the language detector on a dataset.
-     * 
-     * @param dataset The dataset to train on.
+     *
+     * @param dataset        The dataset to train on.
      * @param classifierName The name of the classifier. The name is added to the classifierPath.
      * @param classifierPath The path where the classifier should be saved to. For example, <tt>data/models/</tt>
      */
@@ -92,7 +90,7 @@ public class PalladianLangDetect implements LanguageClassifier {
         categoryEntries = narrowCategories(categoryEntries);
         return categoryEntries;
     }
-    
+
     private CategoryEntries narrowCategories(CategoryEntries categoryEntries) {
         if (possibleClasses == null) {
             return categoryEntries;

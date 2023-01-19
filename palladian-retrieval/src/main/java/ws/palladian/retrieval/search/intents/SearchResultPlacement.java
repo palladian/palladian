@@ -68,12 +68,7 @@ public class SearchResultPlacement {
 
     @Override
     public String toString() {
-        return "SearchResultPlacement{" +
-                "position=" + position +
-                ", id='" + id + '\'' +
-                ", content='" + content + '\'' +
-                ", type='" + type + '\'' +
-                ", metaData=" + metaData +
-                '}';
+        return "SearchResultPlacement{" + "position=" + position + ", id='" + id + '\'' + ", content='" + content + '\'' + ", type='" + type + '\'' + ", metaData=" + metaData
+                + '}';
     }
 }

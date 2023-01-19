@@ -1,26 +1,28 @@
 package ws.palladian.helper;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-import java.util.Map.Entry;
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.mail.*;
 import javax.mail.Message.RecipientType;
-import javax.mail.internet.*;
-
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>
  * Send mail via SMTP server.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  */
@@ -44,10 +46,10 @@ public class Mailer {
      * <li>mail.smtp.port</li>
      * </ul>
      * </p>
-     * 
+     *
      * @param properties {@link Properties} object supplying the configuration, not <code>null</code>.
-     * @param username The username, not <code>null</code> or empty.
-     * @param password The password, not <code>null</code> or empty.
+     * @param username   The username, not <code>null</code> or empty.
+     * @param password   The password, not <code>null</code> or empty.
      */
     public Mailer(Properties properties, final String username, final String password) {
         Validate.notNull(properties, "properties must not be null");
@@ -77,13 +79,13 @@ public class Mailer {
      * <p>
      * Send a new (html) mail to multiple recipients.
      * </p>
-     * 
-     * @param senderAddress The address of the sender, not <code>null</code> or empty.
-     * @param senderName The name of the sender, not <code>null</code> or empty.
-     * @param recipients The list of recipients, not <code>null</code> or empty.
-     * @param subject The subject of the mail, not <code>null</code>.
-     * @param content The (html) content of the mail, not <code>null</code>.
-     * @param isHtml If true, the content will be sent as html.
+     *
+     * @param senderAddress    The address of the sender, not <code>null</code> or empty.
+     * @param senderName       The name of the sender, not <code>null</code> or empty.
+     * @param recipients       The list of recipients, not <code>null</code> or empty.
+     * @param subject          The subject of the mail, not <code>null</code>.
+     * @param content          The (html) content of the mail, not <code>null</code>.
+     * @param isHtml           If true, the content will be sent as html.
      * @param replyToAddresses Addresses to reply to.
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
@@ -164,11 +166,11 @@ public class Mailer {
      * <p>
      * Send a new plain text mail to multiple recipients.
      * </p>
-     * 
+     *
      * @param senderEmail The sender email address, not <code>null</code> or empty.
-     * @param recipients The list of recipients, not <code>null</code> or empty.
-     * @param subject The subject of the mail, not <code>null</code>.
-     * @param text The text content of the mail, not <code>null</code>.
+     * @param recipients  The list of recipients, not <code>null</code> or empty.
+     * @param subject     The subject of the mail, not <code>null</code>.
+     * @param text        The text content of the mail, not <code>null</code>.
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
     public boolean sendMail(String senderEmail, List<String> recipients, String subject, String text) {
@@ -181,11 +183,11 @@ public class Mailer {
      * <p>
      * Send a new mail to multiple recipients.
      * </p>
-     * 
-     * @param sender The sender, not <code>null</code> or empty.
+     *
+     * @param sender    The sender, not <code>null</code> or empty.
      * @param recipient The recipient, not <code>null</code> or empty.
-     * @param subject The subject of the mail, not <code>null</code>.
-     * @param text The text content of the mail, not <code>null</code>.
+     * @param subject   The subject of the mail, not <code>null</code>.
+     * @param text      The text content of the mail, not <code>null</code>.
      * @return <code>true</code>, if mail was sent successfully, <code>false</code> otherwise.
      */
     public boolean sendMail(String sender, String recipient, String subject, String text) {

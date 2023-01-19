@@ -1,9 +1,9 @@
 package ws.palladian.extraction.location;
 
-import java.util.Optional;
-
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.constants.Language;
+
+import java.util.Optional;
 
 /**
  * <p>

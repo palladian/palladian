@@ -1,14 +1,13 @@
 package ws.palladian.helper.nlp;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SetSimilarity;
+
+import java.util.Iterator;
+import java.util.Set;
 
 public final class FeatureBasedSimilarity extends AbstractStringMetric {
 

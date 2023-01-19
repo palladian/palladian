@@ -3,14 +3,12 @@ package ws.palladian.preprocessing.segmentation;
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.ConfigHolder;
 
 /**
  * The class Segment contains all important values of a single segment of a document.
- * 
+ *
  * @author Silvio Rabe
- * 
  */
 public class Segment {
 
@@ -37,13 +35,14 @@ public class Segment {
     private Integer depth = 0;
 
     /** The value of variability of the segment */
-    private Double variability = 0.0;;
+    private Double variability = 0.0;
+    ;
 
     private Color color = null;
 
     /**
      * The constructor for a segment.
-     * 
+     *
      * @param document
      * @param xPath
      * @param node

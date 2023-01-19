@@ -1,12 +1,11 @@
 package ws.palladian.retrieval.feeds.rome;
 
-import java.util.List;
-import java.util.Locale;
-
-import org.jdom2.Element;
-
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleParser;
+import org.jdom2.Element;
+
+import java.util.List;
+import java.util.Locale;
 
 public abstract class RawDateParserModule implements ModuleParser {
 

@@ -1,11 +1,10 @@
 package ws.palladian.helper.collection;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.collection.Matrix.MatrixVector;
+
 import java.util.*;
 import java.util.Map.Entry;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.Matrix.MatrixVector;
 
 final class MapMatrixVector<K, V> implements MatrixVector<K, V> {
 
@@ -68,7 +67,7 @@ final class MapMatrixVector<K, V> implements MatrixVector<K, V> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        MapMatrixVector<?, ?> other = (MapMatrixVector<?, ?>)obj;
+        MapMatrixVector<?, ?> other = (MapMatrixVector<?, ?>) obj;
         return map.equals(other.map);
     }
 

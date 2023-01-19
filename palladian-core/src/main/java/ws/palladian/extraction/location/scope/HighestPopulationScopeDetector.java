@@ -1,19 +1,18 @@
 package ws.palladian.extraction.location.scope;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-import static ws.palladian.extraction.location.LocationType.CONTINENT;
-import static ws.palladian.extraction.location.LocationType.COUNTRY;
-
-import java.util.Collection;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
 import ws.palladian.extraction.location.LocationFilters;
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.util.Collection;
+import java.util.Set;
+
+import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
+import static ws.palladian.extraction.location.LocationType.CONTINENT;
+import static ws.palladian.extraction.location.LocationType.COUNTRY;
 
 public final class HighestPopulationScopeDetector extends AbstractRankingScopeDetector {
 

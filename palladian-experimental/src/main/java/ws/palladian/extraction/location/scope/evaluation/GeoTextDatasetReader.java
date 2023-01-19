@@ -1,10 +1,6 @@
 package ws.palladian.extraction.location.scope.evaluation;
 
-import java.io.File;
-import java.util.Iterator;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.location.ImmutableLocation;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
@@ -15,10 +11,12 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineIterator;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.File;
+import java.util.Iterator;
 
 /**
  * <p>
@@ -26,14 +24,14 @@ import ws.palladian.helper.nlp.StringHelper;
  * "<a href="http://www.cs.cmu.edu/~nasmith/papers/eisenstein+oconnor+smith+xing.emnlp10.pdf"> A Latent Variable Model
  * for Geographic Lexical Variation.</a>" Jacob Eisenstein, Brendan O'Connor, Noah A. Smith, and Eric P. Xing.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
 
     /**
      * Subset of the dataset as defined by the authors (see README.txt in dataset directory.)
-     * 
+     *
      * @author Philipp Katz
      */
     public static enum SubSet {
@@ -72,10 +70,10 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
 
     /**
      * Create a new {@link GeoTextDatasetReader}.
-     * 
+     *
      * @param fullTextFile The path to the file "full_text.txt" in the dataset, not <code>null</code>.
-     * @param subSet Limit to the specified subset (or set to <code>null</code> to iterate the whole dataset).
-     * @param combination Specify whether to iterate each Tweet separately, or combine by user.
+     * @param subSet       Limit to the specified subset (or set to <code>null</code> to iterate the whole dataset).
+     * @param combination  Specify whether to iterate each Tweet separately, or combine by user.
      */
     public GeoTextDatasetReader(File fullTextFile, SubSet subSet, Combination combination) {
         Validate.notNull(fullTextFile, "fullTextFile must not be null");
@@ -129,8 +127,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
                 String line = lineIterator.next();
                 String[] lineSplit = line.split("\\t");
                 if (lineSplit.length != 6) {
-                    throw new IllegalStateException("Illegal format: '" + line + "', expected 6 columns, got "
-                            + lineSplit.length + ".");
+                    throw new IllegalStateException("Illegal format: '" + line + "', expected 6 columns, got " + lineSplit.length + ".");
                 }
                 String userName = lineSplit[0];
                 long userId = Long.parseLong(userName.replace("USER_", ""), 16);
@@ -140,8 +137,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
                     double lng = Double.parseDouble(lineSplit[4]);
                     String text = lineSplit[5];
                     GeoCoordinate scope = GeoCoordinate.from(lat, lng);
-                    Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED,
-                            LocationType.UNDETERMINED, scope, null);
+                    Location scopeLocation = new ImmutableLocation(-1, LocationDocument.UNDETERMINED, LocationType.UNDETERMINED, scope, null);
                     String documentName = userName + "#" + StringHelper.sha1(text);
                     return new LocationDocument(documentName, text, null, scopeLocation);
                 }
@@ -151,13 +147,13 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
 
         private static int getFold(long userId) {
             long fold = userId % 5;
-            return fold == 0 ? 5 : (int)fold;
+            return fold == 0 ? 5 : (int) fold;
         }
     }
 
     /**
      * Combine all Tweets of a user to one document (Tweets must be ordered by user, which is the case for the dataset).
-     * 
+     *
      * @author Philipp Katz
      */
     private static final class CombininingIterator extends AbstractIterator<LocationDocument> {
@@ -215,7 +211,7 @@ public final class GeoTextDatasetReader implements Iterable<LocationDocument> {
         GeoTextDatasetReader dataset = new GeoTextDatasetReader(new File(file), null, Combination.USER);
         Iterator<LocationDocument> iterator = dataset.iterator();
         System.out.println(CollectionHelper.count(iterator));
-        
+
         System.exit(0);
         while (iterator.hasNext()) {
             LocationDocument doc = iterator.next();

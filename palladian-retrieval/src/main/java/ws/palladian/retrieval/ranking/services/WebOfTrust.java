@@ -1,13 +1,9 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.retrieval.HttpException;
@@ -20,12 +16,15 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * Get ranking from Web of Trust. We just take the "Trustworthiness" factor, not considering "Vendor reliability",
  * "Privacy", or "Child safety". Also we do not consider the confidence values.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see http://www.mywot.com/en/api
  * @see http://www.mywot.com/wiki/API
@@ -39,8 +38,7 @@ public final class WebOfTrust extends AbstractRankingService implements RankingS
     private static final String SERVICE_ID = "web_of_trust";
 
     /** The ranking value types of this service. */
-    public static final RankingType TRUSTWORTHINESS = new RankingType("wot_trustworthiness",
-            "Web of Trust Trustworthiness", "");
+    public static final RankingType TRUSTWORTHINESS = new RankingType("wot_trustworthiness", "Web of Trust Trustworthiness", "");
 
     /** All available ranking types by WebOfTrust. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(TRUSTWORTHINESS);

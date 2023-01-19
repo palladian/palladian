@@ -118,7 +118,7 @@ public class CsvWriter implements Closeable {
     }
 
     @Override
-    public void close(){
+    public void close() {
         try {
             csvPrinter.flush();
         } catch (Exception e) {

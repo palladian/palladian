@@ -1,9 +1,9 @@
 package ws.palladian.persistence;
 
+import ws.palladian.persistence.helper.SqlHelper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import ws.palladian.persistence.helper.SqlHelper;
 
 final class SampleClazzRowConverter implements RowConverter<SampleClazz> {
 

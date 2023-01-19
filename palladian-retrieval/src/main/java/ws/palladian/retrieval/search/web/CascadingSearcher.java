@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -14,14 +10,16 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.Searcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * The cascading searcher can be used to query multiple search engines in a specified order. If one engine does not
  * return any results the next one will be queried. This is helpful to bypass rate limits and have a fallback.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class CascadingSearcher extends AbstractSearcher<WebContent> {
 
@@ -74,7 +72,7 @@ public class CascadingSearcher extends AbstractSearcher<WebContent> {
      * <p>
      * Usage Example
      * </p>
-     * 
+     *
      * @param args
      * @throws SearcherException
      */

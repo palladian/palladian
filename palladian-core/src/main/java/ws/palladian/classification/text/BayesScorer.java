@@ -1,25 +1,21 @@
 package ws.palladian.classification.text;
 
-import static java.lang.Math.log;
-import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
-import static ws.palladian.classification.text.BayesScorer.Options.FREQUENCIES;
-import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
-import static ws.palladian.classification.text.BayesScorer.Options.PRIORS;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
+import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.Arrays;
 import java.util.Set;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
-import ws.palladian.helper.collection.CollectionHelper;
+import static java.lang.Math.log;
+import static ws.palladian.classification.text.BayesScorer.Options.*;
 
 /**
  * <p>
  * Naive Bayes scorer. For more general information about Naive Bayes for text classification, see e.g.
  * "<a href="http://nlp.stanford.edu/IR-book/">An Introduction to Information Retrieval</a>"; Christopher D. Manning;
  * Prabhakar Raghavan; Hinrich Schütze; 2009, chapter 13 (pp. 253).
- * 
+ *
  * @author Philipp Katz
  */
 public final class BayesScorer implements Scorer {
@@ -53,7 +49,7 @@ public final class BayesScorer implements Scorer {
 
     /**
      * Create a new Bayes scorer with the provided Options (see {@link Options} for an explanation).
-     * 
+     *
      * @param options The options or empty, not <code>null</code>.
      */
     public BayesScorer(Options... options) {
@@ -74,8 +70,7 @@ public final class BayesScorer implements Scorer {
     }
 
     @Override
-    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount,
-            int categorySum, int numUniqTerms, int numDocs, int numTerms) {
+    public double score(String term, String category, int termCategoryCount, int dictCount, int docCount, int categorySum, int numUniqTerms, int numDocs, int numTerms) {
         int numerator = (complement ? dictCount - termCategoryCount : termCategoryCount) + (laplace ? 1 : 0);
         int denominator = (complement ? numTerms - categorySum : categorySum) + (laplace ? numUniqTerms : 0);
         if (numerator == 0 || denominator == 0) {
@@ -88,7 +83,7 @@ public final class BayesScorer implements Scorer {
         } else {
             weight = docCount;
         }
-        return weight * log((double)numerator / denominator);
+        return weight * log((double) numerator / denominator);
     }
 
     @Override

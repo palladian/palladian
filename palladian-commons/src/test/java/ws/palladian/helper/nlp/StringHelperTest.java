@@ -1,24 +1,22 @@
 package ws.palladian.helper.nlp;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import ws.palladian.helper.StopWatch;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+
 /**
  * <p>
  * Test cases for the {@link StringHelper} class.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -149,16 +147,11 @@ public class StringHelperTest {
         assertEquals("", StringHelper.clean(""));
         assertEquals("There is nothing to clean here", StringHelper.clean("There is nothing to clean here"));
         assertEquals("This is crözy text", StringHelper.clean("' This is crözy    text"));
-        assertEquals("abcödef ghjiåjkl <mno å ???",
-                StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
-        assertEquals("here starts the <clean> \"text\" stop",
-                StringHelper.clean("###here starts the &lt;clean&gt; &quot;text&quot; <b>stop</B>"));
-        assertEquals("Say ‘hello’ to your horses for me",
-                StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
-        assertEquals("Preheat oven to 375. Prepare a 8\" square",
-                StringHelper.clean("Preheat oven to 375. Prepare a 8″ square"));
-        assertEquals("Preheat oven to 375. Prepare a 8\" square",
-                StringHelper.clean("Preheat oven\t\tto\n375. Prepare a 8″ square"));
+        assertEquals("abcödef ghjiåjkl <mno å ???", StringHelper.clean("abc\u00f6def ghji\u00e5jkl &lt;mno \u00e5 ???:::"));
+        assertEquals("here starts the <clean> \"text\" stop", StringHelper.clean("###here starts the &lt;clean&gt; &quot;text&quot; <b>stop</B>"));
+        assertEquals("Say ‘hello’ to your horses for me", StringHelper.clean("Say &#8216;hello&#8217; to your horses for me"));
+        assertEquals("Preheat oven to 375. Prepare a 8\" square", StringHelper.clean("Preheat oven to 375. Prepare a 8″ square"));
+        assertEquals("Preheat oven to 375. Prepare a 8\" square", StringHelper.clean("Preheat oven\t\tto\n375. Prepare a 8″ square"));
     }
 
     @Test
@@ -194,9 +187,9 @@ public class StringHelperTest {
     public void testGetOccurrenceIndices() {
         List<Integer> list = StringHelper.getOccurrenceIndices("This is a test.", " ");
         assertEquals(3, list.size());
-        assertEquals(4, (int)list.get(0));
-        assertEquals(7, (int)list.get(1));
-        assertEquals(9, (int)list.get(2));
+        assertEquals(4, (int) list.get(0));
+        assertEquals(7, (int) list.get(1));
+        assertEquals(9, (int) list.get(2));
     }
 
     @Test
@@ -224,8 +217,8 @@ public class StringHelperTest {
     @Test
     public void testTrim() {
         // System.out.println(StringHelper.trim("'80GB'))"));
-        assertEquals("a++", StringHelper.trim("a++","+"));
-        assertEquals("++a++", StringHelper.trim("++a++","+"));
+        assertEquals("a++", StringHelper.trim("a++", "+"));
+        assertEquals("++a++", StringHelper.trim("++a++", "+"));
         assertEquals("a", StringHelper.trim("++a++"));
         assertEquals("a++", StringHelper.trimLeft("++a++"));
         assertEquals("++a", StringHelper.trimRight("++a++"));
@@ -253,12 +246,8 @@ public class StringHelperTest {
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", " in ohio", "all "));
-        assertEquals(
-                2,
-                StringHelper.getSubstringsBetween("all the lilacs in ohio all the lilacs in ohio all the lilacs",
-                        "the ", " in").size());
-        assertEquals(Arrays.asList("1", "2", "3", "4", "5"),
-                StringHelper.getSubstringsBetween("(1) (2) (3) (4) (5) (6", "(", ")"));
+        assertEquals(2, StringHelper.getSubstringsBetween("all the lilacs in ohio all the lilacs in ohio all the lilacs", "the ", " in").size());
+        assertEquals(Arrays.asList("1", "2", "3", "4", "5"), StringHelper.getSubstringsBetween("(1) (2) (3) (4) (5) (6", "(", ")"));
     }
 
     @Test
@@ -293,10 +282,8 @@ public class StringHelperTest {
 
     @Test
     public void testGetFirstWords() {
-        assertEquals("the quick brown fox jumps",
-                StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 5));
-        assertEquals("the quick brown fox jumps over the lazy dog",
-                StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 15));
+        assertEquals("the quick brown fox jumps", StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 5));
+        assertEquals("the quick brown fox jumps over the lazy dog", StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 15));
         assertEquals("", StringHelper.getFirstWords("", 10));
         assertEquals("", StringHelper.getFirstWords(null, 10));
     }
@@ -389,8 +376,7 @@ public class StringHelperTest {
 
     @Test
     public void testCalculateSimilarity() {
-        assertEquals(1.0, StringHelper.calculateSimilarity("http://www.blu-ray.com/movies/movies.php?genre=action",
-                "http://www.blu-ray.com/movies/movies.php?genre=action"), 0);
+        assertEquals(1.0, StringHelper.calculateSimilarity("http://www.blu-ray.com/movies/movies.php?genre=action", "http://www.blu-ray.com/movies/movies.php?genre=action"), 0);
         assertEquals(1.0, StringHelper.calculateSimilarity("abc", "abcd"), 0);
         assertEquals(0.0, StringHelper.calculateSimilarity("", "abcd"), 0);
     }
@@ -428,12 +414,9 @@ public class StringHelperTest {
     public void testNormalizeQuotes() {
         assertEquals("This is a sample text with \"different\" \"quotation\" \"marks\"",
                 StringHelper.normalizeQuotes("This is a sample text with »different« „quotation“ “marks”"));
-        assertEquals(
-                "This text's purpose is to test apostrophes normalized by StringHelper's normalizeQuotes",
-                StringHelper
-                        .normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
-        assertEquals("This text contains longer dashes - like this - and this",
-                StringHelper.normalizeQuotes("This text contains longer dashes – like this — and this"));
+        assertEquals("This text's purpose is to test apostrophes normalized by StringHelper's normalizeQuotes",
+                StringHelper.normalizeQuotes("This text‘s purpose is to test apostrophes normalized by StringHelper’s normalizeQuotes"));
+        assertEquals("This text contains longer dashes - like this - and this", StringHelper.normalizeQuotes("This text contains longer dashes – like this — and this"));
     }
 
     @Test
@@ -441,8 +424,7 @@ public class StringHelperTest {
         String text = "quick brown fox";
         List<String> subphrases = StringHelper.getSubPhrases(text);
         assertEquals(6, subphrases.size());
-        assertTrue(subphrases
-                .containsAll(asList("quick", "quick brown", "quick brown fox", "brown", "brown fox", "fox")));
+        assertTrue(subphrases.containsAll(asList("quick", "quick brown", "quick brown fox", "brown", "brown fox", "fox")));
         text = "";
         subphrases = StringHelper.getSubPhrases(text);
         assertEquals(0, subphrases.size());

@@ -1,29 +1,27 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.evaluation.DatasetCreator;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Use the moving average to predict the next feed update, with modifications required to us it in
  * {@link DatasetCreator}.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Sandro Reichert
- * 
  */
 public class MavStrategyDatasetCreation extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavStrategyDatasetCreation.class);
-    
+
     public MavStrategyDatasetCreation(int lowestInterval, int highestInterval) {
         super(lowestInterval, highestInterval);
     }
@@ -32,9 +30,9 @@ public class MavStrategyDatasetCreation extends AbstractUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
      */
     @Override
@@ -60,8 +58,7 @@ public class MavStrategyDatasetCreation extends AbstractUpdateStrategy {
             // may be zero.
             if (feed.getWindowSize() == 0 && feed.hasVariableWindowSize()) {
                 minCheckInterval = 2 * feed.getUpdateInterval() + 1;
-                LOGGER.warn("Feed id " + feed.getId() + " (" + feed.getFeedUrl()
-                        + ") changed its windowSize to 0. Try to double checkInterval to " + minCheckInterval + ".");
+                LOGGER.warn("Feed id " + feed.getId() + " (" + feed.getFeedUrl() + ") changed its windowSize to 0. Try to double checkInterval to " + minCheckInterval + ".");
 
                 // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp
             } else {
@@ -98,7 +95,7 @@ public class MavStrategyDatasetCreation extends AbstractUpdateStrategy {
 
     /**
      * Get a random offset that is in [0, maxValue].
-     * 
+     *
      * @param maxValue The maximum returned value
      * @return the offset which is 0 <= offset <= maxValue
      */
@@ -115,7 +112,7 @@ public class MavStrategyDatasetCreation extends AbstractUpdateStrategy {
      * than the allowed lowest update interval, we return the lowest. Here, we do nor add a random offset since these
      * feeds need to be polled as soon as possible.
      * </p>
-     * 
+     *
      * @param updateInterval The computed highestCheckInterval.
      * @return The computed interval if it is in the limit.
      */

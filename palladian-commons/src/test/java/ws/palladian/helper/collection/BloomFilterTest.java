@@ -1,14 +1,12 @@
 package ws.palladian.helper.collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class BloomFilterTest {
 
@@ -25,8 +23,7 @@ public class BloomFilterTest {
     @Test
     public void testBloomFilter() {
         BloomFilter<String> filter = new BloomFilter<String>(0.01, 8);
-        Set<String> items = new HashSet<>(Arrays.asList("apple", "blueberry", "cherry", "durian", "grape", "kiwi",
-                "lemon", "melon"));
+        Set<String> items = new HashSet<>(Arrays.asList("apple", "blueberry", "cherry", "durian", "grape", "kiwi", "lemon", "melon"));
         filter.addAll(items);
         assertTrue(CollectionHelper.acceptAll(items, filter));
         assertFalse(filter.test("mango"));

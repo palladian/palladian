@@ -1,34 +1,34 @@
 package ws.palladian.classification.text;
 
-import static ws.palladian.helper.math.MathHelper.log2;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
+
 import java.util.function.Predicate;
+
+import static ws.palladian.helper.math.MathHelper.log2;
 
 /**
  * Different strategies for pruning a {@link DictionaryModel}.
- * 
- * @see DictionaryBuilder#addPruningStrategy(Predicate)
+ *
  * @author Philipp Katz
+ * @see DictionaryBuilder#addPruningStrategy(Predicate)
  */
 public final class PruningStrategies {
-    
+
     // XXX make static methods
-    
+
     public static Predicate<CategoryEntries> none() {
         return new TermCountPruningStrategy(0);
     }
-    
+
     public static Predicate<CategoryEntries> termCount(int minCount) {
         return new TermCountPruningStrategy(minCount);
     }
 
     /**
      * Prune terms, which occur less than the given count.
-     * 
+     *
      * @author Philipp Katz
      * @deprecated Use {@link PruningStrategies#termCount(int)} instead.
      */
@@ -56,7 +56,7 @@ public final class PruningStrategies {
 
     /**
      * Prunes such terms, where the most likely probability is below a given threshold.
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class MinProbabilityPruningStrategy implements Predicate<CategoryEntries> {
@@ -77,7 +77,7 @@ public final class PruningStrategies {
 
     /**
      * Prunes {@link CategoryEntries} by Information Gain.
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class InformationGainPruningStrategy implements Predicate<CategoryEntries> {
@@ -101,14 +101,14 @@ public final class PruningStrategies {
 
         public double getInformationGain(CategoryEntries entries) {
             double ig = categoryEntropy;
-            double pTerm = (double)entries.getTotalCount() / numDocuments;
+            double pTerm = (double) entries.getTotalCount() / numDocuments;
             double pNotTerm = 1 - pTerm;
             CategoryEntries temp = new CountingCategoryEntriesBuilder().add(entries).create();
             for (Category documentCategory : documentCounts) {
                 int countTerm = temp.getCount(documentCategory.getName());
                 int countNotTerm = documentCategory.getCount() - countTerm;
-                double pTermCategory = (double)countTerm / numDocuments;
-                double pNotTermCategory = (double)countNotTerm / numDocuments;
+                double pTermCategory = (double) countTerm / numDocuments;
+                double pNotTermCategory = (double) countNotTerm / numDocuments;
                 ig += countTerm > 0 ? pTermCategory * log2(pTermCategory / pTerm) : 0;
                 ig += countNotTerm > 0 ? pNotTermCategory * log2(pNotTermCategory / pNotTerm) : 0;
             }

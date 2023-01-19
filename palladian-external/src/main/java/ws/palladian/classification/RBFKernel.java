@@ -9,7 +9,7 @@ import libsvm.svm_parameter;
  * <p>
  * A LibSvm kernel using a gaussian basis function.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.2.0

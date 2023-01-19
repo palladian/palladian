@@ -1,21 +1,19 @@
 package ws.palladian.extraction.entity;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.core.Annotation;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.FileNotFoundException;
 
-import org.junit.Test;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.helper.io.ResourceHelper;
+import static org.junit.Assert.assertEquals;
 
 public class FileFormatParserTest {
 
     @Test
     public void testGetAnnotationsFromColumnTokenBased() throws FileNotFoundException {
 
-        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(ResourceHelper
-                .getResourcePath("/ner/training.txt"));
+        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromColumnTokenBased(ResourceHelper.getResourcePath("/ner/training.txt"));
 
         assertEquals(34860, annotations.size());
 
@@ -31,8 +29,7 @@ public class FileFormatParserTest {
 
     @Test
     public void testGetAnnotationsFromColumn() throws FileNotFoundException {
-        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromColumn(ResourceHelper
-                .getResourcePath("/ner/training.txt"));
+        Annotations<Annotation> annotations = FileFormatParser.getAnnotationsFromColumn(ResourceHelper.getResourcePath("/ner/training.txt"));
 
         assertEquals(4598, annotations.size());
 

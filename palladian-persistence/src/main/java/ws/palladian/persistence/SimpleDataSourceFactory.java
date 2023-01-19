@@ -1,5 +1,9 @@
 package ws.palladian.persistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -7,14 +11,9 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Very simple {@link DataSourceFactory}, no pooling.
- * 
+ *
  * @author Philipp Katz
  */
 public final class SimpleDataSourceFactory implements DataSourceFactory {

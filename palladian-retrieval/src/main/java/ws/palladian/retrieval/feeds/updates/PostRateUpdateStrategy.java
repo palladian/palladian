@@ -1,14 +1,7 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -18,19 +11,24 @@ import ws.palladian.retrieval.feeds.FeedPostStatistics;
 import ws.palladian.retrieval.feeds.evaluation.FeedReaderEvaluator;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 /**
  * <p>
  * Predict the next item post time by looking at the feed item post distribution and remembering it.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class PostRateUpdateStrategy extends AbstractUpdateStrategy {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavUpdateStrategy.class);
-    
+
     private final FeedUpdateMode updateMode;
 
     public PostRateUpdateStrategy(int lowestInterval, int highestInterval, FeedUpdateMode updateMode) {
@@ -42,9 +40,9 @@ public class PostRateUpdateStrategy extends AbstractUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
      */
     @Override
@@ -64,7 +62,7 @@ public class PostRateUpdateStrategy extends AbstractUpdateStrategy {
 
             // since the feed has no post distribution yet, we fill all minutes with 0 posts
             for (int minute = 0; minute < 1440; minute++) {
-                int[] postsChances = { 0, 0 };
+                int[] postsChances = {0, 0};
                 postDistribution.put(minute, postsChances);
             }
 

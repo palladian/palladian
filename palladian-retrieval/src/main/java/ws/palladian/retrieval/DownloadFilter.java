@@ -1,15 +1,14 @@
 package ws.palladian.retrieval;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.io.FileHelper;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.function.Predicate;
-import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
@@ -23,7 +22,7 @@ import ws.palladian.helper.io.FileHelper;
  * is <b>not</b> on the black list, it is accepted.</li>
  * </ul>
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */

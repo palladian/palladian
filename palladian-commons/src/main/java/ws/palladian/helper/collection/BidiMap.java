@@ -8,46 +8,43 @@ import java.util.Set;
 
 /**
  * @author Klemens Muthmann
- * 
  */
 public final class BidiMap<K, V> implements Map<K, V>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final Map<K, V> map;
     private final Map<V, K> reverseMap;
 
     /**
-     * 
+     *
      */
     public BidiMap() {
         super();
-        map = new HashMap<K,V>();
-        reverseMap = new HashMap<V,K>();
+        map = new HashMap<K, V>();
+        reverseMap = new HashMap<V, K>();
     }
-    
+
     public BidiMap(int initialCapacity) {
         super();
-        map = new HashMap<K,V>(initialCapacity);
-        reverseMap = new HashMap<V,K>(initialCapacity);
+        map = new HashMap<K, V>(initialCapacity);
+        reverseMap = new HashMap<V, K>(initialCapacity);
     }
-    
+
     public BidiMap(int initialCapacity, float loadFactor) {
         super();
-        map = new HashMap<K,V>(initialCapacity,loadFactor);
-        reverseMap = new HashMap<V,K>(initialCapacity,loadFactor);
+        map = new HashMap<K, V>(initialCapacity, loadFactor);
+        reverseMap = new HashMap<V, K>(initialCapacity, loadFactor);
     }
-    
+
     public BidiMap(Map<? extends K, ? extends V> m) {
         super();
         map = new HashMap<K, V>(m);
-        reverseMap = new HashMap<V,K>();
-        for(Map.Entry<? extends K, ? extends V> entry:m.entrySet()) {
+        reverseMap = new HashMap<V, K>();
+        for (Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
             reverseMap.put(entry.getValue(), entry.getKey());
         }
     }
-    
-    
 
     @Override
     public void clear() {
@@ -74,7 +71,7 @@ public final class BidiMap<K, V> implements Map<K, V>, Serializable {
     public V get(Object arg0) {
         return map.get(arg0);
     }
-    
+
     public K getKey(V value) {
         return reverseMap.get(value);
     }
@@ -112,8 +109,8 @@ public final class BidiMap<K, V> implements Map<K, V>, Serializable {
     @Override
     public V remove(Object key) {
         V value = null;
-        if(map.containsKey(key)) {
-            value=map.remove(key);
+        if (map.containsKey(key)) {
+            value = map.remove(key);
             reverseMap.remove(value);
         }
         return value;

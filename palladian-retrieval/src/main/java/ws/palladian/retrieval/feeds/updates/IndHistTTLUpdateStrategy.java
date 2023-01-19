@@ -1,30 +1,28 @@
 package ws.palladian.retrieval.feeds.updates;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.retrieval.feeds.Feed;
+import ws.palladian.retrieval.feeds.FeedItem;
+import ws.palladian.retrieval.feeds.FeedPostStatistics;
+import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
+
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.retrieval.feeds.Feed;
-import ws.palladian.retrieval.feeds.FeedItem;
-import ws.palladian.retrieval.feeds.FeedPostStatistics;
-import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
-
 /**
  * An implementation of the update strategy called IndHist/TTL [BGR2006]
- * 
- * 
+ *
+ *
  * <p>
  * [BGR2006] Bright, L.; Gal, A. & Raschid, L. Adaptive pull-based policies for wide area data delivery ACM Transactions
  * on Database Systems, ACM, 2006, 31, 631-671, http://doi.acm.org/10.1145/1138394.1138399
  * </p>
- * 
+ *
  * @author Sandro Reichert
- * 
  */
 public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
@@ -56,20 +54,20 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
     private final FeedUpdateMode updateMode;
 
     /**
-     * @param thresholdTheta The threshold theta to be used. Usually, 0 <= theta < 1.
-     *            If the algorithms estimates that this many new entries are pending, the next poll is scheduled.<br />
-     *            See [BGR2006] Bright, L.; Gal, A. &amp; Raschid, L. Adaptive pull-based policies for wide area data
-     *            delivery ACM Transactions on Database Systems, ACM, 2006, 31, 631-671,
-     *            http://doi.acm.org/10.1145/1138394.1138399
-     * @param feedDb The db to load the model from.
-     * @param tBurst Threshold. If, in a certain timeWindow, (number of new entries) / (number of predicted updates by
-     *            IndHist) exceeds threshold, use TTL, other wise use IndHist. Common value is 2.0
-     * @param timeWindowHours A time window in hours, used for decision which algorithm to use. Common value is 1 or 24
-     *            (1 day)
+     * @param thresholdTheta     The threshold theta to be used. Usually, 0 <= theta < 1.
+     *                           If the algorithms estimates that this many new entries are pending, the next poll is scheduled.<br />
+     *                           See [BGR2006] Bright, L.; Gal, A. &amp; Raschid, L. Adaptive pull-based policies for wide area data
+     *                           delivery ACM Transactions on Database Systems, ACM, 2006, 31, 631-671,
+     *                           http://doi.acm.org/10.1145/1138394.1138399
+     * @param feedDb             The db to load the model from.
+     * @param tBurst             Threshold. If, in a certain timeWindow, (number of new entries) / (number of predicted updates by
+     *                           IndHist) exceeds threshold, use TTL, other wise use IndHist. Common value is 2.0
+     * @param timeWindowHours    A time window in hours, used for decision which algorithm to use. Common value is 1 or 24
+     *                           (1 day)
      * @param adaptiveTTLWeightM Weight to be forwarded to {@link AdaptiveTTLUpdateStrategy}.
      */
-    public IndHistTTLUpdateStrategy(int lowestInterval, int highestInterval, double thresholdTheta,
-            FeedDatabase feedDb, double tBurst, int timeWindowHours, double adaptiveTTLWeightM, FeedUpdateMode updateMode) {
+    public IndHistTTLUpdateStrategy(int lowestInterval, int highestInterval, double thresholdTheta, FeedDatabase feedDb, double tBurst, int timeWindowHours,
+            double adaptiveTTLWeightM, FeedUpdateMode updateMode) {
         super(lowestInterval, highestInterval, thresholdTheta, feedDb);
         this.tBurst = tBurst;
         this.timeWindowHours = timeWindowHours;
@@ -81,9 +79,9 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode Flag to indicate whether the update model should be trained or not.
      */
     @Override
@@ -94,8 +92,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
         } else {
 
             if (feed.getLastPollTime() == null) {
-                LOGGER.error("Feed id " + feed.getId()
-                        + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
+                LOGGER.error("Feed id " + feed.getId() + " has no lastPollTime. Cant predict next poll. Setting interval to standard.");
                 feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME));
 
             } else {
@@ -124,23 +121,19 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
                 // 3) now its time to select the strategy
                 int realNumberItemsInWindow = itemTimestamps.size();
-                if ((realNumberItemsInWindow > 0 && predictedNumberItemsInWindow == 0)
-                        || ((realNumberItemsInWindow / predictedNumberItemsInWindow) > tBurst)) {
+                if ((realNumberItemsInWindow > 0 && predictedNumberItemsInWindow == 0) || ((realNumberItemsInWindow / predictedNumberItemsInWindow) > tBurst)) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Feed id " + feed.getId() + ", pollTime " + feed.getLastPollTime()
-                                + " using strategy AdaptiveTTL.");
+                        LOGGER.debug("Feed id " + feed.getId() + ", pollTime " + feed.getLastPollTime() + " using strategy AdaptiveTTL.");
                     }
 
                     // use Adaptive TTL
-                    AdaptiveTTLUpdateStrategy ttl = new AdaptiveTTLUpdateStrategy(getLowestInterval(),
-                            getHighestInterval(), adaptiveTTLWeightM, updateMode);
+                    AdaptiveTTLUpdateStrategy ttl = new AdaptiveTTLUpdateStrategy(getLowestInterval(), getHighestInterval(), adaptiveTTLWeightM, updateMode);
                     ttl.update(feed, fps, trainingMode);
 
                 } else {
                     // use IndHist
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Feed id " + feed.getId() + ", pollTime " + feed.getLastPollTime()
-                                + " using strategy IndHist.");
+                        LOGGER.debug("Feed id " + feed.getId() + ", pollTime " + feed.getLastPollTime() + " using strategy IndHist.");
                     }
 
                     updateCheckInterval(feed);
@@ -151,7 +144,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
     /**
      * Remove all timestamps from the list that belong to items older than the time window
-     * 
+     *
      * @param feed
      * @param itemTimestamps The list to process.
      * @return the processed list.
@@ -170,7 +163,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
     /**
      * Adds the timestamps of the feed's new items to the one received in previous polls
-     * 
+     *
      * @param feed
      * @param itemTimestamps The feed's item timestamps from previous polls
      * @return same list with added timestamps.
@@ -193,7 +186,7 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
     /**
      * To identify bursts and choose which strategy to use, the predicted number of updates during the time window
      * before last poll time is required.
-     * 
+     *
      * @param feed
      * @return The predicted number of updates in the time window before lastPollTime.
      */
@@ -243,16 +236,16 @@ public class IndHistTTLUpdateStrategy extends IndHistUpdateStrategy {
 
     /**
      * Load {@link #IndHistTTL_WINDOW_IDENTIFIER} from feed
-     * 
+     *
      * @param feed
      * @return the itemTimestamps that have been stored by this strategy before or <code>null</code> in case this is the
-     *         first poll.
+     * first poll.
      */
     @SuppressWarnings("unchecked")
     private List<Long> getRecentItems(Feed feed) {
         List<Long> itemTimestamps = null;
         try {
-            itemTimestamps = (List<Long>)feed.getAdditionalData(IndHistTTL_WINDOW_IDENTIFIER);
+            itemTimestamps = (List<Long>) feed.getAdditionalData(IndHistTTL_WINDOW_IDENTIFIER);
         } catch (Exception e) {
             LOGGER.error("Could not load " + IndHistTTL_WINDOW_IDENTIFIER + " from feed.");
         }

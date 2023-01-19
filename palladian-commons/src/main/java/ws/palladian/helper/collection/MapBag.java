@@ -14,9 +14,8 @@ import java.util.Map.Entry;
  * <p>
  * NOTE: Bags must be strictly disjoint, that is, A must not contain any elements from B and vice versa.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class MapBag {
 
@@ -67,7 +66,7 @@ public class MapBag {
      * <p>
      * Get another random entry from the bag which is not equal to the given one.
      * </p>
-     * 
+     *
      * @param bagEntry The bag in which we have to search.
      * @return A different bag entry.
      */

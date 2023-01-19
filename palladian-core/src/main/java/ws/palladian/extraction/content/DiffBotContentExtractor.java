@@ -3,7 +3,6 @@ package ws.palladian.extraction.content;
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -16,7 +15,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * <p>
  * The DiffBotContentExtractor extracts clean sentences from (English) texts.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see <a href="http://www.diffbot.com/our-apis/article/">Diffbot: Article API</a>
  */
@@ -41,10 +40,10 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
     }
 
-//    @Override
-//    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
-//        return setDocument(documentLocation, true);
-//    }
+    //    @Override
+    //    public WebPageContentExtractor setDocument(String documentLocation) throws PageContentExtractorException {
+    //        return setDocument(documentLocation, true);
+    //    }
 
     @Override
     public WebPageContentExtractor setDocument(String documentLocation, boolean parse) throws PageContentExtractorException {
@@ -54,8 +53,7 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
         try {
             httpResult = httpRetriever.httpGet(requestUrl);
         } catch (HttpException e) {
-            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": "
-                    + e.getMessage(), e);
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": " + e.getMessage(), e);
         }
 
         extractedResult = httpResult.getStringContent();
@@ -67,8 +65,7 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
             extractedAuthor = json.getString("author");
             extractedDate = json.getString("date");
         } catch (JsonException e) {
-            throw new PageContentExtractorException("Error while parsing the JSON response '"
-                    + httpResult.getStringContent() + "': " + e.getMessage(), e);
+            throw new PageContentExtractorException("Error while parsing the JSON response '" + httpResult.getStringContent() + "': " + e.getMessage(), e);
         }
 
         return this;
@@ -86,8 +83,7 @@ public class DiffBotContentExtractor extends WebPageContentExtractor {
     }
 
     private String buildRequestUrl(String docUrl) {
-        return String.format("http://www.diffbot.com/api/article?token=%s&url=%s", apiKey,
-                UrlHelper.encodeParameter(docUrl));
+        return String.format("http://www.diffbot.com/api/article?token=%s&url=%s", apiKey, UrlHelper.encodeParameter(docUrl));
     }
 
     @Override

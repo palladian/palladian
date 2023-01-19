@@ -1,30 +1,23 @@
 package ws.palladian.classification;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
-
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.meta.Bagging;
-import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.math.ConfusionMatrix;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.Matchers.isOneOf;
+import static org.junit.Assert.*;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 /**
  * <p>

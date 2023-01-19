@@ -3,25 +3,9 @@
  */
 package ws.palladian.classification;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
@@ -32,11 +16,24 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
+
 /**
  * <p>
  * Tests whether the Palladian wrapper for the Libsvm classifier works correctly or not.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @version 2.0
@@ -70,7 +67,7 @@ public class LibSvmTest {
      * A test on a dataset from the LibSvm webpage using the same set of parameters. Should achieve a quite high
      * accuracy.
      * </p>
-     * 
+     *
      * @throws FileNotFoundException If the training data can not be found.
      */
     @Test

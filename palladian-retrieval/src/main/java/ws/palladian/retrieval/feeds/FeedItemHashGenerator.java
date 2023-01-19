@@ -2,7 +2,6 @@ package ws.palladian.retrieval.feeds;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
@@ -12,11 +11,11 @@ import ws.palladian.helper.nlp.StringHelper;
  * altered, by subclassing this class, implementing {@link #hash(FeedItem)} according to your needs and setting the
  * static field {@value #STRATEGY} to an instance of your subclass.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class FeedItemHashGenerator {
-    
+
     // TODO move this as configuration to FeedReaderSettings
 
     /** The logger for this class. */
@@ -33,8 +32,7 @@ public abstract class FeedItemHashGenerator {
             if (feedItem.getTitle() != null || feedItem.getUrl() != null || feedItem.getIdentifier() != null) {
                 return StringHelper.sha1(hash.toString());
             } else {
-                LOGGER.error("Could not generate custom item hash, all values are null or empty. Feed id {}",
-                        feedItem.getFeedId());
+                LOGGER.error("Could not generate custom item hash, all values are null or empty. Feed id {}", feedItem.getFeedId());
                 return null;
             }
         }
@@ -44,7 +42,7 @@ public abstract class FeedItemHashGenerator {
      * <p>
      * Generate a hash for a {@link FeedItem} using the {@link #STRATEGY}.
      * </p>
-     * 
+     *
      * @param feedItem The {@link FeedItem} for which to create the hash.
      * @return The hash for the {@link FeedItem}, or <code>null</code> if no hash could be calculated.
      */
@@ -60,7 +58,7 @@ public abstract class FeedItemHashGenerator {
      * <p>
      * Calculate a hash for the specified {@link FeedItem}. The implementation needs to be <b>Thread-safe</b>!
      * </p>
-     * 
+     *
      * @param feedItem The {@link FeedItem} for which to create the hash.
      * @return The hash for the {@link FeedItem}, or <code>null</code> if no hash could be calculated.
      */

@@ -1,20 +1,19 @@
 package ws.palladian.semantics.synonyms;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.ProgressMonitor;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.nlp.StringHelper;
 
 /**
  * <p>
@@ -23,14 +22,12 @@ import ws.palladian.helper.nlp.StringHelper;
  * from WordNet). The input for an English thesaurus can be downloaded here:
  * http://lingucomponent.openoffice.org/MyThes-1.zip (input file is the .dat file in that zip package).
  * </p>
- * 
+ *
+ * @author David Urbansky
  * @see <a href="http://stackoverflow.com/questions/4175335/where-can-i-download-a-free-synonyms-database">Stack
- *      Overflow: Where can I download a free synonyms database?</a>
+ * Overflow: Where can I download a free synonyms database?</a>
  * @see <a href="http://lingucomponent.openoffice.org/MyThes-1.zip">Thesaurus file download</a>
  * @see <a href="https://www.openthesaurus.de/about/download">Open Thesaurus (German)</a>
- * 
- * @author David Urbansky
- * 
  */
 public class SynonymDictionaryCreator {
 
@@ -44,9 +41,9 @@ public class SynonymDictionaryCreator {
 
         Set<String> allowedWordTypes = new HashSet<>();
         allowedWordTypes.add("(noun)");
-//        allowedWordTypes.add("(verb)");
-//        allowedWordTypes.add("(adj)");
-//        allowedWordTypes.add("(adv)");
+        //        allowedWordTypes.add("(verb)");
+        //        allowedWordTypes.add("(adj)");
+        //        allowedWordTypes.add("(adv)");
 
         String currentWord = "";
         SynonymDictionary dictionary = new SynonymDictionary();
@@ -127,19 +124,20 @@ public class SynonymDictionaryCreator {
 
     /**
      * @param args
-     * @throws IOException 
+     * @throws IOException
      */
     public static void main(String[] args) throws IOException {
         SynonymDictionaryCreator sfr = new SynonymDictionaryCreator();
-//        sfr.createDictionaryOpenOfficeFormat(new File("dict.dat"), new File("dictionary.gz"));
-//        sfr.createDictionaryOpenOfficeFormat(new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\th_en_US_new.dat"), new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-en.gz"));
-        sfr.createDictionaryOpenThesaurus(new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\openthesaurus.txt"), new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-de.gz"));
+        //        sfr.createDictionaryOpenOfficeFormat(new File("dict.dat"), new File("dictionary.gz"));
+        //        sfr.createDictionaryOpenOfficeFormat(new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\th_en_US_new.dat"), new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-en.gz"));
+        sfr.createDictionaryOpenThesaurus(new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\openthesaurus.txt"),
+                new File("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-de.gz"));
 
-        SynonymDictionary dictionary = (SynonymDictionary)FileHelper.deserialize("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-de.gz");
+        SynonymDictionary dictionary = (SynonymDictionary) FileHelper.deserialize("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-de.gz");
         CollectionHelper.print(dictionary.get("presskopf"));
         CollectionHelper.print(dictionary.get("schwartenmagen"));
-//        SynonymDictionary dictionary = (SynonymDictionary)FileHelper.deserialize("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-de.gz");
-//        CollectionHelper.print(dictionary.get("spaghetti"));
+        //        SynonymDictionary dictionary = (SynonymDictionary)FileHelper.deserialize("E:\\Projects\\Programming\\Java\\Palladian\\palladian-core\\dictionary-nouns-de.gz");
+        //        CollectionHelper.print(dictionary.get("spaghetti"));
     }
 
 }

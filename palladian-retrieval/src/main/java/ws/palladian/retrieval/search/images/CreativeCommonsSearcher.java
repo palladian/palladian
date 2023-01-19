@@ -1,9 +1,5 @@
 package ws.palladian.retrieval.search.images;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -17,11 +13,15 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * <p>
  * Search for free images on <a href="https://creativecommons.org">Creative Commons</a>.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see <a href="https://api.creativecommons.engineering/v1/">Creative Commons API Docs</a>
  */
@@ -39,6 +39,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     public CreativeCommonsSearcher() {
 
     }
+
     public CreativeCommonsSearcher(int defaultResultCount) {
         super();
         this.defaultResultCount = defaultResultCount;
@@ -47,14 +48,13 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     @Override
     /**
      * @param language Supported languages are English.
-     */
-    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
         resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
         resultCount = Math.min(10000, resultCount);
         int resultsPerPage = Math.min(MAX_PER_PAGE, resultCount);
-        int pagesNeeded = (int)Math.ceil(resultCount / (double)resultsPerPage);
+        int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
 
         DocumentRetriever documentRetriever = new DocumentRetriever();
         for (int page = 1; page <= pagesNeeded; page++) {
@@ -94,9 +94,10 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     }
 
     private String buildRequest(String searchTerms, int page, int resultsPerPage) {
-        String url = String.format("https://api.creativecommons.engineering/v1/images?q=%s&license_type=%s&page=%s&page_size=%s&mature=true", UrlHelper.encodeParameter(searchTerms), licenses, page, resultsPerPage);
+        String url = String.format("https://api.creativecommons.engineering/v1/images?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
+                UrlHelper.encodeParameter(searchTerms), licenses, page, resultsPerPage);
         if (this.sources != null) {
-            url += "&source="+this.sources;
+            url += "&source=" + this.sources;
         }
 
         return url;
@@ -125,7 +126,8 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
 
     public static void main(String[] args) throws SearcherException {
         CreativeCommonsSearcher searcher = new CreativeCommonsSearcher();
-        searcher.setSources("wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
+        searcher.setSources(
+                "wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
         List<WebImage> results = searcher.search("brain", 1001);
         CollectionHelper.print(results);
     }

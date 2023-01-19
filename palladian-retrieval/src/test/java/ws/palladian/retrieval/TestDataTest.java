@@ -1,17 +1,15 @@
 package ws.palladian.retrieval;
 
-import static org.junit.Assert.assertEquals;
+import com.rometools.rome.io.XmlReader;
+import org.junit.Test;
+import ws.palladian.helper.io.ResourceHelper;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import org.junit.Test;
-
-import ws.palladian.helper.io.ResourceHelper;
-
-import com.rometools.rome.io.XmlReader;
+import static org.junit.Assert.assertEquals;
 
 public class TestDataTest {
 

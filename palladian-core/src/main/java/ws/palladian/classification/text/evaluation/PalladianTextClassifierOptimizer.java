@@ -1,48 +1,42 @@
 package ws.palladian.classification.text.evaluation;
 
-import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
-import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
-
-import java.util.Objects;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.evaluation.roc.RocCurves;
-import ws.palladian.classification.text.BayesScorer;
-import ws.palladian.classification.text.DictionaryModel;
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.PalladianTextClassifier;
+import ws.palladian.classification.text.*;
 import ws.palladian.classification.text.PalladianTextClassifier.Scorer;
-import ws.palladian.classification.text.PruningStrategies;
 import ws.palladian.classification.text.evaluation.PalladianTextClassifierOptimizerConfig.Builder;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.dataset.Dataset;
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressReporter;
-import java.util.function.Predicate;
 import ws.palladian.helper.io.FileHelper;
+
+import java.util.Objects;
+import java.util.function.Predicate;
+
+import static ws.palladian.classification.text.BayesScorer.Options.COMPLEMENT;
+import static ws.palladian.classification.text.BayesScorer.Options.LAPLACE;
 
 /**
  * <p>
  * Simple, brute force optimizer for {@link FeatureSetting}s. This mechanism determines the best feature settings in
  * combination with the best classification threshold (this means, that it currently only works for binary data).
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public final class PalladianTextClassifierOptimizer<R> {
-	
-	private final PalladianTextClassifierOptimizerConfig<R> config;
-    
+
+    private final PalladianTextClassifierOptimizerConfig<R> config;
+
     public PalladianTextClassifierOptimizer(PalladianTextClassifierOptimizerConfig<R> config) {
-		this.config = Objects.requireNonNull(config, "config must not be null");
-	}
+        this.config = Objects.requireNonNull(config, "config must not be null");
+    }
 
     /**
      * Run the optimization process.
-     * 
-     * @param training The training data, not <code>null</code>.
-     * @param validation The validation data, not <code>null</code>.
+     *
+     * @param training         The training data, not <code>null</code>.
+     * @param validation       The validation data, not <code>null</code>.
      * @param resultCsv
      * @param progressReporter
      */
@@ -62,12 +56,11 @@ public final class PalladianTextClassifierOptimizer<R> {
                 for (Scorer scorer : config.getScorers()) {
                     PalladianTextClassifier textClassifier = new PalladianTextClassifier(featureSetting, scorer);
                     R evaluationResult = config.getEvaluator().evaluate(textClassifier, model, validation);
-					if (!headerWritten) {
-						String header = "featureSetting;scorer;pruningStrategy;"
-								+ config.getEvaluator().getCsvHeader(evaluationResult) + ";numTerms;numEntries\n";
-						FileHelper.appendFile(resultCsv, header);
-						headerWritten = true;
-					}
+                    if (!headerWritten) {
+                        String header = "featureSetting;scorer;pruningStrategy;" + config.getEvaluator().getCsvHeader(evaluationResult) + ";numTerms;numEntries\n";
+                        FileHelper.appendFile(resultCsv, header);
+                        headerWritten = true;
+                    }
                     StringBuilder resultLine = new StringBuilder();
                     resultLine.append(featureSetting).append(';');
                     resultLine.append(scorer).append(';');
@@ -86,10 +79,10 @@ public final class PalladianTextClassifierOptimizer<R> {
     public static void main(String[] args) {
         String trainIndex = "/Users/pk/Dropbox/Uni/Datasets/20newsgroups-18828/index_split1.txt";
         String testIndex = "/Users/pk/Dropbox/Uni/Datasets/20newsgroups-18828/index_split2.txt";
-        
+
         Dataset train = new TextDatasetIterator(trainIndex, " ", true);
         Dataset validate = new TextDatasetIterator(testIndex, " ", true);
-        
+
         Builder<RocCurves> configBuilder = PalladianTextClassifierOptimizerConfig.withEvaluator(new RocCurves.RocCurvesEvaluator("true"));
 
         // create combinations of settings for char-based 5- to 8- and word-based 1- to 2-grams;
@@ -102,7 +95,7 @@ public final class PalladianTextClassifierOptimizer<R> {
 
         // evaluate bayes scorer
         configBuilder.setScorers(new BayesScorer(LAPLACE, COMPLEMENT));
-        
+
         PalladianTextClassifierOptimizer<RocCurves> optimizer = configBuilder.create();
 
         // run optimization with all (feature setting, pruning, scorer) combinations using the

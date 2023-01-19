@@ -1,15 +1,14 @@
 package ws.palladian.retrieval.feeds.meta;
 
+import ws.palladian.helper.date.DateHelper;
+
 import java.sql.Timestamp;
 import java.util.Date;
 
-import ws.palladian.helper.date.DateHelper;
-
 /**
  * <p>Store meta information for a single poll.</p>
- * 
+ *
  * @author Sandro Reichert
- * 
  */
 public class PollMetaInformation {
 
@@ -68,7 +67,7 @@ public class PollMetaInformation {
 
     /**
      * If date's year is > 9999, we set it to null!
-     * 
+     *
      * @param pollTimestamp the pollTimestamp to set
      */
     public final void setPollTimestamp(Date pollTimestamp) {
@@ -105,7 +104,7 @@ public class PollMetaInformation {
 
     /**
      * If date's year is > 9999, we set it to null!
-     * 
+     *
      * @param httpDate the httpDate to set
      */
     public final void setHttpDate(Date httpDate) {
@@ -131,7 +130,7 @@ public class PollMetaInformation {
 
     /**
      * If date's year is > 9999, we set it to null!
-     * 
+     *
      * @param httpLastModified the httpLastModified to set
      */
     public final void setHttpLastModified(Date httpLastModified) {
@@ -157,13 +156,12 @@ public class PollMetaInformation {
 
     /**
      * If date's year is > 9999, we set it to null!
-     * 
+     *
      * @param httpExpires the httpExpires to set
      */
     public final void setHttpExpires(Date httpExpires) {
         this.httpExpires = DateHelper.validateYear(httpExpires);
     }
-
 
     /**
      * @return the newestItemTimestamp
@@ -184,7 +182,7 @@ public class PollMetaInformation {
 
     /**
      * If date's year is > 9999, we set it to null!
-     * 
+     *
      * @param newestItemTimestamp the newestItemTimestamp to set
      */
     public final void setNewestItemTimestamp(Date newestItemTimestamp) {

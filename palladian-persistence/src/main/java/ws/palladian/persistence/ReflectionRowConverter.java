@@ -13,10 +13,9 @@ import java.util.Map;
  * provide a zero-argument constructor and getters/setters for their properties. This is a quick and dirty
  * implementation, has not yet been tested extensively, and can be regarded as experimental currently.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <T>
+ * @author Philipp Katz
  */
 public final class ReflectionRowConverter<T> implements RowConverter<T> {
 
@@ -30,7 +29,7 @@ public final class ReflectionRowConverter<T> implements RowConverter<T> {
      * <p>
      * Create a new {@link ReflectionRowConverter} of the specified type.
      * </p>
-     * 
+     *
      * @param clazz The type for which to create the {@link ReflectionRowConverter}.
      * @return A new {@link ReflectionRowConverter} instance for the specified type.
      */
@@ -60,14 +59,11 @@ public final class ReflectionRowConverter<T> implements RowConverter<T> {
             try {
                 method.invoke(instance, resultValue);
             } catch (IllegalArgumentException e) {
-                throw new IllegalStateException("Error setting value \"" + resultValue + "\" for property \""
-                        + columnName + "\" (" + parameterType + ")");
+                throw new IllegalStateException("Error setting value \"" + resultValue + "\" for property \"" + columnName + "\" (" + parameterType + ")");
             } catch (IllegalAccessException e) {
-                throw new IllegalStateException("Error setting value \"" + resultValue + "\" for property \""
-                        + columnName + "\" (" + parameterType + ")");
+                throw new IllegalStateException("Error setting value \"" + resultValue + "\" for property \"" + columnName + "\" (" + parameterType + ")");
             } catch (InvocationTargetException e) {
-                throw new IllegalStateException("Error setting value \"" + resultValue + "\" for property \""
-                        + columnName + "\" (" + parameterType + ")");
+                throw new IllegalStateException("Error setting value \"" + resultValue + "\" for property \"" + columnName + "\" (" + parameterType + ")");
             }
         }
         return instance;
@@ -78,7 +74,7 @@ public final class ReflectionRowConverter<T> implements RowConverter<T> {
      * Get the properties which can be set via setters for the specified class. These are typical Java beans setters,
      * i.e. their names start with "set" and they take one argument.
      * </p>
-     * 
+     *
      * @param clazz
      * @return
      */
@@ -102,7 +98,7 @@ public final class ReflectionRowConverter<T> implements RowConverter<T> {
      * <p>
      * Create a new instance of the specified class.
      * </p>
-     * 
+     *
      * @param clazz The class to create.
      * @return A new instance of the specified class, created by using the default constructor.
      * @throws IllegalStateException When instantiation fails.

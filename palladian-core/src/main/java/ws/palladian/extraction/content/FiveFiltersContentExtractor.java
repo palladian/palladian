@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.StringInputStream;
@@ -24,7 +23,7 @@ import ws.palladian.retrieval.parser.ParserFactory;
  * <p>
  * The FiveFiltersContentExtractor extracts clean sentences from (English) texts.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see http://fivefilters.org/content-only/
  */

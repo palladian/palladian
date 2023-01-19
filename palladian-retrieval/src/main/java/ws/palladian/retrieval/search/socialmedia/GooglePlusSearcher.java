@@ -1,14 +1,7 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -24,13 +17,19 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * <p>
  * Search for posts on Google+.
  * </p>
- * 
- * @see <a href="https://developers.google.com/+/api/latest/activities/search">API documentation for search</a>
+ *
  * @author Philipp Katz
+ * @see <a href="https://developers.google.com/+/api/latest/activities/search">API documentation for search</a>
  */
 public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
 
@@ -45,14 +44,14 @@ public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
 
     /** The API key for accessing Google+ API. */
     private final String apiKey;
-    
+
     private final HttpRetriever retriever;
 
     /**
      * <p>
      * Create a new searcher for Google+.
      * </p>
-     * 
+     *
      * @param apiKey The API key for accessing the service, not <code>null</code> or empty.
      */
     public GooglePlusSearcher(String apiKey) {
@@ -65,9 +64,9 @@ public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
      * <p>
      * Create a new searcher for Google+.
      * </p>
-     * 
+     *
      * @param configuration The configuration instance providing an API key for accessing Google+ with the identifier
-     *            {@value #CONFIG_API_KEY}, not <code>null</code>.
+     *                      {@value #CONFIG_API_KEY}, not <code>null</code>.
      */
     public GooglePlusSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -85,14 +84,14 @@ public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
 
         String nextPageToken = null;
 
-        out: for (;;) {
+        out:
+        for (; ; ) {
             String requestUrl = buildUrl(query, nextPageToken);
             HttpResult httpResult;
             try {
                 httpResult = retriever.httpGet(requestUrl);
             } catch (HttpException e) {
-                throw new SearcherException("Encountered HTTP error while accessing \"" + requestUrl + "\": "
-                        + e.getMessage(), e);
+                throw new SearcherException("Encountered HTTP error while accessing \"" + requestUrl + "\": " + e.getMessage(), e);
             }
 
             String jsonString = httpResult.getStringContent();
@@ -117,8 +116,7 @@ public final class GooglePlusSearcher extends AbstractSearcher<WebContent> {
                     }
                 }
             } catch (JsonException e) {
-                throw new SearcherException("Error parsing the JSON response from \"" + requestUrl + "\": "
-                        + jsonString, e);
+                throw new SearcherException("Error parsing the JSON response from \"" + requestUrl + "\": " + jsonString, e);
             }
         }
 

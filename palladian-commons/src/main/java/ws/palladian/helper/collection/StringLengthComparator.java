@@ -6,7 +6,7 @@ import java.util.Comparator;
  * <p>
  * Sort strings by length, the longest strings go first. If they are the same length, we order alphabetically.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */

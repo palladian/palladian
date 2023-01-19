@@ -10,10 +10,9 @@ import java.util.Set;
  * <p>
  * A special {@link Map} where keys are treated case-insensitively.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <V> The type of values in the map.
+ * @author Philipp Katz
  */
 public class CaseInsensitiveMap<V> extends AbstractMap<String, V> implements Serializable {
 
@@ -26,7 +25,7 @@ public class CaseInsensitiveMap<V> extends AbstractMap<String, V> implements Ser
      * <p>
      * Create a new {@link CaseInsensitiveMap} from the given {@link Map}.
      * </p>
-     * 
+     *
      * @param map The map from which to copy data to the {@link CaseInsensitiveMap}.
      * @return The {@link CaseInsensitiveMap} with the content from the supplied map.
      */

@@ -1,35 +1,32 @@
 package ws.palladian.extraction.content;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.StringReader;
-
-import org.apache.commons.lang3.Validate;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import ws.palladian.helper.html.HtmlHelper;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.document.TextDocument;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.ExtractorBase;
 import de.l3s.boilerpipe.sax.BoilerpipeSAXInput;
+import org.apache.commons.lang3.Validate;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import ws.palladian.helper.html.HtmlHelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.StringReader;
 
 /**
  * <p>
  * Boilerpipe, as described in "Boilerplate Detection using Shallow Text Features"; Kohlschütter, Christian; Fankhauser,
  * Peter; Nejdl, Wolfgang; 2010.
  * </p>
- * 
- * @see http://code.google.com/p/boilerpipe/ and
- * @see http://www.l3s.de/~kohlschuetter/boilerplate/
- * 
+ *
  * @author Ruchit Beri
  * @author Philipp Katz
- * 
+ * @see http://code.google.com/p/boilerpipe/ and
+ * @see http://www.l3s.de/~kohlschuetter/boilerplate/
  */
 public class BoilerpipeContentExtractor extends WebPageContentExtractor {
     private final ExtractorBase extractor;

@@ -1,17 +1,16 @@
 package ws.palladian.helper.nlp;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 
 public class JaroWinklerDistanceTest {
-    
+
     private final StringMetric stringSim = new JaroWinklerSimilarity();
 
     @Test
     public void testJaroWinkler() {
-        
+
         // trivial cases
         assertEquals(1, stringSim.getSimilarity("", ""), 0.001);
         assertEquals(0, stringSim.getSimilarity("MARHTA", ""), 0.001);
@@ -43,9 +42,9 @@ public class JaroWinklerDistanceTest {
         assertEquals(0.805, stringSim.getSimilarity("SEAN", "SUSAN"), 0.001);
         assertEquals(0.933, stringSim.getSimilarity("JON", "JOHN"), 0.001);
         // assertEquals(0, stringSim.getSimilarity("JON", "JAN"), 0.001);
-        
+
         assertEquals(0.822, stringSim.getSimilarity("cat", "car"), 0.001);
-        
+
         assertEquals(0.989, stringSim.getSimilarity("http://movies.yahoo.com/browse/list/q", "http://movies.yahoo.com/browse/list/r"), 0.001);
         assertEquals(0.989, stringSim.getSimilarity("http://movies.yahoo.com/browse/list/r", "http://movies.yahoo.com/browse/list/q"), 0.001);
     }

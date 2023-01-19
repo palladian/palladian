@@ -1,5 +1,12 @@
 package ws.palladian.extraction;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
+import ws.palladian.core.Tagger;
+import ws.palladian.extraction.entity.Annotations;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,17 +15,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
-import ws.palladian.core.Tagger;
-import ws.palladian.extraction.entity.Annotations;
-
 /**
  * Annotates a text based on a given dictionary.
- * 
+ *
  * @author Philipp Katz
  */
 public class DictionaryTagger implements Tagger {

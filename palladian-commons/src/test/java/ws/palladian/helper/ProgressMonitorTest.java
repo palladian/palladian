@@ -1,8 +1,8 @@
 package ws.palladian.helper;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class ProgressMonitorTest {
     private static final double DELTA = 0.0001;

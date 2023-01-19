@@ -1,10 +1,9 @@
 package ws.palladian.retrieval.wiki;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
 import ws.palladian.retrieval.wiki.MediaWikiFormattingParser.ParserCallback;
+
+import static org.junit.Assert.assertEquals;
 
 public class MediaWikiFormattingParserTest {
 
@@ -62,10 +61,8 @@ public class MediaWikiFormattingParserTest {
         assertEquals("hello mon'<i>amour</i> blah", parse("hello mon'''amour'' blah"));
         assertEquals("hello '<i>amour</i> <b>blah </b>blah", parse("hello '''amour'' '''blah '''blah"));
 
-        assertEquals("hello '<b>amour</b> now <i>italics unbalanced, but that's ok",
-                parse("hello ''''amour''' now ''italics unbalanced, but that's ok"));
-        assertEquals("hello '<b>amour</b> now, <b>bold unbalanced, but that's ok",
-                parse("hello ''''amour''' now, '''bold unbalanced, but that's ok"));
+        assertEquals("hello '<b>amour</b> now <i>italics unbalanced, but that's ok", parse("hello ''''amour''' now ''italics unbalanced, but that's ok"));
+        assertEquals("hello '<b>amour</b> now, <b>bold unbalanced, but that's ok", parse("hello ''''amour''' now, '''bold unbalanced, but that's ok"));
         assertEquals("hello ''<i>amour<b> now </i></b>bold and italics unbalanced, so invoke this special case",
                 parse("hello ''''amour''' now '''''bold and italics unbalanced, so invoke this special case"));
 

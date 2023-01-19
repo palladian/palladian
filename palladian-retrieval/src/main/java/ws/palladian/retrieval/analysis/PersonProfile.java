@@ -100,13 +100,7 @@ public class PersonProfile {
 
     @Override
     public String toString() {
-        return "PersonProfile{" +
-                "firstName='" + firstName + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                '}';
+        return "PersonProfile{" + "firstName='" + firstName + '\'' + ", middleName='" + middleName + '\'' + ", lastName='" + lastName + '\'' + ", username='" + username + '\''
+                + ", email='" + email + '\'' + ", imageUrl='" + imageUrl + '\'' + '}';
     }
 }

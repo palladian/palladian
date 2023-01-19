@@ -1,9 +1,9 @@
 package ws.palladian.helper.collection;
 
+import org.apache.commons.lang3.Validate;
+
 import java.io.Serializable;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
 
 public class TransposedMatrix<K, V> extends MatrixDecorator<K, V> implements Serializable {
 
@@ -11,7 +11,7 @@ public class TransposedMatrix<K, V> extends MatrixDecorator<K, V> implements Ser
 
     /**
      * Create a new {@link TransposedMatrix}.
-     * 
+     *
      * @param matrix The matrix to transpose, not <code>null</code>.
      * @return The transposed matrix.
      */

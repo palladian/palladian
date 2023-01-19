@@ -1,11 +1,5 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.comparators.RatedDateComparator;
 import ws.palladian.extraction.date.dates.ArchiveDate;
@@ -13,9 +7,11 @@ import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.helper.DateExtractionHelper;
 import ws.palladian.helper.date.ExtractedDate;
 
+import java.util.*;
+
 /**
  * <p>This {@link TechniqueDateRater} rates an {@link ArchiveDate} in dependency of other dates.</p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
@@ -27,7 +23,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      * Archive date will be rated 1, if it is older then best rated date of the other dates or all the other dates are
      * rated 0.<br>
      * Otherwise it will be rate half of best rate of the other dates.
-     * 
+     *
      * @param <T>
      * @param dates
      * @param allDates
@@ -35,13 +31,12 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      */
     public List<RatedDate<ArchiveDate>> rate(List<ArchiveDate> dates, List<? extends RatedDate<?>> allDates) {
         List<RatedDate<ArchiveDate>> result = new ArrayList<>();
-        
-        
+
         Map<ExtractedDate, Double> datesWeights = new HashMap<>();
         for (RatedDate<?> ratedDate : allDates) {
             datesWeights.put(ratedDate.getDate(), ratedDate.getRate());
         }
-        
+
         double highestRate = DateExtractionHelper.getHighestRate(allDates);
         if (highestRate == 0.0) {
             result.add(RatedDate.create(dates.get(0), 1.0));
@@ -49,7 +44,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
             List<RatedDate<?>> sortedDates = new ArrayList<RatedDate<?>>(allDates);
             Collections.sort(sortedDates, RatedDateComparator.INSTANCE);
             DateComparator dateComparator = new DateComparator();
-            
+
             if (dateComparator.compare(dates.get(0), sortedDates.get(0)) < 0) {
                 result.add(RatedDate.create(dates.get(0), datesWeights.get(sortedDates.get(0)) / 2.0));
             } else {
@@ -66,6 +61,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
      */
     @Override
     public List<RatedDate<ArchiveDate>> rate(List<ArchiveDate> list) {
-        throw new UnsupportedOperationException("Not usable for ArchiveDates, as other dates are required for comparison. Use #rate(List<ArchiveDate>, List<RatedDate<T>>) instead.");
+        throw new UnsupportedOperationException(
+                "Not usable for ArchiveDates, as other dates are required for comparison. Use #rate(List<ArchiveDate>, List<RatedDate<T>>) instead.");
     }
 }

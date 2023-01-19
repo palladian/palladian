@@ -1,6 +1,12 @@
 package ws.palladian.retrieval;
 
-import static org.junit.Assert.assertEquals;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.collection.CollectionHelper;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -8,19 +14,7 @@ import java.net.ServerSocket;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.collection.CollectionHelper;
-
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("restriction")
 public class HttpRetrieverTest {
@@ -111,7 +105,7 @@ public class HttpRetrieverTest {
         System.out.println(httpResult.getStatusCode()); // is 200 :/
         System.out.println(httpResult.getStringContent()); // gives a description, that we need to enable cookies
     }
-    
+
     @Test
     @Ignore
     public void testCookies() throws HttpException {
@@ -121,13 +115,11 @@ public class HttpRetrieverTest {
         httpRetriever.setCookieStore(cookieStore);
 
         // get the cookie
-        HttpRequest2Builder builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.GET,
-                "https://bitbucket.org/account/signin/?next=/");
+        HttpRequest2Builder builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.GET, "https://bitbucket.org/account/signin/?next=/");
         httpRetriever.execute(builder.create());
         String csrftoken = CollectionHelper.getFirst(cookieStore.getCookies()).getValue();
 
-        builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.POST,
-                "https://bitbucket.org/account/signin/?next=/");
+        builder = new HttpRequest2Builder(ws.palladian.retrieval.HttpMethod.POST, "https://bitbucket.org/account/signin/?next=/");
         builder.addHeader("Origin", "https://bitbucket.org");
         builder.addHeader("Referer", "https://bitbucket.org/account/signin/?next=/account/signin");
         FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
@@ -142,7 +134,7 @@ public class HttpRetrieverTest {
         // CollectionHelper.print(result.getHeaders());
         assertEquals(302, result.getStatusCode());
     }
-    
+
     @Test
     @Ignore
     public void testGetHttpRequest2() throws HttpException {
@@ -150,7 +142,7 @@ public class HttpRetrieverTest {
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().execute(request);
         System.out.println(result.getStringContent());
     }
-    
+
     @Test
     @Ignore
     public void testCookieWarning() throws HttpException {
@@ -165,13 +157,13 @@ public class HttpRetrieverTest {
             System.out.println(result);
         }
     }
-    
+
     @Test
     public void testGetExample() throws HttpException {
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://example.com");
         System.out.println(result);
     }
-    
+
     @Test
     public void testUnknownCertificate() throws HttpException {
         try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
@@ -180,7 +172,7 @@ public class HttpRetrieverTest {
             System.out.println(result);
         }
     }
-    
+
     @Test
     @Ignore
     public void testSslSni() throws HttpException {

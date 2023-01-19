@@ -1,16 +1,15 @@
 package ws.palladian.clustering;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.commons.math3.util.FastMath;
+import org.junit.Test;
+import ws.palladian.helper.functional.Distance;
+import ws.palladian.helper.nlp.JaroWinklerSimilarity;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.math3.util.FastMath;
-import org.junit.Test;
-
-import ws.palladian.helper.functional.Distance;
-import ws.palladian.helper.nlp.JaroWinklerSimilarity;
+import static org.junit.Assert.assertEquals;
 
 public class DBSCANTest {
     private final class EuclideanDistance implements Distance<Point> {

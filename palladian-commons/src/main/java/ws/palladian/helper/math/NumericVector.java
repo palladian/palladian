@@ -6,10 +6,9 @@ import ws.palladian.helper.collection.Vector;
  * <p>
  * A numeric vector with arbitrary keys and algebraic operations, like dot product, norm etc.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <K>
+ * @author Philipp Katz
  */
 public interface NumericVector<K> extends Vector<K, Double> {
 
@@ -25,7 +24,7 @@ public interface NumericVector<K> extends Vector<K, Double> {
      * <p>
      * Add another vector and return the result as a new vector.
      * </p>
-     * 
+     *
      * @param other The vector to add, not <code>null</code>.
      * @return A new vector with added values.
      */
@@ -40,7 +39,7 @@ public interface NumericVector<K> extends Vector<K, Double> {
      * <p>
      * Calculate the dot product between this and another vector.
      * </p>
-     * 
+     *
      * @param other The other vector, not <code>null</code>.
      * @return The dot product between this and the given vector.
      */
@@ -55,7 +54,7 @@ public interface NumericVector<K> extends Vector<K, Double> {
      * <p>
      * Calculate the cosine similarity between this and another vector.
      * </p>
-     * 
+     *
      * @param other The other vector, not <code>null</code>.
      * @return The cosine similarity between this and the given vector.
      */
@@ -65,7 +64,7 @@ public interface NumericVector<K> extends Vector<K, Double> {
      * <p>
      * Calculate the euclidean distance between this and another vector.
      * </p>
-     * 
+     *
      * @param other The other vector, not <code>null</code>.
      * @return The euclidean distance between this and the given vector.
      */

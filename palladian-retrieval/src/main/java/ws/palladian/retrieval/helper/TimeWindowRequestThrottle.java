@@ -1,22 +1,20 @@
 package ws.palladian.retrieval.helper;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.date.DateHelper;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Request throttle for controlling window-based policies, e.g. maximum 1000 requests/5 minutes.
  * </p>
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public class TimeWindowRequestThrottle implements RequestThrottle {
     /** The logger for this class. */
@@ -34,11 +32,11 @@ public class TimeWindowRequestThrottle implements RequestThrottle {
      * <p>
      * Create a new {@link TimeWindowRequestThrottle}.
      * </p>
-     * 
-     * @param timeWindow The time window, must be greater zero.
-     * @param unit The time unit, not <code>null</code>.
+     *
+     * @param timeWindow      The time window, must be greater zero.
+     * @param unit            The time unit, not <code>null</code>.
      * @param maximumRequests The maximum number of requests which are allowed in the specified window, must be greater
-     *            zero.
+     *                        zero.
      */
     public TimeWindowRequestThrottle(long timeWindow, TimeUnit unit, int maximumRequests) {
         Validate.isTrue(timeWindow > 0, "timeWindow must be greater zero");

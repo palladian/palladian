@@ -1,20 +1,19 @@
 package ws.palladian.helper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.io.FileHelper;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.io.FileHelper;
 
 /**
  * <p>
  * The Cache can be used to store data objects such as model files. These files do not have to be re-read from hard disk
  * every time they are needed.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class Cache {
@@ -50,9 +49,9 @@ public class Cache {
      * <p>
      * Get the data object from the cache if it exists, if not add it to the cache.
      * </p>
-     * 
+     *
      * @param identifier The identifier of the object in the cache.
-     * @param obj The object to store in the cache.
+     * @param obj        The object to store in the cache.
      * @return The object from the cache or the given one.
      */
     public Object getDataObject(String identifier, Object obj) {
@@ -70,9 +69,9 @@ public class Cache {
      * <p>
      * Get the data object from the cache if it exists, if not deserialize it and add it to the cache.
      * </p>
-     * 
+     *
      * @param identifier The identifier of the object in the cache.
-     * @param obj The object to store in the cache.
+     * @param obj        The object to store in the cache.
      * @return The object from the cache or the given one.
      */
     public Object getDataObject(String identifier, File file) {
@@ -109,9 +108,8 @@ public class Cache {
      * <p>
      * Explicitly remove data object from cache
      * </p>
-     * 
+     *
      * @param identifier The identifier of the object in the cache.
-     * 
      */
     public void removeDataObject(String cacheName) {
         dataObjects.remove(cacheName);

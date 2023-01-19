@@ -5,19 +5,18 @@ package ws.palladian.core;
  * An instance (in the machine learning sense) for training e.g. a classifier. The instance consists of a feature
  * vector, a (manually) assigned category (e.g. "SPAM" or "NO-SPAM") and (optionally) a weight, which allows to
  * prioritize of different training samples (not supported by all classifiers).
- * 
+ *
  * <p>
  * Instances are usually created using the {@link InstanceBuilder}.
- * 
- * @author Philipp Katz
  *
+ * @author Philipp Katz
  */
 public interface Instance {
 
     /** Dummy string to use for {@link Instance#getCategory()} when not reading category columns. */
-	String NO_CATEGORY_DUMMY = "";
+    String NO_CATEGORY_DUMMY = "";
 
-	/**
+    /**
      * @return The feature vector, not <code>null</code>.
      */
     FeatureVector getVector();
@@ -29,7 +28,7 @@ public interface Instance {
 
     /**
      * @return The weight of this instance, which must be equal/greater <code>1</code> (return a value of one for no
-     *         particular weighting).
+     * particular weighting).
      */
     int getWeight();
 

@@ -1,14 +1,13 @@
 package ws.palladian.helper.math;
 
+import org.apache.commons.lang3.StringUtils;
+import ws.palladian.helper.collection.AbstractIterator2;
+import ws.palladian.helper.collection.Bag;
+
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
-
-import org.apache.commons.lang3.StringUtils;
-
-import ws.palladian.helper.collection.AbstractIterator2;
-import ws.palladian.helper.collection.Bag;
 
 /**
  * <p>
@@ -17,7 +16,7 @@ import ws.palladian.helper.collection.Bag;
  * in histogram-like bins, which allows the analysis of huge result sets. To regulate the granularity of the results,
  * the number of bins can be specified by using the constructor {@link #ThresholdAnalyzer(int)}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://en.wikipedia.org/wiki/Precision_and_recall">Precision and recall</a>
  * @see <a href="http://en.wikipedia.org/wiki/F1_score">F1 score</a>
@@ -26,7 +25,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
 
     /**
      * An entry for a specific threshold supplying precision, recall and f-measure.
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class ThresholdEntry {
@@ -45,15 +44,15 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
             this.rc = rc;
             this.accuracy = accuracy;
         }
-        
+
         public double getThreshold() {
             return t;
         }
-        
+
         public double getPrecision() {
             return pr;
         }
-        
+
         public double getRecall() {
             return rc;
         }
@@ -61,7 +60,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         public double getF1() {
             return 2 * pr * rc / (pr + rc);
         }
-        
+
         public double getAccuracy() {
             return accuracy;
         }
@@ -74,17 +73,12 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         private String internalToString(String format) {
             NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
             numberFormat.setMaximumFractionDigits(5);
-            return String.format(format, 
-            		numberFormat.format(t), 
-            		numberFormat.format(pr), 
-            		numberFormat.format(rc),
-                    numberFormat.format(getF1()), 
-                    numberFormat.format(getAccuracy()), makeBar(getF1()))
-            		.replace("\uFFFD", "NaN"); // avoid ?, instead use NaN (same as ConfusionMatrix)
+            return String.format(format, numberFormat.format(t), numberFormat.format(pr), numberFormat.format(rc), numberFormat.format(getF1()), numberFormat.format(getAccuracy()),
+                    makeBar(getF1())).replace("\uFFFD", "NaN"); // avoid ?, instead use NaN (same as ConfusionMatrix)
         }
 
         private String makeBar(double f1) {
-            return StringUtils.repeat('*', (int)Math.round(F1_BAR_LENGTH * f1));
+            return StringUtils.repeat('*', (int) Math.round(F1_BAR_LENGTH * f1));
         }
 
     }
@@ -95,7 +89,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
 
     private final Bag<Integer> retrievedItems;
 
-//    private int relevantItems;
+    //    private int relevantItems;
 
     /**
      * <p>
@@ -110,7 +104,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * <p>
      * Initialize a new, empty {@link ThresholdAnalyzer} with the specified number of bins.
      * </p>
-     * 
+     *
      * @param numBins The number of bins to use, the more, the more fine grained the result.
      */
     public ThresholdAnalyzer(int numBins) {
@@ -120,14 +114,14 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         this.numBins = numBins;
         retrievedItems = new Bag<>();
         relevantItems = new Bag<>();
-//        this.relevantItems = 0;
+        //        this.relevantItems = 0;
     }
 
     /**
      * <p>
      * Get the precision for the specified threshold.
      * </p>
-     * 
+     *
      * @param threshold The threshold for which to get the precision, must be in range [0,1].
      * @return The precision at the specified threshold.
      * @deprecated Use {@link #getEntry(double)}.
@@ -141,7 +135,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * <p>
      * Get the recall for the specified threshold.
      * </p>
-     * 
+     *
      * @param threshold The threshold for which to get the recall, must be in range [0,1].
      * @return The recall at the specified threshold.
      * @deprecated Use {@link #getEntry(double)}.
@@ -155,7 +149,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * <p>
      * Get the F1 for the specified threshold.
      * </p>
-     * 
+     *
      * @param threshold The threshold for which to get the F1, must be in range [0,1].
      * @return The F1 at the specified threshold.
      * @deprecated Use {@link #getEntry(double)}.
@@ -177,12 +171,12 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
 
             @Override
             protected ThresholdEntry getNext() {
-            	if (bin > end) {
-            		return finished();
-            	}
-                double threshold = (double)bin++ / numBins;
+                if (bin > end) {
+                    return finished();
+                }
+                double threshold = (double) bin++ / numBins;
                 if (threshold > 1) {
-                	return finished();
+                    return finished();
                 }
                 return getEntry(threshold);
             }
@@ -193,7 +187,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * <p>
      * Get a threshold entry supplying precision, recall and F1 measure for the specified threshold.
      * </p>
-     * 
+     *
      * @param threshold The threshold for which to get the entry, must be in range [0,1].
      * @return The threshold entry for the specified threshold.
      */
@@ -203,9 +197,9 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         int numRetrieved = getRetrievedAt(threshold);
         int numRelevant = relevantItems.size();
         int numTotal = retrievedItems.size();
-        double pr = (double)numRelevantRetrieved / numRetrieved;
-        double rc = (double)numRelevantRetrieved / numRelevant;
-        double accuracy = (double)(numRelevantRetrieved + numIrrelevantNonRetrieved) / numTotal;
+        double pr = (double) numRelevantRetrieved / numRetrieved;
+        double rc = (double) numRelevantRetrieved / numRelevant;
+        double accuracy = (double) (numRelevantRetrieved + numIrrelevantNonRetrieved) / numTotal;
         return new ThresholdEntry(threshold, pr, rc, accuracy);
     }
 
@@ -213,22 +207,22 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * <p>
      * Get the maximum achieved F1 value for the whole threshold interval.
      * </p>
-     * 
+     *
      * @return The maximum F1 value.
      * @deprecated Use {@link #getMaxF1Entry()} instead.
      */
     @Deprecated
     public double getMaxF1() {
-//        double maxF1 = 0;
-//        for (int i = 0; i <= numBins; i++) {
-//            double threshold = (double)i / numBins;
-//            double f1 = getF1(threshold);
-//            if (Double.isNaN(f1)) {
-//                continue;
-//            }
-//            maxF1 = Math.max(maxF1, f1);
-//        }
-//        return maxF1;
+        //        double maxF1 = 0;
+        //        for (int i = 0; i <= numBins; i++) {
+        //            double threshold = (double)i / numBins;
+        //            double f1 = getF1(threshold);
+        //            if (Double.isNaN(f1)) {
+        //                continue;
+        //            }
+        //            maxF1 = Math.max(maxF1, f1);
+        //        }
+        //        return maxF1;
         ThresholdEntry maxF1Entry = getMaxF1Entry();
         return maxF1Entry != null ? maxF1Entry.getF1() : 0;
     }
@@ -237,7 +231,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * <p>
      * Get the threshold entry, for which a maximum F1 value is achieved.
      * </p>
-     * 
+     *
      * @return ThresholdEntry with maximum F1 value.
      */
     public ThresholdEntry getMaxF1Entry() {
@@ -256,14 +250,14 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
      * <code>notRelevant</code> ) and a confidence value determined e.g. by a classifier, which denotes the certainty of
      * the classifier that the made decision for being <code>relevant</code> is correct.
      * </p>
-     * 
-     * @param relevant Whether this record is actually relevant.
+     *
+     * @param relevant   Whether this record is actually relevant.
      * @param confidence The confidence, determined by some algorithm to evaluate, for prediction relevant.
      */
-	public void add(boolean relevant, double confidence) {
+    public void add(boolean relevant, double confidence) {
         int bin = getBin(confidence);
         if (relevant) {
-//            relevantItems++;
+            //            relevantItems++;
             relevantItems.add(bin);
         }
         retrievedItems.add(bin);
@@ -275,7 +269,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         if (threshold < 0 || threshold > 1) {
             throw new IllegalArgumentException("Threshold must be in range [0,1], but was " + threshold);
         }
-        return (int)Math.round(threshold * numBins);
+        return (int) Math.round(threshold * numBins);
     }
 
     int getRetrievedAt(double threshold) {
@@ -311,8 +305,7 @@ public class ThresholdAnalyzer implements Iterable<ThresholdAnalyzer.ThresholdEn
         }
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
         ThresholdEntry maxF1Entry = getMaxF1Entry();
-        sb.append('\n').append("Max. F1=").append(numberFormat.format(maxF1Entry.getF1())).append("@t=")
-                .append(numberFormat.format(maxF1Entry.getThreshold()));
+        sb.append('\n').append("Max. F1=").append(numberFormat.format(maxF1Entry.getF1())).append("@t=").append(numberFormat.format(maxF1Entry.getThreshold()));
         return sb.toString();
     }
 

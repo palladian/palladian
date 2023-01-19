@@ -1,11 +1,5 @@
 package ws.palladian.retrieval.search.web;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -23,16 +17,22 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * <p>
  * Search for <a href="http://www.wikipedia.org">Wikipedia</a> articles with fulltext search.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://www.mediawiki.org/wiki/API:Search">MediaWiki API:Search</a>
  * @see <a href="http://de.wikipedia.org/w/api.php">MediaWiki API</a>
  * @see <a href="http://stackoverflow.com/questions/964454/how-to-use-wikipedia-api-if-it-exists">How to use wikipedia
- *      api if it exists?</a>
+ * api if it exists?</a>
  */
 public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
 
@@ -41,7 +41,7 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
 
     /** Pattern used for parsing the returned date strings. */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -68,7 +68,7 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
                 }
 
                 for (Object result : searchResults) {
-                    JsonObject resultItem = (JsonObject)result;
+                    JsonObject resultItem = (JsonObject) result;
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     String title = resultItem.getString("title");
                     builder.setTitle(title);

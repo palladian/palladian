@@ -1,26 +1,26 @@
 package ws.palladian.retrieval.wiki;
 
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.retrieval.resources.WebContent;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.retrieval.resources.WebContent;
 
 /**
  * <p>
  * A reference to a MediaWiki page. Not the fully retrieved page, this is represented by {@link WikiPage} and
  * additionally contains the text.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class WikiPageReference implements WebContent {
 
     /** The id of the main namespace with articles. Other namespaces contain meta pages, like discussions etc. */
     public static final int MAIN_NAMESPACE = 0;
-    
+
     private static final String SOURCE_NAME = "MediaWiki";
 
     private final int pageId;
@@ -32,23 +32,23 @@ public class WikiPageReference implements WebContent {
         this.namespaceId = namespaceId;
         this.title = title;
     }
-    
+
     @Override
     public int getId() {
         return pageId;
     }
-    
+
     @Override
     public String getIdentifier() {
         return String.valueOf(pageId);
     }
 
-//    /**
-//     * @return The unique page ID in the wiki.
-//     */
-//    public int getPageId() {
-//        return pageId;
-//    }
+    //    /**
+    //     * @return The unique page ID in the wiki.
+    //     */
+    //    public int getPageId() {
+    //        return pageId;
+    //    }
 
     /**
      * @return The namespace ID, in which this page resides.
@@ -108,7 +108,7 @@ public class WikiPageReference implements WebContent {
     public Set<String> getTags() {
         return Collections.emptySet();
     }
-    
+
     @Override
     public String getSource() {
         return SOURCE_NAME;

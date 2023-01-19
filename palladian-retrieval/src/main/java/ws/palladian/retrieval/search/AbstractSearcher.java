@@ -1,10 +1,10 @@
 package ws.palladian.retrieval.search;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.resources.WebContent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -15,7 +15,7 @@ import ws.palladian.retrieval.resources.WebContent;
  * {@link SearcherException} else wise). <b>Important:</b> From now on, new {@link Searcher} implementations should use
  * {@link AbstractMultifacetSearcher} as a foundation.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class AbstractSearcher<R extends WebContent> implements Searcher<R> {
@@ -61,8 +61,7 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
      */
     @Override
     public long getTotalResultCount(String query, Language language) throws SearcherException {
-        throw new SearcherException("Obtaining the total number of results is not supported or implemented by "
-                + getName() + ".");
+        throw new SearcherException("Obtaining the total number of results is not supported or implemented by " + getName() + ".");
     }
 
     /**
@@ -81,7 +80,7 @@ public abstract class AbstractSearcher<R extends WebContent> implements Searcher
     public String toString() {
         return getName();
     }
-    
+
     /**
      * Override, in case this searcher is deprecated.
      */

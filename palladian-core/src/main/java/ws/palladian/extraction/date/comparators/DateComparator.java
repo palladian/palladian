@@ -1,15 +1,10 @@
 package ws.palladian.extraction.date.comparators;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.ExtractedDate;
+
+import java.util.*;
 
 /**
  * <p>
@@ -18,7 +13,7 @@ import ws.palladian.helper.date.ExtractedDate;
  * see at particular methods, therefore exactness should be determined based on the available dates and
  * {@link DateComparator} should be initialized with explicitly determined {@link DateExactness} values.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */
@@ -34,9 +29,9 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * <p>
      * Create a new {@link DateComparator} with the specified exactness.
      * </p>
-     * 
+     *
      * @param dateExactness The exactness until which the comparison is carried out. Not {@link DateExactness#UNSET} or
-     *            <code>null</code>.
+     *                      <code>null</code>.
      */
     public DateComparator(DateExactness dateExactness) {
         Validate.notNull(dateExactness, "dateExactness must not be null");
@@ -66,7 +61,6 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * Then the returning value will be -1, because 2007>2006.<br>
      * If date1.year is 2006 as well, then the return value will be -2, because the years are equal and the month can
      * not be compared.
-     * 
      */
     @Override
     public int compare(ExtractedDate date1, ExtractedDate date2) {
@@ -95,7 +89,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * If i or k equals -1, then -2 will be returned.<br>
      * Otherwise -1 for i > k, 0 for i=k, 1 for i&lt; k; <br>
      * If k=i=-1 -> 0 will be returned.
-     * 
+     *
      * @param i
      * @param k
      * @return
@@ -138,7 +132,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * <p>
      * Orders a {@link List} of dates, beginning with oldest date.
      * </p>
-     * 
+     *
      * @param <T>
      * @param dates
      * @param reverse <code>true</code> is youngest first. <code>false</code> is oldest first.
@@ -160,7 +154,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * <p>
      * Returns the oldest date.
      * </p>
-     * 
+     *
      * @param <T>
      * @param dates {@link Collection} of {@link ExtractedDate}s.
      * @return The oldest date from the Collection.
@@ -178,7 +172,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
      * <p>
      * Returns the youngest date.
      * </p>
-     * 
+     *
      * @param <T>
      * @param dates {@link Collection} of {@link ExtractedDate}s.
      * @return The youngest date from the Collection.

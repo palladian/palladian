@@ -1,9 +1,14 @@
 package ws.palladian.extraction.date.getter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.w3c.dom.Document;
+import ws.palladian.extraction.date.dates.ContentDate;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,16 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.w3c.dom.Document;
-
-import ws.palladian.extraction.date.dates.ContentDate;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
-import ws.palladian.retrieval.parser.ParserFactory;
+import static org.junit.Assert.*;
 
 public class ContentDateGetterTest {
 

@@ -1,12 +1,5 @@
 package ws.palladian.retrieval.search.events;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -14,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.SizeUnit;
@@ -26,6 +18,8 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.search.SearcherException;
+
+import java.util.*;
 
 /**
  * <p>
@@ -80,16 +74,15 @@ public class EventfulSearcher extends EventSearcher {
      * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing eventful, which must be
-     *            provided
-     *            as string via key {@value EventfulSearcher#CONFIG_API_KEY} in the configuration.
+     *                      provided
+     *                      as string via key {@value EventfulSearcher#CONFIG_API_KEY} in the configuration.
      */
     public EventfulSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
     @Override
-    public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType, int maxResults) throws SearcherException {
+    public List<Event> search(String keywords, String location, Integer radius, Date startDate, Date endDate, EventType eventType, int maxResults) throws SearcherException {
 
         List<Event> events = new ArrayList<>();
 
@@ -106,8 +99,7 @@ public class EventfulSearcher extends EventSearcher {
 
             nextPageAvailable = false;
 
-            Document resultDocument = ret.getWebDocument(requestUrl.replace("PAGE_NUMBER",
-                    String.valueOf(currentPageNumber)));
+            Document resultDocument = ret.getWebDocument(requestUrl.replace("PAGE_NUMBER", String.valueOf(currentPageNumber)));
 
             List<Node> eventNodes = XPathHelper.getXhtmlNodes(resultDocument, "//event");
             for (Node eventNode : eventNodes) {
@@ -187,8 +179,7 @@ public class EventfulSearcher extends EventSearcher {
         return field;
     }
 
-    private String buildRequest(String keywords, String location, Integer radius, Date startDate, Date endDate,
-            EventType eventType) {
+    private String buildRequest(String keywords, String location, Integer radius, Date startDate, Date endDate, EventType eventType) {
 
         String url = "http://api.eventful.com/rest/events/search?app_key=" + this.apiKey;
         if (keywords != null && !keywords.isEmpty()) {

@@ -1,35 +1,6 @@
 package ws.palladian.extraction.location.evaluation;
 
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.CORRECT;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR1;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR2;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR3;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR4;
-import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.ERROR5;
-import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.ANCHOR_DISTANCE_THRESHOLD;
-import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.ANCHOR_POPULATION_THRESHOLD;
-import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.LASSO_DISTANCE_THRESHOLD;
-import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.LOWER_POPULATION_THRESHOLD;
-import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.LOWER_UNLIKELY_POPULATION_THRESHOLD;
-import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.SAME_DISTANCE_THRESHOLD;
-import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.TOKEN_THRESHOLD;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
-
 import org.apache.commons.math3.util.FastMath;
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.core.Annotation;
@@ -37,11 +8,7 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
-import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.LocationExtractorUtils;
-import ws.palladian.extraction.location.LocationType;
-import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.extraction.location.*;
 import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
@@ -52,19 +19,28 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode.MUC;
+import static ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType.*;
+import static ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation.*;
+
 /**
  * <p>
  * Evaluation script for {@link LocationExtractor}s.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
-@SuppressWarnings(value="unused")
+@SuppressWarnings(value = "unused")
 public final class LocationExtractionEvaluator {
-    
+
     // TODO combine all evaluation data (includes class GeoEvaluationResult)
     public static final class LocationEvaluationResult {
-        
+
         public final double mucPr;
         public final double mucRc;
         public final double mucF1;
@@ -111,7 +87,7 @@ public final class LocationExtractionEvaluator {
      * Add a dataset for evaluation. The dataset must conform to the TUD-Loc scheme, i.e. tagged files plus coordinates
      * file (see {@link LocationExtractorUtils#readCoordinates(File)} for an explanation about the format).
      * </p>
-     * 
+     *
      * @param datasetPath Path to the directory with the dataset.
      */
     public void addDataset(String datasetPath) {
@@ -150,7 +126,7 @@ public final class LocationExtractionEvaluator {
      * consideration), and Geo/Disambiguation performance (i.e. were the correct spots on the map identified). The
      * following files will be written:
      * </p>
-     * 
+     *
      * <ul>
      * <li><code>timestamp_allErrors.csv</code>: A CSV file containing detailed NER evaluation results, useful for
      * debugging (different error types for each annotation, and detailed NER evaluation measures).</li>
@@ -160,11 +136,11 @@ public final class LocationExtractionEvaluator {
      * <li><code>_locationsSummary.csv</code>: A summary file which is appended for each run and contains overview
      * evaluation measures, useful for creating the graphs.</li>
      * </ul>
-     * 
-     * @param extractor The extractor, not <code>null</code>.
+     *
+     * @param extractor        The extractor, not <code>null</code>.
      * @param datasetDirectory The directory with the dataset, not <code>null</code>.
-     * @param detailedReport <code>true</code> to write detailed evaluation results (*_allErrors.csv, *_distances.csv),
-     *            <code>false</code> to only write the _locations_summary.csv.
+     * @param detailedReport   <code>true</code> to write detailed evaluation results (*_allErrors.csv, *_distances.csv),
+     *                         <code>false</code> to only write the _locations_summary.csv.
      * @return Result with summary evaluation measures.
      */
     public static LocationEvaluationResult run(LocationExtractor extractor, File datasetDirectory, boolean detailedReport) {
@@ -172,8 +148,7 @@ public final class LocationExtractionEvaluator {
         Validate.notNull(datasetDirectory, "datasetDirectory must not be null");
 
         if (!datasetDirectory.isDirectory()) {
-            throw new IllegalArgumentException("The provided path to the gold standard '" + datasetDirectory
-                    + "' does not exist or is no directory.");
+            throw new IllegalArgumentException("The provided path to the gold standard '" + datasetDirectory + "' does not exist or is no directory.");
         }
 
         Map<ResultType, Map<String, Collection<Annotation>>> errors = new LinkedHashMap<ResultType, Map<String, Collection<Annotation>>>();
@@ -192,7 +167,7 @@ public final class LocationExtractionEvaluator {
         double recallMuc = 0;
         double recallExact = 0;
 
-        EvaluationResult micro = new EvaluationResult(Collections.<Annotation> emptyList());
+        EvaluationResult micro = new EvaluationResult(Collections.<Annotation>emptyList());
         GeoEvaluationResult geoResult = new GeoEvaluationResult(extractor.getName(), datasetDirectory.getPath());
 
         StopWatch stopWatch = new StopWatch();
@@ -201,8 +176,7 @@ public final class LocationExtractionEvaluator {
             LocationDocument locationDocument = goldStandard.next();
 
             List<LocationAnnotation> extractionResult = extractor.getAnnotations(locationDocument.getText());
-            EvaluationResult result = NamedEntityRecognizer.evaluate(locationDocument.getAnnotations(),
-                    extractionResult, Collections.<String> emptySet());
+            EvaluationResult result = NamedEntityRecognizer.evaluate(locationDocument.getAnnotations(), extractionResult, Collections.<String>emptySet());
 
             // write major error log
             errors.get(CORRECT).put(locationDocument.getFileName(), result.getAnnotations(CORRECT));
@@ -251,8 +225,7 @@ public final class LocationExtractionEvaluator {
 
         summary.append("Precision-Exact:").append(precisionExact).append('\n');
         summary.append("Recall-Exact:").append(recallExact).append('\n');
-        summary.append("F1-Exact:").append(2 * precisionExact * recallExact / (precisionExact + recallExact))
-                .append('\n');
+        summary.append("F1-Exact:").append(2 * precisionExact * recallExact / (precisionExact + recallExact)).append('\n');
         summary.append('\n');
         summary.append("Precision-MUC:").append(precisionMuc).append('\n');
         summary.append("Recall-MUC:").append(recallMuc).append('\n');
@@ -272,21 +245,21 @@ public final class LocationExtractionEvaluator {
         // it correctly (i.e. tagging "New York" as COUNTRY is still correct) in this case.
         summary.append("============ recognition only ============\n\n");
 
-//        int correctlyRecognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size();
-//        int recognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
-//                + micro.getAnnotations(ERROR1).size() + micro.getAnnotations(ERROR4).size()
-//                + micro.getAnnotations(ERROR5).size();
-//        int relevant = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
-//                + micro.getAnnotations(ERROR2).size();
+        //        int correctlyRecognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size();
+        //        int recognized = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+        //                + micro.getAnnotations(ERROR1).size() + micro.getAnnotations(ERROR4).size()
+        //                + micro.getAnnotations(ERROR5).size();
+        //        int relevant = micro.getAnnotations(CORRECT).size() + micro.getAnnotations(ERROR3).size()
+        //                + micro.getAnnotations(ERROR2).size();
         double recognitionPrecision = micro.getPrecision(EvaluationMode.RECOGNITION);
         double recognitionRecall = micro.getRecall(EvaluationMode.RECOGNITION);
-//        double recognitionPrecision = (double)correctlyRecognized / recognized;
-//        double recognitionRecall = (double)correctlyRecognized / relevant;
+        //        double recognitionPrecision = (double)correctlyRecognized / recognized;
+        //        double recognitionRecall = (double)correctlyRecognized / relevant;
         summary.append("Precision:").append(recognitionPrecision).append('\n');
         summary.append("Recall:").append(recognitionRecall).append('\n');
         double recognitionF1 = micro.getF1(EvaluationMode.RECOGNITION);
-//        double recognitionF1 = 2 * recognitionPrecision * recognitionRecall
-//                / (recognitionPrecision + recognitionRecall);
+        //        double recognitionF1 = 2 * recognitionPrecision * recognitionRecall
+        //                / (recognitionPrecision + recognitionRecall);
         summary.append("F1:").append(recognitionF1).append("\n\n");
 
         summary.append("Elapsed time:").append(stopWatch.getTotalElapsedTimeString()).append('\n');
@@ -311,31 +284,31 @@ public final class LocationExtractionEvaluator {
             }
             detailedOutput.append("\n\n");
         }
-        
+
         detailedOutput.append("Per-type stats:\n\n");
-        
+
         // per-tag-level stats
         for (LocationType type : LocationType.values()) {
             // XXX does it make sense to score type-specified using MUC? At least, there is a bug in the
             // EvaluationResult class, causing type specific MUC precision above one!
-            
+
             double typePrExact = micro.getPrecisionFor(type.toString(), EvaluationMode.EXACT_MATCH);
             double typeRcExact = micro.getRecallFor(type.toString(), EvaluationMode.EXACT_MATCH);
             double typeF1Exact = micro.getF1For(type.toString(), EvaluationMode.EXACT_MATCH);
-//            double typePrMuc = micro.getPrecisionFor(type.toString(), EvaluationMode.MUC);
-//            double typeRcMuc = micro.getRecallFor(type.toString(), EvaluationMode.MUC);
-//            double typeF1Muc = micro.getF1For(type.toString(), EvaluationMode.MUC);
+            //            double typePrMuc = micro.getPrecisionFor(type.toString(), EvaluationMode.MUC);
+            //            double typeRcMuc = micro.getRecallFor(type.toString(), EvaluationMode.MUC);
+            //            double typeF1Muc = micro.getF1For(type.toString(), EvaluationMode.MUC);
             detailedOutput.append("Type:").append(type.toString()).append("\n");
             detailedOutput.append("Precision Exact:").append(typePrExact).append("\n");
             detailedOutput.append("Recall Exact:").append(typeRcExact).append("\n");
             detailedOutput.append("F1 Exact:").append(typeF1Exact).append("\n");
-//            detailedOutput.append("Precision MUC:").append(typePrMuc).append("\n");
-//            detailedOutput.append("Recall MUC:").append(typeRcMuc).append("\n");
-//            detailedOutput.append("F1 MUC:").append(typeF1Muc).append("\n").append("\n");
+            //            detailedOutput.append("Precision MUC:").append(typePrMuc).append("\n");
+            //            detailedOutput.append("Recall MUC:").append(typeRcMuc).append("\n");
+            //            detailedOutput.append("F1 MUC:").append(typeF1Muc).append("\n").append("\n");
         }
 
         long timestamp = System.currentTimeMillis();
-        
+
         if (detailedReport) {
             FileHelper.writeToFile("data/temp/" + timestamp + "_allErrors.csv", detailedOutput);
         }
@@ -346,8 +319,7 @@ public final class LocationExtractionEvaluator {
         File summaryFile = new File("data/temp/_locationsSummary.csv");
         if (!summaryFile.exists()) {
             // write header
-            summaryCsv
-                    .append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo;time\n");
+            summaryCsv.append("timestamp;dataset;extractor;prExact;rcExact;f1Exact;prMUC;rcMUC;f1MUC;prRec;rcRec;f1Rec;prGeo;rcGeo;f1Geo;time\n");
         }
         summaryCsv.append(timestamp).append(';');
         summaryCsv.append(datasetDirectory.getPath()).append(';');
@@ -378,16 +350,14 @@ public final class LocationExtractionEvaluator {
         if (detailedReport) {
             geoResult.writeDetailedReport(new File("data/temp/" + timestamp + "_distances.csv"));
         }
-        
-        return new LocationEvaluationResult(micro.getPrecision(MUC), micro.getRecall(MUC), micro.getF1(MUC),
-                geoResult.getPrecision(), geoResult.getRecall(), geoResult.getF1());
+
+        return new LocationEvaluationResult(micro.getPrecision(MUC), micro.getRecall(MUC), micro.getF1(MUC), geoResult.getPrecision(), geoResult.getRecall(), geoResult.getF1());
     }
 
     private static List<LocationExtractor> createForParameterOptimization(LocationDatabase database) {
         List<LocationExtractor> extractors = new ArrayList<>();
         for (int anchorDistanceThreshold : Arrays.asList(0, 10, 100, 1000, 10000, 100000, 1000000)) {
-            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
-                    anchorDistanceThreshold, //
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(anchorDistanceThreshold, //
                     LOWER_POPULATION_THRESHOLD, //
                     ANCHOR_POPULATION_THRESHOLD, //
                     SAME_DISTANCE_THRESHOLD, //
@@ -396,8 +366,7 @@ public final class LocationExtractionEvaluator {
                     TOKEN_THRESHOLD)));
         }
         for (int lowerPopulationThreshold = 0; lowerPopulationThreshold <= 20000; lowerPopulationThreshold += 1000) {
-            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
-                    ANCHOR_DISTANCE_THRESHOLD, //
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(ANCHOR_DISTANCE_THRESHOLD, //
                     lowerPopulationThreshold, //
                     ANCHOR_POPULATION_THRESHOLD, //
                     SAME_DISTANCE_THRESHOLD, //
@@ -406,8 +375,7 @@ public final class LocationExtractionEvaluator {
                     TOKEN_THRESHOLD)));
         }
         for (int anchorPopulationThreshold = 0; anchorPopulationThreshold <= 9; anchorPopulationThreshold++) {
-            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
-                    ANCHOR_DISTANCE_THRESHOLD, //
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(ANCHOR_DISTANCE_THRESHOLD, //
                     LOWER_POPULATION_THRESHOLD, //
                     (int) FastMath.pow(10, anchorPopulationThreshold), //
                     SAME_DISTANCE_THRESHOLD, //
@@ -416,8 +384,7 @@ public final class LocationExtractionEvaluator {
                     TOKEN_THRESHOLD)));
         }
         for (int sameDistanceThreshold = 0; sameDistanceThreshold <= 200; sameDistanceThreshold += 10) {
-            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
-                    ANCHOR_DISTANCE_THRESHOLD, //
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(ANCHOR_DISTANCE_THRESHOLD, //
                     LOWER_POPULATION_THRESHOLD, //
                     ANCHOR_POPULATION_THRESHOLD, //
                     sameDistanceThreshold, //
@@ -426,8 +393,7 @@ public final class LocationExtractionEvaluator {
                     TOKEN_THRESHOLD)));
         }
         for (int lassoDistanceThreshold = 0; lassoDistanceThreshold <= 200; lassoDistanceThreshold += 10) {
-            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
-                    ANCHOR_DISTANCE_THRESHOLD, //
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(ANCHOR_DISTANCE_THRESHOLD, //
                     LOWER_POPULATION_THRESHOLD, //
                     ANCHOR_POPULATION_THRESHOLD, //
                     SAME_DISTANCE_THRESHOLD, //
@@ -436,18 +402,16 @@ public final class LocationExtractionEvaluator {
                     TOKEN_THRESHOLD)));
         }
         for (int lowerUnlikelyPopulationThreshold = 0; lowerUnlikelyPopulationThreshold <= 9; lowerUnlikelyPopulationThreshold++) {
-            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
-                    ANCHOR_DISTANCE_THRESHOLD, //
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(ANCHOR_DISTANCE_THRESHOLD, //
                     LOWER_POPULATION_THRESHOLD, //
                     ANCHOR_POPULATION_THRESHOLD, //
                     SAME_DISTANCE_THRESHOLD, //
                     LASSO_DISTANCE_THRESHOLD, //
-                    (int)FastMath.pow(10, lowerUnlikelyPopulationThreshold), //
+                    (int) FastMath.pow(10, lowerUnlikelyPopulationThreshold), //
                     TOKEN_THRESHOLD)));
         }
         for (int tokenThreshold = 0; tokenThreshold <= 10; tokenThreshold++) {
-            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(
-                    ANCHOR_DISTANCE_THRESHOLD, //
+            extractors.add(new PalladianLocationExtractor(database, new HeuristicDisambiguation(ANCHOR_DISTANCE_THRESHOLD, //
                     LOWER_POPULATION_THRESHOLD, //
                     ANCHOR_POPULATION_THRESHOLD, //
                     SAME_DISTANCE_THRESHOLD, //
@@ -468,15 +432,15 @@ public final class LocationExtractionEvaluator {
         return extractors;
     }
 
-//    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
-//        List<LocationExtractor> extractors = new ArrayList<>();
-//        for (int i = 0; i <= 5000; i += 100) {
-//            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
-//                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);
-//            extractors.add(new PalladianLocationExtractor(database, disambiguation));
-//        }
-//        return extractors;
-//    }
+    //    private static List<LocationExtractor> createForContextAnalysis(LocationDatabase database, QuickDtModel model) {
+    //        List<LocationExtractor> extractors = new ArrayList<>();
+    //        for (int i = 0; i <= 5000; i += 100) {
+    //            FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model,
+    //                    FeatureBasedDisambiguation.PROBABILITY_THRESHOLD, i);
+    //            extractors.add(new PalladianLocationExtractor(database, disambiguation));
+    //        }
+    //        return extractors;
+    //    }
 
     public static void main(String[] args) throws IOException {
 

@@ -1,5 +1,13 @@
 package ws.palladian.retrieval.facebook;
 
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.parser.json.JsonArray;
+import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.retrieval.parser.json.JsonObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,31 +15,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
-
 /**
  * <p>
  * Retrieve <a href="https://www.facebook.com">Facebook</a> Insights.
- * 
+ *
+ * @author Philipp Katz
  * @see <a href="https://developers.facebook.com/tools/explorer">Graph API Explorer to get a "Page Access Token".</a>
  * @see <a href="https://developers.facebook.com/docs/graph-api/reference/v2.5/insights">Graph API documentation for
- *      Insights, listing all available metrics.</a>
+ * Insights, listing all available metrics.</a>
  * @see <a href="https://developers.facebook.com/docs/platforminsights/page">General information about Facebook Page
- *      Insights API</a>
- * @author Philipp Katz
+ * Insights API</a>
  */
 public class FacebookInsights {
 
@@ -56,9 +49,9 @@ public class FacebookInsights {
     /**
      * <p>
      * Create a new {@link FacebookInsights} instance.
-     * 
+     *
      * @param accessToken The access token, not empty or <code>null</code>. Note that this is a "Page Access Token", not
-     *            a "User Access Token"!
+     *                    a "User Access Token"!
      */
     public FacebookInsights(String accessToken) {
         Validate.notEmpty(accessToken, "accessToken must not be empty");
@@ -68,19 +61,18 @@ public class FacebookInsights {
     /**
      * <p>
      * Retrieves Facebook insights.
-     * 
+     *
      * @param pageOrPostId The ID of the page or the post for which to retrieve insights.
-     * @param metric Name of the metric.
-     * @param since Lower time interval, or <code>null</code>.
-     * @param until Upper time interval, or <code>null</code>.
-     * @param period The period resolution.
+     * @param metric       Name of the metric.
+     * @param since        Lower time interval, or <code>null</code>.
+     * @param until        Upper time interval, or <code>null</code>.
+     * @param period       The period resolution.
      * @return The insights.
      * @throws FacebookInsightsException In case anything goes wrong.
      * @see <a href="https://developers.facebook.com/docs/graph-api/reference/v2.5/insights">Graph API documentation for
-     *      Insights, listing all available metrics.</a>
+     * Insights, listing all available metrics.</a>
      */
-    public final Insights getInsights(String pageOrPostId, String metric, Date since, Date until, Period period)
-            throws FacebookInsightsException {
+    public final Insights getInsights(String pageOrPostId, String metric, Date since, Date until, Period period) throws FacebookInsightsException {
         Validate.notEmpty(pageOrPostId, "pageOrPostId must not be empty");
         Validate.notEmpty(metric, "metric must not be empty");
         Validate.notNull(period, "period must not be null");
@@ -133,10 +125,10 @@ public class FacebookInsights {
     /**
      * <p>
      * Retrieves a Facebook page's feed.
-     * 
+     *
      * @param pageId The ID of the page.
-     * @param since Lower time interval, or <code>null</code>.
-     * @param until Upper time interval, or <code>null</code>.
+     * @param since  Lower time interval, or <code>null</code>.
+     * @param until  Upper time interval, or <code>null</code>.
      * @return The feed.
      * @throws FacebookInsightsException In case anything goes wrong.
      */
@@ -154,7 +146,7 @@ public class FacebookInsights {
         requestBuilder.addUrlParam("access_token", accessToken);
         HttpRequest2 request = requestBuilder.create();
         List<FeedItem> items = new ArrayList<>();
-        for (;;) { // paging
+        for (; ; ) { // paging
             HttpResult result = performRequest(request);
             try {
                 JsonObject jsonResult = new JsonObject(result.getStringContent());
@@ -175,8 +167,7 @@ public class FacebookInsights {
                 LOGGER.debug("Paging to URL {}", nextUrl);
                 request = new HttpRequest2Builder(HttpMethod.GET, nextUrl).create();
             } catch (JsonException e) {
-                throw new FacebookInsightsException("Could not parse JSON result (" + result.getStringContent() + ")",
-                        e);
+                throw new FacebookInsightsException("Could not parse JSON result (" + result.getStringContent() + ")", e);
             }
         }
         return items;
@@ -196,7 +187,7 @@ public class FacebookInsights {
 
     /**
      * Validate a since-until time interval. In case both a given, since must be before until.
-     * 
+     *
      * @param since Since or <code>null</code>.
      * @param until Until or <code>null</code>.
      */
@@ -217,15 +208,14 @@ public class FacebookInsights {
                 message = jsonErrorObject.getJsonObject("error").getString("message");
                 throw new FacebookInsightsException(message);
             } catch (JsonException e) {
-                throw new FacebookInsightsException("Encountered error result from API, but could not parse as JSON ("
-                        + result.getStringContent() + ")");
+                throw new FacebookInsightsException("Encountered error result from API, but could not parse as JSON (" + result.getStringContent() + ")");
             }
         }
     }
 
     /**
      * Parse a time string.
-     * 
+     *
      * @param timeString The time string, or <code>null</code>.
      * @return The parse time string, or <code>null</code> in case argument was null.
      * @throws FacebookInsightsException In case the time string could not be parsed.

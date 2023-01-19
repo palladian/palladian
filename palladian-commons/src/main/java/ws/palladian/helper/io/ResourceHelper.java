@@ -1,11 +1,11 @@
 package ws.palladian.helper.io;
 
+import org.apache.commons.lang3.Validate;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
@@ -14,7 +14,7 @@ import org.apache.commons.lang3.Validate;
  * {@link Thread}'s class loader (<code>Thread.currentThread().getContentClassLoader()</code>). This will fail in OSGi
  * environments where different class loaders are used for different bundles.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class ResourceHelper {
@@ -29,12 +29,10 @@ public final class ResourceHelper {
      * resource files in JUnit test. This method is operating system independent and correctly treats spaces in file
      * names.
      * </p>
-     * 
-     * @param resourceLocation
-     *            Relative path to the desired resource in the class path, not <code>null</code> or empty.
+     *
+     * @param resourceLocation Relative path to the desired resource in the class path, not <code>null</code> or empty.
      * @return Absolute, operating system specific path.
-     * @throws FileNotFoundException
-     *             If the file cannot be found at the specified location.
+     * @throws FileNotFoundException If the file cannot be found at the specified location.
      */
     public static String getResourcePath(String resourceLocation) throws FileNotFoundException {
         checkUnit();
@@ -55,7 +53,7 @@ public final class ResourceHelper {
      * <p>
      * Strip the leading slash, if present. We do not want it, as we load the resource using the classloader.
      * </p>
-     * 
+     *
      * @param resourceLocation
      * @return
      */
@@ -70,7 +68,7 @@ public final class ResourceHelper {
      * <p>
      * Get a File with full path relative to the class path.
      * </p>
-     * 
+     *
      * @param resourceLocation Relative path to the desired resource in the class path, not <code>null</code> or empty.
      * @return File with absolute, operating system specific path.
      * @throws FileNotFoundException If the file cannot be found at the specified location.
@@ -86,7 +84,7 @@ public final class ResourceHelper {
      * <p>
      * Get an InputStream from a file with a path relative to the class path.
      * </p>
-     * 
+     *
      * @param resourceLocation Relative path to the desired resource in the class path, not <code>null</code> or empty.
      * @return The InputStream for the specified file path.
      * @throws FileNotFoundException If the file cannot be found at the specified location.
@@ -111,13 +109,11 @@ public final class ResourceHelper {
     private static void checkUnit() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement element : stackTrace) {
-            if (element.getClassName().startsWith("org.junit.runners")
-                    || element.getClassName().startsWith("org.spockframework")) {
+            if (element.getClassName().startsWith("org.junit.runners") || element.getClassName().startsWith("org.spockframework")) {
                 return;
             }
         }
-        throw new IllegalStateException(ResourceHelper.class.getName()
-                + " must only be used for Unit testing. See class documentation for an explanation why.");
+        throw new IllegalStateException(ResourceHelper.class.getName() + " must only be used for Unit testing. See class documentation for an explanation why.");
     }
 
 }

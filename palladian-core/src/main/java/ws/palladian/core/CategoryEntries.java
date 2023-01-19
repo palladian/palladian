@@ -9,7 +9,7 @@ import java.util.Set;
  * interface also includes {@link Iterable}, which allows to loop over all assigned categories. The iteration order is
  * arbitrary, i.e. it is not necessarily ordered by probabilities.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public interface CategoryEntries extends Iterable<Category> {
@@ -20,7 +20,7 @@ public interface CategoryEntries extends Iterable<Category> {
      * <p>
      * Retrieve the probability of a category.
      * </p>
-     * 
+     *
      * @param categoryName The category name for which to retrieve the probability, not <code>null</code>.
      * @return The probability, or <code>0</code> if no such entry exists.
      */
@@ -30,10 +30,10 @@ public interface CategoryEntries extends Iterable<Category> {
      * <p>
      * Retrieve the count of a category.
      * </p>
-     * 
+     *
      * @param categoryName The category name for which to retrieve the count, not <code>null</code>.
      * @return The count, or <code>0</code> if no such entry exists, or <code>-1</code> if the category provides no
-     *         count.
+     * count.
      */
     int getCount(String categoryName);
 
@@ -41,7 +41,7 @@ public interface CategoryEntries extends Iterable<Category> {
      * <p>
      * Retrieves the category with the highest relevance.
      * </p>
-     * 
+     *
      * @return The category with the highest relevance, or <code>null</code> in case no categories were classified.
      */
     String getMostLikelyCategory();
@@ -50,7 +50,7 @@ public interface CategoryEntries extends Iterable<Category> {
      * <p>
      * Retrieves the category with the highest relevance.
      * </p>
-     * 
+     *
      * @return The category with the highest relevance, or <code>null</code> in case when no categories were classified.
      */
     Category getMostLikely();
@@ -59,7 +59,7 @@ public interface CategoryEntries extends Iterable<Category> {
      * <p>
      * Check whether a category is present.
      * </p>
-     * 
+     *
      * @param category The category name, not <code>null</code>.
      * @return <code>true</code> if the category is present, <code>false</code> otherwise.
      */
@@ -69,7 +69,7 @@ public interface CategoryEntries extends Iterable<Category> {
      * <p>
      * Get a category by name.
      * </p>
-     * 
+     *
      * @param category The category name, not <code>null</code>.
      * @return The category, or <code>null</code> in case the category is not present.
      */
@@ -84,14 +84,14 @@ public interface CategoryEntries extends Iterable<Category> {
      * @return The sum of all category counts, or <code>-1</code>, in case no counts are available.
      */
     int getTotalCount();
-    
+
     /**
      * @return The names of all categories.
      */
     Set<String> getNames();
-    
+
     /**
-     * @return The entropy based on the category probabilities. 
+     * @return The entropy based on the category probabilities.
      */
     double getEntropy();
 }

@@ -6,9 +6,8 @@ import java.util.Date;
  * <p>
  * Helper that is used to load cached items from database.
  * </p>
- * 
+ *
  * @author Sandro Reichert
- * 
  */
 public class CachedItem {
 
@@ -77,7 +76,7 @@ public class CachedItem {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        CachedItem other = (CachedItem)obj;
+        CachedItem other = (CachedItem) obj;
         if (!correctedPublishDate.equals(other.correctedPublishDate)) {
             return false;
         }

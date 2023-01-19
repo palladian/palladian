@@ -4,9 +4,8 @@ package ws.palladian.retrieval.search;
  * <p>
  * Exception, when the usage quota for a Web-based {@link Searcher} is exhausted.
  * </p>
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public class RateLimitedException extends SearcherException {
 
@@ -17,10 +16,10 @@ public class RateLimitedException extends SearcherException {
     /**
      * <p>
      * Create a new {@link RateLimitedException}.
-     * 
-     * @param message The message, not <code>null</code> or empty.
+     *
+     * @param message        The message, not <code>null</code> or empty.
      * @param timeUntilReset The time in seconds, until the block expires. May be <code>null</code> in case this
-     *            information is not available.
+     *                       information is not available.
      */
     public RateLimitedException(String message, Integer timeUntilReset) {
         super(message);

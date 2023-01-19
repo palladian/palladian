@@ -1,27 +1,23 @@
 package ws.palladian.classification.featureselection;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import ws.palladian.core.Instance;
+import ws.palladian.core.InstanceBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * <p>
  * Tests whether the {@link FeatureRanker} works correctly or not.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.1.7

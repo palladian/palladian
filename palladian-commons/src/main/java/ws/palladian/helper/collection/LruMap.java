@@ -9,11 +9,10 @@ import java.util.LinkedHashMap;
  * Simple, most-recently-used cache implemented using {@link LinkedHashMap}.
  * </p>
  * NOTE: This class is NOT thread-safe.
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <K> key type.
  * @param <V> value type.
+ * @author Philipp Katz
  */
 public class LruMap<K, V> extends LinkedHashMap<K, V> {
 
@@ -25,7 +24,7 @@ public class LruMap<K, V> extends LinkedHashMap<K, V> {
      * <p>
      * Create a new {@link LruMap} with insertion order (i.e. a FIFO).
      * </p>
-     * 
+     *
      * @param maxEntries The maximum entries to keep, greater zero.
      */
     public static <K, V> LruMap<K, V> insertionOrder(int maxEntries) {
@@ -36,7 +35,7 @@ public class LruMap<K, V> extends LinkedHashMap<K, V> {
      * <p>
      * Create a new {@link LruMap} with access order.
      * </p>
-     * 
+     *
      * @param maxEntries The maximum entries to keep, greater zero.
      */
     public static <K, V> LruMap<K, V> accessOrder(int maxEntries) {

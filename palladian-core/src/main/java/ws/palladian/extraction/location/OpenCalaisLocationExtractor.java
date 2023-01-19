@@ -1,37 +1,29 @@
 package ws.palladian.extraction.location;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.collection.CaseInsensitiveMap;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
  * Location extractor based on <a href="http://www.opencalais.com/calaisAPI">OpenCalais</a> API.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class OpenCalaisLocationExtractor extends LocationExtractor {
@@ -134,8 +126,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
                                 // co-reference resolution instances
                                 if (instance.getInt("length") == entityName.length()) {
                                     int offset = instance.getInt("offset");
-                                    Annotation annotation = new ImmutableAnnotation(cumulatedOffset + offset,
-                                            entityName, entityTag);
+                                    Annotation annotation = new ImmutableAnnotation(cumulatedOffset + offset, entityName, entityTag);
                                     Location location = new ImmutableLocation(id, name, type, coordinate, null);
                                     annotations.add(new LocationAnnotation(annotation, location));
                                 }
@@ -147,8 +138,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
             } catch (HttpException e) {
                 LOGGER.error("Error performing HTTP POST: {}", e.getMessage());
             } catch (JsonException e) {
-                LOGGER.error("Could not parse the JSON response: {}, exception: {}",
-                        new Object[] {response, e.getMessage(), e});
+                LOGGER.error("Could not parse the JSON response: {}, exception: {}", new Object[]{response, e.getMessage(), e});
             }
 
             cumulatedOffset += textChunk.length();
@@ -164,8 +154,7 @@ public class OpenCalaisLocationExtractor extends LocationExtractor {
         requestBuilder.addHeader("Accept", "application/json");
         FormEncodedHttpEntity.Builder entityBuilder = new FormEncodedHttpEntity.Builder();
         entityBuilder.addData("content", inputText);
-        entityBuilder.addData(
-                "paramsXML",
+        entityBuilder.addData("paramsXML",
                 "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>");
         requestBuilder.setEntity(entityBuilder.create());
         return httpRetriever.execute(requestBuilder.create());

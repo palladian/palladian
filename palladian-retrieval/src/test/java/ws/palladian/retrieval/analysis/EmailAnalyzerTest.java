@@ -7,8 +7,8 @@ import org.junit.rules.ErrorCollector;
 import static org.hamcrest.core.Is.is;
 
 public class EmailAnalyzerTest {
-@Rule
-public ErrorCollector collector = new ErrorCollector();
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
 
     @Test
     public void getProfile() {

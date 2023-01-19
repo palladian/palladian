@@ -1,14 +1,13 @@
 package ws.palladian.helper.normalization;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
 import ws.palladian.helper.conversion.UnitConverter;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test cases for the conversion of units.
- * 
+ *
  * @author David Urbansky
  */
 public class UnitConverterTest {

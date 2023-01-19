@@ -1,15 +1,8 @@
 package ws.palladian.retrieval.search.web;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.io.FileNotFoundException;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
@@ -17,11 +10,17 @@ import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.io.FileNotFoundException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 public class YandexSearcherTest {
 
     private final DocumentParser xmlParser = ParserFactory.createXmlParser();
     private YandexSearcher yandexSearcher;
-    
+
     @Before
     public void setUp() {
         yandexSearcher = new YandexSearcher();
@@ -35,7 +34,8 @@ public class YandexSearcherTest {
             assertEquals(10, webResults.size());
             assertEquals("http://www.mercedes-benz.ru/", webResults.get(0).getUrl());
             assertEquals("\"Mercedes-Benz in Russia\" - продажа автомобилей", webResults.get(0).getTitle());
-            assertEquals("Информация о работе дилеров и авторизованных техцентров. Каталог автомобилей. Рекомендованные розничные цены и специальные предложения. FAQ.", webResults.get(0).getSummary());
+            assertEquals("Информация о работе дилеров и авторизованных техцентров. Каталог автомобилей. Рекомендованные розничные цены и специальные предложения. FAQ.",
+                    webResults.get(0).getSummary());
         } catch (SearcherException e) {
             fail();
         }
@@ -56,8 +56,7 @@ public class YandexSearcherTest {
 
     @Test
     public void testCheckSearchUrlValidity() {
-        yandexSearcher
-                .checkSearchUrlValidity("http://xmlsearch.yandex.ru/xmlsearch?user=pkatz&key=03.156690494:67abdff20756319b24dc308f8d216e22");
+        yandexSearcher.checkSearchUrlValidity("http://xmlsearch.yandex.ru/xmlsearch?user=pkatz&key=03.156690494:67abdff20756319b24dc308f8d216e22");
         try {
             yandexSearcher.checkSearchUrlValidity("http://xmlsearch.yandex.ru/xmlsearch?user=&key=");
             fail();

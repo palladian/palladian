@@ -1,21 +1,15 @@
 package ws.palladian.retrieval.cooccurrence;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.feature.Stemmer;
 import ws.palladian.extraction.feature.TermCorpus;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class PhraseProbabilityCalculator {
 
@@ -38,7 +32,7 @@ public class PhraseProbabilityCalculator {
     }
 
     /**
-     * @param matrix The {@link CooccurrenceMatrix}.
+     * @param matrix   The {@link CooccurrenceMatrix}.
      * @param language The language. Set to <code>null</code> if no stemming is to be used.
      */
     public PhraseProbabilityCalculator(CooccurrenceMatrix matrix, Language language) {
@@ -77,33 +71,33 @@ public class PhraseProbabilityCalculator {
      * <p>
      * Convert both unigram/bigram {@link TermCorpus} to a {@link CooccurrenceMatrix}.
      * </p>
-     * 
+     *
      * @throws FileNotFoundException
      * @throws IOException
      */
     public static void convert() throws FileNotFoundException, IOException {
         final CooccurrenceMatrix counts = new CooccurrenceMatrix();
-        FileHelper.performActionOnEveryLine(new GZIPInputStream(new FileInputStream(
-                "/Users/pk/Dropbox/Uni/Datasets/TermCorpora/wikipediaBigramsStemmed25min.gz")), new LineAction() {
-            @Override
-            public void performAction(String text, int number) {
-                String[] split = text.split("#");
-                if (number > 1 && split.length == 2) {
-                    String[] tokens = split[0].split("\\s");
-                    counts.set(tokens[0], tokens[1], Integer.parseInt(split[1]));
-                }
-            }
-        });
-        FileHelper.performActionOnEveryLine(new GZIPInputStream(new FileInputStream(
-                "/Users/pk/Dropbox/Uni/Datasets/TermCorpora/wikipediaTermCorpusStemmed25min.gz")), new LineAction() {
-            @Override
-            public void performAction(String text, int number) {
-                String[] split = text.split("#");
-                if (number > 1 && split.length == 2) {
-                    counts.set(split[0], Integer.parseInt(split[1]));
-                }
-            }
-        });
+        FileHelper.performActionOnEveryLine(new GZIPInputStream(new FileInputStream("/Users/pk/Dropbox/Uni/Datasets/TermCorpora/wikipediaBigramsStemmed25min.gz")),
+                new LineAction() {
+                    @Override
+                    public void performAction(String text, int number) {
+                        String[] split = text.split("#");
+                        if (number > 1 && split.length == 2) {
+                            String[] tokens = split[0].split("\\s");
+                            counts.set(tokens[0], tokens[1], Integer.parseInt(split[1]));
+                        }
+                    }
+                });
+        FileHelper.performActionOnEveryLine(new GZIPInputStream(new FileInputStream("/Users/pk/Dropbox/Uni/Datasets/TermCorpora/wikipediaTermCorpusStemmed25min.gz")),
+                new LineAction() {
+                    @Override
+                    public void performAction(String text, int number) {
+                        String[] split = text.split("#");
+                        if (number > 1 && split.length == 2) {
+                            counts.set(split[0], Integer.parseInt(split[1]));
+                        }
+                    }
+                });
         OutputStream stream = new GZIPOutputStream(new FileOutputStream("matrixNew.gz"));
         counts.save(stream);
     }

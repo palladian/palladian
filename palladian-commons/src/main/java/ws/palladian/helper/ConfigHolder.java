@@ -1,7 +1,5 @@
 package ws.palladian.helper;
 
-import java.net.URL;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationUtils;
@@ -9,18 +7,20 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
+
 /**
  * <p>
  * Holds the Palladian configuration of the framework. This configuration is obtained from an external file called
  * {@value #CONFIG_NAME}, which is searched in the following places:
  * </p>
- * 
+ *
  * <ol>
  * <li>user's home directory,</li>
  * <li>current classpath,</li>
  * <li>system classpath.</li>
  * </ol>
- * 
+ *
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Philipp Katz

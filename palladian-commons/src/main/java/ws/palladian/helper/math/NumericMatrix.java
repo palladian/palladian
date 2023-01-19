@@ -1,17 +1,16 @@
 package ws.palladian.helper.math;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.MapMatrix;
 import ws.palladian.helper.collection.Matrix;
 import ws.palladian.helper.collection.MatrixDecorator;
 import ws.palladian.helper.collection.Vector.VectorEntry;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Function;
 
 public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Serializable {
@@ -23,8 +22,7 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
         }
     }
 
-    public static final class NumericMatrixVector<K> extends AbstractNumericVector<K> implements
-            MatrixVector<K, Double> {
+    public static final class NumericMatrixVector<K> extends AbstractNumericVector<K> implements MatrixVector<K, Double> {
 
         private final MatrixVector<K, Double> vector;
 
@@ -74,9 +72,9 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
      * <p>
      * Add two matrixes.
      * </p>
-     * 
+     *
      * @param other The matrix to add to the current matrix. The matrix must have the same column and row names as the
-     *            matrix it is added to, not <code>null</code>.
+     *              matrix it is added to, not <code>null</code>.
      * @return A new matrix, containing the addition.
      */
     public NumericMatrix<K> add(NumericMatrix<K> other) {
@@ -100,7 +98,7 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
      * <p>
      * Do a scalar multiplication.
      * </p>
-     * 
+     *
      * @param lambda Value of the scalar.
      * @return A new matrix, representing the scalar multiplication with the given value.
      */
@@ -118,7 +116,9 @@ public class NumericMatrix<K> extends MatrixDecorator<K, Double> implements Seri
     public Double get(K x, K y) {
         Double value = matrix.get(x, y);
         return value != null ? value : 0;
-    };
+    }
+
+    ;
 
     @Override
     public NumericMatrixVector<K> getRow(K y) {

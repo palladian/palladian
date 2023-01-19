@@ -1,13 +1,6 @@
 package ws.palladian.extraction.location.sources.importers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.FileNotFoundException;
-import java.util.Collection;
-
 import org.junit.Test;
-
 import ws.palladian.extraction.location.AlternativeName;
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationType;
@@ -15,13 +8,18 @@ import ws.palladian.extraction.location.sources.CollectionLocationStore;
 import ws.palladian.extraction.location.sources.importers.WikipediaLocationImporter.AlternativeNameExtraction;
 import ws.palladian.helper.io.ResourceHelper;
 
+import java.io.FileNotFoundException;
+import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 public class WikipediaLocationImporterTest {
 
     @Test
     public void testImport() throws FileNotFoundException, Exception {
         CollectionLocationStore locationStore = new CollectionLocationStore();
-        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore, 0, null,
-                AlternativeNameExtraction.PAGE);
+        WikipediaLocationImporter importer = new WikipediaLocationImporter(locationStore, 0, null, AlternativeNameExtraction.PAGE);
         importer.importLocationPages(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
         importer.importAlternativeNames(ResourceHelper.getResourceStream("/apiResponse/WikipediaPagesDump.xml"));
 

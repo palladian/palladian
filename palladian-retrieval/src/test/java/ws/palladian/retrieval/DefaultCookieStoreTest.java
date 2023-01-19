@@ -1,10 +1,9 @@
 package ws.palladian.retrieval;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
 import ws.palladian.helper.collection.CollectionHelper;
+
+import static org.junit.Assert.assertEquals;
 
 public class DefaultCookieStoreTest {
     @Test

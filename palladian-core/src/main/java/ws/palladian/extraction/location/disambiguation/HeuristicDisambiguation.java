@@ -167,7 +167,8 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return unlikelyLocations;
     }
 
-    /* package */ static Location selectLocation(Collection<Location> selection) {
+    /* package */
+    static Location selectLocation(Collection<Location> selection) {
 
         // if we have a continent, take the continent
         LocationSet result = new LocationSet(selection).whereConditionally(type(CONTINENT));
@@ -190,10 +191,10 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
         return selection.stream() //
                 .filter(location -> !toRemove.contains(location)) //
                 .sorted(Comparator.<Location, Long>comparing( //
-                        location -> Optional.ofNullable(location.getPopulation()) //
-                                // XXX dirty hack; favor cities
-                                .map(population -> location.getType() == CITY ? 2 * population : population) //
-                                .orElse(0l)) //
+                                location -> Optional.ofNullable(location.getPopulation()) //
+                                        // XXX dirty hack; favor cities
+                                        .map(population -> location.getType() == CITY ? 2 * population : population) //
+                                        .orElse(0l)) //
                         .reversed()) //
                 .findFirst() //
                 .orElse(null);

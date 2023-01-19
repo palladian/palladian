@@ -1,17 +1,14 @@
 package ws.palladian.extraction.entity.tagger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+import ws.palladian.core.Annotation;
+import ws.palladian.core.ImmutableAnnotation;
 
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
+import static org.junit.Assert.*;
 
 public class PalladianNerTest {
 

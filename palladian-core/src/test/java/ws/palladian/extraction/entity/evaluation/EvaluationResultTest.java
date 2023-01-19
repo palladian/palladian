@@ -1,12 +1,6 @@
 package ws.palladian.extraction.entity.evaluation;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.FileNotFoundException;
-import java.util.Collections;
-
 import org.junit.Test;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.FileFormatParser;
@@ -14,6 +8,11 @@ import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.EvaluationMode;
 import ws.palladian.extraction.entity.evaluation.EvaluationResult.ResultType;
 import ws.palladian.helper.io.ResourceHelper;
+
+import java.io.FileNotFoundException;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 
 public class EvaluationResultTest {
 
@@ -24,8 +23,7 @@ public class EvaluationResultTest {
         Annotations<Annotation> goldStandard = FileFormatParser.getAnnotationsFromXmlFile(goldFile);
         Annotations<Annotation> nerResult = FileFormatParser.getAnnotationsFromXmlFile(resultFile);
 
-        EvaluationResult result = NamedEntityRecognizer.evaluate(goldStandard, nerResult,
-                Collections.<String> emptySet());
+        EvaluationResult result = NamedEntityRecognizer.evaluate(goldStandard, nerResult, Collections.<String>emptySet());
 
         assertEquals(2, result.getActualAssignments("UNIT"));
         assertEquals(2, result.getActualAssignments("LANDMARK"));
@@ -122,7 +120,7 @@ public class EvaluationResultTest {
         // recognition mode
         assertEquals(6. / 15, result.getPrecision(EvaluationMode.RECOGNITION), 0);
         assertEquals(6. / 14, result.getRecall(EvaluationMode.RECOGNITION), 0);
-        
+
         assertEquals(2. / 6, result.getPrecisionFor("COUNTRY", EvaluationMode.RECOGNITION), 0);
         assertEquals(2. / 3, result.getRecallFor("COUNTRY", EvaluationMode.RECOGNITION), 0);
     }

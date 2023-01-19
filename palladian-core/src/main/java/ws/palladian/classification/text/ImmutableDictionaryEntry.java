@@ -1,7 +1,6 @@
 package ws.palladian.classification.text;
 
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
 import ws.palladian.core.CategoryEntries;
 
@@ -48,7 +47,7 @@ public final class ImmutableDictionaryEntry implements DictionaryEntry {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ImmutableDictionaryEntry other = (ImmutableDictionaryEntry)obj;
+        ImmutableDictionaryEntry other = (ImmutableDictionaryEntry) obj;
         if (!term.equals(other.term)) {
             return false;
         }

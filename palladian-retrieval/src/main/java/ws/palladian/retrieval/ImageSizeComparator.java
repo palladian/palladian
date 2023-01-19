@@ -1,16 +1,15 @@
 package ws.palladian.retrieval;
 
-import java.util.Comparator;
-
 import ws.palladian.retrieval.resources.WebImage;
+
+import java.util.Comparator;
 
 /**
  * <p>
  * Sort WebImages by size.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class ImageSizeComparator implements Comparator<WebImage> {
 

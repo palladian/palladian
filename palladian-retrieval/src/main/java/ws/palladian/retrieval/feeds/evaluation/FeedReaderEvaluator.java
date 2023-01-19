@@ -1,10 +1,7 @@
 package ws.palladian.retrieval.feeds.evaluation;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.ConfigHolder;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
@@ -13,19 +10,15 @@ import ws.palladian.retrieval.feeds.FeedReader;
 import ws.palladian.retrieval.feeds.FeedReaderSettings;
 import ws.palladian.retrieval.feeds.persistence.FeedDatabase;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
-import ws.palladian.retrieval.feeds.updates.AbstractUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.FeedUpdateMode;
-import ws.palladian.retrieval.feeds.updates.FixLearnedUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.FixUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.MavUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.PostRateUpdateStrategy;
-import ws.palladian.retrieval.feeds.updates.UpdateStrategy;
+import ws.palladian.retrieval.feeds.updates.*;
+
+import java.io.File;
 
 /**
  * <p>
  * An evaluator for the FeedReader.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Sandro Reichert
  */
@@ -141,12 +134,10 @@ public class FeedReaderEvaluator {
         return benchmarkModeString;
     }
 
-
-
     /**
      * Find the history file with feed posts given the feed id. The file name starts with the feed id followed by an
      * underscore.
-     * 
+     *
      * @param id The id of the feed.
      * @return The path to the file with the feed post history.
      * @deprecated The history files are written to db feed_evaluation_items
@@ -182,11 +173,9 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSamplePercentage = benchmarkSample;
 
-        UpdateStrategy[] strategies = {new FixUpdateStrategy(-1, -1, 60, FeedUpdateMode.MIN_DELAY),
-                new FixUpdateStrategy(-1, -1, 1440, FeedUpdateMode.MIN_DELAY),
-                new FixLearnedUpdateStrategy(-1, -1, 0, FeedUpdateMode.MIN_DELAY),
-                new MavUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY),
-                new PostRateUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY)};
+        UpdateStrategy[] strategies = {new FixUpdateStrategy(-1, -1, 60, FeedUpdateMode.MIN_DELAY), new FixUpdateStrategy(-1, -1, 1440, FeedUpdateMode.MIN_DELAY),
+                new FixLearnedUpdateStrategy(-1, -1, 0, FeedUpdateMode.MIN_DELAY), new MavUpdateStrategy(-1, -1, FeedUpdateMode.MIN_DELAY), new PostRateUpdateStrategy(-1, -1,
+                FeedUpdateMode.MIN_DELAY)};
 
         Integer[] policies = {BENCHMARK_MIN_DELAY, BENCHMARK_MAX_COVERAGE};
         Integer[] modes = {BENCHMARK_POLL, BENCHMARK_TIME};
@@ -213,8 +202,7 @@ public class FeedReaderEvaluator {
                     settingsBuilder.setUpdateStrategy(strategy);
                     FeedReader fc = new FeedReader(settingsBuilder.create());
 
-                    LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy "
-                            + policy + ", and mode " + mode);
+                    LOGGER.info("start evaluation for strategy " + strategy.getName() + ", policy " + policy + ", and mode " + mode);
                     fc.start();
 
                 }

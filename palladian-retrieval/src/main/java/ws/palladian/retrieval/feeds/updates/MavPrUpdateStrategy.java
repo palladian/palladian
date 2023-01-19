@@ -1,20 +1,18 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Use a combination of moving average and post rate. When a new item was found we switch to the strategy that made the
  * better guess, that is, the difference between the predicted item post time and the real item post time was smaller.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class MavPrUpdateStrategy extends AbstractUpdateStrategy {
 
@@ -26,7 +24,7 @@ public class MavPrUpdateStrategy extends AbstractUpdateStrategy {
 
     /** Whether or not to use the post rate. */
     private boolean usePostRate = false;
-    
+
     private final FeedUpdateMode updateMode;
 
     public MavPrUpdateStrategy(int lowestInterval, int highestInterval, FeedUpdateMode updateMode) {
@@ -39,10 +37,8 @@ public class MavPrUpdateStrategy extends AbstractUpdateStrategy {
     public void update(Feed feed, FeedPostStatistics fps, boolean trainingMode) {
 
         // determine winner of last prediction
-        double diffPR = feed.getBenchmarkLastLookupTime() + prCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1)
-                - fps.getTimeNewestPost();
-        double diffMAV = feed.getBenchmarkLastLookupTime() + mavCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1)
-                - fps.getTimeNewestPost();
+        double diffPR = feed.getBenchmarkLastLookupTime() + prCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1) - fps.getTimeNewestPost();
+        double diffMAV = feed.getBenchmarkLastLookupTime() + mavCheckIntervalPrediction * TimeUnit.MINUTES.toMillis(1) - fps.getTimeNewestPost();
 
         if (feed.hasNewItem()) {
             if (Math.abs(diffPR) < Math.abs(diffMAV)) {

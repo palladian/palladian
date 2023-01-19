@@ -1,21 +1,20 @@
 package ws.palladian.helper;
 
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.io.FileHelper;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import ws.palladian.helper.io.FileHelper;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * <p>
@@ -23,9 +22,8 @@ import ws.palladian.helper.io.FileHelper;
  * This way, one can implement a simple plugin mechanism. However, keep in mind, that this most certainly will not work
  * in edge cases with non-standard class loading mechanisms (WAR files, application containers, OSGi etc.).
  * </p>
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public final class ClassFinder {
 
@@ -69,16 +67,15 @@ public final class ClassFinder {
      * check as little classes as possible (e.g. when you assume, that the classes you are interested in are located in
      * <code>foo.bar.baz</code>, specify this namespace as parameter.
      * </p>
-     * 
-     * @param type The type for which to search implementors/subclasses, not <code>null</code>.
+     *
+     * @param type            The type for which to search implementors/subclasses, not <code>null</code>.
      * @param namespaceFilter The filter to determine in which namespace to search, not <code>null</code>.
      * @return A {@link Collection} with concrete {@link Class} objects implementing/deriving from the given type (no
-     *         interfaces, no abstract classes), or an empty {@link Collection} if no matches were found, never
-     *         <code>null</code>.
+     * interfaces, no abstract classes), or an empty {@link Collection} if no matches were found, never
+     * <code>null</code>.
      */
     @SuppressWarnings("unchecked")
-    public static <T> Collection<Class<? extends T>> findClasses(Class<T> type,
-            final Predicate<? super String> namespaceFilter) {
+    public static <T> Collection<Class<? extends T>> findClasses(Class<T> type, final Predicate<? super String> namespaceFilter) {
         Validate.notNull(type, "type must not be null");
         Validate.notNull(namespaceFilter, "namespaceFilter must not be null");
 
@@ -96,14 +93,13 @@ public final class ClassFinder {
                         JarEntry currentEntry = entries.nextElement();
                         String name = currentEntry.getName();
                         String className = pathToClassName(name);
-                        if (currentEntry.isDirectory() || !name.endsWith(CLASS_FILE_EXTENSION)
-                                || !namespaceFilter.test(className)) {
+                        if (currentEntry.isDirectory() || !name.endsWith(CLASS_FILE_EXTENSION) || !namespaceFilter.test(className)) {
                             continue;
                         }
                         try {
                             Class<?> clazz = Class.forName(className);
                             if (classFilter.test(clazz)) {
-                                result.add((Class<T>)clazz);
+                                result.add((Class<T>) clazz);
                             }
                         } catch (ClassNotFoundException e) {
                             LOGGER.debug("Encountered ClassNotFoundException for {}", className);
@@ -120,8 +116,7 @@ public final class ClassFinder {
                     public boolean test(File pathname) {
                         String namespaceName = pathname.getPath().substring(classPathItem.length() + 1);
                         namespaceName = namespaceName.replace(File.separatorChar, '.');
-                        return pathname.getName().endsWith(CLASS_FILE_EXTENSION)
-                                && namespaceFilter.test(namespaceName);
+                        return pathname.getName().endsWith(CLASS_FILE_EXTENSION) && namespaceFilter.test(namespaceName);
                     }
                 }, new Consumer<File>() {
                     @Override
@@ -130,7 +125,7 @@ public final class ClassFinder {
                         try {
                             Class<?> clazz = Class.forName(className);
                             if (classFilter.test(clazz)) {
-                                result.add((Class<T>)clazz);
+                                result.add((Class<T>) clazz);
                             }
                         } catch (ClassNotFoundException e) {
                             LOGGER.debug("Encountered ClassNotFoundException for {}", className);
@@ -144,8 +139,8 @@ public final class ClassFinder {
         return result;
     }
 
-	static String pathToClassName(String name) {
-		return name.replace(File.separatorChar, '.').replaceAll(CLASS_FILE_EXTENSION + "$", "");
-	}
+    static String pathToClassName(String name) {
+        return name.replace(File.separatorChar, '.').replaceAll(CLASS_FILE_EXTENSION + "$", "");
+    }
 
 }

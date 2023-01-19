@@ -1,11 +1,9 @@
 package ws.palladian.helper.math;
 
-import static org.hamcrest.Matchers.closeTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.closeTo;
+import static org.junit.Assert.*;
 
 public class ConfusionMatrixTest {
 
@@ -72,10 +70,8 @@ public class ConfusionMatrixTest {
         assertEquals((5. / 7 + 3. / 8 + 11. / 12) / 3, confusionMatrix.getAveragePrecision(false), DELTA);
         assertEquals((5. / 8 + 3. / 6 + 11. / 13) / 3, confusionMatrix.getAverageRecall(false), DELTA);
 
-        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12,
-                confusionMatrix.getAveragePrecision(true), DELTA);
-        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true),
-                DELTA);
+        assertEquals(8. / 27 * 5. / 7 + 6. / 27 * 3. / 8 + 13. / 27 * 11. / 12, confusionMatrix.getAveragePrecision(true), DELTA);
+        assertEquals(8. / 27 * 5. / 8 + 6. / 27 * 3. / 6 + 13. / 27 * 11. / 13, confusionMatrix.getAverageRecall(true), DELTA);
 
         // TODO test for superiority
 
@@ -116,7 +112,7 @@ public class ConfusionMatrixTest {
 
         // System.out.println(confusionMatrix);
     }
-    
+
     @Test
     public void testWeightedFMeasure() throws Exception {
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
@@ -136,51 +132,51 @@ public class ConfusionMatrixTest {
         confusionMatrix.add("true", "true");
         confusionMatrix.add("true", "true");
         confusionMatrix.add("true", "true");
-        
-        assertThat(confusionMatrix.getF(0.5,"true"),closeTo(0.895522388,DELTA));
-        assertThat(confusionMatrix.getF(2.0, "true"),closeTo(0.821917808,DELTA));
+
+        assertThat(confusionMatrix.getF(0.5, "true"), closeTo(0.895522388, DELTA));
+        assertThat(confusionMatrix.getF(2.0, "true"), closeTo(0.821917808, DELTA));
     }
-    
-	@Test
-	public void binaryTest2() {
-		ConfusionMatrix confusionMatrix = new ConfusionMatrix();
-		confusionMatrix.add("true", "true", 37);
-		confusionMatrix.add("false", "false", 15);
-		confusionMatrix.add("true", "false", 8);
-		confusionMatrix.add("false", "true", 3);
-		assertEquals(confusionMatrix.getSensitivity("true"), 0.8222, 0.0001);
-		assertEquals(confusionMatrix.getSpecificity("true"), 0.8333, 0.0001);
-		assertEquals(confusionMatrix.getHighestPrior(), 0.7143, 0.0001);
-		assertEquals(confusionMatrix.getAccuracy(), 0.8254, 0.0001);
-		assertEquals(confusionMatrix.getSuperiority(), 1.1556, 0.0001);
-		assertEquals(confusionMatrix.getMatthewsCorrelationCoefficient(), 0.6151, 0.0001);
 
-		confusionMatrix = new ConfusionMatrix();
-		confusionMatrix.add("true", "true", 45);
-		confusionMatrix.add("false", "true", 18);
-		assertEquals(confusionMatrix.getSensitivity("true"), 1, 0.0001);
-		assertEquals(confusionMatrix.getSpecificity("true"), 0, 0.0001);
-		assertEquals(confusionMatrix.getHighestPrior(), 0.7143, 0.0001);
-		assertEquals(confusionMatrix.getAccuracy(), 0.7143, 0.0001);
-		assertEquals(confusionMatrix.getSuperiority(), 1, 0.0001);
-		assertEquals(confusionMatrix.getMatthewsCorrelationCoefficient(), 0, 0.0001);
+    @Test
+    public void binaryTest2() {
+        ConfusionMatrix confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("true", "true", 37);
+        confusionMatrix.add("false", "false", 15);
+        confusionMatrix.add("true", "false", 8);
+        confusionMatrix.add("false", "true", 3);
+        assertEquals(confusionMatrix.getSensitivity("true"), 0.8222, 0.0001);
+        assertEquals(confusionMatrix.getSpecificity("true"), 0.8333, 0.0001);
+        assertEquals(confusionMatrix.getHighestPrior(), 0.7143, 0.0001);
+        assertEquals(confusionMatrix.getAccuracy(), 0.8254, 0.0001);
+        assertEquals(confusionMatrix.getSuperiority(), 1.1556, 0.0001);
+        assertEquals(confusionMatrix.getMatthewsCorrelationCoefficient(), 0.6151, 0.0001);
 
-		confusionMatrix = new ConfusionMatrix();
-		confusionMatrix.add("true", "true", 191);
-		confusionMatrix.add("false", "false", 501);
-		confusionMatrix.add("false", "true", 396);
-		confusionMatrix.add("true", "false", 87);
-		assertEquals(confusionMatrix.getMatthewsCorrelationCoefficient(), 0.2087, 0.0001);
-	}
-	
-	@Test
-	public void testCalculateMcc() {
-		int tp = 5363;
-		int tn = 1176868;
-		int fp = 0;
-		int fn = 1516;
-		double mcc = ConfusionMatrix.calculateMatthewsCorrelationCoefficient(tp, tn, fp, fn);
-		assertEquals(0.8823922851, mcc, DELTA);
-	}
+        confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("true", "true", 45);
+        confusionMatrix.add("false", "true", 18);
+        assertEquals(confusionMatrix.getSensitivity("true"), 1, 0.0001);
+        assertEquals(confusionMatrix.getSpecificity("true"), 0, 0.0001);
+        assertEquals(confusionMatrix.getHighestPrior(), 0.7143, 0.0001);
+        assertEquals(confusionMatrix.getAccuracy(), 0.7143, 0.0001);
+        assertEquals(confusionMatrix.getSuperiority(), 1, 0.0001);
+        assertEquals(confusionMatrix.getMatthewsCorrelationCoefficient(), 0, 0.0001);
+
+        confusionMatrix = new ConfusionMatrix();
+        confusionMatrix.add("true", "true", 191);
+        confusionMatrix.add("false", "false", 501);
+        confusionMatrix.add("false", "true", 396);
+        confusionMatrix.add("true", "false", 87);
+        assertEquals(confusionMatrix.getMatthewsCorrelationCoefficient(), 0.2087, 0.0001);
+    }
+
+    @Test
+    public void testCalculateMcc() {
+        int tp = 5363;
+        int tn = 1176868;
+        int fp = 0;
+        int fn = 1516;
+        double mcc = ConfusionMatrix.calculateMatthewsCorrelationCoefficient(tp, tn, fp, fn);
+        assertEquals(0.8823922851, mcc, DELTA);
+    }
 
 }

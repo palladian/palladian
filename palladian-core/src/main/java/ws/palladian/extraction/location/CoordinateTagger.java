@@ -1,17 +1,15 @@
 package ws.palladian.extraction.location;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.core.Tagger;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.core.Tagger;
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.GeoUtils;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 
 /**
  * <p>
@@ -19,9 +17,9 @@ import ws.palladian.helper.geo.ImmutableGeoCoordinate;
  * '40°26′47″N'), in decimal format (e.g. '40.446195N'), and combinations thereof (e.g. '40° 26.7717'). The coordinates
  * are transformed to decimal format and can be obtained from {@link LocationAnnotation#getLocation()}.
  * </p>
- * 
- * @see <a href="http://en.wikipedia.org/wiki/Geographic_coordinate_conversion">Geographic coordinate conversion</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://en.wikipedia.org/wiki/Geographic_coordinate_conversion">Geographic coordinate conversion</a>
  */
 public final class CoordinateTagger implements Tagger {
 
@@ -40,8 +38,7 @@ public final class CoordinateTagger implements Tagger {
     private static final Pattern PATTERN_DEG = Pattern.compile(LEFT + "(" + DEG + ")" + SEP + "(" + DEG + ")" + RIGHT);
 
     /** DMS scheme, and/or combination with degrees. */
-    private static final Pattern PATTERN_DMS = Pattern.compile(LEFT + "(" + GeoUtils.DMS + ")" + SEP + "("
-            + GeoUtils.DMS + ")" + RIGHT);
+    private static final Pattern PATTERN_DMS = Pattern.compile(LEFT + "(" + GeoUtils.DMS + ")" + SEP + "(" + GeoUtils.DMS + ")" + RIGHT);
 
     /** The singleton instance of this class. */
     public static final CoordinateTagger INSTANCE = new CoordinateTagger();

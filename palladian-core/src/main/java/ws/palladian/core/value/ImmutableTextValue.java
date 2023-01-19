@@ -37,7 +37,7 @@ public final class ImmutableTextValue extends AbstractValue implements TextValue
 
     @Override
     protected boolean equalsValue(Value value) {
-        ImmutableTextValue other = (ImmutableTextValue)value;
+        ImmutableTextValue other = (ImmutableTextValue) value;
         return textValue.equals(other.textValue);
     }
 

@@ -1,42 +1,25 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpRequest2;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.OAuthParams;
-import ws.palladian.retrieval.OAuthUtil;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.Facet;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.*;
+
+import java.util.*;
 
 /**
  * <p>
  * Searcher for locations on <a href="http://www.yelp.com">Yelp</a>.
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://www.yelp.com/developers/documentation/v2/search_api">API overview</a>
  */
@@ -49,12 +32,12 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
      * <p>
      * Filtering facet which allows to specify a category when searching. The supported categories by Yelp can be found
      * <a href="http://www.yelp.com/developers/documentation/category_list">here</a>. Usage as follows:
-     * 
+     *
      * <pre>
      * MultifacetQuery query = new MultifacetQuery.Builder().setCoordinate(51.05268, 13.739176).setRadius(10.)
      *         .addFacet(new CategoryFilter(&quot;theater&quot;, &quot;ticketsales&quot;)).create();
      * </pre>
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class CategoryFilter implements Facet {
@@ -111,7 +94,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
     /**
      * <p>
      * Create a new {@link YelpSearcher}.
-     * 
+     *
      * @param oAuthParams The parameters for oAuth authentication.
      */
     public YelpSearcher(OAuthParams oAuthParams) {
@@ -122,14 +105,13 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
     /**
      * <p>
      * Create a new {@link YelpSearcher}.
-     * 
+     *
      * @param configuration A {@link Configuration} instance providing the necessary parameters for OAuth authentication
-     *            ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
-     *            {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
+     *                      ({@value #CONFIG_CONSUMER_KEY}, {@value #CONFIG_CONSUMER_SECRET}, {@value #CONFIG_ACCESS_TOKEN},
+     *                      {@value #CONFIG_ACCESS_TOKEN_SECRET}), not <code>null</code>.
      */
     public YelpSearcher(Configuration configuration) {
-        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY),
-                configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
+        this(new OAuthParams(configuration.getString(CONFIG_CONSUMER_KEY), configuration.getString(CONFIG_CONSUMER_SECRET), configuration.getString(CONFIG_ACCESS_TOKEN),
                 configuration.getString(CONFIG_ACCESS_TOKEN_SECRET)));
     }
 
@@ -151,7 +133,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
             String latLng = coordinate.getLatitude() + "," + coordinate.getLongitude();
             requestBuilder.addUrlParam("ll", latLng);
             if (query.getRadius() != null) {
-                int radius = Math.min((int)(query.getRadius() * 1000), 40000);
+                int radius = Math.min((int) (query.getRadius() * 1000), 40000);
                 requestBuilder.addUrlParam("radius_filter", String.valueOf(radius));
             }
         }
@@ -159,7 +141,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
             requestBuilder.addUrlParam("lang", query.getLanguage().getIso6391());
         }
         if (query.getFacet(CategoryFilter.YELP_CATEGORY_FACET) != null) {
-            CategoryFilter categoryFilter = (CategoryFilter)query.getFacet(CategoryFilter.YELP_CATEGORY_FACET);
+            CategoryFilter categoryFilter = (CategoryFilter) query.getFacet(CategoryFilter.YELP_CATEGORY_FACET);
             requestBuilder.addUrlParam("category_filter", categoryFilter.getCategories());
         }
 
@@ -178,7 +160,7 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
             List<WebContent> results = new ArrayList<>();
             JsonArray jsonBusinesses = jsonResult.getJsonArray("businesses");
             for (Object jsonEntry : jsonBusinesses) {
-                JsonObject jsonObject = (JsonObject)jsonEntry;
+                JsonObject jsonObject = (JsonObject) jsonEntry;
                 BasicWebContent.Builder builder = new BasicWebContent.Builder();
                 builder.setIdentifier(jsonObject.getString("id"));
                 builder.setTitle(jsonObject.getString("name"));
@@ -186,15 +168,14 @@ public final class YelpSearcher extends AbstractMultifacetSearcher<WebContent> {
                 builder.setUrl(jsonObject.getString("url"));
                 JsonArray jsonCategories = jsonObject.getJsonArray("categories");
                 for (Object categoryEntry : jsonCategories) {
-                    JsonArray jsonCategory = (JsonArray)categoryEntry;
+                    JsonArray jsonCategory = (JsonArray) categoryEntry;
                     builder.addTag(jsonCategory.getString(1));
                 }
                 results.add(builder.create());
             }
             return new SearchResults<WebContent>(results, jsonResult.getLong("total"));
         } catch (JsonException e) {
-            throw new SearcherException(
-                    "Encountered JSON exception while parsing '" + result.getStringContent() + "'.", e);
+            throw new SearcherException("Encountered JSON exception while parsing '" + result.getStringContent() + "'.", e);
         }
 
     }

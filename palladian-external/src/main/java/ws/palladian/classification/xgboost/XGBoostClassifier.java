@@ -11,38 +11,38 @@ import ws.palladian.core.FeatureVector;
 
 public class XGBoostClassifier implements Classifier<XGBoostModel> {
 
-	@Override
-	public CategoryEntries classify(FeatureVector featureVector, XGBoostModel model) {
+    @Override
+    public CategoryEntries classify(FeatureVector featureVector, XGBoostModel model) {
 
-		TFloatArrayList data = new TFloatArrayList();
-		TIntArrayList index = new TIntArrayList();
+        TFloatArrayList data = new TFloatArrayList();
+        TIntArrayList index = new TIntArrayList();
 
-		XGBoostLearner.makeRow(model.getFeatureIndices(), data, index, featureVector);
+        XGBoostLearner.makeRow(model.getFeatureIndices(), data, index, featureVector);
 
-		long[] headers = { 0, data.size() };
+        long[] headers = {0, data.size()};
 
-		try {
+        try {
 
-			DMatrix matrix = new DMatrix(headers, index.toArray(), data.toArray(), DMatrix.SparseType.CSR);
-			float[][] predictionMatrix = model.getBooster().predict(matrix);
-			float[] prediction = predictionMatrix[0];
+            DMatrix matrix = new DMatrix(headers, index.toArray(), data.toArray(), DMatrix.SparseType.CSR);
+            float[][] predictionMatrix = model.getBooster().predict(matrix);
+            float[] prediction = predictionMatrix[0];
 
-			CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
+            CategoryEntriesBuilder builder = new CategoryEntriesBuilder();
 
-			if (prediction.length == 1) {
-				builder.set(model.getLabel(0), 1 - prediction[0]);
-				builder.set(model.getLabel(1), prediction[0]);
-			} else {
-				for (int i = 0; i < prediction.length; i++) {
-					builder.set(model.getLabel(i), prediction[i]);
-				}
-			}
+            if (prediction.length == 1) {
+                builder.set(model.getLabel(0), 1 - prediction[0]);
+                builder.set(model.getLabel(1), prediction[0]);
+            } else {
+                for (int i = 0; i < prediction.length; i++) {
+                    builder.set(model.getLabel(i), prediction[i]);
+                }
+            }
 
-			return builder.create();
+            return builder.create();
 
-		} catch (XGBoostError e) {
-			throw new IllegalStateException(e);
-		}
-	}
+        } catch (XGBoostError e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
 }

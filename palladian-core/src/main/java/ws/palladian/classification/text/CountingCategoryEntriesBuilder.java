@@ -1,18 +1,17 @@
 package ws.palladian.classification.text;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.mutable.MutableInt;
-
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;
 import ws.palladian.core.ImmutableCategoryEntries;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.math.MathHelper;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> {
 
@@ -26,7 +25,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
      * <p>
      * Create a new {@link CountingCategoryEntriesBuilder} from a given {@link Map} with category and score values.
      * </p>
-     * 
+     *
      * @param map The map with categories and scores, not <code>null</code>.
      */
     public CountingCategoryEntriesBuilder(Map<String, ? extends Integer> map) {
@@ -66,13 +65,13 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         return this;
     }
 
-//    public CountingCategoryEntriesBuilder subtract(CategoryEntries entries) {
-//        Validate.notNull(entries, "entries must not be null");
-//        for (Category entry : entries) {
-//            subtract(entry.getName(), entry.getCount());
-//        }
-//        return this;
-//    }
+    //    public CountingCategoryEntriesBuilder subtract(CategoryEntries entries) {
+    //        Validate.notNull(entries, "entries must not be null");
+    //        for (Category entry : entries) {
+    //            subtract(entry.getName(), entry.getCount());
+    //        }
+    //        return this;
+    //    }
 
     public CountingCategoryEntriesBuilder subtract(String categoryName, int count) {
         Validate.notEmpty(categoryName, "categoryName must not be empty");
@@ -98,7 +97,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
             if (count == 0) { // skip zero entries
                 continue;
             }
-            double probability = (double)count / totalCount;
+            double probability = (double) count / totalCount;
             String name = entry.getKey();
             ImmutableCategory category = new ImmutableCategory(name, probability, count);
             entries.put(name, category);
@@ -116,7 +115,7 @@ public class CountingCategoryEntriesBuilder implements Factory<CategoryEntries> 
         }
         return totalCount;
     }
-    
+
     public void clear() {
         entryMap.clear();
     }

@@ -1,8 +1,5 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -13,12 +10,15 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation to find the number of pins on <a href="http://pinterest.com">Pinterest</a> of a Web
  * page.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -28,16 +28,14 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
     private static final String SERVICE_ID = "pinterest";
 
     /** The ranking value types of this service **/
-    public static final RankingType PINS = new RankingType("pinterestpins", "Pinterest Pins",
-            "The Number of Pins on Pinterest");
+    public static final RankingType PINS = new RankingType("pinterestpins", "Pinterest Pins", "The Number of Pins on Pinterest");
 
     /** All available ranking types by {@link PinterestPins}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(PINS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        String requestUrl = "http://api.pinterest.com/v1/urls/count.json?callback=receiveCount&url="
-                + UrlHelper.encodeParameter(url);
+        String requestUrl = "http://api.pinterest.com/v1/urls/count.json?callback=receiveCount&url=" + UrlHelper.encodeParameter(url);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
@@ -72,8 +70,7 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
 
     public static void main(String[] a) throws RankingServiceException {
         PinterestPins gpl = new PinterestPins();
-        Ranking ranking = gpl
-                .getRanking("http://www.g4tv.com/attackoftheshow/blog/post/712294/punishing-bad-parking-jobs/");
+        Ranking ranking = gpl.getRanking("http://www.g4tv.com/attackoftheshow/blog/post/712294/punishing-bad-parking-jobs/");
         System.out.println(ranking);
         System.out.println(ranking.getValues().get(PinterestPins.PINS) + " pins");
     }

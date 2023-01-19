@@ -1,18 +1,17 @@
 package ws.palladian.classification.utils;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import ws.palladian.core.FeatureVector;
+import ws.palladian.core.InstanceBuilder;
+import ws.palladian.core.value.NumericValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.core.FeatureVector;
-import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.value.NumericValue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class MinMaxNormalizerTest {
 
@@ -31,13 +30,13 @@ public class MinMaxNormalizerTest {
         fv2 = normalization.normalize(fv2);
         fv3 = normalization.normalize(fv3);
 
-        assertEquals(1., ((NumericValue)fv1.get("v1")).getDouble(), 0.);
-        assertEquals(0.1111, ((NumericValue)fv2.get("v1")).getDouble(), 0.001);
-        assertEquals(0., ((NumericValue)fv3.get("v1")).getDouble(), 0.);
+        assertEquals(1., ((NumericValue) fv1.get("v1")).getDouble(), 0.);
+        assertEquals(0.1111, ((NumericValue) fv2.get("v1")).getDouble(), 0.001);
+        assertEquals(0., ((NumericValue) fv3.get("v1")).getDouble(), 0.);
 
-        assertEquals(0.0999, ((NumericValue)fv1.get("v2")).getDouble(), 0.001);
-        assertEquals(1, ((NumericValue)fv2.get("v2")).getDouble(), 0.001);
-        assertEquals(0, ((NumericValue)fv3.get("v2")).getDouble(), 0.001);
+        assertEquals(0.0999, ((NumericValue) fv1.get("v2")).getDouble(), 0.001);
+        assertEquals(1, ((NumericValue) fv2.get("v2")).getDouble(), 0.001);
+        assertEquals(0, ((NumericValue) fv3.get("v2")).getDouble(), 0.001);
 
     }
 

@@ -1,10 +1,6 @@
 package ws.palladian.extraction.date.getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.w3c.dom.Document;
-
 import ws.palladian.extraction.date.dates.UrlDate;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
@@ -12,12 +8,15 @@ import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.retrieval.HttpResult;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * This {@link TechniqueDateGetter} extracts dates from a URL string. Therefore the regular expressions from
  * {@link RegExp#URL_DATES} are used.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */

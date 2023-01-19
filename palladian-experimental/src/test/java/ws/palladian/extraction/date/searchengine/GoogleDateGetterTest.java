@@ -1,11 +1,10 @@
 package ws.palladian.extraction.date.searchengine;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Ignore;
 import org.junit.Test;
-
 import ws.palladian.helper.date.ExtractedDate;
+
+import static org.junit.Assert.assertEquals;
 
 public class GoogleDateGetterTest {
 

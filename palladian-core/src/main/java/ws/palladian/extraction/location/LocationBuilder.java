@@ -1,22 +1,16 @@
 package ws.palladian.extraction.location;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+
+import java.util.*;
 
 /**
  * Builder for {@link Location}s. The created instances are immutable.
- * 
+ *
  * @author Philipp Katz
  */
 public final class LocationBuilder implements Factory<Location> {
@@ -84,7 +78,7 @@ public final class LocationBuilder implements Factory<Location> {
         }
         return this;
     }
-    
+
     public LocationBuilder addAncestorId(int ancestorId) {
         if (ancestorIds == null) {
             ancestorIds = new ArrayList<>();
@@ -100,7 +94,7 @@ public final class LocationBuilder implements Factory<Location> {
      * database into one column per entry. In the database, to root node is at the beginning of the string; this method
      * does a reverse ordering, so that result contains the root node as last element.
      * </p>
-     * 
+     *
      * @param hierarchyPath The hierarchy path.
      * @return List with IDs, in reverse order. Empty {@link List}, if hierarchy path was <code>null</code> or empty.
      */

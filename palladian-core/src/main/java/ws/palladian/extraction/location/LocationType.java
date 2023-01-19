@@ -4,7 +4,7 @@ package ws.palladian.extraction.location;
  * <p>
  * This enumeration provides available types for different {@link Location}s.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  */
@@ -36,10 +36,10 @@ public enum LocationType {
      * <p>
      * Forgiving {@link #valueOf(String)} method. In case, the value cannot be mapped, return {@link #UNDETERMINED}.
      * </p>
-     * 
+     *
      * @param value The value to map.
      * @return The mapped {@link LocationType}, {@link #UNDETERMINED} in case the value cannot be mapped or was
-     *         <code>null</code>.
+     * <code>null</code>.
      */
     public static LocationType map(String value) {
         try {

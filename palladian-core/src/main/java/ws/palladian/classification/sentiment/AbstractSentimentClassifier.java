@@ -1,11 +1,11 @@
 package ws.palladian.classification.sentiment;
 
+import ws.palladian.core.Category;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import ws.palladian.core.Category;
 
 public abstract class AbstractSentimentClassifier {
     /** Only sentences above this confidence threshold are taken into account for later calculations. */
@@ -22,7 +22,7 @@ public abstract class AbstractSentimentClassifier {
      * We simply look up the sentiment for each word, negate the sentiment if we find a "nicht" before the word, and
      * emphasize the sentiment if we find and emphasizing word such as "sehr".
      * </p>
-     * 
+     *
      * @param text The text to be classified.
      * @return A CategoryEntry with the likelihood.
      */

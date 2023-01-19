@@ -1,12 +1,11 @@
 package ws.palladian.extraction.location.scope;
 
-import java.util.Collection;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationExtractor;
+
+import java.util.Collection;
 
 public final class FirstScopeDetector extends AbstractRankingScopeDetector {
 

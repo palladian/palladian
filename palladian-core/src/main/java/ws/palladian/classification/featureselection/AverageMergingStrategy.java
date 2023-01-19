@@ -1,18 +1,18 @@
 package ws.palladian.classification.featureselection;
 
-import java.util.Map;
-
 import ws.palladian.helper.collection.LazyMap;
 import ws.palladian.helper.functional.Factories;
 import ws.palladian.helper.math.NumericMatrix;
 import ws.palladian.helper.math.NumericMatrix.NumericMatrixVector;
+
+import java.util.Map;
 
 /**
  * <p>
  * Merges the features that are ranked per class by the chi squared feature ranking strategy by averaging the scores
  * achieved by a feature for each class.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  */
 public final class AverageMergingStrategy implements SelectedFeatureMergingStrategy {

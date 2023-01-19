@@ -5,18 +5,18 @@ import ws.palladian.core.value.io.ValueParser;
 import ws.palladian.core.value.io.ValueParserException;
 
 public final class ImmutableDoubleValue extends AbstractValue implements DoubleValue {
-	
-	public static final ValueParser PARSER = new AbstractValueParser(ImmutableDoubleValue.class) {
-		@Override
-		public Value parse(String input) throws ValueParserException {
-			try {
-				return new ImmutableDoubleValue(Double.parseDouble(input));
-			} catch (NumberFormatException e) {
-				throw new ValueParserException(e);
-			}
-		}
 
-	};
+    public static final ValueParser PARSER = new AbstractValueParser(ImmutableDoubleValue.class) {
+        @Override
+        public Value parse(String input) throws ValueParserException {
+            try {
+                return new ImmutableDoubleValue(Double.parseDouble(input));
+            } catch (NumberFormatException e) {
+                throw new ValueParserException(e);
+            }
+        }
+
+    };
 
     private final double doubleValue;
 
@@ -41,28 +41,28 @@ public final class ImmutableDoubleValue extends AbstractValue implements DoubleV
 
     @Override
     protected boolean equalsValue(Value value) {
-        ImmutableDoubleValue other = (ImmutableDoubleValue)value;
+        ImmutableDoubleValue other = (ImmutableDoubleValue) value;
         return Double.doubleToLongBits(doubleValue) == Double.doubleToLongBits(other.doubleValue);
     }
 
-	@Override
-	public long getLong() {
-		return (long) doubleValue;
-	}
+    @Override
+    public long getLong() {
+        return (long) doubleValue;
+    }
 
-	@Override
-	public float getFloat() {
-		return (float) doubleValue;
-	}
+    @Override
+    public float getFloat() {
+        return (float) doubleValue;
+    }
 
-	@Override
-	public int getInt() {
-		return (int) doubleValue;
-	}
+    @Override
+    public int getInt() {
+        return (int) doubleValue;
+    }
 
-	@Override
-	public Number getNumber() {
-		return doubleValue;
-	}
+    @Override
+    public Number getNumber() {
+        return doubleValue;
+    }
 
 }

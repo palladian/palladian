@@ -1,21 +1,20 @@
 package ws.palladian.classification.dt;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
-
 import quickdt.PredictiveModel;
 import quickdt.Tree;
 import quickdt.randomForest.RandomForest;
 import ws.palladian.core.Model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Set;
+
 /**
  * <p>
  * Wrapper for quickdt's predictive models.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class QuickDtModel implements Model {
@@ -47,10 +46,10 @@ public class QuickDtModel implements Model {
         PrintStream printStream = new PrintStream(out);
         // XXX should go into the predictive model
         if (model instanceof Tree) {
-            Tree tree = (Tree)model;
+            Tree tree = (Tree) model;
             tree.node.dump(printStream);
         } else if (model instanceof RandomForest) {
-            RandomForest forest = (RandomForest)model;
+            RandomForest forest = (RandomForest) model;
             int i = 1;
             for (Tree tree : forest.trees) {
                 printStream.println("Tree #" + i++);

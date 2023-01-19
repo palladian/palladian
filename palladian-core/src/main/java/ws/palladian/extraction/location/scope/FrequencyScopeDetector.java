@@ -1,19 +1,18 @@
 package ws.palladian.extraction.location.scope;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.LocationAnnotation;
+import ws.palladian.extraction.location.LocationExtractor;
+import ws.palladian.extraction.location.LocationFilters;
+import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.LocationFilters;
-import ws.palladian.helper.collection.CollectionHelper;
+import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
 
 public final class FrequencyScopeDetector extends AbstractRankingScopeDetector {
 

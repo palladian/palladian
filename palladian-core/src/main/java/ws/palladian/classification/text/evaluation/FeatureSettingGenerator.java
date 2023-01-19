@@ -1,17 +1,16 @@
 package ws.palladian.classification.text.evaluation;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.helper.functional.Factory;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Factory for different feature setting combinations.
- * 
+ *
  * @author Philipp Katz
  */
 public final class FeatureSettingGenerator implements Factory<Set<FeatureSetting>> {
@@ -24,7 +23,7 @@ public final class FeatureSettingGenerator implements Factory<Set<FeatureSetting
 
     /**
      * Evaluate character features in the given range [min,max].
-     * 
+     *
      * @param min The minimum character n-gram length.
      * @param max The maximum character n-gram length.
      * @return The instance, builder pattern.
@@ -39,7 +38,7 @@ public final class FeatureSettingGenerator implements Factory<Set<FeatureSetting
 
     /**
      * Evaluate word features in the given range [min,max].
-     * 
+     *
      * @param min The minimum word n-gram length.
      * @param max The maximum word n-gram length.
      * @return The instance, builder pattern.
@@ -54,7 +53,7 @@ public final class FeatureSettingGenerator implements Factory<Set<FeatureSetting
 
     /**
      * Indicate, that no combinations (e.g. [2,3]-grams) should be generated.
-     * 
+     *
      * @return The instance, builder pattern.
      */
     public FeatureSettingGenerator noCombinations() {

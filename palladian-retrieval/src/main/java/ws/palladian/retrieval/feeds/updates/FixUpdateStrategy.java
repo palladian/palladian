@@ -3,7 +3,6 @@ package ws.palladian.retrieval.feeds.updates;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
 
@@ -11,10 +10,9 @@ import ws.palladian.retrieval.feeds.FeedPostStatistics;
  * <p>
  * Update the check intervals in fixed mode.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Sandro Reichert
- * 
  */
 public class FixUpdateStrategy extends AbstractUpdateStrategy {
 
@@ -25,12 +23,12 @@ public class FixUpdateStrategy extends AbstractUpdateStrategy {
      * The check interval in minutes.
      */
     private final int checkInterval;
-    
+
     private final FeedUpdateMode updateMode;
-    
+
     /**
      * Create strategy and set a fixed check interval in minutes larger than zero.
-     * 
+     *
      * @param checkInterval Fixed check interval in minutes. Value has to be larger than zero.
      * @throws IllegalArgumentException In case the value is smaller or equal to zero.
      */
@@ -48,9 +46,9 @@ public class FixUpdateStrategy extends AbstractUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
      */
     @Override

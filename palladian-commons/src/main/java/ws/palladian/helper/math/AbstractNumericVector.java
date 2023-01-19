@@ -1,11 +1,10 @@
 package ws.palladian.helper.math;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.collection.CollectionHelper;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.CollectionHelper;
 
 abstract class AbstractNumericVector<K> implements NumericVector<K> {
 
@@ -35,12 +34,12 @@ abstract class AbstractNumericVector<K> implements NumericVector<K> {
     public double dot(NumericVector<K> other) {
         Validate.notNull(other, "other must not be null");
         double dotProduct = 0;
-//        for (VectorEntry<K, Double> entry : this) {
-//            Double otherValue = other.get(entry.key());
-//            if (otherValue != null) {
-//                dotProduct += entry.value() * otherValue;
-//            }
-//        }
+        //        for (VectorEntry<K, Double> entry : this) {
+        //            Double otherValue = other.get(entry.key());
+        //            if (otherValue != null) {
+        //                dotProduct += entry.value() * otherValue;
+        //            }
+        //        }
         for (K key : CollectionHelper.intersect(keys(), other.keys())) {
             double thisValue = get(key);
             double otherValue = other.get(key);
@@ -75,7 +74,7 @@ abstract class AbstractNumericVector<K> implements NumericVector<K> {
         }
         return Math.sqrt(distance);
     }
-    
+
     @Override
     public int size() {
         return keys().size();

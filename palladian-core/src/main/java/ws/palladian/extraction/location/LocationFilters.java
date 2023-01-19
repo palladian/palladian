@@ -1,24 +1,22 @@
 package ws.palladian.extraction.location;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.geo.GeoCoordinate;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.commons.lang3.Validate;
-
 import java.util.function.Predicate;
-import ws.palladian.helper.geo.GeoCoordinate;
 
 /**
  * Different {@link Predicate}s for {@link Location}s.
- * 
+ *
  * @author Philipp Katz
  */
 public final class LocationFilters {
-    
+
     /** {@link Predicate} for removing {@link Location}s without coordinates. */
-    private static final Predicate<Location> COORDINATE_FILTER = location -> 
-    	location.getCoordinate() != null && location.getCoordinate() != GeoCoordinate.NULL;
+    private static final Predicate<Location> COORDINATE_FILTER = location -> location.getCoordinate() != null && location.getCoordinate() != GeoCoordinate.NULL;
 
     private LocationFilters() {
         // no instance
@@ -48,12 +46,12 @@ public final class LocationFilters {
         Validate.notNull(location, "location must not be null");
         return item -> location.childOf(item);
     }
-    
+
     /**
      * <p>
      * Create a filter which only accepts locations around a midpoint within a specified radius.
-     * 
-     * @param center The center coordinate, not <code>null</code>.
+     *
+     * @param center   The center coordinate, not <code>null</code>.
      * @param distance The maximum distance in kilometers for a location to be accepted, greater/equal zero.
      * @return A new filter centered around the given coordinate with the specified distance
      */
@@ -67,7 +65,7 @@ public final class LocationFilters {
      * <p>
      * Create a filter which only accepts locations having a minimum specified population count (rejecting such
      * locations, with <code>null</code> population).
-     * 
+     *
      * @param minPopulation The minimum population count, must be greater zero.
      * @return A filter for the specified minimum population count.
      */
@@ -79,7 +77,7 @@ public final class LocationFilters {
     /**
      * <p>
      * Create a filter which only accepts the specified {@link LocationType}s.
-     * 
+     *
      * @param types The types to accept, not <code>null</code>.
      * @return A new filter which accepts the given types.
      */
@@ -90,7 +88,7 @@ public final class LocationFilters {
 
     /**
      * @return A filter which only accepts locations which have a coordinate (rejecting those locations, where the
-     *         coordinate is <code>null</code> or {@link GeoCoordinate#NULL}).
+     * coordinate is <code>null</code> or {@link GeoCoordinate#NULL}).
      */
     public static Predicate<Location> coordinate() {
         return COORDINATE_FILTER;
@@ -99,7 +97,7 @@ public final class LocationFilters {
     /**
      * <p>
      * Filter {@link Location}s by {@link LocationType}.
-     * 
+     *
      * @author Philipp Katz
      */
     private static class LocationTypeFilter implements Predicate<Location> {
@@ -116,13 +114,13 @@ public final class LocationFilters {
         }
 
     }
-    
+
     /**
      * <p>
      * A {@link Predicate} for {@link Location}s which only accepts those locations within a specified radius around a
      * given center (e.g. give me all locations in distance 1 kilometers from point x). The logic is optimized for speed
      * to avoid costly distance calculations and uses a bounding box as blocker first.
-     * 
+     *
      * @author Philipp Katz
      */
     private static class LocationRadiusFilter implements Predicate<Location> {

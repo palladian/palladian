@@ -4,7 +4,7 @@ package ws.palladian.retrieval.feeds.discovery;
  * <p>
  * Represents a feed which was found on a Web page.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class DiscoveredFeed {
@@ -75,7 +75,7 @@ public class DiscoveredFeed {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        DiscoveredFeed other = (DiscoveredFeed)obj;
+        DiscoveredFeed other = (DiscoveredFeed) obj;
         if (feedLink == null) {
             if (other.feedLink != null)
                 return false;
@@ -86,7 +86,7 @@ public class DiscoveredFeed {
 
     /**
      * Return a CSV representation of the discovered feed, containing feed link, feed type and page link.
-     * 
+     *
      * @return
      */
     public String toCsv() {

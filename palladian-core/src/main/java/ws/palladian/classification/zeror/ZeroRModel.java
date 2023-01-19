@@ -1,19 +1,19 @@
 package ws.palladian.classification.zeror;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import ws.palladian.core.Model;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * <p>
  * Model for ZeroR classification. Just keeps class counts from training.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class ZeroRModel implements Model {
@@ -25,7 +25,7 @@ public final class ZeroRModel implements Model {
     ZeroRModel(Bag<String> categoryCounts) {
         Map<String, Double> map = new HashMap<>();
         for (String categoryName : categoryCounts.uniqueItems()) {
-            map.put(categoryName, (double)categoryCounts.count(categoryName) / categoryCounts.size());
+            map.put(categoryName, (double) categoryCounts.count(categoryName) / categoryCounts.size());
         }
         categoryProbabilities = CollectionHelper.sortByValue(map, Order.DESCENDING);
     }

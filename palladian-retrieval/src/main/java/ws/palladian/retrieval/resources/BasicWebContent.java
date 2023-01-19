@@ -1,25 +1,16 @@
 package ws.palladian.retrieval.resources;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
-
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
+
+import java.util.*;
 
 /**
  * <p>
  * {@link BasicWebContent}s represent search results from web search engines. For instantiation use the {@link Builder}.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -29,7 +20,7 @@ public class BasicWebContent implements WebContent {
      * <p>
      * Builder for creating new instances of {@link WebContent}.
      * </p>
-     * 
+     *
      * @author Philipp Katz
      */
     public static class Builder implements Factory<WebContent> {
@@ -86,7 +77,7 @@ public class BasicWebContent implements WebContent {
         }
 
         public Builder setTags(Set<String> tags) {
-            this.tags = tags != null ? new HashSet<>(tags) : Collections.<String> emptySet();
+            this.tags = tags != null ? new HashSet<>(tags) : Collections.<String>emptySet();
             return this;
         }
 
@@ -231,7 +222,7 @@ public class BasicWebContent implements WebContent {
 
     /**
      * @return All attributes to return in the {@link #toString()} method. Take care to invoke the super method when
-     *         overriding this in sub classes.
+     * overriding this in sub classes.
      */
     protected List<String> getToStringParts() {
         List<String> toStringParts = new ArrayList<>();
@@ -244,9 +235,9 @@ public class BasicWebContent implements WebContent {
         if (title != null) {
             toStringParts.add(String.format("title=%s", title));
         }
-//        if (summary != null) {
-//            toStringParts.add(String.format("summary=%s", StringHelper.shortenEllipsis(summary, 100)));
-//        }
+        //        if (summary != null) {
+        //            toStringParts.add(String.format("summary=%s", StringHelper.shortenEllipsis(summary, 100)));
+        //        }
         if (published != null) {
             toStringParts.add(String.format("published=%s", published));
         }
@@ -284,7 +275,7 @@ public class BasicWebContent implements WebContent {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        BasicWebContent other = (BasicWebContent)obj;
+        BasicWebContent other = (BasicWebContent) obj;
         if (published == null) {
             if (other.published != null)
                 return false;

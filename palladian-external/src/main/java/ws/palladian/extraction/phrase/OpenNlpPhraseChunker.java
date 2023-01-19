@@ -1,11 +1,5 @@
 package ws.palladian.extraction.phrase;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
 import ws.palladian.core.Annotation;
@@ -13,36 +7,40 @@ import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.pos.OpenNlpPosTagger;
 import ws.palladian.helper.Cache;
 
-public final class OpenNlpPhraseChunker implements PhraseChunker {
-    
-    private static final String CHUNKER_NAME = "OpenNLP Phrase Chunker";
-    
-    private final ChunkerME model;
-    
-    private final OpenNlpPosTagger tagger;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+public final class OpenNlpPhraseChunker implements PhraseChunker {
+
+    private static final String CHUNKER_NAME = "OpenNLP Phrase Chunker";
+
+    private final ChunkerME model;
+
+    private final OpenNlpPosTagger tagger;
 
     public OpenNlpPhraseChunker(File chunkerModelFile, File posTaggerModelFile) {
         model = loadModel(chunkerModelFile);
         tagger = new OpenNlpPosTagger(posTaggerModelFile);
     }
-    
 
-//    /*
-//     * (non-Javadoc)
-//     * @see
-//     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
-//     */
-//    @Override
-//    public final OpenNlpPhraseChunker chunk(String sentence) {
-//
-//        final OpenNlpPosTagger tagger = new OpenNlpPosTagger();
-//        TagAnnotations tagAnnotations = tagger.tag(sentence);
-//
-//        return chunk(sentence, tagAnnotations.getTokenList(), tagAnnotations.getTagList());
-//
-//    }
-    
+    //    /*
+    //     * (non-Javadoc)
+    //     * @see
+    //     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
+    //     */
+    //    @Override
+    //    public final OpenNlpPhraseChunker chunk(String sentence) {
+    //
+    //        final OpenNlpPosTagger tagger = new OpenNlpPosTagger();
+    //        TagAnnotations tagAnnotations = tagger.tag(sentence);
+    //
+    //        return chunk(sentence, tagAnnotations.getTokenList(), tagAnnotations.getTagList());
+    //
+    //    }
+
     @Override
     public List<Annotation> chunk(String sentence) {
         List<Annotation> tagAnnotations = tagger.getAnnotations(sentence);
@@ -56,7 +54,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
 
     /**
      * <p>Chunks a sentence into annotations by a given list of tokens and postags.</p>
-     * 
+     *
      * @param sentence
      * @param tokenList
      * @param posList
@@ -81,7 +79,7 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
 
         // joining Tags
         for (int i = 0; i < chunks.length; i++) {
-            
+
             String chunk = chunks[i];
 
             if (chunk.contains("B-")) {
@@ -101,34 +99,34 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
         return tagAnnotations;
     }
 
-//    /*
-//     * (non-Javadoc)
-//     * @see
-//     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
-//     * java.lang.String)
-//     */
-//    @Override
-//    public final OpenNlpPhraseChunker chunk(String sentence, String modelFilePath) {
-//        loadModel(modelFilePath);
-//        return this.chunk(sentence);
-//    }
+    //    /*
+    //     * (non-Javadoc)
+    //     * @see
+    //     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
+    //     * java.lang.String)
+    //     */
+    //    @Override
+    //    public final OpenNlpPhraseChunker chunk(String sentence, String modelFilePath) {
+    //        loadModel(modelFilePath);
+    //        return this.chunk(sentence);
+    //    }
 
-//    /*
-//     * (non-Javadoc)
-//     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
-//     */
-//    @Override
-//    public final OpenNlpPhraseChunker loadDefaultModel() {
-//        return loadModel(MODEL);
-//    }
+    //    /*
+    //     * (non-Javadoc)
+    //     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
+    //     */
+    //    @Override
+    //    public final OpenNlpPhraseChunker loadDefaultModel() {
+    //        return loadModel(MODEL);
+    //    }
 
-//    /*
-//     * (non-Javadoc)
-//     * @see
-//     * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
-//     * )
-//     */
-//    @Override
+    //    /*
+    //     * (non-Javadoc)
+    //     * @see
+    //     * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
+    //     * )
+    //     */
+    //    @Override
     private final ChunkerME loadModel(File modelFile) {
         String modelFilePath = modelFile.getAbsolutePath();
         ChunkerME tbc = (ChunkerME) Cache.getInstance().getDataObject(modelFilePath);
@@ -137,13 +135,10 @@ public final class OpenNlpPhraseChunker implements PhraseChunker {
                 tbc = new ChunkerME(new ChunkerModel(new FileInputStream(modelFilePath)));
                 Cache.getInstance().putDataObject(modelFilePath, tbc);
             } catch (final IOException e) {
-                throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": "
-                        + e.getMessage());
+                throw new IllegalStateException("Error while loading model file \"" + modelFilePath + "\": " + e.getMessage());
             }
         }
         return tbc;
     }
-
-
 
 }

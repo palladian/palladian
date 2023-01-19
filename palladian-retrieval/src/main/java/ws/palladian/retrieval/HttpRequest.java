@@ -1,12 +1,12 @@
 package ws.palladian.retrieval;
 
+import org.apache.commons.lang3.Validate;
+import org.apache.http.HttpEntity;
+
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpEntity;
 
 /** @deprecated Replaced by {@link HttpRequest2}. Use {@link HttpRequest2Builder} to instantiate. */
 @Deprecated
@@ -81,11 +81,11 @@ public final class HttpRequest {
 
         parameters.put(key, value.toString());
     }
-    
+
     public void setCharset(Charset charset) {
         this.charset = charset;
     }
-    
+
     public Charset getCharset() {
         return charset;
     }

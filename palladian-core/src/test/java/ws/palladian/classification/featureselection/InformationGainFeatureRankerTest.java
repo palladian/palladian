@@ -1,17 +1,16 @@
 package ws.palladian.classification.featureselection;
 
-import static org.junit.Assert.assertEquals;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
+import org.junit.Test;
+import ws.palladian.classification.utils.CsvDatasetReader;
+import ws.palladian.core.Instance;
+import ws.palladian.helper.ProgressMonitor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.classification.utils.CsvDatasetReader;
-import ws.palladian.core.Instance;
-import ws.palladian.helper.ProgressMonitor;
+import static org.junit.Assert.assertEquals;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
 
 public class InformationGainFeatureRankerTest {
 

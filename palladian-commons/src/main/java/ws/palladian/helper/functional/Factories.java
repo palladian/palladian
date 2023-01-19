@@ -8,7 +8,7 @@ public final class Factories {
 
     /**
      * Create a {@link Factory} which creates the same object every time.
-     * 
+     *
      * @param thing The object to create.
      * @return A new factory for the given object.
      */

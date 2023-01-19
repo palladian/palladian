@@ -9,7 +9,7 @@ import ws.palladian.helper.collection.Bag;
  * <p>
  * Baseline classifier which does not consider any features but just learns the class distribution during training.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @see <a href="http://www.saedsayad.com/zeror.htm">ZeroR</a>
  */

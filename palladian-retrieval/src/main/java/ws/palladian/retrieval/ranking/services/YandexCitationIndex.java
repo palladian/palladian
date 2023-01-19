@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
@@ -14,13 +10,15 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation for Yandex Citation Index value from Yandex.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public final class YandexCitationIndex extends AbstractRankingService implements RankingService {
 
@@ -31,8 +29,7 @@ public final class YandexCitationIndex extends AbstractRankingService implements
     private static final String SERVICE_ID = "yandexcitationindex";
 
     /** The ranking value types of this service **/
-    public static final RankingType CITATIONINDEX = new RankingType("citationindex", "Yandex Citation Index",
-            "The Yandex Citation Index value from Yandex");
+    public static final RankingType CITATIONINDEX = new RankingType("citationindex", "Yandex Citation Index", "The Yandex Citation Index value from Yandex");
 
     /** All available ranking types by {@link YandexCitationIndex}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(CITATIONINDEX);
@@ -48,15 +45,13 @@ public final class YandexCitationIndex extends AbstractRankingService implements
             String response = httpResult.getStringContent();
             if (response != null) {
                 citationIndex = 0;
-                String leftBorder = UrlHelper.getDomain(url).replace("http://", "").replace("www.", "")
-                        + "/\" target=\"_blank\">";
+                String leftBorder = UrlHelper.getDomain(url).replace("http://", "").replace("www.", "") + "/\" target=\"_blank\">";
                 String citationIndexString = StringHelper.getSubstringBetween(response, leftBorder, "</td>\n</tr>");
                 if (citationIndexString.isEmpty()) {
                     // result stays 0 if response empty -> url not found
                     citationIndexString = StringHelper.getSubstringBetween(response, "b-cy_error-cy\">", "</p>");
                     citationIndexString = StringHelper.trim(citationIndexString.replaceAll(".*? — ?", ""));
-                    citationIndexString = StringHelper
-                            .replaceProtectedSpace(citationIndexString.replaceAll("<a.*", ""));
+                    citationIndexString = StringHelper.replaceProtectedSpace(citationIndexString.replaceAll("<a.*", ""));
                     citationIndexString = citationIndexString.trim();
                 } else {
                     citationIndexString = StringHelper.getSubstringBetween(citationIndexString, "<td>", null);
@@ -74,12 +69,12 @@ public final class YandexCitationIndex extends AbstractRankingService implements
      * <p>
      * Build the request URL -> only the domain part of the URL is taken into account.
      * </p>
-     * 
+     *
      * @param url The URL to search for.
      * @return The request URL.
      */
     private String buildRequestUrl(String url) {
-        return "http://yaca.yandex.ru/yca/cy/ch/"+UrlHelper.getDomain(url).replace("http://", "");
+        return "http://yaca.yandex.ru/yca/cy/ch/" + UrlHelper.getDomain(url).replace("http://", "");
     }
 
     @Override

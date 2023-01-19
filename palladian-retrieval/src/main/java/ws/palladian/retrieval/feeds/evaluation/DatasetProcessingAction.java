@@ -1,13 +1,7 @@
 package ws.palladian.retrieval.feeds.evaluation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.HttpResult;
@@ -19,6 +13,11 @@ import ws.palladian.retrieval.feeds.parser.FeedParser;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.feeds.persistence.FeedStore;
 import ws.palladian.retrieval.helper.HttpHelper;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 class DatasetProcessingAction extends DefaultFeedProcessingAction {
 
@@ -33,7 +32,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
 
     @Override
     public void onModified(Feed feed, HttpResult httpResult) {
-        
+
         List<FeedItem> newFeedEntries = feed.getNewItems();
 
         // get the path of the feed's folder and csv file
@@ -65,8 +64,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
         if (newItems == feed.getWindowSize() && feed.getChecks() > 1 && newItems > 0) {
             feed.increaseMisses();
             newEntriesToWrite.add("MISS;;;;;;");
-            LOGGER.error("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: "
-                    + feed.getChecks() + ", misses: " + feed.getMisses());
+            LOGGER.error("MISS: " + feed.getFeedUrl() + " (id " + +feed.getId() + ")" + ", checks: " + feed.getChecks() + ", misses: " + feed.getMisses());
         }
 
         // save the complete feed gzipped in the folder if we found at least one new item or if its the first check
@@ -180,16 +178,15 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
 
     /**
      * Write a {@link HttpResult} to compressed file.
-     * 
-     * @param httpResult Result to write.
-     * @param folderPath Path to write file to.
+     *
+     * @param httpResult    Result to write.
+     * @param folderPath    Path to write file to.
      * @param pollTimestamp The timestamp the data has been requested.
-     * @param special Optional label to mark poll as unparsable, etc. Set to empty string if not required.
+     * @param special       Optional label to mark poll as unparsable, etc. Set to empty string if not required.
      * @return <code>true</code> if file has been written.
      */
     private boolean writeGZ(HttpResult httpResult, String folderPath, long pollTimestamp, String special) {
-        String gzPath = folderPath + pollTimestamp + "_" + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp)
-                + special + ".gz";
+        String gzPath = folderPath + pollTimestamp + "_" + DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", pollTimestamp) + special + ".gz";
         boolean gzWritten = HttpHelper.saveToFile(httpResult, gzPath, true);
         if (gzWritten) {
             LOGGER.debug("Saved " + special + " feed to: " + gzPath);
@@ -201,7 +198,7 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
 
     /**
      * Put data to PollMetaInformation, write to database.
-     * 
+     *
      * @param feed
      * @param httpResult
      * @param newItems
@@ -226,7 +223,6 @@ class DatasetProcessingAction extends DefaultFeedProcessingAction {
             throw new IllegalStateException("Error while adding feed poll");
         }
     }
-
 
     public static void main(String[] args) throws Exception {
         FeedParser fr = new RomeFeedParser();

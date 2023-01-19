@@ -1,24 +1,19 @@
 package ws.palladian.classification.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.math.Stats;
+
+import java.util.*;
 
 /**
  * <p>
  * Normalization for {@link NumericFeature}s using Z-Score (standard deviation and mean):
  * <code>normalizedValue = (value - mean) / standardDeviation</code>.
  * </p>
- * 
- * @see <a href="http://www.utdallas.edu/~herve/abdi-Normalizing2010-pretty.pdf">Normalizing Data; Hervé Abdi</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://www.utdallas.edu/~herve/abdi-Normalizing2010-pretty.pdf">Normalizing Data; Hervé Abdi</a>
  */
 public final class ZScoreNormalizer extends AbstractStatsNormalizer {
 

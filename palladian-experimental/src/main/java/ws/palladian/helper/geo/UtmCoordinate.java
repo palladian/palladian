@@ -4,10 +4,10 @@ package ws.palladian.helper.geo;
  * <p>
  * A coordinate in the Universal Transverse Mercator (UTM) projected coordinate system.
  * </p>
- * 
- * @see <a href="http://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">Wikipedia: Universal
- *      Transverse Mercator coordinate system</a>
+ *
  * @author Philipp Katz
+ * @see <a href="http://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">Wikipedia: Universal
+ * Transverse Mercator coordinate system</a>
  */
 public class UtmCoordinate {
 

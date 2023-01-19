@@ -66,7 +66,8 @@ public abstract class WebDocumentRetriever {
      * Some APIs require sending headers such as the accept header, so we can specify that globally for all calls with
      * this retriever.
      */
-    Map<String, String> globalHeaders = new HashMap<>();;
+    Map<String, String> globalHeaders = new HashMap<>();
+    ;
 
     public abstract Document getWebDocument(String url);
 
@@ -121,18 +122,17 @@ public abstract class WebDocumentRetriever {
         this.requestThrottle = requestThrottle;
     }
 
-
     /**
      * <p>
      * Get multiple URLs in parallel, for each finished download the supplied callback is invoked. The number of
      * simultaneous threads for downloading and parsing can be defined using {@link #setNumThreads(int)}.
      * </p>
      *
-     * @param urls the URLs to download.
+     * @param urls     the URLs to download.
      * @param callback the callback to be called for each finished download.
      */
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback) {
-        getWebDocuments(urls, callback,  new ProgressMonitor(urls.size(), 1., "DocumentRetriever"));
+        getWebDocuments(urls, callback, new ProgressMonitor(urls.size(), 1., "DocumentRetriever"));
     }
 
     public void getWebDocuments(Collection<String> urls, final Consumer<Document> callback, final ProgressMonitor progressMonitor) {
@@ -203,7 +203,7 @@ public abstract class WebDocumentRetriever {
      *
      * @param urls the URLs to download.
      * @return Set with the downloaded documents, documents which could not be downloaded or parsed successfully, are
-     *         not included.
+     * not included.
      */
     public Set<Document> getWebDocuments(Collection<String> urls) {
         Set<Document> documents = new HashSet<>();

@@ -5,9 +5,8 @@ import ws.palladian.helper.date.ExtractedDateImpl;
 
 /**
  * Template for all dates having a keyword.
- * 
+ *
  * @author Martin Gregor
- * 
  */
 public abstract class KeywordDate extends ExtractedDateImpl {
     /**
@@ -37,7 +36,6 @@ public abstract class KeywordDate extends ExtractedDateImpl {
     }
 
     /**
-     * 
      * @param keyword
      */
     @Deprecated

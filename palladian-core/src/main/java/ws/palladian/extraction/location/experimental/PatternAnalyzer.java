@@ -1,18 +1,6 @@
 package ws.palladian.extraction.location.experimental;
 
-import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.LEFT;
-import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.RIGHT;
-import static ws.palladian.helper.functional.Predicates.and;
-import static ws.palladian.helper.functional.Predicates.regex;
-import static ws.palladian.helper.functional.Functions.LOWERCASE;
-
-import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.DictionaryBuilder;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.DictionaryModel.DictionaryEntry;
@@ -25,11 +13,22 @@ import ws.palladian.extraction.entity.FileFormatParser;
 import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.collection.CollectionHelper;
-import java.util.function.Predicate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+
+import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.LEFT;
+import static ws.palladian.extraction.location.experimental.PatternAnalyzer.Direction.RIGHT;
+import static ws.palladian.helper.functional.Functions.LOWERCASE;
+import static ws.palladian.helper.functional.Predicates.and;
+import static ws.palladian.helper.functional.Predicates.regex;
 
 public class PatternAnalyzer {
 
@@ -38,17 +37,15 @@ public class PatternAnalyzer {
     }
 
     /**
-     * 
-     * @param inputFile File with the XML annotated entities.
+     * @param inputFile  File with the XML annotated entities.
      * @param outputFile File to which the results will be written.
-     * @param direction Specify whether to extract left/right contexts.
-     * @param size The maximum size of the contexts in words (1-n are actually extracted).
-     * @param minCount The minimum number of occurrences for a context.
-     * @param minProb The minimum probability for a context.
+     * @param direction  Specify whether to extract left/right contexts.
+     * @param size       The maximum size of the contexts in words (1-n are actually extracted).
+     * @param minCount   The minimum number of occurrences for a context.
+     * @param minProb    The minimum probability for a context.
      * @param categories
      */
-    public static void extractPatterns(File inputFile, File outputPath, final Direction direction, final int size,
-            int minCount, double minProb, String... categories) {
+    public static void extractPatterns(File inputFile, File outputPath, final Direction direction, final int size, int minCount, double minProb, String... categories) {
         Validate.notNull(inputFile, "inputFile must not be null");
         Validate.notNull(outputPath, "outputPath must not be null");
         Validate.notNull(direction, "direction must not be null");

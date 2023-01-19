@@ -1,16 +1,15 @@
 package ws.palladian.extraction.content.evaluation;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * <p>
@@ -19,7 +18,7 @@ import ws.palladian.helper.nlp.StringHelper;
  * cleaning webpages</a>'; Marco Baroni, Francis Chantree, Adam Kilgarriff, Serge Sharoff, 2008. The dataset can be
  * downloaded from <a href="http://nlp.fi.muni.cz/~xpomikal/cleaneval/">here</a>; necessary are the files
  * 'GoldStandard.tar.gz' and 'finalrun-input.tar.gz'.
- * 
+ *
  * @author Philipp Katz
  */
 public final class CleanevalDataset implements ContentExtractionDataset {
@@ -53,10 +52,7 @@ public final class CleanevalDataset implements ContentExtractionDataset {
                                 String textContent = FileHelper.readFileToString(txtFile);
                                 return cleanup(textContent);
                             } catch (IOException e) {
-                                throw new IllegalStateException(
-                                        "Could not read "
-                                                + txtFile
-                                                + ", make sure, that there is a .txt file for each .html file in the directory.");
+                                throw new IllegalStateException("Could not read " + txtFile + ", make sure, that there is a .txt file for each .html file in the directory.");
                             }
                         }
 

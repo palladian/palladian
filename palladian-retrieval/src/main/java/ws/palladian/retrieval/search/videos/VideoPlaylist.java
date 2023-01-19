@@ -1,6 +1,5 @@
 package ws.palladian.retrieval.search.videos;
 
-import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;
 
 import java.util.ArrayList;

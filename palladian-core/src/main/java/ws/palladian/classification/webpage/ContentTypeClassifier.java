@@ -1,17 +1,8 @@
 package ws.palladian.classification.webpage;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringInputStream;
@@ -23,13 +14,20 @@ import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeClassifier.class);
 
-    private static final String[] SEARCH_TRIGGERS = {"suchergebnis", "suchergebnisse", "search result",
-            "search results"};
+    private static final String[] SEARCH_TRIGGERS = {"suchergebnis", "suchergebnisse", "search result", "search results"};
 
     public ContentType classify(Document document) {
         extractFeatures(document);
@@ -85,10 +83,8 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
             return ContentType.OVERVIEW;
         }
 
-        if (getHighestNumberOfConsecutiveSentences() < 4 || getPageSentences().length() < 1000
-                || getPageSentences().toLowerCase().indexOf("read the rest here:") > -1
-                || getPageSentences().toLowerCase().indexOf("read the original post:") > -1
-                || getPageSentences().toLowerCase().indexOf("continued here:") > -1
+        if (getHighestNumberOfConsecutiveSentences() < 4 || getPageSentences().length() < 1000 || getPageSentences().toLowerCase().indexOf("read the rest here:") > -1
+                || getPageSentences().toLowerCase().indexOf("read the original post:") > -1 || getPageSentences().toLowerCase().indexOf("continued here:") > -1
                 || getPageSentences().toLowerCase().indexOf("see the rest here:") > -1) {
             return ContentType.SPAM;
         }
@@ -101,8 +97,7 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
         for (String headline : getHeadlineContents()) {
             headline = headline.toLowerCase();
             for (String trigger : SEARCH_TRIGGERS) {
-                if (headline.equalsIgnoreCase(trigger) || headline.indexOf(trigger + " ") > -1
-                        || headline.indexOf(trigger + ":") > -1) {
+                if (headline.equalsIgnoreCase(trigger) || headline.indexOf(trigger + " ") > -1 || headline.indexOf(trigger + ":") > -1) {
                     return true;
                 }
             }
@@ -246,12 +241,10 @@ public class ContentTypeClassifier extends RuleBasedPageClassifier<ContentType> 
             }
         }
 
-        LOGGER.info("correctly classified: " + MathHelper.round(100 * correctlyClassified / (double)classes.size(), 2)
-                + "%");
-        LOGGER.info("correctly classified just useful: "
-                + MathHelper.round(100 * justUsefulCorrectlyClassified / (double)classes.size(), 2) + "%");
-        LOGGER.info("false negative rate: " + MathHelper.round(100 * falseNegatives / (double)classes.size(), 2) + "%");
-        LOGGER.info("true negative rate: " + MathHelper.round(100 * trueNegatives / (double)classes.size(), 2) + "%");
+        LOGGER.info("correctly classified: " + MathHelper.round(100 * correctlyClassified / (double) classes.size(), 2) + "%");
+        LOGGER.info("correctly classified just useful: " + MathHelper.round(100 * justUsefulCorrectlyClassified / (double) classes.size(), 2) + "%");
+        LOGGER.info("false negative rate: " + MathHelper.round(100 * falseNegatives / (double) classes.size(), 2) + "%");
+        LOGGER.info("true negative rate: " + MathHelper.round(100 * trueNegatives / (double) classes.size(), 2) + "%");
 
         LOGGER.info("classification took " + sw.getElapsedTimeString() + " on " + classes.size() + " documents");
     }

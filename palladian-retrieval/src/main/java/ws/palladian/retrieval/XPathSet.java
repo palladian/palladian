@@ -1,27 +1,26 @@
 package ws.palladian.retrieval;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.CollectionHelper.Order;
+import ws.palladian.helper.nlp.StringHelper;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.CollectionHelper.Order;
-import ws.palladian.helper.nlp.StringHelper;
-
 /**
  * <p>
  * A set of xPaths.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class XPathSet {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(XPathSet.class);
 
@@ -44,6 +43,7 @@ public class XPathSet {
     public void remove(String xPath) {
         xPathMap.remove(xPath);
     }
+
     public void add(String xPath) {
         if (xPathMap.containsKey(xPath)) {
             int count = xPathMap.get(xPath);
@@ -103,7 +103,7 @@ public class XPathSet {
     /**
      * Return the longest (or highest priority) path that contains the highest count path as a substring. TODO b/a = a/b
      * (website1.html)
-     * 
+     *
      * @return The longest xPath with the highest count.
      */
     public String getLongestHighCountXPath(Document document) {
@@ -125,8 +125,7 @@ public class XPathSet {
                 continue;
             }
 
-            if (xPath.indexOf(highestHitCountXPath) > -1 && xPath.length() > longestHighCountXPath.length()
-                    && entry.getValue() > highestHitCount / 6) {
+            if (xPath.indexOf(highestHitCountXPath) > -1 && xPath.length() > longestHighCountXPath.length() && entry.getValue() > highestHitCount / 6) {
                 longestHighCountXPath = xPath;
             } else {
                 break;
@@ -137,8 +136,7 @@ public class XPathSet {
         String[] stagesArray = longestHighCountXPath.replace(highestHitCountXPath, "").split("/");
         int stages = stagesArray.length - 1;
 
-        LOGGER.debug(
-                "longest high count: {} stages: {}", longestHighCountXPath.toLowerCase(), stages);
+        LOGGER.debug("longest high count: {} stages: {}", longestHighCountXPath.toLowerCase(), stages);
 
         // check whether there is text content at the specified path, otherwise move stages up until
         // text content is found or the highest count xpath is reached

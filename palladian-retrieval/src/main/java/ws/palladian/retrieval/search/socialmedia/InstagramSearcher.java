@@ -182,8 +182,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                 }
                 queryUrl = paginationJson.getString("next_url");
             } catch (JsonException e) {
-                throw new SearcherException("Parse exception while parsing JSON data: \"" + jsonString + "\", URL: \""
-                        + queryUrl + "\"", e);
+                throw new SearcherException("Parse exception while parsing JSON data: \"" + jsonString + "\", URL: \"" + queryUrl + "\"", e);
             }
         }
         return result;
@@ -208,12 +207,11 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                 throw new RateLimitedException("Rate limit exceeded.", null);
             }
             if (httpResult.errorStatus()) {
-                throw new SearcherException("Received HTTP code " + httpResult.getStatusCode() + " while accessing \""
-                        + queryUrl + "\" (" + getErrorMessage(httpResult.getStringContent()) + ")");
+                throw new SearcherException(
+                        "Received HTTP code " + httpResult.getStatusCode() + " while accessing \"" + queryUrl + "\" (" + getErrorMessage(httpResult.getStringContent()) + ")");
             }
         } catch (HttpException e) {
-            throw new SearcherException("Encountered HTTP exception while accessing \"" + queryUrl + "\": "
-                    + e.getMessage(), e);
+            throw new SearcherException("Encountered HTTP exception while accessing \"" + queryUrl + "\": " + e.getMessage(), e);
         }
         return httpResult;
     }
@@ -294,8 +292,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
             String queryUrl = String.format("https://api.instagram.com/v1/media/%s?access_token=%s", id, accessToken);
             results = fetchResult(query.getResultCount(), queryUrl);
         } else if (tag != null) {
-            String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s",
-                    UrlHelper.encodeParameter(tag), accessToken);
+            String queryUrl = String.format("https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s", UrlHelper.encodeParameter(tag), accessToken);
             results = fetchResult(query.getResultCount(), queryUrl);
         } else if (locationIdFacet != null) {
             StringBuilder urlBuilder = new StringBuilder();
@@ -342,8 +339,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                     locationIdQueryBuilder.setEndDate(query.getEndDate());
                     locationIdQueryBuilder.setResultCount(query.getResultCount());
                     List<WebImage> currentResults = search(locationIdQueryBuilder.create()).getResultList();
-                    LOGGER.debug("Found {} results for location with ID {}", currentResults.size(),
-                            locationId.getLocationId());
+                    LOGGER.debug("Found {} results for location with ID {}", currentResults.size(), locationId.getLocationId());
                     results.addAll(currentResults);
                 }
                 // limit to the requested result count; order by proximity to coordinate
@@ -366,8 +362,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
                 }
             }
         } else {
-            throw new SearcherException(
-                    "Search must either provide a tag, a geographic coordinate and a radius, an Instagram location ID, a URL or an Instagram image ID.");
+            throw new SearcherException("Search must either provide a tag, a geographic coordinate and a radius, an Instagram location ID, a URL or an Instagram image ID.");
         }
         return new SearchResults<WebImage>(results);
     }
@@ -403,8 +398,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         } catch (HttpException e) {
             throw new SearcherException("Error while trying to get ID for URL.");
         } catch (JsonException e) {
-            throw new SearcherException("Error while trying to get ID for URL \"" + url
-                    + "\". Make sure, that this is a valid Instagram URL!");
+            throw new SearcherException("Error while trying to get ID for URL \"" + url + "\". Make sure, that this is a valid Instagram URL!");
         }
     }
 
@@ -425,8 +419,7 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         }
         firstTag = firstTag.replaceAll("[^A-Za-z0-9]", ""); // remove special characters
         if (allTags.size() > 1) {
-            LOGGER.warn("Query consists of multiple terms ({}), only the first one ({}) is considered!", allTags,
-                    firstTag);
+            LOGGER.warn("Query consists of multiple terms ({}), only the first one ({}) is considered!", allTags, firstTag);
         }
         return firstTag;
     }
@@ -445,9 +438,8 @@ public final class InstagramSearcher extends AbstractMultifacetSearcher<WebImage
         Validate.notNull(coordinate, "coordinate must not be null");
         Validate.isTrue(distance >= 0, "distance must be greater/equal zero");
         List<LocationId> locationIds = new ArrayList<>();
-        String coordinateToLocationsQueryUrl = String.format(
-                "https://api.instagram.com/v1/locations/search?lat=%s&lng=%s&distance=%s&access_token=%s",
-                coordinate.getLatitude(), coordinate.getLongitude(), distance, accessToken);
+        String coordinateToLocationsQueryUrl = String.format("https://api.instagram.com/v1/locations/search?lat=%s&lng=%s&distance=%s&access_token=%s", coordinate.getLatitude(),
+                coordinate.getLongitude(), distance, accessToken);
         HttpResult httpResult = performGet(coordinateToLocationsQueryUrl);
         try {
             JsonArray jsonData = new JsonObject(httpResult.getStringContent()).getJsonArray("data");

@@ -1,20 +1,19 @@
 package ws.palladian.persistence;
 
+import org.apache.commons.lang3.Validate;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.lang3.Validate;
 
 /**
  * <p>
  * A {@link BatchDataProvider} for a {@link Collection}. Only the conversion method needs to be implemented, in case,
  * one cares about the inserted IDs, optionally implement {@link #insertedItem(int, int)}.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <T>
+ * @author Philipp Katz
  */
 public abstract class CollectionBatchDataProvider<T> implements BatchDataProvider {
 
@@ -34,7 +33,7 @@ public abstract class CollectionBatchDataProvider<T> implements BatchDataProvide
     }
 
     /**
-     * @param next The item in the {@link Collection} which to convert.
+     * @param next   The item in the {@link Collection} which to convert.
      * @param number The running index, starting with 0.
      * @return List with parameters for the SQL statement, not <code>null</code>.
      */

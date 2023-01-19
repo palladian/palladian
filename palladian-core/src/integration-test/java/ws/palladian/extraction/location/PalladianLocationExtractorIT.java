@@ -1,10 +1,5 @@
 package ws.palladian.extraction.location;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
@@ -13,13 +8,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.dt.QuickDtModel;
-import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
-import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
-import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguationLearner;
-import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
-import ws.palladian.extraction.location.disambiguation.LocationDisambiguation;
+import ws.palladian.extraction.location.disambiguation.*;
 import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator;
 import ws.palladian.extraction.location.evaluation.LocationExtractionEvaluator.LocationEvaluationResult;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
@@ -29,12 +19,17 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.integrationtests.ITHelper;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertTrue;
+
 /**
  * <p>
  * Integration test for the {@link PalladianLocationExtractor} and its {@link LocationDisambiguation} strategies. The
  * test must be run with a local database and the following database dump, in order to produce meaningful results:
  * <code>locations_2013-08-05.sql.gz</code>.
- * 
+ *
  * @author Philipp Katz
  */
 public class PalladianLocationExtractorIT {
@@ -64,9 +59,8 @@ public class PalladianLocationExtractorIT {
         assertTrue("palladian-test.properties must provide a database username", StringUtils.isNotBlank(dbUsername));
         locationSource = DatabaseManagerFactory.create(LocationDatabase.class, dbUrl, dbUsername, dbPassword);
         if (locationSource.size() != EXPECTED_DB_LOCATION_COUNT) {
-            LOGGER.warn(
-                    "LocationSource does not contain the expected amount of locations; make sure to use the correct database ({} instead of {}).",
-                    locationSource.size(), EXPECTED_DB_LOCATION_COUNT);
+            LOGGER.warn("LocationSource does not contain the expected amount of locations; make sure to use the correct database ({} instead of {}).", locationSource.size(),
+                    EXPECTED_DB_LOCATION_COUNT);
         }
     }
 
@@ -75,8 +69,7 @@ public class PalladianLocationExtractorIT {
         String validationPath = config.getString("dataset.tudloc2013.validation");
         ITHelper.assertDirectory(validationPath);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE,
-                disambiguation);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
         ITHelper.assertMin("MUC-Pr", 0.8257, result.mucPr);
@@ -92,8 +85,7 @@ public class PalladianLocationExtractorIT {
         String validationPath = config.getString("dataset.lgl.validation");
         ITHelper.assertDirectory(validationPath);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE,
-                disambiguation);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
         ITHelper.assertMin("MUC-Pr", 0.7389, result.mucPr);
@@ -109,8 +101,7 @@ public class PalladianLocationExtractorIT {
         String validationPath = config.getString("dataset.clust.validation");
         ITHelper.assertDirectory(validationPath);
         LocationDisambiguation disambiguation = new HeuristicDisambiguation();
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE,
-                disambiguation);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
         ITHelper.assertMin("MUC-Pr", 0.7886, result.mucPr);
@@ -126,12 +117,11 @@ public class PalladianLocationExtractorIT {
         String trainPath = config.getString("dataset.tudloc2013.train");
         String validationPath = config.getString("dataset.tudloc2013.validation");
         ITHelper.assertDirectory(trainPath, validationPath);
-        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
-                DefaultCandidateExtractor.INSTANCE, 100, new ConfigurableFeatureExtractor());
+        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource, DefaultCandidateExtractor.INSTANCE, 100,
+                new ConfigurableFeatureExtractor());
         QuickDtModel model = learner.learn(new File(trainPath));
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE,
-                disambiguation);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
         ITHelper.assertMin("MUC-Pr", 0.83, result.mucPr);
@@ -148,12 +138,11 @@ public class PalladianLocationExtractorIT {
         String trainPath = config.getString("dataset.lgl.train");
         String validationPath = config.getString("dataset.lgl.validation");
         ITHelper.assertDirectory(trainPath, validationPath);
-        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
-                DefaultCandidateExtractor.INSTANCE, 100, new ConfigurableFeatureExtractor());
+        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource, DefaultCandidateExtractor.INSTANCE, 100,
+                new ConfigurableFeatureExtractor());
         QuickDtModel model = learner.learn(new File(trainPath));
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE,
-                disambiguation);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
         ITHelper.assertMin("MUC-Pr", 0.76, result.mucPr);
@@ -170,12 +159,11 @@ public class PalladianLocationExtractorIT {
         String trainPath = config.getString("dataset.clust.train");
         String validationPath = config.getString("dataset.clust.validation");
         ITHelper.assertDirectory(trainPath, validationPath);
-        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource,
-                DefaultCandidateExtractor.INSTANCE, 100, new ConfigurableFeatureExtractor());
+        FeatureBasedDisambiguationLearner learner = new FeatureBasedDisambiguationLearner(locationSource, DefaultCandidateExtractor.INSTANCE, 100,
+                new ConfigurableFeatureExtractor());
         QuickDtModel model = learner.learn(new File(trainPath));
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE,
-                disambiguation);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
         ITHelper.assertMin("MUC-Pr", 0.80, result.mucPr);
@@ -189,18 +177,16 @@ public class PalladianLocationExtractorIT {
     /**
      * Run the test of the {@link FeatureBasedDisambiguation} with a pre-learned model. In contrast to
      * {@link #test_MachineLearning_TUD()}, we can make exact assertions about results here.
-     * 
+     *
      * @throws IOException In case the model cannot be loaded (should not happen).
      */
     @Test
     public void test_MachineLearning_TUD_existingModel() throws IOException {
         String validationPath = config.getString("dataset.tudloc2013.validation");
         ITHelper.assertDirectory(validationPath);
-        QuickDtModel model = FileHelper.deserialize(ResourceHelper
-                .getResourcePath("/model/locationDisambiguationModel_tud_1409729069110.ser.gz"));
+        QuickDtModel model = FileHelper.deserialize(ResourceHelper.getResourcePath("/model/locationDisambiguationModel_tud_1409729069110.ser.gz"));
         LocationDisambiguation disambiguation = new FeatureBasedDisambiguation(model);
-        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE,
-                disambiguation);
+        LocationExtractor extractor = new PalladianLocationExtractor(locationSource, DefaultCandidateExtractor.INSTANCE, disambiguation);
         LocationEvaluationResult result = LocationExtractionEvaluator.run(extractor, new File(validationPath), true);
         // System.out.println(result);
         ITHelper.assertMin("MUC-Pr", 0.8449, result.mucPr);

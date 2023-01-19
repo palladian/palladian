@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.search.images;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -19,11 +15,14 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * Search for free gifs from <a href="https://tenor.com">Tenor</a>.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @see <a href="https://tenor.com/gifapi/documentation">Tenor API Docs</a>
  */
@@ -54,7 +53,7 @@ public class TenorSearcher extends AbstractSearcher<WebImage> {
      * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing Tenor, which must be
-     *            provided as string via key {@value TenorSearcher#CONFIG_API_KEY} in the configuration.
+     *                      provided as string via key {@value TenorSearcher#CONFIG_API_KEY} in the configuration.
      */
     public TenorSearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
@@ -63,8 +62,7 @@ public class TenorSearcher extends AbstractSearcher<WebImage> {
     @Override
     /**
      * @param language Supported languages are English.
-     */
-    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
         resultCount = defaultResultCount == null ? resultCount : defaultResultCount;

@@ -550,9 +550,11 @@ public class PalladianSpellChecker {
     public boolean isGermanCompoundSupport() {
         return germanCompoundSupport > 0;
     }
+
     public int getGermanCompoundWordNumber() {
         return germanCompoundSupport;
     }
+
     public void setGermanCompoundWordNumber(int wordNumber) {
         germanCompoundSupport = wordNumber;
     }
@@ -593,9 +595,13 @@ public class PalladianSpellChecker {
         return words.getInt(word);
     }
 
-    public void setLanguage(Language language) { this.language = language; }
-    
-    public Language getLanguage() { return language; }
+    public void setLanguage(Language language) {
+        this.language = language;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
 
     public static void main(String[] args) throws IOException {
         // System.out.println(new PalladianSpellChecker("en.txt").autoCorrect("caar"));

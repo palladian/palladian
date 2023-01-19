@@ -1,18 +1,17 @@
 package ws.palladian.extraction.content.evaluation;
 
+import org.apache.commons.lang3.Validate;
+import ws.palladian.helper.collection.AbstractIterator;
+import ws.palladian.helper.functional.Predicates;
+import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.io.LineAction;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.helper.collection.AbstractIterator;
-import ws.palladian.helper.functional.Predicates;
-import ws.palladian.helper.io.FileHelper;
-import ws.palladian.helper.io.LineAction;
 
 public final class TudContentExtractionDataset implements ContentExtractionDataset {
 
@@ -69,10 +68,7 @@ public final class TudContentExtractionDataset implements ContentExtractionDatas
                             try {
                                 return FileHelper.readFileToString(txtFile);
                             } catch (IOException e) {
-                                throw new IllegalStateException(
-                                        "Could not read "
-                                                + txtFile
-                                                + ", make sure, that there is a .txt file for each .html file in the directory.");
+                                throw new IllegalStateException("Could not read " + txtFile + ", make sure, that there is a .txt file for each .html file in the directory.");
                             }
                         }
 

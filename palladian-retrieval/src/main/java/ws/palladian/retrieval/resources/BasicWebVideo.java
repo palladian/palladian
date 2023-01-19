@@ -7,7 +7,7 @@ import java.util.List;
  * <p>
  * A {@link BasicWebContent} representing video links.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  */
@@ -17,7 +17,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
      * <p>
      * Builder for creating new instances of {@link WebVideo}.
      * </p>
-     * 
+     *
      * @author Philipp Katz
      */
     public static class Builder extends BasicWebContent.Builder {
@@ -151,7 +151,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        BasicWebVideo other = (BasicWebVideo)obj;
+        BasicWebVideo other = (BasicWebVideo) obj;
         if (duration == null) {
             if (other.duration != null)
                 return false;

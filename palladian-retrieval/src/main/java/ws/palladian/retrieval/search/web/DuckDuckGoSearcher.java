@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>
  * Web searcher scrapes HTML from <a href="http://duckduckgo.com/">DuckDuckGo</a> search results.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -57,8 +57,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             THROTTLE.hold();
             document = documentRetriever.getWebDocument(requestUrl);
         } catch (Exception e) {
-            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName()
-                    + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
+            throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
         }
 
         if (document == null) {
@@ -90,7 +89,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
      * <p>
      * Gets the number of HTTP requests sent to DuckDuckGo.
      * </p>
-     * 
+     *
      * @return
      */
     public static int getRequestCount() {

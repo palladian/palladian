@@ -1,18 +1,17 @@
 package ws.palladian.extraction.token;
 
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static java.util.regex.Pattern.DOTALL;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.core.ImmutableToken;
+import ws.palladian.core.TextTokenizer;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.AbstractIterator2;
 
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.core.ImmutableToken;
-import ws.palladian.core.TextTokenizer;
-import ws.palladian.core.Token;
-import ws.palladian.helper.collection.AbstractIterator2;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import static java.util.regex.Pattern.DOTALL;
 
 public final class WordTokenizer implements TextTokenizer {
 

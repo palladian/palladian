@@ -1,90 +1,86 @@
 package ws.palladian.helper.io;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import ws.palladian.helper.collection.AbstractIterator2;
+
+import java.io.*;
 import java.util.List;
 import java.util.Objects;
 
-import ws.palladian.helper.collection.AbstractIterator2;
-
 public class CsvReader extends AbstractIterator2<List<String>> implements Closeable {
 
-	private final BufferedReader reader;
-	private final char splitCharacter;
-	private final char quoteCharacter;
-	private final boolean unescapeDoubleQuotes;
+    private final BufferedReader reader;
+    private final char splitCharacter;
+    private final char quoteCharacter;
+    private final boolean unescapeDoubleQuotes;
 
-	private StringBuilder buffer;
-	private int lineNumber;
-	private boolean closed;
+    private StringBuilder buffer;
+    private int lineNumber;
+    private boolean closed;
 
-	public CsvReader(InputStream stream, char splitCharacter, char quoteCharacter) {
-		this(new BufferedReader(new InputStreamReader(Objects.requireNonNull(stream))), splitCharacter, quoteCharacter);
-	}
+    public CsvReader(InputStream stream, char splitCharacter, char quoteCharacter) {
+        this(new BufferedReader(new InputStreamReader(Objects.requireNonNull(stream))), splitCharacter, quoteCharacter);
+    }
 
-	public CsvReader(InputStream stream, char splitCharacter, char quoteCharacter, boolean unescapeDoubleQuotes) {
-		this(new BufferedReader(new InputStreamReader(Objects.requireNonNull(stream))), splitCharacter, quoteCharacter, unescapeDoubleQuotes);
-	}
-	
-	public CsvReader(BufferedReader reader, char splitCharacter, char quoteCharacter) {
-		this(reader, splitCharacter, quoteCharacter, false);
-	}
+    public CsvReader(InputStream stream, char splitCharacter, char quoteCharacter, boolean unescapeDoubleQuotes) {
+        this(new BufferedReader(new InputStreamReader(Objects.requireNonNull(stream))), splitCharacter, quoteCharacter, unescapeDoubleQuotes);
+    }
 
-	public CsvReader(BufferedReader reader, char splitCharacter, char quoteCharacter, boolean unescapeDoubleQuotes) {
-		this.reader = Objects.requireNonNull(reader);
-		this.splitCharacter = splitCharacter;
-		this.quoteCharacter = quoteCharacter;
-		this.unescapeDoubleQuotes = unescapeDoubleQuotes;
-		this.buffer = new StringBuilder();
-		this.lineNumber = 0;
-	}
+    public CsvReader(BufferedReader reader, char splitCharacter, char quoteCharacter) {
+        this(reader, splitCharacter, quoteCharacter, false);
+    }
 
-	@Override
-	protected List<String> getNext() {
+    public CsvReader(BufferedReader reader, char splitCharacter, char quoteCharacter, boolean unescapeDoubleQuotes) {
+        this.reader = Objects.requireNonNull(reader);
+        this.splitCharacter = splitCharacter;
+        this.quoteCharacter = quoteCharacter;
+        this.unescapeDoubleQuotes = unescapeDoubleQuotes;
+        this.buffer = new StringBuilder();
+        this.lineNumber = 0;
+    }
 
-		if (closed) {
-			throw new IllegalStateException("Already closed.");
-		}
+    @Override
+    protected List<String> getNext() {
 
-		for (;;) {
+        if (closed) {
+            throw new IllegalStateException("Already closed.");
+        }
 
-			String line;
-			try {
-				line = reader.readLine();
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
-			if (line == null) {
-				return finished();
-			}
+        for (; ; ) {
 
-			lineNumber++;
-			buffer.append(line);
+            String line;
+            try {
+                line = reader.readLine();
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+            if (line == null) {
+                return finished();
+            }
 
-			List<String> splitLine = DelimitedStringHelper.splitLine(buffer.toString(), splitCharacter, quoteCharacter, unescapeDoubleQuotes);
-			if (splitLine != null) {
-				buffer = new StringBuilder();
-				return splitLine;
-			} else {
-				buffer.append('\n');
-			}
-		}
+            lineNumber++;
+            buffer.append(line);
 
-	}
+            List<String> splitLine = DelimitedStringHelper.splitLine(buffer.toString(), splitCharacter, quoteCharacter, unescapeDoubleQuotes);
+            if (splitLine != null) {
+                buffer = new StringBuilder();
+                return splitLine;
+            } else {
+                buffer.append('\n');
+            }
+        }
 
-	// XXX empty lines should be skipped, right?
+    }
 
-	public int getLineNumber() {
-		return lineNumber;
-	}
+    // XXX empty lines should be skipped, right?
 
-	@Override
-	public void close() throws IOException {
-		closed = true;
-		reader.close();
-	}
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    @Override
+    public void close() throws IOException {
+        closed = true;
+        reader.close();
+    }
 
 }

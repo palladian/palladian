@@ -1,17 +1,9 @@
 package ws.palladian.classification.webpage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.extraction.ListDiscoverer;
 import ws.palladian.extraction.content.PalladianContentExtractor;
 import ws.palladian.helper.UrlHelper;
@@ -23,6 +15,8 @@ import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;
+
+import java.util.*;
 
 public abstract class RuleBasedPageClassifier<T> {
 
@@ -144,8 +138,7 @@ public abstract class RuleBasedPageClassifier<T> {
         // setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(),
         // HTMLHelper.documentToHTMLString(document)));
 
-        setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(),
-                HtmlHelper.documentToText(document)));
+        setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(), HtmlHelper.documentToText(document)));
 
         // setHighestNumberOfConsecutiveSentences(getHighestNumberOfConsecutiveSentences(pse.getSentences(),
         // pse.getSentencesString()));
@@ -156,7 +149,6 @@ public abstract class RuleBasedPageClassifier<T> {
         setPaginationLinks(ld.getPaginationURLs());
         LOGGER.debug("Pagination Links: " + paginationLinks.size());
     }
-
 
     private int getHighestNumberOfConsecutiveSentences(Collection<String> sentences, String html) {
 

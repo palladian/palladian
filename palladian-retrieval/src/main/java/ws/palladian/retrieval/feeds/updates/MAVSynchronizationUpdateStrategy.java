@@ -1,25 +1,23 @@
 package ws.palladian.retrieval.feeds.updates;
 
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.FeedPostStatistics;
+
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
  * Update the check intervals as moving average with synchronization.<br />
  * <br />
  * </p>
- * 
+ *
  * @author Sandro Reichert
- * 
  */
 public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
 
@@ -54,7 +52,7 @@ public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
      * If set to 1, use ttl as a lower bound for the checkInterval calculated from the feed and do not use a shorter
      * interval than ttl. <br />
      * If set to 2, use it as checkInterval, and do not calculate interval from feed. <br />
-     * 
+     *
      * @param rssTTLmode see text.
      */
     public MAVSynchronizationUpdateStrategy(int lowestInterval, int highestInterval, int rssTTLmode) {
@@ -69,9 +67,9 @@ public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
      * <p>
      * Update the update interval for the feed given the post statistics.
      * </p>
-     * 
-     * @param feed The feed to update.
-     * @param fps This feeds feed post statistics.
+     *
+     * @param feed         The feed to update.
+     * @param fps          This feeds feed post statistics.
      * @param trainingMode Ignored parameter. The strategy does not support an explicit training mode.
      */
     @Override
@@ -94,8 +92,7 @@ public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
         long intervalLengthMillisecond = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
         int windowIntervalMinutes = 0;
         if (entries.size() >= 2 && intervalLengthMillisecond > 0) {
-            windowIntervalMinutes = (int)(intervalLengthMillisecond / ((entries.size() - 1) * TimeUnit.MINUTES
-                    .toMillis(1)));
+            windowIntervalMinutes = (int) (intervalLengthMillisecond / ((entries.size() - 1) * TimeUnit.MINUTES.toMillis(1)));
         }
 
         // check whether synchronization is possible
@@ -106,14 +103,12 @@ public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
         }
 
         // the resulting checkInterval between last and next poll
-        checkIntervalMinutes = (int)((synchronizedPollTime - feed.getLastPollTime().getTime()) / TimeUnit.MINUTES
-                .toMillis(1));
+        checkIntervalMinutes = (int) ((synchronizedPollTime - feed.getLastPollTime().getTime()) / TimeUnit.MINUTES.toMillis(1));
 
         // If checkInterval is within bounds, we can use it, otherwise we use alternative calculation
         if (checkIntervalMinutes == getAllowedInterval(checkIntervalMinutes)) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Feedid " + feed.getId() + " could do synchronization step at poll " + feed.getChecks()
-                        + 1);
+                LOGGER.debug("Feedid " + feed.getId() + " could do synchronization step at poll " + feed.getChecks() + 1);
             }
         }
         // ------- second, use last window and last poll time to get interval and next poll time -------
@@ -122,7 +117,7 @@ public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
             intervalStopTime = feed.getLastPollTime();
             intervalLengthMillisecond = DateHelper.getIntervalLength(intervalStartTime, intervalStopTime);
             if (entries.size() >= 1 && intervalLengthMillisecond > 0) {
-                checkIntervalMinutes = (int)(intervalLengthMillisecond / (entries.size() * TimeUnit.MINUTES.toMillis(1)));
+                checkIntervalMinutes = (int) (intervalLengthMillisecond / (entries.size() * TimeUnit.MINUTES.toMillis(1)));
             }
 
         }
@@ -139,16 +134,14 @@ public class MAVSynchronizationUpdateStrategy extends AbstractUpdateStrategy {
                 // use ttl value as lower bound
                 if (rssTTLmode == 1 && checkIntervalMinutes < rssTTL) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes
-                                + " to rssTTL " + rssTTL);
+                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes + " to rssTTL " + rssTTL);
                     }
                     checkIntervalMinutes = rssTTL;
                 }
                 // set ttl value as interval
                 else if (rssTTLmode == 2) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes
-                                + " to rssTTL " + rssTTL);
+                        LOGGER.debug("Feed " + feed.getId() + " set interval from " + checkIntervalMinutes + " to rssTTL " + rssTTL);
                     }
                     checkIntervalMinutes = rssTTL;
                 }

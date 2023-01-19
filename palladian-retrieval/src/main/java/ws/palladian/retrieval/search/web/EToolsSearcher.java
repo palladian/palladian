@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
@@ -22,12 +18,15 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <p>
  * Searcher for <a href="http://www.etools.ch">ETools</a> meta search engine. The partner ID is taken from the Carrot2
  * workbench, not for public usage therefore.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class EToolsSearcher extends AbstractSearcher<WebContent> {
@@ -37,7 +36,7 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
     private static final DocumentParser XML_PARSER = ParserFactory.createXmlParser();
 
     private static final String PARTNER_ID = "Carrot2";
-    
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -99,7 +98,7 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
         }
         return stringBuilder.toString();
     }
-    
+
     @Override
     public boolean isDeprecated() {
         return true;

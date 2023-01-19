@@ -1,29 +1,24 @@
 package ws.palladian.retrieval.parser;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpResult;
+
+import java.io.*;
+import java.nio.charset.Charset;
 
 /**
  * <p>
  * Base implementation for document parsers.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class BaseDocumentParser implements DocumentParser {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseDocumentParser.class);
 
@@ -48,17 +43,17 @@ public abstract class BaseDocumentParser implements DocumentParser {
         }
         LOGGER.debug("Encoding of HttpResult: {}, is supported: {}", charset, supportedCharset);
 
-		Document document = parse(inputSource);
-		// set the (potentially redirected) URL
-		String location = CollectionHelper.getLast(httpResult.getLocations());
-		document.setDocumentURI(location);
-        
+        Document document = parse(inputSource);
+        // set the (potentially redirected) URL
+        String location = CollectionHelper.getLast(httpResult.getLocations());
+        document.setDocumentURI(location);
+
         return document;
     }
 
     /**
      * Determine, whether the charset is supported, and catch exceptions thrown by {@link Charset#isSupported(String)}.
-     * 
+     *
      * @param charset The charset.
      * @return <code>true</code> in case the charset is supported, false otherwise.
      */

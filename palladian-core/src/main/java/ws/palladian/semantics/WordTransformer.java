@@ -201,7 +201,7 @@ public class WordTransformer {
      * </p>
      *
      * @param pluralForm The plural form of the word.
-     * @param language The language (either "en" for English or "de" for German)
+     * @param language   The language (either "en" for English or "de" for German)
      * @return The singular form of the word.
      */
     public static String wordToSingular(String pluralForm, Language language) {
@@ -325,7 +325,7 @@ public class WordTransformer {
      * Split german compound words, e.g. "Goldkette" becomes (Gold, Kette).
      * </p>
      *
-     * @param word The compound word.
+     * @param word       The compound word.
      * @param forceSplit If force split, compound words from the dictionary are ignored, e.g. "Fahrradschloss" is in the dictionary but we'll try to break it to Fahrrad + Schloss
      * @return All words in its correct order that the compound is made out of.
      */
@@ -503,7 +503,7 @@ public class WordTransformer {
      *
      * @param singular The singular form of the word.
      * @return The plural form of the word.
-     *         see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
+     * see http://www.mein-deutschbuch.de/lernen.php?menu_id=53
      */
     public static String wordToPluralGerman(String singular) {
         if (singular == null) {
@@ -786,8 +786,8 @@ public class WordTransformer {
         string = string.toLowerCase();
 
         // check signal words
-        if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string) || StringHelper.containsWord("does", string)
-                || StringHelper.containsWord("doesn't", string)) {
+        if (StringHelper.containsWord("do", string) || StringHelper.containsWord("don't", string) || StringHelper.containsWord("does", string) || StringHelper.containsWord(
+                "doesn't", string)) {
             return EnglishTense.SIMPLE_PRESENT;
         }
 

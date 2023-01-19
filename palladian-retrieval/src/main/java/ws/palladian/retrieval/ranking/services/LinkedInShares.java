@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -14,13 +10,15 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation to find the number of shares of a Web page on Linked In.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public final class LinkedInShares extends AbstractRankingService implements RankingService {
 
@@ -31,8 +29,7 @@ public final class LinkedInShares extends AbstractRankingService implements Rank
     private static final String SERVICE_ID = "linkedin";
 
     /** The ranking value types of this service **/
-    public static final RankingType SHARES = new RankingType("linkedinshares", "Linked In Shares",
-            "The Number of Shares on Linked In");
+    public static final RankingType SHARES = new RankingType("linkedinshares", "Linked In Shares", "The Number of Shares on Linked In");
 
     /** All available ranking types by {@link LinkedInShares}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(SHARES);
@@ -42,8 +39,7 @@ public final class LinkedInShares extends AbstractRankingService implements Rank
         Ranking.Builder builder = new Ranking.Builder(this, url);
 
         Integer shares = null;
-        String requestUrl = "http://www.linkedin.com/countserv/count/share?format=json&url="
-                + UrlHelper.encodeParameter(url);
+        String requestUrl = "http://www.linkedin.com/countserv/count/share?format=json&url=" + UrlHelper.encodeParameter(url);
 
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);

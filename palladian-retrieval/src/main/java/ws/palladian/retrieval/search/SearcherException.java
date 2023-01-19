@@ -4,7 +4,7 @@ package ws.palladian.retrieval.search;
  * <p>
  * Exception which can be thrown when a {@link Searcher} encounters an error.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class SearcherException extends Exception {

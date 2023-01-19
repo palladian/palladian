@@ -1,16 +1,6 @@
 package ws.palladian.classification.dt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
-import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
-
 import ws.palladian.classification.utils.CsvDatasetReader;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.FeatureVector;
@@ -18,31 +8,40 @@ import ws.palladian.core.Instance;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.helper.math.ConfusionMatrix;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static ws.palladian.classification.utils.ClassifierEvaluation.evaluate;
+import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
+
 public class QuickDtTest {
 
-//    @Test
-//    public void testDirectly() {
-//        final Set<quickdt.Instance> instances = new HashSet<>();
-//        // A male weighing 168lb that is 55 inches tall, they are overweight
-//        instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification(
-//                "overweight"));
-//        instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification(
-//                "healthy"));
-//        instances.add(HashMapAttributes.create("height", 74, "weight", 143, "gender", "male").classification(
-//                "underweight"));
-//        instances.add(HashMapAttributes.create("height", 49, "weight", 144, "gender", "female").classification(
-//                "underweight"));
-//        instances
-//                .add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
-//
-//        TreeBuilder treeBuilder = new TreeBuilder();
-//        Tree tree = treeBuilder.buildPredictiveModel(instances);
-//        Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
-//        Serializable classification = tree.getClassificationByMaxProb(attributes);
-//        double probability = tree.getProbability(attributes, classification);
-//        System.out.println("classification: " + classification);
-//        System.out.println("probability " + probability);
-//    }
+    //    @Test
+    //    public void testDirectly() {
+    //        final Set<quickdt.Instance> instances = new HashSet<>();
+    //        // A male weighing 168lb that is 55 inches tall, they are overweight
+    //        instances.add(HashMapAttributes.create("height", 55, "weight", 168, "gender", "male").classification(
+    //                "overweight"));
+    //        instances.add(HashMapAttributes.create("height", 75, "weight", 168, "gender", "female").classification(
+    //                "healthy"));
+    //        instances.add(HashMapAttributes.create("height", 74, "weight", 143, "gender", "male").classification(
+    //                "underweight"));
+    //        instances.add(HashMapAttributes.create("height", 49, "weight", 144, "gender", "female").classification(
+    //                "underweight"));
+    //        instances
+    //                .add(HashMapAttributes.create("height", 83, "weight", 223, "gender", "male").classification("healthy"));
+    //
+    //        TreeBuilder treeBuilder = new TreeBuilder();
+    //        Tree tree = treeBuilder.buildPredictiveModel(instances);
+    //        Attributes attributes = HashMapAttributes.create("height", 62, "weight", 201, "gender", "female");
+    //        Serializable classification = tree.getClassificationByMaxProb(attributes);
+    //        double probability = tree.getProbability(attributes, classification);
+    //        System.out.println("classification: " + classification);
+    //        System.out.println("probability " + probability);
+    //    }
 
     @Test
     public void testDecisionTreeClassifier() {
@@ -83,8 +82,7 @@ public class QuickDtTest {
 
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
-        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false)
-                .readAll();
+        List<Instance> instances = new CsvDatasetReader(getResourceFile("/classifier/diabetesData.txt"), false).readAll();
         ConfusionMatrix confusionMatrix = evaluate(QuickDtLearner.randomForest(), new QuickDtClassifier(), instances);
         double accuracy = confusionMatrix.getAccuracy();
         assertGreater(0.72, accuracy);

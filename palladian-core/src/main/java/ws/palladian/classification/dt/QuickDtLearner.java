@@ -1,20 +1,9 @@
 package ws.palladian.classification.dt;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import quickdt.HashMapAttributes;
-import quickdt.Instance;
-import quickdt.PredictiveModel;
-import quickdt.PredictiveModelBuilder;
-import quickdt.TreeBuilder;
+import quickdt.*;
 import quickdt.randomForest.RandomForestBuilder;
 import ws.palladian.core.AbstractLearner;
 import ws.palladian.core.FeatureVector;
@@ -24,17 +13,23 @@ import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * <p>
  * A Decision Tree classifier based on <a href="https://github.com/sanity/quickdt">quickdt</a> by Ian Clarke. The
  * classifier supports plain decision trees, and Random Forests (use {@link #QuickDtClassifier(PredictiveModelBuilder)}
  * with {@link RandomForestBuilder}).
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class QuickDtLearner extends AbstractLearner<QuickDtModel> {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(QuickDtLearner.class);
 
@@ -73,7 +68,7 @@ public final class QuickDtLearner extends AbstractLearner<QuickDtModel> {
      * Create a new QuickDtLearner with the specified {@link PredictiveModelBuilder}. (currently, quickdt offers a
      * standard {@link TreeBuilder}, and a {@link RandomForestBuilder}).
      * </p>
-     * 
+     *
      * @param builder The builder to use, not <code>null</code>.
      * @see {@link #tree()} and {@link #randomForest()} for a predefined learner.
      * @deprecated Use {@link #tree()} or {@link #randomForest()} to create instances.
@@ -103,10 +98,10 @@ public final class QuickDtLearner extends AbstractLearner<QuickDtModel> {
             Value value = feature.value();
             if (value instanceof NominalValue) {
                 inputs.add(feature.key());
-                inputs.add(((NominalValue)value).getString());
+                inputs.add(((NominalValue) value).getString());
             } else if (value instanceof NumericValue) {
                 inputs.add(feature.key());
-                inputs.add(((NumericValue)value).getDouble());
+                inputs.add(((NumericValue) value).getDouble());
             } else {
                 LOGGER.trace("Unsupported type for {}: {}", feature.key(), value.getClass().getName());
             }

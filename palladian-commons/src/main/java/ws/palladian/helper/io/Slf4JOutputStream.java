@@ -1,10 +1,10 @@
 package ws.palladian.helper.io;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * <p>
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
  * logging via <code>System.out</code> or <code>System.err</code>. System.out can be redirected to SLF4J like so:
  * <code>System.setOut(new PrintStream(new Slf4JOutputStream(logger, Level.INFO), true));</code>.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class Slf4JOutputStream extends OutputStream {
@@ -44,9 +44,9 @@ public class Slf4JOutputStream extends OutputStream {
      * <p>
      * Create a new {@link Slf4JOutputStream}.
      * </p>
-     * 
+     *
      * @param logger The {@link Logger} where the output is redirected to, not <code>null</code>.
-     * @param level The SLF4J level (trace, debug, info, warn, error), not <code>null</code>.
+     * @param level  The SLF4J level (trace, debug, info, warn, error), not <code>null</code>.
      */
     public Slf4JOutputStream(Logger logger, Level level) {
         Validate.notNull(logger, "logger must not be null");
@@ -68,7 +68,7 @@ public class Slf4JOutputStream extends OutputStream {
             System.arraycopy(buffer, 0, newBuffer, 0, buffer.length);
             buffer = newBuffer;
         }
-        buffer[length++] = (byte)b;
+        buffer[length++] = (byte) b;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class Slf4JOutputStream extends OutputStream {
         }
         if (length == LINE_SEPARATOR.length() && LINE_SEPARATOR.charAt(0) == buffer[0] && // no line separators
                 (length == 1 || // mac, unix
-                length == 2 && LINE_SEPARATOR.charAt(1) == buffer[1])) { // windows
+                        length == 2 && LINE_SEPARATOR.charAt(1) == buffer[1])) { // windows
             reset();
             return;
         }

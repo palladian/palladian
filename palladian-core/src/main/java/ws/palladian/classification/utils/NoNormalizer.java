@@ -8,7 +8,7 @@ import ws.palladian.core.dataset.Dataset;
  * No-operation normalization. The data is not modified. Use this, when you do not want to perform normalization, but a
  * classifier requires a {@link Normalizer} as parameter.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class NoNormalizer implements Normalizer {
@@ -18,11 +18,11 @@ public final class NoNormalizer implements Normalizer {
         private static final long serialVersionUID = 1L;
 
         @Override
-		public FeatureVector normalize(FeatureVector featureVector) {
-        	return featureVector;
-		}
+        public FeatureVector normalize(FeatureVector featureVector) {
+            return featureVector;
+        }
 
-		@Override
+        @Override
         public double normalize(String name, double value) {
             return value;
         }
@@ -38,14 +38,14 @@ public final class NoNormalizer implements Normalizer {
         return NO_NORMALIZATION;
     }
 
-	@Override
-	public Normalization calculate(Dataset dataset) {
-		return NO_NORMALIZATION;
-	}
-	
-	@Override
-	public String toString() {
-		return getClass().getSimpleName();
-	}
+    @Override
+    public Normalization calculate(Dataset dataset) {
+        return NO_NORMALIZATION;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
 }

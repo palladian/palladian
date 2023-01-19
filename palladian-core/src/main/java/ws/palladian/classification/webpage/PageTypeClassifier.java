@@ -1,18 +1,9 @@
 package ws.palladian.classification.webpage;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -22,6 +13,14 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
 
@@ -45,17 +44,18 @@ public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
             }
         }
 
-        if (getMetaTags().get("copyright") != null
-                && getMetaTags().get("copyright").toLowerCase().indexOf("phpbb") > -1) {
+        if (getMetaTags().get("copyright") != null && getMetaTags().get("copyright").toLowerCase().indexOf("phpbb") > -1) {
             return PageType.FORUM;
         }
 
         // check link elements
         List<Node> metaNodes = XPathHelper.getXhtmlNodes(document, "//LINK");
         for (Node metaNode : metaNodes) {
-            if (metaNode.getAttributes().getNamedItem("rel") != null
-                    && metaNode.getAttributes().getNamedItem("title") != null
-                    && metaNode.getAttributes().getNamedItem("title").getTextContent().toLowerCase().indexOf("phpbb") > -1) {
+            if (metaNode.getAttributes().getNamedItem("rel") != null && metaNode.getAttributes().getNamedItem("title") != null && metaNode.getAttributes()
+                    .getNamedItem("title")
+                    .getTextContent()
+                    .toLowerCase()
+                    .indexOf("phpbb") > -1) {
                 return PageType.FORUM;
             }
         }
@@ -218,14 +218,10 @@ public class PageTypeClassifier extends RuleBasedPageClassifier<PageType> {
             }
         }
 
-        LOGGER.info("correctly classified: " + MathHelper.round(100 * correctlyClassified / (double) classes.size(), 2)
-                + "%");
-        LOGGER.info("correctly classified just blog: "
-                + MathHelper.round(100 * justBlogCorrectlyClassified / (double) classes.size(), 2) + "%");
-        LOGGER.info("false positive blog rate: "
-                + MathHelper.round(100 * falsePositivesBlog / (double) classes.size(), 2) + "%");
-        LOGGER.info("false negative blog rate: "
-                + MathHelper.round(100 * falseNegativesBlog / (double) classes.size(), 2) + "%");
+        LOGGER.info("correctly classified: " + MathHelper.round(100 * correctlyClassified / (double) classes.size(), 2) + "%");
+        LOGGER.info("correctly classified just blog: " + MathHelper.round(100 * justBlogCorrectlyClassified / (double) classes.size(), 2) + "%");
+        LOGGER.info("false positive blog rate: " + MathHelper.round(100 * falsePositivesBlog / (double) classes.size(), 2) + "%");
+        LOGGER.info("false negative blog rate: " + MathHelper.round(100 * falseNegativesBlog / (double) classes.size(), 2) + "%");
 
         LOGGER.info("classification took " + sw.getElapsedTimeString() + " on " + classes.size() + " documents");
     }

@@ -1,21 +1,16 @@
 package ws.palladian.classification.liblinear;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.core.Model;
+
+import java.util.*;
 
 /**
  * <p>
  * Model for the {@link LibLinearClassifier}. Use the {@link LibLinearLearner} to train.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class LibLinearModel implements Model {
@@ -33,8 +28,8 @@ public class LibLinearModel implements Model {
     private final DummyVariableCreator dummyCoder;
 
     /** Instances are created package-internally. */
-    LibLinearModel(de.bwaldvogel.liblinear.Model model, Map<String, Integer> featureLabelIndices, List<String> classIndices,
-            Normalization normalization, DummyVariableCreator dummyCoder) {
+    LibLinearModel(de.bwaldvogel.liblinear.Model model, Map<String, Integer> featureLabelIndices, List<String> classIndices, Normalization normalization,
+            DummyVariableCreator dummyCoder) {
         this.model = model;
         this.featureLabelIndices = featureLabelIndices;
         this.classIndices = classIndices;
@@ -42,7 +37,7 @@ public class LibLinearModel implements Model {
         this.dummyCoder = dummyCoder;
     }
 
-	de.bwaldvogel.liblinear.Model getLLModel() {
+    de.bwaldvogel.liblinear.Model getLLModel() {
         return model;
     }
 
@@ -69,13 +64,13 @@ public class LibLinearModel implements Model {
 
     @Override
     public String toString() {
-//        try {
-//            Writer writer = new StringWriter();
-//            model.save(writer);
-//            return writer.toString() + "\n" + featureLabels;
-//        } catch (IOException e) {
-//            throw new IllegalStateException(e);
-//        }
+        //        try {
+        //            Writer writer = new StringWriter();
+        //            model.save(writer);
+        //            return writer.toString() + "\n" + featureLabels;
+        //        } catch (IOException e) {
+        //            throw new IllegalStateException(e);
+        //        }
         StringBuilder builder = new StringBuilder();
         builder.append("# classes\t").append(model.getNrClass()).append('\n');
         builder.append("# features\t").append(model.getNrFeature()).append('\n');

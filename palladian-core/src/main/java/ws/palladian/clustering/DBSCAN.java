@@ -1,24 +1,19 @@
 package ws.palladian.clustering;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Distance;
+
+import java.util.*;
 
 /**
  * <p>
  * Implementation of the DBSCAN clustering algorithm, as presented in
  * "A density-based algorithm for discovering clusters in large spatial databases with noise", Martin Ester, Hans-Peter
  * Kriegel, Jörg Sander, Xiaowei Xu, 1996.
- * 
- * @author Philipp Katz
+ *
  * @param <T> Type of the objects to cluster.
+ * @author Philipp Katz
  * @see <a href="http://en.wikipedia.org/wiki/DBSCAN">Wikipedia: DBSCAN</a>
  */
 public class DBSCAN<T> {
@@ -32,9 +27,9 @@ public class DBSCAN<T> {
     /**
      * <p>
      * Create a new DBSCAN clusterer.
-     * 
-     * @param eps Maximum distance for the epsilon neighborhood, greater zero.
-     * @param minPts Minimum number of required points in the neighborhood to form a "dense region", greater zero.
+     *
+     * @param eps      Maximum distance for the epsilon neighborhood, greater zero.
+     * @param minPts   Minimum number of required points in the neighborhood to form a "dense region", greater zero.
      * @param distance The distance measure.
      */
     public DBSCAN(double eps, int minPts, Distance<? super T> distance) {
@@ -49,7 +44,7 @@ public class DBSCAN<T> {
     /**
      * <p>
      * Clusters the given data items and returns a nested set representing the clusters.
-     * 
+     *
      * @param data The data items to cluster, not <code>null</code>.
      * @return The clusters.
      */

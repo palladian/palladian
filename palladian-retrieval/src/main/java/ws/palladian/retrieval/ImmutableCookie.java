@@ -58,7 +58,7 @@ public final class ImmutableCookie implements Cookie {
             return true;
         if (obj == null || getClass() != obj.getClass())
             return false;
-        ImmutableCookie other = (ImmutableCookie)obj;
+        ImmutableCookie other = (ImmutableCookie) obj;
         if (!domain.equals(other.domain))
             return false;
         if (!name.equals(other.name))

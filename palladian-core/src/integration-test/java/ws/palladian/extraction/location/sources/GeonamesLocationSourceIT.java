@@ -1,20 +1,17 @@
 package ws.palladian.extraction.location.sources;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Collection;
-import java.util.EnumSet;
-
 import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.integrationtests.ITHelper;
+
+import java.util.Collection;
+import java.util.EnumSet;
+
+import static org.junit.Assert.*;
 
 public class GeonamesLocationSourceIT {
 
@@ -51,8 +48,7 @@ public class GeonamesLocationSourceIT {
     @Test(expected = IllegalStateException.class)
     public void testGeonamesLocationSourceInvalidUsername() {
         @SuppressWarnings("deprecation")
-        GeonamesLocationSource testSource = new GeonamesLocationSource("random_username_which_does_not_exist_"
-                + System.currentTimeMillis());
+        GeonamesLocationSource testSource = new GeonamesLocationSource("random_username_which_does_not_exist_" + System.currentTimeMillis());
         testSource.getLocations("monaco", EnumSet.of(Language.ENGLISH));
     }
 

@@ -1,17 +1,8 @@
 package ws.palladian.extraction.pos;
 
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.classification.text.FeatureSettingBuilder;
 import ws.palladian.classification.universal.UniversalClassifier;
@@ -30,11 +21,19 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 /**
  * <p>
  * Palladian version of a text-classification-based part-of-speech tagger.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class PalladianPosTagger extends AbstractPosTagger {
@@ -78,7 +77,7 @@ public class PalladianPosTagger extends AbstractPosTagger {
 
     /**
      * An iterator for the Brown corpus dataset. Converts the individual documents to single token instances.
-     * 
+     *
      * @author Philipp Katz
      */
     private static final class BrownCorpusIterator extends AbstractIterator<Instance> {

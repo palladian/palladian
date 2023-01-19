@@ -1,9 +1,5 @@
 package ws.palladian.extraction.location.disambiguation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.location.ClassifiedAnnotation;
 import ws.palladian.extraction.location.Location;
@@ -11,11 +7,15 @@ import ws.palladian.extraction.location.LocationAnnotation;
 import ws.palladian.extraction.location.LocationType;
 import ws.palladian.helper.collection.MultiMap;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * <p>
  * Baseline disambiguation using maximum population heuristic.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class BaselineDisambiguation implements LocationDisambiguation {

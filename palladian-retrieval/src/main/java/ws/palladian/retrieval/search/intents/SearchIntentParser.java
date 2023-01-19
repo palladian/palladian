@@ -356,8 +356,6 @@ public class SearchIntentParser {
 
     @Override
     public String toString() {
-        return "SearchIntentParser{" +
-                "intents=" + intents +
-                '}';
+        return "SearchIntentParser{" + "intents=" + intents + '}';
     }
 }

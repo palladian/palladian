@@ -1,22 +1,15 @@
 package ws.palladian.retrieval;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 class ScrapeTldList {
     public static void main(String[] args) throws Exception {
@@ -52,8 +45,7 @@ class ScrapeTldList {
         String url = "https://en.wikipedia.org/wiki/List_of_Internet_top-level_domains";
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet(url);
         Document document = ParserFactory.createHtmlParser().parse(result);
-        List<Node> nodes = XPathHelper.getXhtmlNodes(document,
-                "//table[contains(@class,\"wikitable\")]/tbody/tr/td[1]");
+        List<Node> nodes = XPathHelper.getXhtmlNodes(document, "//table[contains(@class,\"wikitable\")]/tbody/tr/td[1]");
         return nodes.stream() //
                 .map(node -> node.getTextContent()) //
                 .map(String::trim) //
@@ -68,10 +60,8 @@ class ScrapeTldList {
         domains = domains.stream().filter(l -> !l.startsWith("#")).collect(Collectors.toList());
 
         // compare with previous list
-        List<String> oldTLDs = FileHelper
-                .readFileToArray("../palladian-commons/src/main/resources/top-level-domains.txt");
-        List<String> oldSLDs = FileHelper
-                .readFileToArray("../palladian-commons/src/main/resources/second-level-domains.txt");
+        List<String> oldTLDs = FileHelper.readFileToArray("../palladian-commons/src/main/resources/top-level-domains.txt");
+        List<String> oldSLDs = FileHelper.readFileToArray("../palladian-commons/src/main/resources/second-level-domains.txt");
         List<String> oldAll = new ArrayList<>(oldTLDs);
         oldAll.addAll(oldSLDs);
 

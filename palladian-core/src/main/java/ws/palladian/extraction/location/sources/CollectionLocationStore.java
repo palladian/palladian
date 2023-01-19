@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * <p>
  * A simple, in-memory {@link LocationStore}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class CollectionLocationStore extends SingleQueryLocationSource implements LocationStore {
@@ -33,7 +33,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
     @Override
     public Collection<Location> getLocations(String locationName, Set<Language> languages) {
         LOGGER.warn("getLocations(String,EnumSet<Language>) is not supported, ignoring language parameter");
-        return Collections.<Location> unmodifiableCollection(namesLocations.get(locationName.toLowerCase()));
+        return Collections.<Location>unmodifiableCollection(namesLocations.get(locationName.toLowerCase()));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
 
     /**
      * An in-memory representation of a {@link Location}.
-     * 
+     *
      * @author Philipp Katz
      */
     private static final class MutableLocation extends AbstractLocation {
@@ -128,6 +128,7 @@ public class CollectionLocationStore extends SingleQueryLocationSource implement
         public Collection<AlternativeName> getAlternativeNames() {
             return alternativeNames;
         }
+
         @Override
         public Collection<String> getAlternativeNameStrings() {
             if (alternativeNames == null) {

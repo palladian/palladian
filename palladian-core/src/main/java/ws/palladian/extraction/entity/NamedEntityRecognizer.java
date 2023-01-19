@@ -1,14 +1,7 @@
 package ws.palladian.extraction.entity;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.Tagger;
@@ -18,11 +11,17 @@ import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * <p>
  * The abstract Named Entity Recognizer (NER). Every NER should provide functionality for tagging an input text.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public abstract class NamedEntityRecognizer implements Tagger {
@@ -48,7 +47,7 @@ public abstract class NamedEntityRecognizer implements Tagger {
 
     /**
      * Evaluate the NER, the model must have been loaded before.
-     * 
+     *
      * @param dataset The dataset to use for evaluation.
      * @return The evaluation results.
      */
@@ -72,7 +71,7 @@ public abstract class NamedEntityRecognizer implements Tagger {
     }
 
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format) {
-        return evaluate(testingFilePath, format, Collections.<String> emptySet());
+        return evaluate(testingFilePath, format, Collections.<String>emptySet());
     }
 
     public EvaluationResult evaluate(String testingFilePath, TaggingFormat format, Set<String> ignore) {

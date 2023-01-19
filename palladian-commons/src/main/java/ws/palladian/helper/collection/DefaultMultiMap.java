@@ -1,16 +1,9 @@
 package ws.palladian.helper.collection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.functional.Factory;
+
+import java.util.*;
 
 /**
  * <p>
@@ -20,13 +13,10 @@ import ws.palladian.helper.functional.Factory;
  * {@link Collection} type to store values, use the constructor and provide a
  * {@link Factory} to create the desired collection.
  * </p>
- * 
+ *
+ * @param <K> Type of key.
+ * @param <V> Type of values.
  * @author Philipp Katz
- * 
- * @param <K>
- *            Type of key.
- * @param <V>
- *            Type of values.
  */
 public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implements MultiMap<K, V> {
 
@@ -36,7 +26,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
      * <p>
      * Convenience constructor which allows omitting the redundant type parameters.
      * </p>
-     * 
+     *
      * @return A new instance of MultiMap.
      */
     public static <K, V> MultiMap<K, V> createWithList() {
@@ -47,7 +37,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
      * <p>
      * Convenience constructor which allows omitting the redundant type parameters.
      * </p>
-     * 
+     *
      * @return A new instance of MultiMap.
      */
     public static <K, V> MultiMap<K, V> createWithSet() {
@@ -60,11 +50,11 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
      * Usually you either want a {@link Set} or {@link List}, then use the static methods for instantiation instead of
      * the constructor.
      * </p>
-     * 
+     *
      * @param collectionFactory The factory which creates the {@link Collection}s for the key, not <code>null</code>.
      */
     public DefaultMultiMap(Factory<? extends Collection<V>> collectionFactory) {
-    	super(new HashMap<>());
+        super(new HashMap<>());
         Validate.notNull(collectionFactory, "collectionFactory must not be null");
         this.collectionFactory = collectionFactory;
     }
@@ -74,7 +64,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
     @Override
     public Collection<V> get(Object key) {
         Collection<V> value = getMap().get(key);
-        return value != null ? value : Collections.<V> emptySet();
+        return value != null ? value : Collections.<V>emptySet();
     }
 
     // MultiMap specific API
@@ -113,7 +103,7 @@ public class DefaultMultiMap<K, V> extends MapDecorator<K, Collection<V>> implem
     @Override
     public V getFirst(K key) {
         Collection<V> values = get(key);
-        return values != null ? CollectionHelper.getFirst(values) : null; 
+        return values != null ? CollectionHelper.getFirst(values) : null;
     }
 
 }

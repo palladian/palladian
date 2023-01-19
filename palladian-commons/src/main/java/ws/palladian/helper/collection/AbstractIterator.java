@@ -7,10 +7,9 @@ import java.util.NoSuchElementException;
  * Abstract iterator implementation which provides some convenience for implementations; only the {@link #getNext()}
  * method needs to be implemented. In case, the iterator supports modifications, one must additionally implement the
  * {@link #remove()} metod (which triggers an {@link UnsupportedOperationException} by default).
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <E>
+ * @author Philipp Katz
  * @deprecated Use {@link AbstractIterator2} from now on.
  */
 @Deprecated
@@ -21,14 +20,14 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
 
     /**
      * Thrown, when the iteration has no more elements (this exception is only used internally and is not re-thrown).
-     * 
+     *
      * @author Philipp Katz
      */
     @SuppressWarnings("serial")
     protected static final class Finished extends Exception {
         /**
          * @deprecated Refrain from instantiating this class (creating exceptions is expensive), use the predefined
-         *             {@link AbstractIterator#FINISHED} instead.
+         * {@link AbstractIterator#FINISHED} instead.
          */
         @Deprecated
         public Finished() {
@@ -80,10 +79,10 @@ public abstract class AbstractIterator<E> implements Iterator<E> {
      * <p>
      * Get the next element for iteration.
      * </p>
-     * 
+     *
      * @return The next element (may also be <code>null</code> in case one iterates over <code>null</code> items).
      * @throws Finished Thrown when iteration ended and there are no more elements (use
-     *             {@link AbstractIterator#FINISHED}).
+     *                  {@link AbstractIterator#FINISHED}).
      */
     protected abstract E getNext() throws Finished;
 

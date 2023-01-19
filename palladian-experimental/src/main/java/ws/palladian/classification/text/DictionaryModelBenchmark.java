@@ -1,15 +1,15 @@
 package ws.palladian.classification.text;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-
 import ws.palladian.classification.text.evaluation.TextDatasetIterator;
 import ws.palladian.classification.utils.ClassifierEvaluation;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.ConfusionMatrix;
+
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 public class DictionaryModelBenchmark {
 
@@ -41,7 +41,7 @@ public class DictionaryModelBenchmark {
             stopWatch = new StopWatch();
             ConfusionMatrix evaluationResult = ClassifierEvaluation.evaluate(classifier, testIterator, model);
             resultBuilder.append(stopWatch.getElapsedTime(true)).append(';');
-            
+
             resultBuilder.append(evaluationResult.getAccuracy()).append('\n');
 
             FileHelper.appendFile(BENCHMARK_RESULT_CSV.getAbsolutePath(), resultBuilder);
@@ -50,7 +50,7 @@ public class DictionaryModelBenchmark {
             FileHelper.appendFile(BENCHMARK_RESULT_CSV.getAbsolutePath(), builder.toString() + ";" + e.toString() + ";\n");
         } finally {
             if (model instanceof Closeable) {
-                FileHelper.close((Closeable)model);
+                FileHelper.close((Closeable) model);
             }
             gc();
         }

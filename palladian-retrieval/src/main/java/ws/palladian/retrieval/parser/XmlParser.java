@@ -1,23 +1,21 @@
 package ws.palladian.retrieval.parser;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.rometools.rome.io.XmlReader;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.rometools.rome.io.XmlReader;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * <p>
  * Parser for XML documents, which provides some additional sanitizing capabilities concerning illegal characters, etc.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class XmlParser extends BaseDocumentParser implements DocumentParser {

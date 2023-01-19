@@ -1,14 +1,13 @@
 package ws.palladian.classification.text.evaluation;
 
-import java.util.Iterator;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.text.AbstractDictionaryModel;
 import ws.palladian.classification.text.DictionaryModel;
 import ws.palladian.classification.text.FeatureSetting;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.util.Iterator;
 import java.util.function.Predicate;
 
 public final class PruningSimulatedDictionaryModel extends AbstractDictionaryModel {

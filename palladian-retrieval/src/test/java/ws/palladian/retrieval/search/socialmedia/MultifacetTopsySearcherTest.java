@@ -1,19 +1,18 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Set;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MultifacetTopsySearcherTest {
 
     @Test
     public void testExtractIdentifier() {
-        String identifier = MultifacetTopsySearcher
-                .extractIdentifier("http://twitter.com/Yahoo/status/407136819797450752");
+        String identifier = MultifacetTopsySearcher.extractIdentifier("http://twitter.com/Yahoo/status/407136819797450752");
         assertEquals("407136819797450752", identifier);
     }
 

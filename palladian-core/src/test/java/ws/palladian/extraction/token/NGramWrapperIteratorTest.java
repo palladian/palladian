@@ -1,14 +1,13 @@
 package ws.palladian.extraction.token;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import ws.palladian.core.Token;
+import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
-
-import ws.palladian.core.Token;
-import ws.palladian.helper.collection.CollectionHelper;
+import static org.junit.Assert.assertEquals;
 
 public class NGramWrapperIteratorTest {
     private static final String STRING = "the quick brown fox";

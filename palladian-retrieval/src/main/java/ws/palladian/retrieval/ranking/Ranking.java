@@ -1,13 +1,9 @@
 package ws.palladian.retrieval.ranking;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import ws.palladian.helper.functional.Factory;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>
@@ -44,7 +40,7 @@ public class Ranking {
             }
             return this;
         }
-        
+
         public Builder setRetrieved(Date retrieved) {
             this.retrieved = retrieved;
             return this;

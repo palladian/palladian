@@ -24,6 +24,7 @@ public class WikimediaSearcher extends AbstractSearcher<WebImage> {
     public WikimediaSearcher() {
 
     }
+
     public WikimediaSearcher(int defaultResultCount) {
         super();
         this.defaultResultCount = defaultResultCount;
@@ -33,8 +34,9 @@ public class WikimediaSearcher extends AbstractSearcher<WebImage> {
     public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
         List<WebImage> webImages = new ArrayList<>();
 
-//        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
-        String url = "https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles=" + UrlHelper.encodeParameter(StringHelper.upperCaseFirstLetters(query));
+        //        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
+        String url = "https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&format=json&piprop=original&titles=" + UrlHelper.encodeParameter(
+                StringHelper.upperCaseFirstLetters(query));
         JsonObject response = new DocumentRetriever().tryGetJsonObject(url);
         try {
             JsonObject pagesJso = response.tryQueryJsonObject("query/pages");
@@ -63,7 +65,7 @@ public class WikimediaSearcher extends AbstractSearcher<WebImage> {
     }
 
     public static void main(String[] args) throws SearcherException {
-        List<WebImage> results  = new WikimediaSearcher().search("socrates", 10, Language.ENGLISH);
+        List<WebImage> results = new WikimediaSearcher().search("socrates", 10, Language.ENGLISH);
         CollectionHelper.print(results);
     }
 }

@@ -1,6 +1,14 @@
 package ws.palladian.classification.text;
 
-import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
+import opennlp.tools.doccat.*;
+import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.TrainingParameters;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import ws.palladian.core.*;
+import ws.palladian.core.dataset.Dataset;
+import ws.palladian.core.value.TextValue;
+import ws.palladian.helper.constants.Language;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -8,35 +16,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import opennlp.tools.doccat.DoccatFactory;
-import opennlp.tools.doccat.DoccatModel;
-import opennlp.tools.doccat.DocumentCategorizerME;
-import opennlp.tools.doccat.DocumentSample;
-import opennlp.tools.doccat.FeatureGenerator;
-import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.TrainingParameters;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
-import ws.palladian.core.AbstractLearner;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.CategoryEntriesBuilder;
-import ws.palladian.core.Classifier;
-import ws.palladian.core.FeatureVector;
-import ws.palladian.core.Instance;
-import ws.palladian.core.Model;
-import ws.palladian.core.dataset.Dataset;
-import ws.palladian.core.value.TextValue;
-import ws.palladian.helper.constants.Language;
+import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TEXT_IDENTIFIER;
 
 /**
  * Text classifier which uses Open NLP's {@link DocumentCategorizerME}.
- * 
+ *
  * @author Philipp Katz
  */
-public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClassifier.OpenNlpTextClassifierModel> implements
-        Classifier<OpenNlpTextClassifier.OpenNlpTextClassifierModel> {
+public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClassifier.OpenNlpTextClassifierModel>
+        implements Classifier<OpenNlpTextClassifier.OpenNlpTextClassifierModel> {
 
     private static final class InstanceObjectStream implements ObjectStream<DocumentSample> {
         private final Iterator<? extends Instance> instances;
@@ -49,9 +37,9 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
         public DocumentSample read() throws IOException {
             if (instances.hasNext()) {
                 Instance instance = instances.next();
-                TextValue textValue = (TextValue)instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
+                TextValue textValue = (TextValue) instance.getVector().get(VECTOR_TEXT_IDENTIFIER);
                 String text = textValue.getText();
-                return new DocumentSample(instance.getCategory(), new String[] { text });
+                return new DocumentSample(instance.getCategory(), new String[]{text});
             }
             return null;
         }
@@ -91,7 +79,7 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
 
         public FeatureGenerator getFeatureGenerator() {
             try {
-                return (FeatureGenerator)Class.forName(featureGeneratorName).newInstance();
+                return (FeatureGenerator) Class.forName(featureGeneratorName).newInstance();
             } catch (InstantiationException e) {
                 throw new IllegalStateException("Could not instantiate \"" + featureGeneratorName + "\".");
             } catch (IllegalAccessException e) {
@@ -120,10 +108,10 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
 
     @Override
     public CategoryEntries classify(FeatureVector featureVector, OpenNlpTextClassifierModel model) {
-        TextValue textValue = (TextValue)featureVector.get(VECTOR_TEXT_IDENTIFIER);
+        TextValue textValue = (TextValue) featureVector.get(VECTOR_TEXT_IDENTIFIER);
         String text = textValue.getText();
         DocumentCategorizerME categorizer = new DocumentCategorizerME(model.doccatModel);
-        double[] categorize = categorizer.categorize(new String[] { text });
+        double[] categorize = categorizer.categorize(new String[]{text});
         CategoryEntriesBuilder entriesBuilder = new CategoryEntriesBuilder();
         for (int i = 0; i < categorize.length; i++) {
             double probability = categorize[i];
@@ -137,8 +125,7 @@ public final class OpenNlpTextClassifier extends AbstractLearner<OpenNlpTextClas
     public OpenNlpTextClassifierModel train(Dataset dataset) {
         try {
             ObjectStream<DocumentSample> samples = new InstanceObjectStream(dataset.iterator());
-            DoccatModel model = DocumentCategorizerME.train(language != null ? language.getIso6391()
-                    : StringUtils.EMPTY, samples, TRAINING_PARAMETERS, DOCCAT_FACTORY);
+            DoccatModel model = DocumentCategorizerME.train(language != null ? language.getIso6391() : StringUtils.EMPTY, samples, TRAINING_PARAMETERS, DOCCAT_FACTORY);
             return new OpenNlpTextClassifierModel(model, featureGenerator.getClass().getName());
         } catch (IOException e) {
             throw new IllegalStateException("Encountered IOException during training", e);

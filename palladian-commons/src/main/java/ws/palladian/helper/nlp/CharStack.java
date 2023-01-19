@@ -4,7 +4,7 @@ import java.util.EmptyStackException;
 
 /**
  * A character-based stack, implemented using a {@link StringBuilder}.
- * 
+ *
  * @author Philipp Katz
  */
 public class CharStack implements CharSequence {

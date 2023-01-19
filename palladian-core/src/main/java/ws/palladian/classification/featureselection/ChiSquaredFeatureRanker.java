@@ -1,12 +1,9 @@
 package ws.palladian.classification.featureselection;
 
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.math3.util.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.discretization.Discretization;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.Instance;
@@ -21,6 +18,8 @@ import ws.palladian.helper.collection.CountMatrix.IntegerMatrixVector;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 import ws.palladian.helper.math.NumericMatrix;
 
+import java.util.Map.Entry;
+
 /**
  * <p>
  * An implementation of the chi squared feature selection method. This method calculates the probability that the null
@@ -28,7 +27,7 @@ import ws.palladian.helper.math.NumericMatrix;
  * example in C. D. Manning, P. Raghavan, and H. Schütze, An introduction to information retrieval, no. c. New York:
  * Cambridge University Press, 2009, Page 275.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  */
 public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
@@ -43,7 +42,7 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * <p>
      * Creates a new completely initialized {@link FeatureRanker}.
      * </p>
-     * 
+     *
      * @param mergingStrategy A strategy describing how feature rankings for different classes are merged.
      */
     public ChiSquaredFeatureRanker(SelectedFeatureMergingStrategy mergingStrategy) {
@@ -56,8 +55,8 @@ public final class ChiSquaredFeatureRanker extends AbstractFeatureRanker {
      * This is the core method calculating the raw chi squared scores. Only call it directly if you know what you are
      * doing. Otherwise use the {@link FeatureRanker} interface.
      * </p>
-     * 
-     * @param dataset The dataset for which to calculate chi squared values, not <code>null</code>.
+     *
+     * @param dataset  The dataset for which to calculate chi squared values, not <code>null</code>.
      * @param progress A {@link ProgressReporter}, or <code>null</code> in case no progress should be reported.
      * @return Matrix with the chi squared values. Each row in the matrix represents a feature, each column a class.
      */

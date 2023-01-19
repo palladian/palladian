@@ -1,23 +1,6 @@
 package ws.palladian.extraction.location.persistence.sqlite;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.distanceComparator;
-import static ws.palladian.extraction.location.LocationFilters.radius;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
 import org.sqlite.SQLiteDataSource;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationBuilder;
 import ws.palladian.extraction.location.LocationSource;
@@ -30,6 +13,14 @@ import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.RowConverter;
 import ws.palladian.persistence.RowConverters;
 import ws.palladian.persistence.helper.SqlHelper;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static ws.palladian.extraction.location.LocationExtractorUtils.distanceComparator;
+import static ws.palladian.extraction.location.LocationFilters.radius;
 
 /**
  * Location source from a single SQLite file. Use {@link SQLiteLocationStore} to
@@ -60,8 +51,7 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
         String[] primary = resultSet.getString("namePrimary").split("#");
         if (langs.length != names.length || langs.length != primary.length) {
             throw new IllegalStateException(
-                    String.format("Expected names and namesLangs arrays to have same lengths (%s vs. %s vs. %s)",
-                            names.length, langs.length, primary.length));
+                    String.format("Expected names and namesLangs arrays to have same lengths (%s vs. %s vs. %s)", names.length, langs.length, primary.length));
         }
         for (int i = 0; i < names.length; i++) {
             String lang = langs[i];
@@ -107,8 +97,7 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
     }
 
     @Override
-    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages,
-            GeoCoordinate coordinate, double distance) {
+    public MultiMap<String, Location> getLocations(Collection<String> locationNames, Set<Language> languages, GeoCoordinate coordinate, double distance) {
         String langPlaceholder = String.join(",", Collections.nCopies(languages.size(), "?"));
         String sql = "SELECT " //
                 + "  l.*, " //
@@ -155,14 +144,14 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
     @Override
     public Location getLocation(int locationId) {
         return runSingleQuery(ROW_CONVERTER, "SELECT " //
-                + "  l.*, " //
-                + "  GROUP_CONCAT(n.name, '#') AS names, " //
-                + "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
-                + "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
-                + "FROM locations l " //
-                + "LEFT JOIN location_names n ON l.id = n.locationId " //
-                + "WHERE l.id = ? " //
-                + "GROUP BY l.id", //
+                        + "  l.*, " //
+                        + "  GROUP_CONCAT(n.name, '#') AS names, " //
+                        + "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
+                        + "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
+                        + "FROM locations l " //
+                        + "LEFT JOIN location_names n ON l.id = n.locationId " //
+                        + "WHERE l.id = ? " //
+                        + "GROUP BY l.id", //
                 locationId);
     }
 
@@ -175,14 +164,14 @@ public class SQLiteLocationSource extends DatabaseManager implements LocationSou
     public List<Location> getLocations(GeoCoordinate coordinate, double distance) {
         double[] boundingBox = coordinate.getBoundingBox(distance);
         List<Location> locations = runQuery(ROW_CONVERTER, "SELECT " //
-                + "  l.*, " //
-                + "  GROUP_CONCAT(n.name, '#') AS names, " //
-                + "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
-                + "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
-                + "FROM locations l " //
-                + "LEFT JOIN location_names n ON l.id = n.locationId " //
-                + "WHERE latitude > ? AND latitude < ? AND longitude > ? AND longitude < ? " //
-                + "GROUP BY l.id", //
+                        + "  l.*, " //
+                        + "  GROUP_CONCAT(n.name, '#') AS names, " //
+                        + "  GROUP_CONCAT(IFNULL(n.language, '_'), '#') as nameLangs, " //
+                        + "  GROUP_CONCAT(n.isPrimary, '#') AS namePrimary " //
+                        + "FROM locations l " //
+                        + "LEFT JOIN location_names n ON l.id = n.locationId " //
+                        + "WHERE latitude > ? AND latitude < ? AND longitude > ? AND longitude < ? " //
+                        + "GROUP BY l.id", //
                 boundingBox[0], boundingBox[2], boundingBox[1], boundingBox[3]);
         // remove locations out of the circle and sort by distance
         return locations.stream() //

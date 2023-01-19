@@ -3,7 +3,6 @@ package ws.palladian.extraction.content;
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -16,7 +15,7 @@ import ws.palladian.retrieval.parser.json.JsonObject;
  * <p>
  * The {@link AlchemyApiContentExtractor} extracts clean sentences from (English) texts using the Alchemy API.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public class AlchemyApiContentExtractor extends WebPageContentExtractor {
@@ -45,8 +44,7 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
         try {
             httpResult = httpRetriever.httpGet(requestUrl);
         } catch (HttpException e) {
-            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": "
-                    + e.getMessage(), e);
+            throw new PageContentExtractorException("Error when contacting API for URL \"" + documentLocation + "\": " + e.getMessage(), e);
         }
 
         extractedResult = httpResult.getStringContent();
@@ -55,8 +53,7 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
             JsonObject json = new JsonObject(extractedResult);
             extractedResult = json.getString("text");
         } catch (JsonException e) {
-            throw new PageContentExtractorException("Error while parsing the JSON response '"
-                    + httpResult.getStringContent() + "': " + e.getMessage(), e);
+            throw new PageContentExtractorException("Error while parsing the JSON response '" + httpResult.getStringContent() + "': " + e.getMessage(), e);
         }
 
         return this;
@@ -74,8 +71,7 @@ public class AlchemyApiContentExtractor extends WebPageContentExtractor {
     }
 
     private String buildRequestUrl(String docUrl) {
-        return String.format("http://access.alchemyapi.com/calls/url/URLGetText?apikey=%s&outputMode=json&url=%s",
-                apiKey, UrlHelper.encodeParameter(docUrl));
+        return String.format("http://access.alchemyapi.com/calls/url/URLGetText?apikey=%s&outputMode=json&url=%s", apiKey, UrlHelper.encodeParameter(docUrl));
     }
 
     @Override

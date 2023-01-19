@@ -1,7 +1,6 @@
 package ws.palladian.classification.nb;
 
 import org.apache.commons.lang3.Validate;
-
 import org.apache.commons.math3.util.FastMath;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
@@ -17,7 +16,7 @@ import ws.palladian.core.value.Value;
  * (prediction) is nominal. More information about Naive Bayes can be found <a
  * href="http://www.pierlucalanzi.net/wp-content/teaching/dmtm/DMTM0809-13-ClassificationIBLNaiveBayes.pdf">here</a>.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @author Philipp Katz
  */
@@ -30,7 +29,7 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
     private final double laplace;
 
     /** Flag to denote whether to score in log. space. */
-	private final boolean logSpace;
+    private final boolean logSpace;
 
     /**
      * <p>
@@ -46,30 +45,28 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
      * <p>
      * Create a new Naive Bayes classifier.
      * </p>
-     * 
+     *
      * @param laplaceCorrector The Laplace corrector for smoothing. Must be greater or equal to zero. A value of zero
-     *            means no smoothing.
+     *                         means no smoothing.
      */
     public NaiveBayesClassifier(double laplaceCorrector) {
-    	this(DEFAULT_LAPLACE_CORRECTOR, true);
+        this(DEFAULT_LAPLACE_CORRECTOR, true);
     }
-    
-	/**
-	 * Create a new Naive Bayes classifier.
-	 * 
-	 * @param laplaceCorrector
-	 *            The Laplace corrector for smoothing. Must be greater or equal
-	 *            to zero. A value of zero means no smoothing.
-	 * @param logSpace
-	 *            Set to <code>false</code> in order to perform scoring
-	 *            calculations as addition; this will give better distributed
-	 *            probability estimates. If <code>true</code>, the calculation
-	 *            will be done in log space in order to avoid underflows.
-	 */
+
+    /**
+     * Create a new Naive Bayes classifier.
+     *
+     * @param laplaceCorrector The Laplace corrector for smoothing. Must be greater or equal
+     *                         to zero. A value of zero means no smoothing.
+     * @param logSpace         Set to <code>false</code> in order to perform scoring
+     *                         calculations as addition; this will give better distributed
+     *                         probability estimates. If <code>true</code>, the calculation
+     *                         will be done in log space in order to avoid underflows.
+     */
     public NaiveBayesClassifier(double laplaceCorrector, boolean logSpace) {
-    	Validate.isTrue(laplaceCorrector >= 0, "The Laplace corrector must be equal or greater than zero.");
-    	this.laplace = laplaceCorrector;
-    	this.logSpace = logSpace;
+        Validate.isTrue(laplaceCorrector >= 0, "The Laplace corrector must be equal or greater than zero.");
+        this.laplace = laplaceCorrector;
+        this.logSpace = logSpace;
     }
 
     @Override
@@ -82,28 +79,28 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
             // initially set all category probabilities to their priors
             double probability = model.getPrior(category);
             if (logSpace) {
-            	probability = FastMath.log(probability);
+                probability = FastMath.log(probability);
             }
-            
+
             for (String featureName : model.getLearnedFeatures()) {
                 Value value = featureVector.get(featureName);
                 if (value instanceof NominalValue) {
-                    String nominalValue = ((NominalValue)value).getString();
+                    String nominalValue = ((NominalValue) value).getString();
                     double currentProbability = model.getProbability(featureName, nominalValue, category, laplace);
-					if (logSpace) {
-                    	probability += FastMath.log(currentProbability);
+                    if (logSpace) {
+                        probability += FastMath.log(currentProbability);
                     } else {
-                    	probability *= currentProbability;
+                        probability *= currentProbability;
                     }
                 } else if (value instanceof NumericValue) {
-                    double doubleValue = ((NumericValue)value).getDouble();
+                    double doubleValue = ((NumericValue) value).getDouble();
                     double density = model.getDensity(featureName, doubleValue, category);
                     if (density > 0) {
-                    	if (logSpace) {
-                    		probability += FastMath.log(density);
-                    	} else {
-                    		probability *= density;
-                    	}
+                        if (logSpace) {
+                            probability += FastMath.log(density);
+                        } else {
+                            probability *= density;
+                        }
                     }
                 }
             }
@@ -112,10 +109,10 @@ public final class NaiveBayesClassifier implements Classifier<NaiveBayesModel> {
 
         return categoryEntriesBuilder.create();
     }
-    
+
     @Override
     public String toString() {
-    	return getClass().getSimpleName() + " (laplace=" + laplace + ")";
+        return getClass().getSimpleName() + " (laplace=" + laplace + ")";
     }
 
 }

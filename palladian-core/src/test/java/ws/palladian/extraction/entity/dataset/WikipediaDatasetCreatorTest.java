@@ -1,10 +1,10 @@
 package ws.palladian.extraction.entity.dataset;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static ws.palladian.extraction.entity.dataset.WikipediaDatasetCreator.cleanPersonName;
 import static ws.palladian.extraction.entity.dataset.WikipediaDatasetCreator.getUcTokenPercentage;
-
-import org.junit.Test;
 
 public class WikipediaDatasetCreatorTest {
     @Test

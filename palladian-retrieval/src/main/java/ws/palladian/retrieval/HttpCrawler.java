@@ -1,20 +1,9 @@
 package ws.palladian.retrieval;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.collection.CollectionHelper;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
@@ -22,6 +11,16 @@ import ws.palladian.retrieval.helper.NoThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * @author Philipp Katz
@@ -40,9 +39,9 @@ public class HttpCrawler {
     public static interface RetryPolicy {
         /**
          * Decide, whether to retry after an unsuccessful attempt (i.e. HTTP error code).
-         * 
+         *
          * @param attempt The attempt (starting with one).
-         * @param result The {@link HttpResult}.
+         * @param result  The {@link HttpResult}.
          * @return <code>true</code> to perform a further attempt, <code>false</code> to give up.
          */
         boolean shouldRetry(int attempt, HttpResult result);
@@ -52,10 +51,10 @@ public class HttpCrawler {
 
         @Override
         public void run() {
-            for (;;) {
+            for (; ; ) {
                 String url = takeNextUrl();
                 LOGGER.debug("Fetching {}", url);
-                for (int attempt = 1;; attempt++) {
+                for (int attempt = 1; ; attempt++) {
                     try {
                         throttle.hold();
                         HttpResult result = httpRetriever.httpGet(url);
@@ -74,8 +73,7 @@ public class HttpCrawler {
                             int retrievedLinks = links.size();
                             CollectionHelper.remove(links, urlFilter);
                             int addedLinks = add(links);
-                            LOGGER.debug("Extracted {} new, filtered {}, added {} URLs from {}", new Object[] {
-                                    retrievedLinks, links.size(), addedLinks, url});
+                            LOGGER.debug("Extracted {} new, filtered {}, added {} URLs from {}", new Object[]{retrievedLinks, links.size(), addedLinks, url});
                             break;
                         }
                     } catch (Throwable t) {
@@ -90,7 +88,7 @@ public class HttpCrawler {
     private final class MonitoringTask implements Runnable {
         @Override
         public void run() {
-            for (;;) {
+            for (; ; ) {
                 LOGGER.info("Queue: {}, processed: {}", urlQueue.size(), checkedUrls.size());
                 try {
                     Thread.sleep(10000);
@@ -129,8 +127,7 @@ public class HttpCrawler {
         this(urlFilter, action, throttle, NoRetryPolicy.INSTANCE);
     }
 
-    public HttpCrawler(Predicate<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle,
-            RetryPolicy retryPolicy) {
+    public HttpCrawler(Predicate<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle, RetryPolicy retryPolicy) {
         urlQueue = new ConcurrentLinkedQueue<String>();
         checkedUrls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -162,7 +159,7 @@ public class HttpCrawler {
     }
 
     private String takeNextUrl() {
-        for (;;) {
+        for (; ; ) {
             String url = urlQueue.poll();
             if (url != null) {
                 checkedUrls.add(url);

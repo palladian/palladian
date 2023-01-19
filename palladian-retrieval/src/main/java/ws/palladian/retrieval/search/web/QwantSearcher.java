@@ -1,15 +1,8 @@
 package ws.palladian.retrieval.search.web;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.HttpException;
@@ -26,11 +19,15 @@ import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * <p>
  * Using the unofficial Qwant API without limits.
  * </p>
- * 
+ *
  * @author David Urbansky
  * @since 18.05.2019
  */
@@ -47,7 +44,6 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
      * <p>
      * Creates a new Qwant Searcher.
      * </p>
-     *
      */
     public QwantSearcher() {
         this.retriever = HttpRetrieverFactory.getHttpRetriever();
@@ -64,7 +60,7 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
         Long resultCount = null;
 
         // Qwant gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
-        double numChunks = Math.min(10, Math.ceil((double)query.getResultCount() / 10));
+        double numChunks = Math.min(10, Math.ceil((double) query.getResultCount() / 10));
 
         for (int start = 1; start <= numChunks; start++) {
             String searchUrl = createRequestUrl(query.getText(), start, Math.min(10, query.getResultCount() - results.size()), query.getLanguage());
@@ -117,9 +113,9 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
     }
 
     /**
-     * @see https://github.com/NLDev/qwant-api/blob/master/lib/langs.js
      * @param language Palladian language.
      * @return Language identifier
+     * @see https://github.com/NLDev/qwant-api/blob/master/lib/langs.js
      */
     private String getLanguageCode(Language language) {
         switch (language) {

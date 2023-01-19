@@ -1,13 +1,12 @@
 package ws.palladian.retrieval;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -16,7 +15,7 @@ import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
  *
  * @author David Urbansky
  * @see <a href="https://app.webscrapingapi.com/documentation/getting-started">Web Scraping API Docs</a>
- *      14.06.2022
+ * 14.06.2022
  */
 public class WebScrapingApiDocumentRetriever extends WebDocumentRetriever {
     private final String apiKey;

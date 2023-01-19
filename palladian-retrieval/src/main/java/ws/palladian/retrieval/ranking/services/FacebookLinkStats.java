@@ -1,40 +1,33 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
-import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 /**
  * <p>
  * RankingService implementation for likes, shares and comments on Facebook.
  * </p>
- * 
+ *
  * @author Julien Schmehl
  * @author Philipp Katz
  * @author David Urbansky
@@ -51,14 +44,11 @@ public final class FacebookLinkStats extends AbstractRankingService {
     public static final RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
             "The number of times Facebook users have \"Liked\" the page, or liked any comments or re-shares of this page.");
 
-    public static final RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares",
-            "The number of times users have shared the page on Facebook.");
+    public static final RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares", "The number of times users have shared the page on Facebook.");
 
-    public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments",
-            "The number of comments users have made on the shared story.");
+    public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments", "The number of comments users have made on the shared story.");
 
-    public static final RankingType ALL = new RankingType("facebook_all", "Facebook Likes+Shares+Comments",
-            "The sum of likes, shares and comments on Facebook.");
+    public static final RankingType ALL = new RankingType("facebook_all", "Facebook Likes+Shares+Comments", "The sum of likes, shares and comments on Facebook.");
 
     /** All available ranking types by {@link FacebookLinkStats}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS, ALL);
@@ -165,7 +155,7 @@ public final class FacebookLinkStats extends AbstractRankingService {
     /**
      * Check for error (see <a
      * href="https://developers.facebook.com/docs/graph-api/using-graph-api/v2.0#errors">here</a> for error codes).
-     * 
+     *
      * @param content The result content from the API invocation.
      * @throws RankingServiceException In case an error was returned in the JSON.
      */
@@ -194,12 +184,9 @@ public final class FacebookLinkStats extends AbstractRankingService {
 
     public static void main(String[] args) throws RankingServiceException, JsonException, IOException {
 
-        FacebookLinkStats facebookLinkStats = new FacebookLinkStats(
-                FileHelper.readFileToString("data/temp/facebookAccessToken.txt"));
+        FacebookLinkStats facebookLinkStats = new FacebookLinkStats(FileHelper.readFileToString("data/temp/facebookAccessToken.txt"));
         StopWatch stopWatch = new StopWatch();
-        List<String> urls = Arrays.asList(
-                "http://www.bonappetit.com/recipes/2011/04/sliced_baguette_with_radishes_and_anchovy_butter",
-                "https://spoonacular.com/");
+        List<String> urls = Arrays.asList("http://www.bonappetit.com/recipes/2011/04/sliced_baguette_with_radishes_and_anchovy_butter", "https://spoonacular.com/");
         System.out.println(facebookLinkStats.getRanking2(urls));
         System.out.println(stopWatch.getElapsedTimeString());
     }

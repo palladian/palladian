@@ -1,10 +1,10 @@
 package ws.palladian.retrieval.feeds.persistence;
 
+import ws.palladian.persistence.RowConverter;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-
-import ws.palladian.persistence.RowConverter;
 
 /**
  * @author Sandro Reichert

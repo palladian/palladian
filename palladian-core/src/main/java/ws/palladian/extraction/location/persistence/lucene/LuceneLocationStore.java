@@ -1,17 +1,21 @@
 package ws.palladian.extraction.location.persistence.lucene;
 
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.ANALYZER;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_ANCESTOR_IDS;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_ID;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LAT;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LAT_LNG_POINT;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LAT_LNG_SORT;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_LNG;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_NAME;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_POPULATION;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.FIELD_TYPE;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.HIERARCHY_SEPARATOR;
-import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.NAME_LANGUAGE_SEPARATOR;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.extraction.location.AlternativeName;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.sources.LocationStore;
+import ws.palladian.helper.ProgressReporter;
+import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.io.FileHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,35 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.LatLonDocValuesField;
-import org.apache.lucene.document.LatLonPoint;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.sources.LocationStore;
-import ws.palladian.helper.ProgressReporter;
-import ws.palladian.helper.constants.Language;
-import ws.palladian.helper.io.FileHelper;
+import static ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource.*;
 
 public final class LuceneLocationStore implements LocationStore {
 
@@ -85,8 +61,7 @@ public final class LuceneLocationStore implements LocationStore {
     public LuceneLocationStore(File indexFile) {
         Validate.notNull(indexFile, "indexFile must not be null");
         if (indexFile.exists()) {
-            throw new IllegalArgumentException(indexFile
-                    + " already exists. Delete the index or specify a different path");
+            throw new IllegalArgumentException(indexFile + " already exists. Delete the index or specify a different path");
         }
         this.indexFile = indexFile;
         this.tempIndexFile = FileHelper.getTempFile();
@@ -126,7 +101,7 @@ public final class LuceneLocationStore implements LocationStore {
     /**
      * Add a {@link Document} to the index, and conditionally commit; in case the number of modifications have reached a
      * modulus of {@value #COMMIT_INTERVAL}.
-     * 
+     *
      * @param document The document to add, not <code>null</code>.
      * @throws IllegalStateException In case, adding or committing fails.
      */
@@ -161,7 +136,7 @@ public final class LuceneLocationStore implements LocationStore {
     public int getHighestId() {
         throw new UnsupportedOperationException("#getHighestId is not supported.");
     }
-    
+
     @Override
     public void startImport() {
         // nothing to do
@@ -182,9 +157,8 @@ public final class LuceneLocationStore implements LocationStore {
         tempIndexWriter.close();
 
         IndexWriterConfig config = new IndexWriterConfig(ANALYZER);
-        try (FSDirectory resultDirectory = FSDirectory.open(indexFile.toPath());
-                IndexWriter resultWriter = new IndexWriter(resultDirectory, config);
-                IndexReader tempReader = DirectoryReader.open(tempDirectory)) {
+        try (FSDirectory resultDirectory = FSDirectory.open(indexFile.toPath()); IndexWriter resultWriter = new IndexWriter(resultDirectory,
+                config); IndexReader tempReader = DirectoryReader.open(tempDirectory)) {
 
             int resultModificationCount = 0;
             IndexSearcher tempSearcher = new IndexSearcher(tempReader);
@@ -241,6 +215,7 @@ public final class LuceneLocationStore implements LocationStore {
 
     private static final class NameField extends Field {
         private static final FieldType FIELD_TYPE = new FieldType();
+
         static {
             // we don't need frequencies, etc. b/c there's no scoring
             FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
@@ -260,7 +235,7 @@ public final class LuceneLocationStore implements LocationStore {
     /**
      * Ensure that the {@link LuceneLocationSource#NAME_LANGUAGE_SEPARATOR} does not
      * appear in the name.
-     * 
+     *
      * See https://gitlab.com/palladian/palladian-knime/-/issues/114
      */
     private static String sanitizeName(String name) {

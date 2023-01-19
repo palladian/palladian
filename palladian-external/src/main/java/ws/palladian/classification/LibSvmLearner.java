@@ -3,20 +3,10 @@
  */
 package ws.palladian.classification;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import libsvm.*;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import libsvm.svm;
-import libsvm.svm_model;
-import libsvm.svm_node;
-import libsvm.svm_parameter;
-import libsvm.svm_print_interface;
-import libsvm.svm_problem;
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.classification.utils.Normalizer;
@@ -30,25 +20,29 @@ import ws.palladian.core.value.Value;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.Vector.VectorEntry;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  * A wrapper classifier for the LIBSVM machine learning library.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @author Philipp Katz
  * @version 2.0
  * @since 2.0
  */
 public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
-    
+
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(LibSvmLearner.class);
 
     private static final Normalizer NORMALIZER = new ZScoreNormalizer();
 
     private final LibSvmKernel kernel;
-    
+
     static {
         redirectLogOutput();
     }
@@ -70,11 +64,11 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
      * Creates a new completely initialized {@link LibSvmLearner} using a linear kernel. It can be used to either train
      * a new model or classify unlabeled {@link FeatureVector}s.
      * </p>
-     * 
+     *
      * @param kernel The kernel to use with the SVM predictor. This implementation currently supports the
-     *            {@link LinearKernel} and the {@link RBFKernel}. The kernel is required to transfer the data to a
-     *            higher dimensional space, where it is separable. Please read on the theoretical details of SVM to
-     *            learn more. If you do not care you are probably fine using either kernel. Just try them.
+     *               {@link LinearKernel} and the {@link RBFKernel}. The kernel is required to transfer the data to a
+     *               higher dimensional space, where it is separable. Please read on the theoretical details of SVM to
+     *               learn more. If you do not care you are probably fine using either kernel. Just try them.
      */
     public LibSvmLearner(LibSvmKernel kernel) {
         Validate.notNull(kernel, "kernel must not be null");
@@ -84,7 +78,7 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
     @Override
     public LibSvmModel train(Dataset dataset) {
         Validate.notNull(dataset, "dataset must not be null");
-        
+
         Normalization normalization = NORMALIZER.calculate(dataset);
         DummyVariableCreator dummyCoder = new DummyVariableCreator(dataset, false, false);
 
@@ -107,8 +101,7 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
         }
 
         if (classNames.size() < 2) {
-            throw new IllegalStateException(
-                    "The training data contains less than two different classes. Training not possible on such a dataset.");
+            throw new IllegalStateException("The training data contains less than two different classes. Training not possible on such a dataset.");
         }
         svm_parameter params = getParameter();
         svm_problem problem = createProblem(dataset, params, featureNames, classNames, normalization, dummyCoder);
@@ -125,19 +118,18 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
      * Transforms the set of Palladian {@link Instance}s to a libsvm {@link svm_problem}, which is the input to train a
      * libsvm classifier.
      * </p>
-     * 
-     * @param instances The Palladian instances to transform.
-     * @param params The parameters for the classifier. Required to set parameter which are based on the training set.
-     * @param featureNames The indices of the features to process in the new model.
-     * @param classes The possible classes to predict to. The index in the list is the index used to convert those
-     *            classes to numbers.
+     *
+     * @param instances      The Palladian instances to transform.
+     * @param params         The parameters for the classifier. Required to set parameter which are based on the training set.
+     * @param featureNames   The indices of the features to process in the new model.
+     * @param classes        The possible classes to predict to. The index in the list is the index used to convert those
+     *                       classes to numbers.
      * @param normalizations The normalizations to apply to {@link NumericFeature}s.
-     * @param dummyCoder A {@link DummyVariableCreator} for convertign {@link NominalFeature}s to {@link NumericFeature}
-     *            s.
+     * @param dummyCoder     A {@link DummyVariableCreator} for convertign {@link NominalFeature}s to {@link NumericFeature}
+     *                       s.
      * @return A new {@link svm_problem} ready to train a libsvm classifier.
      */
-    private svm_problem createProblem(Iterable<? extends Instance> instances, svm_parameter params,
-            List<String> featureNames, List<String> classNames, Normalization normalization,
+    private svm_problem createProblem(Iterable<? extends Instance> instances, svm_parameter params, List<String> featureNames, List<String> classNames, Normalization normalization,
             DummyVariableCreator dummyCoder) {
 
         svm_problem ret = new svm_problem();
@@ -158,17 +150,16 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
      * <p>
      * Transforms a Palladian {@link Classifiable}
      * </p>
-     * 
-     * @param classifiable The {@link Classifiable} to transform.
-     * @param featureNames A {@link Map} filled with the correct indices for all the features if {@code trainingMode} is
-     *            {@code true}.
+     *
+     * @param classifiable  The {@link Classifiable} to transform.
+     * @param featureNames  A {@link Map} filled with the correct indices for all the features if {@code trainingMode} is
+     *                      {@code true}.
      * @param normalization Normalization information.
-     * @param dummyCoder A {@link DummyVariableCreator} for convertign {@link NominalFeature}s to {@link NumericFeature}
-     *            s.
+     * @param dummyCoder    A {@link DummyVariableCreator} for convertign {@link NominalFeature}s to {@link NumericFeature}
+     *                      s.
      * @return An array of {@link svm_node}s representing an libsvm feature vector.
      */
-    static svm_node[] convertFeatureVector(FeatureVector featureVector, List<String> featureNames,
-            Normalization normalization, DummyVariableCreator dummyCoder) {
+    static svm_node[] convertFeatureVector(FeatureVector featureVector, List<String> featureNames, Normalization normalization, DummyVariableCreator dummyCoder) {
 
         featureVector = normalization.normalize(featureVector);
         featureVector = dummyCoder.convert(featureVector);
@@ -178,7 +169,7 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
             String featureName = featureNames.get(i);
             Value value = featureVector.get(featureName);
             if (value instanceof NumericValue) {
-                NumericValue numericValue = (NumericValue)value;
+                NumericValue numericValue = (NumericValue) value;
                 svm_node node = new svm_node();
                 node.index = i;
                 node.value = numericValue.getDouble();
@@ -205,10 +196,10 @@ public final class LibSvmLearner extends AbstractLearner<LibSvmModel> {
         ret.weight = new double[0];
         return ret;
     }
-    
+
     @Override
     public String toString() {
-    	return getClass().getSimpleName() + " (" + kernel.getClass().getSimpleName() + ")";
+        return getClass().getSimpleName() + " (" + kernel.getClass().getSimpleName() + ")";
     }
 
 }

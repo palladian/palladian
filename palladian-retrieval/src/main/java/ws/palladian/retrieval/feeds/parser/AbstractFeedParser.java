@@ -1,13 +1,5 @@
 package ws.palladian.retrieval.feeds.parser;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -15,11 +7,13 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.feeds.Feed;
 import ws.palladian.retrieval.helper.HttpHelper;
 
+import java.io.*;
+
 /**
  * <p>
  * Base implementation for feed parsers with common functionality.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public abstract class AbstractFeedParser implements FeedParser {

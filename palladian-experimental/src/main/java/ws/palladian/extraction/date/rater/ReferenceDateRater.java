@@ -1,17 +1,17 @@
 package ws.palladian.extraction.date.rater;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ws.palladian.extraction.date.comparators.DateComparator;
 import ws.palladian.extraction.date.dates.RatedDate;
 import ws.palladian.extraction.date.dates.ReferenceDate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
  * This class rates {@link ReferenceDate}s. From a List of ReferenceDates, simply the youngest date is returned.
  * </p>
- * 
+ *
  * @author Martin Gregor
  * @author Philipp Katz
  */

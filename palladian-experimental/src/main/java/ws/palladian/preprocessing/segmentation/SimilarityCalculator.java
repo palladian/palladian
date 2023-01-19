@@ -1,19 +1,14 @@
 package ws.palladian.preprocessing.segmentation;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
+
+import java.util.*;
 
 /**
  * The SimilarityCalculator provides functions to calculate the similarity between texts, DOM-nodes

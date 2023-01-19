@@ -6,7 +6,7 @@ public interface ContentExtractionDataset extends Iterable<ContentExtractionData
 
     /**
      * An evaluation page within the dataset.
-     * 
+     *
      * @author Philipp Katz
      */
     interface ContentExtractionPage {
@@ -23,7 +23,7 @@ public interface ContentExtractionDataset extends Iterable<ContentExtractionData
 
         /**
          * @return A web URL pointing to that page, or <code>null</code> in case this information is not available in
-         *         the dataset.
+         * the dataset.
          */
         String getUrl();
 

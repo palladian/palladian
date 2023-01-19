@@ -1,10 +1,9 @@
 package ws.palladian.extraction.feature;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
 import ws.palladian.helper.constants.Language;
+
+import static org.junit.Assert.assertEquals;
 
 public class StemmerTest {
     @Test

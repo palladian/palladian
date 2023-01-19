@@ -13,7 +13,7 @@ import ws.palladian.core.TextTokenizer;
  */
 public interface SentenceDetector extends TextTokenizer {
 
-//    @Override
-//    List<Annotation> getAnnotations(String text);
+    //    @Override
+    //    List<Annotation> getAnnotations(String text);
 
 }

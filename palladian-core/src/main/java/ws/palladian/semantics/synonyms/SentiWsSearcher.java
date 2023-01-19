@@ -1,25 +1,23 @@
 package ws.palladian.semantics.synonyms;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.MapBag;
+import ws.palladian.helper.io.FileHelper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.collection.MapBag;
-import ws.palladian.helper.io.FileHelper;
-
 /**
  * <p>
  * Search SentiWs for conjugations of words.
  * </p>
- * 
- * @see http://asv.informatik.uni-leipzig.de/download/sentiws.html
+ *
  * @author David Urbansky
- * 
+ * @see http://asv.informatik.uni-leipzig.de/download/sentiws.html
  */
 public class SentiWsSearcher {
 
@@ -31,7 +29,6 @@ public class SentiWsSearcher {
 
     /** Hold all basic forms. **/
     private Map<Set<String>, String> basics = new HashMap<>();
-
 
     public SentiWsSearcher(String sentiWsFilePath) {
         List<String> lines = FileHelper.readFileToArray(sentiWsFilePath);
@@ -48,7 +45,7 @@ public class SentiWsSearcher {
                 versions.add(bagKey, conjugation);
             }
 
-            basics.put(versions.getBag(bagKey),bagKey);
+            basics.put(versions.getBag(bagKey), bagKey);
         }
 
         LOGGER.info(versions.getAllBagEntries().size() + " words with multiple words created");
@@ -58,7 +55,7 @@ public class SentiWsSearcher {
      * <p>
      * Get different versions for the input word.
      * </p>
-     * 
+     *
      * @param inputWord The word for which you need different versions.
      * @return All version of that word.
      */
@@ -70,7 +67,7 @@ public class SentiWsSearcher {
      * <p>
      * Get the base version of the input word.
      * </p>
-     * 
+     *
      * @param inputWord The word for which you need basic version.
      * @return The basic version of that word.
      */

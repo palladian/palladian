@@ -1,19 +1,9 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -24,12 +14,14 @@ import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.*;
+
 /**
  * <p>
  * RankingService implementation for clicks on a given URL from <a href="http://bit.ly/">Bit.ly</a>. Request limits
  * (details unknown) are reset every hour. Only 5 concurrent connections at the same time.
  * </p>
- * 
+ *
  * @author Julien Schmehl
  * @author Philipp Katz
  * @see <a href="http://dev.bitly.com">Bitly API Documentation</a>
@@ -55,8 +47,7 @@ public final class BitlyClicks extends AbstractRankingService {
     private static final String SERVICE_ID = "bitly";
 
     /** The ranking value types of this service **/
-    public static final RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks",
-            "The number of times users have clicked the shortened version of this url.");
+    public static final RankingType CLICKS = new RankingType("bitly_clicks", "Bit.ly Clicks", "The number of times users have clicked the shortened version of this url.");
 
     /** All available ranking types by {@link BitlyClicks}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(CLICKS);
@@ -65,9 +56,9 @@ public final class BitlyClicks extends AbstractRankingService {
      * <p>
      * Create a new {@link BitlyClicks} ranking service.
      * </p>
-     * 
+     *
      * @param configuration The configuration which must provide a login (<tt>api.bitly.login</tt>) and an API key (
-     *            <tt>api.bitly.key</tt>) for accessing this service.
+     *                      <tt>api.bitly.key</tt>) for accessing this service.
      */
     public BitlyClicks(Configuration configuration) {
         this(configuration.getString(CONFIG_LOGIN), configuration.getString(CONFIG_API_KEY));
@@ -77,8 +68,8 @@ public final class BitlyClicks extends AbstractRankingService {
      * <p>
      * Create a new {@link BitlyClicks} ranking service.
      * </p>
-     * 
-     * @param login The required login for accessing the service, not <code>null</code> or empty.
+     *
+     * @param login  The required login for accessing the service, not <code>null</code> or empty.
      * @param apiKey The required API key for accessing the service, not <code>null</code> or empty.
      */
     public BitlyClicks(String login, String apiKey) {
@@ -99,10 +90,9 @@ public final class BitlyClicks extends AbstractRankingService {
         // deduplicate provided URLs and create list
         List<String> urlList = new ArrayList<>(new HashSet<>(urls));
         // iterate through urls in batches of 15, since this is the maximum number we can send to bit.ly at once
-        int numRequests = (int)Math.ceil(urlList.size() / (float)BATCH_SIZE);
+        int numRequests = (int) Math.ceil(urlList.size() / (float) BATCH_SIZE);
         for (int r = 0; r < numRequests; r++) {
-            List<String> subUrls = urlList.subList(r * BATCH_SIZE,
-                    Math.min(r * BATCH_SIZE + BATCH_SIZE, urlList.size()));
+            List<String> subUrls = urlList.subList(r * BATCH_SIZE, Math.min(r * BATCH_SIZE + BATCH_SIZE, urlList.size()));
             try {
                 // Step 1: get the bit.ly hash for the specified URLs
                 Map<String, String> urlHashes = getBitlyHashes(subUrls);
@@ -127,7 +117,7 @@ public final class BitlyClicks extends AbstractRankingService {
 
     /**
      * Retrieve the number of clicks for the given URL hashes.
-     * 
+     *
      * @param bitlyHashes The URL hashes.
      * @return A map from URL hash to number of clicks.
      * @throws HttpException In case of HTTP errors.
@@ -140,8 +130,7 @@ public final class BitlyClicks extends AbstractRankingService {
         }
         Map<String, Integer> clicks = new HashMap<>();
         if (hashes.length() > 0) {
-            String url = "http://api.bit.ly/v3/clicks?login=" + login + "&apiKey=" + apiKey + "&mode=batch"
-                    + hashes.toString();
+            String url = "http://api.bit.ly/v3/clicks?login=" + login + "&apiKey=" + apiKey + "&mode=batch" + hashes.toString();
             LOGGER.debug("clicks URL = {}", url);
             HttpResult httpResult = retriever.httpGet(url);
             LOGGER.debug("clicks JSON = {}", httpResult.getStringContent());
@@ -163,7 +152,7 @@ public final class BitlyClicks extends AbstractRankingService {
 
     /**
      * Retrieve Bitly's URL hashes for the given URLs.
-     * 
+     *
      * @param urls The URLs.
      * @return A map from full URL to short hash URL.
      * @throws HttpException In case of HTTP errors.
@@ -175,8 +164,7 @@ public final class BitlyClicks extends AbstractRankingService {
         for (int i = 0; i < urls.size(); i++) {
             encUrlsBuilder.append("&url=" + UrlHelper.encodeParameter(urls.get(i)));
         }
-        String urlString = "http://api.bit.ly/v3/lookup?login=" + login + "&apiKey=" + apiKey + "&mode=batch"
-                + encUrlsBuilder.toString();
+        String urlString = "http://api.bit.ly/v3/lookup?login=" + login + "&apiKey=" + apiKey + "&mode=batch" + encUrlsBuilder.toString();
         LOGGER.debug("lookup URL = {}", urlString);
         HttpResult httpResult = retriever.httpGet(urlString);
         LOGGER.debug("lookup JSON = {}", httpResult.getStringContent());

@@ -1,42 +1,17 @@
 package ws.palladian.extraction.location.scope;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-import static ws.palladian.extraction.location.LocationFilters.ancestorOf;
-import static ws.palladian.extraction.location.LocationFilters.coordinate;
-import static ws.palladian.extraction.location.LocationFilters.descendantOf;
-import static ws.palladian.helper.collection.CollectionHelper.coalesce;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.dt.QuickDtClassifier;
 import ws.palladian.classification.dt.QuickDtLearner;
 import ws.palladian.classification.dt.QuickDtModel;
+import ws.palladian.classification.featureselection.FeatureRanking;
 import ws.palladian.classification.featureselection.FeatureSelector;
 import ws.palladian.classification.featureselection.FeatureSelector.FMeasureScorer;
-import ws.palladian.classification.featureselection.FeatureRanking;
 import ws.palladian.classification.utils.CsvDatasetReader;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.Classifier;
-import ws.palladian.core.Instance;
-import ws.palladian.core.InstanceBuilder;
-import ws.palladian.core.Learner;
-import ws.palladian.core.Model;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationAnnotation;
-import ws.palladian.extraction.location.LocationExtractor;
-import ws.palladian.extraction.location.LocationSet;
-import ws.palladian.extraction.location.PalladianLocationExtractor;
+import ws.palladian.core.*;
+import ws.palladian.extraction.location.*;
 import ws.palladian.extraction.location.disambiguation.ClassifiableLocation;
 import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtractor;
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
@@ -51,12 +26,20 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.Stats;
 import ws.palladian.persistence.DatabaseManagerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
+import static ws.palladian.extraction.location.LocationFilters.*;
+import static ws.palladian.helper.collection.CollectionHelper.coalesce;
+
 /**
  * <p>
  * A {@link RankingScopeDetector} which uses various features to train a model, which is then used for predicting the
  * scope. The features are mainly influenced from the rule-based {@link RankingScopeDetector}s (see implementations).
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetector {
@@ -138,16 +121,16 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             InstanceBuilder builder = new InstanceBuilder();
             builder.set("midpointDistance", midpoint.distance(coordinate));
             builder.set("centerpointDistance", centerpoint.distance(coordinate));
-            builder.set("occurrenceFrequency", (double)Collections.frequency(locationList, location) / numLocations);
-            builder.set("descendantPercentage", (double)allStats.where(descendantOf(location)).size() / numLocations);
-            builder.set("ancestorPercentage", (double)allStats.where(ancestorOf(location)).size() / numLocations);
+            builder.set("occurrenceFrequency", (double) Collections.frequency(locationList, location) / numLocations);
+            builder.set("descendantPercentage", (double) allStats.where(descendantOf(location)).size() / numLocations);
+            builder.set("ancestorPercentage", (double) allStats.where(ancestorOf(location)).size() / numLocations);
             builder.set("hierarchyDepth", location.getAncestorIds().size());
             builder.set("population", CollectionHelper.coalesce(location.getPopulation(), 0l));
             builder.set("locationType", location.getType().toString());
             builder.set("disambiguationTrust", maxDisambiguationTrust);
-            builder.set("offsetFirst", (double)firstPosition / maxOffset);
-            builder.set("offsetLast", (double)lastPosition / maxOffset);
-            builder.set("offsetSpread", (double)(lastPosition - firstPosition) / maxOffset);
+            builder.set("offsetFirst", (double) firstPosition / maxOffset);
+            builder.set("offsetLast", (double) lastPosition / maxOffset);
+            builder.set("offsetSpread", (double) (lastPosition - firstPosition) / maxOffset);
             builder.set("minDistanceToOthers", Double.isNaN(distances.getMin()) ? 0 : distances.getMin());
             builder.set("maxDistanceToOthers", Double.isNaN(distances.getMax()) ? 0 : distances.getMax());
             builder.set("meanDistanceToOthers", Double.isNaN(distances.getMean()) ? 0 : distances.getMean());
@@ -167,9 +150,9 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
      * <p>
      * Train a new model for location scope detection. The dataset is represented by the {@link Iterator}.
      * </p>
-     * 
+     *
      * @param documentIterator The iterator representing the dataset, not <code>null</code>.
-     * @param extractor The {@link LocationExtractor}, not <code>null</code>.
+     * @param extractor        The {@link LocationExtractor}, not <code>null</code>.
      * @return The trained model.
      */
     public static QuickDtModel train(Iterable<LocationDocument> documentIterator, LocationExtractor extractor) {
@@ -200,8 +183,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
             ClassifiableLocation positiveCandidate = null;
             double minDistance = Double.MAX_VALUE;
             for (ClassifiableLocation classifiableLocation : classifiableLocations) {
-                GeoCoordinate coordinate = coalesce(classifiableLocation.getLocation().getCoordinate(),
-                        GeoCoordinate.NULL);
+                GeoCoordinate coordinate = coalesce(classifiableLocation.getLocation().getCoordinate(), GeoCoordinate.NULL);
                 double currentDistance = mainLocation.getCoordinate().distance(coordinate);
                 if (currentDistance < minDistance) {
                     minDistance = currentDistance;
@@ -231,14 +213,13 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
      * <p>
      * Run a backward feature elimination.
      * </p>
-     * 
-     * @param trainingCsv The CSV file with the training data, not <code>null</code>.
+     *
+     * @param trainingCsv   The CSV file with the training data, not <code>null</code>.
      * @param validationCsv The CSV file with the validation data, not <code>null</code>.
-     * @param learner The learner, not <code>null</code>.
-     * @param predictor The predictor, not <code>null</code>.
+     * @param learner       The learner, not <code>null</code>.
+     * @param predictor     The predictor, not <code>null</code>.
      */
-    public static <M extends Model> void runFeatureElimination(File trainingCsv, File validationCsv,
-            Learner<M> learner, Classifier<M> predictor) {
+    public static <M extends Model> void runFeatureElimination(File trainingCsv, File validationCsv, Learner<M> learner, Classifier<M> predictor) {
         List<Instance> trainSet = new CsvDatasetReader(trainingCsv).readAll();
         List<Instance> validationSet = new CsvDatasetReader(validationCsv).readAll();
 
@@ -249,15 +230,13 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
     }
 
     public static void main(String[] args) throws IOException {
-        QuickDtModel model = FileHelper
-                .deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
+        QuickDtModel model = FileHelper.deserialize("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/Models/location_disambiguation_all_train_1377442726898.model");
         LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
         // note that we are using a zero confidence threshold here; experiments showed, that it's better to go for high
         // recall here, and let the classifier scope detection's classifier decide about each candidate (this is at
         // least the case in the Wikipedia dataset; on the TUD-Loc-2013, it actually harms performance, but we have much
         // less data here for making a definite statement).
-        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0,
-                new ConfigurableFeatureExtractor());
+        FeatureBasedDisambiguation disambiguation = new FeatureBasedDisambiguation(model, 0, new ConfigurableFeatureExtractor());
         LocationExtractor extractor = new PalladianLocationExtractor(database, disambiguation);
 
         // Wikipedia scope dataset //////////////////////////////////////////////////////////////////////////////

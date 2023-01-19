@@ -1,16 +1,8 @@
 package ws.palladian.retrieval.search.socialmedia;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
@@ -28,9 +20,16 @@ import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Searcher for Hacker News via <a href="https://hn.algolia.com/api">HN Search API</a>.
- * 
+ *
  * @author Philipp Katz
  */
 public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebContent> {
@@ -66,10 +65,9 @@ public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebCont
         // TODO implement different sortings
         // TODO ability to specify what to search: comment,poll,pollopt,show_hn,ask_hn
 
-        for (int page = 0; page < Math.ceil((float)query.getResultCount() / RESULTS_PER_PAGE); page++) {
+        for (int page = 0; page < Math.ceil((float) query.getResultCount() / RESULTS_PER_PAGE); page++) {
 
-            String queryUrl = String.format(
-                    "https://hn.algolia.com/api/v1/search_by_date?query=%s&tags=(story)&page=%s", text, page);
+            String queryUrl = String.format("https://hn.algolia.com/api/v1/search_by_date?query=%s&tags=(story)&page=%s", text, page);
             LOGGER.debug("query URL = {}", queryUrl);
 
             try {
@@ -112,8 +110,7 @@ public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebCont
         try {
             return new SimpleDateFormat(DATE_PATTERN).parse(string);
         } catch (ParseException e) {
-            throw new SearcherException("Could not parse date string \"" + string + "\" using pattern \""
-                    + DATE_PATTERN + "\".");
+            throw new SearcherException("Could not parse date string \"" + string + "\" using pattern \"" + DATE_PATTERN + "\".");
         }
     }
 

@@ -1,5 +1,30 @@
 package ws.palladian.extraction.location.scope;
 
+import org.apache.commons.lang3.Validate;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.*;
+import org.apache.lucene.queries.mlt.MoreLikeThis;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanQuery.TooManyClauses;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ws.palladian.classification.text.FeatureSetting;
+import ws.palladian.extraction.location.Location;
+import ws.palladian.extraction.location.evaluation.LocationDocument;
+import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.helper.geo.GeoUtils;
+import ws.palladian.helper.io.FileHelper;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -9,48 +34,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.Validate;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.queries.mlt.MoreLikeThis;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BooleanQuery.TooManyClauses;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.evaluation.LocationDocument;
-import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.GeoUtils;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
-import ws.palladian.helper.io.FileHelper;
-
 /**
  * Nearest Neighbor taken literally; geo-tagged training documents are stored in an index. For extraction, we look up
  * similar document(s) and assign the coordinate of the similar document as scope.
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
@@ -90,7 +78,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         /**
          * Open an existing Lucene nearest neighbor index, which was created using the
          * {@link NearestNeighborScopeDetectorLearner}.
-         * 
+         *
          * @param indexPath The path to the index file, must point to a valid lucene index, not <code>null</code>.
          * @return The model
          */
@@ -107,9 +95,9 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
     /**
      * Create a new {@link KNearestNeighborScopeDetector}.
-     * 
-     * @param model The model.
-     * @param k The number of voting neighbors.
+     *
+     * @param model        The model.
+     * @param k            The number of voting neighbors.
      * @param queryCreator The strategy for generating queries.
      */
     public KNearestNeighborScopeDetector(NearestNeighborScopeModel model, int k, QueryCreator queryCreator) {
@@ -130,9 +118,9 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
     /**
      * Create a new {@link KNearestNeighborScopeDetector}.
-     * 
+     *
      * @param model The model.
-     * @param k The number of voting neighbors.
+     * @param k     The number of voting neighbors.
      */
     public KNearestNeighborScopeDetector(NearestNeighborScopeModel model, int k) {
         this(model, k, MORE_LIKE_THIS_QUERY_CREATOR);
@@ -140,7 +128,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
 
     /**
      * Learner, which is used for creating the necessary {@link NearestNeighborScopeModel}.
-     * 
+     *
      * @author Philipp Katz
      */
     public static final class NearestNeighborScopeDetectorLearner implements TextClassifierScopeDetectorLearner {
@@ -267,7 +255,9 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         @Override
         public String toString() {
             return NAME;
-        };
+        }
+
+        ;
     };
 
     /**
@@ -279,7 +269,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         @Override
         public Query createQuery(String text, IndexReader reader, Analyzer analyzer) throws IOException {
             MoreLikeThis moreLikeThis = new MoreLikeThis(reader);
-            moreLikeThis.setFieldNames(new String[] {FIELD_TEXT});
+            moreLikeThis.setFieldNames(new String[]{FIELD_TEXT});
             moreLikeThis.setAnalyzer(analyzer);
             moreLikeThis.setMinTermFreq(1);
             moreLikeThis.setMinDocFreq(1);
@@ -289,13 +279,14 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         @Override
         public String toString() {
             return NAME;
-        };
+        }
+
+        ;
     };
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [analyzer=" + analyzer + ", k=" + k + ", queryGenerator=" + queryCreator
-                + ", numDocs=" + reader.numDocs() + "]";
+        return getClass().getSimpleName() + " [analyzer=" + analyzer + ", k=" + k + ", queryGenerator=" + queryCreator + ", numDocs=" + reader.numDocs() + "]";
     }
 
     @Override
@@ -316,8 +307,7 @@ public class KNearestNeighborScopeDetector implements ScopeDetector, Closeable {
         NearestNeighborScopeModel model = NearestNeighborScopeModel.fromIndex(indexPath);
         // KNearestNeighborScopeDetector detector = new KNearestNeighborScopeDetector(model, 10, new
         // BooleanQueryCreator());
-        KNearestNeighborScopeDetector detector = new KNearestNeighborScopeDetector(model, 10,
-                MORE_LIKE_THIS_QUERY_CREATOR);
+        KNearestNeighborScopeDetector detector = new KNearestNeighborScopeDetector(model, 10, MORE_LIKE_THIS_QUERY_CREATOR);
         String text = FileHelper.readFileToString("/Users/pk/Desktop/text_43259724.txt");
         // System.out.println(detector.getScope("Dresden is a city in Germany, Saxony."));
         // System.out.println(detector.getScope("Flein is a small town near Heilbronn in Germany"));

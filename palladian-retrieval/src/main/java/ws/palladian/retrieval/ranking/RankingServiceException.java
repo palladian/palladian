@@ -4,7 +4,7 @@ package ws.palladian.retrieval.ranking;
  * <p>
  * An exception which is thrown in case the retrieval from a {@link RankingService} fails.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class RankingServiceException extends Exception {

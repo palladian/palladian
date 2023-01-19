@@ -1,33 +1,21 @@
 package ws.palladian.extraction.location.scope;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ws.palladian.classification.text.AbstractDictionaryModel;
-import ws.palladian.classification.text.CountingCategoryEntriesBuilder;
-import ws.palladian.classification.text.DictionaryModel;
-import ws.palladian.classification.text.FeatureSetting;
-import ws.palladian.classification.text.ImmutableDictionaryEntry;
+import ws.palladian.classification.text.*;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.extraction.location.scope.DictionaryScopeDetector.DictionaryScopeModel;
 import ws.palladian.helper.collection.CollectionHelper;
+
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 /**
  * Decorator for a fine grid dictionary to "simulate" a coarse grid dictionary.
- * 
+ *
  * @author Philipp Katz
  */
 final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
@@ -128,20 +116,20 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
         return decorated.getName();
     }
 
-//    @Override
-//    public void setName(String name) {
-//        throw new UnsupportedOperationException();
-//    }
+    //    @Override
+    //    public void setName(String name) {
+    //        throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public FeatureSetting getFeatureSetting() {
         return decorated.getFeatureSetting();
     }
 
-//    @Override
-//    public void addDocument(Collection<String> terms, String category) {
-//        throw new UnsupportedOperationException();
-//    }
+    //    @Override
+    //    public void addDocument(Collection<String> terms, String category) {
+    //        throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public CategoryEntries getCategoryEntries(String term) {
@@ -174,7 +162,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
             Collections.sort(temp, new Comparator<Entry<String, CategoryEntries>>() {
                 @Override
                 public int compare(Entry<String, CategoryEntries> e1, Entry<String, CategoryEntries> e2) {
-                    return e2.getValue().size()-e1.getValue().size();
+                    return e2.getValue().size() - e1.getValue().size();
                 }
             });
             entriesCache.clear();
@@ -190,8 +178,7 @@ final class CoarseDictionaryDecorator extends AbstractDictionaryModel {
                 }
             }
             // LOGGER.debug("Size of cache after clean up {}", entriesCache.size());
-            LOGGER.debug("New min. TermCategoryEntries#size in {}° decorator for caching {} (max. size={})",
-                    coarseGrid.getGridSize(), newMinSizeForCaching, maxSize);
+            LOGGER.debug("New min. TermCategoryEntries#size in {}° decorator for caching {} (max. size={})", coarseGrid.getGridSize(), newMinSizeForCaching, maxSize);
             // LOGGER.debug("Cleanup took {}", stopWatch);
             minTermCategoriesSizeForCaching = newMinSizeForCaching;
         }

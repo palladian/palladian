@@ -1,17 +1,16 @@
 package ws.palladian.helper.math;
 
-import java.util.Collection;
-
 import org.apache.commons.lang.Validate;
-
 import ws.palladian.helper.functional.Factory;
+
+import java.util.Collection;
 
 /**
  * <p>
  * Keep mathematical stats such as mean, sum, min, max for a series of numbers. In contrast to {@link FatStats}, this
  * class does <b>not</b> maintain a list of all values. Therefore, the median cannot be computed.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public class SlimStats extends AbstractStats {
@@ -20,9 +19,10 @@ public class SlimStats extends AbstractStats {
      * <p>
      * A factory for producing {@link SlimStats} instances.
      * </p>
+     *
      * @deprecated No longer needed; with Java 8 just use <code>SlimStats::new</code>.
      */
-	@Deprecated
+    @Deprecated
     public static final Factory<Stats> FACTORY = SlimStats::new;
 
     private int count = 0;
@@ -53,7 +53,7 @@ public class SlimStats extends AbstractStats {
      * <p>
      * Create a new {@link SlimStats} collection with the provided values.
      * </p>
-     * 
+     *
      * @param values The values to add to this Stats collection, not <code>null</code>.
      */
     public SlimStats(Collection<? extends Number> values) {
@@ -63,25 +63,24 @@ public class SlimStats extends AbstractStats {
         }
     }
 
-	/**
-	 * Copy constructor.
-	 * 
-	 * @param stats
-	 *            The stats to copy, not <code>null</code>.
-	 */
-	public SlimStats(SlimStats stats) {
-		Validate.notNull(stats, "stats must not be null");
-		this.count = stats.count;
-		this.mean = stats.mean;
-		this.min = stats.min;
-		this.max = stats.max;
-		this.sum = stats.sum;
-		this.m = stats.m;
-		this.s = stats.s;
-		this.mse = stats.mse;
-	}
+    /**
+     * Copy constructor.
+     *
+     * @param stats The stats to copy, not <code>null</code>.
+     */
+    public SlimStats(SlimStats stats) {
+        Validate.notNull(stats, "stats must not be null");
+        this.count = stats.count;
+        this.mean = stats.mean;
+        this.min = stats.min;
+        this.max = stats.max;
+        this.sum = stats.sum;
+        this.m = stats.m;
+        this.s = stats.s;
+        this.mse = stats.mse;
+    }
 
-	@Override
+    @Override
     public SlimStats add(Number value) {
         Validate.notNull(value, "value must not be null");
         double doubleValue = value.doubleValue();
@@ -118,7 +117,7 @@ public class SlimStats extends AbstractStats {
     public double getMedian() {
         throw new UnsupportedOperationException("Calculating the median is not supported by this stats.");
     }
-    
+
     @Override
     public double getPercentile(int p) {
         throw new UnsupportedOperationException("Calculating the percentile is not supported by this stats.");
@@ -151,18 +150,17 @@ public class SlimStats extends AbstractStats {
 
     @Override
     public double getCumulativeProbability(double t) {
-        throw new UnsupportedOperationException(
-                "Calculating cumulative probabilities is not supported by this stats.");
+        throw new UnsupportedOperationException("Calculating cumulative probabilities is not supported by this stats.");
     }
-    
+
     @Override
     public double getMode() {
-    	throw new UnsupportedOperationException("Calculating the mode is not supported by this stats.");
+        throw new UnsupportedOperationException("Calculating the mode is not supported by this stats.");
     }
-    
+
     @Override
     public boolean isSample() {
-    	return true;
+        return true;
     }
 
     @Override

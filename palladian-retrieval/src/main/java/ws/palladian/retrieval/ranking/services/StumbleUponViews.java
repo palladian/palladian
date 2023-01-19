@@ -1,11 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.parser.json.JsonObject;
@@ -14,13 +10,15 @@ import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * <p>
  * RankingService implementation to find the number of views of a Web page over Stumble Upon.
  * </p>
- * 
+ *
  * @author David Urbansky
- * 
  */
 public final class StumbleUponViews extends AbstractRankingService implements RankingService {
 
@@ -31,8 +29,7 @@ public final class StumbleUponViews extends AbstractRankingService implements Ra
     private static final String SERVICE_ID = "stumbleupon";
 
     /** The ranking value types of this service **/
-    public static final RankingType VIEWS = new RankingType("stumbleuponviews", "Stumble Upon Views",
-            "The Number of Views on Stumble Upon");
+    public static final RankingType VIEWS = new RankingType("stumbleuponviews", "Stumble Upon Views", "The Number of Views on Stumble Upon");
 
     /** All available ranking types by {@link StumbleUponViews}. */
     private static final List<RankingType> RANKING_TYPES = Arrays.asList(VIEWS);
@@ -40,8 +37,7 @@ public final class StumbleUponViews extends AbstractRankingService implements Ra
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         Ranking.Builder builder = new Ranking.Builder(this, url);
-        String requestUrl = "http://www.stumbleupon.com/services/1.01/badge.getinfo?url="
-                + UrlHelper.encodeParameter(url);
+        String requestUrl = "http://www.stumbleupon.com/services/1.01/badge.getinfo?url=" + UrlHelper.encodeParameter(url);
         try {
             HttpResult httpResult = retriever.httpGet(requestUrl);
             String response = httpResult.getStringContent();

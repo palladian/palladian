@@ -1,24 +1,16 @@
 package ws.palladian.helper.io;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
+
+import java.io.*;
 
 /**
  * Input stream which gives feedback using a {@link ProgressMonitor}. Use this, when reading large files and you want to
  * give progress updates to the user.
- * 
+ *
  * @author Philipp Katz
- * 
  */
 public final class ProgressReporterInputStream extends FilterInputStream {
 
@@ -26,11 +18,11 @@ public final class ProgressReporterInputStream extends FilterInputStream {
 
     /**
      * Create a {@link ProgressReporterInputStream} for the given {@link InputStream}.
-     * 
+     *
      * @param inputStream The input stream, not <code>null</code>.
-     * @param reporter The progress reporter, not <code>null</code>.
+     * @param reporter    The progress reporter, not <code>null</code>.
      * @see <b>Important:</b> In case, you need to handle a file which size is bigger than {@link Integer#MAX_VALUE},
-     *      use the {@link #ProgressReporterInputStream(File)} constructor!
+     * use the {@link #ProgressReporterInputStream(File)} constructor!
      */
     public ProgressReporterInputStream(InputStream inputStream, ProgressReporter reporter) {
         super(inputStream);
@@ -46,10 +38,10 @@ public final class ProgressReporterInputStream extends FilterInputStream {
 
     /**
      * Create a {@link ProgressReporterInputStream} reading from the specified file.
-     * 
-     * @param file The file, not <code>null</code>.
+     *
+     * @param file     The file, not <code>null</code>.
      * @param reporter The progress reporter, not <code>null</code>.
-     * @throws FileNotFoundException In case the file could not be found.
+     * @throws FileNotFoundException    In case the file could not be found.
      * @throws IllegalArgumentException In case the given file is no file.
      */
     public ProgressReporterInputStream(File file, ProgressReporter reporter) throws FileNotFoundException {

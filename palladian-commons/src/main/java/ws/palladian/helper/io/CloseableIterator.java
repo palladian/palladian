@@ -10,9 +10,9 @@ import java.util.Iterator;
  * method should be invoked automatically. The manual {@link #close()} is intended for cases, where the iteration is
  * stopped in between. <b>Important:</b> Closing is a must in order to avoid resources leaking!
  * </p>
- * 
- * @author Philipp Katz
+ *
  * @param <T>
+ * @author Philipp Katz
  */
 public interface CloseableIterator<T> extends Iterator<T>, Closeable {
 

@@ -7,17 +7,17 @@
  * and the ROME framework. To save the retrieved contents use an instance of
  * {@link ws.palladian.retrieval.feeds.persistence.FeedDatabase}.
  * </p>
- * 
+ *
  * <p>
  * Searching for feeds can be achieved using the class {@link ws.palladian.retrieval.feeds.discovery.FeedDiscovery}, which can employ
  * arbitrary search engines to find feeds for specified search terms.
  * </p>
- * 
+ *
  * <p>
  * A quick overview demonstrating the main use cases of this package in code can be found in
  * {@link ws.palladian.retrieval.feeds.UsageExamples}.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann

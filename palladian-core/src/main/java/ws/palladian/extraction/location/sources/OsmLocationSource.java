@@ -1,29 +1,13 @@
 package ws.palladian.extraction.location.sources;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ws.palladian.extraction.location.AlternativeName;
-import ws.palladian.extraction.location.ImmutableLocation;
-import ws.palladian.extraction.location.Location;
-import ws.palladian.extraction.location.LocationSource;
-import ws.palladian.extraction.location.LocationType;
+import ws.palladian.extraction.location.*;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.helper.geo.ImmutableGeoCoordinate;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -32,17 +16,20 @@ import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.nio.charset.Charset;
+import java.util.*;
+
 /**
  * <p>
  * Location source from OpenStreetMap using the "Overpass API", which is run by third parties. See link below for
  * available servers.
  * </p>
- * 
+ *
+ * @author Philipp Katz
  * @see <a href="http://www.openstreetmap.org">OpenStreetMap</a>
  * @see <a href="http://wiki.openstreetmap.org/wiki/Overpass_API">Overpass API</a>
  * @see <a href="http://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide">Overpass API/Language Guide</a>
  * @see <a href="http://overpass-api.de">Overpass API</a>
- * @author Philipp Katz
  */
 public class OsmLocationSource extends SingleQueryLocationSource {
 
@@ -82,7 +69,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
      * <p>
      * Create a new {@link OsmLocationSource} with the specified base URL.
      * </p>
-     * 
+     *
      * @param queryBaseUrl The base URL for queries, not <code>null</code> or empty.
      */
     public OsmLocationSource(String queryBaseUrl) {
@@ -109,8 +96,7 @@ public class OsmLocationSource extends SingleQueryLocationSource {
     }
 
     private Collection<Location> performOverpassQuery(String query) {
-        String queryUrl = String.format("%s/interpreter?data=%s", queryBaseUrl,
-                UrlHelper.encodeParameter(query));
+        String queryUrl = String.format("%s/interpreter?data=%s", queryBaseUrl, UrlHelper.encodeParameter(query));
         try {
             LOGGER.debug("Requesting from {}", queryUrl);
             HttpResult result = retriever.httpGet(queryUrl);

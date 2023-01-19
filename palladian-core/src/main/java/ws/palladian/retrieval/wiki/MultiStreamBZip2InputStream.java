@@ -1,14 +1,14 @@
 package ws.palladian.retrieval.wiki;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Handle multistream BZip2 files.
- * 
+ *
  * @author <a href="http://chaosinmotion.com/blog/?p=723">Bill Woody</a>
  */
 public class MultiStreamBZip2InputStream extends CompressorInputStream {
@@ -54,12 +54,12 @@ public class MultiStreamBZip2InputStream extends CompressorInputStream {
         int c = read();
         if (c == -1)
             return -1;
-        dest[off++] = (byte)c;
+        dest[off++] = (byte) c;
         while (i < len) {
             c = read();
             if (c == -1)
                 break;
-            dest[off++] = (byte)c;
+            dest[off++] = (byte) c;
             ++i;
         }
         return i;

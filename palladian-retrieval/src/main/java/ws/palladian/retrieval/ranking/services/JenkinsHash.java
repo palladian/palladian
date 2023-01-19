@@ -2,13 +2,13 @@ package ws.palladian.retrieval.ranking.services;
 
 /**
  * <b>This is a Bob Jenkins hashing algorithm implementation</b>
- * <br> 
+ * <br>
  * These are functions for producing 32-bit hashes for hash table lookup.
  * hashword(), hashlittle(), hashlittle2(), hashbig(), mix(), and final()
  * are externally useful functions.  Routines to test the hash are included
  * if SELF_TEST is defined.  You can use this free for any purpose.  It's in
  * the public domain.  It has no warranty.
- * 
+ *
  * @see Taken from <a href="http://code.google.com/p/codo-pagerank-widget/source/browse/trunk/src/com/temesoft/google/pr/JenkinsHash.java?r=4">here</a>
  */
 public class JenkinsHash {
@@ -23,6 +23,7 @@ public class JenkinsHash {
 
     /**
      * Convert a byte into a long value without making it negative.
+     *
      * @param b
      * @return
      */
@@ -36,6 +37,7 @@ public class JenkinsHash {
 
     /**
      * Do addition and turn into 4 bytes.
+     *
      * @param val
      * @param add
      * @return
@@ -46,6 +48,7 @@ public class JenkinsHash {
 
     /**
      * Do subtraction and turn into 4 bytes.
+     *
      * @param val
      * @param subtract
      * @return
@@ -56,6 +59,7 @@ public class JenkinsHash {
 
     /**
      * Left shift val by shift bits and turn in 4 bytes.
+     *
      * @param val
      * @param xor
      * @return
@@ -66,6 +70,7 @@ public class JenkinsHash {
 
     /**
      * Left shift val by shift bits.  Cut down to 4 bytes.
+     *
      * @param val
      * @param shift
      * @return
@@ -76,15 +81,13 @@ public class JenkinsHash {
 
     /**
      * Convert 4 bytes from the buffer at offset into a long value.
+     *
      * @param bytes
      * @param offset
      * @return
      */
     private long fourByteToLong(byte[] bytes, int offset) {
-        return (byteToLong(bytes[offset + 0])
-                + (byteToLong(bytes[offset + 1]) << 8)
-                + (byteToLong(bytes[offset + 2]) << 16)
-                + (byteToLong(bytes[offset + 3]) << 24));
+        return (byteToLong(bytes[offset + 0]) + (byteToLong(bytes[offset + 1]) << 8) + (byteToLong(bytes[offset + 2]) << 16) + (byteToLong(bytes[offset + 3]) << 24));
     }
 
     /**

@@ -3,19 +3,13 @@
  */
 package ws.palladian.classification;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import libsvm.svm_model;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.utils.DummyVariableCreator;
 import ws.palladian.classification.utils.Normalization;
 import ws.palladian.core.Model;
+
+import java.util.*;
 
 /**
  * @author Klemens Muthmann
@@ -44,8 +38,7 @@ public final class LibSvmModel implements Model {
     private final DummyVariableCreator dummyCoder;
 
     /* To be instantiated from within the package only. */
-    LibSvmModel(svm_model model, List<String> schema, List<String> classes, Normalization normalization,
-            DummyVariableCreator dummyCoder) {
+    LibSvmModel(svm_model model, List<String> schema, List<String> classes, Normalization normalization, DummyVariableCreator dummyCoder) {
         Validate.notNull(model);
         Validate.notNull(schema);
         Validate.notNull(classes);

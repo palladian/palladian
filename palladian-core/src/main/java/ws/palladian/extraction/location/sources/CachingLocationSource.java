@@ -1,17 +1,7 @@
 package ws.palladian.extraction.location.sources;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.extraction.location.Location;
 import ws.palladian.extraction.location.LocationSource;
 import ws.palladian.helper.collection.DefaultMultiMap;
@@ -20,11 +10,13 @@ import ws.palladian.helper.collection.MultiMap;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.geo.GeoCoordinate;
 
+import java.util.*;
+
 /**
  * <p>
  * Cache decorator, useful for Web- and database-based {@link LocationSource}s.
  * </p>
- * 
+ *
  * @author Philipp Katz
  */
 public final class CachingLocationSource extends MultiQueryLocationSource {
@@ -35,7 +27,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
     private final LruMap<String, Collection<Location>> nameCache;
 
     private final LruMap<Integer, Location> idCache;
-    
+
     private final LruMap<String, List<Location>> coordinateCache;
 
     private final LocationSource wrapped;
@@ -58,9 +50,9 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
      * <p>
      * Create a new {@link CachingLocationSource}.
      * </p>
-     * 
+     *
      * @param wrapped The location source to wrap, not <code>null</code>.
-     * @param size The size of the cache, greater zero.
+     * @param size    The size of the cache, greater zero.
      */
     public CachingLocationSource(LocationSource wrapped, int size) {
         Validate.notNull(wrapped, "wrapped must not be null");
@@ -76,7 +68,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
      * <p>
      * Create a new {@link CachingLocationSource} with a cache size of {@value #DEFAULT_CACHE_SIZE}.
      * </p>
-     * 
+     *
      * @param wrapped The location source to wrap, not <code>null</code>.
      */
     public CachingLocationSource(LocationSource wrapped) {
@@ -108,7 +100,7 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
             for (String locationName : needsLookup) {
                 Collection<Location> locations = retrievedLocations.get(locationName);
                 String identifier = createIdentifier(languages, locationName);
-                nameCache.put(identifier, locations != null ? locations : Collections.<Location> emptySet());
+                nameCache.put(identifier, locations != null ? locations : Collections.<Location>emptySet());
                 if (locations != null) {
                     result.put(locationName, locations);
                 }
@@ -120,8 +112,8 @@ public final class CachingLocationSource extends MultiQueryLocationSource {
 
     /**
      * Create an identifier for the hash key (locationName#GERMAN#ENGLISH).
-     * 
-     * @param languages The languages in the query.
+     *
+     * @param languages    The languages in the query.
      * @param locationName The searched location name.
      * @return An identifier combining name and languages.
      */

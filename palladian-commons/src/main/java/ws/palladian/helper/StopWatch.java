@@ -1,14 +1,13 @@
 package ws.palladian.helper;
 
-import java.util.concurrent.TimeUnit;
-
 import ws.palladian.helper.date.DateHelper;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * A simple stop watch for performance testing.
- * 
+ *
  * @author David Urbansky
- * 
  */
 public class StopWatch {
 
@@ -77,7 +76,7 @@ public class StopWatch {
 
     /**
      * Get the time when the stop watch was started.
-     * 
+     *
      * @return The timestamp of the start time.
      */
     public long getStartTime() {
@@ -86,7 +85,7 @@ public class StopWatch {
 
     /**
      * Get the elapsed time.
-     * 
+     *
      * @param inSeconds If true, the elapsed time will be returned in seconds, otherwise in milliseconds.
      * @return The elapsed time.
      */
@@ -107,7 +106,7 @@ public class StopWatch {
      * <p>
      * Get the total elapsed time since the first start of the stop watch.
      * </p>
-     * 
+     *
      * @return The number of milliseconds since the timer was started for the first time.
      */
     public long getTotalElapsedTime() {
@@ -116,7 +115,7 @@ public class StopWatch {
 
     /**
      * Get the elapsed time in milliseconds.
-     * 
+     *
      * @return The elapsed time.
      */
     public long getElapsedTime() {
@@ -128,7 +127,7 @@ public class StopWatch {
      * Get the elapsed time as a string, that is, the time from the method call to the last time {@code start()} was
      * called.
      * </p>
-     * 
+     *
      * @param output If true, the elapsed time will be printed to the console as well.
      * @return The elapsed time as a string.
      */
@@ -179,7 +178,7 @@ public class StopWatch {
 
     /**
      * Get the elapsed time as a string without console output.
-     * 
+     *
      * @return The elapsed time as a string.
      */
     public String getElapsedTimeString() {
@@ -188,7 +187,7 @@ public class StopWatch {
 
     /**
      * Get the elapsed time as a string.
-     * 
+     *
      * @param output If true, the elapsed time will be printed to the console as well.
      * @return The elapsed time as a string.
      */
@@ -210,7 +209,7 @@ public class StopWatch {
 
     /**
      * Get the elapsed time as a string without console output.
-     * 
+     *
      * @return The elapsed time as a string.
      */
     public String getTotalElapsedTimeString() {

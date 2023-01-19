@@ -1,19 +1,9 @@
 package ws.palladian.classification.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.classification.evaluation.ClassificationEvaluator;
 import ws.palladian.classification.evaluation.ThresholdAnalysisEvaluator;
-import ws.palladian.core.CategoryEntries;
-import ws.palladian.core.Classifier;
-import ws.palladian.core.Instance;
-import ws.palladian.core.Learner;
-import ws.palladian.core.Model;
+import ws.palladian.core.*;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.io.FileHelper;
@@ -21,11 +11,16 @@ import ws.palladian.helper.math.ConfusionMatrix;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.math.ThresholdAnalyzer;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * <p>
  * Various evaluation methods for classifiers.
  * </p>
- * 
+ *
  * @author Philipp Katz
  * @author David Urbansky
  */
@@ -36,16 +31,15 @@ public final class ClassifierEvaluation {
 
     // XXX misleading; I thought that would test multiple models, but it actually combines the models?
     // document, and also have a look at comment in ClassificationUtils.classifyWithMultipleModels
+
     /** Use a concrete {@link ClassificationEvaluator} instead. */
     @Deprecated
-    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
-            Iterable<? extends Instance> testData, M... models) {
+    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, Iterable<? extends Instance> testData, M... models) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
         for (Instance testInstance : testData) {
-            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier,
-                    testInstance.getVector(), models);
+            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier, testInstance.getVector(), models);
             String classifiedCategory = classification.getMostLikelyCategory();
             String realCategory = testInstance.getCategory();
             confusionMatrix.add(realCategory, classifiedCategory);
@@ -53,19 +47,17 @@ public final class ClassifierEvaluation {
 
         return confusionMatrix;
     }
-    
-    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier,
-            Iterable<? extends Instance> testData, List<String> results, M model) {
+
+    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, Iterable<? extends Instance> testData, List<String> results, M model) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
         results.add("Vector###Correct Category###Classified Category");
         for (Instance testInstance : testData) {
-            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier,
-                    testInstance.getVector(), model);
+            CategoryEntries classification = ClassificationUtils.classifyWithMultipleModels(classifier, testInstance.getVector(), model);
             String classifiedCategory = classification.getMostLikelyCategory();
             String realCategory = testInstance.getCategory();
-            results.add(testInstance.getVector().toString()+"###"+realCategory+"###"+classifiedCategory);
+            results.add(testInstance.getVector().toString() + "###" + realCategory + "###" + classifiedCategory);
             confusionMatrix.add(realCategory, classifiedCategory);
         }
 
@@ -74,11 +66,10 @@ public final class ClassifierEvaluation {
 
     /**
      * @deprecated use a single or multiple models as the last parameter ClassifierEvaluation#evaluate(Classifier<M>
-     *             classifier, Iterable<T> testData, M... models)
-     * */
+     * classifier, Iterable<T> testData, M... models)
+     */
     @Deprecated
-    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, M model,
-            Iterable<? extends Instance> testData) {
+    public static <M extends Model> ConfusionMatrix evaluate(Classifier<M> classifier, M model, Iterable<? extends Instance> testData) {
 
         ConfusionMatrix confusionMatrix = new ConfusionMatrix();
 
@@ -96,15 +87,14 @@ public final class ClassifierEvaluation {
      * <p>
      * Evaluation with 50:50 split for the given {@link Learner}, {@link Classifier} combination.
      * </p>
-     * 
-     * @param learner The learner, not <code>null</code>.
+     *
+     * @param learner    The learner, not <code>null</code>.
      * @param classifier The classifier, not <code>null</code>.
-     * @param instances The dataset, not <code>null</code> or empty.
+     * @param instances  The dataset, not <code>null</code> or empty.
      * @return The {@link ConfusionMatrix} with the evaluation results.
      */
     @SuppressWarnings("unchecked")
-    public static <M extends Model> ConfusionMatrix evaluate(Learner<M> learner, Classifier<M> classifier,
-            List<? extends Instance> instances) {
+    public static <M extends Model> ConfusionMatrix evaluate(Learner<M> learner, Classifier<M> classifier, List<? extends Instance> instances) {
         Validate.notNull(learner, "learner must not be null");
         Validate.notNull(classifier, "classifier must not be null");
         Validate.notNull(instances, "instances must not be null");
@@ -118,8 +108,7 @@ public final class ClassifierEvaluation {
 
     /** @deprecated Use the {@link ThresholdAnalysisEvaluator} instead. */
     @Deprecated
-    public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model,
-            Iterable<? extends Instance> testData, String correctClass) {
+    public static <M extends Model> ThresholdAnalyzer thresholdAnalysis(Classifier<M> classifier, M model, Iterable<? extends Instance> testData, String correctClass) {
         Validate.isTrue(model.getCategories().size() == 2, "binary model required");
 
         ThresholdAnalyzer thresholdAnalyzer = new ThresholdAnalyzer(100);
@@ -142,20 +131,19 @@ public final class ClassifierEvaluation {
      * learning curves. In contrast to the learning curves described by Ng, we use Pr/Rc/F1 instead of the squared error
      * for evaluation.
      * </p>
-     * 
-     * @param learner The {@link Learner}, not <code>null</code>.
-     * @param classifier The {@link Classifier}, not <code>null</code>.
-     * @param trainSet The training set with classified instances for building the {@link Model} with the
-     *            {@link Learner}, and for evaluation, not <code>null</code>.
-     * @param testSet The test set for evaluation, not <code>null</code>.
+     *
+     * @param learner      The {@link Learner}, not <code>null</code>.
+     * @param classifier   The {@link Classifier}, not <code>null</code>.
+     * @param trainSet     The training set with classified instances for building the {@link Model} with the
+     *                     {@link Learner}, and for evaluation, not <code>null</code>.
+     * @param testSet      The test set for evaluation, not <code>null</code>.
      * @param correctClass The name of the correct class, e.g. <code>true</code>, not <code>null</code>.
-     * @param stepSize The increment for the size of the trainSet in each iteration, larger/equal one.
+     * @param stepSize     The increment for the size of the trainSet in each iteration, larger/equal one.
      * @see <a href="https://class.coursera.org/ml/lecture/64">Learning curves explained by Andrew Ng</a>
      */
     @SuppressWarnings("unchecked")
-    public static <M extends Model> void createLearningCurves(Learner<M> learner, Classifier<M> classifier,
-            Collection<? extends Instance> trainSet, Collection<? extends Instance> testSet, String correctClass,
-            int stepSize) {
+    public static <M extends Model> void createLearningCurves(Learner<M> learner, Classifier<M> classifier, Collection<? extends Instance> trainSet,
+            Collection<? extends Instance> testSet, String correctClass, int stepSize) {
         Validate.notNull(learner, "learner must not be null");
         Validate.notNull(classifier, "classifier must not be null");
         Validate.notNull(trainSet, "trainSet must not be null");
@@ -165,13 +153,12 @@ public final class ClassifierEvaluation {
 
         String outputFile = String.format("learningCurves_%s.csv", System.currentTimeMillis());
         ProgressReporter reporter = new ProgressMonitor();
-        reporter.startTask("Creating learning curves", (int)Math.ceil((double)trainSet.size() / stepSize));
+        reporter.startTask("Creating learning curves", (int) Math.ceil((double) trainSet.size() / stepSize));
 
         List<Instance> trainList = new ArrayList<Instance>(trainSet);
         Collections.shuffle(trainList);
 
-        FileHelper.appendFile(outputFile,
-                "trainItems;trainPercent;trainPrecision;trainRecall;trainF1;testPrecision;testRecall;testF1;\n");
+        FileHelper.appendFile(outputFile, "trainItems;trainPercent;trainPrecision;trainRecall;trainF1;testPrecision;testRecall;testF1;\n");
 
         for (int i = stepSize; i < trainSet.size(); i += stepSize) {
             List<Instance> currentTrainSet = trainList.subList(0, i);
@@ -180,7 +167,7 @@ public final class ClassifierEvaluation {
             ConfusionMatrix testResult = evaluate(classifier, testSet, model);
             StringBuilder resultLine = new StringBuilder();
             resultLine.append(i).append(';');
-            resultLine.append(MathHelper.round((double)i * 100 / trainSet.size(), 2)).append(';');
+            resultLine.append(MathHelper.round((double) i * 100 / trainSet.size(), 2)).append(';');
             resultLine.append(trainResult.getPrecision(correctClass)).append(';');
             resultLine.append(trainResult.getRecall(correctClass)).append(';');
             resultLine.append(trainResult.getF(1, correctClass)).append(';');

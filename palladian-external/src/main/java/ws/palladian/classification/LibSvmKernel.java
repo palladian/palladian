@@ -11,7 +11,7 @@ import libsvm.svm_parameter;
  * linearly separable, separable in a higher dimensional space. Read the literature on SVM and kernels for further
  * information.
  * </p>
- * 
+ *
  * @author Klemens Muthmann
  * @version 1.0
  * @since 0.2.0

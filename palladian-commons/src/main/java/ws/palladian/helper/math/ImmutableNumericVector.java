@@ -1,22 +1,20 @@
 package ws.palladian.helper.math;
 
-import java.util.*;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.Validate;
-
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.collection.EntryConverter;
 import ws.palladian.helper.collection.Vector;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>
  * A {@link NumericVector} storing data in a {@link Map}.
  * </p>
- * 
- * @author Philipp Katz
- * 
+ *
  * @param <K>
+ * @author Philipp Katz
  */
 public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
 
@@ -40,7 +38,7 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
      * Create a new {@link ImmutableNumericVector} from the given value map. The map is copied, making this instance
      * effectively immutable.
      * </p>
-     * 
+     *
      * @param valueMap The map holding the values, not <code>null</code>.
      */
     public ImmutableNumericVector(Map<K, Double> valueMap) {
@@ -52,7 +50,7 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
      * <p>
      * Create a new {@link ImmutableNumericVector} by copying the given {@link Vector}.
      * </p>
-     * 
+     *
      * @param vector The vector with the values, not <code>null</code>.
      */
     public ImmutableNumericVector(Vector<K, Double> vector) {
@@ -74,7 +72,6 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
     public Set<K> keys() {
         return Collections.unmodifiableSet(valueMap.keySet());
     }
-
 
     @Override
     public Collection<Double> values() {
@@ -125,7 +122,7 @@ public final class ImmutableNumericVector<K> extends AbstractNumericVector<K> {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        ImmutableNumericVector<?> other = (ImmutableNumericVector<?>)obj;
+        ImmutableNumericVector<?> other = (ImmutableNumericVector<?>) obj;
         return valueMap.equals(other.valueMap);
     }
 

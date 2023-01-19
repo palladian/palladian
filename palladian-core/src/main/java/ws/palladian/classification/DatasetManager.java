@@ -1,14 +1,7 @@
 package ws.palladian.classification;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ws.palladian.classification.text.evaluation.Dataset;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
@@ -16,6 +9,12 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.MathHelper;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public final class DatasetManager {
 
@@ -28,7 +27,7 @@ public final class DatasetManager {
 
     /**
      * Create an index of file location [space] class name.
-     * 
+     *
      * @param corpusRootFolder The path to the root folder of the dataset.
      * @throws IOException
      */
@@ -60,7 +59,7 @@ public final class DatasetManager {
     /**
      * Create one folder per class from a folder that contains all dataset entries for all classes.
      * This method assumes that the filenames contain the target class name and a running counter, e.g. categoryA1.jpg, categoryB131.png etc.
-     * 
+     *
      * @param sourceFolderPath The folder with the dataset files of all classes.
      * @param targetFolderPath The folder where the subfolders - one for each class - shall be created.
      */
@@ -86,9 +85,9 @@ public final class DatasetManager {
 
     /**
      * Create an index of file location [space] class name for all classes specified in the array.
-     * 
+     *
      * @param corpusRootFolderPath The path to the root folder of the dataset.
-     * @param includeClasses The class names that should be included in the index.
+     * @param includeClasses       The class names that should be included in the index.
      * @throws IOException
      */
     public static String createIndex(String corpusRootFolderPath, String[] includeClasses) throws IOException {
@@ -144,9 +143,9 @@ public final class DatasetManager {
      * <p>
      * Create a smaller subset of an index with exactly the same number of instances per class.
      * </p>
-     * 
-     * @param indexFilePath The path to the index file.
-     * @param separator The separator between the data and the class.
+     *
+     * @param indexFilePath     The path to the index file.
+     * @param separator         The separator between the data and the class.
      * @param instancesPerClass The number of instances per class.
      * @throws IOException
      */
@@ -199,9 +198,9 @@ public final class DatasetManager {
      * <p>
      * Create a balanced index that each class has the same number of items in the dataset.
      * </p>
-     * 
+     *
      * @param indexFilePath The file to the (unbalanced) source data.
-     * @param separator The separator.
+     * @param separator     The separator.
      * @return The path to the balanced data.
      * @throws IOException
      */
@@ -222,9 +221,9 @@ public final class DatasetManager {
      * Create a smaller subset of an index with a limited total number of instances. As opposed to createIndexExcerpt,
      * we have not a balanced, even number of instances per class but a sample of all instances.
      * </p>
-     * 
-     * @param indexFilePath The path to the index file.
-     * @param separator The separator between the data and the class.
+     *
+     * @param indexFilePath  The path to the index file.
+     * @param separator      The separator between the data and the class.
      * @param totalInstances The total number of instances.
      * @throws IOException
      */
@@ -277,7 +276,7 @@ public final class DatasetManager {
      * </p>
      * <p>
      * For example, if crossValidationFolds = 3 the following files will be created in the dataset root folder:<br>
-     * 
+     *
      * <pre>
      * crossValidation_training1.txt (containing the first 1/3rd of the data)
      * crossValidation_test1.txt (containing the last 2/3rd of the data)
@@ -286,16 +285,16 @@ public final class DatasetManager {
      * crossValidation_training3.txt (containing the last 1/3rd of the data)
      * crossValidation_test3.txt (containing the rest 2/3rd of the data)
      * </pre>
-     * 
+     *
      * This would be returned as 3 entries in the array with each entry containing the path to the training and test
      * data.
-     * 
+     *
      * </p>
-     * 
-     * @param dataset The dataset to prepare for cross validation.
+     *
+     * @param dataset              The dataset to prepare for cross validation.
      * @param crossValidationFolds The number of folds for the cross validation.
-     * @param numberOfInstances The number of instances to use for training from the dataset. -1 means use all
-     *            instances.
+     * @param numberOfInstances    The number of instances to use for training from the dataset. -1 means use all
+     *                             instances.
      * @return The list of files used for the folds.
      * @throws IOException
      */
@@ -353,8 +352,8 @@ public final class DatasetManager {
 
     /**
      * Split the index file into 2 parts (for training and testing).
-     * 
-     * @param indexFilePath The path to the file which should be split.
+     *
+     * @param indexFilePath   The path to the file which should be split.
      * @param splitPercentage The percentage of the first part. The second part is 100 - splitPercentage.
      * @throws IOException
      */
@@ -411,7 +410,7 @@ public final class DatasetManager {
         for (Entry<String, Set<String>> entry : classMap.entrySet()) {
 
             Set<String> links = entry.getValue();
-            int maxEntriesSplit1 = (int)(links.size() * splitPercentage / (double)100);
+            int maxEntriesSplit1 = (int) (links.size() * splitPercentage / (double) 100);
             int entriesSplit1 = 0;
             for (String string : links) {
 
@@ -439,7 +438,7 @@ public final class DatasetManager {
 
         LOGGER.info("file " + indexFilePath + " splitted in " + sw.getElapsedTimeString());
 
-        return new String[] {split1Name, split2Name};
+        return new String[]{split1Name, split2Name};
     }
 
     /**
@@ -452,7 +451,7 @@ public final class DatasetManager {
      * filePath politician_part2<br>
      * => should be split in two files, one containing only part1 and the other only part2.
      * </p>
-     * 
+     *
      * @param indexFilePath The path to the file which should be split.
      * @throws IOException
      */
@@ -507,7 +506,7 @@ public final class DatasetManager {
 
     /**
      * Delete all files that are empty.
-     * 
+     *
      * @param corpusRootFolderPath The path to the root of the corpus.
      */
     public static void cleanDataset(String corpusRootFolderPath) {
@@ -542,8 +541,8 @@ public final class DatasetManager {
     /**
      * Split a dataset file which contains the complete data (not only links to the data files). The output will be two
      * files "training" and "test" in the dataset root folder.
-     * 
-     * @param dataset The dataset to split.
+     *
+     * @param dataset            The dataset to split.
      * @param percentageTraining The percentage that should be used for training, e.g. 0.3 = 30%.
      */
     public static void splitDataset(Dataset dataset, double percentageTraining) {
@@ -562,7 +561,7 @@ public final class DatasetManager {
         List<String> linesTraining = new ArrayList<String>();
         List<String> linesTest = new ArrayList<String>();
 
-        int trainingLines = (int)(percentageTraining * lines.size());
+        int trainingLines = (int) (percentageTraining * lines.size());
         for (int i = 0; i < lines.size(); i++) {
 
             if (i < trainingLines) {
@@ -582,9 +581,9 @@ public final class DatasetManager {
      * <p>
      * Write the CSV separated list of class names and their frequencies in the dataset.
      * </p>
-     * 
+     *
      * @param datasetPath The path to the dataset index file.
-     * @param csvPath The path where the csv file should be saved to.
+     * @param csvPath     The path where the csv file should be saved to.
      */
     public static Bag<String> calculateClassDistribution(final Dataset dataset) {
         return calculateClassDistribution(dataset, null);
@@ -650,8 +649,8 @@ public final class DatasetManager {
      * <p>
      * A file is written which adds a "_filtered" to the name of the original path.
      * </p>
-     * 
-     * @param dataset The original dataset.
+     *
+     * @param dataset      The original dataset.
      * @param minFrequency The minimal frequency.
      * @return The new dataset.
      */
@@ -700,14 +699,14 @@ public final class DatasetManager {
      */
     public static void main(String[] args) throws IOException {
 
-//        new DatasetManager().folderize("F:\\PalladianData\\Datasets\\recipes50\\pictures", "F:\\PalladianData\\Datasets\\recipes50\\foldered");
+        //        new DatasetManager().folderize("F:\\PalladianData\\Datasets\\recipes50\\pictures", "F:\\PalladianData\\Datasets\\recipes50\\foldered");
 
         // Dataset dataset = new Dataset();
         // dataset.setPath("data/temp/trainCollection.csv");
         // dataset.setSeparationString("<###>");
         // splitForCrossValidation(dataset, 3, 10);
 
-         createBalancedIndex("H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt", " ");
+        createBalancedIndex("H:\\PalladianData\\Datasets\\LanguageDatasets\\Microblogging35Languages\\languageDocumentIndex.txt", " ");
 
         System.exit(0);
 

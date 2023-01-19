@@ -8,7 +8,7 @@ import java.util.Set;
  * <p>
  * Temperature units.
  * </p>
- * 
+ *
  * @author David Urbansky
  */
 public enum TemperatureUnit {

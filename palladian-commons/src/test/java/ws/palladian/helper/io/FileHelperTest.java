@@ -1,25 +1,24 @@
 package ws.palladian.helper.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Test cases for the FileHelper class.
- * 
+ *
  * @author David Urbansky
  */
 public class FileHelperTest {
 
     @Test
     public void testGetFileName() {
-        assertEquals("ConvocationProgram2017_WEB", FileHelper.getFileName("http://www.excelsior.edu/documents/1384577/8431827/ConvocationProgram2017_WEB.pdf/dcd4f1dd-cec4-5b11-2210-cd6cd4828c2e"));
+        assertEquals("ConvocationProgram2017_WEB",
+                FileHelper.getFileName("http://www.excelsior.edu/documents/1384577/8431827/ConvocationProgram2017_WEB.pdf/dcd4f1dd-cec4-5b11-2210-cd6cd4828c2e"));
         assertEquals("abc", FileHelper.getFileName("data/temp/abc.jpg"));
         assertEquals("abc", FileHelper.getFileName("abc.jpg"));
         assertEquals("abc", FileHelper.getFileName("abc"));
@@ -60,8 +59,7 @@ public class FileHelperTest {
     public void testRename() throws FileNotFoundException {
         // System.out.println(FileHelper.rename(new
         // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
-        String renamedFile = FileHelper.getRenamedFilename(new File(ResourceHelper.getResourcePath("/empty.txt")),
-                "empty_tagged");
+        String renamedFile = FileHelper.getRenamedFilename(new File(ResourceHelper.getResourcePath("/empty.txt")), "empty_tagged");
         renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
         assertEquals("empty_tagged.txt", renamedFile);
     }

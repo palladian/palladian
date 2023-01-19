@@ -1,5 +1,12 @@
 package ws.palladian.extraction.pos;
 
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSTagger;
+import opennlp.tools.postag.POSTaggerME;
+import org.apache.commons.lang.Validate;
+import ws.palladian.helper.Cache;
+import ws.palladian.helper.io.FileHelper;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,23 +14,14 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import opennlp.tools.postag.POSModel;
-import opennlp.tools.postag.POSTagger;
-import opennlp.tools.postag.POSTaggerME;
-
-import org.apache.commons.lang.Validate;
-
-import ws.palladian.helper.Cache;
-import ws.palladian.helper.io.FileHelper;
-
 /**
  * <p>
  * <a href="http://opennlp.apache.org/">Apache OpenNLP</a> based POS tagger.
  * </p>
- * 
- * @see <a href="http://opennlp.sourceforge.net/models-1.5/">Download</a> page for models.
+ *
  * @author Martin Wunderwald
  * @author Philipp Katz
+ * @see <a href="http://opennlp.sourceforge.net/models-1.5/">Download</a> page for models.
  */
 public final class OpenNlpPosTagger extends AbstractPosTagger {
 
@@ -40,7 +38,7 @@ public final class OpenNlpPosTagger extends AbstractPosTagger {
 
     private POSTagger loadModel(File modelFile) {
         String modelPath = modelFile.getAbsolutePath();
-        POSTagger model = (POSTagger)Cache.getInstance().getDataObject(modelPath);
+        POSTagger model = (POSTagger) Cache.getInstance().getDataObject(modelPath);
         if (model == null) {
             InputStream inputStream = null;
             try {
@@ -48,8 +46,7 @@ public final class OpenNlpPosTagger extends AbstractPosTagger {
                 model = new POSTaggerME(new POSModel(inputStream));
                 Cache.getInstance().putDataObject(modelPath, model);
             } catch (IOException e) {
-                throw new IllegalStateException("Error initializing OpenNLP POS Tagger from \"" + modelPath + "\": "
-                        + e.getMessage());
+                throw new IllegalStateException("Error initializing OpenNLP POS Tagger from \"" + modelPath + "\": " + e.getMessage());
             } finally {
                 FileHelper.close(inputStream);
             }
