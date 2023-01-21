@@ -21,7 +21,7 @@ jobs:
       # https://github.com/marketplace/actions/setup-java-jdk#publishing-using-apache-maven
       - uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '17'
           server-id: ossrh
           server-username: OSSRH_USERNAME
           server-password: OSSRH_PASSWORD
