@@ -71,6 +71,19 @@ class JsonUtil {
         }
         return object.toString();
     }
+    
+    public static Json parseJsonObjectOrArray(Object object) throws JsonException {
+        if (object instanceof Json) {
+            return (Json) object;
+        }
+        if (object instanceof Map) {
+            return parseJsonObject(object);
+        }
+        if (object instanceof List) {
+            return parseJsonArray(object);
+        }
+        throw new JsonException("Could not parse \"" + object + "\" to JSON.");
+    }
 
     /**
      * Throw an exception if the object is a NaN or infinite number.
