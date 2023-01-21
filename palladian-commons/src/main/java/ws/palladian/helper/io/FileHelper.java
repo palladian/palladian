@@ -288,7 +288,8 @@ public final class FileHelper {
         try {
             return readFileToString(file, encoding);
         } catch (Exception e) {
-            return tryReadGzippedFileToString(file, encoding);
+        	return null;
+//            return tryReadGzippedFileToString(file, encoding);
         }
     }
 
@@ -324,7 +325,7 @@ public final class FileHelper {
         return readFileToString(file, DEFAULT_ENCODING);
     }
 
-    public static String tryReadGzippedFileToString(File file, String encoding) {
+    public static String readFileToString(File file, String encoding) {
         try {
             StringBuilder contents = new StringBuilder();
             BufferedReader reader = null;
@@ -353,9 +354,9 @@ public final class FileHelper {
         }
     }
 
-    public static String readFileToString(File file, String encoding) throws IOException {
-        return Files.readString(Path.of(file.getPath()), Charset.forName(encoding));
-    }
+//    public static String readFileToString(File file, String encoding) throws IOException {
+//        return Files.readString(Path.of(file.getPath()), Charset.forName(encoding));
+//    }
 
     /**
      * Mimic the UNIX "tail" command.
