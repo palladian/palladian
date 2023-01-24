@@ -5,6 +5,7 @@ import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Config;
 import com.jsoniter.spi.JsoniterSpi;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import ws.palladian.helper.nlp.PatternHelper;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -57,7 +58,13 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @throws JsonException If there is a syntax error.
      */
     public JsonArray(String source) throws JsonException {
-        list = JsonIterator.deserialize(source).as(ObjectArrayList.class);
+        try {
+            list = JsonIterator.deserialize(source).as(ObjectArrayList.class);
+        } catch (Exception e) {
+            // remove trailing commas
+            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+            list = JsonIterator.deserialize(source).as(ObjectArrayList.class);
+        }
     }
 
     /**
