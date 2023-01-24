@@ -598,7 +598,7 @@ public class WordTransformer {
         int wordLength = word.length();
         char[] wordCharArray = word.toCharArray();
         int index = germanLightStemmer.stem(wordCharArray, wordLength);
-        return String.valueOf(wordCharArray).substring(0, index);
+        return StringUtils.stripAccents(String.valueOf(wordCharArray).substring(0, index).replace("ß", "ss"));
     }
 
     public static String stemEnglishWord(String word) {

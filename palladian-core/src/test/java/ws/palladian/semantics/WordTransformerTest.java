@@ -257,6 +257,12 @@ public class WordTransformerTest {
     }
 
     @Test
+    public void testStemGermanWords() {
+        assertEquals("apfel und apfel", WordTransformer.stemGermanWords("äpfel und apfel"));
+        assertEquals("hose und hose", WordTransformer.stemGermanWords("hose und hosen"));
+    }
+
+    @Test
     public void testGetPastParticiple() {
         assertEquals("caused", WordTransformer.getPastParticiple("causes"));
         assertEquals("jumped", WordTransformer.getPastParticiple("jump"));
