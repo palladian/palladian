@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.parser.json;
 
 import com.jsoniter.JsonIterator;
+import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Config;
 import com.jsoniter.spi.JsoniterSpi;
