@@ -76,6 +76,9 @@ public class NormalizationTest {
 
     @Test
     public void testGetNormalizedNumber() {
+        assertEquals(566337.0, UnitNormalizer.getNormalizedNumber(20, "cu ft"), 2);
+        assertEquals(566337.0, UnitNormalizer.getNormalizedNumber(20, "ft3"), 2);
+        assertEquals(566337.0, UnitNormalizer.getNormalizedNumber(20, "cu. ft."), 2);
         assertEquals(1600000000.0, UnitNormalizer.getNormalizedNumber(1.6, " GHz"), 2);
         assertEquals(0.00015987, UnitNormalizer.getNormalizedNumber("2.11 GPM"), 0.00001);
         assertEquals(8766000, UnitNormalizer.getNormalizedNumber("8766 cgs"), 0.1);
