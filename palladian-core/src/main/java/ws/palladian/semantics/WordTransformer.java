@@ -597,8 +597,8 @@ public class WordTransformer {
         GermanMinimalStemmer germanLightStemmer = new GermanMinimalStemmer();
         int wordLength = word.length();
         char[] wordCharArray = word.toCharArray();
-        germanLightStemmer.stem(wordCharArray, wordLength);
-        return String.valueOf(wordCharArray);
+        int index = germanLightStemmer.stem(wordCharArray, wordLength);
+        return String.valueOf(wordCharArray).substring(0, index);
     }
 
     public static String stemEnglishWord(String word) {
