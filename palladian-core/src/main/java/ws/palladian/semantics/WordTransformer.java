@@ -598,7 +598,7 @@ public class WordTransformer {
         int wordLength = word.length();
         char[] wordCharArray = word.toCharArray();
         germanLightStemmer.stem(wordCharArray, wordLength);
-        return Arrays.toString(wordCharArray);
+        return String.valueOf(wordCharArray);
     }
 
     public static String stemEnglishWord(String word) {
