@@ -1,6 +1,7 @@
 package ws.palladian.semantics;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.de.GermanMinimalStemmer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
@@ -584,7 +585,6 @@ public class WordTransformer {
                 // if we don't have a stemmer for a certain language, return the unstemmed original word
                 return word;
             }
-
         }
     }
 
@@ -594,7 +594,11 @@ public class WordTransformer {
         if (exception != null) {
             return StringHelper.alignCasing(exception, word);
         }
-        return new Stemmer(Language.GERMAN).stem(word);
+        GermanMinimalStemmer germanLightStemmer = new GermanMinimalStemmer();
+        int wordLength = word.length();
+        char[] wordCharArray = word.toCharArray();
+        germanLightStemmer.stem(wordCharArray, wordLength);
+        return Arrays.toString(wordCharArray);
     }
 
     public static String stemEnglishWord(String word) {
