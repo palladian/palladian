@@ -112,7 +112,12 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     @Override
     public Object get(int index) {
         // return index < 0 || index >= this.size() ? null : list.get(index);
-        return list.get(index);
+        Object value = list.get(index);
+        try {
+            return JsonUtil.parseJsonObjectOrArray(value);
+        } catch (JsonException e) {
+            return value;
+        }
     }
 
     /**

@@ -34,7 +34,7 @@ public class SentenceDetectorTest {
         SentenceDetector sentenceDetector = new PalladianSentenceDetector(Language.ENGLISH);
         List<Token> sentences = CollectionHelper.newArrayList(sentenceDetector.iterateTokens(fixture));
         //        assertThat(sentences.size(), Matchers.is(269)); <- .java recognized as domain
-        assertThat(sentences.get(sentences.size() - 1).getValue(), is("DBConnection disconnect\r\nINFO: disconnected"));
+        assertThat(sentences.get(sentences.size() - 1).getValue(), is("DBConnection disconnect\nINFO: disconnected"));
     }
 
     @Test

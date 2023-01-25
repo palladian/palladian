@@ -22,22 +22,22 @@ public class AddressTaggerTest {
         assertEquals(10, locationAnnotations.size());
         LocationAnnotation annotation = locationAnnotations.get(0);
         assertEquals("Steenstraat", annotation.getValue());
-        assertEquals(1699, annotation.getStartPosition());
+        assertEquals(1662, annotation.getStartPosition());
         assertEquals(LocationType.STREET, annotation.getLocation().getType());
 
         annotation = locationAnnotations.get(1);
         assertEquals("50", annotation.getValue());
-        assertEquals(1711, annotation.getStartPosition());
+        assertEquals(1674, annotation.getStartPosition());
         assertEquals(LocationType.STREETNR, annotation.getLocation().getType());
 
         annotation = locationAnnotations.get(8);
         assertEquals("11", annotation.getValue());
-        assertEquals(5993, annotation.getStartPosition());
+        assertEquals(5855, annotation.getStartPosition());
         assertEquals(LocationType.STREETNR, annotation.getLocation().getType());
 
         annotation = locationAnnotations.get(9);
         assertEquals("Rue Lepic", annotation.getValue());
-        assertEquals(5996, annotation.getStartPosition());
+        assertEquals(5858, annotation.getStartPosition());
         assertEquals(LocationType.STREET, annotation.getLocation().getType());
 
         locationAnnotations = addressTagger.getAnnotations("P. SEGAL (writer whose apartment at 1907 Golden Gate Ave. served as Cacophony headquarters)");

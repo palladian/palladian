@@ -101,7 +101,15 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      */
     @Override
     public Object get(Object key) {
-        return key == null ? null : map.get(key);
+        if (key == null) {
+            return null;
+        }
+        Object value = map.get(key);
+        try {
+            return JsonUtil.parseJsonObjectOrArray(value);
+        } catch (JsonException e) {
+            return value;
+        }
     }
 
     /**
