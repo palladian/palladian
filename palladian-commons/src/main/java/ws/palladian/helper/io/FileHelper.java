@@ -333,22 +333,15 @@ public final class FileHelper {
 
     private static String readGzippedFileToString(File file, String encoding) throws IOException {
         StringBuilder contents = new StringBuilder();
-        BufferedReader reader = null;
-        InputStream stream = null;
-
-        try {
-            stream = new GZIPInputStream(Files.newInputStream(file.toPath()));
-
-            reader = new BufferedReader(new InputStreamReader(stream, encoding));
-
+        try (BufferedReader reader = new BufferedReader( //
+                new InputStreamReader( //
+                        new GZIPInputStream(Files.newInputStream(file.toPath())), //
+                        encoding))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 contents.append(line).append(NEWLINE_CHARACTER);
             }
-        } finally {
-            close(stream, reader);
         }
-
         return contents.toString();
     }
 
