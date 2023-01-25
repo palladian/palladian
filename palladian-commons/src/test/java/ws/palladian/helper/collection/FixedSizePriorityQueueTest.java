@@ -6,15 +6,9 @@ import org.junit.Test;
 import java.util.Comparator;
 
 public class FixedSizePriorityQueueTest {
-
     @Test
     public void testFixedSizePriorityQueue() {
-        FixedSizePriorityQueue<Integer> fixedSizePriorityQueue = new FixedSizePriorityQueue<>(3, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o1.compareTo(o2);
-            }
-        });
+        FixedSizePriorityQueue<Integer> fixedSizePriorityQueue = new FixedSizePriorityQueue<>(3, Comparator.naturalOrder());
         fixedSizePriorityQueue.add(1);
         fixedSizePriorityQueue.add(7);
         fixedSizePriorityQueue.add(2);
@@ -27,5 +21,4 @@ public class FixedSizePriorityQueueTest {
         fixedSizePriorityQueue.add(6);
         Assert.assertArrayEquals(new Integer[]{7, 8, 9}, fixedSizePriorityQueue.asList().toArray(new Integer[0]));
     }
-
 }

@@ -1,10 +1,10 @@
 package ws.palladian.helper.collection;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -29,10 +29,10 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     private final Object2ObjectOpenHashMap<K, Map<K, V>> matrix = new Object2ObjectOpenHashMap<>();
 
     /** All keys for the x-axis used in the matrix. */
-    private final Set<K> keysX = new LinkedHashSet<>();
+    private final Set<K> keysX = new ObjectLinkedOpenHashSet<>();
 
     /** All keys for the y-axis used in the matrix. */
-    private final Set<K> keysY = new LinkedHashSet<>();
+    private final Set<K> keysY = new ObjectLinkedOpenHashSet<>();
 
     @Override
     public MatrixVector<K, V> getRow(K y) {
@@ -42,7 +42,7 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
 
     @Override
     public MatrixVector<K, V> getColumn(K x) {
-        Map<K, V> column = new HashMap<>();
+        Map<K, V> column = new Object2ObjectOpenHashMap<>();
         for (Entry<K, Map<K, V>> row : matrix.entrySet()) {
             K y = row.getKey();
             for (Entry<K, V> cell : row.getValue().entrySet()) {

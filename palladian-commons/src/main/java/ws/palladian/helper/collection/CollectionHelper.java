@@ -95,7 +95,7 @@ public final class CollectionHelper {
         Validate.notNull(map, "map must not be null");
         Validate.notNull(order, "order must not be null");
         List<Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        Collections.sort(list, new EntryValueComparator<>(order));
+        list.sort(new EntryValueComparator<>(order));
 
         Map<K, V> result = new LinkedHashMap<>();
         for (Entry<K, V> entry : list) {

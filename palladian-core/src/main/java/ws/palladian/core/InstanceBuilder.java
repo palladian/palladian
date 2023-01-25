@@ -15,7 +15,6 @@ import static ws.palladian.classification.text.PalladianTextClassifier.VECTOR_TE
  * @author Philipp Katz
  */
 public final class InstanceBuilder {
-
     private final Map<String, Value> valueMap = new LinkedHashMap<>();
 
     private int weight = 1;
