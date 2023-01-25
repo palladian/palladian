@@ -54,9 +54,7 @@ public final class FileHelper {
      */
     public static final String DEFAULT_ENCODING = "UTF-8";
 
-    /**
-     * Constant for new line character.
-     */
+    /** New line character. Used independently of OS. */
     public static final String NEWLINE_CHARACTER = "\n";
 
     /**
@@ -288,8 +286,7 @@ public final class FileHelper {
         try {
             return readFileToString(file, encoding);
         } catch (Exception e) {
-        	return null;
-//            return tryReadGzippedFileToString(file, encoding);
+            return null;
         }
     }
 
@@ -311,7 +308,7 @@ public final class FileHelper {
     }
 
     public static String readFileToString(InputStream is) {
-        return StringUtils.join(readFileToArray(is), "\n");
+        return StringUtils.join(readFileToArray(is), NEWLINE_CHARACTER);
     }
 
     /**
@@ -325,38 +322,35 @@ public final class FileHelper {
         return readFileToString(file, DEFAULT_ENCODING);
     }
 
-    public static String readFileToString(File file, String encoding) {
-        try {
-            StringBuilder contents = new StringBuilder();
-            BufferedReader reader = null;
-            InputStream stream = null;
-
-            try {
-                stream = Files.newInputStream(file.toPath());
-
-                if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
-                    stream = new GZIPInputStream(stream);
-                }
-
-                reader = new BufferedReader(new InputStreamReader(stream, encoding));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    contents.append(line).append(NEWLINE_CHARACTER);
-                }
-            } finally {
-                close(stream, reader);
-            }
-
-            return contents.toString();
-        } catch (Exception e) {
-            return null;
+    public static String readFileToString(File file, String encoding) throws IOException {
+        if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+            return readGzippedFileToString(file, encoding);
+        } else {
+            return Files.readString(Path.of(file.getPath()), Charset.forName(encoding)).replaceAll("\\r\\n?",
+                    NEWLINE_CHARACTER);
         }
     }
 
-//    public static String readFileToString(File file, String encoding) throws IOException {
-//        return Files.readString(Path.of(file.getPath()), Charset.forName(encoding));
-//    }
+    private static String readGzippedFileToString(File file, String encoding) throws IOException {
+        StringBuilder contents = new StringBuilder();
+        BufferedReader reader = null;
+        InputStream stream = null;
+
+        try {
+            stream = new GZIPInputStream(Files.newInputStream(file.toPath()));
+
+            reader = new BufferedReader(new InputStreamReader(stream, encoding));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                contents.append(line).append(NEWLINE_CHARACTER);
+            }
+        } finally {
+            close(stream, reader);
+        }
+
+        return contents.toString();
+    }
 
     /**
      * Mimic the UNIX "tail" command.
@@ -1530,7 +1524,7 @@ public final class FileHelper {
             String s;
             while ((s = fin.readLine()) != null) {
                 content.append(s);
-                content.append("\n");
+                content.append(NEWLINE_CHARACTER);
             }
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
@@ -1872,7 +1866,7 @@ public final class FileHelper {
                 }
 
                 try {
-                    indexFile.write(line + "\n");
+                    indexFile.write(line + NEWLINE_CHARACTER);
                 } catch (IOException e) {
                     LOGGER.error(e.getMessage());
                 }
@@ -1926,7 +1920,7 @@ public final class FileHelper {
                     i++;
                 }
 
-                writer.write(line + "\n");
+                writer.write(line + NEWLINE_CHARACTER);
 
                 lineNumber++;
             }
@@ -2089,6 +2083,18 @@ public final class FileHelper {
     }
 
     public static void main(String[] a) throws IOException {
+//        String path = FileHelper.class.getResource("/wikipedia_2011_Egyptian_revolution.txt").getFile();
+        String path = "/Users/pk/Code/palladian/palladian-commons/src/test/resources/wikipedia_2011_Egyptian_revolution.txt";
+        StopWatch stopWatch1 = new StopWatch();
+        for (int i = 0; i < 10000; i++) {
+//            FileHelper.readFileToString(path); // 9s:888ms
+//            Files.readString(Path.of(path), Charset.forName(DEFAULT_ENCODING)); // 3s:164ms
+            Files.readString(Path.of(path), Charset.forName(DEFAULT_ENCODING)).replaceAll("\\r\\n?", "\n"); // 3s:640ms
+
+        }
+        System.out.println(stopWatch1);
+        System.exit(0);
+        
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
         while (true) {
