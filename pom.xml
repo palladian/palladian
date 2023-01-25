@@ -28,9 +28,9 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:https://bitbucket.org/palladian/palladian.git</connection>
-		<developerConnection>scm:git:https://bitbucket.org/palladian/palladian.git</developerConnection>
-		<url>https://bitbucket.org/palladian/palladian</url>
+		<connection>scm:git:https://github.com/palladian/palladian.git</connection>
+		<developerConnection>scm:git:https://github.com/palladian/palladian.git</developerConnection>
+		<url>https://github.com/palladian/palladian</url>
 	</scm>
 	<distributionManagement>
 		<snapshotRepository>
