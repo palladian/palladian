@@ -54,7 +54,7 @@ public class ContentDateGetterTest {
 
     @Test
     public void testGetFindAllDatesTime() throws IOException {
-        String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/text01.txt"));
+        String text = FileHelper.readFileToString(ResourceHelper.getResourceFile("/texts/text01.txt"), "ISO-8859-1");
         List<ContentDate> dates = ContentDateGetter.findAllDates(text);
         assertEquals(142, dates.size());
 
