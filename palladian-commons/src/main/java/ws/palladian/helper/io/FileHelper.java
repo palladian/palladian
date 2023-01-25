@@ -326,8 +326,9 @@ public final class FileHelper {
         if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
             return readGzippedFileToString(file, encoding);
         } else {
-            return Files.readString(Path.of(file.getPath()), Charset.forName(encoding)).replaceAll("\\r\\n?",
-                    NEWLINE_CHARACTER);
+            return Files.readString(Path.of(file.getPath()), Charset.forName(encoding))
+                    .replaceAll("\\r\\n?", NEWLINE_CHARACTER) // always use \n 
+                    .concat(NEWLINE_CHARACTER); // terminate with newline (preserve previous behavior)
         }
     }
 
