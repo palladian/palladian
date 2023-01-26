@@ -326,8 +326,7 @@ public final class FileHelper {
         if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
             return readGzippedFileToString(file, encoding);
         } else {
-            return Files.readString(Path.of(file.getPath()), Charset.forName(encoding))
-                    .replaceAll("\\r\\n?", NEWLINE_CHARACTER) // always use \n 
+            return Files.readString(Path.of(file.getPath()), Charset.forName(encoding)).replaceAll("\\r\\n?", NEWLINE_CHARACTER) // always use \n
                     .concat(NEWLINE_CHARACTER); // terminate with newline (preserve previous behavior)
         }
     }
@@ -887,7 +886,7 @@ public final class FileHelper {
 
     public static <T extends Serializable> T tryDeserialize(String filePath) {
         try {
-            return FileHelper.<T>deserialize(filePath);
+            return FileHelper.deserialize(filePath);
         } catch (IOException e) {
             return null;
         }
@@ -2077,18 +2076,18 @@ public final class FileHelper {
     }
 
     public static void main(String[] a) throws IOException {
-//        String path = FileHelper.class.getResource("/wikipedia_2011_Egyptian_revolution.txt").getFile();
+        //        String path = FileHelper.class.getResource("/wikipedia_2011_Egyptian_revolution.txt").getFile();
         String path = "/Users/pk/Code/palladian/palladian-commons/src/test/resources/wikipedia_2011_Egyptian_revolution.txt";
         StopWatch stopWatch1 = new StopWatch();
         for (int i = 0; i < 10000; i++) {
-//            FileHelper.readFileToString(path); // 9s:888ms
-//            Files.readString(Path.of(path), Charset.forName(DEFAULT_ENCODING)); // 3s:164ms
+            //            FileHelper.readFileToString(path); // 9s:888ms
+            //            Files.readString(Path.of(path), Charset.forName(DEFAULT_ENCODING)); // 3s:164ms
             Files.readString(Path.of(path), Charset.forName(DEFAULT_ENCODING)).replaceAll("\\r\\n?", "\n"); // 3s:640ms
 
         }
         System.out.println(stopWatch1);
         System.exit(0);
-        
+
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
         while (true) {

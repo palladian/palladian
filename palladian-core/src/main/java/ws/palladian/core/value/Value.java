@@ -1,5 +1,7 @@
 package ws.palladian.core.value;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * A generic value in Palladian's feature type system. This interface requires no functionality but just serves a common
@@ -61,7 +63,7 @@ package ws.palladian.core.value;
  * @see BooleanValue
  * @see TextValue
  */
-public interface Value {
+public interface Value extends Serializable {
     /**
      * @return <code>true</code> in case this value is a {@link NullValue}.
      */

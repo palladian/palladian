@@ -88,16 +88,24 @@ public final class KnnClassifier implements Classifier<KnnModel> {
         // the idea is to make the penalty for non-matches relative to the difference in numeric values
         // this is now a different value per sample which doesn't really make sense but evaluation shows it works better than static values
         for (Object2FloatMap.Entry<String> entry : model.getTextualFieldsAndWeights().object2FloatEntrySet()) {
-            String numericFieldLabel = entry.getKey();
-            NominalValue inputValue = inputVector.getNominal(numericFieldLabel);
-            NominalValue trainedValue = trainedVector.getNominal(numericFieldLabel);
+            String fieldLabel = entry.getKey();
+            Value inputValue = inputVector.get(fieldLabel);
+            Value trainedValue = trainedVector.get(fieldLabel);
 
-            if (!inputValue.getString().equals(trainedValue.getString())) {
+            if (inputValue instanceof NominalValue && trainedValue instanceof NominalValue) {
+                if (!((NominalValue) inputValue).getString().equals(((NominalValue) trainedValue).getString())) {
+                    distance += entry.getFloatValue();
+                }
+            } else {
                 distance += entry.getFloatValue();
             }
         }
 
         return distance;
+    }
+
+    public List<String> getNeighbors(FeatureVector instance, KnnModel model) {
+        return getNeighbors(instance, model, k);
     }
 
     public List<String> getNeighbors(FeatureVector instance, KnnModel model, int numNeighbors) {
