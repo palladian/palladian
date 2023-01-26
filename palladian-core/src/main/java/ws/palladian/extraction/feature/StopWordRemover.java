@@ -149,11 +149,7 @@ public class StopWordRemover implements Predicate<String> {
     }
 
     public String removeStopWords(String text) {
-        for (String stopWord : stopwords) {
-            text = StringHelper.replaceWordCaseSensitive(stopWord, "", text, text.toLowerCase());
-        }
-
-        return StringHelper.PATTERN_LIMITED_WHITESPACES.matcher(text).replaceAll(" ");
+        return removeStopWordsCaseSensitive(text.toLowerCase());
     }
 
     @Override
