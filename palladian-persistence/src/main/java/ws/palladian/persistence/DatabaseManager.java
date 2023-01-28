@@ -55,7 +55,7 @@ public class DatabaseManager {
 
     /**
      * <p>
-     * Get a {@link Connection} from the {@link BoneCpDataSourceFactory}. If you use this method, e.g. in your subclass, it's
+     * Get a {@link Connection} from the {@link HikariCpDataSourceFactory}. If you use this method, e.g. in your subclass, it's
      * your responsibility to close all database resources after work has been done. This can be done conveniently by
      * using one of the various close methods offered by this class.
      * </p>
@@ -157,7 +157,6 @@ public class DatabaseManager {
         return affectedRows;
     }
 
-    // TODO
     public final long runBatchInsertLongId(String sql, BatchDataProvider provider) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(provider, "provider must not be null");
@@ -253,7 +252,6 @@ public class DatabaseManager {
         return result;
     }
 
-    /** TODO */
     public final long[] runBatchInsertReturnLongIds(String sql, final List<List<Object>> batchArgs) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(batchArgs, "batchArgs must not be null");
@@ -444,20 +442,22 @@ public class DatabaseManager {
         return runInsertReturnId(null, query);
     }
 
-    /**
-     * TODO
-     */
-    public long runInsertReturnLongId(String sql, Object... args) {
-        Connection connection = null;
+    public final long runInsertReturnLongId(String sql, Object... args) {
+        return runInsertReturnLongId(null, sql, args);
+    }
+
+    public final long runInsertReturnLongId(Connection connection, String sql, Object... args) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(args, "args must not be null");
+        return runInsertReturnLongId(connection, new BasicQuery(sql, args));
+    }
+
+    public final long runInsertReturnLongId(Connection connection, Query query) {
         long generatedId;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Query query = new BasicQuery(sql, args);
 
-        boolean closeConnection = false;
-        if (connection == null) {
-            closeConnection = true;
-        }
+        boolean closeConnection = connection == null;
 
         try {
             if (connection == null) {
@@ -475,7 +475,6 @@ public class DatabaseManager {
             } else {
                 generatedId = 0;
             }
-
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
             generatedId = -1;
@@ -506,13 +505,9 @@ public class DatabaseManager {
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        boolean closeConnection = false;
-        if (connection == null) {
-            closeConnection = true;
-        }
+        boolean closeConnection = connection == null;
 
         try {
-
             if (connection == null) {
                 connection = getConnection();
             }
@@ -528,7 +523,6 @@ public class DatabaseManager {
             } else {
                 generatedId = 0;
             }
-
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
             generatedId = -1;
