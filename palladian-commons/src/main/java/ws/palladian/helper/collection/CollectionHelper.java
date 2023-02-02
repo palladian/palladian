@@ -561,7 +561,7 @@ public final class CollectionHelper {
      * @param num    The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The sub set.
      */
-    public static IntSortedSet getSubset(IntSortedSet set, int offset, int num) {
+    public static AbstractIntSortedSet getSubset(IntSet set, int offset, int num) {
         Validate.notNull(set, "set must not be null");
         Validate.isTrue(offset >= 0, "offset must be greater/equal zero");
         Validate.isTrue(num >= 0, "num must be greater/equal zero");
@@ -571,7 +571,7 @@ public final class CollectionHelper {
             return subSet;
         }
 
-        IntBidirectionalIterator iterator = set.iterator();
+        IntIterator iterator = set.intIterator();
         for (int i = 0; i < set.size(); i++) {
             int value = iterator.nextInt();
             if (i < offset) {
