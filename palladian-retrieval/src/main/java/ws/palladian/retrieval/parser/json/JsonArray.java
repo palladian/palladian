@@ -59,7 +59,11 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @throws JsonException If there is a syntax error.
      */
     public JsonArray(String source) throws JsonException {
-        Any any = null;
+        if (source == null || source.isEmpty()) {
+            list = new ObjectArrayList<>();
+            return;
+        }
+        Any any;
         try {
             any = JsonIterator.deserialize(source);
         } catch (Exception e) {
