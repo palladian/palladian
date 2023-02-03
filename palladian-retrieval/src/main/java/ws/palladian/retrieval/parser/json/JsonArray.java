@@ -83,6 +83,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     }
 
     private void parseFallback(JsonTokener x) throws JsonException {
+        list = new ObjectArrayList<>();
         if (x.nextClean() != '[') {
             throw x.syntaxError("A JSON array text must start with '['");
         }

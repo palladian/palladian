@@ -108,6 +108,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     }
 
     private void parseFallback(JsonTokener x) throws JsonException {
+        map = new Object2ObjectLinkedOpenHashMap<>();
         char c;
         String key;
 
