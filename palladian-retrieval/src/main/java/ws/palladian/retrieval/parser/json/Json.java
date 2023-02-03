@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.parser.json;
 
+import java.io.IOException;
+import java.io.Writer;
+
 /**
  * <p>
  * Common interface for JSON.
@@ -130,4 +133,15 @@ public interface Json {
      * @return The number of entries in the {@link Json} object.
      */
     int size();
+
+    /**
+     * <p>
+     * Write the contents of the {@link Json} as JSON text to a writer. For compactness, no whitespace is added.
+     * <b>Warning:</b> This method assumes that the data structure is acyclical.
+     * </p>
+     *
+     * @return The writer.
+     * @throws IOException As thrown by the {@link Writer}.
+     */
+    Writer write(Writer writer) throws IOException;
 }

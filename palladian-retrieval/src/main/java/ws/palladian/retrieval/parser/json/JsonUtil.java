@@ -3,6 +3,7 @@ package ws.palladian.retrieval.parser.json;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ class JsonUtil {
         }
         return object.toString();
     }
-    
+
     public static Json parseJsonObjectOrArray(Object object) throws JsonException {
         if (object instanceof Json) {
             return (Json) object;
@@ -105,34 +106,11 @@ class JsonUtil {
         }
     }
 
-    //    static Writer writeValue(Writer writer, Object value, int indentFactor, int indent) throws IOException {
-    //        if (value == null || value.equals(null)) {
-    //            writer.write("null");
-    //        } else if (value instanceof JsonObject) {
-    //            ((JsonObject) value).write(writer, indentFactor, indent);
-    //        } else if (value instanceof JsonArray) {
-    //            ((JsonArray) value).write(writer, indentFactor, indent);
-    //        } else if (value instanceof Map) {
-    //            new JsonObject((Map<?, ?>) value).write(writer, indentFactor, indent);
-    //        } else if (value instanceof Collection) {
-    //            new JsonArray((Collection<?>) value).write(writer, indentFactor, indent);
-    //        } else if (value.getClass().isArray()) {
-    //            new JsonArray(value).write(writer, indentFactor, indent);
-    //        } else if (value instanceof Number) {
-    //            writer.write(numberToString((Number) value));
-    //        } else if (value instanceof Boolean) {
-    //            writer.write(value.toString());
-    //        } else {
-    //            quote(value.toString(), writer);
-    //        }
-    //        return writer;
-    //    }
-
-    //    static void indent(Writer writer, int indent) throws IOException {
-    //        for (int i = 0; i < indent; i += 1) {
-    //            writer.write(' ');
-    //        }
-    //    }
+    static void indent(Writer writer, int indent) throws IOException {
+        for (int i = 0; i < indent; i += 1) {
+            writer.write(' ');
+        }
+    }
 
     /**
      * Produce a string from a Number.
@@ -263,8 +241,80 @@ class JsonUtil {
         return new String[]{head, tail};
     }
 
+    /**
+     * Try to convert a string into a number, boolean, or null. If the string
+     * can't be converted, return the string.
+     *
+     * @param string A String.
+     * @return A simple JSON value.
+     */
+    static Object stringToValue(String string) {
+        if (string.equals("")) {
+            return string;
+        }
+        if (string.equalsIgnoreCase("true")) {
+            return Boolean.TRUE;
+        }
+        if (string.equalsIgnoreCase("false")) {
+            return Boolean.FALSE;
+        }
+        if (string.equalsIgnoreCase("null")) {
+            return null;
+        }
+
+        /*
+         * If it might be a number, try converting it. If a number cannot be
+         * produced, then the value will just be a string.
+         */
+
+        char b = string.charAt(0);
+        if (b >= '0' && b <= '9' || b == '-') {
+            try {
+                if (string.indexOf('.') > -1 || string.indexOf('e') > -1 || string.indexOf('E') > -1) {
+                    Double d = Double.valueOf(string);
+                    if (!d.isInfinite() && !d.isNaN()) {
+                        return d;
+                    }
+                } else {
+                    long myLong = Long.parseLong(string);
+                    if (string.equals(Long.toString(myLong))) {
+                        if (myLong == (int) myLong) {
+                            return (int) myLong;
+                        } else {
+                            return myLong;
+                        }
+                    }
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        return string;
+    }
+
+    static Writer writeValue(Writer writer, Object value, int indentFactor, int indent) throws IOException {
+        if (value == null) {
+            writer.write("null");
+        } else if (value instanceof JsonObject) {
+            ((JsonObject) value).write(writer, indentFactor, indent);
+        } else if (value instanceof JsonArray) {
+            ((JsonArray) value).write(writer, indentFactor, indent);
+        } else if (value instanceof Map) {
+            new JsonObject((Map<?, ?>) value).write(writer, indentFactor, indent);
+        } else if (value instanceof Collection) {
+            new JsonArray((Collection<?>) value).write(writer, indentFactor, indent);
+        } else if (value.getClass().isArray()) {
+            new JsonArray(value).write(writer, indentFactor, indent);
+        } else if (value instanceof Number) {
+            writer.write(numberToString((Number) value));
+        } else if (value instanceof Boolean) {
+            writer.write(value.toString());
+        } else {
+            quote(value.toString(), writer);
+        }
+        return writer;
+    }
+
     private JsonUtil() {
         // util.
     }
-
 }

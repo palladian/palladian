@@ -11,17 +11,19 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.*;
 
 /**
- * @author JSON.org
  * @author Philipp Katz, David Urbansky
  * @version 2023-01-16
  */
 public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
     /** The map where the JsonObject's properties are kept. */
-    private final Object2ObjectMap<String, Object> map;
+    private Object2ObjectMap<String, Object> map;
 
     /**
      * <p>
@@ -87,12 +89,115 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         Any any;
         try {
             any = JsonIterator.deserialize(source);
+            map = any.as(Object2ObjectLinkedOpenHashMap.class);
         } catch (Exception e) {
             // remove trailing commas
             source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-            any = JsonIterator.deserialize(source);
+            try {
+                any = JsonIterator.deserialize(source);
+                map = any.as(Object2ObjectLinkedOpenHashMap.class);
+            } catch (Exception e2) {
+                parseFallback(new JsonTokener(source));
+            }
         }
-        map = any.as(Object2ObjectLinkedOpenHashMap.class);
+    }
+
+    JsonObject(JsonTokener x) throws JsonException {
+        this();
+        parseFallback(x);
+    }
+
+    private void parseFallback(JsonTokener x) throws JsonException {
+        char c;
+        String key;
+
+        if (x.nextClean() != '{') {
+            throw x.syntaxError("A JSON object text must begin with '{'");
+        }
+        for (; ; ) {
+            c = x.nextClean();
+            switch (c) {
+                case 0:
+                    throw x.syntaxError("A JSON object text must end with '}'");
+                case '}':
+                    return;
+                default:
+                    x.back();
+                    key = x.nextValue().toString();
+            }
+
+            // The key is followed by ':'.
+
+            c = x.nextClean();
+            if (c != ':') {
+                throw x.syntaxError("Expected a ':' after a key");
+            }
+            this.put(key, x.nextValue());
+
+            // Pairs are separated by ','.
+
+            switch (x.nextClean()) {
+                case ';':
+                case ',':
+                    if (x.nextClean() == '}') {
+                        return;
+                    }
+                    x.back();
+                    break;
+                case '}':
+                    return;
+                default:
+                    throw x.syntaxError("Expected a ',' or '}'");
+            }
+        }
+    }
+
+    @Override
+    public Writer write(Writer writer) throws IOException {
+        return this.write(writer, 0, 0);
+    }
+
+    /** Fallback writer if Jsoniter fails */
+    Writer write(Writer writer, int indentFactor, int indent) throws IOException {
+        boolean commanate = false;
+        final int length = this.size();
+        Iterator<String> keys = this.keySet().iterator();
+        writer.write('{');
+
+        if (length == 1) {
+            Object key = keys.next();
+            writer.write(JsonUtil.quote(key.toString()));
+            writer.write(':');
+            if (indentFactor > 0) {
+                writer.write(' ');
+            }
+            JsonUtil.writeValue(writer, map.get(key), indentFactor, indent);
+        } else if (length != 0) {
+            final int newindent = indent + indentFactor;
+            while (keys.hasNext()) {
+                Object key = keys.next();
+                if (commanate) {
+                    writer.write(',');
+                }
+                if (indentFactor > 0) {
+                    writer.write('\n');
+                }
+                JsonUtil.indent(writer, newindent);
+                writer.write(JsonUtil.quote(key.toString()));
+                writer.write(':');
+                if (indentFactor > 0) {
+                    writer.write(' ');
+                }
+                JsonUtil.writeValue(writer, map.get(key), indentFactor, newindent);
+                commanate = true;
+            }
+            if (indentFactor > 0) {
+                writer.write('\n');
+            }
+            JsonUtil.indent(writer, indent);
+        }
+        writer.write('}');
+        return writer;
     }
 
     /**
@@ -343,17 +448,22 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      */
     @Override
     public String toString() {
-        try {
-            return this.toString(0);
-        } catch (Exception e) {
-            return null;
-        }
+        return this.toString(0);
     }
 
     @Override
     public String toString(int indentFactor) {
-        Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).build();
-        return JsonStream.serialize(conf, this);
+        try {
+            Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).build();
+            return JsonStream.serialize(conf, this);
+        } catch (Exception e) {
+            /** Fallback writer if Jsoniter fails */
+            try {
+                return this.write(new StringWriter(), indentFactor, 0).toString();
+            } catch (IOException ex) {
+                return null;
+            }
+        }
     }
 
     @Override

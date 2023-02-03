@@ -8,7 +8,10 @@ import com.jsoniter.spi.JsoniterSpi;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import ws.palladian.helper.nlp.PatternHelper;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.Collection;
@@ -20,7 +23,7 @@ import java.util.Collection;
 public class JsonArray extends AbstractList<Object> implements Json, Serializable {
 
     /** The arrayList where the JsonArray's properties are kept. */
-    private final ObjectArrayList<Object> list;
+    private ObjectArrayList<Object> list;
 
     /**
      * <p>
@@ -66,12 +69,47 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         Any any;
         try {
             any = JsonIterator.deserialize(source);
+            list = any.as(ObjectArrayList.class);
         } catch (Exception e) {
             // remove trailing commas
             source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-            any = JsonIterator.deserialize(source);
+            try {
+                any = JsonIterator.deserialize(source);
+                list = any.as(ObjectArrayList.class);
+            } catch (Exception e2) {
+                parseFallback(new JsonTokener(source));
+            }
         }
-        list = any.as(ObjectArrayList.class);
+    }
+
+    private void parseFallback(JsonTokener x) throws JsonException {
+        if (x.nextClean() != '[') {
+            throw x.syntaxError("A JSON array text must start with '['");
+        }
+        if (x.nextClean() != ']') {
+            x.back();
+            for (; ; ) {
+                if (x.nextClean() == ',') {
+                    x.back();
+                    list.add(null);
+                } else {
+                    x.back();
+                    list.add(x.nextValue());
+                }
+                switch (x.nextClean()) {
+                    case ',':
+                        if (x.nextClean() == ']') {
+                            return;
+                        }
+                        x.back();
+                        break;
+                    case ']':
+                        return;
+                    default:
+                        throw x.syntaxError("Expected a ',' or ']'");
+                }
+            }
+        }
     }
 
     /**
@@ -333,8 +371,51 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
 
     @Override
     public String toString(int indentFactor) {
-        Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).build();
-        return JsonStream.serialize(conf, this);
+        try {
+            Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).build();
+            return JsonStream.serialize(conf, this);
+        } catch (Exception e) {
+            try {
+                return this.write(new StringWriter(), indentFactor, 0).toString();
+            } catch (IOException ex) {
+                return null;
+            }
+        }
+    }
+
+    @Override
+    public Writer write(Writer writer) throws IOException {
+        return this.write(writer, 0, 0);
+    }
+
+    Writer write(Writer writer, int indentFactor, int indent) throws IOException {
+        boolean commanate = false;
+        int length = this.size();
+        writer.write('[');
+
+        if (length == 1) {
+            JsonUtil.writeValue(writer, list.get(0), indentFactor, indent);
+        } else if (length != 0) {
+            final int newindent = indent + indentFactor;
+
+            for (int i = 0; i < length; i += 1) {
+                if (commanate) {
+                    writer.write(',');
+                }
+                if (indentFactor > 0) {
+                    writer.write('\n');
+                }
+                JsonUtil.indent(writer, newindent);
+                JsonUtil.writeValue(writer, list.get(i), indentFactor, newindent);
+                commanate = true;
+            }
+            if (indentFactor > 0) {
+                writer.write('\n');
+            }
+            JsonUtil.indent(writer, indent);
+        }
+        writer.write(']');
+        return writer;
     }
 
     @Override
