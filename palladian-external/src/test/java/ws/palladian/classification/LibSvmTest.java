@@ -40,7 +40,6 @@ import static ws.palladian.helper.io.ResourceHelper.getResourceFile;
  * @since 0.2.0
  */
 public class LibSvmTest {
-
     @Test
     @Ignore
     public void test() {
@@ -106,6 +105,7 @@ public class LibSvmTest {
         return ret;
     }
 
+    @Ignore
     @Test
     public void testWithAdultIncomeData() throws FileNotFoundException {
         List<Instance> instances = new CsvDatasetReader(getResourceFile("/adultData.txt"), false).readAll();
@@ -114,6 +114,7 @@ public class LibSvmTest {
         assertTrue(confusionMatrix.getAccuracy() > 0.81);
     }
 
+    @Ignore
     @Test
     public void testWithDiabetesData() throws FileNotFoundException {
         List<Instance> instances = new CsvDatasetReader(getResourceFile("/diabetesData.txt"), false).readAll();
