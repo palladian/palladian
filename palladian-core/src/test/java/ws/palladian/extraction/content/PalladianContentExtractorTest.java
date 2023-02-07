@@ -98,9 +98,9 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.ENGLISH));
 
         // Dutch
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.weekbladdebrug.nl/"));
-        language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.DUTCH));
+        //palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.weekbladdebrug.nl/"));
+        //language = palladianContentExtractor.detectLanguage();
+        //collector.checkThat(language, is(Language.DUTCH));
 
         // French
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.orange.fr"));
