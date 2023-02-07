@@ -95,7 +95,7 @@ public final class InMemoryLocationStore extends SingleQueryLocationSource imple
     @Override
     public Iterator<Location> getLocations() {
         // TODO iterator gives duplicates; only return locations here, where hash key matches primary name?
-        return new AbstractIterator2<>() {
+        return new AbstractIterator2<Location>() {
             int idx = 0;
 
             @Override
