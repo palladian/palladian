@@ -80,6 +80,9 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
                 parseFallback(new JsonTokener(source));
             }
         }
+        if (list == null) {
+            list = new ObjectArrayList<>();
+        }
     }
 
     private void parseFallback(JsonTokener x) throws JsonException {

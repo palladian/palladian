@@ -100,6 +100,9 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
                 parseFallback(new JsonTokener(source));
             }
         }
+        if (map == null) {
+            map = new Object2ObjectLinkedOpenHashMap<>();
+        }
     }
 
     JsonObject(JsonTokener x) throws JsonException {
