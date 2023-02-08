@@ -89,19 +89,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.6</version>
-                <configuration>
-                    <linkXref>true</linkXref>
-                    <sourceEncoding>utf-8</sourceEncoding>
-                    <rulesets>
-                        <ruleset>${project.parent.basedir}/config/pmd_ruleset</ruleset>
-                    </rulesets>
-                    <targetJdk>${project.jdk.version}</targetJdk>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.3</version>
             </plugin>
@@ -168,7 +155,7 @@
         <logback.version>1.2.9</logback.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-        <project.jdk.version>1.8</project.jdk.version>
+        <project.jdk.version>14</project.jdk.version>
     </properties>
     <profiles>
         <profile>
