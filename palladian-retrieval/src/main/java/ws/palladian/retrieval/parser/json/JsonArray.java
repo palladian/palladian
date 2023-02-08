@@ -163,6 +163,11 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         }
     }
 
+    @Override
+    public boolean add(Object o) {
+        return this.list.add(o);
+    }
+
     /**
      * <p>
      * Get the {@link Boolean} value associated with an index. The string values "true" and "false" are converted to
