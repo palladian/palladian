@@ -258,6 +258,8 @@ public class WordTransformerTest {
 
     @Test
     public void testStemGermanWords() {
+        assertEquals("poliermaschinemaschin", WordTransformer.stemGermanWords("poliermaschinemaschine"));
+        assertEquals("poliermaschinemaschin", WordTransformer.stemGermanWords("poliermaschinemaschinen"));
         assertEquals("apfel und apfel", WordTransformer.stemGermanWords("äpfel und apfel"));
         assertEquals("hose und hose", WordTransformer.stemGermanWords("hose und hosen"));
     }
