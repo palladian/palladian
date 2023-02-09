@@ -273,8 +273,23 @@ public class SearchIntentParser {
                 return intentAction;
             case DEFINITION:
             default:
-                List<ActivatedSearchIntentFilter> filledFilters = intentAction.getFilters();
+                // check whether we should replace a regular expression match in the sorts
+                SearchIntentSort sort = intentAction.getSort();
+                if (sort != null) {
+                    String key = sort.getKey();
+                    if (key.contains("$")) {
+                        Pattern pattern = PatternHelper.compileOrGet("\\$(\\d+)");
+                        Matcher matcher1 = pattern.matcher(key);
+                        while (matcher1.find()) {
+                            int position = Integer.parseInt(matcher1.group(1));
+                            key = key.replace("$" + position, matcher.group(position));
+                            sort.setKey(key);
+                        }
+                    }
+                }
 
+                // check whether we should replace a regular expression match in the filters
+                List<ActivatedSearchIntentFilter> filledFilters = intentAction.getFilters();
                 for (ActivatedSearchIntentFilter filledFilter : filledFilters) {
                     String minDefinition = filledFilter.getMinDefinition();
                     if (minDefinition != null) {
@@ -310,7 +325,7 @@ public class SearchIntentParser {
 
                                 // is the group match a number? could also be text such as "XXL"
                                 if (StringHelper.isNumber(group)) {
-                                    Double aDouble = Double.valueOf(group);
+                                    double aDouble = Double.parseDouble(group);
                                     Double margin = filledFilter.getMargin();
                                     String unit = filledFilter.getUnit();
                                     if (margin == null) {
