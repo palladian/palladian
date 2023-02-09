@@ -38,7 +38,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             return read;
         });
     }
-    
+
     /** The map where the JsonObject's properties are kept. */
     private Object2ObjectMap<String, Object> map;
 
@@ -64,7 +64,13 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             for (Object key : map.keySet()) {
                 Object value = map.get(key);
                 if (value != null) {
-                    this.map.put(key.toString(), value);
+                    if (value instanceof Map) {
+                        this.map.put(key.toString(), new JsonObject((Map<String, Object>) value));
+                    } else if (value instanceof Collection) {
+                        this.map.put(key.toString(), new JsonArray(value));
+                    } else {
+                        this.map.put(key.toString(), value);
+                    }
                 }
             }
         }

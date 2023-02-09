@@ -75,7 +75,7 @@ class JsonUtil {
         if (object instanceof Map) {
             return parseJsonObject(object);
         }
-        if (object instanceof List) {
+        if (object instanceof Collection) {
             return parseJsonArray(object);
         }
         throw new JsonException("Could not parse \"" + object + "\" to JSON.");

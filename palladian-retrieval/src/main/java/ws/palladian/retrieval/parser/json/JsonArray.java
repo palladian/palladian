@@ -143,7 +143,9 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     public JsonArray(Collection<?> collection) {
         list = new ObjectArrayList<>();
         if (collection != null) {
-            list.addAll(collection);
+            for (Object value : collection) {
+                this.add(value);
+            }
         }
     }
 
@@ -184,8 +186,14 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     }
 
     @Override
-    public boolean add(Object o) {
-        return this.list.add(o);
+    public boolean add(Object value) {
+        if (value instanceof Map) {
+            return this.list.add(new JsonObject((Map<String, Object>) value));
+        } else if (value instanceof Collection) {
+            return this.list.add(new JsonArray(value));
+        } else {
+            return this.list.add(value);
+        }
     }
 
     /**
