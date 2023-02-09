@@ -15,12 +15,29 @@ import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Philipp Katz, David Urbansky
  * @version 2023-01-16
  */
 public class JsonArray extends AbstractList<Object> implements Json, Serializable {
+    static {
+        JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
+            Object read = iter.read();
+            if (read == null) {
+                return null;
+            }
+
+            if (read instanceof Map) {
+                return new JsonObject((Map<String, Object>) read);
+            } else if (read instanceof Collection) {
+                return new JsonArray(read);
+            }
+
+            return read;
+        });
+    }
 
     /** The arrayList where the JsonArray's properties are kept. */
     private ObjectArrayList<Object> list;
@@ -488,5 +505,30 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     @Override
     public String queryString(String jPath) throws JsonException {
         return JsonUtil.parseString(query(jPath));
+    }
+
+    public static void main(String[] args) throws IOException {
+        String jsonString = "{\"id\":5555,\"ar\":[\"sadfs\",\"222\"],\"jso\":{\"i\":123}}";
+
+        //        Any any = JsonIterator.deserialize(jsonString);
+        //        Object2ObjectLinkedOpenHashMap as = any.as(Object2ObjectLinkedOpenHashMap.class);
+        //        System.out.println(as);
+        //        JsonObject jsonObject1 = JsonObject.tryParse(jsonString);
+        //        System.out.println(jsonObject1);
+        //        System.exit(0);
+        //
+        //        JsonIterator iter = JsonIterator.parse(jsonString);
+        //        JsonObject read = iter.read(JsonObject.class);
+        //        System.out.println(read);
+        //        System.exit(0);
+
+        jsonString = "[{\"id\":5555,\"text\":\"sadfs\",\"ar\":[\"sadfs\",\"222\"],\"jso\":{\"i\":123}}]";
+        JsonArray jsonArray = JsonArray.tryParse(jsonString);
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.tryGetJsonObject(i);
+            jsonObject.put("name", "lala");
+        }
+        System.out.println(jsonArray);
+        System.exit(0);
     }
 }

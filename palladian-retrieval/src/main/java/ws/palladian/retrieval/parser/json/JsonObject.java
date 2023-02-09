@@ -22,6 +22,23 @@ import java.util.*;
  * @version 2023-01-16
  */
 public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
+    static {
+        JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
+            Object read = iter.read();
+            if (read == null) {
+                return null;
+            }
+
+            if (read instanceof Map) {
+                return new JsonObject((Map<String, Object>) read);
+            } else if (read instanceof Collection) {
+                return new JsonArray(read);
+            }
+
+            return read;
+        });
+    }
+    
     /** The map where the JsonObject's properties are kept. */
     private Object2ObjectMap<String, Object> map;
 

@@ -23,7 +23,6 @@ import java.io.Writer;
  * @author Philipp Katz
  */
 public interface Json {
-
     /**
      * <p>
      * Make a prettyprinted JSON text of this {@link Json}. <b>Warning:</b> This method assumes that the data structure

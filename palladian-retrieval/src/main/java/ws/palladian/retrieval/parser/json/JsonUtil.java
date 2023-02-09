@@ -39,8 +39,6 @@ class JsonUtil {
     public static JsonArray parseJsonArray(Object object) throws JsonException {
         if (object == null || object instanceof JsonArray) {
             return (JsonArray) object;
-        } else if (object instanceof List) {
-            return new JsonArray(object);
         }
         throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
     }
@@ -48,9 +46,6 @@ class JsonUtil {
     public static JsonObject parseJsonObject(Object object) throws JsonException {
         if (object == null || object instanceof JsonObject) {
             return (JsonObject) object;
-        }
-        if (object instanceof Map) {
-            return new JsonObject((Map) object);
         }
         throw new JsonException("Could not parse \"" + object + "\" to JSON object.");
     }
