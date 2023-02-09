@@ -187,7 +187,9 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
 
     @Override
     public boolean add(Object value) {
-        if (value instanceof Map) {
+        if (value instanceof Json) {
+            return this.list.add(value);
+        } else if (value instanceof Map) {
             return this.list.add(new JsonObject((Map<String, Object>) value));
         } else if (value instanceof Collection) {
             return this.list.add(new JsonArray(value));
