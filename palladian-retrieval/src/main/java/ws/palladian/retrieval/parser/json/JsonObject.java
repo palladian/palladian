@@ -22,6 +22,23 @@ import java.util.*;
  * @version 2023-01-16
  */
 public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
+    static {
+        JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
+            Object read = iter.read();
+            if (read == null) {
+                return null;
+            }
+
+            if (read instanceof Map) {
+                return new JsonObject((Map<String, Object>) read);
+            } else if (read instanceof Collection) {
+                return new JsonArray(read);
+            }
+
+            return read;
+        });
+    }
+
     /** The map where the JsonObject's properties are kept. */
     private Object2ObjectMap<String, Object> map;
 
@@ -47,7 +64,13 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             for (Object key : map.keySet()) {
                 Object value = map.get(key);
                 if (value != null) {
-                    this.map.put(key.toString(), value);
+                    if (value instanceof Map) {
+                        this.map.put(key.toString(), new JsonObject((Map<String, Object>) value));
+                    } else if (value instanceof Collection) {
+                        this.map.put(key.toString(), new JsonArray(value));
+                    } else {
+                        this.map.put(key.toString(), value);
+                    }
                 }
             }
         }
@@ -99,6 +122,9 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             } catch (Exception e2) {
                 parseFallback(new JsonTokener(source));
             }
+        }
+        if (map == null) {
+            map = new Object2ObjectLinkedOpenHashMap<>();
         }
     }
 

@@ -1,6 +1,7 @@
 package ws.palladian.semantics;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.de.GermanLightStemmer;
 import org.apache.lucene.analysis.de.GermanMinimalStemmer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -594,10 +595,16 @@ public class WordTransformer {
         if (exception != null) {
             return StringHelper.alignCasing(exception, word);
         }
-        GermanMinimalStemmer germanLightStemmer = new GermanMinimalStemmer();
         int wordLength = word.length();
+        int index = wordLength;
         char[] wordCharArray = word.toCharArray();
-        int index = germanLightStemmer.stem(wordCharArray, wordLength);
+        if (wordLength <= 5) {
+            GermanMinimalStemmer germanLightStemmer = new GermanMinimalStemmer();
+            index = germanLightStemmer.stem(wordCharArray, wordLength);
+        } else {
+            GermanLightStemmer germanLightStemmer = new GermanLightStemmer();
+            index = germanLightStemmer.stem(wordCharArray, wordLength);
+        }
         return StringUtils.stripAccents(String.valueOf(wordCharArray).substring(0, index).replace("ß", "ss"));
     }
 

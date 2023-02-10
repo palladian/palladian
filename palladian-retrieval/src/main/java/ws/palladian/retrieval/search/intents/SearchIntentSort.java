@@ -43,3 +43,4 @@ public class SearchIntentSort {
         return "SearchIntentSort{" + "key='" + key + '\'' + ", direction=" + direction + ", rankingStrategyId=" + rankingStrategyId + '}';
     }
 }
+
