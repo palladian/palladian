@@ -4,12 +4,17 @@ import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SearchIntent {
+    private String id;
     protected List<SearchIntentTrigger> triggers = new ArrayList<>();
     protected JsonObject context = new JsonObject();
     protected SearchIntentAction<SearchIntentFilter> action;
 
+    public SearchIntent() {
+        this.id = UUID.randomUUID().toString();
+    }
     public List<SearchIntentTrigger> getIntentTriggers() {
         return triggers;
     }
@@ -42,6 +47,10 @@ public class SearchIntent {
 
     public void setContext(JsonObject context) {
         this.context = context;
+    }
+
+    public String getId() {
+        return id;
     }
 
     @Override

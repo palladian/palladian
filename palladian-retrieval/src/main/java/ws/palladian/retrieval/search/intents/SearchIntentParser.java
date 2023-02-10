@@ -12,10 +12,7 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -154,11 +151,19 @@ public class SearchIntentParser {
 
         // if something goes wrong (e.g. circular redirects), we break out of the cycle
         int numTries = 0;
-        boolean intentMatchFound = false;
+        boolean intentMatchFound;
+
+        // make sure we don't match the same intent multiple times
+        Set<String> matchedIntentIds = new HashSet<>();
+
         ol:
         do {
             // XXX this could be slightly faster if we index actions by their match type so we don't have to iterate through all intents all the time
             for (SearchIntent intent : intents) {
+                if (matchedIntentIds.contains(intent.getId())) {
+                    continue;
+                }
+                
                 if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                     continue;
                 }
@@ -167,6 +172,7 @@ public class SearchIntentParser {
                         intentMatchFound = true;
                         ActivatedSearchIntentAction im = processMatch(QueryMatchType.MATCH, intent, query, null, intentTrigger);
                         intentActions.add(im);
+                        matchedIntentIds.add(intent.getId());
                         query = im.getModifiedQuery();
                         if (im.getRedirect() != null) {
                             return intentActions;
@@ -185,6 +191,7 @@ public class SearchIntentParser {
                         intentMatchFound = true;
                         ActivatedSearchIntentAction im = processMatch(QueryMatchType.PHRASE_MATCH, intent, query, null, intentTrigger);
                         intentActions.add(im);
+                        matchedIntentIds.add(intent.getId());
                         query = im.getModifiedQuery();
                         if (im.getRedirect() != null) {
                             return intentActions;
@@ -203,6 +210,7 @@ public class SearchIntentParser {
                         intentMatchFound = true;
                         ActivatedSearchIntentAction im = processMatch(QueryMatchType.CONTAINS, intent, query, null, intentTrigger);
                         intentActions.add(im);
+                        matchedIntentIds.add(intent.getId());
                         query = im.getModifiedQuery();
                         if (im.getRedirect() != null) {
                             return intentActions;
@@ -230,6 +238,7 @@ public class SearchIntentParser {
                                 intentMatchFound = true;
                                 ActivatedSearchIntentAction im = processMatch(QueryMatchType.REGEX, intent, query, matcher, intentTrigger);
                                 intentActions.add(im);
+                                matchedIntentIds.add(intent.getId());
                                 query = im.getModifiedQuery();
                                 if (im.getRedirect() != null) {
                                     return intentActions;
