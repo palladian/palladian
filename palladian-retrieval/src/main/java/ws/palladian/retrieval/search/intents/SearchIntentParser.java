@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.intents;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
@@ -154,7 +155,7 @@ public class SearchIntentParser {
         boolean intentMatchFound;
 
         // make sure we don't match the same intent multiple times
-        Set<String> matchedIntentIds = new HashSet<>();
+        IntOpenHashSet matchedIntentIds = new IntOpenHashSet();
 
         ol:
         do {

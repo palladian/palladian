@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class SearchIntent {
-    private String id;
+    protected Integer id;
     protected List<SearchIntentTrigger> triggers = new ArrayList<>();
     protected JsonObject context = new JsonObject();
     protected SearchIntentAction<SearchIntentFilter> action;
 
     public SearchIntent() {
-        this.id = UUID.randomUUID().toString();
+        this.id = (int) (Math.random()*1000000);
     }
     public List<SearchIntentTrigger> getIntentTriggers() {
         return triggers;
@@ -49,7 +49,7 @@ public class SearchIntent {
         this.context = context;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
