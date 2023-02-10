@@ -184,6 +184,9 @@ public class SearchIntentParser {
             }
 
             for (SearchIntent intent : intents) {
+                if (matchedIntentIds.contains(intent.getId())) {
+                    continue;
+                }
                 if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                     continue;
                 }
@@ -203,6 +206,9 @@ public class SearchIntentParser {
             }
 
             for (SearchIntent intent : intents) {
+                if (matchedIntentIds.contains(intent.getId())) {
+                    continue;
+                }
                 if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                     continue;
                 }
@@ -222,6 +228,9 @@ public class SearchIntentParser {
             }
 
             for (SearchIntent intent : intents) {
+                if (matchedIntentIds.contains(intent.getId())) {
+                    continue;
+                }
                 if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                     continue;
                 }
