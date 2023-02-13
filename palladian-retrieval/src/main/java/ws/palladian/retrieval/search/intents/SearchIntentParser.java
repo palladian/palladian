@@ -13,7 +13,10 @@ import ws.palladian.retrieval.parser.json.JsonException;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -164,7 +167,7 @@ public class SearchIntentParser {
                 if (matchedIntentIds.contains(intent.getId())) {
                     continue;
                 }
-                
+
                 if (contextMatcher != null && !contextMatcher.match(intent.getContext())) {
                     continue;
                 }
@@ -293,8 +296,8 @@ public class SearchIntentParser {
             case DEFINITION:
             default:
                 // check whether we should replace a regular expression match in the sorts
-                SearchIntentSort sort = intentAction.getSort();
-                if (sort != null) {
+                if (intentAction.getSort() != null) {
+                    SearchIntentSort sort = intentAction.getSort();
                     String key = sort.getKey();
                     if (key.contains("$")) {
                         Pattern pattern = PatternHelper.compileOrGet("\\$(\\d+)");
@@ -312,26 +315,26 @@ public class SearchIntentParser {
                 for (ActivatedSearchIntentFilter filledFilter : filledFilters) {
                     String minDefinition = filledFilter.getMinDefinition();
                     if (minDefinition != null) {
-                        if (minDefinition.contains("$")) {
-                            int position = Integer.parseInt(minDefinition.replace("$", ""));
-                            filledFilter.setMin(Double.valueOf(matcher.group(position)));
-                        } else if (!minDefinition.isEmpty()) {
-                            try {
+                        try {
+                            if (minDefinition.contains("$")) {
+                                int position = Integer.parseInt(minDefinition.replace("$", ""));
+                                filledFilter.setMin(Double.valueOf(matcher.group(position)));
+                            } else if (!minDefinition.isEmpty()) {
                                 filledFilter.setMin(Double.valueOf(minDefinition));
-                            } catch (Exception e) {
                             }
+                        } catch (Exception e) {
                         }
                     }
                     String maxDefinition = filledFilter.getMaxDefinition();
                     if (maxDefinition != null) {
-                        if (maxDefinition.contains("$")) {
-                            int position = Integer.parseInt(maxDefinition.replace("$", ""));
-                            filledFilter.setMax(Double.valueOf(matcher.group(position)));
-                        } else if (!maxDefinition.isEmpty()) {
-                            try {
+                        try {
+                            if (maxDefinition.contains("$")) {
+                                int position = Integer.parseInt(maxDefinition.replace("$", ""));
+                                filledFilter.setMax(Double.valueOf(matcher.group(position)));
+                            } else if (!maxDefinition.isEmpty()) {
                                 filledFilter.setMax(Double.valueOf(maxDefinition));
-                            } catch (Exception e) {
                             }
+                        } catch (Exception e) {
                         }
                     }
                     if (qmt.equals(QueryMatchType.REGEX)) {
@@ -386,6 +389,7 @@ public class SearchIntentParser {
                 }
                 return intentAction;
         }
+
     }
 
     @Override

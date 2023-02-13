@@ -10,6 +10,12 @@ public class SearchIntentSort {
         this.direction = direction;
     }
 
+    public SearchIntentSort(SearchIntentSort sort) {
+        this.key = sort.getKey();
+        this.direction = sort.getDirection();
+        this.rankingStrategyId = sort.getRankingStrategyId();
+    }
+
     public SearchIntentSort(String rankingStrategyId) {
         this.rankingStrategyId = rankingStrategyId;
     }

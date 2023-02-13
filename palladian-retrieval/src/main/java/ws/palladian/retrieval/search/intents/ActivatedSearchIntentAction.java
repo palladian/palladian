@@ -25,6 +25,7 @@ public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSea
                 activatedFilters.add(new ActivatedSearchIntentFilter(filter));
             }
             setFilters(activatedFilters);
+            setSort(new ActivatedSearchIntentSort(ia.getSort()));
             setModifiedQuery(modifiedQuery);
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
