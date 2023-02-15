@@ -1,4 +1,4 @@
-package ws.palladian.kaggle.restaurants.features;
+package ws.palladian.features;
 
 import org.junit.Test;
 import ws.palladian.core.FeatureVector;
