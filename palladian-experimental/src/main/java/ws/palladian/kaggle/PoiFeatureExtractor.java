@@ -1,4 +1,4 @@
-package ws.palladian.features;
+package ws.palladian.kaggle;
 
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
@@ -10,6 +10,7 @@ import ws.palladian.clustering.CommonsKMeansClusterer;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;
 import ws.palladian.extraction.multimedia.ImageHandler;
+import ws.palladian.features.FeatureExtractor;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;

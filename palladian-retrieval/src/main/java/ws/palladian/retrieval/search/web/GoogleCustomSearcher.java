@@ -39,8 +39,6 @@ import java.util.List;
  * @see <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&answer=1210656">Search the entire web</a>
  */
 public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebContent> {
-
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCustomSearcher.class);
 
     /** The name of this WebSearcher. */

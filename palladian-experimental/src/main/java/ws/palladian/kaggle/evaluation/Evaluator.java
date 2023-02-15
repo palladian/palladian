@@ -1,4 +1,4 @@
-package ws.palladian.evaluation;
+package ws.palladian.kaggle.evaluation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

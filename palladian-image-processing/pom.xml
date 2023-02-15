@@ -126,11 +126,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ws.palladian</groupId>
-            <artifactId>palladian-external</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>mpicbg</groupId>
             <artifactId>mpicbg</artifactId>
             <version>1.4.1</version>
@@ -156,9 +151,9 @@
             <version>${logback.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.boofcv</groupId>
-            <artifactId>all</artifactId>
-            <version>0.21</version>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.6</version>
         </dependency>
         <dependency>
             <groupId>com.konghq</groupId>
