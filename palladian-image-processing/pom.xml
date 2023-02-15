@@ -14,10 +14,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <logback.version>1.2.9</logback.version>
         <slf4j.version>1.7.7</slf4j.version>
-        <canova.version>0.0.0.14</canova.version>
         <aws.version>1.11.197</aws.version>
         <shadedClassifier>bin</shadedClassifier>
-        <jackson.version>2.6.6</jackson.version>
     </properties>
 
     <build>
