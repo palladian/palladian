@@ -21,7 +21,7 @@ jobs:
       # https://github.com/marketplace/actions/setup-java-jdk#publishing-using-apache-maven
       - uses: actions/setup-java@v2
         with:
-          java-version: '11'
+          java-version: '14'
           distribution: zulu
           server-id: ossrh
           server-username: OSSRH_USERNAME
