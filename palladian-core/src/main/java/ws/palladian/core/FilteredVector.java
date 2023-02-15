@@ -16,7 +16,6 @@ import java.util.function.Predicate;
  * @author Philipp Katz
  */
 public class FilteredVector extends AbstractFeatureVector {
-
     private final FeatureVector original;
 
     private final Set<String> filteredNames;

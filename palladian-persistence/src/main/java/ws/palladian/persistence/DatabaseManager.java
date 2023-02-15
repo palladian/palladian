@@ -27,7 +27,6 @@ import java.util.*;
  * @author Klemens Muthmann
  */
 public class DatabaseManager {
-
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseManager.class);
 
@@ -304,7 +303,6 @@ public class DatabaseManager {
         int[] result = new int[0];
 
         try {
-
             connection = getConnection();
             connection.setAutoCommit(false);
             ps = connection.prepareStatement(sql);

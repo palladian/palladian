@@ -48,8 +48,7 @@ public class GeonamesLocationSourceIT {
     @Test(expected = IllegalStateException.class)
     public void testGeonamesLocationSourceInvalidUsername() {
         @SuppressWarnings("deprecation")
-        GeonamesLocationSource testSource = new GeonamesLocationSource("random_username_which_does_not_exist_" + System.currentTimeMillis());
+        LocationSource testSource = GeonamesLocationSource.newCachedLocationSource("random_username_which_does_not_exist_" + System.currentTimeMillis());
         testSource.getLocations("monaco", EnumSet.of(Language.ENGLISH));
     }
-
 }

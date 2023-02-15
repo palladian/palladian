@@ -81,25 +81,11 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
      * Create a new {@link GeonamesLocationSource}.
      * </p>
      *
-     * @param username The signed up user name, not <code>null</code> or empty.
-     * @deprecated Prefer using the cached variant, which can be obtained via {@link #newCachedLocationSource(String)}.
-     */
-    @Deprecated
-    public GeonamesLocationSource(String username) {
-        this(username, true);
-    }
-
-    /**
-     * <p>
-     * Create a new {@link GeonamesLocationSource}.
-     * </p>
-     *
      * @param username          The signed up user name, not <code>null</code> or empty.
      * @param retrieveHierarchy <code>true</code> to retrieve hierarchy information (which causes additional REST
      *                          requests).
-     * @deprecated Prefer using the cached variant, which can be obtained via {@link #newCachedLocationSource(String)}.
      */
-    public GeonamesLocationSource(String username, boolean retrieveHierarchy) {
+    private GeonamesLocationSource(String username, boolean retrieveHierarchy) {
         Validate.notEmpty(username);
         this.username = username;
         this.retrieveHierarchy = retrieveHierarchy;
@@ -285,14 +271,13 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     }
 
     public static void main(String[] args) {
-        GeonamesLocationSource locationSource = new GeonamesLocationSource("qqilihq");
+        LocationSource locationSource = GeonamesLocationSource.newCachedLocationSource("qqilihq");
         // Location location = locationSource.getLocation(7268814);
         // System.out.println(location);
         // List<Location> locations = locationSource.getLocations(GeoCoordinate.from(52.52, 13.41), 10);
         // List<Location> locations = locationSource.getLocations("U.S.", EnumSet.of(Language.ENGLISH));
         // List<Location> locations = locationSource.getLocations("Liége", EnumSet.of(Language.ENGLISH));
-        List<Location> locations = locationSource.getLocations("Ceske Budejovice", EnumSet.of(Language.ENGLISH));
+        Collection<Location> locations = locationSource.getLocations("Ceske Budejovice", EnumSet.of(Language.ENGLISH));
         CollectionHelper.print(locations);
     }
-
 }
