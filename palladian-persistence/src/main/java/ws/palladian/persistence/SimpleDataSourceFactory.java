@@ -17,7 +17,6 @@ import java.util.Properties;
  * @author Philipp Katz
  */
 public final class SimpleDataSourceFactory implements DataSourceFactory {
-
     public static final SimpleDataSourceFactory INSTANCE = new SimpleDataSourceFactory();
 
     private static final class SimpleDataSource implements DataSource {

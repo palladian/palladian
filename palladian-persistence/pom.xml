@@ -9,28 +9,11 @@
     <artifactId>palladian-persistence</artifactId>
     <name>Palladian: Persistence</name>
     <description>Palladian Persistence Functionality</description>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
         <dependency>
             <groupId>ws.palladian</groupId>
             <artifactId>palladian-commons</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jolbox</groupId>
-            <artifactId>bonecp</artifactId>
-            <version>0.8.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

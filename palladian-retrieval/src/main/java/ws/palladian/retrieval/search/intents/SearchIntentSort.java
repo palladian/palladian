@@ -11,9 +11,11 @@ public class SearchIntentSort {
     }
 
     public SearchIntentSort(SearchIntentSort sort) {
-        this.key = sort.getKey();
-        this.direction = sort.getDirection();
-        this.rankingStrategyId = sort.getRankingStrategyId();
+        if (sort != null) {
+            this.key = sort.getKey();
+            this.direction = sort.getDirection();
+            this.rankingStrategyId = sort.getRankingStrategyId();
+        }
     }
 
     public SearchIntentSort(String rankingStrategyId) {

@@ -9,45 +9,9 @@
     </parent>
     <name>Palladian: Experimental</name>
     <description>Experimental code snippets, leftovers, unused code, etc.</description>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <configLocation>${project.parent.basedir}/config/checkstyle_config.xml</configLocation>
-                    <excludes>**/*.java</excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <!-- Exclude this project from PMD -->
-                    <excludeRoots>
-                        <excludeRoot>${project.basedir}/src/main/java</excludeRoot>
-                        <excludeRoot>${project.basedir}/src/test/java</excludeRoot>
-                    </excludeRoots>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
     <properties>
         <lucene-version>8.11.2</lucene-version>
     </properties>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
     <dependencies>
         <dependency>
             <groupId>ws.palladian</groupId>
@@ -113,17 +77,6 @@
             <groupId>tw.edu.ntu.csie</groupId>
             <artifactId>libsvm</artifactId>
             <version>3.30</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gravity</groupId>
-            <artifactId>goose</artifactId>
-            <version>2.1.23</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>httpclient</artifactId>
-                    <groupId>org.apache.httpcomponents</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.syncthemall</groupId>
