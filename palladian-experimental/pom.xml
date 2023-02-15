@@ -11,6 +11,10 @@
     <description>Experimental code snippets, leftovers, unused code, etc.</description>
     <properties>
         <lucene-version>8.11.2</lucene-version>
+        <!--<nd4j.version>0.4-rc3.8</nd4j.version>-->
+        <nd4j.version>1.0.0-beta3</nd4j.version>
+        <dl4j.version>1.0.0-beta3</dl4j.version>
+        <!--<dl4j.spark.version>1.0.0-beta3_spark_2</dl4j.spark.version>-->
     </properties>
     <dependencies>
         <dependency>
@@ -140,12 +144,50 @@
             <artifactId>xgboost4j</artifactId>
             <version>0.90</version>
         </dependency>
+        <dependency>
+            <groupId>mpicbg</groupId>
+            <artifactId>mpicbg</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-core</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-modelimport</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-zoo</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nd4j</groupId>
+            <artifactId>nd4j-native-platform</artifactId>
+            <version>${dl4j.version}</version>
+        </dependency>        
     </dependencies>
     <repositories>
         <repository>
             <!-- QuickMl -->
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+        <!-- NB: for project parent -->
+        <repository>
+            <id>SciJava</id>
+            <url>https://maven.scijava.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>imagej.releases</id>
+            <url>http://maven.imagej.net/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>imagej.public</id>
+            <url>http://maven.imagej.net/content/groups/public</url>
         </repository>
     </repositories>
 </project>
