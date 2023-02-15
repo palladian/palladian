@@ -35,11 +35,14 @@ import java.util.List;
  * api if it exists?</a>
  */
 public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
-
-    /** The name of this searcher. */
+    /**
+     * The name of this searcher.
+     */
     private static final String NAME = "Wikipedia";
 
-    /** Pattern used for parsing the returned date strings. */
+    /**
+     * Pattern used for parsing the returned date strings.
+     */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();

@@ -22,8 +22,9 @@ import java.util.List;
  * @author David Urbansky
  */
 public class CascadingSearcher extends AbstractSearcher<WebContent> {
-
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(CascadingSearcher.class);
 
     private List<Searcher<WebContent>> searchers;
@@ -46,11 +47,9 @@ public class CascadingSearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) {
-
-        List<WebContent> webResults = new ArrayList<WebContent>();
+        List<WebContent> webResults = new ArrayList<>();
 
         for (Searcher<WebContent> searcher : searchers) {
-
             // some searchers go haywire if something goes wrong, so we catch the exception and try the next one
             try {
                 webResults.addAll(searcher.search(query, resultCount, language));
@@ -62,7 +61,6 @@ public class CascadingSearcher extends AbstractSearcher<WebContent> {
             if (!webResults.isEmpty()) {
                 break;
             }
-
         }
 
         return webResults;
@@ -77,7 +75,7 @@ public class CascadingSearcher extends AbstractSearcher<WebContent> {
      * @throws SearcherException
      */
     public static void main(String[] args) throws SearcherException {
-        List<Searcher<WebContent>> searchers = new ArrayList<Searcher<WebContent>>();
+        List<Searcher<WebContent>> searchers = new ArrayList<>();
         // searchers.add(new YandexSearcher(
         // "http://xmlsearch.yandex.ru/xmlsearch?user=pkatz&key=03.156690494:67abdff20756319b24dc308f8d216e22")); // 2.2
         // searchers.add(new HakiaSearcher(ConfigHolder.getInstance().getConfig())); // 6s

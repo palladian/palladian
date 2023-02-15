@@ -29,10 +29,14 @@ import java.util.Map;
  * @see <a href="https://www.pexels.com/api/documentation/">Pexels API Docs</a>
  */
 public class PexelsSearcher extends AbstractSearcher<WebImage> {
-    /** The name of this searcher. */
+    /**
+     * The name of this searcher.
+     */
     private static final String SEARCHER_NAME = "Pexels";
 
-    /** Identifier for the API key when supplied via {@link Configuration}. */
+    /**
+     * Identifier for the API key when supplied via {@link Configuration}.
+     */
     public static final String CONFIG_API_KEY = "api.pexels.key";
 
     private final String apiKey;

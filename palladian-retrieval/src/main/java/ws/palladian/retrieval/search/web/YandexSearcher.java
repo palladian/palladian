@@ -40,27 +40,41 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see <a href="http://help.yandex.com/xml/?id=1116467">API documentation</a>
  */
 public final class YandexSearcher extends AbstractSearcher<WebContent> {
-
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(YandexSearcher.class);
 
-    /** Counter for the total number of HTTP requests sent to Yandex. */
+    /**
+     * Counter for the total number of HTTP requests sent to Yandex.
+     */
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
-    /** The name of this search engine. */
+    /**
+     * The name of this search engine.
+     */
     private static final String SEARCHER_NAME = "Yandex";
-    /** The pattern used for parsing the returned date strings. */
+    /**
+     * The pattern used for parsing the returned date strings.
+     */
     private static final String DATE_PATTERN = "yyyyMMdd'T'HHmmss";
-    /** The maximum count of results delivered with each request. */
+    /**
+     * The maximum count of results delivered with each request.
+     */
     private static final int MAX_RESULTS_PER_PAGE = 100;
-    /** The pattern of a valid search URL, containing user and key parameter. */
+    /**
+     * The pattern of a valid search URL, containing user and key parameter.
+     */
     private static final String SEARCH_URL_PATTERN = "http://xmlsearch.yandex.ru/xmlsearch\\?user=.+&key=.+";
 
-    /** Key of the {@link Configuration} item which contains the custom search URL. */
+    /**
+     * Key of the {@link Configuration} item which contains the custom search URL.
+     */
     public static final String CONFIG_SEARCH_URL = "api.yandex.url";
 
-    /** The API endpoint for accessing the searcher. */
+    /**
+     * The API endpoint for accessing the searcher.
+     */
     private final String yandexSearchUrl;
-    /** The parser used for processing the returned XML data. */
+    /**
+     * The parser used for processing the returned XML data.
+     */
     private final DocumentParser xmlParser;
 
     private final HttpRetriever retriever;
@@ -97,7 +111,9 @@ public final class YandexSearcher extends AbstractSearcher<WebContent> {
         this(configuration.getString(CONFIG_SEARCH_URL));
     }
 
-    /** Constructor only used for unit testing. */
+    /**
+     * Constructor only used for unit testing.
+     */
     YandexSearcher() {
         this.yandexSearchUrl = null;
         this.xmlParser = ParserFactory.createXmlParser();

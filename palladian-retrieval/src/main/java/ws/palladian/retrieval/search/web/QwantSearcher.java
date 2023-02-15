@@ -32,10 +32,11 @@ import java.util.List;
  * @since 18.05.2019
  */
 public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> {
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(QwantSearcher.class);
 
-    /** The name of this WebSearcher. */
+    /**
+     * The name of this WebSearcher.
+     */
     private static final String SEARCHER_NAME = "Qwant";
 
     private final HttpRetriever retriever;
@@ -185,7 +186,9 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
         }
     }
 
-    /** default visibility for unit testing. */
+    /**
+     * default visibility for unit testing.
+     */
     static List<WebContent> parse(JsonObject jsonObject) {
         JsonArray jsonItems = jsonObject.tryQueryJsonArray("data/result/items");
         if (jsonItems == null) {

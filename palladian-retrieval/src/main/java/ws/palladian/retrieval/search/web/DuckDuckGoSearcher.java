@@ -28,18 +28,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Philipp Katz
  */
 public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
-    /** The logger for this class. */
+    /**
+     * The logger for this class.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DuckDuckGoSearcher.class);
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
-    /** The number of entries which are returned for each page. */
+    /**
+     * The number of entries which are returned for each page.
+     */
     private static final int ENTRIES_PER_PAGE = 10;
 
-    /** Prevent over penetrating the searcher. */
+    /**
+     * Prevent over penetrating the searcher.
+     */
     private static final FixedIntervalRequestThrottle THROTTLE = new FixedIntervalRequestThrottle(1000);
 
-    /** The JavaScript URL for the search results. */
+    /**
+     * The JavaScript URL for the search results.
+     */
     // private static final String JS_URL = "https://duckduckgo.com/d.js?q=%s&t=A&l=us-en&p=1&s=%s";
     private static final String HTML_URL = "https://duckduckgo.com/html/?q=%s";
 

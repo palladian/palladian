@@ -46,7 +46,6 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
-
         String requestUrl = buildUrl(query, resultCount, language);
         HttpResult httpResult;
         try {
