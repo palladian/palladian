@@ -9,18 +9,6 @@
     <artifactId>palladian-commons</artifactId>
     <name>Palladian: Commons</name>
     <description>Common functionality shared by Palladian modules</description>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>14</source>
-                    <target>14</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
         <dependency>
             <groupId>commons-configuration</groupId>
