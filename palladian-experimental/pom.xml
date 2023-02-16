@@ -127,12 +127,10 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>org.boofcv</groupId>
@@ -168,7 +166,21 @@
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
             <version>${dl4j.version}</version>
-        </dependency>        
+        </dependency>    
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
