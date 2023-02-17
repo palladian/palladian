@@ -242,7 +242,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
         Object value = map.get(key);
         try {
-            return JsonUtil.parseJsonObjectOrArray(value);
+            if (value instanceof Json || value instanceof Map || value instanceof Collection) {
+                return JsonUtil.parseJsonObjectOrArray(value);
+            }
+            return value;
         } catch (JsonException e) {
             return value;
         }

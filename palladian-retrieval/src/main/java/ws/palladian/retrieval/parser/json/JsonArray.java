@@ -179,7 +179,10 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         // return index < 0 || index >= this.size() ? null : list.get(index);
         Object value = list.get(index);
         try {
-            return JsonUtil.parseJsonObjectOrArray(value);
+            if (value instanceof Json || value instanceof Map || value instanceof Collection) {
+                return JsonUtil.parseJsonObjectOrArray(value);
+            }
+            return value;
         } catch (JsonException e) {
             return value;
         }
