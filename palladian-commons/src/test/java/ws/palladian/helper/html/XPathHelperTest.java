@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotNull;
  * @author David Urbansky
  */
 public class XPathHelperTest {
-
     @Test
     public void testAddNamespaceToXPath() {
         assertEquals("//xhtml:a[contains(@class,'breadcrumb__link') and @title=\"Leistungen und Services\"]/xhtml:span",
@@ -108,5 +107,4 @@ public class XPathHelperTest {
         List<Node> tocItems2 = XPathHelper.getXhtmlNodes(firstTocNode, "ul/*");
         assertEquals(10, tocItems2.size());
     }
-
 }

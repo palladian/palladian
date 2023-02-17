@@ -299,7 +299,7 @@ public class SearchIntentParser {
                 if (intentAction.getSort() != null) {
                     SearchIntentSort sort = intentAction.getSort();
                     String key = sort.getKey();
-                    if (key.contains("$")) {
+                    if (key != null && key.contains("$")) {
                         Pattern pattern = PatternHelper.compileOrGet("\\$(\\d+)");
                         Matcher matcher1 = pattern.matcher(key);
                         while (matcher1.find()) {
