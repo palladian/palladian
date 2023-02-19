@@ -327,7 +327,24 @@ public final class FileHelper {
             return readGzippedFileToString(file, encoding);
         } else {
             return Files.readString(Path.of(file.getPath()), Charset.forName(encoding)).replaceAll("\\r\\n?", NEWLINE_CHARACTER) // always use \n
-                    .concat(NEWLINE_CHARACTER); // terminate with newline (preserve previous behavior)
+                    .concat(NEWLINE_CHARACTER); // terminate with newline (preserve previous behavior) FIXME this is suuuuuuuuper slow - we need to find a different solution for this
+        }
+    }
+
+    public static String tryReadFileToStringNoReplacement(File file) {
+        try {
+            return readFileToStringNoReplacement(file, DEFAULT_ENCODING);
+        } catch (Exception e) {
+            // ccl
+        }
+        return null;
+    }
+
+    public static String readFileToStringNoReplacement(File file, String encoding) throws IOException {
+        if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
+            return readGzippedFileToString(file, encoding);
+        } else {
+            return Files.readString(Path.of(file.getPath()), Charset.forName(encoding));
         }
     }
 
