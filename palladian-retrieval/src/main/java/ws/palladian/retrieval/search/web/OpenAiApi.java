@@ -25,7 +25,7 @@ public class OpenAiApi {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
-    public String ask(String text) {
+    public String ask(String text) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
@@ -37,7 +37,10 @@ public class OpenAiApi {
         String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/completions", requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
-            return null;
+            throw new Exception("Could not parse json " + postResponseText);
+        }
+        if (responseJson.tryQueryString("error/message") != null) {
+            throw new Exception(responseJson.tryQueryString("error/message"));
         }
 
         String answer = responseJson.tryQueryString("choices[0]/text");
