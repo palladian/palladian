@@ -412,7 +412,7 @@ public class UnitNormalizer {
             }
         }
 
-        // nothing found? try case insensive
+        // nothing found? try case insensitive
         if (multiplier < 0) {
             unit = unit.toLowerCase();
             ol:

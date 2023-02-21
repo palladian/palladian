@@ -764,6 +764,7 @@ public enum UnitType {
         unitList.add("cubic foot");
         unitList.add("cu ft");
         unitList.add("cu. ft.");
+        unitList.add("cu. ft");
         UnitType.VOLUME.units.add(Pair.of(unitList, 28316.8));
 
         unitList = new ArrayList<>();
