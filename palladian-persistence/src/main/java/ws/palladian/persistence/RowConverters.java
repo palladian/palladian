@@ -43,7 +43,11 @@ public final class RowConverters {
             if (resultSet.getObject(i) == null) {
                 map.put(columnName, null);
             } else if (columnType == Types.INTEGER) {
-                map.put(columnName, resultSet.getInt(i));
+                try {
+                    map.put(columnName, resultSet.getInt(i));
+                } catch (Exception e) { // unsigned int might throw an exception, try again parsing as long
+                    map.put(columnName, resultSet.getLong(i));
+                }
             } else if (columnType == Types.TINYINT) {
                 map.put(columnName, resultSet.getInt(i));
             } else if (columnType == Types.SMALLINT) {
