@@ -7,6 +7,8 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.json.JsonArray;
 import ws.palladian.retrieval.parser.json.JsonObject;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * A wrapper for OpenAI's APIs.
  *
@@ -27,6 +29,10 @@ public class OpenAiApi {
     }
 
     public float[] getEmbedding(String text) throws Exception {
+        return getEmbedding(text, null);
+    }
+
+    public float[] getEmbedding(String text, AtomicInteger usedTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
@@ -47,10 +53,18 @@ public class OpenAiApi {
             embedding[embeddingArray.indexOf(o)] = Float.parseFloat(o.toString());
         }
 
+        if (usedTokens != null) {
+            usedTokens.addAndGet(responseJson.tryQueryInt("usage/total_tokens"));
+        }
+
         return embedding;
     }
 
     public String ask(String text) throws Exception {
+        return ask(text, null);
+    }
+
+    public String ask(String text, AtomicInteger usedTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
@@ -69,6 +83,10 @@ public class OpenAiApi {
         }
 
         String answer = responseJson.tryQueryString("choices[0]/text");
+
+        if (usedTokens != null) {
+            usedTokens.addAndGet(responseJson.tryQueryInt("usage/total_tokens"));
+        }
 
         return StringHelper.clean(answer);
     }
