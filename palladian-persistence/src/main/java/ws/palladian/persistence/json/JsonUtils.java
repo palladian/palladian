@@ -1,13 +1,15 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-class JsonUtil {
+public class JsonUtils {
+    private JsonUtils() {
+        // util.
+    }
+
     public static boolean parseBoolean(Object object) throws JsonException {
         try {
             if (object.equals(Boolean.FALSE) || object instanceof String && ((String) object).equalsIgnoreCase("false")) {
@@ -118,7 +120,7 @@ class JsonUtil {
             throw new IllegalArgumentException("Null pointer");
         }
         try {
-            JsonUtil.testValidity(number);
+            JsonUtils.testValidity(number);
         } catch (JsonException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -309,7 +311,82 @@ class JsonUtil {
         return writer;
     }
 
-    private JsonUtil() {
-        // util.
+    public static List<Integer> toIntegerList(String jsonString) {
+        if (jsonString == null) {
+            return new ArrayList<>();
+        }
+        try {
+            return toIntegerList(new JsonArray(jsonString));
+        } catch (Exception e) {
+        }
+        return new ArrayList<>();
+    }
+
+    public static Set<String> toStringSet(JsonArray jsonArray) {
+        if (jsonArray == null) {
+            return new HashSet<>();
+        }
+
+        Set<String> set = new LinkedHashSet<>();
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            set.add(jsonArray.tryGetString(i));
+        }
+
+        return set;
+    }
+
+    public static List<String> toStringList(JsonArray jsonArray) {
+        if (jsonArray == null) {
+            return new ArrayList<>();
+        }
+
+        List<String> list = new ArrayList<>();
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            list.add(jsonArray.tryGetString(i));
+        }
+
+        return list;
+    }
+
+    public static List<Integer> toIntegerList(JsonArray jsonArray) {
+        if (jsonArray == null) {
+            return new ArrayList<>();
+        }
+
+        List<Integer> list = new ArrayList<>();
+
+        for (int i = 0; i < jsonArray.size(); i++) {
+            list.add(jsonArray.tryGetInt(i));
+        }
+
+        return list;
+    }
+
+    public static JsonArray toJsonObjectArray(List<? extends Jsonable> objects) {
+        JsonArray jsArray = new JsonArray();
+        if (objects == null) {
+            return jsArray;
+        }
+        for (Jsonable obj : objects) {
+            jsArray.add(obj.asJson());
+        }
+
+        return jsArray;
+    }
+
+    public static JsonObject filterFields(JsonObject srcObject, Set<String> fields) {
+        JsonObject filteredJson = new JsonObject();
+        if (srcObject == null) {
+            return filteredJson;
+        }
+        for (String srcKey : srcObject.keySet()) {
+            if (fields.contains(srcKey)) {
+                filteredJson.put(srcKey, srcObject.get(srcKey));
+            }
+        }
+
+        return filteredJson;
     }
 }

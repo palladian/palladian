@@ -20,7 +20,7 @@ import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.kaggle.restaurants.Experimenter;
-import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.persistence.json.JsonException;
 import ws.palladian.utils.CsvDatasetWriter;
 
 import java.io.File;

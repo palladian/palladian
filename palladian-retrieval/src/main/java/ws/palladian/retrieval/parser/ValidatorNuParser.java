@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import ws.palladian.persistence.ParserException;
 
 import java.io.IOException;
 

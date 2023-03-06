@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.persistence.ParserException;
 
 import java.io.FileNotFoundException;
 

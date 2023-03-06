@@ -8,7 +8,7 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.io.File;

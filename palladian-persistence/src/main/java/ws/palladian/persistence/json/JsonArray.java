@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
@@ -180,7 +180,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         Object value = list.get(index);
         try {
             if (value instanceof Json || value instanceof Map || value instanceof Collection) {
-                return JsonUtil.parseJsonObjectOrArray(value);
+                return JsonUtils.parseJsonObjectOrArray(value);
             }
             return value;
         } catch (JsonException e) {
@@ -212,7 +212,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * cannot be parsed as boolean.
      */
     public boolean getBoolean(int index) throws JsonException {
-        return JsonUtil.parseBoolean(this.get(index));
+        return JsonUtils.parseBoolean(this.get(index));
     }
 
     public Boolean tryGetBoolean(int index) {
@@ -233,7 +233,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * cannot be parsed as Double.
      */
     public double getDouble(int index) throws JsonException {
-        return JsonUtil.parseDouble(this.get(index));
+        return JsonUtils.parseDouble(this.get(index));
     }
 
     public Double tryGetDouble(int index) {
@@ -255,7 +255,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @throws JsonException
      */
     public int getInt(int index) throws JsonException {
-        return JsonUtil.parseInt(this.get(index));
+        return JsonUtils.parseInt(this.get(index));
     }
 
     public Integer tryGetInt(int index) {
@@ -276,7 +276,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * no {@link JsonArray}.
      */
     public JsonArray getJsonArray(int index) throws JsonException {
-        return JsonUtil.parseJsonArray(this.get(index));
+        return JsonUtils.parseJsonArray(this.get(index));
     }
 
     public JsonArray tryGetJsonArray(int index) {
@@ -297,7 +297,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * no {@link JsonObject}.
      */
     public JsonObject getJsonObject(int index) throws JsonException {
-        return JsonUtil.parseJsonObject(this.get(index));
+        return JsonUtils.parseJsonObject(this.get(index));
     }
 
     public JsonObject tryGetJsonObject(int index) {
@@ -318,7 +318,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * be parsed as Long.
      */
     public long getLong(int index) throws JsonException {
-        return JsonUtil.parseLong(this.get(index));
+        return JsonUtils.parseLong(this.get(index));
     }
 
     public Long tryGetLong(int index) {
@@ -338,7 +338,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @return A string value, or <code>null</code> in case there is no value with specified index.
      */
     public String getString(int index) throws JsonException {
-        return JsonUtil.parseString(this.get(index));
+        return JsonUtils.parseString(this.get(index));
     }
 
     public String tryGetString(int index) {
@@ -357,7 +357,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     @Override
     public Object set(int index, Object element) {
         try {
-            JsonUtil.testValidity(element);
+            JsonUtils.testValidity(element);
         } catch (JsonException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -378,7 +378,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     @Override
     public void add(int index, Object element) {
         try {
-            JsonUtil.testValidity(element);
+            JsonUtils.testValidity(element);
         } catch (JsonException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -433,7 +433,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         writer.write('[');
 
         if (length == 1) {
-            JsonUtil.writeValue(writer, list.get(0), indentFactor, indent);
+            JsonUtils.writeValue(writer, list.get(0), indentFactor, indent);
         } else if (length != 0) {
             final int newindent = indent + indentFactor;
 
@@ -444,14 +444,14 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
                 if (indentFactor > 0) {
                     writer.write('\n');
                 }
-                JsonUtil.indent(writer, newindent);
-                JsonUtil.writeValue(writer, list.get(i), indentFactor, newindent);
+                JsonUtils.indent(writer, newindent);
+                JsonUtils.writeValue(writer, list.get(i), indentFactor, newindent);
                 commanate = true;
             }
             if (indentFactor > 0) {
                 writer.write('\n');
             }
-            JsonUtil.indent(writer, indent);
+            JsonUtils.indent(writer, indent);
         }
         writer.write(']');
         return writer;
@@ -462,7 +462,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         if (jPath.isEmpty()) {
             return this;
         }
-        String[] pathSplit = JsonUtil.splitJPath(jPath);
+        String[] pathSplit = JsonUtils.splitJPath(jPath);
         String head = pathSplit[0];
         String remainingPath = pathSplit[1];
         if (!head.matches("\\[\\d+]")) {
@@ -487,37 +487,37 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
 
     @Override
     public boolean queryBoolean(String jPath) throws JsonException {
-        return JsonUtil.parseBoolean(query(jPath));
+        return JsonUtils.parseBoolean(query(jPath));
     }
 
     @Override
     public double queryDouble(String jPath) throws JsonException {
-        return JsonUtil.parseDouble(query(jPath));
+        return JsonUtils.parseDouble(query(jPath));
     }
 
     @Override
     public int queryInt(String jPath) throws JsonException {
-        return JsonUtil.parseInt(query(jPath));
+        return JsonUtils.parseInt(query(jPath));
     }
 
     @Override
     public JsonArray queryJsonArray(String jPath) throws JsonException {
-        return JsonUtil.parseJsonArray(query(jPath));
+        return JsonUtils.parseJsonArray(query(jPath));
     }
 
     @Override
     public JsonObject queryJsonObject(String jPath) throws JsonException {
-        return JsonUtil.parseJsonObject(query(jPath));
+        return JsonUtils.parseJsonObject(query(jPath));
     }
 
     @Override
     public long queryLong(String jPath) throws JsonException {
-        return JsonUtil.parseLong(query(jPath));
+        return JsonUtils.parseLong(query(jPath));
     }
 
     @Override
     public String queryString(String jPath) throws JsonException {
-        return JsonUtil.parseString(query(jPath));
+        return JsonUtils.parseString(query(jPath));
     }
 
     public static void main(String[] args) throws IOException {

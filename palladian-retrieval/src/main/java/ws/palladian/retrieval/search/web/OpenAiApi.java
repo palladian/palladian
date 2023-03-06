@@ -4,8 +4,8 @@ import org.apache.commons.configuration.Configuration;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

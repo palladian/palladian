@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
 import ws.palladian.helper.functional.Factory;
 
@@ -17,7 +17,7 @@ public final class JsonObjectBuilder implements Factory<JsonObject> {
 
     /**
      * <p>
-     * Create a new {@link ws.palladian.retrieval.parser.json.JsonObjectBuilder} initialized with a copy of the supplied {@link JsonObject}.
+     * Create a new {@link JsonObjectBuilder} initialized with a copy of the supplied {@link JsonObject}.
      * </p>
      *
      * @param jsonObject The jsonObject with entries to add to this builder.
@@ -29,7 +29,7 @@ public final class JsonObjectBuilder implements Factory<JsonObject> {
 
     /**
      * <p>
-     * Create a new {@link ws.palladian.retrieval.parser.json.JsonObjectBuilder } initialized with a {@link HashMap}.
+     * Create a new {@link JsonObjectBuilder } initialized with a {@link HashMap}.
      * </p>
      *
      * @return The builder. Use {@link #put(String, Object)} to add further entries.
@@ -40,7 +40,7 @@ public final class JsonObjectBuilder implements Factory<JsonObject> {
 
     /**
      * <p>
-     * Create a new {@link ws.palladian.retrieval.parser.json.JsonObjectBuilder} initialized with a {@link JsonObject and add the supplied key-value pair.
+     * Create a new {@link JsonObjectBuilder} initialized with a {@link JsonObject and add the supplied key-value pair.
      * </p>
      *
      * @param key   The key to add.
@@ -61,7 +61,7 @@ public final class JsonObjectBuilder implements Factory<JsonObject> {
 
     /**
      * <p>
-     * Put a new key/value pair to the map, return {@link ws.palladian.retrieval.parser.json.JsonObjectBuilder} to allow method chaining.
+     * Put a new key/value pair to the map, return {@link JsonObjectBuilder} to allow method chaining.
      * </p>
      *
      * @param key   Key.

@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.feeds.parser;
 
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 
 public class FeedParserException extends ParserException {
 

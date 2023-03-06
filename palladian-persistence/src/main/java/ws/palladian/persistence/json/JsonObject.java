@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jsoniter.JsonIterator;
@@ -193,12 +193,12 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
         if (length == 1) {
             Object key = keys.next();
-            writer.write(JsonUtil.quote(key.toString()));
+            writer.write(JsonUtils.quote(key.toString()));
             writer.write(':');
             if (indentFactor > 0) {
                 writer.write(' ');
             }
-            JsonUtil.writeValue(writer, map.get(key), indentFactor, indent);
+            JsonUtils.writeValue(writer, map.get(key), indentFactor, indent);
         } else if (length != 0) {
             final int newindent = indent + indentFactor;
             while (keys.hasNext()) {
@@ -209,19 +209,19 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
                 if (indentFactor > 0) {
                     writer.write('\n');
                 }
-                JsonUtil.indent(writer, newindent);
-                writer.write(JsonUtil.quote(key.toString()));
+                JsonUtils.indent(writer, newindent);
+                writer.write(JsonUtils.quote(key.toString()));
                 writer.write(':');
                 if (indentFactor > 0) {
                     writer.write(' ');
                 }
-                JsonUtil.writeValue(writer, map.get(key), indentFactor, newindent);
+                JsonUtils.writeValue(writer, map.get(key), indentFactor, newindent);
                 commanate = true;
             }
             if (indentFactor > 0) {
                 writer.write('\n');
             }
-            JsonUtil.indent(writer, indent);
+            JsonUtils.indent(writer, indent);
         }
         writer.write('}');
         return writer;
@@ -243,7 +243,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         Object value = map.get(key);
         try {
             if (value instanceof Json || value instanceof Map || value instanceof Collection) {
-                return JsonUtil.parseJsonObjectOrArray(value);
+                return JsonUtils.parseJsonObjectOrArray(value);
             }
             return value;
         } catch (JsonException e) {
@@ -262,7 +262,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public boolean getBoolean(String key) throws JsonException {
-        return JsonUtil.parseBoolean(this.get(key));
+        return JsonUtils.parseBoolean(this.get(key));
     }
 
     public Boolean tryGetBoolean(String key) {
@@ -291,7 +291,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * be parsed as Double.
      */
     public double getDouble(String key) throws JsonException {
-        return JsonUtil.parseDouble(this.get(key));
+        return JsonUtils.parseDouble(this.get(key));
     }
 
     public Double tryGetDouble(String key) {
@@ -321,7 +321,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public int getInt(String key) throws JsonException {
-        return JsonUtil.parseInt(this.get(key));
+        return JsonUtils.parseInt(this.get(key));
     }
 
     public Integer tryGetInt(String key) {
@@ -351,7 +351,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonArray getJsonArray(String key) throws JsonException {
-        return JsonUtil.parseJsonArray(this.get(key));
+        return JsonUtils.parseJsonArray(this.get(key));
     }
 
     public JsonArray tryGetJsonArray(String key) {
@@ -373,7 +373,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public JsonObject getJsonObject(String key) throws JsonException {
-        return JsonUtil.parseJsonObject(map.get(key));
+        return JsonUtils.parseJsonObject(map.get(key));
     }
 
     public JsonObject tryGetJsonObject(String key) {
@@ -400,7 +400,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @throws JsonException
      */
     public long getLong(String key) throws JsonException {
-        return JsonUtil.parseLong(this.get(key));
+        return JsonUtils.parseLong(this.get(key));
     }
 
     public Long tryGetLong(String key) {
@@ -430,7 +430,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      */
     public String getString(String key) throws JsonException {
         if (containsKey(key)) {
-            return JsonUtil.parseString(this.get(key));
+            return JsonUtils.parseString(this.get(key));
         } else {
             throw new JsonException("No key: " + key);
         }
@@ -458,7 +458,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             throw new NullPointerException("Null key.");
         }
         try {
-            JsonUtil.testValidity(value);
+            JsonUtils.testValidity(value);
         } catch (JsonException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -510,7 +510,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     }
 
     private Object query(Object value, String jPath) throws JsonException {
-        String[] pathSplit = JsonUtil.splitJPath(jPath);
+        String[] pathSplit = JsonUtils.splitJPath(jPath);
         String key = pathSplit[0];
 
         Object value2 = null;
@@ -544,7 +544,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public String tryQueryJsonPathString(String jPath) {
         try {
-            return JsonUtil.parseString(queryJsonPath(jPath));
+            return JsonUtils.parseString(queryJsonPath(jPath));
         } catch (Exception e) {
             return null;
         }
@@ -552,7 +552,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Double tryQueryJsonPathDouble(String jPath) {
         try {
-            return JsonUtil.parseDouble(queryJsonPath(jPath));
+            return JsonUtils.parseDouble(queryJsonPath(jPath));
         } catch (Exception e) {
             return null;
         }
@@ -560,7 +560,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Boolean tryQueryJsonPathBoolean(String jPath) {
         try {
-            return JsonUtil.parseBoolean(queryJsonPath(jPath));
+            return JsonUtils.parseBoolean(queryJsonPath(jPath));
         } catch (Exception e) {
             return null;
         }
@@ -568,7 +568,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Integer tryQueryJsonPathInt(String jPath) {
         try {
-            return JsonUtil.parseInt(queryJsonPath(jPath));
+            return JsonUtils.parseInt(queryJsonPath(jPath));
         } catch (Exception e) {
             return null;
         }
@@ -576,7 +576,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public JsonArray tryQueryJsonPathJsonArray(String jPath) {
         try {
-            return JsonUtil.parseJsonArray(queryJsonPath(jPath));
+            return JsonUtils.parseJsonArray(queryJsonPath(jPath));
         } catch (Exception e) {
             return null;
         }
@@ -584,7 +584,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public JsonObject tryQueryJsonPathJsonObject(String jPath) {
         try {
-            return JsonUtil.parseJsonObject(queryJsonPath(jPath));
+            return JsonUtils.parseJsonObject(queryJsonPath(jPath));
         } catch (Exception e) {
             return null;
         }
@@ -608,7 +608,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public boolean queryBoolean(String jPath) throws JsonException {
-        return JsonUtil.parseBoolean(query(jPath));
+        return JsonUtils.parseBoolean(query(jPath));
     }
 
     public Boolean tryQueryBoolean(String jPath) {
@@ -621,7 +621,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public double queryDouble(String jPath) throws JsonException {
-        return JsonUtil.parseDouble(query(jPath));
+        return JsonUtils.parseDouble(query(jPath));
     }
 
     public Double tryQueryDouble(String jPath) {
@@ -634,7 +634,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public int queryInt(String jPath) throws JsonException {
-        return JsonUtil.parseInt(query(jPath));
+        return JsonUtils.parseInt(query(jPath));
     }
 
     public Integer tryQueryInt(String jPath) {
@@ -647,7 +647,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public JsonArray queryJsonArray(String jPath) throws JsonException {
-        return JsonUtil.parseJsonArray(query(jPath));
+        return JsonUtils.parseJsonArray(query(jPath));
     }
 
     public JsonArray tryQueryJsonArray(String jPath) {
@@ -660,7 +660,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public JsonObject queryJsonObject(String jPath) throws JsonException {
-        return JsonUtil.parseJsonObject(query(jPath));
+        return JsonUtils.parseJsonObject(query(jPath));
     }
 
     public JsonObject tryQueryJsonObject(String jPath) {
@@ -673,7 +673,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public long queryLong(String jPath) throws JsonException {
-        return JsonUtil.parseLong(query(jPath));
+        return JsonUtils.parseLong(query(jPath));
     }
 
     public Long tryQueryLong(String jPath) {
@@ -686,7 +686,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     @Override
     public String queryString(String jPath) throws JsonException {
-        return JsonUtil.parseString(query(jPath));
+        return JsonUtils.parseString(query(jPath));
     }
 
     public String tryQueryString(String jPath) {

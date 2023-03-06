@@ -2,6 +2,7 @@ package ws.palladian.retrieval.parser;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 

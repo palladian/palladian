@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
 import java.io.IOException;
 import java.io.Writer;

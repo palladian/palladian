@@ -11,7 +11,7 @@ import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.WebImage;
 

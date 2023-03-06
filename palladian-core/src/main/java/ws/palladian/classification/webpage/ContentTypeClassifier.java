@@ -9,7 +9,7 @@ import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.resources.WebImage;

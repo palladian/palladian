@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.HttpResult;
 
 import java.io.*;

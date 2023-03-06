@@ -1,6 +1,6 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 
 /**
  * The JSONException is thrown by the JSON.org classes when things are amiss.

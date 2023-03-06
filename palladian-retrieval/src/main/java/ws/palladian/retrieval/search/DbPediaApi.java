@@ -2,7 +2,7 @@ package ws.palladian.retrieval.search;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonObject;
 
 /**
  * Query the SPARQL DBpedia API.

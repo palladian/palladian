@@ -1,7 +1,7 @@
 package ws.palladian.classification.text.evaluation;
 
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.Optional;
 

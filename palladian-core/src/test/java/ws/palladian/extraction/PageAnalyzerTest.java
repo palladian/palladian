@@ -6,7 +6,7 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.io.FileNotFoundException;

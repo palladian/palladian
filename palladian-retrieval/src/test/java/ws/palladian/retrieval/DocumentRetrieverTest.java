@@ -6,7 +6,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.parser;
+package ws.palladian.persistence;
 
 public class ParserException extends Exception {
 

@@ -5,8 +5,8 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.Optional;
 

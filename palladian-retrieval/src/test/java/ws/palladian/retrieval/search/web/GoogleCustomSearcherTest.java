@@ -3,7 +3,7 @@ package ws.palladian.retrieval.search.web;
 import org.junit.Test;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.parser.json.JsonException;
+import ws.palladian.persistence.json.JsonException;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.SearcherException;
 

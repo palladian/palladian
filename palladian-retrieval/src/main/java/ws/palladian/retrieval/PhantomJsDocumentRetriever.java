@@ -5,8 +5,8 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.retrieval.parser.ParserFactory;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;

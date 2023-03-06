@@ -13,7 +13,7 @@
 //import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
-//import ws.palladian.retrieval.parser.json.JsonException;
+//import ws.palladian.persistence.json.JsonException;
 //
 //import java.io.File;
 //import java.io.IOException;

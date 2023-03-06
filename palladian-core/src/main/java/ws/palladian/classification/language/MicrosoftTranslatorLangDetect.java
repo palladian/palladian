@@ -7,8 +7,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.FormEncodedHttpEntity.Builder;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.concurrent.TimeUnit;
 

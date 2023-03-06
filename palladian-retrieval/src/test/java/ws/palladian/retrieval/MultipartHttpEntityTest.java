@@ -2,8 +2,8 @@ package ws.palladian.retrieval;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.io.IOException;
 import java.io.InputStream;

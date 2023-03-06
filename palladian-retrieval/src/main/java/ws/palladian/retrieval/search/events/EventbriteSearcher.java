@@ -9,9 +9,9 @@ import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.DocumentRetriever;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.*;

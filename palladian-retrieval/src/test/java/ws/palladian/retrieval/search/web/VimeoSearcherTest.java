@@ -4,7 +4,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.videos.VimeoSearcher;
 

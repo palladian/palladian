@@ -5,7 +5,7 @@ import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 
 import java.util.ArrayList;
 import java.util.Collections;

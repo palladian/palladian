@@ -6,7 +6,7 @@ import org.w3c.dom.Document;
 import ws.palladian.extraction.date.dates.MetaDate;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.io.FileNotFoundException;

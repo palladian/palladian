@@ -23,9 +23,9 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.ImageSizeComparator;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 

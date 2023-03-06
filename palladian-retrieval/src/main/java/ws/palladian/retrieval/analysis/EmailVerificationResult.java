@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.analysis;
 
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonObject;
 
 public class EmailVerificationResult {
     public enum VerfificationResult {

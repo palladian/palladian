@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.io.File;
 import java.io.IOException;

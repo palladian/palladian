@@ -1,10 +1,9 @@
 package ws.palladian.retrieval.search.intents;
 
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class SearchIntent {
     protected Integer id;

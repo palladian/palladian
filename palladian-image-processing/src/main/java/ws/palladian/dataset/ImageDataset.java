@@ -1,8 +1,8 @@
 package ws.palladian.dataset;
 
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.io.File;
 import java.io.IOException;

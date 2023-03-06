@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
 import java.io.*;
 
@@ -35,7 +35,6 @@ SOFTWARE.
  * @version 2012-02-16
  */
 class JsonTokener {
-
     private long character;
     private boolean eof;
     private long index;
@@ -370,7 +369,7 @@ class JsonTokener {
         if ("".equals(string)) {
             throw this.syntaxError("Missing value");
         }
-        return JsonUtil.stringToValue(string);
+        return JsonUtils.stringToValue(string);
     }
 
     /**

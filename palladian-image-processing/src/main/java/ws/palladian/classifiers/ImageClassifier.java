@@ -64,7 +64,7 @@
 //import ws.palladian.helper.StopWatch;
 //import ws.palladian.helper.collection.CollectionHelper;
 //import ws.palladian.helper.io.FileHelper;
-//import ws.palladian.retrieval.parser.json.JsonException;
+//import ws.palladian.persistence.json.JsonException;
 //
 //import com.amazonaws.auth.AWSCredentials;
 //import com.amazonaws.auth.AWSStaticCredentialsProvider;

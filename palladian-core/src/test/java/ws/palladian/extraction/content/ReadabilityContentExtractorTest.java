@@ -3,7 +3,7 @@ package ws.palladian.extraction.content;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.parser.ParserException;
+import ws.palladian.persistence.ParserException;
 
 import java.io.FileNotFoundException;
 

@@ -3,7 +3,7 @@ package ws.palladian.retrieval.ranking.services;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.Validate;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;

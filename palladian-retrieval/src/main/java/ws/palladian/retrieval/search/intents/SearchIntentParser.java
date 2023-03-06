@@ -8,9 +8,9 @@ import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.helper.normalization.UnitNormalizer;
 import ws.palladian.helper.normalization.UnitTranslator;
-import ws.palladian.retrieval.parser.json.JsonArray;
-import ws.palladian.retrieval.parser.json.JsonException;
-import ws.palladian.retrieval.parser.json.JsonObject;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.io.File;
 import java.util.ArrayList;
