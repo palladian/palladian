@@ -501,7 +501,7 @@ public final class UrlHelper {
             } else if (keyValue.length == 1) {
                 value = null;
             } else {
-                value = tryDecodeParameter(param.substring(key.length() + 1));
+                value = tryDecodeParameter(param.substring(keyValue[0].length() + 1));
             }
             params.add(Pair.of(key, value));
         }

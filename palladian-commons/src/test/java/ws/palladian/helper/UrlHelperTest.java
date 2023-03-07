@@ -259,6 +259,14 @@ public class UrlHelperTest {
         assertEquals(Pair.of("go", "Artikel"), params.get(1));
         // CollectionHelper.print(params);
 
+        url = "https://ksuster.ch/portraet/auszeichnungen?tx_news_pi1%5Bcontroller%5D=News&tx_news_pi1%5BcurrentPage%5D=3&cHash=98018db6c83d2c41608f56c297779755";
+        params = UrlHelper.parseParams(url);
+        // CollectionHelper.print(params);
+        assertEquals(3, params.size());
+        assertEquals(Pair.of("tx_news_pi1[controller]", "News"), params.get(0));
+        assertEquals(Pair.of("tx_news_pi1[currentPage]", "3"), params.get(1));
+        assertEquals(Pair.of("cHash", "98018db6c83d2c41608f56c297779755"), params.get(2));
+
         url = "https://xxxxxxxx.de/gp/associates/network/reports/report.html?__mk_de_DE=xxxxxxtag=&reportType=earningsReport&program=all&deviceType=all&periodTyp";
         params = UrlHelper.parseParams(url);
         // CollectionHelper.print(params);
