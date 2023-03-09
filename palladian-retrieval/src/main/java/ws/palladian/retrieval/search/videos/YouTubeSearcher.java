@@ -130,7 +130,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     /**
      * The API key.
      */
-    private final String apiKey;
+    private String apiKey;
 
     private final HttpRetriever retriever;
 
@@ -161,6 +161,10 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     @Override
     public String getName() {
         return SEARCHER_NAME;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 
     public SearchResults<WebVideo> getVideosFromPlaylists(String playlistId) throws SearcherException {
