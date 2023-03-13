@@ -1,11 +1,13 @@
 package ws.palladian.retrieval.search.web;
 
 import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.DocumentRetriever;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created 15.02.2023
  */
 public class OpenAiApi {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAiApi.class);
+
     private final String apiKey;
 
     public static final String CONFIG_API_KEY = "api.openai.apiKey";
@@ -61,15 +65,15 @@ public class OpenAiApi {
     }
 
     public String ask(String text) throws Exception {
-        return ask(text, null);
+        return ask(text, "text-davinci-003", null);
     }
 
-    public String ask(String text, AtomicInteger usedTokens) throws Exception {
+    public String ask(String text, String modelName, AtomicInteger usedTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
         requestJson.put("prompt", text);
-        requestJson.put("model", "text-davinci-003");
+        requestJson.put("model", modelName);
         requestJson.put("temperature", 1.);
         requestJson.put("max_tokens", 64);
         requestJson.put("top_p", 1);
@@ -89,5 +93,34 @@ public class OpenAiApi {
         }
 
         return StringHelper.clean(answer);
+    }
+
+    /**
+     * @param prompt The textual prompt, e.g. "a black dog with a Christmas hat on"
+     * @param size   The picture size, must be either '256x256', '512x512', or '1024x1024'
+     */
+    public String createImage(String prompt, String size) {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        documentRetriever.setGlobalHeaders(MapBuilder.createPut("Authorization", "Bearer " + apiKey).create());
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.put("prompt", prompt);
+        jsonObject.put("n", 1);
+        jsonObject.put("size", size);
+        String responseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/images/generations", jsonObject, false);
+        System.out.println(responseText);
+
+        JsonObject responseJson = JsonObject.tryParse(responseText);
+        if (responseJson == null) {
+            LOGGER.error("could not generate image " + responseText);
+            return null;
+        }
+        JsonArray dataArray = responseJson.tryGetJsonArray("data");
+        if (dataArray == null || dataArray.isEmpty()) {
+            LOGGER.error("could not generate image " + responseText);
+            return null;
+        }
+        String imageUrl = dataArray.tryGetJsonObject(0).tryGetString("url");
+        return imageUrl;
     }
 }
