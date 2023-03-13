@@ -8,7 +8,9 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created 15.02.2023
  */
 public class OpenAiApi {
+    private static final TimeWindowRequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 3500);
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAiApi.class);
 
     private final String apiKey;
@@ -42,6 +45,7 @@ public class OpenAiApi {
         JsonObject requestJson = new JsonObject();
         requestJson.put("input", text);
         requestJson.put("model", "text-embedding-ada-002");
+        THROTTLE.hold();
         String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/embeddings", requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -64,11 +68,53 @@ public class OpenAiApi {
         return embedding;
     }
 
-    public String ask(String text) throws Exception {
-        return ask(text, "text-davinci-003", null);
+    public String chat(String prompt) throws Exception {
+        return chat(prompt, 1.0, null);
     }
 
-    public String ask(String text, String modelName, AtomicInteger usedTokens) throws Exception {
+    public String chat(String prompt, double temperature, AtomicInteger usedTokens) throws Exception {
+        JsonObject message = new JsonObject();
+        message.put("role", "user");
+        message.put("content", prompt);
+        JsonArray messages = new JsonArray();
+        messages.add(message);
+
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
+        JsonObject requestJson = new JsonObject();
+        requestJson.put("messages", messages);
+        requestJson.put("model", "gpt-3.5-turbo");
+        requestJson.put("temperature", temperature);
+        THROTTLE.hold();
+        String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/chat/completions", requestJson, false);
+        JsonObject responseJson = JsonObject.tryParse(postResponseText);
+        if (responseJson == null) {
+            throw new Exception("Could not parse json " + postResponseText);
+        }
+        if (responseJson.tryQueryString("error/message") != null) {
+            throw new Exception(responseJson.tryQueryString("error/message"));
+        }
+
+        String content = null;
+
+        try {
+            content = StringHelper.clean(responseJson.tryQueryString("choices[0]/message/content"));
+
+            if (usedTokens != null) {
+                usedTokens.addAndGet(responseJson.tryQueryInt("usage/total_tokens"));
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+
+        return content;
+    }
+
+    public String completeText(String text) throws Exception {
+        return completeText(text, "text-davinci-003", null);
+    }
+
+    public String completeText(String text, String modelName, AtomicInteger usedTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
@@ -77,6 +123,7 @@ public class OpenAiApi {
         requestJson.put("temperature", 1.);
         requestJson.put("max_tokens", 64);
         requestJson.put("top_p", 1);
+        THROTTLE.hold();
         String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/completions", requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -107,6 +154,7 @@ public class OpenAiApi {
         jsonObject.put("prompt", prompt);
         jsonObject.put("n", 1);
         jsonObject.put("size", size);
+        THROTTLE.hold();
         String responseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/images/generations", jsonObject, false);
         System.out.println(responseText);
 
@@ -120,7 +168,6 @@ public class OpenAiApi {
             LOGGER.error("could not generate image " + responseText);
             return null;
         }
-        String imageUrl = dataArray.tryGetJsonObject(0).tryGetString("url");
-        return imageUrl;
+        return dataArray.tryGetJsonObject(0).tryGetString("url");
     }
 }
