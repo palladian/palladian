@@ -290,7 +290,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (document == null) {
             return false;
         }
-        String s = HtmlHelper.documentToReadableText(document);
+        String s = HtmlHelper.getInnerXml(document);
         if (StringHelper.containsAny(s, getBadDocumentIndicatorTexts())) {
             return false;
         }
