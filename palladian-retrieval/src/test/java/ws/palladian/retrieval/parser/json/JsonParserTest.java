@@ -5,6 +5,8 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
 
 /**
@@ -36,7 +38,7 @@ public class JsonParserTest {
         assertNotNull(jsonArray);
         assertNull(jsonArray.tryGetString(3));
 
-//        assertNull(jsonObject.query("/entry/d"));
+        //        assertNull(jsonObject.query("/entry/d"));
         assertNull(jsonObject.getJsonObject("entry").tryGetString("d"));
 
         // it should be possible, to get "entry/a" as String instead of int. However, it is not allowed, to query a JSON
@@ -99,4 +101,11 @@ public class JsonParserTest {
         }
     }
 
+    @Test
+    public void testGetArrayList() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.put("list", Arrays.asList(1, 2, 3));
+        JsonArray list = jsonObject.tryGetJsonArray("list");
+        assertNotNull(list);
+    }
 }
