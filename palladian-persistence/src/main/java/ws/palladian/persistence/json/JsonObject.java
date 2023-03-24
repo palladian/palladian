@@ -87,6 +87,9 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
      * @return The {@link JsonObject}, or <code>null</code> in case it could not be parsed.
      */
     public static JsonObject tryParse(String source) {
+        if (source == null) {
+            return null;
+        }
         try {
             return new JsonObject(source);
         } catch (Exception e) {
