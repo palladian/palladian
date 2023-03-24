@@ -28,12 +28,15 @@ public class JsonDatabase {
     private final Map<String, Map<String, List<String>>> indexMap = new HashMap<>();
     private final Map<String, List<String>> indexedFieldsForCollection = new HashMap<>();
 
-    public JsonDatabase(String path) {
-        this(path, new HashMap<>());
+    private final boolean useFolders;
+
+    public JsonDatabase(String path, boolean useFolders) {
+        this(path, new HashMap<>(), useFolders);
     }
 
-    public JsonDatabase(String path, Map<String, List<String>> collectionFieldIndexMap) {
+    public JsonDatabase(String path, Map<String, List<String>> collectionFieldIndexMap, boolean useFolders) {
         this.rootPath = path;
+        this.useFolders = useFolders;
         if (!rootPath.endsWith("/")) {
             rootPath += "/";
         }
@@ -49,24 +52,17 @@ public class JsonDatabase {
         this.loadIndexes();
     }
 
-    /**
-     * Open the database for some collections. This creates default indexes on these collections for upserts to work.
-     */
-    public JsonDatabase(String path, String... collectionName) {
-        this.rootPath = path;
-        if (!rootPath.endsWith("/")) {
-            rootPath += "/";
-        }
-        FileHelper.createDirectory(rootPath);
-        for (String collection : collectionName) {
-            createIndex(collection, "_id");
-        }
-        this.loadIndexes();
-    }
-
     private synchronized void loadIndexes() {
         // read all indexes
-        File[] indexFiles = FileHelper.getFilesRecursive(rootPath, "_idx-");
+        List<File> indexFiles = new ArrayList<>();
+        File folder = new File(rootPath);
+        if (folder.exists() && folder.isDirectory()) {
+            File[] collectionDirectories = folder.listFiles();
+            for (File collectionDirectory : collectionDirectories) {
+                File[] collectionIndexFiles = FileHelper.getFiles(rootPath + "/" + collectionDirectory.getName(), "_idx-");
+                indexFiles.addAll(Arrays.asList(collectionIndexFiles));
+            }
+        }
         for (File indexFile : indexFiles) {
             String text = FileHelper.tryReadFileToStringNoReplacement(indexFile);
             JsonObject indexJson = JsonObject.tryParse(text);
@@ -96,7 +92,10 @@ public class JsonDatabase {
             id = jsonObject.tryGetString("_id");
         }
         String fileName = id + ".json";
-        String filePath = rootPath + collectionName + "/" + fileName;
+
+        String folderedPath = getFolderedPath(fileName);
+        String filePath = rootPath + collectionName + "/" + folderedPath;
+
         boolean writeSuccess = FileHelper.writeToFile(filePath, jsonObject.toString(2));
 
         // update index
@@ -105,12 +104,32 @@ public class JsonDatabase {
         return writeSuccess;
     }
 
-    //    public synchronized boolean upsert(String collectionName, JsonObject jsonObject) {
-    //        if (jsonObject.containsKey("_id")) {
-    //            return upsert(collectionName, jsonObject);
-    //        }
-    //        return add(collectionName, jsonObject);
-    //    }
+    /**
+     * Directories with millions of files become hard to read and write to. Therefore, there is an option to create "random" subfolders to distribute the files.
+     */
+    private String getFolderedPath(String filename) {
+        if (!useFolders) {
+            return filename;
+        }
+        int i = 1;
+        int count = 0;
+        for (char c : filename.toCharArray()) {
+            if (count++ % 2 == 0 && count <= 8) {
+                i *= c;
+            } else {
+                i += c;
+            }
+        }
+        while (i < 10000) {
+            i *= 10;
+        }
+        while (i >= 10000) {
+            i %= 10000;
+        }
+
+        String folderName = i + "/";
+        return folderName + filename;
+    }
 
     public synchronized boolean upsert(String collectionName, JsonObject jsonDocument) {
         return add(collectionName, jsonDocument);
@@ -134,7 +153,7 @@ public class JsonDatabase {
             List<JsonObject> jsonObjects = new ArrayList<>();
             for (int i = 0; i < objects.size(); i++) {
                 String filePath = objects.get(i);
-                jsonObjects.add(JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + filePath))));
+                jsonObjects.add(JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(filePath)))));
             }
             return jsonObjects;
         }
@@ -144,12 +163,44 @@ public class JsonDatabase {
 
     public boolean delete(String collectionName, String id) {
         String fileName = id + ".json";
-        String filePath = rootPath + collectionName + "/" + fileName;
+        String filePath = rootPath + collectionName + "/" + getFolderedPath(fileName);
         return FileHelper.delete(filePath);
     }
 
     public int countCollectionEntries(String collection) {
-        return FileHelper.getFiles(rootPath + collection).length;
+        int count = 0;
+        File folder = new File(rootPath + collection);
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            for (File file : files) {
+                // count files within directories (if folders are used)
+                if (file.isDirectory()) {
+                    count += FileHelper.getFiles(rootPath + collection + "/" + file.getName()).length;
+                } else {
+                    // count files if no folders are used
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private List<File> getFiles(String collection) {
+        List<File> files = new ArrayList<>();
+        File folder = new File(rootPath + collection);
+        if (folder.exists() && folder.isDirectory()) {
+            File[] folderFiles = folder.listFiles();
+            ProgressMonitor progressMonitor = new ProgressMonitor(folderFiles.length, 0.1, "Getting files in " + collection);
+            for (File file : folderFiles) {
+                progressMonitor.incrementAndPrintProgress();
+                if (file.isDirectory()) {
+                    files.addAll(Arrays.asList(FileHelper.getFiles(rootPath + collection + "/" + file.getName())));
+                } else {
+                    files.add(file);
+                }
+            }
+        }
+        return files;
     }
 
     public JsonDbIterator<File> getAllFiles(String collection) {
@@ -188,9 +239,9 @@ public class JsonDatabase {
     }
 
     public JsonDbIterator<JsonObject> getAll(String collection, int startIndex) {
-        final List<File> collectionFiles = Arrays.stream(FileHelper.getFiles(rootPath + collection)).filter(f -> !f.getName().startsWith("_idx")).collect(Collectors.toList());
+        final List<File> collectionFiles = getFiles(collection);
 
-        JsonDbIterator<JsonObject> jsonDbIterator = new JsonDbIterator<JsonObject>() {
+        JsonDbIterator<JsonObject> jsonDbIterator = new JsonDbIterator<>() {
             @Override
             public int getTotalCount() {
                 return collectionFiles.size();
@@ -267,27 +318,25 @@ public class JsonDatabase {
     //    }
 
     public JsonObject getById(String collection, String id) {
-        return JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + id + ".json")));
+        return JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(id + ".json"))));
     }
 
-    //    public List<JsonObject> get(String collection, String field, String value) {
-    //        List<JsonObject> objs = new ArrayList<>();
-    //
-    //        // check if we have an index on the field
-    //        List<String> indexJsonPaths = indexMap.get(collection + "_idx-" + field);
-    //        if (indexJsonPaths != null) {
-    //            for (String indexJsonPath : indexJsonPaths) {
-    //                objs.add(JsonObject.tryParse(FileHelper.tryReadFileToString(rootPath + collection + "/" + indexJsonPath)));
-    //            }
-    //        }
-    //
-    //        return objs;
-    //    }
+    public synchronized void rebuildInitializedIndexes() {
+        for (Map.Entry<String, List<String>> collectionKeysEntry : indexedFieldsForCollection.entrySet()) {
+            for (String field : collectionKeysEntry.getValue()) {
+                createIndex(collectionKeysEntry.getKey(), field, false);
+            }
+        }
+    }
 
     public synchronized void createIndex(String collection, String field) {
+        createIndex(collection, field, true);
+    }
+
+    public synchronized void createIndex(String collection, String field, boolean reloadIndexes) {
         String indexFilePath = rootPath + collection + "/_idx-" + field + ".json";
         JsonObject indexJson = new JsonObject();
-        final List<File> files = Arrays.stream(FileHelper.getFiles(rootPath + collection)).filter(f -> !f.getName().startsWith("_idx")).collect(Collectors.toList());
+        final List<File> files = getFiles(collection);
 
         ProgressMonitor pm = new ProgressMonitor(files.size(), 1.0, "Creating Index " + field);
         for (File file : files) {
@@ -324,11 +373,13 @@ public class JsonDatabase {
 
         FileHelper.writeToFile(indexFilePath, indexJson.toString(2));
 
-        this.loadIndexes();
+        if (reloadIndexes) {
+            this.loadIndexes();
+        }
     }
 
     private void updateIndex(String collection, JsonObject jsonObject, String filePath) {
-        for (String indexedField : indexedFieldsForCollection.get(collection)) {
+        for (String indexedField : indexedFieldsForCollection.getOrDefault(collection, Collections.emptyList())) {
             List<String> valuesInObject = new ArrayList<>();
             Object value = jsonObject.get(indexedField);
             if (value instanceof Collection) {
