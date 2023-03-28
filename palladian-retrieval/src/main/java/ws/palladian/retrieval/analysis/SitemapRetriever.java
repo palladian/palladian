@@ -11,10 +11,10 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.*;
@@ -207,7 +207,7 @@ public class SitemapRetriever {
         }
     }
 
-    private Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
+    public Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
         Pattern pattern = PatternHelper.compileOrGet("<!\\[CDATA\\[([^<>]+)]\\]>"); // CDATA can result in the extracted urls being empty, remove it in advance
         Matcher matcher = pattern.matcher(sitemapText);
         sitemapText = matcher.replaceAll("$1");
