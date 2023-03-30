@@ -274,7 +274,7 @@ public class JsonDatabase {
         Map<String, List<String>> indexContent = indexMap.get(collection + "_idx-" + field);
         final List<String> collectionFiles = indexContent.get(value);
 
-        JsonDbIterator<JsonObject> jsonDbIterator = new JsonDbIterator<JsonObject>() {
+        JsonDbIterator<JsonObject> jsonDbIterator = new JsonDbIterator<>() {
             @Override
             public boolean hasNext() {
                 return collectionFiles.size() > index.get();
@@ -289,7 +289,7 @@ public class JsonDatabase {
                 if (collectionFilePath == null) {
                     return null;
                 }
-                String text = FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + collectionFilePath));
+                String text = FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(collectionFilePath)));
                 return JsonObject.tryParse(text);
             }
         };
