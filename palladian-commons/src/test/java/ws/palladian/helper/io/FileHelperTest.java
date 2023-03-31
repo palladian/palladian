@@ -14,7 +14,6 @@ import static org.junit.Assert.*;
  * @author David Urbansky
  */
 public class FileHelperTest {
-
     @Test
     public void testGetFileName() {
         assertEquals("ConvocationProgram2017_WEB",
@@ -71,4 +70,13 @@ public class FileHelperTest {
         assertFalse(FileHelper.getTempFile().equals(FileHelper.getTempFile()));
     }
 
+    @Test
+    public void testL4z() {
+        String string = "test string 123\nnext line";
+        String filePath = "test.lz4";
+        FileHelper.writeToFile(filePath, string);
+        String actual = FileHelper.tryReadFileToStringNoReplacement(filePath);
+        assertEquals(string + "\n", actual);
+        FileHelper.delete(filePath);
+    }
 }
