@@ -2143,10 +2143,10 @@ public final class FileHelper {
         }
         StopWatch stopWatch2 = new StopWatch();
         for (String randomText : randomTexts) {
-            //            FileHelper.writeToFile("data/temp/test.gz", randomText);
-            //            FileHelper.tryReadFileToStringNoReplacement("data/temp/test.gz");
-            FileHelper.writeToFile("data/temp/test.lz4", randomText);
-            FileHelper.tryReadFileToStringNoReplacement("data/temp/test.lz4");
+            FileHelper.writeToFile("data/temp/test.gz", randomText);
+            FileHelper.tryReadFileToStringNoReplacement("data/temp/test.gz");
+            //            FileHelper.writeToFile("data/temp/test.lz4", randomText);
+            //            FileHelper.tryReadFileToStringNoReplacement("data/temp/test.lz4");
         }
         System.out.println(stopWatch2.getElapsedTimeString());
         System.exit(0);

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.tuple.Pair;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Predicates;
 
@@ -938,6 +939,17 @@ public final class CollectionHelper {
         return intersection;
     }
 
+    public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
+        if (setA.size() < setB.size()) {
+            setA.retainAll(setB);
+        } else {
+            setB.retainAll(setA);
+            setA = setB;
+        }
+
+        return setA;
+    }
+
     /**
      * <p>
      * Shuffle the content of the given array.
@@ -1091,4 +1103,21 @@ public final class CollectionHelper {
         return map;
     }
 
+    public static void main(String[] args) {
+        IntOpenHashSet setA = new IntOpenHashSet();
+        IntOpenHashSet setB = new IntOpenHashSet();
+        for (int i = (int) (Math.random() * 100000); i < Math.random() * 1000000000; i++) {
+            setA.add(i);
+        }
+        for (int i = (int) (Math.random() * 100000); i < Math.random() * 10000000; i++) {
+            setB.add(i);
+        }
+        StopWatch stopWatch = new StopWatch();
+        for (int j = 0; j < 100000; j++) {
+            //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
+            AbstractIntSet newSet = CollectionHelper.intersectFastWithModification(setA, setB);
+            //            setA.retainAll(setB);
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+    }
 }
