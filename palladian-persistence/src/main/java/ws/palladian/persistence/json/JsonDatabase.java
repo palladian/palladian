@@ -208,9 +208,9 @@ public class JsonDatabase {
     }
 
     public JsonDbIterator<File> getAllFiles(String collection, int startIndex) {
-        final List<File> collectionFiles = Arrays.stream(FileHelper.getFiles(rootPath + collection)).filter(f -> !f.getName().startsWith("_idx")).collect(Collectors.toList());
+        final List<File> collectionFiles = getFiles(collection).stream().filter(f -> !f.getName().startsWith("_idx")).collect(Collectors.toList());
 
-        JsonDbIterator<File> jsonDbIterator = new JsonDbIterator<File>() {
+        JsonDbIterator<File> jsonDbIterator = new JsonDbIterator<>() {
             @Override
             public int getTotalCount() {
                 return collectionFiles.size();
@@ -230,6 +230,7 @@ public class JsonDatabase {
             }
         };
         jsonDbIterator.setIndex(startIndex);
+        jsonDbIterator.setTotalCount(collectionFiles.size());
 
         return jsonDbIterator;
     }
@@ -266,6 +267,7 @@ public class JsonDatabase {
             }
         };
         jsonDbIterator.setIndex(startIndex);
+        jsonDbIterator.setTotalCount(collectionFiles.size());
 
         return jsonDbIterator;
     }
