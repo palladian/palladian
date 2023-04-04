@@ -197,6 +197,12 @@ public class WordTransformer {
         return IRREGULAR_NOUNS;
     }
 
+    public void addGermanWords(Collection<String> germanWords) {
+        Set<String> uniqueWords = new HashSet<>(germanWords);
+        GERMAN_WORDS.addAll(uniqueWords);
+        GERMAN_WORDS.sort(StringLengthComparator.INSTANCE);
+    }
+
     /**
      * <p>
      * Transform an English or German plural word to its singular form.
