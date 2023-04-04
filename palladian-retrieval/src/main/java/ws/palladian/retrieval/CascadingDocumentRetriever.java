@@ -33,6 +33,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * If this text is found, we try to resolve a captcha.
      */
     private List<String> badDocumentIndicatorTexts;
+    private List<String> goodDocumentIndicatorTexts;
 
     /**
      * Keep track of failing requests.
@@ -93,6 +94,17 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             this.badDocumentIndicatorTexts = new ArrayList<>();
         }
         badDocumentIndicatorTexts.add(badDocumentIndicatorText);
+    }
+
+    public List<String> getGoodDocumentIndicatorTexts() {
+        return goodDocumentIndicatorTexts != null ? goodDocumentIndicatorTexts : new ArrayList<>(1);
+    }
+
+    public void addGoodDocumentIndicatorText(String goodDocumentIndicatorText) {
+        if (this.goodDocumentIndicatorTexts == null) {
+            this.goodDocumentIndicatorTexts = new ArrayList<>();
+        }
+        goodDocumentIndicatorTexts.add(goodDocumentIndicatorText);
     }
 
     public String getText(String url, List<String> resolvingExplanation) {
@@ -290,7 +302,14 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (document == null) {
             return false;
         }
-        String s = HtmlHelper.documentToReadableText(document);
+        String s = HtmlHelper.getInnerXml(document);
+        if (!getGoodDocumentIndicatorTexts().isEmpty()) {
+            if (StringHelper.containsAny(s, getGoodDocumentIndicatorTexts())) {
+                return true;
+            } else {
+                return false;
+            }
+        }
         if (StringHelper.containsAny(s, getBadDocumentIndicatorTexts())) {
             return false;
         }

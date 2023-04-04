@@ -26,7 +26,7 @@ public class MapMatrix<K, V> extends AbstractMatrix<K, V> implements Serializabl
     private static final long serialVersionUID = 2L;
 
     /** The maps holding the matrix. */
-    private final Object2ObjectOpenHashMap<K, Map<K, V>> matrix = new Object2ObjectOpenHashMap<>();
+    private final Map<K, Map<K, V>> matrix = new Object2ObjectOpenHashMap<>();
 
     /** All keys for the x-axis used in the matrix. */
     private final Set<K> keysX = new ObjectLinkedOpenHashSet<>();

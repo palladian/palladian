@@ -8,10 +8,10 @@ import org.junit.rules.ErrorCollector;
 import org.w3c.dom.Document;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.ResourceHelper;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.WebImage;
 
@@ -57,7 +57,7 @@ public class PalladianContentExtractorTest {
         // Norwegian
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.visma.no/"));
         language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.NORWEGIAN_BOKMAL));
+        collector.checkThat(language, is(Language.NORWEGIAN));
 
         // Slovak
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.nbs.sk/sk/titulna-stranka"));
@@ -103,9 +103,9 @@ public class PalladianContentExtractorTest {
         //collector.checkThat(language, is(Language.DUTCH));
 
         // French
-//        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.orange.fr"));
-//        language = palladianContentExtractor.detectLanguage();
-//        collector.checkThat(language, is(Language.FRENCH));
+        //        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.orange.fr"));
+        //        language = palladianContentExtractor.detectLanguage();
+        //        collector.checkThat(language, is(Language.FRENCH));
 
         // Spanish
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://elpais.com/"));

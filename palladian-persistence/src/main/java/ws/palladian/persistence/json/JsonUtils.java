@@ -41,6 +41,8 @@ public class JsonUtils {
     public static JsonArray parseJsonArray(Object object) throws JsonException {
         if (object == null || object instanceof JsonArray) {
             return (JsonArray) object;
+        } else if (object instanceof Collection) {
+            return new JsonArray((Collection<?>) object);
         }
         throw new JsonException("Could not parse \"" + object + "\" to JSON array.");
     }

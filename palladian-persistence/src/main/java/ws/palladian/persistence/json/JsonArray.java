@@ -62,6 +62,9 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @return The {@link JsonArray}, or <code>null</code> in case it could not be parsed.
      */
     public static JsonArray tryParse(String source) {
+        if (source == null) {
+            return null;
+        }
         try {
             return new JsonArray(source);
         } catch (JsonException e) {

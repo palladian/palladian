@@ -12,11 +12,11 @@ import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
-import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.persistence.ParserException;
-import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.parser.DocumentParser;
+import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import java.io.BufferedInputStream;
@@ -396,7 +396,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
                     // make sure this is not a binary file or anything else we can probably not parse to a document
                     String contentType = Optional.ofNullable(httpResult.getHeaderString("content-type")).orElse("");
-                    if (contentType.toLowerCase().contains("application/")) {
+                    if (contentType.toLowerCase().contains("application/") && !contentType.toLowerCase().contains("xml")) {
                         if (getErrorCallback() != null) {
                             getErrorCallback().accept(new DocumentRetrievalTrial(cleanUrl, httpResult));
                         }

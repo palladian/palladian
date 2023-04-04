@@ -1,5 +1,7 @@
 package ws.palladian.helper.io;
 
+import net.jpountz.lz4.LZ4BlockInputStream;
+import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -9,6 +11,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Collector;
 import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.helper.nlp.LoremIpsumGenerator;
 
 import java.io.*;
 import java.net.URL;
@@ -102,6 +105,7 @@ public final class FileHelper {
         binaryFileExtensions.add("tar");
         binaryFileExtensions.add("tgz");
         binaryFileExtensions.add("gz");
+        binaryFileExtensions.add("lz4");
         binaryFileExtensions.add("exe");
         binaryFileExtensions.add("msi");
         binaryFileExtensions.add("swf");
@@ -241,7 +245,7 @@ public final class FileHelper {
         }
 
         if (lastDot > -1) {
-            fileType = path.substring(lastDot + 1, path.length());
+            fileType = path.substring(lastDot + 1);
         }
 
         // throw away everything after "?" and "&"
@@ -331,9 +335,18 @@ public final class FileHelper {
         }
     }
 
+    public static String tryReadFileToStringNoReplacement(String filePath) {
+        return tryReadFileToStringNoReplacement(new File(filePath));
+    }
+
     public static String tryReadFileToStringNoReplacement(File file) {
+        return tryReadFileToStringNoReplacement(file, DEFAULT_ENCODING);
+
+    }
+
+    public static String tryReadFileToStringNoReplacement(File file, String encoding) {
         try {
-            return readFileToStringNoReplacement(file, DEFAULT_ENCODING);
+            return readFileToStringNoReplacement(file, encoding);
         } catch (Exception e) {
             // ccl
         }
@@ -343,9 +356,22 @@ public final class FileHelper {
     public static String readFileToStringNoReplacement(File file, String encoding) throws IOException {
         if (getFileType(file.getPath()).equalsIgnoreCase("gz")) {
             return readGzippedFileToString(file, encoding);
+        } else if (getFileType(file.getPath()).equalsIgnoreCase("lz4")) {
+            return readLz4FileToString(file, encoding);
         } else {
             return Files.readString(Path.of(file.getPath()), Charset.forName(encoding));
         }
+    }
+
+    private static String readLz4FileToString(File file, String encoding) throws IOException {
+        StringBuilder contents = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new LZ4BlockInputStream(new FileInputStream(file)), encoding))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                contents.append(line).append(NEWLINE_CHARACTER);
+            }
+        }
+        return contents.toString();
     }
 
     private static String readGzippedFileToString(File file, String encoding) throws IOException {
@@ -687,7 +713,9 @@ public final class FileHelper {
      */
     public static boolean writeToFile(String filePath, CharSequence string, String encoding) {
         String fileType = getFileType(filePath);
-        if (fileType.equalsIgnoreCase("gz") || fileType.equalsIgnoreCase("gzip")) {
+        if (fileType.equalsIgnoreCase("lz4")) {
+            return lz4(string, filePath);
+        } else if (fileType.equalsIgnoreCase("gz") || fileType.equalsIgnoreCase("gzip")) {
             return gzip(string, filePath);
         }
 
@@ -719,11 +747,11 @@ public final class FileHelper {
     public static void writeToFile(String filePath, InputStream inputStream) {
         OutputStream out = null;
         try {
-            out = new FileOutputStream(new File(filePath));
+            out = new FileOutputStream(filePath);
             int read = 0;
             byte[] bytes = new byte[1024];
 
-            out = new FileOutputStream(new File(filePath));
+            out = new FileOutputStream(filePath);
             while ((read = inputStream.read(bytes)) != -1) {
                 out.write(bytes, 0, read);
             }
@@ -1000,8 +1028,8 @@ public final class FileHelper {
             if (!outputFile.exists()) {
                 outputFile.mkdirs();
             }
-            in = new FileInputStream(new File(sourceFile));
-            out = new FileOutputStream(new File(destinationFile));
+            in = new FileInputStream(sourceFile);
+            out = new FileOutputStream(destinationFile);
             copy(in, out);
             success = true;
         } catch (IOException e) {
@@ -1060,9 +1088,7 @@ public final class FileHelper {
      * @param dstPath the dst path
      */
     public static void copyDirectory(File srcPath, File dstPath) {
-
         if (srcPath.isDirectory()) {
-
             if (!dstPath.exists()) {
                 dstPath.mkdir();
             }
@@ -1336,7 +1362,6 @@ public final class FileHelper {
         LOGGER.debug("adding directory: " + dir.getName());
 
         for (int i = 0; i < files.length; i++) {
-
             // if the file is directory, use recursion
             if (files[i].isDirectory()) {
                 addDirectorToZip(zout, files[i], files[i].getName() + "/");
@@ -1348,7 +1373,6 @@ public final class FileHelper {
             } catch (IOException ioe) {
                 LOGGER.error("error creating the zip, " + ioe);
             }
-
         }
     }
 
@@ -1361,17 +1385,14 @@ public final class FileHelper {
      * @param targetFilename The name of the target zip file.
      */
     public static void zipFiles(File[] files, String targetFilename) {
-
         FileOutputStream fout = null;
         ZipOutputStream zout = null;
 
         try {
-
             fout = new FileOutputStream(targetFilename);
             zout = new ZipOutputStream(fout);
 
             for (File sourceFile : files) {
-
                 // if the file is directory, use recursion
                 if (sourceFile.isDirectory()) {
                     addDirectorToZip(zout, sourceFile, sourceFile.getName() + "/");
@@ -1379,9 +1400,7 @@ public final class FileHelper {
                 }
 
                 addFileToZip(zout, sourceFile, "");
-
             }
-
         } catch (IOException ioe) {
             LOGGER.error("error creating the zip, " + ioe);
         } finally {
@@ -1411,6 +1430,32 @@ public final class FileHelper {
 
     /**
      * <p>
+     * A fast compression algorithm that encodes and decodes faster than gzip.
+     * See https://www.wikiwand.com/en/LZ4_(compression_algorithm) and https://github.com/lz4/lz4-java
+     * </p>
+     */
+    public static boolean lz4(CharSequence text, String filenameOutput) {
+        boolean success = true;
+
+        LZ4BlockOutputStream outStream = null;
+        try {
+            byte[] data = text.toString().getBytes(DEFAULT_ENCODING);
+
+            outStream = new LZ4BlockOutputStream(new FileOutputStream(filenameOutput));
+            outStream.write(data);
+            outStream.close();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+            success = false;
+        } finally {
+            close(outStream);
+        }
+
+        return success;
+    }
+
+    /**
+     * <p>
      * Zip some text and save to a file. http://www.java2s.com/Tutorial/Java/0180__File/ZipafilewithGZIPOutputStream.htm
      * </p>
      *
@@ -1424,13 +1469,11 @@ public final class FileHelper {
         OutputStream os = null;
         GZIPOutputStream stream = null;
         try {
-
             os = new FileOutputStream(filenameOutput);
             stream = new GZIPOutputStream(os);
             stream.write(text.toString().getBytes(DEFAULT_ENCODING));
             stream.finish();
             stream.close();
-
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
             success = false;
@@ -2093,6 +2136,20 @@ public final class FileHelper {
     }
 
     public static void main(String[] a) throws IOException {
+        List<String> randomTexts = new ArrayList<>();
+        for (int i = 0; i < 5000; i++) {
+            String randomText = LoremIpsumGenerator.getRandomText(5000);
+            randomTexts.add(randomText);
+        }
+        StopWatch stopWatch2 = new StopWatch();
+        for (String randomText : randomTexts) {
+            FileHelper.writeToFile("data/temp/test.gz", randomText);
+            FileHelper.tryReadFileToStringNoReplacement("data/temp/test.gz");
+            //            FileHelper.writeToFile("data/temp/test.lz4", randomText);
+            //            FileHelper.tryReadFileToStringNoReplacement("data/temp/test.lz4");
+        }
+        System.out.println(stopWatch2.getElapsedTimeString());
+        System.exit(0);
         //        String path = FileHelper.class.getResource("/wikipedia_2011_Egyptian_revolution.txt").getFile();
         String path = "/Users/pk/Code/palladian/palladian-commons/src/test/resources/wikipedia_2011_Egyptian_revolution.txt";
         StopWatch stopWatch1 = new StopWatch();
