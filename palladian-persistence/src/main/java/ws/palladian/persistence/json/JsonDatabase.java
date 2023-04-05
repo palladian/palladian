@@ -274,7 +274,7 @@ public class JsonDatabase {
 
     public JsonDbIterator<JsonObject> getAll(String collection, String field, String value) {
         Map<String, List<String>> indexContent = indexMap.get(collection + "_idx-" + field);
-        final List<String> collectionFiles = indexContent.get(value);
+        final List<String> collectionFiles = new ArrayList<>(indexContent.get(value)); // need to make a copy otherwise it may grow when updating the index
 
         JsonDbIterator<JsonObject> jsonDbIterator = new JsonDbIterator<>() {
             @Override
@@ -296,11 +296,7 @@ public class JsonDatabase {
             }
         };
         jsonDbIterator.setIndex(0);
-        if (collectionFiles != null) {
-            jsonDbIterator.setTotalCount(collectionFiles.size());
-        } else {
-            jsonDbIterator.setTotalCount(0);
-        }
+        jsonDbIterator.setTotalCount(collectionFiles.size());
 
         return jsonDbIterator;
     }
