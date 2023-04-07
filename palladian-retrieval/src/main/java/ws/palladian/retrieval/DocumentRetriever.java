@@ -23,6 +23,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -197,7 +198,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
         }
 
         HttpResult result = httpRetriever.execute(requestBuilder.create());
-        return result.getStringContent();
+        return result.getStringContent(StandardCharsets.UTF_8);
     }
 
     /**

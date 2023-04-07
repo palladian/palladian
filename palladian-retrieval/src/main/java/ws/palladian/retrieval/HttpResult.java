@@ -155,6 +155,10 @@ public class HttpResult implements Serializable {
         } else {
             charset = StandardCharsets.ISO_8859_1;
         }
+        return getStringContent(charset);
+    }
+
+    public String getStringContent(Charset charset) {
         return new String(getContent(), charset);
     }
 
