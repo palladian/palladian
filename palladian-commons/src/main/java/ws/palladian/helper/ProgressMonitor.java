@@ -298,10 +298,6 @@ public final class ProgressMonitor extends AbstractProgressReporter {
     private double getAverageIterationTime() {
         double time = 0.;
         int count = lastIterationTimes.size();
-        // for (int i = 0; i < count; i++) {
-        // time += lastIterationTimes.get(i);
-        // }
-        // lastIterationTimes = lastIterationTimes.subList(0, count);
         for (Long lastIterationTime : lastIterationTimes) {
             time += lastIterationTime;
         }

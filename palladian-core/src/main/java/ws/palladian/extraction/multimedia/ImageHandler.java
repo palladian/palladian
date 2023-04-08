@@ -187,6 +187,10 @@ public class ImageHandler {
                 HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
                 url = url.replace(" ", "%20");
                 HttpResult httpResult = retriever.httpGet(url);
+                if (httpResult.getStatusCode() >= 400) {
+                    LOGGER.error("Could not load image from URL " + url + ", status code " + httpResult.getStatusCode());
+                    return null;
+                }
                 try {
                     // let's try to guess the actual content type from the stream, if we find something, this must be more accurate than the file extension
                     String detectedContentType = Optional.ofNullable(URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(httpResult.getContent()))).orElse("");
@@ -1179,7 +1183,8 @@ public class ImageHandler {
     }
 
     public static void main(String[] args) throws Exception {
-        BufferedImage loadedImage1231231 = load("https://play-lh.googleusercontent.com/2Man7MbQOvtZ99GZxAZiDfXAoJKiyP3WhmXugHq6Zbms-clzMFBe_7MrLv0iua9QZg=w526-h296-rw");
+        //        BufferedImage loadedImage1231231 = load("https://play-lh.googleusercontent.com/2Man7MbQOvtZ99GZxAZiDfXAoJKiyP3WhmXugHq6Zbms-clzMFBe_7MrLv0iua9QZg=w526-h296-rw");
+        BufferedImage loadedImage1231231 = load("https://images.igdb.com/igdb/image/upload/t_cover_big/co5e0z.jpg");
         System.out.println(loadedImage1231231.getWidth());
         boolean success = ImageHandler.saveImage(loadedImage1231231, "webptest.png");
         System.out.println(success);
