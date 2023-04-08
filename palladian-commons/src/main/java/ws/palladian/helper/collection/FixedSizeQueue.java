@@ -14,7 +14,6 @@ import java.util.LinkedList;
  * @author Philipp Katz
  */
 public class FixedSizeQueue<E> extends LinkedList<E> {
-
     private static final long serialVersionUID = 1L;
 
     private final int maxSize;
@@ -45,6 +44,11 @@ public class FixedSizeQueue<E> extends LinkedList<E> {
         return true;
     }
 
-    ;
-
+    @Override
+    public void add(int index, E e) {
+        super.add(index, e);
+        while (size() > maxSize) {
+            super.removeLast();
+        }
+    }
 }

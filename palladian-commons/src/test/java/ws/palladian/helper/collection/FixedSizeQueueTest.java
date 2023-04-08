@@ -25,6 +25,9 @@ public class FixedSizeQueueTest {
         queue.add(6);
         assertEquals(5, queue.size());
         assertEquals(Arrays.asList(2, 3, 4, 5, 6), queue);
+        queue.add(0, 7);
+        assertEquals(5, queue.size());
+        assertEquals(Arrays.asList(7, 2, 3, 4, 5), queue);
     }
 
 }

@@ -78,7 +78,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
      */
     // private List<Long> lastIterationTimes;
     private FixedSizeQueue<Long> lastIterationTimes;
-    private final static int LAST_ITERATION_WINDOW = 3;
+    private final static int LAST_ITERATION_WINDOW = 5;
 
     /**
      * Prevents outputting the same percentage value again, as specified by showEveryPercent.
@@ -263,7 +263,7 @@ public final class ProgressMonitor extends AbstractProgressReporter {
                 // lastIterationTimes = new ArrayList<>();
                 // }
                 long iterationTime = elapsedTime - lastPrintTime;
-                lastIterationTimes.add(0, iterationTime);
+                lastIterationTimes.add(iterationTime);
                 if (isEnhancedStats()) {
                     statistics.add("iteration: " + DateHelper.formatDuration(0, iterationTime, true).replaceAll(":\\d+ms", ""));
                 }
