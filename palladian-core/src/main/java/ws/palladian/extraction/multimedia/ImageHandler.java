@@ -178,7 +178,7 @@ public class ImageHandler {
         // get file extension from URL if possible
         String fileExtension = FileHelper.getFileType(url);
         if (!fileExtension.isEmpty()) {
-            detectedContentTypes.add(fileExtension);
+            detectedContentTypes.add(fileExtension.toLowerCase());
         }
 
         try {
@@ -194,7 +194,7 @@ public class ImageHandler {
                     if (detectedContentType.contains("audio")) {
                         detectedContentType = httpResult.getHeaderString("content-type");
                     }
-                    if (detectedContentType != null) {
+                    if (detectedContentType != null && !detectedContentType.isEmpty()) {
                         detectedContentType = StringHelper.getSubstringBetween(detectedContentType, "/", null);
                         detectedContentType = detectedContentType.replace("jpeg", "jpg");
                         if (!detectedContentType.isEmpty()) {
@@ -712,6 +712,7 @@ public class ImageHandler {
         }
         try {
             Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(fileType.toUpperCase());
+            boolean success = false;
             if (iter.hasNext()) {
                 ImageWriter writer = iter.next();
                 ImageWriteParam iwp = writer.getDefaultWriteParam();
@@ -731,10 +732,10 @@ public class ImageHandler {
                 IIOImage newImage = new IIOImage(image, null, null);
                 writer.write(null, newImage, iwp);
                 output.close();
+                success = true;
             }
 
-            return true;
-
+            return success;
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -1180,6 +1181,8 @@ public class ImageHandler {
     public static void main(String[] args) throws Exception {
         BufferedImage loadedImage1231231 = load("https://play-lh.googleusercontent.com/2Man7MbQOvtZ99GZxAZiDfXAoJKiyP3WhmXugHq6Zbms-clzMFBe_7MrLv0iua9QZg=w526-h296-rw");
         System.out.println(loadedImage1231231.getWidth());
+        boolean success = ImageHandler.saveImage(loadedImage1231231, "webptest.png");
+        System.out.println(success);
         System.exit(0);
         // BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
         // BufferedImage loadedImage =
