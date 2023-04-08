@@ -190,11 +190,17 @@ public class ImageHandler {
                 try {
                     // let's try to guess the actual content type from the stream, if we find something, this must be more accurate than the file extension
                     String detectedContentType = Optional.ofNullable(URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(httpResult.getContent()))).orElse("");
-                    detectedContentType = StringHelper.getSubstringBetween(detectedContentType, "/", null);
-                    detectedContentType = detectedContentType.replace("jpeg", "jpg");
-                    if (!detectedContentType.isEmpty()) {
-                        detectedContentTypes.clear();
-                        detectedContentTypes.add(detectedContentType);
+                    // UrlConnection.guessContentTypeFromStream() does not always detect the right type, e.g. doesn't know webp
+                    if (detectedContentType.contains("audio")) {
+                        detectedContentType = httpResult.getHeaderString("content-type");
+                    }
+                    if (detectedContentType != null) {
+                        detectedContentType = StringHelper.getSubstringBetween(detectedContentType, "/", null);
+                        detectedContentType = detectedContentType.replace("jpeg", "jpg");
+                        if (!detectedContentType.isEmpty()) {
+                            detectedContentTypes.clear();
+                            detectedContentTypes.add(detectedContentType);
+                        }
                     }
                 } catch (Exception e) {
                     LOGGER.error(url + ", " + e.getMessage());
@@ -1172,7 +1178,7 @@ public class ImageHandler {
     }
 
     public static void main(String[] args) throws Exception {
-        BufferedImage loadedImage1231231 = load("https://i5.walmartimages.com/asr/46975692-1f75-42ba-bae0-d4cfb1869440_1.6337242a5864834d63f5ab757ac6333f.jpeg");
+        BufferedImage loadedImage1231231 = load("https://play-lh.googleusercontent.com/2Man7MbQOvtZ99GZxAZiDfXAoJKiyP3WhmXugHq6Zbms-clzMFBe_7MrLv0iua9QZg=w526-h296-rw");
         System.out.println(loadedImage1231231.getWidth());
         System.exit(0);
         // BufferedImage loadedImage = load("D:\\yelp\\train_photos\\170350.jpg");
