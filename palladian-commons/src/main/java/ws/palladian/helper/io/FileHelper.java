@@ -2135,6 +2135,34 @@ public final class FileHelper {
         return getFiles(path, fileFilter, Predicates.ALL);
     }
 
+    /**
+     * Directories with millions of files become hard to read and write to. Therefore, there is an option to create "random" subfolders to distribute the files.
+     */
+    public static String getFolderedPath(String filename) {
+        return getFolderedPath(filename, 1000);
+    }
+
+    public static String getFolderedPath(String filename, int maxFolders) {
+        int i = 1;
+        int count = 0;
+        for (char c : filename.toCharArray()) {
+            if (count++ % 2 == 0 && count <= 8) {
+                i *= c;
+            } else {
+                i += c;
+            }
+        }
+        while (i < maxFolders) {
+            i *= 10;
+        }
+        while (i >= maxFolders) {
+            i %= maxFolders;
+        }
+
+        String folderName = i + "/";
+        return folderName + filename;
+    }
+
     public static void main(String[] a) throws IOException {
         List<String> randomTexts = new ArrayList<>();
         for (int i = 0; i < 5000; i++) {

@@ -28,15 +28,15 @@ public class JsonDatabase {
     private final Map<String, Map<String, List<String>>> indexMap = new HashMap<>();
     private final Map<String, List<String>> indexedFieldsForCollection = new HashMap<>();
 
-    private final boolean useFolders;
+    private final int numSubdirectories;
 
-    public JsonDatabase(String path, boolean useFolders) {
-        this(path, new HashMap<>(), useFolders);
+    public JsonDatabase(String path, int numSubdirectories) {
+        this(path, new HashMap<>(), numSubdirectories);
     }
 
-    public JsonDatabase(String path, Map<String, List<String>> collectionFieldIndexMap, boolean useFolders) {
+    public JsonDatabase(String path, Map<String, List<String>> collectionFieldIndexMap, int numSubdirectories) {
         this.rootPath = path;
-        this.useFolders = useFolders;
+        this.numSubdirectories = numSubdirectories;
         if (!rootPath.endsWith("/")) {
             rootPath += "/";
         }
@@ -108,27 +108,10 @@ public class JsonDatabase {
      * Directories with millions of files become hard to read and write to. Therefore, there is an option to create "random" subfolders to distribute the files.
      */
     private String getFolderedPath(String filename) {
-        if (!useFolders) {
+        if (numSubdirectories < 2) {
             return filename;
         }
-        int i = 1;
-        int count = 0;
-        for (char c : filename.toCharArray()) {
-            if (count++ % 2 == 0 && count <= 8) {
-                i *= c;
-            } else {
-                i += c;
-            }
-        }
-        while (i < 10000) {
-            i *= 10;
-        }
-        while (i >= 10000) {
-            i %= 10000;
-        }
-
-        String folderName = i + "/";
-        return folderName + filename;
+        return FileHelper.getFolderedPath(filename, numSubdirectories);
     }
 
     public synchronized boolean upsert(String collectionName, JsonObject jsonDocument) {
