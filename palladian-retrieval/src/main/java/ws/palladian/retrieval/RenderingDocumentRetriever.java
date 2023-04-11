@@ -483,6 +483,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         driver.manage().deleteAllCookies();
     }
 
+    @Override
+    public int requestsLeft() {
+        return Integer.MAX_VALUE;
+    }
+
     public static void main(String... args) throws HttpException {
         StopWatch stopWatch = new StopWatch();
         RenderingDocumentRetriever r = new RenderingDocumentRetriever(DriverManagerType.CHROME);

@@ -4,9 +4,9 @@ import org.apache.commons.configuration.Configuration;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
-import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +34,8 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
     private boolean count424aSuccess = false;
 
     public static final String CONFIG_API_KEY = "api.phantomjscloud.key";
+
+    private int requestsLeft = Integer.MAX_VALUE;
 
     public PhantomJsDocumentRetriever(Configuration configuration) {
         this.apiKey = configuration.getString(CONFIG_API_KEY);
@@ -88,6 +90,16 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             return null;
         }
 
+        // billing
+        try {
+            Double remainingDollars = response.tryQueryDouble("meta/billing/prepaidCreditsRemaining");
+            Double costPerRequest = response.tryQueryDouble("meta/billing/creditCost");
+            requestsLeft = (int) (remainingDollars / costPerRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            requestsLeft = Integer.MAX_VALUE;
+        }
+
         String htmlContentString = response.tryQueryString("pageResponses[0]/frameData/content");
         int statusCode = Optional.ofNullable(response.tryQueryInt("content/statusCode")).orElse(200);
 
@@ -114,5 +126,10 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             e.printStackTrace();
         }
         return document;
+    }
+
+    @Override
+    public int requestsLeft() {
+        return requestsLeft;
     }
 }

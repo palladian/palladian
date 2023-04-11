@@ -28,6 +28,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     public static final String RETRIEVER_PHANTOM_JS_CLOUD = "PhantomJsCloud";
     public static final String RETRIEVER_PROXY_CRAWL = "ProxyCrawl";
     public static final String RETRIEVER_SCRAPING_BEE = "ScrapingBee";
+    public static final String RETRIEVER_SCRAPER_API = "ScraperApi";
 
     /**
      * If this text is found, we try to resolve a captcha.
@@ -47,14 +48,21 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private final PhantomJsDocumentRetriever cloudDocumentRetriever;
     private final ProxyCrawlDocumentRetriever cloudDocumentRetriever2;
     private final ScrapingBeeDocumentRetriever cloudDocumentRetriever3;
+    private final ScraperApiDocumentRetriever cloudDocumentRetriever4;
 
     public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, PhantomJsDocumentRetriever cloudDocumentRetriever,
             ProxyCrawlDocumentRetriever cloudDocumentRetriever2, ScrapingBeeDocumentRetriever cloudDocumentRetriever3) {
+        this(documentRetriever, retrieverPool, cloudDocumentRetriever, cloudDocumentRetriever2, cloudDocumentRetriever3, null);
+    }
+
+    public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, PhantomJsDocumentRetriever cloudDocumentRetriever,
+            ProxyCrawlDocumentRetriever cloudDocumentRetriever2, ScrapingBeeDocumentRetriever cloudDocumentRetriever3, ScraperApiDocumentRetriever cloudDocumentRetriever4) {
         this.documentRetriever = documentRetriever;
         this.renderingDocumentRetrieverPool = retrieverPool;
         this.cloudDocumentRetriever = cloudDocumentRetriever;
         this.cloudDocumentRetriever2 = cloudDocumentRetriever2;
         this.cloudDocumentRetriever3 = cloudDocumentRetriever3;
+        this.cloudDocumentRetriever4 = cloudDocumentRetriever4;
 
         if (this.documentRetriever != null) {
             requestTracker.put(RETRIEVER_PLAIN, new Integer[]{0, 0, 0});
@@ -70,6 +78,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         if (this.cloudDocumentRetriever3 != null) {
             requestTracker.put(RETRIEVER_SCRAPING_BEE, new Integer[]{0, 0, 0});
+        }
+        if (this.cloudDocumentRetriever4 != null) {
+            requestTracker.put(RETRIEVER_SCRAPER_API, new Integer[]{0, 0, 0});
         }
     }
 
@@ -145,7 +156,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
         // try normal document retriever
         boolean goodDocument = false;
-        if (documentRetriever != null && shouldMakeRequest(RETRIEVER_PLAIN)) {
+        if (documentRetriever != null && shouldMakeRequest(RETRIEVER_PLAIN, null)) {
             try {
                 if (thread != null) {
                     thread.setName("Retrieving (plain): " + url);
@@ -163,7 +174,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                             RETRIEVER_PLAIN));
         }
 
-        if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RETRIEVER_RENDERING_POOL)) {
+        if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RETRIEVER_RENDERING_POOL, null)) {
             // try rendering retriever
             RenderingDocumentRetriever renderingDocumentRetriever = null;
 
@@ -197,7 +208,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
         }
 
-        if (!goodDocument && cloudDocumentRetriever != null && shouldMakeRequest(RETRIEVER_PHANTOM_JS_CLOUD)) {
+        if (!goodDocument && cloudDocumentRetriever != null && shouldMakeRequest(RETRIEVER_PHANTOM_JS_CLOUD, cloudDocumentRetriever)) {
             if (thread != null) {
                 thread.setName("Retrieving (phantomjs): " + url);
             }
@@ -211,7 +222,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                             RETRIEVER_PHANTOM_JS_CLOUD));
         }
 
-        if (!goodDocument && cloudDocumentRetriever2 != null && shouldMakeRequest(RETRIEVER_PROXY_CRAWL)) {
+        if (!goodDocument && cloudDocumentRetriever2 != null && shouldMakeRequest(RETRIEVER_PROXY_CRAWL, cloudDocumentRetriever2)) {
             if (thread != null) {
                 thread.setName("Retrieving (proxycrawl): " + url);
             }
@@ -225,7 +236,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                             RETRIEVER_PROXY_CRAWL));
         }
 
-        if (!goodDocument && cloudDocumentRetriever3 != null && shouldMakeRequest(RETRIEVER_SCRAPING_BEE)) {
+        if (!goodDocument && cloudDocumentRetriever3 != null && shouldMakeRequest(RETRIEVER_SCRAPING_BEE, cloudDocumentRetriever3)) {
             if (thread != null) {
                 thread.setName("Retrieving (scrapingbee): " + url);
             }
@@ -237,6 +248,20 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             resolvingExplanation.add(
                     "used scraping bee document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
                             RETRIEVER_SCRAPING_BEE));
+        }
+
+        if (!goodDocument && cloudDocumentRetriever4 != null && shouldMakeRequest(RETRIEVER_SCRAPER_API, cloudDocumentRetriever4)) {
+            if (thread != null) {
+                thread.setName("Retrieving (scraperapi): " + url);
+            }
+            configure(cloudDocumentRetriever4);
+            document = cloudDocumentRetriever4.getWebDocument(url);
+            goodDocument = isGoodDocument(document);
+            String message = goodDocument ? "success" : "fail";
+            updateRequestTracker(RETRIEVER_SCRAPER_API, goodDocument);
+            resolvingExplanation.add(
+                    "used scraperapi document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
+                            RETRIEVER_SCRAPER_API));
         }
 
         if (document != null) {
@@ -267,8 +292,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
     }
 
-    private boolean shouldMakeRequest(String retrieverKey) {
+    private boolean shouldMakeRequest(String retrieverKey, JsEnabledDocumentRetriever renderingDocumentRetriever) {
         Integer[] retrieverSettings = failingThresholdAndNumberOfRequestsToSkip.get(retrieverKey);
+        if (renderingDocumentRetriever != null && renderingDocumentRetriever.requestsLeft() < 1) {
+            return false;
+        }
         if (retrieverSettings == null) {
             return true;
         }
@@ -322,6 +350,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (documentRetriever != null) {
             documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         }
+    }
+
+    @Override
+    public int requestsLeft() {
+        return Integer.MAX_VALUE;
     }
 
     public boolean renderJs(boolean renderJs) {

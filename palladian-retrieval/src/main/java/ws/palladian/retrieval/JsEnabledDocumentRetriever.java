@@ -47,4 +47,7 @@ public abstract class JsEnabledDocumentRetriever extends WebDocumentRetriever {
     public void deleteAllCookies() {
         this.cookies = null;
     }
+
+    /** Get how many requests are left. */
+    public abstract int requestsLeft();
 }

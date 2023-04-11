@@ -10,11 +10,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
- * Download content from a different IP via a cloud.
+ * Download content from a different IP via Crawlbase.
  * </p>
  *
  * @author David Urbansky
- * @see <a href="https://proxycrawl.com/docs/crawling-api/#your-first-api-call">Proxy Crawl API Docs</a>
+ * @see <a href="https://crawlbase.com/docs/crawling-api/">Crawlbase API Docs</a>
  * 18.05.2021
  */
 public class ProxyCrawlDocumentRetriever extends JsEnabledDocumentRetriever {
@@ -52,13 +52,27 @@ public class ProxyCrawlDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         THROTTLE.hold();
-        String requestUrl = "https://api.proxycrawl.com/?token=" + getActiveToken() + "&url=" + UrlHelper.encodeParameter(url);
+        String requestUrl = "https://api.crawlbase.com/?token=" + getActiveToken() + "&url=" + UrlHelper.encodeParameter(url);
         Document d = documentRetriever.getWebDocument(requestUrl);
         if (d != null) {
+            try {
+                HttpResult httpResult = (HttpResult) d.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
+                int pcStatus = Integer.parseInt(httpResult.getHeaderString("pc_status"));
+                if (pcStatus != 200) {
+                    return null;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             d.setDocumentURI(url);
             callRetrieverCallback(d);
         }
         return d;
+    }
+
+    @Override
+    public int requestsLeft() {
+        return Integer.MAX_VALUE;
     }
 
     private String getActiveToken() {
