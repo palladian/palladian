@@ -226,7 +226,7 @@ public class ImageHandler {
                     bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new FileInputStream(url), true)).getAsBufferedImage();
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error(url + ", " + e.getMessage());
         }
 

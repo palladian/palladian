@@ -20,7 +20,5 @@ public class TimeIntervalParserTest {
         assertEquals(TimeUnit.MINUTES.toSeconds(25), TimeIntervalParser.parse("25min"), 0.1);
         assertEquals(TimeUnit.MINUTES.toSeconds(490), TimeIntervalParser.parse("8hours 10min"), 0.1);
         assertEquals(TimeUnit.MINUTES.toSeconds(490), TimeIntervalParser.parse("8hours \n\n\n\t\t\t10min"), 0.1);
-
     }
-
 }

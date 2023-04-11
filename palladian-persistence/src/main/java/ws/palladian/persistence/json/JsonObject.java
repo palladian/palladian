@@ -627,6 +627,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         return JsonUtils.parseDouble(query(jPath));
     }
 
+    public Double tryQueryDouble(String jPath, Double defaultValue) {
+        try {
+            return queryDouble(jPath);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     public Double tryQueryDouble(String jPath) {
         try {
             return queryDouble(jPath);
@@ -638,6 +646,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     @Override
     public int queryInt(String jPath) throws JsonException {
         return JsonUtils.parseInt(query(jPath));
+    }
+
+    public Integer tryQueryInt(String jPath, Integer defaultValue) {
+        try {
+            return queryInt(jPath);
+        } catch (Exception e) {
+            return defaultValue;
+        }
     }
 
     public Integer tryQueryInt(String jPath) {
