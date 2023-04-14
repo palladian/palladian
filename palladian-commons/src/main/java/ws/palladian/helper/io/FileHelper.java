@@ -1099,12 +1099,10 @@ public final class FileHelper {
                 copyDirectory(new File(srcPath, file), new File(dstPath, file));
             }
         } else {
-
             if (!srcPath.exists()) {
                 LOGGER.warn("File or directory does not exist.");
                 return;
             } else {
-
                 InputStream in = null;
                 OutputStream out = null;
                 try {
@@ -1441,11 +1439,12 @@ public final class FileHelper {
         try {
             byte[] data = text.toString().getBytes(DEFAULT_ENCODING);
 
+            createDirectoriesAndFile(filenameOutput);
             outStream = new LZ4BlockOutputStream(new FileOutputStream(filenameOutput));
             outStream.write(data);
             outStream.close();
         } catch (IOException e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error("could not lz4 string" + e.getMessage());
             success = false;
         } finally {
             close(outStream);
@@ -1757,8 +1756,7 @@ public final class FileHelper {
 
         File newFile = new File(filePath);
         if (!newFile.exists()) {
-
-            boolean directoriesExists = false;
+            boolean directoriesExists;
 
             String parent = newFile.getParent();
             if (parent != null) {
