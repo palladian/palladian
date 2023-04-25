@@ -10,6 +10,7 @@ import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,14 +26,15 @@ public class OpenAiApi {
 
     private final String apiKey;
 
-    public static final String CONFIG_API_KEY = "api.openai.apiKey";
+    public static final String CONFIG_API_KEY = "api.openai.key";
+    public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
 
     public OpenAiApi(String apiKey) {
         this.apiKey = apiKey;
     }
 
     public OpenAiApi(Configuration configuration) {
-        this(configuration.getString(CONFIG_API_KEY));
+        this(Optional.ofNullable(configuration.getString(CONFIG_API_KEY)).orElse((configuration.getString(CONFIG_API_KEY_FALLBACK))));
     }
 
     public float[] getEmbedding(String text) throws Exception {
@@ -79,6 +81,10 @@ public class OpenAiApi {
         JsonArray messages = new JsonArray();
         messages.add(message);
 
+        return chat(messages, temperature, usedTokens);
+    }
+
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();

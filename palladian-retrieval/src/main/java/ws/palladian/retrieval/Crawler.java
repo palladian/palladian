@@ -197,7 +197,6 @@ public class Crawler {
         final AtomicLong lastCrawlTime = new AtomicLong(System.currentTimeMillis());
         long silentStopTimeMillis = TimeUnit.MINUTES.toMillis(silentStopTime);
         while ((stopCount == -1 || visitedUrls.size() < stopCount) && ((System.currentTimeMillis() - lastCrawlTime.get()) < silentStopTimeMillis)) {
-
             try {
                 final String url = getUrlFromStack();
                 if (url != null) {

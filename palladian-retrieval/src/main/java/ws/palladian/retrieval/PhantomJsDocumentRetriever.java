@@ -1,6 +1,8 @@
 package ws.palladian.retrieval;
 
 import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
@@ -24,6 +26,8 @@ import java.util.regex.Pattern;
  * @author David Urbansky
  */
 public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhantomJsDocumentRetriever.class);
+
     private final String apiKey;
 
     /**
@@ -90,17 +94,20 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             return null;
         }
 
+        String htmlContentString = response.tryQueryString("pageResponses[0]/frameData/content");
+
         // billing
-        try {
-            Double remainingDollars = response.tryQueryDouble("meta/billing/prepaidCreditsRemaining");
-            Double costPerRequest = response.tryQueryDouble("meta/billing/creditCost");
-            requestsLeft = (int) (remainingDollars / costPerRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-            requestsLeft = Integer.MAX_VALUE;
+        if (htmlContentString != null) {
+            try {
+                Double remainingDollars = response.tryQueryDouble("meta/billing/prepaidCreditsRemaining");
+                Double costPerRequest = response.tryQueryDouble("meta/billing/creditCost");
+                requestsLeft = (int) (remainingDollars / costPerRequest);
+            } catch (Exception e) {
+                LOGGER.error("Could not parse billing info from PhantomJsCloud", e);
+                requestsLeft = Integer.MAX_VALUE;
+            }
         }
 
-        String htmlContentString = response.tryQueryString("pageResponses[0]/frameData/content");
         int statusCode = Optional.ofNullable(response.tryQueryInt("content/statusCode")).orElse(200);
 
         if (htmlContentString == null || (statusCode >= 400 && !(count424aSuccess && statusCode == 424))) {

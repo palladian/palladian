@@ -8,10 +8,10 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.date.DateHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.html.HtmlHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.*;
@@ -140,7 +140,6 @@ public class EventbriteSearcher extends EventSearcher {
     }
 
     private String buildRequest(String keywords, String location, Integer radius, Date startDate, Date endDate, EventType eventType) {
-
         String url = "https://www.eventbrite.com/json/event_search?app_key=" + this.apiKey;
         if (keywords != null && !keywords.isEmpty()) {
             url += "&keywords=" + UrlHelper.encodeParameter(keywords);
