@@ -148,6 +148,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
     }
 
+    public RenderingDocumentRetriever(RemoteWebDriver driver) {
+        this.driver = driver;
+    }
+
     public RenderingDocumentRetriever(DriverManagerType browser, MutableCapabilities options) {
         if (browser == DriverManagerType.FIREFOX) {
             WebDriverManager.firefoxdriver().setup();
