@@ -85,30 +85,8 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
      * @param text The text to ngramize and add.
      * @param id   The id to add to the leaf nodes.
      */
-    public void add(int id, /*Set<String> ngrams,*/ String text) {
-        // remove ngrams that are prefixes of other ngrams
-        //        Iterator<String> iterator1 = ngrams.iterator();
-        //        while (iterator1.hasNext()) {
-        //            String ngram1 = iterator1.next();
-        //            Iterator<String> iterator2 = ngrams.iterator();
-        //            while (iterator2.hasNext()) {
-        //                String ngram2 = iterator2.next();
-        //                if (ngram1.length() < ngram2.length() && ngram2.startsWith(ngram1)) {
-        //                    iterator1.remove();
-        //                    break;
-        //                }
-        //            }
-        //        }
-        //        for (String ngram : ngrams) {
-        //            IntOpenHashSet integers = get(ngram);
-        //            if (integers == null) {
-        //                integers = new IntOpenHashSet();
-        //                put(ngram, integers);
-        //            }
-        //            integers.add(id);
-        //        }
-
-        String[] parts = text.split("[ ,;:!?\\.-]");
+    public void add(int id, String text) {
+        String[] parts = text.split("[ ,;:!?.-]");
         for (String part : parts) {
             if (part.isEmpty()) {
                 continue;
@@ -139,12 +117,20 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
     public IntOpenHashSet get(String key) {
         Validate.notEmpty(key, "key must not be empty");
         IdTrie node = getNode(key);
+        if (node == null) {
+            return new IntOpenHashSet();
+        }
         Iterator<Map.Entry<String, IntOpenHashSet>> iterator = node.iterator();
 
-        IntArrayList list = new IntArrayList();
+        // XXX possibility to add cache here, the longer the path to the leaf nodes the longer it will take to collect. so if we call with a single character like "s", we might want
+        // to cache the result to not iterate over the tree over and over again.
+
+        IntArrayList list;
         if (node.hasData()) {
             //            CollectionUtils.addAll(list, node.getValue().toArray());
-            list.addAll(node.getValue());
+            list = new IntArrayList(node.getValue());
+        } else {
+            list = new IntArrayList();
         }
         while (iterator.hasNext()) {
             Map.Entry<String, IntOpenHashSet> entry = iterator.next();
