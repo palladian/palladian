@@ -45,7 +45,7 @@ public interface GeoCoordinate {
      * @throws IllegalArgumentException in case latitude/longitude are out of given range.
      */
     @SuppressWarnings("deprecation")
-    public static GeoCoordinate from(double latitude, double longitude) {
+    static GeoCoordinate from(double latitude, double longitude) {
         return new ImmutableGeoCoordinate(latitude, longitude);
     }
 
