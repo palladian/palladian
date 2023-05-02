@@ -21,6 +21,19 @@ public class WordTransformerTest {
     public void testSplitGermanCompounds() {
         List<String> words;
 
+        words = WordTransformer.splitGermanCompoundWords("bachforellenfilet", true);
+        CollectionHelper.print(words);
+        assertEquals(3, words.size());
+        assertEquals("bach", words.get(0));
+        assertEquals("forellen", words.get(1));
+        assertEquals("filet", words.get(2));
+
+        words = WordTransformer.splitGermanCompoundWords("bachforellenfilet");
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("bach", words.get(0));
+        assertEquals("forellenfilet", words.get(1));
+
         // also separate misspelled words
         words = WordTransformer.splitGermanCompoundWords("platouschuhe");
         CollectionHelper.print(words);

@@ -347,7 +347,8 @@ public class WordTransformer {
         String lcSingular = wordToSingularGermanCaseSensitive(word);
         int wordLength = lcSingular.length();
 
-        for (int i = 0; i < GERMAN_WORDS.size(); i++) {
+        int size = GERMAN_WORDS.size();
+        for (int i = 0; i < size; i++) {
             String word2 = GERMAN_WORDS.get(i);
             int word2Length = word2.length();
 
@@ -356,7 +357,11 @@ public class WordTransformer {
             }
 
             if ((word2Length > 3 && (word2.length() <= wordLength || !words.isEmpty())) && lcSingular.endsWith(word2)) {
-                words.add(0, word2);
+                if (forceSplit) {
+                    words.addAll(0, splitGermanCompoundWords(word2, true));
+                } else {
+                    words.add(0, word2);
+                }
                 lcSingular = lcSingular.replace(word2, "");
                 if (lcSingular.isEmpty()) {
                     break;
