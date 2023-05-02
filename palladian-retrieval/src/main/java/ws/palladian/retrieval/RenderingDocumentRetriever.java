@@ -46,6 +46,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     protected RemoteWebDriver driver;
 
+    protected Consumer<NoSuchSessionException> noSuchSessionExceptionCallback;
+
     /**
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
      */
@@ -272,11 +274,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public void goTo(String url, ExpectedCondition<Boolean> condition, Integer timeoutInSeconds, boolean forceReload) {
-        if (forceReload || !driver.getCurrentUrl().equals(url)) {
-            if (!forceReload) {
-                LOGGER.info(driver.getCurrentUrl() + " x " + url);
+        try {
+            if (forceReload || !driver.getCurrentUrl().equals(url)) {
+                if (!forceReload) {
+                    LOGGER.info(driver.getCurrentUrl() + " x " + url);
+                }
+                driver.get(url);
             }
-            driver.get(url);
+        } catch (NoSuchSessionException e) {
+            LOGGER.error("problem getting session", e);
+            if (getNoSuchSessionExceptionCallback() != null) {
+                getNoSuchSessionExceptionCallback().accept(e);
+            }
         }
         try {
             new WebDriverWait(driver, timeoutInSeconds).until(condition);
@@ -484,12 +493,31 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public void deleteAllCookies() {
         super.deleteAllCookies();
-        driver.manage().deleteAllCookies();
+        try {
+            driver.manage().deleteAllCookies();
+        } catch (NoSuchSessionException e) {
+            LOGGER.error("problem getting session", e);
+            if (getNoSuchSessionExceptionCallback() != null) {
+                getNoSuchSessionExceptionCallback().accept(e);
+            }
+        }
     }
 
     @Override
     public int requestsLeft() {
         return Integer.MAX_VALUE;
+    }
+
+    public void setDriver(RemoteWebDriver driver) {
+        this.driver = driver;
+    }
+
+    public Consumer<NoSuchSessionException> getNoSuchSessionExceptionCallback() {
+        return noSuchSessionExceptionCallback;
+    }
+
+    public void setNoSuchSessionExceptionCallback(Consumer<NoSuchSessionException> noSuchSessionExceptionCallback) {
+        this.noSuchSessionExceptionCallback = noSuchSessionExceptionCallback;
     }
 
     public static void main(String... args) throws HttpException {
