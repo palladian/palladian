@@ -37,6 +37,14 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     protected IntOpenHashSet value;
 
+    /** Store the most expensive (cost = time to retrieve) ngrams in a cache. */
+    private CostAwareCache<String, IntOpenHashSet> costAwareCache;
+
+    public IdTrie(int cacheSize) {
+        this(EMPTY_CHARACTER, null);
+        costAwareCache = new CostAwareCache(cacheSize);
+    }
+
     public IdTrie() {
         this(EMPTY_CHARACTER, null);
     }
@@ -44,6 +52,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
     private IdTrie(char character, IdTrie parent) {
         this.character = character;
         this.parent = parent;
+        costAwareCache = null;
     }
 
     public IdTrie getNode(CharSequence key) {
@@ -116,6 +125,14 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public IntOpenHashSet get(String key) {
         Validate.notEmpty(key, "key must not be empty");
+        long startTime = 0;
+        if (costAwareCache != null) {
+            IntOpenHashSet integers = costAwareCache.tryGet(key);
+            if (integers != null) {
+                return integers;
+            }
+            startTime = System.nanoTime();
+        }
         IdTrie node = getNode(key);
         if (node == null) {
             return new IntOpenHashSet();
@@ -127,17 +144,21 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
         IntArrayList list;
         if (node.hasData()) {
-            //            CollectionUtils.addAll(list, node.getValue().toArray());
             list = new IntArrayList(node.getValue());
         } else {
             list = new IntArrayList();
         }
         while (iterator.hasNext()) {
             Map.Entry<String, IntOpenHashSet> entry = iterator.next();
-            //            CollectionUtils.addAll(list, entry.getValue().toArray());
             list.addAll(entry.getValue());
         }
-        return new IntOpenHashSet(list);
+        IntOpenHashSet integers = new IntOpenHashSet(list);
+
+        if (costAwareCache != null) {
+            costAwareCache.tryAdd((int) (System.nanoTime() - startTime), key, integers);
+        }
+
+        return integers;
     }
 
     public IntOpenHashSet getOrPut(String key, IntOpenHashSet value) {
