@@ -38,7 +38,9 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
     protected IntOpenHashSet value;
 
     /** Store the most expensive (cost = time to retrieve) ngrams in a cache. */
-    private CostAwareCache<String, IntOpenHashSet> costAwareCache;
+    private transient CostAwareCache<String, IntOpenHashSet> costAwareCache;
+
+    public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-";
 
     public IdTrie(int cacheSize) {
         this(EMPTY_CHARACTER, null);
@@ -95,15 +97,13 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
      * @param id   The id to add to the leaf nodes.
      */
     public void add(int id, String text) {
-        String[] parts = text.split("[ ,;:!?.-]");
-        for (String part : parts) {
-            if (part.isEmpty()) {
-                continue;
-            }
-            IntOpenHashSet integers = getValue(part);
+        StringTokenizer stringTokenizer = new StringTokenizer(text, DELIMITERS);
+        while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            IntOpenHashSet integers = getValue(token);
             if (integers == null) {
                 integers = new IntOpenHashSet();
-                put(part, integers);
+                put(token, integers);
             }
             integers.add(id);
         }

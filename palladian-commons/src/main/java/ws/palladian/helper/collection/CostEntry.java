@@ -1,6 +1,12 @@
 package ws.palladian.helper.collection;
 
-public class CostEntry<S, T> {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class CostEntry<S, T> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private S key;
     private T value;
     private int cost;

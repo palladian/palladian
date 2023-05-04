@@ -1,5 +1,7 @@
 package ws.palladian.helper.collection;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -7,7 +9,10 @@ import java.util.TreeMap;
 /**
  * Cache a fixed number of entries based on a cost value. For example, we want to save memory and only save the top 100 entries that take longest to compute.
  */
-public class CostAwareCache<S, T> {
+public class CostAwareCache<S, T> implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final Map<S, CostEntry<S, T>> cacheMap;
     private final TreeMap<Integer, CostEntry<S, T>> sortedCostMap;
 
