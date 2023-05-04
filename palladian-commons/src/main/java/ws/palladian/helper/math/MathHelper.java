@@ -118,23 +118,6 @@ public final class MathHelper {
      */
     @Deprecated
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
-        // Validate.notNull(setA, "setA must not be null");
-        // Validate.notNull(setB, "setB must not be null");
-        //
-        // Set<T> intersection = new HashSet<>();
-        // intersection.addAll(setA);
-        // intersection.retainAll(setB);
-        //
-        // if (intersection.size() == 0) {
-        // return 0;
-        // }
-        //
-        // Set<T> union = new HashSet<>();
-        // union.addAll(setA);
-        // union.addAll(setB);
-        //
-        // return (double)intersection.size() / union.size();
-
         return SetSimilarities.JACCARD.getSimilarity(setA, setB);
     }
 
@@ -151,16 +134,6 @@ public final class MathHelper {
      */
     @Deprecated
     public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
-        // if (setA.size() == 0 || setB.size() == 0) {
-        // return 0;
-        // }
-        //
-        // Set<T> intersection = new HashSet<>();
-        // intersection.addAll(setA);
-        // intersection.retainAll(setB);
-        //
-        // return (double)intersection.size() / Math.min(setA.size(), setB.size());
-
         return SetSimilarities.OVERLAP.getSimilarity(setA, setB);
     }
 
