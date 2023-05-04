@@ -38,7 +38,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
     protected IntOpenHashSet value;
 
     /** Store the most expensive (cost = time to retrieve) ngrams in a cache. */
-    private transient CostAwareCache<String, IntOpenHashSet> costAwareCache;
+    private CostAwareCache<String, IntOpenHashSet> costAwareCache;
 
     public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-";
 
