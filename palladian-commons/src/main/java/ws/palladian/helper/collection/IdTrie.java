@@ -241,6 +241,14 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
         return CollectionHelper.count(this.iterator());
     }
 
+    public CostAwareCache<String, IntOpenHashSet> getCostAwareCache() {
+        return costAwareCache;
+    }
+
+    public void setCostAwareCache(CostAwareCache<String, IntOpenHashSet> costAwareCache) {
+        this.costAwareCache = costAwareCache;
+    }
+
     @Override
     public String toString() {
         return getKey() + '=' + getValue();

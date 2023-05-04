@@ -950,6 +950,17 @@ public final class CollectionHelper {
         return setA;
     }
 
+    public static IntOpenHashSet intersectFastWithModification(IntOpenHashSet setA, IntOpenHashSet setB) {
+        if (setA.size() < setB.size()) {
+            setA.retainAll(setB);
+        } else {
+            setB.retainAll(setA);
+            setA = setB;
+        }
+
+        return setA;
+    }
+
     /**
      * <p>
      * Shuffle the content of the given array.
