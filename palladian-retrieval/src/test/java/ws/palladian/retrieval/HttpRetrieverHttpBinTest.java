@@ -1,5 +1,6 @@
 package ws.palladian.retrieval;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import ws.palladian.helper.UrlHelper;
 
@@ -46,7 +47,7 @@ public class HttpRetrieverHttpBinTest {
      * https://gitlab.com/palladian/palladian-knime/-/issues/41
      */
     @Test
-    //    @Ignore // XXX https://httpbin.org/ wasn't accessible April 2023 and stopping the build
+    @Ignore // FIXME https://httpbin.org/ wasn't accessible April 2023 and stopping the build
     public void testFileSizeLimitZero() throws HttpException {
         HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/bytes/8192").create();
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -80,7 +81,7 @@ public class HttpRetrieverHttpBinTest {
      * https://gitlab.com/palladian/palladian-knime/-/issues/6
      */
     @Test
-    //    @Ignore // XXX https://httpbin.org/ wasn't accessible April 2023 and stopping the build
+    @Ignore // FIXME https://httpbin.org/ wasn't accessible April 2023 and stopping the build
     public void testRedirects() throws HttpException {
         HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/status/301").create();
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
