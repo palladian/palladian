@@ -34,7 +34,7 @@ public final class CooccurrenceMatrix implements Serializable {
     private final Bag<String> items;
 
     public CooccurrenceMatrix() {
-        pairs = new CountMatrix<String>(new PairMatrix<String, Integer>());
+        pairs = new CountMatrix<>(new PairMatrix<>());
         items = new Bag<>();
     }
 

@@ -40,7 +40,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
     /** Store the most expensive (cost = time to retrieve) ngrams in a cache. */
     private CostAwareCache<String, IntOpenHashSet> costAwareCache;
 
-    public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-";
+    public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-–—‘’“·®”";
 
     public IdTrie(int cacheSize) {
         this(EMPTY_CHARACTER, null);
