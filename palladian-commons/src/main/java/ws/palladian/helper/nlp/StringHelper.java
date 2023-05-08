@@ -635,6 +635,48 @@ public final class StringHelper {
         return searchString;
     }
 
+    public static String replaceWordCaseSensitive(String word, String replacement, String searchStringLowerCase) {
+        if (word == null || word.isEmpty()) {
+            return searchStringLowerCase;
+        }
+
+        int oldIndex = 0;
+        int index;
+        do {
+            index = searchStringLowerCase.indexOf(word, oldIndex);
+            if (index == -1) {
+                return searchStringLowerCase;
+            }
+            oldIndex = index + word.length();
+
+            boolean leftBorder;
+            if (index == 0) {
+                leftBorder = true;
+            } else {
+                char prevChar = searchStringLowerCase.charAt(index - 1);
+                leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar) || Character.getType(prevChar) == Character.DASH_PUNCTUATION);
+            }
+            boolean rightBorder;
+            if (index + word.length() == searchStringLowerCase.length()) {
+                rightBorder = true;
+            } else {
+                char nextChar = searchStringLowerCase.charAt(index + word.length());
+                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION);
+            }
+
+            // if word exists, cut it out and replace with replacement
+            if (leftBorder && rightBorder) {
+                String before = searchStringLowerCase.substring(0, index);
+                String after = searchStringLowerCase.substring(oldIndex);
+                searchStringLowerCase = before + replacement + after;
+                oldIndex = index + replacement.length();
+            }
+
+        } while (index > -1);
+
+        return searchStringLowerCase;
+    }
+
     /**
      * Check whether a given string contains a numeric value.
      *
