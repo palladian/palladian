@@ -238,6 +238,10 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         return currentProgress;
     }
 
+    public long getCurrentSteps() {
+        return currentSteps;
+    }
+
     /**
      * <p>
      * Prints the current progress.
