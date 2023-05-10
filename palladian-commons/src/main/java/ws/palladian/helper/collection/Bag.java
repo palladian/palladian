@@ -1,6 +1,5 @@
 package ws.palladian.helper.collection;
 
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper.Order;
@@ -85,8 +84,8 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * Internal constructor, which does not copy the map. Only by
      * {@link #createSorted(Order)}.
      */
-    private Bag(Object2IntLinkedOpenHashMap<T> map, int size) {
-        this.map = map;
+    private Bag(Map<? extends T, ? extends Integer> map, int size) {
+        this(map);
         this.size = size;
     }
 
@@ -114,9 +113,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
 
     @Override
     public Iterator<T> iterator() {
-
         return new AbstractIterator<>() {
-
             final Iterator<Entry<T, Integer>> entryIterator = map.entrySet().iterator();
             Entry<T, Integer> currentEntry = null;
             int currentCount;
@@ -200,9 +197,11 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public int set(T item, int count) {
         Validate.notNull(item, "item must not be null");
         Integer oldValue = (count == 0) ? map.remove(item) : map.put(item, count);
-        size -= oldValue;
+        if (oldValue != null) {
+            size -= oldValue;
+        }
         size += count;
-        return oldValue;
+        return oldValue != null ? oldValue : 0;
     }
 
     /**
@@ -270,7 +269,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<>(new Object2IntLinkedOpenHashMap<>(sorted), size);
+        return new Bag<>(new Object2IntOpenHashMap<>(sorted), size);
     }
 
     /**
@@ -324,7 +323,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        map = new Object2IntLinkedOpenHashMap<>();
+        map = new ConcurrentHashMap<>();
         int numEntries = in.readInt();
         for (int i = 0; i < numEntries; i++) {
             @SuppressWarnings("unchecked")
