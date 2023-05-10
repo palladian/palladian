@@ -1,5 +1,6 @@
 package ws.palladian.helper.collection;
 
+import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper.Order;
@@ -64,7 +65,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * Creates an empty Bag.
      */
     public Bag() {
-        this(new Object2IntOpenHashMap<>());
+        this.map = new ConcurrentHashMap<>();
     }
 
     /**
@@ -85,7 +86,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * {@link #createSorted(Order)}.
      */
     private Bag(Map<? extends T, ? extends Integer> map, int size) {
-        this(map);
+        this.map = new Object2IntLinkedOpenHashMap<>(map);
         this.size = size;
     }
 
@@ -269,7 +270,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public Bag<T> createSorted(Order order) {
         Validate.notNull(order, "order must not be null");
         Map<T, Integer> sorted = CollectionHelper.sortByValue(map, order);
-        return new Bag<>(new Object2IntOpenHashMap<>(sorted), size);
+        return new Bag<>(new Object2IntLinkedOpenHashMap<>(sorted), size);
     }
 
     /**
