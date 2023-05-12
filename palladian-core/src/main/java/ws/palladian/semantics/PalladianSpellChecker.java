@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.ProcessHelper;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.Language;

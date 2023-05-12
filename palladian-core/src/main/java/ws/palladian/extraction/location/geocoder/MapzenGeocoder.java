@@ -7,14 +7,14 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.extraction.location.geocoder.ImmutablePlace.Builder;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
-import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
-import ws.palladian.persistence.json.JsonObject;
 
 import java.util.concurrent.TimeUnit;
 

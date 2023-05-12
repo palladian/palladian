@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
 import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
-import ws.palladian.retrieval.*;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.*;
 
 import java.util.ArrayList;
 import java.util.List;

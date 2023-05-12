@@ -1,11 +1,11 @@
 package ws.palladian.retrieval.ranking.services;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpResult;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;

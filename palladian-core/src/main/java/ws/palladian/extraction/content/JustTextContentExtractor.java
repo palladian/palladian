@@ -5,12 +5,12 @@ import org.w3c.dom.Node;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.StringInputStream;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.List;

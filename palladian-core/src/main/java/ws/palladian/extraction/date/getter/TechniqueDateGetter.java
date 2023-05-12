@@ -3,12 +3,12 @@ package ws.palladian.extraction.date.getter;
 import org.apache.commons.lang3.Validate;
 import org.w3c.dom.Document;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.Collections;

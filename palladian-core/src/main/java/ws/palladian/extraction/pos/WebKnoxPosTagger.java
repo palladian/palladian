@@ -4,12 +4,12 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.persistence.json.JsonException;
-import ws.palladian.persistence.json.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -19,13 +19,13 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.ImageSizeComparator;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
-import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
-import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 

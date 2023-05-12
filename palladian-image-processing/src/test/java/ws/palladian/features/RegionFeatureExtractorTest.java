@@ -5,7 +5,6 @@ import org.junit.rules.ErrorCollector;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.value.NumericValue;
 import ws.palladian.core.value.Value;
-import ws.palladian.features.RegionFeatureExtractor;
 import ws.palladian.helper.collection.Vector;
 import ws.palladian.helper.io.ResourceHelper;
 

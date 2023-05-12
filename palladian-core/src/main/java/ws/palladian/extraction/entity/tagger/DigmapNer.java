@@ -9,10 +9,10 @@ import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.extraction.entity.Annotations;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.HttpRequest.HttpMethod;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.util.HashMap;
