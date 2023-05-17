@@ -296,7 +296,6 @@ public final class MathHelper {
      * @return The similarity of the two lists.
      */
     public static ListSimilarity computeListSimilarity(List<String> list1, List<String> list2) {
-
         // get maximum possible distance
         int summedMaxDistance = 0;
         int summedMaxSquaredDistance = 0;
@@ -314,7 +313,6 @@ public final class MathHelper {
         Stats stats = new SlimStats();
 
         for (String entry1 : list1) {
-
             int position2 = 0;
             for (String entry2 : list2) {
                 if (entry1.equals(entry2)) {

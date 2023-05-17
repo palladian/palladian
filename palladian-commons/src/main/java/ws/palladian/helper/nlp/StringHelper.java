@@ -54,9 +54,9 @@ public final class StringHelper {
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
-
-    public static final String[] TRIMMABLE_CHARACTERS = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\", "@", "<", ">", "=", "·", "^", "_",
-            "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™", "○"};
+    
+    public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '-', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_',
+            '+', '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○'};
 
     private StringHelper() {
         // utility class.
@@ -1082,23 +1082,22 @@ public final class StringHelper {
             char first = string.charAt(0);
             char last = string.charAt(string.length() - 1);
             // System.out.println(Character.getType(last));
-            for (String element : TRIMMABLE_CHARACTERS) {
-                if (keepCharacters.contains(element)) {
+            for (char element : TRIMMABLE_CHARACTERS) {
+                if (keepCharacters.indexOf(element) > -1) {
                     continue;
                 }
 
                 // System.out.println(first.charValue());
                 // System.out.println(Character.isSpaceChar(first));
-                if (first == element.charAt(0) || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(first)) {
+                if (first == element || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(first)) {
                     deleteFirst = true;
                 }
-                if (last == element.charAt(0) || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(last)) {
+                if (last == element || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(last)) {
                     deleteLast = true;
                 }
                 if (deleteFirst && deleteLast) {
                     break;
                 }
-
             }
 
             if (deleteFirst && trimLeft) {
@@ -1643,7 +1642,7 @@ public final class StringHelper {
      * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
      * standard</a>. This method will return an empty String if the input is null or empty.
      * <p>
-     * For stream processing purposes see {@link Xml10FilterReader}.
+     * For stream processing purposes see Xml10FilterReader.
      *
      * @param in The String whose non-valid characters we want to remove.
      * @return The in String, stripped of non-valid characters.
@@ -1855,8 +1854,8 @@ public final class StringHelper {
      * Find matches of the given regular expression in the given text.
      * </p>
      *
-     * @param pattern The regular expression as a compiled pattern.
-     * @param text    The text on which the regular expression should be evaluated.
+     * @param patterns The regular expression as a compiled pattern.
+     * @param text     The text on which the regular expression should be evaluated.
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(Collection<Pattern> patterns, String text) {

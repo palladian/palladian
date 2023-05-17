@@ -932,7 +932,7 @@ public final class FileHelper {
     public static <T extends Serializable> T tryDeserialize(String filePath) {
         try {
             return FileHelper.deserialize(filePath);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }
