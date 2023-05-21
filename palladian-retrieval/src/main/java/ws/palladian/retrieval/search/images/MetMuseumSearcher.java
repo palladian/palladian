@@ -64,7 +64,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
 
             if (orientation != null) {
                 Orientation imageOrientation = getOrientation(objJson);
-                if (imageOrientation != orientation) {
+                if (imageOrientation == null || imageOrientation != orientation) {
                     continue;
                 }
             }
