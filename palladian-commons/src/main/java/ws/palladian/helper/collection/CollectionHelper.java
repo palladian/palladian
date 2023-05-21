@@ -939,10 +939,10 @@ public final class CollectionHelper {
         return intersection;
     }
 
-    public static int intersectCount(final AbstractIntSet setA, final AbstractIntSet setB) {
+    public static int intersectCount(final IntSet setA, final IntSet setB) {
         int count = 0;
-        AbstractIntSet smallerSet = setA;
-        AbstractIntSet largerSet = setB;
+        IntSet smallerSet = setA;
+        IntSet largerSet = setB;
 
         // swap smaller/larger set if necessary
         if (smallerSet.size() > largerSet.size()) {
