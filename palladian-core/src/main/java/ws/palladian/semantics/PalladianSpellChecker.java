@@ -444,29 +444,38 @@ public class PalladianSpellChecker {
             wordKnown.set(true);
             return word;
         }
-        if (getWordCount(word) > 0) {
+
+        int wordCountGivenWord = getWordCount(word);
+        if (wordCountGivenWord > 0) {
             wordKnown.set(true);
-            if (uppercase) {
-                return StringHelper.upperCaseFirstLetter(word);
+
+            // if we use context we might want to change the word even though it exists in the given spelling
+            if (!useContext) {
+                if (uppercase) {
+                    return StringHelper.upperCaseFirstLetter(word);
+                }
+                return word;
             }
-            return word;
         }
 
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<>();
+        candidates.put(wordCountGivenWord, word);
         for (String s : list) {
             if (s.isEmpty()) {
                 continue;
             }
             int count = getWordCount(s);
+            // look at the context
+            if (useContext) {
+                if (leftContext != null) {
+                    count = 100 * s.length() * s.length() * contextCounter.count(leftContext + "_" + s);
+                }
+                if (rightContext != null) {
+                    count = 100 * s.length() * s.length() * contextCounter.count(s + "_" + rightContext);
+                }
+            }
             if (count > 0) {
-                // look at the context
-                if (leftContext != null && useContext) {
-                    count += 100 * contextCounter.count(leftContext + "_" + s);
-                }
-                if (rightContext != null && useContext) {
-                    count += 100 * contextCounter.count(s + "_" + rightContext);
-                }
                 candidates.put(count, s);
             }
         }
