@@ -461,6 +461,7 @@ public class PalladianSpellChecker {
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<>();
         candidates.put(wordCountGivenWord, word);
+        boolean contextUsed = false;
         for (String s : list) {
             if (s.isEmpty()) {
                 continue;
@@ -470,14 +471,23 @@ public class PalladianSpellChecker {
             if (useContext) {
                 if (leftContext != null) {
                     count = 100 * s.length() * s.length() * contextCounter.count(leftContext + "_" + s);
+                    contextUsed = true;
                 }
                 if (rightContext != null) {
                     count = 100 * s.length() * s.length() * contextCounter.count(s + "_" + rightContext);
+                    contextUsed = true;
                 }
             }
             if (count > 0) {
                 candidates.put(count, s);
             }
+        }
+
+        if (wordCountGivenWord > 0 && !contextUsed) {
+            if (uppercase) {
+                return StringHelper.upperCaseFirstLetter(word);
+            }
+            return word;
         }
 
         // German words can be compounds, e.g. "Goldkette", we most likely don't have all these words in the dictionary
