@@ -1,8 +1,8 @@
 package ws.palladian.retrieval.search;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.DocumentRetriever;
 
 /**
  * Query the SPARQL DBpedia API.

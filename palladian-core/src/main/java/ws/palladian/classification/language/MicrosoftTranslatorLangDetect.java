@@ -5,10 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.*;
-import ws.palladian.retrieval.FormEncodedHttpEntity.Builder;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.FormEncodedHttpEntity.Builder;
 
 import java.util.concurrent.TimeUnit;
 

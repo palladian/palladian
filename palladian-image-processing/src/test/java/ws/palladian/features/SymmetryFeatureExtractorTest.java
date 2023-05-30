@@ -3,7 +3,6 @@ package ws.palladian.features;
 import org.junit.Test;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.value.NumericValue;
-import ws.palladian.features.SymmetryFeatureExtractor;
 import ws.palladian.helper.io.ResourceHelper;
 
 import javax.imageio.ImageIO;

@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.ProcessHelper;
-import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.Bag;
 import ws.palladian.helper.constants.Language;
@@ -445,31 +444,50 @@ public class PalladianSpellChecker {
             wordKnown.set(true);
             return word;
         }
-        if (getWordCount(word) > 0) {
+
+        int wordCountGivenWord = getWordCount(word);
+        if (wordCountGivenWord > 0) {
             wordKnown.set(true);
-            if (uppercase) {
-                return StringHelper.upperCaseFirstLetter(word);
+
+            // if we use context we might want to change the word even though it exists in the given spelling
+            if (!useContext) {
+                if (uppercase) {
+                    return StringHelper.upperCaseFirstLetter(word);
+                }
+                return word;
             }
-            return word;
         }
 
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<>();
+        candidates.put(wordCountGivenWord, word);
+        boolean contextUsed = false;
         for (String s : list) {
             if (s.isEmpty()) {
                 continue;
             }
             int count = getWordCount(s);
+            // look at the context
+            if (useContext) {
+                if (leftContext != null) {
+                    count = 100 * s.length() * s.length() * contextCounter.count(leftContext + "_" + s);
+                    contextUsed = true;
+                }
+                if (rightContext != null) {
+                    count = 100 * s.length() * s.length() * contextCounter.count(s + "_" + rightContext);
+                    contextUsed = true;
+                }
+            }
             if (count > 0) {
-                // look at the context
-                if (leftContext != null && useContext) {
-                    count += 100 * contextCounter.count(leftContext + "_" + s);
-                }
-                if (rightContext != null && useContext) {
-                    count += 100 * contextCounter.count(s + "_" + rightContext);
-                }
                 candidates.put(count, s);
             }
+        }
+
+        if (wordCountGivenWord > 0 && !contextUsed) {
+            if (uppercase) {
+                return StringHelper.upperCaseFirstLetter(word);
+            }
+            return word;
         }
 
         // German words can be compounds, e.g. "Goldkette", we most likely don't have all these words in the dictionary

@@ -8,8 +8,12 @@ import ws.palladian.helper.io.StringOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * This class should provide convenience methods for interacting with the OS functionality.
@@ -100,6 +104,39 @@ public final class ProcessHelper {
         log += "Max. Memory: " + runtime.maxMemory() / mb + "\n";
 
         return log;
+    }
+
+    public static <E> void threadedIteration(int numThreads, int threadBatchSize, Iterator<E> iterator, Consumer<E> consumer) {
+        StopWatch stopWatch = new StopWatch();
+
+        final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+
+        // keep track of the number of submitted threads as we can't load all millions of tasks in memory
+        final AtomicInteger threadCounter = new AtomicInteger(0);
+
+        while (iterator.hasNext()) {
+            final E obj = iterator.next();
+            Thread thread = new Thread(() -> {
+                try {
+                    consumer.accept(obj);
+                } catch (Throwable t) {
+                    LOGGER.error("error while iterating", t);
+                } finally {
+                    threadCounter.decrementAndGet();
+                }
+            });
+            if (!executor.isShutdown()) {
+                executor.submit(thread);
+                threadCounter.incrementAndGet();
+            }
+
+            // check if we have too many threads running
+            while (threadCounter.get() > threadBatchSize) {
+                ThreadHelper.deepSleep(1000);
+            }
+        }
+
+        waitForThreadPool(executor, stopWatch);
     }
 
     public static void waitForThreadPool(ExecutorService executorService, StopWatch stopWatch) {

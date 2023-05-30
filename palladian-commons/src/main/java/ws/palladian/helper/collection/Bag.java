@@ -1,7 +1,6 @@
 package ws.palladian.helper.collection;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 

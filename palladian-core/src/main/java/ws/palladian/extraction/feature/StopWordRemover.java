@@ -141,11 +141,12 @@ public class StopWordRemover implements Predicate<String> {
     }
 
     public String removeStopWordsCaseSensitive(String text) {
+        StringBuilder stringBuilder = new StringBuilder(text);
         for (String stopWord : stopwords) {
-            text = StringHelper.replaceWordCaseSensitive(stopWord, "", text);
+            StringHelper.removeWordCaseSensitive(stopWord, stringBuilder);
         }
 
-        return StringHelper.PATTERN_LIMITED_WHITESPACES.matcher(text).replaceAll(" ");
+        return StringHelper.PATTERN_LIMITED_WHITESPACES.matcher(stringBuilder.toString()).replaceAll(" ");
     }
 
     public String removeStopWords(String text) {
@@ -181,7 +182,7 @@ public class StopWordRemover implements Predicate<String> {
     public static void main(String[] args) {
         StopWordRemover stopWordRemover = new StopWordRemover(Language.GERMAN);
         StopWatch stopWatch = new StopWatch();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             System.out.println(stopWordRemover.removeStopWords(
                     "Die an eine breite Öffentlichkeit gerichteten Schriften des Aristoteles in Dialogform sind verloren. Die erhalten gebliebenen Lehrschriften waren größtenteils nur für den internen Gebrauch im Unterricht bestimmt und wurden fortlaufend redigiert. Themenbereiche sind:\n"
                             + "\n"

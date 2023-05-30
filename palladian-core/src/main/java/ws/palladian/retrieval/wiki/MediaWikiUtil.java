@@ -18,13 +18,13 @@ import ws.palladian.helper.io.ProgressReporterInputStream;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.CharStack;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
-import ws.palladian.persistence.json.JsonObject;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;

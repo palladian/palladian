@@ -120,7 +120,9 @@ public class StringHelperTest {
 
     @Test
     public void testReplaceWord() {
-        assertEquals("a b", StringHelper.removeWord("test", "a test b"));
+        assertEquals("a b", StringHelper.removeWord("test", "a TEST b"));
+        StringBuilder stringBuilder = new StringBuilder("a test b");
+        assertEquals("a  b", StringHelper.removeWordCaseSensitive("test", stringBuilder).toString());
         assertEquals("atest b", StringHelper.removeWord("test", "atest b"));
         assertEquals("atestb", StringHelper.removeWord("test", "atestb"));
         assertEquals("a testb", StringHelper.removeWord("test", "a testb"));

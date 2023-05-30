@@ -939,6 +939,24 @@ public final class CollectionHelper {
         return intersection;
     }
 
+    public static int intersectCount(final IntSet setA, final IntSet setB) {
+        int count = 0;
+        IntSet smallerSet = setA;
+        IntSet largerSet = setB;
+
+        // swap smaller/larger set if necessary
+        if (smallerSet.size() > largerSet.size()) {
+            smallerSet = setB;
+            largerSet = setA;
+        }
+        for (int element : smallerSet) {
+            if (largerSet.contains(element)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
         if (setA.size() < setB.size()) {
             setA.retainAll(setB);

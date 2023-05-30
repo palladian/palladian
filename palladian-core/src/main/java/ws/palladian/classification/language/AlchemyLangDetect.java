@@ -5,11 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.persistence.json.JsonException;
-import ws.palladian.persistence.json.JsonObject;
 
 public class AlchemyLangDetect implements LanguageClassifier {
 

@@ -183,8 +183,11 @@ public class WordTransformer {
         } finally {
             FileHelper.close(inputStream);
         }
-
-        TRIM_CHAR_PATTERN = Pattern.compile("[" + StringUtils.join(StringHelper.TRIMMABLE_CHARACTERS, "") + "]$");
+        StringBuilder join = new StringBuilder();
+        for (char trimmableCharacter : StringHelper.TRIMMABLE_CHARACTERS) {
+            join.append(trimmableCharacter);
+        }
+        TRIM_CHAR_PATTERN = Pattern.compile("[" + join + "]$");
     }
 
     /**

@@ -9,9 +9,9 @@ import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.math.MathHelper;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import java.io.File;

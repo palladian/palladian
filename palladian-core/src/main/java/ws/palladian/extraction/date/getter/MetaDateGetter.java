@@ -2,10 +2,10 @@ package ws.palladian.extraction.date.getter;
 
 import org.w3c.dom.Document;
 import ws.palladian.extraction.date.dates.MetaDate;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
-import ws.palladian.persistence.ParserException;
 
 import java.util.ArrayList;
 import java.util.Collections;

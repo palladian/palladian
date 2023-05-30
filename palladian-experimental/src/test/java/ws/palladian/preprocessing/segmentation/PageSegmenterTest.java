@@ -3,8 +3,8 @@ package ws.palladian.preprocessing.segmentation;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import ws.palladian.helper.io.ResourceHelper;
-import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.persistence.ParserException;
+import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 import javax.xml.parsers.ParserConfigurationException;

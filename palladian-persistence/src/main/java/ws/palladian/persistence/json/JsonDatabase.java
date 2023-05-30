@@ -302,6 +302,10 @@ public class JsonDatabase {
         return JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(id + ".json"))));
     }
 
+    public boolean exists(String collection, String id) {
+        return new File(rootPath + collection + "/" + getFolderedPath(id + ".json")).exists();
+    }
+
     public synchronized void rebuildInitializedIndexes() {
         for (Map.Entry<String, List<String>> collectionKeysEntry : indexedFieldsForCollection.entrySet()) {
             for (String field : collectionKeysEntry.getValue()) {

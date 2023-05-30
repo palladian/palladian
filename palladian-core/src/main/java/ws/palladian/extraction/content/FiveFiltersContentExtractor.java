@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.io.StringInputStream;
+import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
@@ -16,7 +17,6 @@ import ws.palladian.retrieval.feeds.FeedItem;
 import ws.palladian.retrieval.feeds.parser.FeedParserException;
 import ws.palladian.retrieval.feeds.parser.RomeFeedParser;
 import ws.palladian.retrieval.parser.DocumentParser;
-import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.parser.ParserFactory;
 
 /**
