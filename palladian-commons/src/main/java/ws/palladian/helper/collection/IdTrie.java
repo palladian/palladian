@@ -109,6 +109,17 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
         }
     }
 
+    public void add(int id, Set<String> ngrams) {
+        for (String ngram : ngrams) {
+            IntOpenHashSet integers = getValue(ngram);
+            if (integers == null) {
+                integers = new IntOpenHashSet();
+                put(ngram, integers);
+            }
+            integers.add(id);
+        }
+    }
+
     public IntOpenHashSet put(String key, IntOpenHashSet value) {
         Validate.notEmpty(key, "key must not be empty");
         IdTrie node = getNode(key, true);

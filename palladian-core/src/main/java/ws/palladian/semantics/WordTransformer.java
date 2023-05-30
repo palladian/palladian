@@ -359,7 +359,7 @@ public class WordTransformer {
                 continue;
             }
 
-            if ((word2Length > 3 && (word2.length() <= wordLength || !words.isEmpty())) && lcSingular.endsWith(word2)) {
+            if ((word2Length > 3 && (word2Length + 2 <= wordLength || !words.isEmpty())) && lcSingular.endsWith(word2)) {
                 if (forceSplit) {
                     words.addAll(0, splitGermanCompoundWords(word2, true));
                 } else {
