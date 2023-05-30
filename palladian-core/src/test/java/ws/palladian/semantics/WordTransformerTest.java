@@ -26,6 +26,12 @@ public class WordTransformerTest {
         assertEquals(1, words.size());
         assertEquals("modern", words.get(0));
 
+        words = WordTransformer.splitGermanCompoundWords("tintenstrahldrucker", false);
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("tintenstrahl", words.get(0));
+        assertEquals("drucker", words.get(1));
+
         words = WordTransformer.splitGermanCompoundWords("bachforellenfilet", true);
         CollectionHelper.print(words);
         assertEquals(3, words.size());
