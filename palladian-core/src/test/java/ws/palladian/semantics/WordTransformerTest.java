@@ -21,6 +21,11 @@ public class WordTransformerTest {
     public void testSplitGermanCompounds() {
         List<String> words;
 
+        words = WordTransformer.splitGermanCompoundWords("modern", false);
+        CollectionHelper.print(words);
+        assertEquals(1, words.size());
+        assertEquals("modern", words.get(0));
+
         words = WordTransformer.splitGermanCompoundWords("bachforellenfilet", true);
         CollectionHelper.print(words);
         assertEquals(3, words.size());
