@@ -4,6 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -58,6 +59,10 @@ public class CostAwareCache<S, T> implements Serializable {
         }
 
         return null;
+    }
+
+    public Set<Map.Entry<Integer, CostEntry<S, T>>> entries() {
+        return sortedCostMap.entrySet();
     }
 
     public int size() {

@@ -40,4 +40,9 @@ public class CostEntry<S, T> implements Serializable {
     public void setCost(int cost) {
         this.cost = cost;
     }
+
+    @Override
+    public String toString() {
+        return "CostEntry{" + "key=" + key + ", value=" + value + ", cost=" + cost + '}';
+    }
 }
