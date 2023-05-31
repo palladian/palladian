@@ -302,6 +302,14 @@ public class JsonDatabase {
         return JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(id + ".json"))));
     }
 
+    public JsonObject getOrCreateById(String collection, String id) {
+        JsonObject jsonObject = getById(collection, id);
+        if (jsonObject == null) {
+            jsonObject = new JsonObject();
+        }
+        return jsonObject;
+    }
+
     public boolean exists(String collection, String id) {
         return new File(rootPath + collection + "/" + getFolderedPath(id + ".json")).exists();
     }
