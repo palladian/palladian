@@ -54,7 +54,7 @@ public final class StringHelper {
     private static final Pattern PATTERN_UPPERCASE = Pattern.compile("[^A-Z]");
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
-    
+
     public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '-', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_',
             '+', '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○'};
 
@@ -1793,13 +1793,13 @@ public final class StringHelper {
         text = StringHelper.replaceWord("eight", "8", text);
         text = StringHelper.replaceWord("eights", "8", text);
         text = StringHelper.replaceWord("nine", "9", text);
-        text = StringHelper.replaceWord("nineth", "9", text);
+        text = StringHelper.replaceWord("ninth", "9", text);
         text = StringHelper.replaceWord("ten", "10", text);
         text = StringHelper.replaceWord("tenth", "10", text);
         text = StringHelper.replaceWord("eleven", "11", text);
         text = StringHelper.replaceWord("eleventh", "11", text);
         text = StringHelper.replaceWord("twelve", "12", text);
-        text = StringHelper.replaceWord("twelveth", "12", text);
+        text = StringHelper.replaceWord("twelfth", "12", text);
         text = StringHelper.replaceWord("twenty", "20", text);
         text = StringHelper.replaceWord("thirty", "30", text);
         text = StringHelper.replaceWord("forty", "40", text);
