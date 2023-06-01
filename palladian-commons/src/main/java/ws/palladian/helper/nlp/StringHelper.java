@@ -1812,6 +1812,32 @@ public final class StringHelper {
         return text;
     }
 
+    public static String numbersToNumberWords(String text) {
+        text = StringHelper.replaceWord("0", "zero", text);
+        text = StringHelper.replaceWord("1", "one", text);
+        text = StringHelper.replaceWord("2", "two", text);
+        text = StringHelper.replaceWord("3", "three", text);
+        text = StringHelper.replaceWord("4", "four", text);
+        text = StringHelper.replaceWord("5", "five", text);
+        text = StringHelper.replaceWord("6", "six", text);
+        text = StringHelper.replaceWord("7", "seven", text);
+        text = StringHelper.replaceWord("8", "eight", text);
+        text = StringHelper.replaceWord("9", "nine", text);
+        text = StringHelper.replaceWord("10", "ten", text);
+        text = StringHelper.replaceWord("11", "eleven", text);
+        text = StringHelper.replaceWord("12", "twelve", text);
+        text = StringHelper.replaceWord("20", "twenty", text);
+        text = StringHelper.replaceWord("30", "thirty", text);
+        text = StringHelper.replaceWord("40", "forty", text);
+        text = StringHelper.replaceWord("50", "fifty", text);
+        text = StringHelper.replaceWord("60", "sixty", text);
+        text = StringHelper.replaceWord("70", "seventy", text);
+        text = StringHelper.replaceWord("80", "eighty", text);
+        text = StringHelper.replaceWord("90", "ninety", text);
+        text = StringHelper.replaceWord("100", "one hundred", text);
+        return text;
+    }
+
     public static String getRegexpMatch(String regexp, String text) {
         return getRegexpMatch(regexp, text, false, false);
     }
