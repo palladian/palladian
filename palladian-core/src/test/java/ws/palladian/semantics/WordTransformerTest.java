@@ -21,6 +21,12 @@ public class WordTransformerTest {
     public void testSplitGermanCompounds() {
         List<String> words;
 
+        words = WordTransformer.splitGermanCompoundWords("zartbitter", false);
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("zart", words.get(0));
+        assertEquals("bitter", words.get(1));
+
         words = WordTransformer.splitGermanCompoundWords("goldstaffage", false);
         CollectionHelper.print(words);
         assertEquals(2, words.size());
