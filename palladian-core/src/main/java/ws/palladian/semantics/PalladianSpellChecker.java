@@ -277,7 +277,7 @@ public class PalladianSpellChecker {
         }
 
         result.removeIf(StringUtils::isEmpty);
-        return result;
+        return new ArrayList<>(new HashSet<>(result));
     }
 
     /**
@@ -479,6 +479,9 @@ public class PalladianSpellChecker {
                 }
             }
             if (count > 0) {
+                if (useContext && s.equals(word)) {
+                    wordCountGivenWord += count;
+                }
                 candidates.put(count, s);
             }
         }
@@ -538,8 +541,11 @@ public class PalladianSpellChecker {
 
         String corrected = word;
         if (!candidates.isEmpty() && !compoundCorrect) {
-            corrected = candidates.get(Collections.max(candidates.keySet()));
-            correction.set(true);
+            Integer max = Collections.max(candidates.keySet());
+            if (!useContext || max > 3 * wordCountGivenWord) {
+                corrected = candidates.get(max);
+                correction.set(true);
+            }
         }
 
         if (uppercase) {
