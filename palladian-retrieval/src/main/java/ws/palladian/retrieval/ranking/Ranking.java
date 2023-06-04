@@ -14,7 +14,6 @@ import java.util.Map.Entry;
  * @author Philipp Katz
  */
 public class Ranking {
-
     public static class Builder implements Factory<Ranking> {
 
         private final RankingService service;
