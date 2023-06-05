@@ -93,4 +93,8 @@ public class MapWordVectorDictionary implements WordVectorDictionary {
     public String toString() {
         return "MapWordVectorDictionary [" + vecFile.getName() + "]";
     }
+
+    public Map<String, float[]> getEntries() {
+        return entries;
+    }
 }
