@@ -98,11 +98,16 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
      */
     public void add(int id, String text) {
         StringTokenizer stringTokenizer = new StringTokenizer(text, DELIMITERS);
+        List<String> tokens = new ArrayList<>();
         while (stringTokenizer.hasMoreTokens()) {
             String token = stringTokenizer.nextToken();
+            tokens.add(token);
+        }
+        tokens = new ArrayList<>(new HashSet<>(tokens));
+        for (String token : tokens) {
             IntOpenHashSet integers = getValue(token);
             if (integers == null) {
-                integers = new IntOpenHashSet();
+                integers = new IntOpenHashSet(8, 0.95f);
                 put(token, integers);
             }
             integers.add(id);
@@ -113,7 +118,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
         for (String ngram : ngrams) {
             IntOpenHashSet integers = getValue(ngram);
             if (integers == null) {
-                integers = new IntOpenHashSet();
+                integers = new IntOpenHashSet(8, 0.95f);
                 put(ngram, integers);
             }
             integers.add(id);
