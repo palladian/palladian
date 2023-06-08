@@ -20,9 +20,6 @@ import java.util.Map;
  * @since 05-Jun-22 at 12:02
  **/
 public class DiskTrie<V> extends Trie<V> {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DiskTrie.class);
 
     /**

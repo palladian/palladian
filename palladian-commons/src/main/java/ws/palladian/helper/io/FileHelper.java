@@ -917,8 +917,11 @@ public final class FileHelper {
             } else {
                 stream = new FileInputStream(filePath);
             }
-            if (getFileType(filePath).equalsIgnoreCase("gz")) {
+            String fileType = getFileType(filePath);
+            if (fileType.equalsIgnoreCase("gz")) {
                 stream = new GZIPInputStream(stream);
+            } else if (fileType.equalsIgnoreCase("lz4")) {
+                stream = new LZ4BlockInputStream(stream);
             }
             in = new ObjectInputStream(stream);
             return (T) in.readObject();
@@ -958,11 +961,16 @@ public final class FileHelper {
                 outputFile.mkdirs();
             }
             OutputStream fileOutputStream = new FileOutputStream(filePath);
-            if (getFileType(filePath).equalsIgnoreCase("gz")) {
+            String fileType = getFileType(filePath);
+            if (fileType.equalsIgnoreCase("gz")) {
                 fileOutputStream = new GZIPOutputStream(fileOutputStream);
+            } else if (fileType.equalsIgnoreCase("lz4")) {
+                fileOutputStream = new LZ4BlockOutputStream(fileOutputStream);
             }
             out = new ObjectOutputStream(fileOutputStream);
             out.writeObject(object);
+        } catch (Throwable e) {
+            e.printStackTrace();
         } finally {
             close(out);
         }
