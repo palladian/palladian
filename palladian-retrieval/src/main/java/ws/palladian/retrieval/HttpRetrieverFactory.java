@@ -92,7 +92,7 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
      */
     public HttpRetrieverFactory(int numConnections, int numConnectionsPerRoute, boolean acceptAllCerts) {
         SSLConnectionSocketFactory socketFactory;
-//        if (acceptAllCerts) {
+        if (acceptAllCerts) {
             try {
                 // consider all certificates as trusted; this is generally not a good idea,
                 // however we use the HttpRetriever basically only for web scraping and data extraction,
@@ -105,9 +105,9 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
             }
-//        } else {
-//            socketFactory = SSLConnectionSocketFactory.getSocketFactory();
-//        }
+        } else {
+            socketFactory = SSLConnectionSocketFactory.getSocketFactory();
+        }
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", socketFactory)
