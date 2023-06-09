@@ -1,18 +1,20 @@
 package ws.palladian.retrieval;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import ws.palladian.helper.functional.Factory;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.Closeable;
-import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -58,7 +60,7 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
     /**
      * Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling.
      */
-    private final PoolingClientConnectionManager connectionManager;
+    private final PoolingHttpClientConnectionManager connectionManager;
 
     private static Factory<HttpRetriever> _factory = new HttpRetrieverFactory();
 
@@ -88,9 +90,7 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
      *                               have Internetführerschein advanced level before messing around with these functionalities.
      */
     public HttpRetrieverFactory(int numConnections, int numConnectionsPerRoute, boolean acceptAllCerts) {
-        SchemeRegistry registry = new SchemeRegistry();
-        registry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-        SSLSocketFactory socketFactory;
+        SSLConnectionSocketFactory socketFactory;
         if (acceptAllCerts) {
             try {
                 // consider all certificates as trusted; this is generally not a good idea,
@@ -100,22 +100,18 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
                 SSLContext sslContext = SSLContext.getInstance("SSL");
 
                 sslContext.init(null, new TrustManager[]{new ShadyTrustManager()}, new SecureRandom());
-                socketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-                //                socketFactory = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-                //                socketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, new HostnameVerifier() {
-                //                    @Override
-                //                    public boolean verify(String s, SSLSession sslSession) {
-                //                        return true;
-                //                    }
-                //                });
+                socketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, NoopHostnameVerifier.INSTANCE);
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
             }
         } else {
-            socketFactory = SSLSocketFactory.getSocketFactory();
+            socketFactory = SSLConnectionSocketFactory.getSocketFactory();
         }
-        registry.register(new Scheme("https", 443, socketFactory));
-        connectionManager = new PoolingClientConnectionManager(registry);
+        Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                .register("https", socketFactory)
+                .build();
+        connectionManager = new PoolingHttpClientConnectionManager(registry);
         connectionManager.setMaxTotal(numConnections);
         connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
     }
@@ -174,28 +170,6 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return null;
-        }
-    }
-
-    private static class TrustAllHostNameVerifier implements X509HostnameVerifier, HostnameVerifier {
-        @Override
-        public void verify(String host, SSLSocket ssl) throws IOException {
-
-        }
-
-        @Override
-        public void verify(String host, X509Certificate cert) throws SSLException {
-
-        }
-
-        @Override
-        public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
-
-        }
-
-        @Override
-        public boolean verify(String s, SSLSession sslSession) {
-            return true;
         }
     }
 }

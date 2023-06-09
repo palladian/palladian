@@ -9,22 +9,18 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DecompressingHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.*;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.*;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
@@ -113,12 +109,12 @@ public class HttpRetriever {
     /**
      * Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling.
      */
-    private final ClientConnectionManager connectionManager;
+    private final HttpClientConnectionManager connectionManager;
 
     /**
      * Various parameters for the Apache HttpClient.
      */
-    private final HttpParams httpParams = new SyncBasicHttpParams();
+    private final RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
 
     /**
      * Identifier for Connection Metrics; see comment in constructor.
@@ -176,11 +172,17 @@ public class HttpRetriever {
      */
     private ProxyRemoverCallback proxyRemoveCallback = null;
 
+    /**
+     *
+     * The user agent.
+     */
+    private String userAgent = null;
+
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
 
-    public HttpRetriever(ClientConnectionManager connectionManager) {
+    public HttpRetriever(HttpClientConnectionManager connectionManager) {
         Validate.notNull(connectionManager, "connectionManager must not be null");
         this.connectionManager = connectionManager;
         setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
@@ -188,7 +190,7 @@ public class HttpRetriever {
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
         // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        httpParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+        requestConfigBuilder.setCookieSpec(CookieSpecs.IGNORE_COOKIES);
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -306,12 +308,15 @@ public class HttpRetriever {
     // internal functionality
     // ////////////////////////////////////////////////////////////////
 
-    private AbstractHttpClient createHttpClient() {
+    private HttpClientBuilder createHttpClientBuilder() {
         // initialize the HttpClient
-        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, httpParams);
-
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().setConnectionManager(connectionManager);
+        if (userAgent != null) {
+            httpClientBuilder.setUserAgent(userAgent);
+        }
+        httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
         HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-        backend.setHttpRequestRetryHandler(retryHandler);
+        httpClientBuilder.setRetryHandler(retryHandler);
 
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
@@ -323,16 +328,14 @@ public class HttpRetriever {
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
             @Override
             public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-                HttpConnection conn = (HttpConnection) context.getAttribute(ExecutionContext.HTTP_CONNECTION);
+                HttpConnection conn = (HttpConnection) context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
                 HttpConnectionMetrics metrics = conn.getMetrics();
                 context.setAttribute(CONTEXT_METRICS_ID, metrics);
             }
         };
+        httpClientBuilder.addInterceptorLast(metricsSaver);
 
-        backend.addResponseInterceptor(metricsSaver);
-        // end edit
-
-        backend.addRequestInterceptor((request, context) -> {
+        HttpRequestInterceptor httpRequestInterceptor = (request, context) -> {
             List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
             if (locations == null) {
                 locations = new ArrayList<>();
@@ -340,21 +343,18 @@ public class HttpRetriever {
             }
             String fullLocation = context.getAttribute("http.target_host") + request.getRequestLine().getUri();
             locations.add(fullLocation);
-        });
+        };
+        httpClientBuilder.addInterceptorLast(httpRequestInterceptor);
 
-        if (cookieStore != null) {
-            backend.setCookieStore(new ApacheCookieStoreAdapter(cookieStore));
-        } else {
-            // set the cookie store; this is scoped on *one* request and discarded after that;
-            // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-            // "one request" actually means, that we have a e.g. a GET and receive several redirects,
-            // where cookies previously set cookies are necessary; this is not a typical case,
-            // and if we should encounter any issues by this change, remove this code (and the modification
-            // in the constructor) again.
-            backend.setCookieStore(new ApacheCookieStoreAdapter(new DefaultCookieStore()));
-        }
+        // set the cookie store; this is scoped on *one* request and discarded after that;
+        // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
+        // "one request" actually means, that we have a e.g. a GET and receive several redirects,
+        // where cookies previously set cookies are necessary; this is not a typical case,
+        // and if we should encounter any issues by this change, remove this code (and the modification
+        // in the constructor) again.
+        httpClientBuilder.setDefaultCookieStore(new ApacheCookieStoreAdapter(Objects.requireNonNullElseGet(cookieStore, DefaultCookieStore::new)));
 
-        return backend;
+        return httpClientBuilder;
     }
 
     private String createUrl(HttpRequest httpRequest) {
@@ -383,11 +383,7 @@ public class HttpRetriever {
     private static Map<String, List<String>> convertHeaders(Header[] headers) {
         Map<String, List<String>> result = new HashMap<>();
         for (Header header : headers) {
-            List<String> list = result.get(header.getName());
-            if (list == null) {
-                list = new ArrayList<>();
-                result.put(header.getName(), list);
-            }
+            List<String> list = result.computeIfAbsent(header.getName(), k -> new ArrayList<>());
             list.add(header.getValue());
         }
         return result;
@@ -405,28 +401,13 @@ public class HttpRetriever {
         HttpResult result;
         InputStream in = null;
 
-        AbstractHttpClient backend = createHttpClient();
+        HttpClientBuilder clientBuilder = createHttpClientBuilder();
+        Proxy proxyUsed = setProxy(url, request, clientBuilder);
 
-        Proxy proxyUsed = setProxy(url, request, backend);
+        CloseableHttpClient client = clientBuilder.build();
 
         try {
             HttpContext context = new BasicHttpContext();
-
-            //                SSLContext sslContext = SSLContext.getInstance("SSL");
-            //                sslContext.init(null, new TrustManager[]{new HttpRetrieverFactory.ShadyTrustManager()}, new SecureRandom());
-            //
-            //                context = new BasicHttpContext();
-            //                HostnameVerifier verifier = new HostnameVerifier() {
-            //                    @Override
-            //                    public boolean verify(String s, SSLSession sslSession) {
-            //                        return true;
-            //                    }
-            //                };
-            ////                CustomSslSocket sslSocketFactory = new CustomSslSocket(SocketConfig.DEFAULT, sslContext, verifier);
-            //                CustomSslSocketFactory sslSocketFactory = new CustomSslSocketFactory(SocketConfig.DEFAULT, sslContext, verifier);
-            //
-            //                CloseableHttpClient client = HttpClientBuilder.create().setSSLHostnameVerifier(verifier).setSSLSocketFactory(sslSocketFactory).build();
-            DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
             HttpResponse response = client.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
@@ -497,19 +478,21 @@ public class HttpRetriever {
         return result;
     }
 
-    private Proxy setProxy(String url, HttpUriRequest request, AbstractHttpClient backend) throws HttpException {
+    private Proxy setProxy(String url, HttpUriRequest request, HttpClientBuilder clientBuilder) throws HttpException {
         Proxy proxy = proxyProvider.getProxy(url);
         if (proxy == null) {
             return null;
         }
         HttpHost proxyHost = new HttpHost(proxy.getAddress(), proxy.getPort());
-        backend.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
+        clientBuilder.setProxy(proxyHost);
 
         // set proxy authentication if available
         if (StringUtils.isNotEmpty(proxy.getUsername())) {
             Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
             AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
-            backend.getCredentialsProvider().setCredentials(scope, credentials);
+            BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(scope, credentials);
+            clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
 
             String usernamePassword = proxy.getUsername() + ":" + proxy.getPassword();
             String encoded = new String(Base64.encodeBase64(new String(usernamePassword).getBytes()));
@@ -539,28 +522,31 @@ public class HttpRetriever {
 
         List<String> ret = new ArrayList<>();
 
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(socketTimeoutRedirects)
+                .setConnectTimeout(connectionTimeoutRedirects)
+                .setRedirectsEnabled(false)
+                .build();
         // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
         // see: https://dev.twitter.com/docs/tco-redirection-behavior
-        HttpParams params = new BasicHttpParams();
-        params.setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-        HttpProtocolParams.setUserAgent(httpParams, REDIRECT_USER_AGENT);
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
+                .setUserAgent(REDIRECT_USER_AGENT)
+                .setDefaultRequestConfig(requestConfig)
+                .setConnectionManager(connectionManager);
 
-        HttpConnectionParams.setSoTimeout(params, socketTimeoutRedirects);
-        HttpConnectionParams.setConnectionTimeout(params, connectionTimeoutRedirects);
 
-        DefaultHttpClient backend = new DefaultHttpClient(connectionManager, params);
-        DecompressingHttpClient client = new DecompressingHttpClient(backend);
 
         for (; ; ) {
             HttpHead headRequest;
             Proxy proxy = null;
             try {
                 headRequest = new HttpHead(url);
-                proxy = setProxy(url, headRequest, backend);
+                proxy = setProxy(url, headRequest, httpClientBuilder);
             } catch (IllegalArgumentException e) {
                 throw new HttpException("Invalid URL: \"" + url + "\"");
             }
             try {
+                HttpClient client = httpClientBuilder.build();
                 HttpResponse response = client.execute(headRequest);
                 int statusCode = response.getStatusLine().getStatusCode();
                 LOGGER.debug("Result {} for {}", statusCode, url);
@@ -672,7 +658,7 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public void setConnectionTimeout(int connectionTimeout) {
-        HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout);
+        requestConfigBuilder.setConnectTimeout(connectionTimeout);
     }
 
     /**
@@ -684,7 +670,7 @@ public class HttpRetriever {
      * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(int socketTimeout) {
-        HttpConnectionParams.setSoTimeout(httpParams, socketTimeout);
+        requestConfigBuilder.setSocketTimeout(socketTimeout);
     }
 
     public void setNumRetries(int numRetries) {
@@ -692,7 +678,7 @@ public class HttpRetriever {
     }
 
     public void setUserAgent(String userAgent) {
-        HttpProtocolParams.setUserAgent(httpParams, userAgent);
+        this.userAgent = userAgent;
     }
 
     /**
