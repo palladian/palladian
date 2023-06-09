@@ -1,8 +1,8 @@
 package ws.palladian.retrieval;
 
-import org.apache.http.client.CookieStore;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.Date;

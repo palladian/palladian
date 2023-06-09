@@ -1,14 +1,15 @@
 package ws.palladian.retrieval;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.http.io.SocketConfig;
 import ws.palladian.helper.functional.Factory;
 
 import javax.net.ssl.SSLContext;
@@ -91,7 +92,7 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
      */
     public HttpRetrieverFactory(int numConnections, int numConnectionsPerRoute, boolean acceptAllCerts) {
         SSLConnectionSocketFactory socketFactory;
-        if (acceptAllCerts) {
+//        if (acceptAllCerts) {
             try {
                 // consider all certificates as trusted; this is generally not a good idea,
                 // however we use the HttpRetriever basically only for web scraping and data extraction,
@@ -104,9 +105,9 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 throw new IllegalStateException("Exception when creating SSLSocketFactory", e);
             }
-        } else {
-            socketFactory = SSLConnectionSocketFactory.getSocketFactory();
-        }
+//        } else {
+//            socketFactory = SSLConnectionSocketFactory.getSocketFactory();
+//        }
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", socketFactory)
@@ -127,7 +128,7 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
     @Override
     public void close() {
         // System.out.println("shutting down connection manager");
-        connectionManager.shutdown();
+        connectionManager.close();
     }
 
     /**

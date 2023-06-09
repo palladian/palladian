@@ -3,23 +3,31 @@ package ws.palladian.retrieval;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpEntity;
-import org.apache.http.*;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.protocol.BasicHttpContext;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.*;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.impl.client.*;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.protocol.HttpCoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +117,7 @@ public class HttpRetriever {
     /**
      * Connection manager from Apache HttpComponents; thread safe and responsible for connection pooling.
      */
-    private final HttpClientConnectionManager connectionManager;
+    private final PoolingHttpClientConnectionManager connectionManager;
 
     /**
      * Various parameters for the Apache HttpClient.
@@ -139,11 +147,6 @@ public class HttpRetriever {
      * The timeout for connections when checking for redirects.
      */
     private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
-
-    /**
-     * The socket timeout when checking for redirects.
-     */
-    private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     /**
      * Number of retries for one request, if error occurs.
@@ -182,7 +185,7 @@ public class HttpRetriever {
     // constructor
     // ////////////////////////////////////////////////////////////////
 
-    public HttpRetriever(HttpClientConnectionManager connectionManager) {
+    public HttpRetriever(PoolingHttpClientConnectionManager connectionManager) {
         Validate.notNull(connectionManager, "connectionManager must not be null");
         this.connectionManager = connectionManager;
         setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
@@ -248,7 +251,7 @@ public class HttpRetriever {
             case POST:
                 url = request.getUrl();
                 HttpPost httpPost = new HttpPost(url);
-                HttpEntity entity;
+                org.apache.hc.core5.http.HttpEntity entity;
 
                 if (request.getHttpEntity() != null) {
                     entity = request.getHttpEntity();
@@ -316,7 +319,7 @@ public class HttpRetriever {
         }
         httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
         HttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(numRetries, false);
-        httpClientBuilder.setRetryHandler(retryHandler);
+        // FIXME
 
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
@@ -327,24 +330,24 @@ public class HttpRetriever {
          */
         HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
             @Override
-            public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+            public void process(HttpResponse httpResponse, EntityDetails entityDetails, HttpContext context) throws org.apache.hc.core5.http.HttpException, IOException {
                 HttpConnection conn = (HttpConnection) context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
-                HttpConnectionMetrics metrics = conn.getMetrics();
+                HttpConnectionMetrics metrics = null; // conn.getMetrics(); FIXME
                 context.setAttribute(CONTEXT_METRICS_ID, metrics);
             }
         };
-        httpClientBuilder.addInterceptorLast(metricsSaver);
+        httpClientBuilder.addResponseInterceptorLast(metricsSaver);
 
-        HttpRequestInterceptor httpRequestInterceptor = (request, context) -> {
+        HttpRequestInterceptor httpRequestInterceptor = (request, entityDetails, context) -> {
             List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
             if (locations == null) {
                 locations = new ArrayList<>();
                 context.setAttribute(CONTEXT_LOCATIONS_ID, locations);
             }
-            String fullLocation = context.getAttribute("http.target_host") + request.getRequestLine().getUri();
+            String fullLocation = context.getAttribute("http.target_host") + request.getRequestUri();
             locations.add(fullLocation);
         };
-        httpClientBuilder.addInterceptorLast(httpRequestInterceptor);
+        httpClientBuilder.addRequestInterceptorLast(httpRequestInterceptor);
 
         // set the cookie store; this is scoped on *one* request and discarded after that;
         // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
@@ -409,7 +412,7 @@ public class HttpRetriever {
         try {
             HttpContext context = new BasicHttpContext();
 
-            HttpResponse response = client.execute(request, context);
+            ClassicHttpResponse response = client.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
@@ -443,15 +446,14 @@ public class HttpRetriever {
                 entityContent = new byte[0];
             }
 
-            int statusCode = response.getStatusLine().getStatusCode();
+            int statusCode = response.getCode();
             long receivedBytes = 0;
 
             if (metrics != null) {
                 receivedBytes = metrics.getReceivedBytesCount();
-                metrics.reset();
             }
 
-            Map<String, List<String>> headers = convertHeaders(response.getAllHeaders());
+            Map<String, List<String>> headers = convertHeaders(response.getHeaders());
 
             // did we get redirected?
             List<String> locations = (List<String>) context.getAttribute(CONTEXT_LOCATIONS_ID);
@@ -488,8 +490,8 @@ public class HttpRetriever {
 
         // set proxy authentication if available
         if (StringUtils.isNotEmpty(proxy.getUsername())) {
-            Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword());
-            AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort(), AuthScope.ANY_REALM);
+            Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword().toCharArray());
+            AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort()/* FIXME: ,AuthScope.ANY_REALM*/);
             BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(scope, credentials);
             clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
@@ -523,8 +525,7 @@ public class HttpRetriever {
         List<String> ret = new ArrayList<>();
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setSocketTimeout(socketTimeoutRedirects)
-                .setConnectTimeout(connectionTimeoutRedirects)
+                .setConnectTimeout(connectionTimeoutRedirects, TimeUnit.MILLISECONDS)
                 .setRedirectsEnabled(false)
                 .build();
         // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
@@ -546,9 +547,9 @@ public class HttpRetriever {
                 throw new HttpException("Invalid URL: \"" + url + "\"");
             }
             try {
-                HttpClient client = httpClientBuilder.build();
-                HttpResponse response = client.execute(headRequest);
-                int statusCode = response.getStatusLine().getStatusCode();
+                CloseableHttpClient client = httpClientBuilder.build();
+                ClassicHttpResponse response = client.execute(headRequest);
+                int statusCode = response.getCode();
                 LOGGER.debug("Result {} for {}", statusCode, url);
                 if (statusCode >= 300 && statusCode < 400) {
                     Header[] locationHeaders = response.getHeaders("location");
@@ -658,7 +659,7 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public void setConnectionTimeout(int connectionTimeout) {
-        requestConfigBuilder.setConnectTimeout(connectionTimeout);
+        requestConfigBuilder.setConnectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -670,7 +671,7 @@ public class HttpRetriever {
      * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(int socketTimeout) {
-        requestConfigBuilder.setSocketTimeout(socketTimeout);
+        connectionManager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeout, TimeUnit.MILLISECONDS).build());
     }
 
     public void setNumRetries(int numRetries) {
@@ -731,8 +732,9 @@ public class HttpRetriever {
         this.connectionTimeoutRedirects = connectionTimeoutRedirects;
     }
 
+    @Deprecated
     public void setSocketTimeoutRedirects(int socketTimeoutRedirects) {
-        this.socketTimeoutRedirects = socketTimeoutRedirects;
+        LOGGER.warn("HttpRetriever::setSocketTimeoutRedirects has been deprecated, use setSocketTimeout");
     }
 
     public Set<Integer> getProxyRemoveStatusCodes() {

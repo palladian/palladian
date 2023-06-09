@@ -1,12 +1,11 @@
 package ws.palladian.retrieval;
 
-import org.apache.http.HttpHost;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.protocol.BasicHttpContext;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.TimeValue;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -38,18 +37,18 @@ class CustomSslSocketFactory extends SSLConnectionSocketFactory {
      */
     private Socket createSocketCustom(HttpContext context) throws IOException {
         Socket sock = super.createSocket(context); // TODO help <- context (enable sni) is ignored in create socket super
-        sock.setSoTimeout(socketConfig.getSoTimeout());
+        sock.setSoTimeout((int) socketConfig.getSoTimeout().getDuration());
         sock.setReuseAddress(socketConfig.isSoReuseAddress());
         sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
         sock.setKeepAlive(socketConfig.isSoKeepAlive());
-        final int linger = socketConfig.getSoLinger();
+        final int linger = socketConfig.getSoLinger().toMillisecondsIntBound();
         if (linger >= 0) {
             sock.setSoLinger(true, linger);
         }
         return sock;
     }
 
-    private Socket connectSocketSni(final int connectTimeout, final Socket socket, final HttpHost host, final InetSocketAddress remoteAddress, final InetSocketAddress localAddress,
+    private Socket connectSocketSni(final TimeValue connectTimeout, final Socket socket, final HttpHost host, final InetSocketAddress remoteAddress, final InetSocketAddress localAddress,
             HttpContext context, final boolean enableSni) throws IOException {
         try {
             if (context == null) {
@@ -70,9 +69,8 @@ class CustomSslSocketFactory extends SSLConnectionSocketFactory {
     }
 
     @Override
-    public Socket connectSocket(final int connectTimeout, final Socket socket, final HttpHost host, final InetSocketAddress remoteAddress, final InetSocketAddress localAddress,
-            final HttpContext context) throws IOException {
-        //        context.setAttribute(ENABLE_SNI, true);
+    public Socket connectSocket(TimeValue connectTimeout, Socket socket, HttpHost host, InetSocketAddress remoteAddress, InetSocketAddress localAddress,
+            HttpContext context) throws IOException {
         return this.connectSocketSni(connectTimeout, socket, host, remoteAddress, localAddress, context, true);
     }
 
