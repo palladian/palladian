@@ -24,7 +24,6 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.apache.http.client.config.CookieSpecs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
@@ -183,6 +182,7 @@ public class HttpRetriever {
      */
     private String userAgent = null;
 
+
     // ////////////////////////////////////////////////////////////////
     // constructor
     // ////////////////////////////////////////////////////////////////
@@ -194,8 +194,6 @@ public class HttpRetriever {
         setSocketTimeout(DEFAULT_SOCKET_TIMEOUT);
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
-        // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        requestConfigBuilder.setCookieSpec(CookieSpecs.IGNORE_COOKIES); // FIXME
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -498,7 +496,7 @@ public class HttpRetriever {
         // set proxy authentication if available
         if (StringUtils.isNotEmpty(proxy.getUsername())) {
             Credentials credentials = new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword().toCharArray());
-            AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort()/* FIXME: ,AuthScope.ANY_REALM*/);
+            AuthScope scope = new AuthScope(proxy.getAddress(), proxy.getPort());
             BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(scope, credentials);
             clientBuilder.setDefaultCredentialsProvider(credentialsProvider);
