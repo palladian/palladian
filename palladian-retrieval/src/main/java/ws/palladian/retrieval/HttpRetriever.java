@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.SizeUnit;
 import ws.palladian.helper.io.FileHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.helper.HttpHelper;
 
 import java.io.ByteArrayOutputStream;
@@ -415,6 +416,14 @@ public class HttpRetriever {
 
         try {
             HttpContext context = new BasicHttpContext();
+
+            try { // including credentials in the url doesn't work out of the box anymore, try to set the Authorization header
+                if (request.getAuthority() != null && request.getAuthority().getUserInfo() != null && request.getHeader("Authorization") == null) {
+                    request.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(request.getAuthority().getUserInfo()));
+                }
+            } catch (ProtocolException e) {
+                LOGGER.error("Could not set Authorization header", e);
+            }
 
             ClassicHttpResponse response = client.execute(request, context);
             HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
