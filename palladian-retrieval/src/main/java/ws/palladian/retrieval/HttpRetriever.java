@@ -21,6 +21,7 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -143,6 +144,11 @@ public class HttpRetriever {
      * The timeout for connections when checking for redirects.
      */
     private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
+
+    /**
+    * The socket timeout when checking for redirects.
+    */
+    private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     /**
      * Number of retries for one request, if error occurs.
@@ -524,6 +530,7 @@ public class HttpRetriever {
 
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(connectionTimeoutRedirects, TimeUnit.MILLISECONDS)
+                .setResponseTimeout(socketTimeoutRedirects, TimeUnit.MILLISECONDS)
                 .setRedirectsEnabled(false)
                 .build();
         // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
@@ -657,7 +664,7 @@ public class HttpRetriever {
     // ////////////////////////////////////////////////////////////////
 
     public void setConnectionTimeout(int connectionTimeout) {
-        requestConfigBuilder.setConnectTimeout(connectionTimeout, TimeUnit.MILLISECONDS);
+        requestConfigBuilder.setConnectTimeout(Timeout.of(connectionTimeout, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -669,7 +676,7 @@ public class HttpRetriever {
      * @param socketTimeout timeout The new socket timeout time in milliseconds
      */
     public void setSocketTimeout(int socketTimeout) {
-        connectionManager.setDefaultSocketConfig(SocketConfig.custom().setSoTimeout(socketTimeout, TimeUnit.MILLISECONDS).build());
+        requestConfigBuilder.setResponseTimeout(socketTimeout, TimeUnit.MILLISECONDS);
     }
 
     public void setNumRetries(int numRetries) {
@@ -730,9 +737,8 @@ public class HttpRetriever {
         this.connectionTimeoutRedirects = connectionTimeoutRedirects;
     }
 
-    @Deprecated
     public void setSocketTimeoutRedirects(int socketTimeoutRedirects) {
-        LOGGER.warn("HttpRetriever::setSocketTimeoutRedirects has been deprecated, use setSocketTimeout");
+        this.socketTimeoutRedirects = socketTimeoutRedirects;
     }
 
     public Set<Integer> getProxyRemoveStatusCodes() {
