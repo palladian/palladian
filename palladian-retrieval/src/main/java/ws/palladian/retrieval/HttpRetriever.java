@@ -21,10 +21,10 @@ import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.protocol.HttpCoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
@@ -195,7 +195,7 @@ public class HttpRetriever {
         setNumRetries(DEFAULT_NUM_RETRIES);
         setUserAgent(USER_AGENT);
         // https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        requestConfigBuilder.setCookieSpec(CookieSpecs.IGNORE_COOKIES);
+        requestConfigBuilder.setCookieSpec(CookieSpecs.IGNORE_COOKIES); // FIXME
     }
 
     // ////////////////////////////////////////////////////////////////
@@ -329,13 +329,9 @@ public class HttpRetriever {
          * http://svn.apache.org/viewvc/jakarta/jmeter/trunk/src/protocol/http/org/apache/jmeter/protocol/http/sampler/
          * HTTPHC4Impl.java?annotate=1090914&pathrev=1090914
          */
-        HttpResponseInterceptor metricsSaver = new HttpResponseInterceptor() {
-            @Override
-            public void process(HttpResponse httpResponse, EntityDetails entityDetails, HttpContext context) throws org.apache.hc.core5.http.HttpException, IOException {
-                HttpConnection conn = (HttpConnection) context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
-                HttpConnectionMetrics metrics = null; // conn.getMetrics(); FIXME
-                context.setAttribute(CONTEXT_METRICS_ID, metrics);
-            }
+        HttpResponseInterceptor metricsSaver = (httpResponse, entityDetails, context) -> {
+            HttpConnectionMetrics endpoint = (HttpConnectionMetrics) context.getAttribute(HttpCoreContext.CONNECTION_ENDPOINT);
+            context.setAttribute(CONTEXT_METRICS_ID, endpoint);
         };
         httpClientBuilder.addResponseInterceptorLast(metricsSaver);
 
