@@ -32,6 +32,12 @@ public class HttpRetrieverHttpBinTest {
         httpRetriever.setCookieStore(cookieStore);
         HttpResult result = httpRetriever.execute(request);
         assertEquals(200, result.getStatusCode());
+        assertEquals(0, cookieStore.getCookies().size());
+
+        cookieValue = "foo=bar; Expires=Sun, 11 Jun 2028 01:48:58 GMT";
+        request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/response-headers?set-cookie=" + UrlHelper.encodeParameter(cookieValue)).create();
+        result = httpRetriever.execute(request);
+        assertEquals(200, result.getStatusCode());
         assertEquals(1, cookieStore.getCookies().size());
         Cookie cookie = cookieStore.getCookies().iterator().next();
         assertEquals("foo", cookie.getName());

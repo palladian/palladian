@@ -17,7 +17,7 @@ public class EmailAnalyzerTest {
         collector.checkThat(profile.getLastName(), is("Urbansky"));
         collector.checkThat(profile.getEmail(), is("david.urbansky@semknox.com"));
         collector.checkThat(profile.getUsername(), is("ddsky"));
-        collector.checkThat(profile.getImageUrl(), is("https://secure.gravatar.com/avatar/e61fff419c2ddf685b1520e768d33e40"));
+        collector.checkThat(profile.getImageUrl(), is("https://0.gravatar.com/avatar/dce196cd00ed7df3bebdcb0b23a0f4db"));
 
         profile = new EmailAnalyzer().getProfile("david.urbansky@anotherwebsite.com");
         //collector.checkThat(profile.getFirstName(), is("David"));
