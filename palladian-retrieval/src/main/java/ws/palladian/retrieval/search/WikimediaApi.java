@@ -2,8 +2,8 @@ package ws.palladian.retrieval.search;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.DocumentRetriever;
 
 import java.util.HashSet;
 import java.util.Set;

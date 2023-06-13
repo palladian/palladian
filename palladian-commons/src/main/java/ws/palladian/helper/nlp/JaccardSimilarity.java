@@ -34,7 +34,7 @@ public class JaccardSimilarity extends AbstractStringMetric {
         String[] setA = s1.split("\\s+");
         String[] setB = s2.split("\\s+");
 
-        return MathHelper.computeJaccardSimilarity(new HashSet<String>(Arrays.asList(setA)), new HashSet<String>(Arrays.asList(setB)));
+        return MathHelper.computeJaccardSimilarity(new HashSet<>(Arrays.asList(setA)), new HashSet<>(Arrays.asList(setB)));
     }
 
 }

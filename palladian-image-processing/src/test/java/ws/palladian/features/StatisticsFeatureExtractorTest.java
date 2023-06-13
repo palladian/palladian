@@ -3,7 +3,6 @@ package ws.palladian.features;
 import org.junit.Test;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.value.NumericValue;
-import ws.palladian.features.StatisticsFeatureExtractor;
 import ws.palladian.features.color.HSB;
 import ws.palladian.helper.io.ResourceHelper;
 

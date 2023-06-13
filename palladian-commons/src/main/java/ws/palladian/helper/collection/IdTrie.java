@@ -37,6 +37,16 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     protected IntOpenHashSet value;
 
+    /** Store the most expensive (cost = time to retrieve) ngrams in a cache. */
+    private CostAwareCache<String, IntOpenHashSet> costAwareCache;
+
+    public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-–—―`‘’“·•®”*_+";
+
+    public IdTrie(int cacheSize) {
+        this(EMPTY_CHARACTER, null);
+        costAwareCache = new CostAwareCache(cacheSize);
+    }
+
     public IdTrie() {
         this(EMPTY_CHARACTER, null);
     }
@@ -44,6 +54,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
     private IdTrie(char character, IdTrie parent) {
         this.character = character;
         this.parent = parent;
+        costAwareCache = null;
     }
 
     public IdTrie getNode(CharSequence key) {
@@ -86,15 +97,29 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
      * @param id   The id to add to the leaf nodes.
      */
     public void add(int id, String text) {
-        String[] parts = text.split("[ ,;:!?.-]");
-        for (String part : parts) {
-            if (part.isEmpty()) {
-                continue;
-            }
-            IntOpenHashSet integers = getValue(part);
+        StringTokenizer stringTokenizer = new StringTokenizer(text, DELIMITERS);
+        List<String> tokens = new ArrayList<>();
+        while (stringTokenizer.hasMoreTokens()) {
+            String token = stringTokenizer.nextToken();
+            tokens.add(token);
+        }
+        tokens = new ArrayList<>(new HashSet<>(tokens));
+        for (String token : tokens) {
+            IntOpenHashSet integers = getValue(token);
             if (integers == null) {
-                integers = new IntOpenHashSet();
-                put(part, integers);
+                integers = new IntOpenHashSet(8, 0.95f);
+                put(token, integers);
+            }
+            integers.add(id);
+        }
+    }
+
+    public void add(int id, Set<String> ngrams) {
+        for (String ngram : ngrams) {
+            IntOpenHashSet integers = getValue(ngram);
+            if (integers == null) {
+                integers = new IntOpenHashSet(8, 0.95f);
+                put(ngram, integers);
             }
             integers.add(id);
         }
@@ -116,6 +141,14 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public IntOpenHashSet get(String key) {
         Validate.notEmpty(key, "key must not be empty");
+        long startTime = 0;
+        if (costAwareCache != null) {
+            IntOpenHashSet integers = costAwareCache.tryGet(key);
+            if (integers != null) {
+                return integers;
+            }
+            startTime = System.nanoTime();
+        }
         IdTrie node = getNode(key);
         if (node == null) {
             return new IntOpenHashSet();
@@ -127,17 +160,21 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
         IntArrayList list;
         if (node.hasData()) {
-            //            CollectionUtils.addAll(list, node.getValue().toArray());
             list = new IntArrayList(node.getValue());
         } else {
             list = new IntArrayList();
         }
         while (iterator.hasNext()) {
             Map.Entry<String, IntOpenHashSet> entry = iterator.next();
-            //            CollectionUtils.addAll(list, entry.getValue().toArray());
             list.addAll(entry.getValue());
         }
-        return new IntOpenHashSet(list);
+        IntOpenHashSet integers = new IntOpenHashSet(list);
+
+        if (costAwareCache != null) {
+            costAwareCache.tryAdd((int) (System.nanoTime() - startTime), key, integers);
+        }
+
+        return integers;
     }
 
     public IntOpenHashSet getOrPut(String key, IntOpenHashSet value) {
@@ -218,6 +255,14 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public int size() {
         return CollectionHelper.count(this.iterator());
+    }
+
+    public CostAwareCache<String, IntOpenHashSet> getCostAwareCache() {
+        return costAwareCache;
+    }
+
+    public void setCostAwareCache(CostAwareCache<String, IntOpenHashSet> costAwareCache) {
+        this.costAwareCache = costAwareCache;
     }
 
     @Override

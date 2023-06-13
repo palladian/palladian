@@ -21,6 +21,42 @@ public class WordTransformerTest {
     public void testSplitGermanCompounds() {
         List<String> words;
 
+        words = WordTransformer.splitGermanCompoundWords("zartbitter", false);
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("zart", words.get(0));
+        assertEquals("bitter", words.get(1));
+
+        words = WordTransformer.splitGermanCompoundWords("goldstaffage", false);
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("gold", words.get(0));
+        assertEquals("staffage", words.get(1));
+
+        words = WordTransformer.splitGermanCompoundWords("modern", false);
+        CollectionHelper.print(words);
+        assertEquals(1, words.size());
+        assertEquals("modern", words.get(0));
+
+        words = WordTransformer.splitGermanCompoundWords("tintenstrahldrucker", false);
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("tintenstrahl", words.get(0));
+        assertEquals("drucker", words.get(1));
+
+        words = WordTransformer.splitGermanCompoundWords("bachforellenfilet", true);
+        CollectionHelper.print(words);
+        assertEquals(3, words.size());
+        assertEquals("bach", words.get(0));
+        assertEquals("forellen", words.get(1));
+        assertEquals("filet", words.get(2));
+
+        words = WordTransformer.splitGermanCompoundWords("bachforellenfilet");
+        CollectionHelper.print(words);
+        assertEquals(2, words.size());
+        assertEquals("bach", words.get(0));
+        assertEquals("forellenfilet", words.get(1));
+
         // also separate misspelled words
         words = WordTransformer.splitGermanCompoundWords("platouschuhe");
         CollectionHelper.print(words);

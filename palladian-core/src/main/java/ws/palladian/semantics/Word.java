@@ -27,13 +27,13 @@ public class Word {
     private String language = "";
 
     /** A set of synonyms for this word. */
-    private Set<Word> synonyms = new LinkedHashSet<Word>();
+    private Set<Word> synonyms = new LinkedHashSet<>();
 
     /** A set of hypernyms for this word. */
-    private Set<Word> hypernyms = new LinkedHashSet<Word>();
+    private Set<Word> hypernyms = new LinkedHashSet<>();
 
     /** A set of hyponyms for this word. */
-    private Set<Word> hyponyms = new LinkedHashSet<Word>();
+    private Set<Word> hyponyms = new LinkedHashSet<>();
 
     public Word(int id, String word, String plural, String type, String language) {
         this.id = id;

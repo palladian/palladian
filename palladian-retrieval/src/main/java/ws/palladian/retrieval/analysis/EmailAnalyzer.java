@@ -2,11 +2,11 @@ package ws.palladian.retrieval.analysis;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonObject;
 
 import java.util.Optional;
 

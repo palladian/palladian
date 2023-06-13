@@ -1,16 +1,12 @@
 package ws.palladian.helper.collection;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Klemens Muthmann
  */
 public final class BidiMap<K, V> implements Map<K, V>, Serializable {
-
     private static final long serialVersionUID = 1L;
 
     private final Map<K, V> map;
@@ -21,26 +17,32 @@ public final class BidiMap<K, V> implements Map<K, V>, Serializable {
      */
     public BidiMap() {
         super();
-        map = new HashMap<K, V>();
-        reverseMap = new HashMap<V, K>();
+        map = new HashMap<>();
+        reverseMap = new HashMap<>();
+    }
+
+    public BidiMap(Map<K, V> map, Map<V, K> reverseMap) {
+        super();
+        this.map = map;
+        this.reverseMap = reverseMap;
     }
 
     public BidiMap(int initialCapacity) {
         super();
-        map = new HashMap<K, V>(initialCapacity);
-        reverseMap = new HashMap<V, K>(initialCapacity);
+        map = new HashMap<>(initialCapacity);
+        reverseMap = new HashMap<>(initialCapacity);
     }
 
     public BidiMap(int initialCapacity, float loadFactor) {
         super();
-        map = new HashMap<K, V>(initialCapacity, loadFactor);
-        reverseMap = new HashMap<V, K>(initialCapacity, loadFactor);
+        map = new HashMap<>(initialCapacity, loadFactor);
+        reverseMap = new HashMap<>(initialCapacity, loadFactor);
     }
 
     public BidiMap(Map<? extends K, ? extends V> m) {
         super();
-        map = new HashMap<K, V>(m);
-        reverseMap = new HashMap<V, K>();
+        map = new HashMap<>(m);
+        reverseMap = new HashMap<>();
         for (Map.Entry<? extends K, ? extends V> entry : m.entrySet()) {
             reverseMap.put(entry.getValue(), entry.getKey());
         }
@@ -114,6 +116,18 @@ public final class BidiMap<K, V> implements Map<K, V>, Serializable {
             reverseMap.remove(value);
         }
         return value;
+    }
+
+    public void removeAll(Collection<K> keys) {
+        map.keySet().removeAll(keys);
+        // now iterate over the reverse map and remove the entry if it doesn't point to a valid key anymore
+        Iterator<V> iterator = reverseMap.keySet().iterator();
+        while (iterator.hasNext()) {
+            V value = iterator.next();
+            if (!map.containsValue(value)) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override

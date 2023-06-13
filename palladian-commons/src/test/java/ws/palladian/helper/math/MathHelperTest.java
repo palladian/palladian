@@ -64,7 +64,6 @@ public class MathHelperTest {
 
     @Test
     public void testComputeAllCombinations() {
-
         String[] items = {"a", "b", "c"};
         Collection<List<String>> allCombinations = MathHelper.computeAllCombinations(items);
         // CollectionHelper.print(allCombinations);
@@ -79,8 +78,8 @@ public class MathHelperTest {
     @SuppressWarnings("deprecation")
     @Test
     public void testComputeCosineSimilarity() {
-        Double[] vector1 = {10.0, 50.0};
-        Double[] vector2 = {8.0, 66.0};
+        float[] vector1 = {10f, 50f};
+        float[] vector2 = {8f, 66f};
         assertEquals(0.997, MathHelper.round(MathHelper.computeCosineSimilarity(vector1, vector2), 3), 0);
     }
 

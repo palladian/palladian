@@ -9,10 +9,10 @@ import ws.palladian.extraction.entity.tagger.NerHelper;
 import ws.palladian.helper.collection.CaseInsensitiveMap;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.geo.GeoCoordinate;
-import ws.palladian.retrieval.*;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

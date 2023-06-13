@@ -128,8 +128,8 @@ public class HttpCrawler {
     }
 
     public HttpCrawler(Predicate<String> urlFilter, Consumer<HttpResult> action, RequestThrottle throttle, RetryPolicy retryPolicy) {
-        urlQueue = new ConcurrentLinkedQueue<String>();
-        checkedUrls = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+        urlQueue = new ConcurrentLinkedQueue<>();
+        checkedUrls = Collections.newSetFromMap(new ConcurrentHashMap<>());
         httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         htmlParser = ParserFactory.createHtmlParser();
         this.urlFilter = urlFilter;

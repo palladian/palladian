@@ -13,7 +13,6 @@ import java.util.List;
  * @author David Urbansky
  */
 public class SynonymDictionary extends HashMap<String, List<String>> {
-
     private static final long serialVersionUID = 7243176985494991325L;
 
     public void addSynonym(String word, String synonym) {

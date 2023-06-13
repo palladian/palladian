@@ -55,8 +55,8 @@ public final class StringHelper {
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
-    public static final String[] TRIMMABLE_CHARACTERS = {",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\", "@", "<", ">", "=", "·", "^", "_",
-            "+", "»", "ￂ", "•", "”", "“", "´", "`", "¯", "~", "®", "™", "○"};
+    public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '-', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_',
+            '+', '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○'};
 
     private StringHelper() {
         // utility class.
@@ -635,6 +635,92 @@ public final class StringHelper {
         return searchString;
     }
 
+    public static StringBuilder removeWordCaseSensitive(String word, StringBuilder searchStringLowerCase) {
+        if (word == null || word.isEmpty()) {
+            return searchStringLowerCase;
+        }
+
+        int oldIndex = 0;
+        int index;
+        do {
+            index = searchStringLowerCase.indexOf(word, oldIndex);
+            if (index == -1) {
+                return searchStringLowerCase;
+            }
+            oldIndex = index + word.length();
+
+            boolean leftBorder;
+            if (index == 0) {
+                leftBorder = true;
+            } else {
+                char prevChar = searchStringLowerCase.charAt(index - 1);
+                leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar) || Character.getType(prevChar) == Character.DASH_PUNCTUATION);
+            }
+            if (!leftBorder) {
+                continue;
+            }
+            boolean rightBorder;
+            if (index + word.length() == searchStringLowerCase.length()) {
+                rightBorder = true;
+            } else {
+                char nextChar = searchStringLowerCase.charAt(index + word.length());
+                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION);
+            }
+
+            // if word exists, cut it out and replace with replacement
+            if (rightBorder) {
+                searchStringLowerCase.delete(index, oldIndex);
+                oldIndex = index;
+            }
+        } while (index > -1);
+
+        return searchStringLowerCase;
+    }
+
+    public static String replaceWordCaseSensitive(String word, String replacement, String searchStringLowerCase) {
+        if (word == null || word.isEmpty()) {
+            return searchStringLowerCase;
+        }
+
+        int oldIndex = 0;
+        int index;
+        do {
+            index = searchStringLowerCase.indexOf(word, oldIndex);
+            if (index == -1) {
+                return searchStringLowerCase;
+            }
+            oldIndex = index + word.length();
+
+            boolean leftBorder;
+            if (index == 0) {
+                leftBorder = true;
+            } else {
+                char prevChar = searchStringLowerCase.charAt(index - 1);
+                leftBorder = !(Character.isLetter(prevChar) || Character.isDigit(prevChar) || Character.getType(prevChar) == Character.DASH_PUNCTUATION);
+            }
+            if (!leftBorder) {
+                continue;
+            }
+            boolean rightBorder;
+            if (index + word.length() == searchStringLowerCase.length()) {
+                rightBorder = true;
+            } else {
+                char nextChar = searchStringLowerCase.charAt(index + word.length());
+                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION);
+            }
+
+            // if word exists, cut it out and replace with replacement
+            if (rightBorder) {
+                String before = searchStringLowerCase.substring(0, index);
+                String after = searchStringLowerCase.substring(oldIndex);
+                searchStringLowerCase = before + replacement + after;
+                oldIndex = index + replacement.length();
+            }
+        } while (index > -1);
+
+        return searchStringLowerCase;
+    }
+
     /**
      * Check whether a given string contains a numeric value.
      *
@@ -996,23 +1082,22 @@ public final class StringHelper {
             char first = string.charAt(0);
             char last = string.charAt(string.length() - 1);
             // System.out.println(Character.getType(last));
-            for (String element : TRIMMABLE_CHARACTERS) {
-                if (keepCharacters.contains(element)) {
+            for (char element : TRIMMABLE_CHARACTERS) {
+                if (keepCharacters.indexOf(element) > -1) {
                     continue;
                 }
 
                 // System.out.println(first.charValue());
                 // System.out.println(Character.isSpaceChar(first));
-                if (first == element.charAt(0) || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(first)) {
+                if (first == element || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(first)) {
                     deleteFirst = true;
                 }
-                if (last == element.charAt(0) || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(last)) {
+                if (last == element || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(last)) {
                     deleteLast = true;
                 }
                 if (deleteFirst && deleteLast) {
                     break;
                 }
-
             }
 
             if (deleteFirst && trimLeft) {
@@ -1557,7 +1642,7 @@ public final class StringHelper {
      * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
      * standard</a>. This method will return an empty String if the input is null or empty.
      * <p>
-     * For stream processing purposes see {@link Xml10FilterReader}.
+     * For stream processing purposes see Xml10FilterReader.
      *
      * @param in The String whose non-valid characters we want to remove.
      * @return The in String, stripped of non-valid characters.
@@ -1708,13 +1793,13 @@ public final class StringHelper {
         text = StringHelper.replaceWord("eight", "8", text);
         text = StringHelper.replaceWord("eights", "8", text);
         text = StringHelper.replaceWord("nine", "9", text);
-        text = StringHelper.replaceWord("nineth", "9", text);
+        text = StringHelper.replaceWord("ninth", "9", text);
         text = StringHelper.replaceWord("ten", "10", text);
         text = StringHelper.replaceWord("tenth", "10", text);
         text = StringHelper.replaceWord("eleven", "11", text);
         text = StringHelper.replaceWord("eleventh", "11", text);
         text = StringHelper.replaceWord("twelve", "12", text);
-        text = StringHelper.replaceWord("twelveth", "12", text);
+        text = StringHelper.replaceWord("twelfth", "12", text);
         text = StringHelper.replaceWord("twenty", "20", text);
         text = StringHelper.replaceWord("thirty", "30", text);
         text = StringHelper.replaceWord("forty", "40", text);
@@ -1724,6 +1809,32 @@ public final class StringHelper {
         text = StringHelper.replaceWord("eighty", "80", text);
         text = StringHelper.replaceWord("ninety", "90", text);
         text = StringHelper.replaceWord("one hundred", "100", text);
+        return text;
+    }
+
+    public static String numbersToNumberWords(String text) {
+        text = StringHelper.replaceWord("0", "zero", text);
+        text = StringHelper.replaceWord("1", "one", text);
+        text = StringHelper.replaceWord("2", "two", text);
+        text = StringHelper.replaceWord("3", "three", text);
+        text = StringHelper.replaceWord("4", "four", text);
+        text = StringHelper.replaceWord("5", "five", text);
+        text = StringHelper.replaceWord("6", "six", text);
+        text = StringHelper.replaceWord("7", "seven", text);
+        text = StringHelper.replaceWord("8", "eight", text);
+        text = StringHelper.replaceWord("9", "nine", text);
+        text = StringHelper.replaceWord("10", "ten", text);
+        text = StringHelper.replaceWord("11", "eleven", text);
+        text = StringHelper.replaceWord("12", "twelve", text);
+        text = StringHelper.replaceWord("20", "twenty", text);
+        text = StringHelper.replaceWord("30", "thirty", text);
+        text = StringHelper.replaceWord("40", "forty", text);
+        text = StringHelper.replaceWord("50", "fifty", text);
+        text = StringHelper.replaceWord("60", "sixty", text);
+        text = StringHelper.replaceWord("70", "seventy", text);
+        text = StringHelper.replaceWord("80", "eighty", text);
+        text = StringHelper.replaceWord("90", "ninety", text);
+        text = StringHelper.replaceWord("100", "one hundred", text);
         return text;
     }
 
@@ -1769,8 +1880,8 @@ public final class StringHelper {
      * Find matches of the given regular expression in the given text.
      * </p>
      *
-     * @param pattern The regular expression as a compiled pattern.
-     * @param text    The text on which the regular expression should be evaluated.
+     * @param patterns The regular expression as a compiled pattern.
+     * @param text     The text on which the regular expression should be evaluated.
      * @return A list of string matches.
      */
     public static List<String> getRegexpMatches(Collection<Pattern> patterns, String text) {

@@ -5,10 +5,10 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.math.MathHelper;
-import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -64,7 +64,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
 
             if (orientation != null) {
                 Orientation imageOrientation = getOrientation(objJson);
-                if (imageOrientation != orientation) {
+                if (imageOrientation == null || imageOrientation != orientation) {
                     continue;
                 }
             }

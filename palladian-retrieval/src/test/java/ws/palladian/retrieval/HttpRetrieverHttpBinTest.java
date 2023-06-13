@@ -24,6 +24,7 @@ public class HttpRetrieverHttpBinTest {
      * https://issues.apache.org/jira/browse/HTTPCLIENT-1763
      */
     @Test
+    @Ignore // FIXME https://httpbin.org/ wasn't accessible May 2023 and stopping the build
     public void testCookiesExpiresDate() throws HttpException {
         // cookie expiring in the past should not be set
         String cookieValue = "foo=bar; Expires=Mon, 05 Oct 2021 01:48:58 GMT";

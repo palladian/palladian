@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class EmbeddingTextVectorizer extends AbstractDatasetFeatureVectorTransformer implements ITextVectorizer {
-
     private final String inputFeatureName;
     private final WordVectorDictionary dictionary;
 
@@ -35,7 +34,6 @@ public class EmbeddingTextVectorizer extends AbstractDatasetFeatureVectorTransfo
 
     @Override
     public FeatureVector apply(FeatureVector featureVector) {
-
         String textValue = getTextValue(featureVector);
         if (!dictionary.isCaseSensitive()) {
             textValue = textValue.toLowerCase();

@@ -3,10 +3,10 @@ package ws.palladian.retrieval.facebook;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ws.palladian.retrieval.*;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

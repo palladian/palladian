@@ -65,7 +65,7 @@ public final class Stemmer implements Function<String, String> {
             case TURKISH:
                 return new TurkishStemmer();
             default:
-                throw new IllegalArgumentException("No stemmer for language '" + language.toString() + "' available.");
+                throw new IllegalArgumentException("No stemmer for language '" + language + "' available.");
         }
     }
 

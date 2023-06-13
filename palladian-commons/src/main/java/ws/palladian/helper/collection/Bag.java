@@ -1,9 +1,6 @@
 package ws.palladian.helper.collection;
 
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectBidirectionalIterator;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper.Order;
 
@@ -13,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -44,7 +42,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     private static final long serialVersionUID = 1l;
 
     /** The internal map keeping the data. */
-    private transient Object2IntLinkedOpenHashMap<T> map;
+    private transient Map<T, Integer> map;
 
     /** The sum of all counts in the map. */
     private transient int size;
@@ -59,14 +57,14 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     @Deprecated
     public static <T> Bag<T> create(Map<? extends T, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
-        return new Bag<>(new Object2IntOpenHashMap<>(map));
+        return new Bag<>(new ConcurrentHashMap<>(map));
     }
 
     /**
      * Creates an empty Bag.
      */
     public Bag() {
-        this(new Object2IntOpenHashMap<>());
+        this.map = new ConcurrentHashMap<>();
     }
 
     /**
@@ -76,7 +74,7 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      */
     public Bag(Map<? extends T, ? extends Integer> map) {
         Validate.notNull(map, "map must not be null");
-        this.map = new Object2IntLinkedOpenHashMap<>();
+        this.map = new ConcurrentHashMap<>();
         for (Entry<? extends T, ? extends Integer> item : map.entrySet()) {
             add(item.getKey(), item.getValue());
         }
@@ -86,8 +84,8 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
      * Internal constructor, which does not copy the map. Only by
      * {@link #createSorted(Order)}.
      */
-    private Bag(Object2IntLinkedOpenHashMap<T> map, int size) {
-        this.map = map;
+    private Bag(Map<? extends T, ? extends Integer> map, int size) {
+        this.map = new Object2IntLinkedOpenHashMap<>(map);
         this.size = size;
     }
 
@@ -115,10 +113,8 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
 
     @Override
     public Iterator<T> iterator() {
-
-        return new AbstractIterator<T>() {
-
-            final ObjectBidirectionalIterator<Object2IntMap.Entry<T>> entryIterator = map.object2IntEntrySet().iterator();
+        return new AbstractIterator<>() {
+            final Iterator<Entry<T, Integer>> entryIterator = map.entrySet().iterator();
             Entry<T, Integer> currentEntry = null;
             int currentCount;
 
@@ -201,9 +197,11 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     public int set(T item, int count) {
         Validate.notNull(item, "item must not be null");
         Integer oldValue = (count == 0) ? map.remove(item) : map.put(item, count);
-        size -= oldValue;
+        if (oldValue != null) {
+            size -= oldValue;
+        }
         size += count;
-        return oldValue;
+        return oldValue != null ? oldValue : 0;
     }
 
     /**
@@ -318,14 +316,14 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeInt(map.size());
-        for (Entry<T, Integer> entry : map.object2IntEntrySet()) {
+        for (Entry<T, Integer> entry : map.entrySet()) {
             out.writeObject(entry.getKey());
             out.writeInt(entry.getValue());
         }
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        map = new Object2IntLinkedOpenHashMap<>();
+        map = new ConcurrentHashMap<>();
         int numEntries = in.readInt();
         for (int i = 0; i < numEntries; i++) {
             @SuppressWarnings("unchecked")

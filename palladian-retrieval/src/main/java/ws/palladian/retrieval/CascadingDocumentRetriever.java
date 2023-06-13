@@ -8,7 +8,11 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,9 +43,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * Keep track of failing requests.
      */
-    private final Map<String, Integer[]> failingThresholdAndNumberOfRequestsToSkip = new HashMap<>();
+    private final Map<String, Integer[]> failingThresholdAndNumberOfRequestsToSkip = new ConcurrentHashMap<>();
     // web document retriever -> [failed requests, skipped requests, successful requests]
-    private final Map<String, Integer[]> requestTracker = new HashMap<>();
+    private final Map<String, Integer[]> requestTracker = new ConcurrentHashMap<>();
 
     private final DocumentRetriever documentRetriever;
     private final RenderingDocumentRetrieverPool renderingDocumentRetrieverPool;

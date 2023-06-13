@@ -118,23 +118,6 @@ public final class MathHelper {
      */
     @Deprecated
     public static <T> double computeJaccardSimilarity(Set<T> setA, Set<T> setB) {
-        // Validate.notNull(setA, "setA must not be null");
-        // Validate.notNull(setB, "setB must not be null");
-        //
-        // Set<T> intersection = new HashSet<>();
-        // intersection.addAll(setA);
-        // intersection.retainAll(setB);
-        //
-        // if (intersection.size() == 0) {
-        // return 0;
-        // }
-        //
-        // Set<T> union = new HashSet<>();
-        // union.addAll(setA);
-        // union.addAll(setB);
-        //
-        // return (double)intersection.size() / union.size();
-
         return SetSimilarities.JACCARD.getSimilarity(setA, setB);
     }
 
@@ -151,58 +134,7 @@ public final class MathHelper {
      */
     @Deprecated
     public static <T> double computeOverlapCoefficient(Set<T> setA, Set<T> setB) {
-        // if (setA.size() == 0 || setB.size() == 0) {
-        // return 0;
-        // }
-        //
-        // Set<T> intersection = new HashSet<>();
-        // intersection.addAll(setA);
-        // intersection.retainAll(setB);
-        //
-        // return (double)intersection.size() / Math.min(setA.size(), setB.size());
-
         return SetSimilarities.OVERLAP.getSimilarity(setA, setB);
-    }
-
-    /**
-     * @deprecated Use {@link NumericVector} instead.
-     */
-    @Deprecated
-    public static double computeCosineSimilarity(Double[] vector1, Double[] vector2) {
-
-        double dotProduct = computeDotProduct(vector1, vector2);
-        double magnitude1 = computeMagnitude(vector1);
-        double magnitude2 = computeMagnitude(vector2);
-
-        return dotProduct / (magnitude1 * magnitude2);
-    }
-
-    /**
-     * @deprecated Use {@link NumericVector} instead.
-     */
-    @Deprecated
-    public static double computeDotProduct(Double[] vector1, Double[] vector2) {
-        double dotProduct = 0.0;
-
-        for (int i = 0; i < Math.min(vector1.length, vector2.length); i++) {
-            dotProduct += vector1[i] * vector2[i];
-        }
-
-        return dotProduct;
-    }
-
-    /**
-     * @deprecated Use {@link NumericVector} instead.
-     */
-    @Deprecated
-    public static double computeMagnitude(Double[] vector) {
-        double magnitude = 0.0;
-
-        for (Double double1 : vector) {
-            magnitude += double1 * double1;
-        }
-
-        return Math.sqrt(magnitude);
     }
 
     /**
@@ -287,7 +219,7 @@ public final class MathHelper {
         double numMin = value1 - margin * value1;
         double numMax = value1 + margin * value1;
 
-        return value1 < numMax && value1 > numMin;
+        return value2 < numMax && value2 > numMin;
     }
 
     public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue, double correctnessMargin) {
@@ -364,7 +296,6 @@ public final class MathHelper {
      * @return The similarity of the two lists.
      */
     public static ListSimilarity computeListSimilarity(List<String> list1, List<String> list2) {
-
         // get maximum possible distance
         int summedMaxDistance = 0;
         int summedMaxSquaredDistance = 0;
@@ -382,7 +313,6 @@ public final class MathHelper {
         Stats stats = new SlimStats();
 
         for (String entry1 : list1) {
-
             int position2 = 0;
             for (String entry2 : list2) {
                 if (entry1.equals(entry2)) {
@@ -464,7 +394,7 @@ public final class MathHelper {
      * Return a random entry from a given collection.
      * </p>
      *
-     * @param collection The collection from we want to sample from.
+     * @param list The collection from we want to sample from.
      * @return A random entry from the collection.
      */
     public static <T> T getRandomEntry(List<T> list) {
@@ -837,7 +767,7 @@ public final class MathHelper {
      *
      * </p>
      *
-     * @param string A tokenized string to get the spans for.
+     * @param items A tokenized string to get the spans for.
      * @return A collection of spans.
      */
     public static <T> Collection<List<T>> computeAllCombinations(T[] items) {
@@ -881,6 +811,60 @@ public final class MathHelper {
         } else {
             return computeCombinationRecursive(nextBitPattern, items, combination, ++currentIndex);
         }
+    }
+
+    public static double computeEuclideanVectorDistance(float[] vector1, float[] vector2) {
+        return Math.sqrt(computeL2VectorDistance(vector1, vector2));
+    }
+
+    public static double computeL2VectorDistance(float[] vector1, float[] vector2) {
+        double distance = 0;
+        for (int idx = 0; idx < vector1.length; idx++) {
+            double value = vector1[idx] - vector2[idx];
+            distance += value * value;
+        }
+        return distance;
+    }
+
+    public static double computeManhattanVectorDistance(float[] vector1, float[] vector2) {
+        double distance = 0;
+        for (int idx = 0; idx < vector1.length; idx++) {
+            distance += Math.abs(vector1[idx] - vector2[idx]);
+        }
+        return distance;
+    }
+
+    public static double computeCosineSimilarity(float[] vector1, float[] vector2) {
+
+        double dotProduct = computeDotProduct(vector1, vector2);
+        double magnitude1 = computeMagnitude(vector1);
+        double magnitude2 = computeMagnitude(vector2);
+
+        return dotProduct / (magnitude1 * magnitude2);
+    }
+
+    public static double computeCosineDistance(float[] vector1, float[] vector2) {
+        return 1 - computeCosineSimilarity(vector1, vector2);
+    }
+
+    public static double computeDotProduct(float[] vector1, float[] vector2) {
+        double dotProduct = 0.0;
+
+        for (int i = 0; i < Math.min(vector1.length, vector2.length); i++) {
+            dotProduct += vector1[i] * vector2[i];
+        }
+
+        return dotProduct;
+    }
+
+    public static double computeMagnitude(float[] vector) {
+        double magnitude = 0.0;
+
+        for (float double1 : vector) {
+            magnitude += double1 * double1;
+        }
+
+        return Math.sqrt(magnitude);
     }
 
     /**
@@ -1085,7 +1069,7 @@ public final class MathHelper {
      * @param a The first number.
      * @param b The second number.
      * @return The target number.
-     * @see https://en.wikipedia.org/wiki/Pairing_function
+     * See https://en.wikipedia.org/wiki/Pairing_function
      */
     public static long cantorize(int a, int b) {
         return (((long) a + (long) b) * ((long) a + (long) b + 1) / 2) + (long) b;
