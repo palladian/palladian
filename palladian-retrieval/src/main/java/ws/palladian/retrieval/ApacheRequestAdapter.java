@@ -1,22 +1,24 @@
 package ws.palladian.retrieval;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.message.BasicNameValuePair;
+
+
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 import java.net.URI;
 import java.util.Map.Entry;
 
-final class ApacheRequestAdapter extends HttpEntityEnclosingRequestBase implements HttpUriRequest {
+final class ApacheRequestAdapter extends HttpUriRequestBase implements HttpUriRequest {
 
     private final HttpRequest2 adapted;
 
     ApacheRequestAdapter(HttpRequest2 adapted) {
+        super(adapted.getMethod().toString(), URI.create(adapted.getUrl()));
         this.adapted = adapted;
-        setURI(URI.create(adapted.getUrl()));
         for (Entry<String, String> header : adapted.getHeaders().entrySet()) {
             setHeader(header.getKey(), header.getValue());
         }

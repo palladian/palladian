@@ -1,7 +1,7 @@
 package ws.palladian.retrieval;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpEntity;
+import org.apache.hc.core5.http.HttpEntity;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
