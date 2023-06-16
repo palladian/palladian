@@ -22,6 +22,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
@@ -412,6 +413,7 @@ public class HttpRetriever {
             try { // including credentials in the url doesn't work out of the box anymore, try to set the Authorization header
                 if (request.getAuthority() != null && request.getAuthority().getUserInfo() != null && request.getHeader("Authorization") == null) {
                     request.addHeader("Authorization", "Basic " + StringHelper.encodeBase64(request.getAuthority().getUserInfo()));
+                    request.setAuthority(new URIAuthority(request.getAuthority().getHostName(), request.getAuthority().getPort()));
                 }
             } catch (ProtocolException e) {
                 LOGGER.error("Could not set Authorization header", e);
