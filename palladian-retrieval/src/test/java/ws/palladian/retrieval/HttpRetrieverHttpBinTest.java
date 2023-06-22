@@ -26,12 +26,20 @@ public class HttpRetrieverHttpBinTest {
     @Test
     @Ignore // FIXME https://httpbin.org/ wasn't accessible May 2023 and stopping the build
     public void testCookiesExpiresDate() throws HttpException {
+        // cookie expiring in the past should not be set
         String cookieValue = "foo=bar; Expires=Mon, 05 Oct 2021 01:48:58 GMT";
         HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/response-headers?set-cookie=" + UrlHelper.encodeParameter(cookieValue)).create();
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         CookieStore cookieStore = new DefaultCookieStore();
         httpRetriever.setCookieStore(cookieStore);
         HttpResult result = httpRetriever.execute(request);
+        assertEquals(200, result.getStatusCode());
+        assertEquals(0, cookieStore.getCookies().size());
+
+        // a valid cookie
+        cookieValue = "foo=bar; Expires=Sun, 11 Jun 2028 01:48:58 GMT";
+        request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/response-headers?set-cookie=" + UrlHelper.encodeParameter(cookieValue)).create();
+        result = httpRetriever.execute(request);
         assertEquals(200, result.getStatusCode());
         assertEquals(1, cookieStore.getCookies().size());
         Cookie cookie = cookieStore.getCookies().iterator().next();
