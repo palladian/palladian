@@ -51,6 +51,9 @@ public class UnitNormalizerTest {
         input = "100 gpm";
         collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.FLOW_RATE));
 
+        input = "1123 lm";
+        collector.checkThat(UnitNormalizer.getUnitType(input), Matchers.is(UnitType.LUMINOUS_FLUX));
+
         input = "100kN/m²";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("kN/m²"));
 
@@ -68,6 +71,9 @@ public class UnitNormalizerTest {
 
         input = "5.3 gpm";
         collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("gpm"));
+
+        input = "1600 lumens";
+        collector.checkThat(UnitNormalizer.detectUnit(input), Matchers.is("lumens"));
     }
 
     @Test

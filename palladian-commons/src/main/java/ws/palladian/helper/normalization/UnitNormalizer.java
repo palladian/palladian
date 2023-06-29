@@ -131,6 +131,10 @@ public class UnitNormalizer {
         return UnitType.LUMINANCE.contains(unit);
     }
 
+    private static boolean isLuminousFluxUnit(String unit) {
+        return UnitType.LUMINOUS_FLUX.contains(unit);
+    }
+
     private static boolean isElectricChargeUnit(String unit) {
         return UnitType.ELECTRIC_CHARGE.contains(unit);
     }
@@ -215,6 +219,9 @@ public class UnitNormalizer {
         }
         if (isLuminanceUnit(unit)) {
             return UnitType.LUMINANCE.getUnitNames();
+        }
+        if (isLuminousFluxUnit(unit)) {
+            return UnitType.LUMINOUS_FLUX.getUnitNames();
         }
         if (isVoltageUnit(unit)) {
             return UnitType.VOLTAGE.getUnitNames();
@@ -319,6 +326,11 @@ public class UnitNormalizer {
 
         // luminance
         if (isLuminanceUnit(unit1) && isLuminanceUnit(unit2)) {
+            return true;
+        }
+
+        // luminous flux
+        if (isLuminousFluxUnit(unit1) && isLuminousFluxUnit(unit2)) {
             return true;
         }
 
@@ -622,6 +634,9 @@ public class UnitNormalizer {
             }
             if (isLuminanceUnit(word)) {
                 unitType = UnitType.LUMINANCE;
+            }
+            if (isLuminousFluxUnit(word)) {
+                unitType = UnitType.LUMINOUS_FLUX;
             }
             if (isCurrentUnit(word)) {
                 unitType = UnitType.CURRENT;

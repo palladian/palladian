@@ -20,10 +20,10 @@ import java.util.Map.Entry;
 public class MapBag {
 
     /** Each item is attached to one bag with a certain id. */
-    private Map<String, Integer> map;
+    private final Map<String, Integer> map;
 
     /** We store for each bag what the original key was. */
-    private Map<Integer, String> mapKeys;
+    private final Map<Integer, String> mapKeys;
 
     public MapBag() {
         map = new LinkedHashMap<>();
@@ -101,5 +101,4 @@ public class MapBag {
         map.put(bagKey, bagId);
         map.put(bagValue, bagId);
     }
-
 }

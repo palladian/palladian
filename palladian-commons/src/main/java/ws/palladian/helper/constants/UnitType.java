@@ -40,6 +40,7 @@ public enum UnitType {
     TORQUE("Nm"), //
     PIXEL("pixel"), //
     LUMINANCE("nit"), //
+    LUMINOUS_FLUX("lm"), //
     FLOW_RATE("m³/s"), //
     CURRENCY(null), //
     OTHER(null);
@@ -548,6 +549,15 @@ public enum UnitType {
         unitList.add("nits");
         unitList.add("nt");
         UnitType.LUMINANCE.units.add(Pair.of(unitList, 1.));
+
+        // LUMINOUS_FLUX units are normalized to lumen
+        unitList = new ArrayList<>();
+        unitList.add("lumens");
+        unitList.add("lumen");
+        unitList.add("lm");
+        unitList.add("candela steradian");
+        unitList.add("cd sr");
+        UnitType.LUMINOUS_FLUX.units.add(Pair.of(unitList, 1.));
 
         // LENGTH units are normalized to centimeter
         unitList = new ArrayList<>();

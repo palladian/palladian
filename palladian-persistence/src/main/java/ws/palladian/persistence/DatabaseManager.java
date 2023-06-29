@@ -316,7 +316,6 @@ public class DatabaseManager {
             result = ps.executeBatch();
             connection.commit();
             connection.setAutoCommit(true);
-
         } catch (SQLException e) {
             rollback(connection);
             logError(e, sql);
@@ -1042,7 +1041,6 @@ public class DatabaseManager {
             fillPreparedStatement(ps, query.getArgs());
 
             affectedRows = ps.executeUpdate();
-
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
             affectedRows = -1;
@@ -1118,6 +1116,7 @@ public class DatabaseManager {
         if (args != null && args.length > 0) {
             errorLog.append(" with args \"").append(StringUtils.join(args, ",")).append("\"");
         }
+        System.err.println(errorLog); // this line is here intentionally otherwise incorrect logger setups lead to "swallowed" errors
         LOGGER.error(errorLog.toString());
         LOGGER.debug(errorLog.toString(), exception); // only print stack trace in DEBUG mode
         lastError = errorLog;
