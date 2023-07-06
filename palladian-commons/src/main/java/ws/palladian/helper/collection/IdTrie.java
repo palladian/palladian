@@ -107,7 +107,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
         for (String token : tokens) {
             IntOpenHashSet integers = getValue(token);
             if (integers == null) {
-                integers = new IntOpenHashSet(8, 0.95f);
+                integers = new IntOpenHashSet(8, 0.75f); // FIXME 0.95f
                 put(token, integers);
             }
             integers.add(id);
@@ -118,7 +118,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
         for (String ngram : ngrams) {
             IntOpenHashSet integers = getValue(ngram);
             if (integers == null) {
-                integers = new IntOpenHashSet(8, 0.95f);
+                integers = new IntOpenHashSet(8, 0.75f); // FIXME 0.95f
                 put(ngram, integers);
             }
             integers.add(id);

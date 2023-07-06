@@ -17,7 +17,7 @@ import java.util.Objects;
 import static java.awt.color.ColorSpace.CS_GRAY;
 import static java.awt.image.BufferedImage.TYPE_BYTE_GRAY;
 
-// FIXME merge with ImageHandler
+// TODO merge with ImageHandler
 public final class ImageUtils {
     private ImageUtils() {
         // no instance me
