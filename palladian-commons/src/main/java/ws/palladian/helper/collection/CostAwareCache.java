@@ -21,7 +21,11 @@ public class CostAwareCache<S, T> implements Serializable {
 
     public CostAwareCache(int cacheSize) {
         cacheMap = new HashMap<>(cacheSize);
-        sortedCostMap = new TreeMap<>();
+        if (cacheSize > 0) {
+            sortedCostMap = new TreeMap<>();
+        } else {
+            sortedCostMap = null;
+        }
         this.cacheSize = cacheSize;
     }
 
