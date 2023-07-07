@@ -26,8 +26,10 @@ public final class HikariCpDataSourceFactory implements DataSourceFactory {
         config.setUsername(username);
         config.setPassword(password);
         config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSize", "300");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.setPoolName("palladian_db_pool");
+        config.setMaximumPoolSize(20);
         return new HikariDataSource(config);
     }
 
