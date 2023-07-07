@@ -189,7 +189,6 @@ public class DatabaseManager {
 
             connection.commit();
             connection.setAutoCommit(true);
-
         } catch (SQLException e) {
             rollback(connection);
             affectedRows = 0;
@@ -259,7 +258,6 @@ public class DatabaseManager {
         Arrays.fill(result, 0L);
 
         BatchDataProvider provider = new BatchDataProvider() {
-
             @Override
             public int getCount() {
                 return batchArgs.size();
