@@ -8,10 +8,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -207,6 +204,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 throwable.printStackTrace();
             } finally {
                 if (renderingDocumentRetriever != null) {
+                    renderingDocumentRetriever.setWaitForElementMap(Collections.emptyMap());
                     renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
                 }
             }
@@ -224,6 +222,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             resolvingExplanation.add(
                     "used phantom js cloud document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
                             RETRIEVER_PHANTOM_JS_CLOUD));
+            cloudDocumentRetriever.setWaitForElementMap(Collections.emptyMap());
         }
 
         if (!goodDocument && cloudDocumentRetriever2 != null && shouldMakeRequest(RETRIEVER_PROXY_CRAWL, cloudDocumentRetriever2)) {
@@ -238,6 +237,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             resolvingExplanation.add(
                     "used proxy crawl document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
                             RETRIEVER_PROXY_CRAWL));
+            cloudDocumentRetriever2.setWaitForElementMap(Collections.emptyMap());
         }
 
         if (!goodDocument && cloudDocumentRetriever3 != null && shouldMakeRequest(RETRIEVER_SCRAPING_BEE, cloudDocumentRetriever3)) {
@@ -252,6 +252,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             resolvingExplanation.add(
                     "used scraping bee document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
                             RETRIEVER_SCRAPING_BEE));
+            cloudDocumentRetriever3.setWaitForElementMap(Collections.emptyMap());
         }
 
         if (!goodDocument && cloudDocumentRetriever4 != null && shouldMakeRequest(RETRIEVER_SCRAPER_API, cloudDocumentRetriever4)) {
@@ -266,6 +267,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             resolvingExplanation.add(
                     "used scraperapi document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
                             RETRIEVER_SCRAPER_API));
+            cloudDocumentRetriever4.setWaitForElementMap(Collections.emptyMap());
         }
 
         if (document != null) {
@@ -277,7 +279,6 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     private void configure(JsEnabledDocumentRetriever renderingDocumentRetriever) {
         renderingDocumentRetriever.deleteAllCookies();
-        renderingDocumentRetriever.getWaitForElementMap().clear();
         renderingDocumentRetriever.setWaitForElementMap(getWaitForElementMap());
         renderingDocumentRetriever.setTimeoutSeconds(getTimeoutSeconds());
         renderingDocumentRetriever.setWaitExceptionCallback(getWaitExceptionCallback());
