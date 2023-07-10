@@ -26,7 +26,7 @@ public class Scheduler {
     /**
      * Collect errors.
      */
-    private final List<Throwable> errors = new ArrayList<>();
+    private final List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
 
     protected Scheduler() {
         tasks = Collections.synchronizedSet(new HashSet<>());
@@ -76,30 +76,27 @@ public class Scheduler {
     }
 
     private void runPeriodicTimeCheck() {
-        (new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    Date currentDate = new Date();
+        (new Thread(() -> {
+            while (true) {
+                Date currentDate = new Date();
 
-                    // check all tasks
-                    try {
-                        tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
-                            try {
-                                new Thread(task.getLeft()).start();
-                            } catch (Exception e) {
-                                errors.add(e);
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    ThreadHelper.deepSleep(checkInterval);
+                // check all tasks
+                try {
+                    tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
+                        try {
+                            new Thread(task.getLeft()).start();
+                        } catch (Exception e) {
+                            errors.add(e);
+                            e.printStackTrace();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
+                ThreadHelper.deepSleep(checkInterval);
             }
-        }).start();
+        })).start();
     }
 
     public List<Throwable> getErrors() {
