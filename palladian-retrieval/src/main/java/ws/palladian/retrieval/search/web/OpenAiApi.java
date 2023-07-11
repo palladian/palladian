@@ -85,11 +85,15 @@ public class OpenAiApi {
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
+        return chat(messages, temperature, usedTokens, "gpt-4");
+    }
+
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
         requestJson.put("messages", messages);
-        requestJson.put("model", "gpt-3.5-turbo");
+        requestJson.put("model", modelName);
         requestJson.put("temperature", temperature);
         THROTTLE.hold();
         String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/chat/completions", requestJson, false);
