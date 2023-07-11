@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -56,13 +57,16 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         // any js wait for settings?
-        Map<Pattern, String> waitForElementMap = getWaitForElementMap();
+        Map<Pattern, Set<String>> waitForElementsMap = getWaitForElementsMap();
 
         String overseerScript = "";
-        for (Map.Entry<Pattern, String> patternStringEntry : waitForElementMap.entrySet()) {
-            if (patternStringEntry.getKey().matcher(url).find()) {
-                String selector = patternStringEntry.getValue();
-                overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();await page.waitForSelector(\"" + selector + "\");page.done();'");
+        for (Map.Entry<Pattern, Set<String>> entry : waitForElementsMap.entrySet()) {
+            if (entry.getKey().matcher(url).find()) {
+                StringBuilder waitConditions = new StringBuilder();
+                for (String selector : entry.getValue()) {
+                    waitConditions.append("await page.waitForSelector(\"").append(selector).append("\");");
+                }
+                overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();" + waitConditions + "page.done();'");
                 break;
             }
         }

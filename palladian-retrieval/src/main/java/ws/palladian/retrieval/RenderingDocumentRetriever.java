@@ -20,6 +20,7 @@ import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
@@ -225,24 +226,30 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         // check whether a pattern matches and we have elements to wait for
-        String selector = null;
-        for (Map.Entry<Pattern, String> patternStringEntry : waitForElementMap.entrySet()) {
-            if (patternStringEntry.getKey().matcher(url).find()) {
-                selector = patternStringEntry.getValue();
+        Set<String> selectors = new HashSet<>();
+        for (Map.Entry<Pattern, Set<String>> entry : getWaitForElementsMap().entrySet()) {
+            if (entry.getKey().matcher(url).find()) {
+                selectors.addAll(entry.getValue());
                 break;
             }
         }
 
         try {
-            if (selector != null) {
-                final String cssSelector = selector;
-                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> webDriver.findElement(By.cssSelector(cssSelector)));
+            if (!selectors.isEmpty()) {
+                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> {
+                    for (String cssSelector: selectors) {
+                        if (webDriver.findElement(By.cssSelector(cssSelector)) == null) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
             } else {
                 new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
             }
         } catch (Exception e) {
             if (getWaitExceptionCallback() != null) {
-                getWaitExceptionCallback().accept(new WaitException(url, e, selector));
+                getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
             }
             LOGGER.error("problem with waiting", e);
         } catch (Throwable e) {
