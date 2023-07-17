@@ -82,14 +82,16 @@ public class Scheduler {
 
                 // check all tasks
                 try {
-                    tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
-                        try {
-                            new Thread(task.getLeft()).start();
-                        } catch (Exception e) {
-                            errors.add(e);
-                            e.printStackTrace();
-                        }
-                    });
+                    synchronized (tasks) {
+                        tasks.stream().filter(task -> task.getRight().onSchedule(currentDate)).forEach(task -> {
+                            try {
+                                new Thread(task.getLeft()).start();
+                            } catch (Exception e) {
+                                errors.add(e);
+                                e.printStackTrace();
+                            }
+                        });
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
