@@ -157,6 +157,15 @@ public class CollectionHelperTest {
     }
 
     @Test
+    public void testEquals() {
+        List<String> items = new ArrayList<>(Arrays.asList("a", "b", "c"));
+        List<String> items1 = new ArrayList<>(Arrays.asList("c", "b", "a"));
+        List<String> items2 = new ArrayList<>(Arrays.asList("d", "b", "a"));
+        assertTrue(CollectionHelper.equals(items,items1));
+        assertTrue(!CollectionHelper.equals(items,items2));
+    }
+
+    @Test
     public void testGetSublist() {
         List<String> items = new ArrayList<>(Arrays.asList("a", "b", "c"));
 
