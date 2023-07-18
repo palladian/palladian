@@ -112,7 +112,7 @@ public class ConcurrentIdTrie implements Map.Entry<String, IntOpenHashSet>, Iter
                     put(token, integers);
                 }
             }
-            synchronized (this) {
+            synchronized (this) { // FIXME synchronize only integers?
                 integers.add(id);
             }
         }
@@ -123,11 +123,11 @@ public class ConcurrentIdTrie implements Map.Entry<String, IntOpenHashSet>, Iter
             IntOpenHashSet integers = getValue(ngram);
             if (integers == null) {
                 integers = new IntOpenHashSet(4, 0.8f);
-                synchronized (this) {
+                synchronized (this) {// FIXME synchronize only integers?
                     put(ngram, integers);
                 }
             }
-            synchronized (this) {
+            synchronized (this) {// FIXME synchronize only integers?
                 integers.add(id);
             }
         }

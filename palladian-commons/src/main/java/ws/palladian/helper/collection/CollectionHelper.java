@@ -930,7 +930,7 @@ public final class CollectionHelper {
             smallerSet = setB;
             largerSet = setA;
         }
-        AbstractIntSet intersection = new IntOpenHashSet();
+        AbstractIntSet intersection = new IntOpenHashSet(smallerSet.size());
         for (int element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
