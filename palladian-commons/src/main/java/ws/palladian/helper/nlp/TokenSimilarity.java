@@ -49,6 +49,10 @@ public class TokenSimilarity extends AbstractStringMetric {
         return similarity.getSimilarity(split1, split2);
     }
 
+    public double getSimilarity(Set<String> splits1, Set<String> splits2) {
+        return similarity.getSimilarity(splits1, splits2);
+    }
+
     @Override
     public double getSimilarity(String s1, String s2) {
         Validate.notNull(s1, "s1 must not be null");
