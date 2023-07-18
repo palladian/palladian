@@ -1147,8 +1147,8 @@ public final class CollectionHelper {
         TreeSet<Object> sortedC1 = new TreeSet<>(c1);
         TreeSet<Object> sortedC2 = new TreeSet<>(c2);
 
-        String c1String = StringUtils.join(sortedC2);
-        String c2String = StringUtils.join(sortedC1);
+        String c1String = StringUtils.join(sortedC1);
+        String c2String = StringUtils.join(sortedC2);
         return c1String.equals(c2String);
     }
 
