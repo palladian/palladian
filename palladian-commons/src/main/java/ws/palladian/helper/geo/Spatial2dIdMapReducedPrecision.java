@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
  */
 public class Spatial2dIdMapReducedPrecision {
     private FloatArrayList latValues = new FloatArrayList();
-    private final List<IdCoordinate> latIds = new ObjectArrayList<>();
+    private List<IdCoordinate> latIds = new ObjectArrayList<>();
     private FloatArrayList lngValues = new FloatArrayList();
-    private final List<IdCoordinate> lngIds = new ObjectArrayList<>();
+    private List<IdCoordinate> lngIds = new ObjectArrayList<>();
 
     public Set<IdCoordinate> findInBox(float lat1, float lng1, float lat2, float lng2) {
         if (latValues.isEmpty() || lngValues.isEmpty()) {
@@ -68,8 +68,8 @@ public class Spatial2dIdMapReducedPrecision {
     }
 
     public void sort() {
-        latIds.sort(Comparator.comparingDouble(o -> o.getCoordinate().getLatitude()));
-        lngIds.sort(Comparator.comparingDouble(o -> o.getCoordinate().getLongitude()));
+        latIds = latIds.parallelStream().sorted(Comparator.comparingDouble(o -> o.getCoordinate().getLatitude())).collect(Collectors.toList());
+        lngIds = lngIds.parallelStream().sorted(Comparator.comparingDouble(o -> o.getCoordinate().getLongitude())).collect(Collectors.toList());
         latValues = new FloatArrayList(latIds.stream().map(c -> (float) c.getCoordinate().getLatitude()).collect(Collectors.toList()));
         lngValues = new FloatArrayList(lngIds.stream().map(c -> (float) c.getCoordinate().getLongitude()).collect(Collectors.toList()));
     }
