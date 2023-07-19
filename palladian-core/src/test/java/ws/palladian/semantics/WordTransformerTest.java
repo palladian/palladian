@@ -288,12 +288,18 @@ public class WordTransformerTest {
 
     @Test
     public void testStemEnglishWords() {
+        assertEquals("accessible", WordTransformer.stemEnglishWords("accessibility")); // stemming exception
+        assertEquals("accessible", WordTransformer.stemEnglishWords("accessibilities")); // stemming exception
+        assertEquals("edition", WordTransformer.stemEnglishWords("editions")); // stemming exception
+        assertEquals("news", WordTransformer.stemEnglishWords("news")); // stemming exception
         assertEquals("2.4 dollar", WordTransformer.stemEnglishWords("2.4 dollars"));
         assertEquals("sign, are in car!", WordTransformer.stemEnglishWords("signs, are in cars!"));
     }
 
     @Test
     public void testStemGermanWords() {
+        assertEquals("bauer", WordTransformer.stemGermanWords("bauer")); // stemming exception
+        assertEquals("bauer", WordTransformer.stemGermanWords("bauer")); // stemming exception
         assertEquals("poliermaschinemaschin", WordTransformer.stemGermanWords("poliermaschinemaschine"));
         assertEquals("poliermaschinemaschin", WordTransformer.stemGermanWords("poliermaschinemaschinen"));
         assertEquals("apfel und apfel", WordTransformer.stemGermanWords("äpfel und apfel"));
