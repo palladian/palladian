@@ -12,8 +12,7 @@
     <properties>
         <lucene-version>8.11.2</lucene-version>
         <!--<nd4j.version>0.4-rc3.8</nd4j.version>-->
-        <nd4j.version>1.0.0-beta3</nd4j.version>
-        <dl4j.version>1.0.0-beta3</dl4j.version>
+        <dl4j.version>1.0.0-M2.1</dl4j.version>
         <!--<dl4j.spark.version>1.0.0-beta3_spark_2</dl4j.spark.version>-->
     </properties>
     <dependencies>
@@ -82,10 +81,10 @@
             <artifactId>boilerpipe</artifactId>
             <version>1.2.2</version>
             <exclusions>
-            	<exclusion>
-            		<groupId>xml-apis</groupId>
-            		<artifactId>xml-apis</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -108,10 +107,10 @@
             <artifactId>stanford-corenlp</artifactId>
             <version>4.5.1</version>
             <exclusions>
-            	<exclusion>
-            		<groupId>xml-apis</groupId>
-            		<artifactId>xml-apis</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -161,7 +160,7 @@
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native-platform</artifactId>
             <version>${dl4j.version}</version>
-        </dependency>    
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

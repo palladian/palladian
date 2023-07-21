@@ -1,5 +1,6 @@
 package ws.palladian.persistence;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -689,8 +690,7 @@ public class DatabaseManager {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(args, "args must not be null");
 
-        final IntLinkedOpenHashSet result = new IntLinkedOpenHashSet(1);
-
+        final IntArrayList resultList = new IntArrayList();
         BasicQuery query = new BasicQuery(sql, args);
 
         Connection connection = null;
@@ -703,15 +703,14 @@ public class DatabaseManager {
             fillPreparedStatement(ps, query.getArgs());
             rs = ps.executeQuery();
             while (rs.next()) {
-                result.add(rs.getInt(1));
+                resultList.add(rs.getInt(1));
             }
         } catch (SQLException e) {
             logError(e, query.getSql(), query.getArgs());
         } finally {
             close(connection, ps, rs);
         }
-
-        return result;
+        return new IntLinkedOpenHashSet(resultList);
     }
 
     /**
