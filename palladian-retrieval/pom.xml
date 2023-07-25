@@ -73,7 +73,8 @@
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.4.0</version>
+            <version>5.3.1</version>
+            <!--            <version>5.4.0</version>-->
             <!--            <version>3.8.1</version>-->
         </dependency>
         <dependency>
