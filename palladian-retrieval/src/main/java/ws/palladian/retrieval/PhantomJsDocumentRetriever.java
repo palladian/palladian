@@ -93,8 +93,14 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
                         + cookieString + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
-        JsonObject response = new DocumentRetriever().tryGetJsonObject(requestUrl);
-        if (response == null) {
+        JsonObject response = null;
+        try {
+            response = new DocumentRetriever().tryGetJsonObject(requestUrl);
+            if (response == null) {
+                return null;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Could not parse billing info from PhantomJsCloud", e);
             return null;
         }
 
