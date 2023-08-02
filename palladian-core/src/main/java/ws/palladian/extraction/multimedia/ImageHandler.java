@@ -1,6 +1,5 @@
 package ws.palladian.extraction.multimedia;
 
-import com.sun.media.jai.codec.SeekableStream;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.util.FastMath;
 import org.imgscalr.Scalr;
@@ -25,7 +24,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
@@ -40,7 +38,10 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorConvertOp;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -215,15 +216,14 @@ public class ImageHandler {
                     if (bufferedImage == null) {
                         bufferedImage = ImageIO.read(new URL(url));
                     }
-
                 } catch (Exception e) {
-                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new ByteArrayInputStream(httpResult.getContent()), true)).getAsBufferedImage();
+                    LOGGER.error(url + ", " + e.getMessage(), e);
                 }
             } else {
                 try {
                     bufferedImage = ImageIO.read(new File(url));
                 } catch (Exception e) {
-                    bufferedImage = JAI.create("stream", SeekableStream.wrapInputStream(new FileInputStream(url), true)).getAsBufferedImage();
+                    LOGGER.error(url + ", " + e.getMessage(), e);
                 }
             }
         } catch (Throwable e) {
