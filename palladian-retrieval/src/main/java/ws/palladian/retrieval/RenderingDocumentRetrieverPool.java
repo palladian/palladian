@@ -51,6 +51,16 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode);
     }
 
+    public void closePool() {
+        for (int i = 0; i < size; ++i) {
+            try {
+                pool.take().closeAndQuit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     // test drive
     public static void main(String[] args) {
         final RenderingDocumentRetrieverPool pool = new RenderingDocumentRetrieverPool(DriverManagerType.CHROME, 3);

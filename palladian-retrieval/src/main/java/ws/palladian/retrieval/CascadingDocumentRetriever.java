@@ -147,6 +147,26 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return getWebDocument(url, null, thread);
     }
 
+    @Override
+    public void close() {
+        super.close();
+        if (documentRetriever != null) {
+            documentRetriever.close();
+        }
+        if (cloudDocumentRetriever != null) {
+            cloudDocumentRetriever.close();
+        }
+        if (cloudDocumentRetriever2 != null) {
+            cloudDocumentRetriever2.close();
+        }
+        if (cloudDocumentRetriever3 != null) {
+            cloudDocumentRetriever3.close();
+        }
+        if (cloudDocumentRetriever4 != null) {
+            cloudDocumentRetriever4.close();
+        }
+    }
+
     public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread) {
         if (resolvingExplanation == null) {
             resolvingExplanation = new ArrayList<>();

@@ -141,7 +141,6 @@ public class DatabaseManager {
 
             connection.commit();
             connection.setAutoCommit(true);
-
         } catch (SQLException e) {
             rollback(connection);
             affectedRows = 0;

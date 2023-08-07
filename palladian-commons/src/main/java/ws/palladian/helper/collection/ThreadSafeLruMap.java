@@ -15,7 +15,6 @@ import java.util.LinkedHashMap;
  * @author David Urbansky
  */
 public class ThreadSafeLruMap<K, V> extends MapDecorator<K, V> {
-
     /**
      * <p>
      * Create a new {@link ThreadSafeLruMap} with insertion order (i.e. a FIFO).
@@ -39,7 +38,7 @@ public class ThreadSafeLruMap<K, V> extends MapDecorator<K, V> {
     }
 
     private ThreadSafeLruMap(final int maxEntries, boolean accessOrder) {
-        super(Collections.synchronizedMap(new LinkedHashMap<K, V>(maxEntries + 1, 1.1f, accessOrder) {
+        super(Collections.synchronizedMap(new LinkedHashMap<>(maxEntries + 1, 1.1f, accessOrder) {
             private static final long serialVersionUID = 12345L;
 
             @Override
@@ -49,5 +48,4 @@ public class ThreadSafeLruMap<K, V> extends MapDecorator<K, V> {
         }));
         Validate.isTrue(maxEntries > 0);
     }
-
 }
