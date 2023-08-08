@@ -55,8 +55,8 @@ public final class StringHelper {
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
-    public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '-', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_',
-            '+', '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○'};
+    public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_',
+            '+', '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○', '-'};
 
     private StringHelper() {
         // utility class.
