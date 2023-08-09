@@ -173,7 +173,7 @@ public class JsonDatabase {
         File folder = new File(rootPath + collection);
         if (folder.exists() && folder.isDirectory()) {
             File[] folderFiles = folder.listFiles();
-            ProgressMonitor progressMonitor = new ProgressMonitor(folderFiles.length, 0.1, "Getting files in " + collection);
+            ProgressMonitor progressMonitor = new ProgressMonitor(folderFiles.length, 10., "Getting files in " + collection);
             for (File file : folderFiles) {
                 progressMonitor.incrementAndPrintProgress();
                 if (file.isDirectory()) {
@@ -331,7 +331,7 @@ public class JsonDatabase {
         JsonObject indexJson = new JsonObject();
         final List<File> files = getFiles(collection);
 
-        ProgressMonitor pm = new ProgressMonitor(files.size(), 1.0, "Creating Index " + field);
+        ProgressMonitor pm = new ProgressMonitor(files.size(), 10.0, "Creating Index " + field);
         for (File file : files) {
             String text = FileHelper.tryReadFileToStringNoReplacement(file);
             JsonObject jso = JsonObject.tryParse(text);
