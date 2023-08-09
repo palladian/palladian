@@ -89,6 +89,9 @@ public class EmailAnalyzer {
      * @param apiKey The api key for quickemailverification.com.
      */
     public static EmailVerificationResult verify(String email, String apiKey) {
+        if (email.isEmpty()) {
+            return null;
+        }
         JsonObject response = new DocumentRetriever().tryGetJsonObject(
                 "http://api.quickemailverification.com/v1/verify?email=" + UrlHelper.encodeParameter(email) + "&apikey=" + apiKey);
         if (response == null || response.tryGetString("success").equals("false")) {
