@@ -340,6 +340,17 @@ public class WordTransformer {
      * @param forceSplit If force split, compound words from the dictionary are ignored, e.g. "Fahrradschloss" is in the dictionary but we'll try to break it to Fahrrad + Schloss
      * @return All words in its correct order that the compound is made out of.
      */
+    public static List<String> splitGermanCompoundWords(String word, boolean forceSplit, boolean allPartsMustBeInDictionary) {
+        List<String> parts = splitGermanCompoundWords(word, forceSplit);
+        for (String part : parts) {
+            if (!GERMAN_WORDS.contains(part)) {
+                return Arrays.asList(word);
+            }
+        }
+
+        return parts;
+    }
+
     public static List<String> splitGermanCompoundWords(String word, boolean forceSplit) {
         List<String> words = new ArrayList<>();
 
