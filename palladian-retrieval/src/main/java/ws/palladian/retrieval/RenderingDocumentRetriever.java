@@ -61,7 +61,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
-        String downloadFilePath = "/data/selenium-downloads";
+        String downloadFilePath = "data/selenium-downloads";
         if (browser == DriverManagerType.FIREFOX) {
             if (driverVersionCode != null) {
                 WebDriverManager.firefoxdriver().browserVersion(driverVersionCode).setup();
@@ -237,7 +237,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         try {
             if (!selectors.isEmpty()) {
                 new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> {
-                    for (String cssSelector: selectors) {
+                    for (String cssSelector : selectors) {
                         if (webDriver.findElement(By.cssSelector(cssSelector)) == null) {
                             return false;
                         }
