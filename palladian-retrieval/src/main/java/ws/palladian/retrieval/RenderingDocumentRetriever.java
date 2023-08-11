@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -155,18 +156,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         this.driver = driver;
     }
 
-    public RenderingDocumentRetriever(DriverManagerType browser, MutableCapabilities options) {
-        if (browser == DriverManagerType.FIREFOX) {
-            WebDriverManager.firefoxdriver().setup();
-            driver = new FirefoxDriver(options);
-        } else if (browser == DriverManagerType.CHROME) {
-            WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver(options);
-        } else if (browser == DriverManagerType.CHROMIUM) {
-            WebDriverManager.chromiumdriver().setup();
-            driver = new ChromeDriver(options);
-        }
-    }
+    //    public RenderingDocumentRetriever(DriverManagerType browser, MutableCapabilities options) {
+    //        if (browser == DriverManagerType.FIREFOX) {
+    //            WebDriverManager.firefoxdriver().setup();
+    //            driver = new FirefoxDriver(options);
+    //        } else if (browser == DriverManagerType.CHROME) {
+    //            WebDriverManager.chromedriver().setup();
+    //            driver = new ChromeDriver(options);
+    //        } else if (browser == DriverManagerType.CHROMIUM) {
+    //            WebDriverManager.chromiumdriver().setup();
+    //            driver = new ChromeDriver(options);
+    //        }
+    //    }
 
     /**
      * Take a screenshot and save it to the specified path.
@@ -236,7 +237,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
         try {
             if (!selectors.isEmpty()) {
-                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> {
+                new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(webDriver -> {
                     for (String cssSelector : selectors) {
                         if (webDriver.findElement(By.cssSelector(cssSelector)) == null) {
                             return false;
@@ -245,7 +246,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     return true;
                 });
             } else {
-                new WebDriverWait(driver, getTimeoutSeconds()).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(
+                        webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
             }
         } catch (Exception e) {
             if (getWaitExceptionCallback() != null) {
@@ -295,7 +297,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
         }
         try {
-            new WebDriverWait(driver, timeoutInSeconds).until(condition);
+            new WebDriverWait(driver, Duration.ofSeconds(timeoutInSeconds)).until(condition);
         } catch (Exception e) {
             LOGGER.error("problem with waiting for condition", e);
             if (getWaitExceptionCallback() != null) {
