@@ -22,16 +22,25 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     private final String userAgent;
     private final String driverVersionCode;
 
+    // we can pass the binary of the browser to use
+    private String binaryPath;
+
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
         this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
     }
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
+        this(driverManagerType, size, proxy, userAgent, driverVersionCode, null);
+    }
+
+    public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode,
+            String binaryPath) {
         super(size);
         this.driverManagerType = driverManagerType;
         this.proxy = proxy;
         this.userAgent = userAgent;
         this.driverVersionCode = driverVersionCode;
+        this.binaryPath = binaryPath;
         initializePool();
 
         // we have to shut down the browsers or the RAM will be used up rather quickly
@@ -48,7 +57,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
     @Override
     protected RenderingDocumentRetriever createObject() {
-        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode);
+        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath);
     }
 
     public void closePool() {

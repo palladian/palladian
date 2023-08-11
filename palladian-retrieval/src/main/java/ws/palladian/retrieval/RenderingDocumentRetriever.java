@@ -62,6 +62,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode) {
+        this(browser, proxy, userAgent, driverVersionCode, null);
+    }
+
+    public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode, String binaryPath) {
         String downloadFilePath = "data/selenium-downloads";
         if (browser == DriverManagerType.FIREFOX) {
             if (driverVersionCode != null) {
@@ -75,18 +79,21 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             profile.setPreference("browser.download.folderList", 2);
             profile.setPreference("browser.download.manager.showWhenStarting", false);
 
-            FirefoxOptions firefoxOptions = new FirefoxOptions();
-            firefoxOptions.setHeadless(true);
-            firefoxOptions.setAcceptInsecureCerts(true);
-            firefoxOptions.addPreference("general.useragent.override", userAgent);
-            firefoxOptions.addPreference("intl.accept_languages", "en-US");
-            firefoxOptions.setProfile(profile);
-
-            if (proxy != null) {
-                firefoxOptions.setCapability(CapabilityType.PROXY, proxy);
+            FirefoxOptions options = new FirefoxOptions();
+            options.setHeadless(true);
+            options.setAcceptInsecureCerts(true);
+            options.addPreference("general.useragent.override", userAgent);
+            options.addPreference("intl.accept_languages", "en-US");
+            options.setProfile(profile);
+            if (binaryPath != null) {
+                options.setBinary(binaryPath);
             }
 
-            driver = new FirefoxDriver(firefoxOptions);
+            if (proxy != null) {
+                options.setCapability(CapabilityType.PROXY, proxy);
+            }
+
+            driver = new FirefoxDriver(options);
         } else if (browser == DriverManagerType.CHROME) {
             if (driverVersionCode != null) {
                 WebDriverManager.chromedriver().browserVersion(driverVersionCode).setup();
@@ -109,6 +116,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
             options.setExperimentalOption("prefs", prefs);
+            if (binaryPath != null) {
+                options.setBinary(binaryPath);
+            }
 
             if (proxy != null) {
                 options.setCapability(CapabilityType.PROXY, proxy);
@@ -140,6 +150,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
             options.setExperimentalOption("prefs", prefs);
+            if (binaryPath != null) {
+                options.setBinary(binaryPath);
+            }
 
             if (proxy != null) {
                 options.setCapability(CapabilityType.PROXY, proxy);
