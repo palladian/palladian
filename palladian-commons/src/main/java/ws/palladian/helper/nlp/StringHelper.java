@@ -14,6 +14,8 @@ import ws.palladian.helper.normalization.StringNormalizer;
 import ws.palladian.helper.normalization.UnitNormalizer;
 
 import java.security.MessageDigest;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,11 +32,8 @@ import java.util.regex.PatternSyntaxException;
  * @author Martin Gregor
  */
 public final class StringHelper {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(StringHelper.class);
-
+    private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("###,###,###,##0.##", new DecimalFormatSymbols(Locale.US));
     private static final Pattern PATTERN_FIRST_WORD = Pattern.compile("^(\\w+)(?:\\s|$)");
     private static final Pattern PATTERN_STRING = Pattern.compile(RegExp.STRING);
     private static final Pattern PATTERN_NUMBER = Pattern.compile(RegExp.NUMBER);
@@ -55,8 +54,8 @@ public final class StringHelper {
 
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
-    public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_',
-            '+', '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○', '-'};
+    public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_', '+',
+            '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○', '-'};
 
     private StringHelper() {
         // utility class.
@@ -1772,6 +1771,10 @@ public final class StringHelper {
         }
 
         return null;
+    }
+
+    public static String makeNumberReadable(Number number) {
+        return NUMBER_FORMAT.format(number);
     }
 
     public static String numberWordsToNumbers(String text) {

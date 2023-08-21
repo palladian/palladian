@@ -28,9 +28,6 @@ import java.util.regex.Pattern;
  * @author Philipp Katz
  */
 public final class MathHelper {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(MathHelper.class);
 
     /**
