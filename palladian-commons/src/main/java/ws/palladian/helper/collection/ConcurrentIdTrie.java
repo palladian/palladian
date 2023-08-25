@@ -107,12 +107,12 @@ public class ConcurrentIdTrie implements Map.Entry<String, IntOpenHashSet>, Iter
         for (String token : tokens) {
             IntOpenHashSet integers = getValue(token);
             if (integers == null) {
-                integers = new IntOpenHashSet(4, 0.8f);
-                synchronized (this) {
+                integers = new IntOpenHashSet();
+                synchronized (integers) {
                     put(token, integers);
                 }
             }
-            synchronized (this) { // FIXME synchronize only integers?
+            synchronized (integers) {
                 integers.add(id);
             }
         }
@@ -122,12 +122,12 @@ public class ConcurrentIdTrie implements Map.Entry<String, IntOpenHashSet>, Iter
         for (String ngram : ngrams) {
             IntOpenHashSet integers = getValue(ngram);
             if (integers == null) {
-                integers = new IntOpenHashSet(4, 0.8f);
-                synchronized (this) {// FIXME synchronize only integers?
+                integers = new IntOpenHashSet();
+                synchronized (integers) {
                     put(ngram, integers);
                 }
             }
-            synchronized (this) {// FIXME synchronize only integers?
+            synchronized (integers) {
                 integers.add(id);
             }
         }
@@ -253,6 +253,10 @@ public class ConcurrentIdTrie implements Map.Entry<String, IntOpenHashSet>, Iter
         int childCount = temp.size();
         children = childCount > 0 ? temp.toArray(new ConcurrentIdTrie[childCount]) : EMPTY_ARRAY;
         clean &= !hasData();
+
+        // trim the hashset to the minimum size (can save lots of memory)
+        value.trim();
+
         return clean;
     }
 
