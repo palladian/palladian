@@ -914,6 +914,31 @@ public final class CollectionHelper {
         return intersection;
     }
 
+    public static AbstractIntSortedSet intersect(AbstractIntSortedSet setA, AbstractIntSortedSet setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+        // the most common variant to calculate an intersection is something like this:
+        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
+        // however, if both sets have considerably different sizes, this can be optimized,
+        // by iterating over the smaller set and checking whether the current element
+        // occurs in the larger set:
+        AbstractIntSet smallerSet = setA;
+        AbstractIntSet largerSet = setB;
+
+        // swap smaller/larger set if necessary
+        if (smallerSet.size() > largerSet.size()) {
+            smallerSet = setB;
+            largerSet = setA;
+        }
+        AbstractIntSortedSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
+        for (int element : smallerSet) {
+            if (largerSet.contains(element)) {
+                intersection.add(element);
+            }
+        }
+        return intersection;
+    }
+
     public static AbstractIntSet intersect(AbstractIntSet setA, AbstractIntSet setB) {
         Validate.notNull(setA, "setA must not be null");
         Validate.notNull(setB, "setB must not be null");
@@ -989,6 +1014,18 @@ public final class CollectionHelper {
 
         return setA;
     }
+
+    //    public static IntOpenHashSet intersectBitSet(IntOpenHashSet setA, IntOpenHashSet setB) {
+    //        BitSet bitSetA = new BitSet(setA.size());
+    //        BitSet bitSetB = new BitSet(setB.size());
+    //        setA.intParallelStream().forEach(bitSetA::set);
+    //        setB.intParallelStream().forEach(bitSetB::set);
+    //        bitSetA.and(bitSetB);
+    //        IntOpenHashSet intersectedSet = new IntOpenHashSet(bitSetA.cardinality());
+    //        bitSetA.stream().parallel().forEach(intersectedSet::add);
+    //
+    //        return intersectedSet;
+    //    }
 
     /**
      * <p>
@@ -1153,19 +1190,82 @@ public final class CollectionHelper {
     }
 
     public static void main(String[] args) {
+        //        Map<Integer, IntOpenHashSet> dataMap = new HashMap<>();
+        //
+        //        BitSet full = new BitSet();
+        //        IntOpenHashSet fullLoad = new IntOpenHashSet();
+        //        for (int i = 0; i < 3_500_000; i++) {
+        //            fullLoad.add(i + 1_000_000);
+        //            full.set(i + 1_000_000);
+        //        }
+        //
+        //        for (int i = 5; i < 6_500_000; i++) {
+        //            IntOpenHashSet integers = new IntOpenHashSet();
+        //            int randomIntBetween1 = MathHelper.getRandomIntBetween(1_000_000, 5_500_000);
+        //            int randomIntBetween2 = MathHelper.getRandomIntBetween(1_000_000, 5_500_000);
+        //            int randomIntBetween3 = MathHelper.getRandomIntBetween(1_000_000, 5_500_000);
+        //            integers.add(randomIntBetween1);
+        //            integers.add(randomIntBetween2);
+        //            integers.add(randomIntBetween3);
+        //
+        //            dataMap.put(i, integers);
+        //        }
+        //        System.out.println("test sets loaded");
+        //        StopWatch stopWatch = new StopWatch();
+        //        BitSet bitSet = new BitSet(105_000_000);
+        //        System.out.println("time to create bits: " + stopWatch.getElapsedTimeString());
+        //
+        //        for (Integer integer : dataMap.keySet()) {
+        //            IntOpenHashSet integers = dataMap.get(integer);
+        //            for (Integer integer1 : integers) {
+        //                bitSet.set(integer1);
+        //            }
+        //        }
+        //        System.out.println("time to set bits: " + stopWatch.getElapsedTimeString());
+        //        int length = bitSet.length();
+        //        IntOpenHashSet allIds = new IntOpenHashSet(dataMap.size());
+        //        for (int i = 0; i < length; i++) {
+        //            if (bitSet.get(i)) {
+        //                allIds.add(i);
+        //            }
+        //        }
+        //        System.out.println("done with adding via bitSet all (" + allIds.size() + ") to set, took: " + stopWatch.getElapsedTimeStringAndIncrement());
+        //
+        //        stopWatch = new StopWatch();
+        //        allIds = new IntOpenHashSet(dataMap.size());
+        //        for (Integer integer : dataMap.keySet()) {
+        //            IntOpenHashSet integers = dataMap.get(integer);
+        //            allIds.addAll(integers);
+        //        }
+        //        System.out.println("done with adding via addAll all (" + allIds.size() + ") to set, took: " + stopWatch.getElapsedTimeString());
+        //        System.exit(0);
+        ////////////////////////////////////////////////////////////////////////////////
+
         IntOpenHashSet setA = new IntOpenHashSet();
         IntOpenHashSet setB = new IntOpenHashSet();
-        for (int i = (int) (Math.random() * 100000); i < Math.random() * 1000000000; i++) {
+        for (int i = (int) (Math.random() * 10000); i < Math.random() * 1000000000; i++) {
             setA.add(i);
         }
-        for (int i = (int) (Math.random() * 100000); i < Math.random() * 10000000; i++) {
+        for (int i = (int) (Math.random() * 10000); i < Math.random() * 1000000000; i++) {
             setB.add(i);
         }
         StopWatch stopWatch = new StopWatch();
-        for (int j = 0; j < 100000; j++) {
+        for (int j = 0; j < 10000; j++) {
             //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
             AbstractIntSet newSet = CollectionHelper.intersectFastWithModification(setA, setB);
+            //            AbstractIntSet newSet2 = CollectionHelper.intersectBitSet(setA, setB);
+            //            System.out.println(newSet.size() + " " + newSet2.size());
             //            setA.retainAll(setB);
+            //            slowAdd(setA, setB);
+        }
+        System.out.println(stopWatch.getElapsedTimeString());
+
+        stopWatch = new StopWatch();
+        for (int j = 0; j < 10000; j++) {
+            //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
+            //            AbstractIntSet newSet = CollectionHelper.intersectBitSet(setA, setB);
+            //            setA.retainAll(setB);
+            //            fastAdd(setA, setB);
         }
         System.out.println(stopWatch.getElapsedTimeString());
     }
