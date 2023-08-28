@@ -23,9 +23,6 @@ import java.util.regex.Pattern;
  * @author David Urbansky
  */
 public class UnitNormalizer {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(UnitNormalizer.class);
 
     private final static List<String> ALL_UNITS = new ArrayList<>();

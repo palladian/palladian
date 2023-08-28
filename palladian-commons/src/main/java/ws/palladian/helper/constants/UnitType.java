@@ -622,6 +622,15 @@ public enum UnitType {
         unitList.add("mm");
         UnitType.LENGTH.units.add(Pair.of(unitList, 0.1));
 
+        unitList = new ArrayList<>();
+        unitList.add("μm");
+        unitList.add("μM");
+        unitList.add("micrometre");
+        unitList.add("micrometres");
+        unitList.add("micrometer");
+        unitList.add("micrometers");
+        UnitType.LENGTH.units.add(Pair.of(unitList, 0.0001));
+
         // WEIGHT units are normalized to grams
         unitList = new ArrayList<>();
         unitList.add("tons");
@@ -868,6 +877,16 @@ public enum UnitType {
         unitList.add("mL");
         unitList.add("cm³");
         UnitType.VOLUME.units.add(Pair.of(unitList, 1.));
+
+        unitList = new ArrayList<>();
+        unitList.add("µl");
+        unitList.add("µL");
+        unitList.add("microlitre");
+        unitList.add("microlitres");
+        unitList.add("microliter");
+        unitList.add("microliters");
+        unitList.add("mm³");
+        UnitType.VOLUME.units.add(Pair.of(unitList, 0.000001));
 
         unitList = new ArrayList<>();
         // US 1.5 fl. oz (different depending on country)
