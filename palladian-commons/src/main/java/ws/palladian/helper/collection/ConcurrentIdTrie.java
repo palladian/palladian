@@ -255,7 +255,9 @@ public class ConcurrentIdTrie implements Map.Entry<String, IntOpenHashSet>, Iter
         clean &= !hasData();
 
         // trim the hashset to the minimum size (can save lots of memory)
-        value.trim();
+        if (value != null) {
+            value.trim();
+        }
 
         return clean;
     }
