@@ -86,10 +86,9 @@ public final class CollectionHelper {
      * Sort a {@link Map} by value.
      * </p>
      *
-     * @param <K>       Type of the keys.
-     * @param <V>       Type of the values, must implement {@link Comparable}.
-     * @param map       The {@link Map} to sort, not <code>null</code>.
-     * @param ascending {@link Order#ASCENDING} or {@link Order#DESCENDING}, not <code>null</code>.
+     * @param <K> Type of the keys.
+     * @param <V> Type of the values, must implement {@link Comparable}.
+     * @param map The {@link Map} to sort, not <code>null</code>.
      * @return A sorted map.
      */
     public static <K, V extends Comparable<V>> Map<K, V> sortByValue(Map<K, V> map, Order order) {
@@ -124,10 +123,8 @@ public final class CollectionHelper {
      * Sort a {@link HashMap} by length of the key string.
      * </p>
      *
-     * @param <K>       Type of the keys.
-     * @param <V>       Type of the values.
-     * @param map       The entry set.
-     * @param ascending {@link Order#ASCENDING} or {@link Order#DESCENDING}.
+     * @param <V> Type of the values.
+     * @param map The entry set.
      * @return A sorted map.
      * @deprecated {@link Map}s are <b>not</b> meant for this use case. Prefer using a {@link List} populated with
      * {@link Pair}s, sorted as required.
@@ -268,7 +265,7 @@ public final class CollectionHelper {
      * Create a new {@link HashSet} and fill it with the content of the given {@link Iterable}.
      * </p>
      *
-     * @param iterable The {@link Iterable} providing the content for the {@link Set}, not <code>null</code>.
+     * @param elements The {@link Iterable} providing the content for the {@link Set}, not <code>null</code>.
      * @return The {@link Set} with items from the {@link Iterator}.
      */
     public static <E> HashSet<E> newHashSet(Iterable<? extends E> elements) {
@@ -472,7 +469,7 @@ public final class CollectionHelper {
      * Get the first element in an {@link Iterable}.
      * </p>
      *
-     * @param list The Iterable from which to get the element, not <code>null</code>.
+     * @param iterable The Iterable from which to get the element, not <code>null</code>.
      * @return The first element, or <code>null</code> if the iterable was empty.
      */
     public static <T> T getFirst(Iterable<T> iterable) {
@@ -486,8 +483,8 @@ public final class CollectionHelper {
      * Get the first X elements in an {@link Iterable}.
      * </p>
      *
-     * @param list The Iterable from which to get the element, not <code>null</code>.
-     * @param num  The number of elements to retrieve. If the collection has less entries it will return only those.
+     * @param iterable The Iterable from which to get the element, not <code>null</code>.
+     * @param num      The number of elements to retrieve. If the collection has less entries it will return only those.
      * @return The first X elements, or an empty list if the iterable was empty.
      */
     public static <T> List<T> getFirst(Iterable<T> iterable, int num) {
@@ -749,7 +746,7 @@ public final class CollectionHelper {
      * {@link Function}.
      * </p>
      *
-     * @param iterator The iterator to wrap, not <code>null</code>.
+     * @param iterable The iterator to wrap, not <code>null</code>.
      * @param function The {@link Function} which performs the conversion, not <code>null</code>.
      * @return An iterable wrapping the given iterable.
      */
@@ -914,7 +911,32 @@ public final class CollectionHelper {
         return intersection;
     }
 
-    public static AbstractIntSortedSet intersect(AbstractIntSortedSet setA, AbstractIntSortedSet setB) {
+    //    public static AbstractIntSortedSet intersect(AbstractIntSortedSet setA, AbstractIntSortedSet setB) {
+    //        Validate.notNull(setA, "setA must not be null");
+    //        Validate.notNull(setB, "setB must not be null");
+    //        // the most common variant to calculate an intersection is something like this:
+    //        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
+    //        // however, if both sets have considerably different sizes, this can be optimized,
+    //        // by iterating over the smaller set and checking whether the current element
+    //        // occurs in the larger set:
+    //        AbstractIntSet smallerSet = setA;
+    //        AbstractIntSet largerSet = setB;
+    //
+    //        // swap smaller/larger set if necessary
+    //        if (smallerSet.size() > largerSet.size()) {
+    //            smallerSet = setB;
+    //            largerSet = setA;
+    //        }
+    //        AbstractIntSortedSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
+    //        for (int element : smallerSet) {
+    //            if (largerSet.contains(element)) {
+    //                intersection.add(element);
+    //            }
+    //        }
+    //        return intersection;
+    //    }
+    //
+    public static <T extends AbstractIntSet> IntLinkedOpenHashSet intersect(T setA, T setB) {
         Validate.notNull(setA, "setA must not be null");
         Validate.notNull(setB, "setB must not be null");
         // the most common variant to calculate an intersection is something like this:
@@ -922,15 +944,15 @@ public final class CollectionHelper {
         // however, if both sets have considerably different sizes, this can be optimized,
         // by iterating over the smaller set and checking whether the current element
         // occurs in the larger set:
-        AbstractIntSet smallerSet = setA;
-        AbstractIntSet largerSet = setB;
+        T smallerSet = setA;
+        T largerSet = setB;
 
         // swap smaller/larger set if necessary
         if (smallerSet.size() > largerSet.size()) {
             smallerSet = setB;
             largerSet = setA;
         }
-        AbstractIntSortedSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
+        IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
         for (int element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
@@ -939,30 +961,30 @@ public final class CollectionHelper {
         return intersection;
     }
 
-    public static AbstractIntSet intersect(AbstractIntSet setA, AbstractIntSet setB) {
-        Validate.notNull(setA, "setA must not be null");
-        Validate.notNull(setB, "setB must not be null");
-        // the most common variant to calculate an intersection is something like this:
-        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
-        // however, if both sets have considerably different sizes, this can be optimized,
-        // by iterating over the smaller set and checking whether the current element
-        // occurs in the larger set:
-        AbstractIntSet smallerSet = setA;
-        AbstractIntSet largerSet = setB;
-
-        // swap smaller/larger set if necessary
-        if (smallerSet.size() > largerSet.size()) {
-            smallerSet = setB;
-            largerSet = setA;
-        }
-        AbstractIntSet intersection = new IntOpenHashSet(smallerSet.size());
-        for (int element : smallerSet) {
-            if (largerSet.contains(element)) {
-                intersection.add(element);
-            }
-        }
-        return intersection;
-    }
+    //    public static AbstractIntSet intersect(AbstractIntSet setA, AbstractIntSet setB) {
+    //        Validate.notNull(setA, "setA must not be null");
+    //        Validate.notNull(setB, "setB must not be null");
+    //        // the most common variant to calculate an intersection is something like this:
+    //        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
+    //        // however, if both sets have considerably different sizes, this can be optimized,
+    //        // by iterating over the smaller set and checking whether the current element
+    //        // occurs in the larger set:
+    //        AbstractIntSet smallerSet = setA;
+    //        AbstractIntSet largerSet = setB;
+    //
+    //        // swap smaller/larger set if necessary
+    //        if (smallerSet.size() > largerSet.size()) {
+    //            smallerSet = setB;
+    //            largerSet = setA;
+    //        }
+    //        AbstractIntSet intersection = new IntOpenHashSet(smallerSet.size());
+    //        for (int element : smallerSet) {
+    //            if (largerSet.contains(element)) {
+    //                intersection.add(element);
+    //            }
+    //        }
+    //        return intersection;
+    //    }
 
     public static int intersectCount(final IntSet setA, final IntSet setB) {
         int count = 0;
