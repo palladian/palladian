@@ -33,6 +33,11 @@ public class StringHelperTest {
         assertEquals("twelve", StringHelper.numberToWord(12.));
     }
 
+    //    @Test
+    //    public void testNumbersToWords() {
+    //        assertEquals("GameMaker KİTABI 90 Sayfalık GML dili One", StringHelper.numbersToNumberWords("GameMaker KİTABI 90 Sayfalık GML dili 1"));
+    //    }
+
     @Test
     public void testFirstWord() {
         assertEquals("samsung", StringHelper.getFirstWord("samsung galaxy s4"));

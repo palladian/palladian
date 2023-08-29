@@ -108,7 +108,7 @@ public class PalladianSpellChecker {
 
         // read the input file and create a P(w) model by counting the word occurrences
         final Set<String> uniqueWords = new HashSet<>();
-        final Pattern p = Pattern.compile("[\\w\\p{L}-]+");
+        final Pattern p = Pattern.compile("[\\w'\\p{L}-]+");
         LineAction lineAction = new LineAction() {
 
             @Override
@@ -125,6 +125,10 @@ public class PalladianSpellChecker {
                     uniqueWords.add(match);
                     if (lastMatch != null && useContext) {
                         contextCounter.add(lastMatch + "_" + match);
+                        if (lastMatch.contains("'")) {
+                            contextCounter.add(lastMatch.replace("'", "") + "_" + match);
+                            contextCounter.add(lastMatch.replaceAll("'.*", "") + "_" + match);
+                        }
                     }
                     lastMatch = match;
                 }
@@ -470,11 +474,11 @@ public class PalladianSpellChecker {
             // look at the context
             if (useContext) {
                 if (leftContext != null) {
-                    count = (int) (100 * s.length() * s.length() * Math.log(contextCounter.count(leftContext + "_" + s)));
+                    count = (int) (100 * s.length() * s.length() * Math.log(1 + contextCounter.count(leftContext + "_" + s)));
                     contextUsed = true;
                 }
                 if (rightContext != null) {
-                    count = (int) (100 * s.length() * s.length() * Math.log(contextCounter.count(s + "_" + rightContext)));
+                    count = (int) (100 * s.length() * s.length() * Math.log(1 + contextCounter.count(s + "_" + rightContext)));
                     contextUsed = true;
                 }
             }
