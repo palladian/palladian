@@ -6,6 +6,7 @@ import ws.palladian.helper.ResourcePool;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +26,8 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     // we can pass the binary of the browser to use
     private String binaryPath;
 
+    private Set<String> additionalOptions;
+
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
         this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
     }
@@ -35,12 +38,18 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode,
             String binaryPath) {
+        this(driverManagerType, size, proxy, userAgent, driverVersionCode, binaryPath, null);
+    }
+
+    public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode,
+            String binaryPath, Set<String> additionalOptions) {
         super(size);
         this.driverManagerType = driverManagerType;
         this.proxy = proxy;
         this.userAgent = userAgent;
         this.driverVersionCode = driverVersionCode;
         this.binaryPath = binaryPath;
+        this.additionalOptions = additionalOptions;
         initializePool();
 
         // we have to shut down the browsers or the RAM will be used up rather quickly
@@ -57,7 +66,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
     @Override
     protected RenderingDocumentRetriever createObject() {
-        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath);
+        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath, additionalOptions);
     }
 
     public void replace(RenderingDocumentRetriever resource) {
