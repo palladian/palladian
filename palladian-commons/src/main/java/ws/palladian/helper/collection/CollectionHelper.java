@@ -8,6 +8,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Predicates;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -952,7 +953,8 @@ public final class CollectionHelper {
             smallerSet = setB;
             largerSet = setA;
         }
-        IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
+
+     IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet();
         for (int element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
@@ -961,30 +963,30 @@ public final class CollectionHelper {
         return intersection;
     }
 
-    //    public static AbstractIntSet intersect(AbstractIntSet setA, AbstractIntSet setB) {
-    //        Validate.notNull(setA, "setA must not be null");
-    //        Validate.notNull(setB, "setB must not be null");
-    //        // the most common variant to calculate an intersection is something like this:
-    //        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
-    //        // however, if both sets have considerably different sizes, this can be optimized,
-    //        // by iterating over the smaller set and checking whether the current element
-    //        // occurs in the larger set:
-    //        AbstractIntSet smallerSet = setA;
-    //        AbstractIntSet largerSet = setB;
-    //
-    //        // swap smaller/larger set if necessary
-    //        if (smallerSet.size() > largerSet.size()) {
-    //            smallerSet = setB;
-    //            largerSet = setA;
-    //        }
-    //        AbstractIntSet intersection = new IntOpenHashSet(smallerSet.size());
-    //        for (int element : smallerSet) {
-    //            if (largerSet.contains(element)) {
-    //                intersection.add(element);
-    //            }
-    //        }
-    //        return intersection;
-    //    }
+    public static AbstractIntSet intersectIntSets(AbstractIntSet setA, AbstractIntSet setB) {
+        Validate.notNull(setA, "setA must not be null");
+        Validate.notNull(setB, "setB must not be null");
+        // the most common variant to calculate an intersection is something like this:
+        // Set intersection = new HashSet(setA); intersection.retainAll(setB);
+        // however, if both sets have considerably different sizes, this can be optimized,
+        // by iterating over the smaller set and checking whether the current element
+        // occurs in the larger set:
+        AbstractIntSet smallerSet = setA;
+        AbstractIntSet largerSet = setB;
+
+        // swap smaller/larger set if necessary
+        if (smallerSet.size() > largerSet.size()) {
+            smallerSet = setB;
+            largerSet = setA;
+        }
+        AbstractIntSet intersection = new IntOpenHashSet(smallerSet.size());
+        for (int element : smallerSet) {
+            if (largerSet.contains(element)) {
+                intersection.add(element);
+            }
+        }
+        return intersection;
+    }
 
     public static int intersectCount(final IntSet setA, final IntSet setB) {
         int count = 0;
@@ -1212,6 +1214,8 @@ public final class CollectionHelper {
     }
 
     public static void main(String[] args) {
+        AbstractIntSet intersect = CollectionHelper.intersect(new IntOpenHashSet(), new IntLinkedOpenHashSet());
+
         //        Map<Integer, IntOpenHashSet> dataMap = new HashMap<>();
         //
         //        BitSet full = new BitSet();
