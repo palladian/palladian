@@ -34,7 +34,9 @@ public abstract class ResourcePool<T> {
     }
 
     public void recycle(T resource) {
-        pool.add(resource);
+        if (resource != null) {
+            pool.add(resource);
+        }
     }
 
     public void initializePool() {

@@ -60,6 +60,15 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath);
     }
 
+    public void replace(RenderingDocumentRetriever resource) {
+        try {
+            resource.closeAndQuit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        pool.add(createObject());
+    }
+
     public void closePool() {
         for (int i = 0; i < size; ++i) {
             try {
@@ -69,8 +78,8 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
             }
         }
     }
-
     // test drive
+
     public static void main(String[] args) {
         final RenderingDocumentRetrieverPool pool = new RenderingDocumentRetrieverPool(DriverManagerType.CHROME, 3);
 
