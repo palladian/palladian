@@ -66,6 +66,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode, String binaryPath) {
+        this(browser, proxy, userAgent, driverVersionCode, binaryPath, null);
+    }
+
+    public RenderingDocumentRetriever(DriverManagerType browser, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode, String binaryPath,
+            Set<String> additionalOptions) {
         String downloadFilePath = "data/selenium-downloads";
         if (browser == DriverManagerType.FIREFOX) {
             if (driverVersionCode != null) {
@@ -115,6 +120,13 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+
+            if (additionalOptions != null) {
+                for (String additionalOption : additionalOptions) {
+                    options.addArguments(additionalOption);
+                }
+            }
+
             options.setExperimentalOption("prefs", prefs);
             if (binaryPath != null) {
                 options.setBinary(binaryPath);
@@ -149,6 +161,13 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+
+            if (additionalOptions != null) {
+                for (String additionalOption : additionalOptions) {
+                    options.addArguments(additionalOption);
+                }
+            }
+
             options.setExperimentalOption("prefs", prefs);
             if (binaryPath != null) {
                 options.setBinary(binaryPath);
@@ -168,19 +187,6 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     public RenderingDocumentRetriever(RemoteWebDriver driver) {
         this.driver = driver;
     }
-
-    //    public RenderingDocumentRetriever(DriverManagerType browser, MutableCapabilities options) {
-    //        if (browser == DriverManagerType.FIREFOX) {
-    //            WebDriverManager.firefoxdriver().setup();
-    //            driver = new FirefoxDriver(options);
-    //        } else if (browser == DriverManagerType.CHROME) {
-    //            WebDriverManager.chromedriver().setup();
-    //            driver = new ChromeDriver(options);
-    //        } else if (browser == DriverManagerType.CHROMIUM) {
-    //            WebDriverManager.chromiumdriver().setup();
-    //            driver = new ChromeDriver(options);
-    //        }
-    //    }
 
     /**
      * Take a screenshot and save it to the specified path.
