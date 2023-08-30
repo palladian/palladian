@@ -19,11 +19,14 @@ public class LoremIpsumGenerator {
     }
 
     public static String getRandomText(int length) {
+        return getRandomText(length, 0.15);
+    }
+    public static String getRandomText(int length, double chanceForSpace) {
         StringBuilder text = new StringBuilder(length);
 
         for (int i = 0; i < length; i++) {
             char randomCharacter;
-            if (Math.random() < 0.15) {
+            if (Math.random() < chanceForSpace) {
                 randomCharacter = ' ';
             } else {
                 randomCharacter = (char) (Math.random() * 26 + 97);
