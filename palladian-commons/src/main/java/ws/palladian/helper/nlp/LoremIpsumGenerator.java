@@ -44,5 +44,4 @@ public class LoremIpsumGenerator {
         System.out.println(LoremIpsumGenerator.generateText(400));
         System.out.println(LoremIpsumGenerator.getRandomText(50));
     }
-
 }

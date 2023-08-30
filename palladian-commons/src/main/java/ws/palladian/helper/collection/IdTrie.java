@@ -31,30 +31,18 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     protected final char character;
 
-    protected final IdTrie parent;
-
     protected IdTrie[] children = EMPTY_ARRAY;
 
     protected IntOpenHashSet value;
 
-    /** Store the most expensive (cost = time to retrieve) ngrams in a cache. */
-    private CostAwareCache<String, IntOpenHashSet> costAwareCache;
-
     public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-–—―`‘’“·•®”*_+";
 
-    public IdTrie(int cacheSize) {
-        this(EMPTY_CHARACTER, null);
-        costAwareCache = new CostAwareCache(cacheSize);
-    }
-
     public IdTrie() {
-        this(EMPTY_CHARACTER, null);
+        this(EMPTY_CHARACTER);
     }
 
-    private IdTrie(char character, IdTrie parent) {
+    private IdTrie(char character) {
         this.character = character;
-        this.parent = parent;
-        costAwareCache = null;
     }
 
     public IdTrie getNode(CharSequence key) {
@@ -74,7 +62,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
             }
         }
         if (create) {
-            IdTrie newNode = new IdTrie(head, this);
+            IdTrie newNode = new IdTrie(head);
             if (children == EMPTY_ARRAY) {
                 children = new IdTrie[]{newNode};
             } else {
@@ -104,24 +92,21 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
             tokens.add(token);
         }
         tokens = new ArrayList<>(new HashSet<>(tokens));
-        for (String token : tokens) {
-            IntOpenHashSet integers = getValue(token);
-            if (integers == null) {
-                integers = new IntOpenHashSet();
-                put(token, integers);
-            }
-            integers.add(id);
-        }
+        add(id, tokens);
     }
 
-    public void add(int id, Set<String> ngrams) {
+    public void add(int id, Collection<String> ngrams) {
         for (String ngram : ngrams) {
             IntOpenHashSet integers = getValue(ngram);
             if (integers == null) {
                 integers = new IntOpenHashSet();
-                put(ngram, integers);
+                synchronized (integers) {
+                    put(ngram, integers);
+                }
             }
-            integers.add(id);
+            synchronized (integers) {
+                integers.add(id);
+            }
         }
     }
 
@@ -141,14 +126,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public IntOpenHashSet get(String key) {
         Validate.notEmpty(key, "key must not be empty");
-        long startTime = 0;
-        if (costAwareCache != null) {
-            IntOpenHashSet integers = costAwareCache.tryGet(key);
-            if (integers != null) {
-                return integers;
-            }
-            startTime = System.nanoTime();
-        }
+
         IdTrie node = getNode(key);
         if (node == null) {
             return new IntOpenHashSet();
@@ -168,13 +146,8 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
             Map.Entry<String, IntOpenHashSet> entry = iterator.next();
             list.addAll(entry.getValue());
         }
-        IntOpenHashSet integers = new IntOpenHashSet(list);
 
-        if (costAwareCache != null) {
-            costAwareCache.tryAdd((int) (System.nanoTime() - startTime), key, integers);
-        }
-
-        return integers;
+        return new IntOpenHashSet(list);
     }
 
     public IntOpenHashSet getOrPut(String key, IntOpenHashSet value) {
@@ -209,7 +182,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
     }
 
     private Iterator<IdTrie> children() {
-        return new ArrayIterator<IdTrie>(children);
+        return new ArrayIterator<>(children);
     }
 
     private boolean hasData() {
@@ -218,13 +191,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     @Override
     public String getKey() {
-        StringBuilder builder = new StringBuilder().append(character);
-        for (IdTrie current = parent; current != null; current = current.parent) {
-            if (current.character != EMPTY_CHARACTER) {
-                builder.append(current.character);
-            }
-        }
-        return builder.reverse().toString();
+        return String.valueOf(character);
     }
 
     /**
@@ -261,14 +228,6 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public int size() {
         return CollectionHelper.count(this.iterator());
-    }
-
-    public CostAwareCache<String, IntOpenHashSet> getCostAwareCache() {
-        return costAwareCache;
-    }
-
-    public void setCostAwareCache(CostAwareCache<String, IntOpenHashSet> costAwareCache) {
-        this.costAwareCache = costAwareCache;
     }
 
     @Override
