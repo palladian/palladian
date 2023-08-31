@@ -37,7 +37,7 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-–—―`‘’“·•®”*_+";
 
-    private int maxNgramLength = 100;
+    private static int maxNgramLength = 100;
 
     public IdTrie() {
         this(EMPTY_CHARACTER);
