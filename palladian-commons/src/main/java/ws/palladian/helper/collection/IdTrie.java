@@ -37,6 +37,8 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public static final String DELIMITERS = " ,;:!?.[]()|/<>&\"'-–—―`‘’“·•®”*_+";
 
+    private int maxNgramLength = 100;
+
     public IdTrie() {
         this(EMPTY_CHARACTER);
     }
@@ -97,6 +99,9 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
 
     public void add(int id, Collection<String> ngrams) {
         for (String ngram : ngrams) {
+            if (ngram.length() > maxNgramLength) {
+                continue;
+            }
             IntOpenHashSet integers = getValue(ngram);
             if (integers == null) {
                 integers = new IntOpenHashSet();
@@ -277,5 +282,9 @@ public class IdTrie implements Map.Entry<String, IntOpenHashSet>, Iterable<Map.E
             }
             currentNode.value = null;
         }
+    }
+
+    public void setMaxNgramLength(int maxNgramLength) {
+        this.maxNgramLength = maxNgramLength;
     }
 }
