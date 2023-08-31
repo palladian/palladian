@@ -880,13 +880,15 @@ public enum UnitType {
 
         unitList = new ArrayList<>();
         unitList.add("µl");
+        unitList.add("µl");
+        unitList.add("µL");
         unitList.add("µL");
         unitList.add("microlitre");
         unitList.add("microlitres");
         unitList.add("microliter");
         unitList.add("microliters");
         unitList.add("mm³");
-        UnitType.VOLUME.units.add(Pair.of(unitList, 0.000001));
+        UnitType.VOLUME.units.add(Pair.of(unitList, 0.001));
 
         unitList = new ArrayList<>();
         // US 1.5 fl. oz (different depending on country)
