@@ -84,16 +84,6 @@ public class StringIdMap implements Serializable {
                 }
             }
         });
-        //        for (String mapKey : map.keySet()) {
-        //            if (mapKey.startsWith(key)) {
-        //                Object o = map.get(mapKey);
-        //                if (o instanceof Integer) {
-        //                    list.add((int) o);
-        //                } else {
-        //                    list.addAll((IntOpenHashSet)o);
-        //                }
-        //            }
-        //        }
 
         return new IntOpenHashSet(list);
     }
