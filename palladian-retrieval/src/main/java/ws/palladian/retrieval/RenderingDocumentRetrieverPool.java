@@ -79,7 +79,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     }
 
     public void closePool() {
-        for (int i = 0; i < size; ++i) {
+        for (int i = 0; i < pool.size(); i++) {
             try {
                 pool.take().closeAndQuit();
             } catch (Exception e) {

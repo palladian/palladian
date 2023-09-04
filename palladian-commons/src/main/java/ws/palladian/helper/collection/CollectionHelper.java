@@ -8,7 +8,6 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.functional.Factory;
 import ws.palladian.helper.functional.Predicates;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -954,7 +953,7 @@ public final class CollectionHelper {
             largerSet = setA;
         }
 
-     IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet();
+        IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet();
         for (int element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
@@ -998,7 +997,7 @@ public final class CollectionHelper {
             smallerSet = setB;
             largerSet = setA;
         }
-        for (int element : smallerSet) {
+        for (int element : smallerSet) {// XXX parallel stream is not faster in previous tests
             if (largerSet.contains(element)) {
                 count++;
             }
