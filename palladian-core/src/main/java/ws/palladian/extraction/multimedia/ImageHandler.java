@@ -671,6 +671,10 @@ public class ImageHandler {
     // }
 
     public static boolean isDuplicate(BufferedImage image1, BufferedImage image2) {
+        return isDuplicate(image1, image2, 0.82);
+    }
+
+    public static boolean isDuplicate(BufferedImage image1, BufferedImage image2, double threshold) {
         if (image1 == null || image2 == null) {
             return true;
         }
@@ -688,7 +692,7 @@ public class ImageHandler {
 
         double similarity = getSimilarity(image1, image2, DIFFG);
         // System.out.println(similarity);
-        return similarity > 0.82;
+        return similarity > threshold;
     }
 
     /**
