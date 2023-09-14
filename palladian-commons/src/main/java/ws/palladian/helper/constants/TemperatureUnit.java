@@ -12,14 +12,10 @@ import java.util.Set;
  * @author David Urbansky
  */
 public enum TemperatureUnit {
+    CELSIUS("celsius", "degrees celsius", "° celsius", "°celsius", "°c"), FAHRENHEIT("fahrenheit", "degrees fahrenheit", "° fahrenheit", "°fahrenheit", "°f"), KELVIN("kelvin",
+            "K");
 
-    CELSIUS("celsius", "degrees celsius", "° celsius", "°celsius", "°c"),
-
-    FAHRENHEIT("fahrenheit", "degrees fahrenheit", "° fahrenheit", "°fahrenheit", "°f"),
-
-    KELVIN("kelvin", "K");
-
-    private Set<String> names = new HashSet<>();
+    private final Set<String> names = new HashSet<>();
 
     TemperatureUnit(String... names) {
         this.names.addAll(Arrays.asList(names));

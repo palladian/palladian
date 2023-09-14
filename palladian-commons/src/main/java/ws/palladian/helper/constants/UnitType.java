@@ -29,7 +29,7 @@ public enum UnitType {
     WEIGHT("g"), //
     FORCE("N"), //
     SPEED("km/h"), //
-    TEMPERATURE(null), //
+    TEMPERATURE("Celsius"), //
     PRESSURE("pascal"), //
     ELECTRICAL_RESISTANCE("ohm"), //
     POWER("watt"), //

@@ -76,6 +76,8 @@ public class NormalizationTest {
 
     @Test
     public void testGetNormalizedNumber() {
+        assertEquals(0, UnitNormalizer.getNormalizedNumber("32 °F"), 2);
+        assertEquals(20., UnitNormalizer.getNormalizedNumber("20 °C"), 2);
         assertEquals(0.02, UnitNormalizer.getNormalizedNumber(20, "µl"), 2);
         assertEquals(566337.0, UnitNormalizer.getNormalizedNumber(20, "cu ft"), 2);
         assertEquals(566337.0, UnitNormalizer.getNormalizedNumber(20, "ft3"), 2);

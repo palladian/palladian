@@ -15,6 +15,8 @@ public class UnitNormalizerTest {
     public void testDetectUnit() {
         String input;
 
+        collector.checkThat(UnitNormalizer.getUnitType("°C"), Matchers.is(UnitType.TEMPERATURE));
+        
         collector.checkThat(UnitNormalizer.getUnitType("N"), Matchers.is(UnitType.FORCE));
         collector.checkThat(UnitNormalizer.getUnitType("km/h"), Matchers.is(UnitType.SPEED));
 

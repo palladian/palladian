@@ -7,6 +7,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.constants.UnitType;
+import ws.palladian.helper.conversion.UnitConverter;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -756,6 +757,8 @@ public class UnitNormalizer {
                     return 0.0;
                 }
                 break;
+            } else if (getUnitType(wordSequence) == UnitType.TEMPERATURE) {
+                number = UnitConverter.convertTemperature(number, wordSequence.toLowerCase().trim(), UnitType.TEMPERATURE.getBaseUnit());
             }
             l--;
         }
