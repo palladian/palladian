@@ -1,5 +1,6 @@
 package ws.palladian.extraction.multimedia;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.util.FastMath;
 import org.imgscalr.Scalr;
@@ -398,7 +399,7 @@ public class ImageHandler {
             saveImage(image, FileHelper.getFileType(file.getAbsolutePath()), file.getAbsolutePath());
         }
     }
-
+    
     public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean fitWithoutDistortion) {
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -462,6 +463,10 @@ public class ImageHandler {
     }
 
     private static BufferedImage substractImages(BufferedImage image1, BufferedImage image2) {
+        return substractImages(image1, image2, new AtomicDouble(0));
+    }
+
+    private static BufferedImage substractImages(BufferedImage image1, BufferedImage image2, AtomicDouble averageGray) {
         int pixelCount = image1.getWidth() * image1.getHeight();
         int grayCount = 0;
 
@@ -489,9 +494,7 @@ public class ImageHandler {
             }
         }
 
-        float averageGray = grayCount / (float) pixelCount;
-
-        LOGGER.debug("{}", averageGray);
+        averageGray.set(grayCount / (double) pixelCount);
 
         return substractedImage;
     }
@@ -645,10 +648,10 @@ public class ImageHandler {
             image2 = rescaleImage(image2, 200, 200, false);
         }
 
-        BufferedImage substractedImage = substractImages(image1, image2);
-        double averageGray = getAverageGray(substractedImage);
+        AtomicDouble averageGray = new AtomicDouble(0);
+        substractImages(image1, image2, averageGray);
 
-        return 1 - averageGray / 255.0;
+        return 1 - averageGray.get() / 255.0;
     }
 
     public static BufferedImage toGrayScale(BufferedImage bufferedImage) {
@@ -676,22 +679,10 @@ public class ImageHandler {
 
     public static boolean isDuplicate(BufferedImage image1, BufferedImage image2, double threshold) {
         if (image1 == null || image2 == null) {
-            return true;
+            return false;
         }
 
-        // normalize size if not done already
-        // if (image1.getWidth() != image2.getWidth()) {
-        // image1 = rescaleImage(image1, 200);
-        // image2 = rescaleImage(image2, 200);
-        // }
-        //
-        // BufferedImage substractedImage = substractImages(image1, image2);
-        // float averageGray = getAverageGray(substractedImage);
-        //
-        // if (averageGray < 50) return true;
-
         double similarity = getSimilarity(image1, image2, DIFFG);
-        // System.out.println(similarity);
         return similarity > threshold;
     }
 
