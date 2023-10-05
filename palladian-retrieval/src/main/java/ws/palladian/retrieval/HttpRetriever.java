@@ -146,8 +146,8 @@ public class HttpRetriever {
     private int connectionTimeoutRedirects = DEFAULT_CONNECTION_TIMEOUT_REDIRECTS;
 
     /**
-    * The socket timeout when checking for redirects.
-    */
+     * The socket timeout when checking for redirects.
+     */
     private int socketTimeoutRedirects = DEFAULT_SOCKET_TIMEOUT_REDIRECTS;
 
     /**
@@ -178,11 +178,9 @@ public class HttpRetriever {
     private ProxyRemoverCallback proxyRemoveCallback = null;
 
     /**
-     *
      * The user agent.
      */
     private String userAgent = null;
-
 
     // ////////////////////////////////////////////////////////////////
     // constructor
@@ -318,6 +316,7 @@ public class HttpRetriever {
         if (userAgent != null) {
             httpClientBuilder.setUserAgent(userAgent);
         }
+
         httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
         DefaultHttpRequestRetryStrategy retryStrategy = new DefaultHttpRequestRetryStrategy(numRetries, TimeValue.ofSeconds(1L));
         httpClientBuilder.setRetryStrategy(retryStrategy);
@@ -341,7 +340,9 @@ public class HttpRetriever {
                 context.setAttribute(CONTEXT_LOCATIONS_ID, locations);
             }
             HttpRoute route = (HttpRoute) context.getAttribute("http.route");
-            String targetHost = route != null ? route.getTargetHost().getSchemeName() + "://" + route.getTargetHost().getHostName() : request.getScheme() + "://" + request.getAuthority().getHostName();
+            String targetHost = route != null ?
+                    route.getTargetHost().getSchemeName() + "://" + route.getTargetHost().getHostName() :
+                    request.getScheme() + "://" + request.getAuthority().getHostName();
             String fullLocation = targetHost + request.getRequestUri();
             locations.add(fullLocation);
         };
@@ -349,7 +350,7 @@ public class HttpRetriever {
 
         // set the cookie store; this is scoped on *one* request and discarded after that;
         // see https://bitbucket.org/palladian/palladian/issue/286/possibility-to-accept-cookies-in
-        // "one request" actually means, that we have a e.g. a GET and receive several redirects,
+        // "one request" actually means, that we have e.g. a GET and receive several redirects,
         // where cookies previously set cookies are necessary; this is not a typical case,
         // and if we should encounter any issues by this change, remove this code (and the modification
         // in the constructor) again.
@@ -403,6 +404,7 @@ public class HttpRetriever {
         InputStream in = null;
 
         HttpClientBuilder clientBuilder = createHttpClientBuilder();
+
         Proxy proxyUsed = setProxy(url, request, clientBuilder);
 
         CloseableHttpClient client = clientBuilder.build();
@@ -419,7 +421,17 @@ public class HttpRetriever {
                 LOGGER.error("Could not set Authorization header", e);
             }
 
-            ClassicHttpResponse response = client.execute(request, context);
+            ClassicHttpResponse response;
+            try {
+                response = client.execute(request, context);
+            } catch (ClientProtocolException e0) {
+                // see comments on lines 351-356: this is required to handle circular redirects, e.g. https://www.washingtonpost.com/business/2023/10/02/corporate-diversity-inclusion-affirmative-action-ruling/
+                clientBuilder = createHttpClientBuilder();
+                clientBuilder.setDefaultCookieStore(null);
+                client = clientBuilder.build();
+                context = new BasicHttpContext();
+                response = client.execute(request, context);
+            }
             HttpConnectionMetrics metrics = (HttpConnectionMetrics) context.getAttribute(CONTEXT_METRICS_ID);
 
             HttpEntity entity = response.getEntity();
@@ -531,19 +543,12 @@ public class HttpRetriever {
 
         List<String> ret = new ArrayList<>();
 
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(connectionTimeoutRedirects, TimeUnit.MILLISECONDS)
-                .setResponseTimeout(socketTimeoutRedirects, TimeUnit.MILLISECONDS)
-                .setRedirectsEnabled(false)
-                .build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(connectionTimeoutRedirects, TimeUnit.MILLISECONDS).setResponseTimeout(socketTimeoutRedirects,
+                TimeUnit.MILLISECONDS).setRedirectsEnabled(false).build();
         // set a bot user agent here; else wise we get no redirects on some shortening services, like t.co
         // see: https://dev.twitter.com/docs/tco-redirection-behavior
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create()
-                .setUserAgent(REDIRECT_USER_AGENT)
-                .setDefaultRequestConfig(requestConfig)
-                .setConnectionManager(connectionManager);
-
-
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().setUserAgent(REDIRECT_USER_AGENT).setDefaultRequestConfig(requestConfig).setConnectionManager(
+                connectionManager);
 
         for (; ; ) {
             HttpHead headRequest;
