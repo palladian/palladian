@@ -46,8 +46,6 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
 
     private final DocumentParser xmlParser = ParserFactory.createXmlParser();
 
-    private final HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-
     private final boolean retrieveHierarchy;
 
     /**
@@ -96,7 +94,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
         try {
             String cleanName = StringUtils.stripAccents(locationName.toLowerCase());
             String getUrl = String.format("http://api.geonames.org/search?name_equals=%s&style=FULL&username=%s", UrlHelper.encodeParameter(cleanName), username);
-            HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            HttpResult httpResult = getHttpRetriever().httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
             List<Location> result = new ArrayList<>();
             List<Location> retrievedLocations = parseLocations(document);
@@ -208,7 +206,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
         }
         try {
             String getUrl = String.format("http://api.geonames.org/hierarchy?geonameId=%s&style=SHORT&username=%s", locationId, username);
-            HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            HttpResult httpResult = getHttpRetriever().httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
             List<Node> geonames = XPathHelper.getNodes(document, "//geoname/geonameId");
             List<Integer> result = new ArrayList<>();
@@ -233,7 +231,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
     public Location getLocation(int locationId) {
         try {
             String getUrl = String.format("http://api.geonames.org/get?geonameId=%s&username=%s&style=FULL", locationId, username);
-            HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            HttpResult httpResult = getHttpRetriever().httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
             List<Location> locations = parseLocations(document);
             Location location = CollectionHelper.getFirst(locations);
@@ -253,7 +251,7 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             String getUrl = String.format("http://api.geonames.org/findNearby?lat=%s&lng=%s&radius=%s&username=%s&style=FULL&maxRows=100", coordinate.getLatitude(),
                     coordinate.getLongitude(), distance, username);
             LOGGER.debug("Retrieving {}", getUrl);
-            HttpResult httpResult = httpRetriever.httpGet(getUrl);
+            HttpResult httpResult = getHttpRetriever().httpGet(getUrl);
             Document document = xmlParser.parse(httpResult);
             List<Location> locations = parseLocations(document);
             List<Location> result = new ArrayList<>();
@@ -268,6 +266,13 @@ public class GeonamesLocationSource extends SingleQueryLocationSource {
             throw new IllegalStateException(e);
         }
 
+    }
+
+    private HttpRetriever getHttpRetriever() {
+        HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
+        // the API is sometimes flaky, will this help?
+        retriever.setNumRetries(3);
+        return retriever;
     }
 
     public static void main(String[] args) {
