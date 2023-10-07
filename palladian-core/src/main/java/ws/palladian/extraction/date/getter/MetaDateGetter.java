@@ -51,12 +51,20 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @Override
     public List<MetaDate> getDates(Document document) {
+        return getDates(document, true);
+    }
+
+    public List<MetaDate> getDates(Document document, boolean allowHttpRequests) {
         // get the http result without querying the URL again, this saves bandwidth and time
         HttpResult httpResult = (HttpResult) document.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
         if (httpResult != null) {
             return getDates(httpResult);
         }
 
-        return getDates(getUrl(document));
+        if (allowHttpRequests) {
+            return getDates(getUrl(document));
+        } else {
+            return Collections.emptyList();
+        }
     }
 }
