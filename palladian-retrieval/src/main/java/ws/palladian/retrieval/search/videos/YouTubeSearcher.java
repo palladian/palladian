@@ -195,7 +195,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
                 }
             }
 
-            webResults = getVideos(videoIds);
+            webResults = tryGetVideos(videoIds);
         } catch (Exception e) {
             throw new SearcherException(
                     "HTTP error while listing items from playlist \"" + playlistId + "\" with " + getName() + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
@@ -203,27 +203,33 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         return new SearchResults<>(webResults, numResults);
     }
 
-    public List<WebVideo> getVideos(List<String> videoIds) {
+    public List<WebVideo> tryGetVideos(List<String> videoIds) {
+        try {
+            return getVideos(videoIds);
+        } catch (Exception e) {
+            LOGGER.error("Error while getting videos for IDs " + videoIds + ": " + e.getMessage(), e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<WebVideo> getVideos(List<String> videoIds) throws HttpException, SearcherException, JsonException {
         List<WebVideo> webResults = new ArrayList<>();
 
         // retrieve data about the found video IDs
         for (int i = 0; i < videoIds.size(); i += MAX_RESULTS_PER_PAGE) {
-            try {
-                List<String> currentChunk = videoIds.subList(i, Math.min(i + MAX_RESULTS_PER_PAGE, videoIds.size()));
-                String url = buildListUrl(currentChunk);
 
-                HttpResult httpResult = retriever.httpGet(url);
+            List<String> currentChunk = videoIds.subList(i, Math.min(i + MAX_RESULTS_PER_PAGE, videoIds.size()));
+            String url = buildListUrl(currentChunk);
 
-                checkForHttpError(httpResult);
+            HttpResult httpResult = retriever.httpGet(url);
 
-                String jsonString = httpResult.getStringContent();
-                JsonObject root = new JsonObject(jsonString);
-                JsonArray itemsArray = root.getJsonArray("items");
-                for (int j = 0; j < itemsArray.size(); j++) {
-                    webResults.add(parseSnippet((JsonObject) itemsArray.get(j)));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            checkForHttpError(httpResult);
+
+            String jsonString = httpResult.getStringContent();
+            JsonObject root = JsonObject.tryParse(jsonString);
+            JsonArray itemsArray = Optional.ofNullable(root.tryGetJsonArray("items")).orElse(new JsonArray());
+            for (int j = 0; j < itemsArray.size(); j++) {
+                webResults.add(parseSnippet((JsonObject) itemsArray.get(j)));
             }
         }
 
@@ -369,7 +375,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
                 }
             }
 
-            webResults = getVideos(videoIds);
+            webResults = tryGetVideos(videoIds);
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         } catch (JsonException e) {
