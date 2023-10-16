@@ -138,6 +138,15 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         return request;
     }
 
+    public JsonObject getPhotoInformation(String photoId) {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        Map<String, String> globalHeaders = new HashMap<>();
+        globalHeaders.put("Authorization", "Client-ID " + apiKey);
+        documentRetriever.setGlobalHeaders(globalHeaders);
+
+        return documentRetriever.tryGetJsonObject("https://api.unsplash.com/photos/" + photoId);
+    }
+
     @Override
     public String getName() {
         return SEARCHER_NAME;
@@ -146,6 +155,8 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     public static void main(String[] args) throws SearcherException {
         UnsplashSearcher searcher = new UnsplashSearcher("KEY");
         List<WebImage> results = searcher.search("nature", 101, Language.ENGLISH, Orientation.PORTRAIT);
+        JsonObject information = searcher.getPhotoInformation((String) results.get(0).getAdditionalData().get("id"));
+        System.out.println(information);
         CollectionHelper.print(results);
     }
 }
