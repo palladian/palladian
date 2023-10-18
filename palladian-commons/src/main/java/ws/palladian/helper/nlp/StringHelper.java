@@ -722,7 +722,7 @@ public final class StringHelper {
 
     /**
      * Check whether a given string contains a numeric value.
-     *
+     * NOTE: the number must be by itself and not within or at the end of a word, e.g. V200 does NOT contain a number according to this logic
      * @param searchString The search string.
      * @return True if the string contains a numeric value, else false.
      */

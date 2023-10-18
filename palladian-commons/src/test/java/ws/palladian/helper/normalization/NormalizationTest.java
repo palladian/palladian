@@ -159,5 +159,4 @@ public class NormalizationTest {
         assertFalse(UnitNormalizer.unitsSameType("minute", "mb"));
         assertTrue(UnitNormalizer.isBigger("minute", "second"));
     }
-
 }

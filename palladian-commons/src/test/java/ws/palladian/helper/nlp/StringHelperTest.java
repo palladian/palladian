@@ -218,6 +218,8 @@ public class StringHelperTest {
     public void testContainsNumber() {
         assertTrue(StringHelper.containsNumber("120"));
         assertTrue(StringHelper.containsNumber("120.2 GB"));
+        assertTrue(StringHelper.containsNumber("120.2GB"));
+        assertTrue(StringHelper.containsNumber("$120"));
         assertFalse(StringHelper.containsNumber("A bc de2f GB"));
         assertFalse(StringHelper.containsNumber("A-1 GB"));
     }
