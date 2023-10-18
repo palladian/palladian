@@ -195,7 +195,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
                 }
             }
 
-            webResults = getVideos(videoIds);
+            webResults = tryGetVideos(videoIds);
         } catch (Exception e) {
             throw new SearcherException(
                     "HTTP error while listing items from playlist \"" + playlistId + "\" with " + getName() + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
@@ -203,27 +203,33 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         return new SearchResults<>(webResults, numResults);
     }
 
-    public List<WebVideo> getVideos(List<String> videoIds) {
+    public List<WebVideo> tryGetVideos(List<String> videoIds) {
+        try {
+            return getVideos(videoIds);
+        } catch (Exception e) {
+            LOGGER.error("Error while getting videos for IDs " + videoIds + ": " + e.getMessage(), e);
+        }
+        return new ArrayList<>();
+    }
+
+    public List<WebVideo> getVideos(List<String> videoIds) throws HttpException, SearcherException, JsonException {
         List<WebVideo> webResults = new ArrayList<>();
 
         // retrieve data about the found video IDs
         for (int i = 0; i < videoIds.size(); i += MAX_RESULTS_PER_PAGE) {
-            try {
-                List<String> currentChunk = videoIds.subList(i, Math.min(i + MAX_RESULTS_PER_PAGE, videoIds.size()));
-                String url = buildListUrl(currentChunk);
 
-                HttpResult httpResult = retriever.httpGet(url);
+            List<String> currentChunk = videoIds.subList(i, Math.min(i + MAX_RESULTS_PER_PAGE, videoIds.size()));
+            String url = buildListUrl(currentChunk);
 
-                checkForHttpError(httpResult);
+            HttpResult httpResult = retriever.httpGet(url);
 
-                String jsonString = httpResult.getStringContent();
-                JsonObject root = new JsonObject(jsonString);
-                JsonArray itemsArray = root.getJsonArray("items");
-                for (int j = 0; j < itemsArray.size(); j++) {
-                    webResults.add(parseSnippet((JsonObject) itemsArray.get(j)));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            checkForHttpError(httpResult);
+
+            String jsonString = httpResult.getStringContent();
+            JsonObject root = JsonObject.tryParse(jsonString);
+            JsonArray itemsArray = Optional.ofNullable(root.tryGetJsonArray("items")).orElse(new JsonArray());
+            for (int j = 0; j < itemsArray.size(); j++) {
+                webResults.add(parseSnippet((JsonObject) itemsArray.get(j)));
             }
         }
 
@@ -369,7 +375,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
                 }
             }
 
-            webResults = getVideos(videoIds);
+            webResults = tryGetVideos(videoIds);
         } catch (HttpException e) {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request URL: \"" + url + "\"): " + e.getMessage(), e);
         } catch (JsonException e) {
@@ -466,7 +472,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         StringBuilder urlBuilder = new StringBuilder();
         // https://developers.google.com/youtube/v3/docs/videos/list
         urlBuilder.append("https://www.googleapis.com/youtube/v3/videos");
-        urlBuilder.append("?part=snippet,contentDetails,statistics,recordingDetails");
+        urlBuilder.append("?part=status,snippet,contentDetails,statistics,recordingDetails");
         urlBuilder.append("&key=").append(apiKey);
         urlBuilder.append("&id=").append(StringUtils.join(ids, ','));
         return urlBuilder.toString();
@@ -503,6 +509,10 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         if (latitude != null && longitude != null) {
             builder.setCoordinate(latitude, longitude);
         }
+
+        builder.setAdditionalData("embeddable", entry.tryQueryBoolean("status/embeddable"));
+        builder.setAdditionalData("ageRestricted", Optional.ofNullable(entry.tryQueryString("contentDetails/contentRating/ytRating")).orElse("").equals("ytAgeRestricted"));
+
         // no tags available ):
         // see: http://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
         return builder.create();

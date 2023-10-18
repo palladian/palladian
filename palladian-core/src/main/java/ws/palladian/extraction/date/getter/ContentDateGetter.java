@@ -56,7 +56,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         posOrder.sort(ContentDateComparator.INSTANCE);
         ageOrder.sort(new DateComparator());
 
-        List<MetaDate> metaDates = metaDateGetter.getDates(document);
+        List<MetaDate> metaDates = metaDateGetter.getDates(document, false);
         List<UrlDate> urlDates = urlDateGetter.getDates(document.getDocumentURI());
 
         for (ContentDate date : dates) {

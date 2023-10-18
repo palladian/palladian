@@ -113,11 +113,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <!-- http://www.slf4j.org/faq.html#excludingJCL -->
-        <repository>
-            <id>version99</id>
-            <url>http://version99.qos.ch/</url>
-        </repository>
-    </repositories>
 </project>

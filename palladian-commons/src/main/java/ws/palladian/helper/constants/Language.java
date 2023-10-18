@@ -132,6 +132,7 @@ public enum Language {
     UKRAINIAN("uk", "ukr", "Ukrainian", Script.CYRILLIC), //
     URDU("ur", "urd", "Urdu", Script.ARABIC), //
     USPANTEK(null, "usp", "Uspantek"), //
+    UZBEK("uz", "uzb", "Uzbek", Script.LATIN), //
     VIETNAMESE("vi", "vie", "Vietnamese", Script.LATIN), //
     VOLAPUEK("vo", "vol", "Volapük"), //
     WALLOON("wa", "wln", "Walloon"), //

@@ -144,7 +144,6 @@ public class HttpRetrieverTest {
     }
 
     @Test
-    @Ignore
     public void testCookieWarning() throws HttpException {
         HttpRetrieverFactory.getHttpRetriever().httpGet("http://www.home24.de/arte-m/gallery-kommode-buche-2");
     }
@@ -161,6 +160,13 @@ public class HttpRetrieverTest {
     @Test
     public void testGetExample() throws HttpException {
         HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://example.com");
+        System.out.println(result);
+    }
+
+    @Test
+    public void testGetCircularRedirects() throws HttpException {
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet(
+                "https://www.washingtonpost.com/business/2023/10/02/corporate-diversity-inclusion-affirmative-action-ruling/");
         System.out.println(result);
     }
 
@@ -184,7 +190,6 @@ public class HttpRetrieverTest {
     }
 
     @Test
-    @Ignore
     public void testSSLPeerUnverified() throws HttpException {
         try (HttpRetrieverFactory factory = new HttpRetrieverFactory(true)) {
             HttpRetriever retriever = factory.create();

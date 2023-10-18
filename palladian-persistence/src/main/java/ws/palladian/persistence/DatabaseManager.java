@@ -156,6 +156,48 @@ public class DatabaseManager {
         return affectedRows;
     }
 
+    public final int runBatchInsertNoIds(String sql, BatchDataProvider provider) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(provider, "provider must not be null");
+
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int affectedRows = 0;
+        List<?> data = null;
+
+        try {
+            connection = getConnection();
+            connection.setAutoCommit(false);
+
+            ps = connection.prepareStatement(sql, Statement.NO_GENERATED_KEYS);
+
+            for (int i = 0; i < provider.getCount(); i++) {
+                data = provider.getData(i);
+                fillPreparedStatement(ps, data);
+                ps.executeUpdate();
+
+                provider.insertedItem(i, -1);
+                affectedRows++;
+            }
+
+            connection.commit();
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            rollback(connection);
+            affectedRows = 0;
+            Object[] args = null;
+            if (data != null) {
+                args = data.toArray();
+            }
+            logError(e, sql, args);
+        } finally {
+            close(connection, ps, rs);
+        }
+
+        return affectedRows;
+    }
+
     public final long runBatchInsertLongId(String sql, BatchDataProvider provider) {
         Validate.notEmpty(sql, "sql must not be empty");
         Validate.notNull(provider, "provider must not be null");
@@ -281,6 +323,35 @@ public class DatabaseManager {
 
         runBatchInsertLongId(sql, provider);
         return result;
+    }
+
+    public final void runBatchInsert(String sql, final List<List<Object>> batchArgs) {
+        Validate.notEmpty(sql, "sql must not be empty");
+        Validate.notNull(batchArgs, "batchArgs must not be null");
+
+        BatchDataProvider provider = new BatchDataProvider() {
+            @Override
+            public int getCount() {
+                return batchArgs.size();
+            }
+
+            @Override
+            public List<?> getData(int number) {
+                return batchArgs.get(number);
+            }
+
+            @Override
+            public void insertedItem(int number, int generatedId) {
+
+            }
+
+            @Override
+            public void insertedItemLongId(int number, long generatedId) {
+
+            }
+        };
+
+        runBatchInsertNoIds(sql, provider);
     }
 
     /**
@@ -1029,7 +1100,6 @@ public class DatabaseManager {
         }
 
         try {
-
             if (connection == null) {
                 connection = getConnection();
             }

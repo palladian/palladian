@@ -1488,7 +1488,7 @@ public final class StringHelper {
      */
     public static String getSubstringBetween(String string, String leftBorder, String rightBorder) {
         List<String> substrings = getSubstringsBetween(string, leftBorder, rightBorder);
-        return substrings.size() > 0 ? substrings.get(0) : "";
+        return !substrings.isEmpty() ? substrings.get(0) : "";
     }
 
     /**

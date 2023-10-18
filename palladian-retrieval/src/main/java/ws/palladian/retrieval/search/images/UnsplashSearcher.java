@@ -77,6 +77,10 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     /**
      * @param language Supported languages are English.
      */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+        return search(query, resultCount, language, null);
+    }
+
+    public List<WebImage> search(String query, int resultCount, Language language, Orientation orientation) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
 
         resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
@@ -91,7 +95,7 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         documentRetriever.setGlobalHeaders(globalHeaders);
 
         for (int page = 1; page <= pagesNeeded; page++) {
-            String requestUrl = buildRequest(query, page, Math.min(MAX_PER_PAGE, resultCount - results.size()));
+            String requestUrl = buildRequest(query, page, Math.min(MAX_PER_PAGE, resultCount - results.size()), orientation);
             try {
                 JsonObject jsonResponse = documentRetriever.getJsonObject(requestUrl);
                 if (jsonResponse == null) {
@@ -126,8 +130,21 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         return results;
     }
 
-    private String buildRequest(String searchTerms, int page, int resultsPerPage) {
-        return String.format("https://api.unsplash.com/search/photos?query=%s&per_page=%s&page=%s", UrlHelper.encodeParameter(searchTerms), resultsPerPage, page);
+    private String buildRequest(String searchTerms, int page, int resultsPerPage, Orientation orientation) {
+        String request = String.format("https://api.unsplash.com/search/photos?query=%s&per_page=%s&page=%s", UrlHelper.encodeParameter(searchTerms), resultsPerPage, page);
+        if (orientation != null) {
+            request += "&orientation=" + orientation.name().toLowerCase();
+        }
+        return request;
+    }
+
+    public JsonObject getPhotoInformation(String photoId) {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        Map<String, String> globalHeaders = new HashMap<>();
+        globalHeaders.put("Authorization", "Client-ID " + apiKey);
+        documentRetriever.setGlobalHeaders(globalHeaders);
+
+        return documentRetriever.tryGetJsonObject("https://api.unsplash.com/photos/" + photoId);
     }
 
     @Override
@@ -137,7 +154,9 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
 
     public static void main(String[] args) throws SearcherException {
         UnsplashSearcher searcher = new UnsplashSearcher("KEY");
-        List<WebImage> results = searcher.search("pizza", 101);
+        List<WebImage> results = searcher.search("nature", 101, Language.ENGLISH, Orientation.PORTRAIT);
+        JsonObject information = searcher.getPhotoInformation((String) results.get(0).getAdditionalData().get("id"));
+        System.out.println(information);
         CollectionHelper.print(results);
     }
 }
