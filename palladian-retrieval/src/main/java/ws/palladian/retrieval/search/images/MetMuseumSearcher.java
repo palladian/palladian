@@ -131,7 +131,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
         return results;
     }
 
-    private JsonObject getObject(int objectId) {
+    public JsonObject getObject(int objectId) {
         return documentRetriever.tryGetJsonObject("https://collectionapi.metmuseum.org/public/collection/v1/objects/" + objectId);
     }
 
