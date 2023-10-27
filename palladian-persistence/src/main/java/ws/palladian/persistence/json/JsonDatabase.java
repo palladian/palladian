@@ -30,6 +30,10 @@ public class JsonDatabase {
 
     private final int numSubdirectories;
 
+    public enum Action {
+        ADD, MERGE, NOTHING
+    }
+
     public JsonDatabase(String path, int numSubdirectories) {
         this(path, new HashMap<>(), numSubdirectories);
     }
@@ -114,8 +118,38 @@ public class JsonDatabase {
         return FileHelper.getFolderedPath(filename, numSubdirectories);
     }
 
-    public synchronized boolean upsert(String collectionName, JsonObject jsonDocument) {
-        return add(collectionName, jsonDocument);
+    public synchronized Action upsert(String collectionName, JsonObject jsonDocument) {
+        // try finding the game by id (id_name)
+        JsonObject existingDocument = getById(collectionName, jsonDocument.tryGetString("_id"));
+
+        // if we don't find any, we add, otherwise we merge
+        // but only if the new one can contribute something
+        if (existingDocument == null) {
+            add(collectionName, jsonDocument);
+            return Action.ADD;
+        } else {
+            for (String key : existingDocument.keySet()) {
+                // only add fields that are not in the existing document
+                if (!existingDocument.containsKey(key)) {
+                    existingDocument.put(key, jsonDocument.get(key));
+                } else {
+                    // do a first level merge, that is combine all array and object values from the first level
+                    if (existingDocument.get(key) instanceof Collection && jsonDocument.get(key) instanceof Collection) {
+                        Set existingValues = new LinkedHashSet(existingDocument.tryGetJsonArray(key));
+                        Set newValues = new LinkedHashSet(jsonDocument.tryGetJsonArray(key));
+                        existingValues.addAll(newValues);
+                        existingDocument.put(key, new JsonArray(existingValues));
+                    } else if (existingDocument.get(key) instanceof JsonObject && jsonDocument.get(key) instanceof JsonObject) {
+                        JsonObject existingValue = existingDocument.tryGetJsonObject(key);
+                        JsonObject newValue = (JsonObject) jsonDocument.get(key);
+                        existingValue.putAll(newValue);
+                    }
+                }
+            }
+
+            add(collectionName, existingDocument);
+            return Action.MERGE;
+        }
     }
 
     public JsonObject getOne(String collection, String field, String value) {
