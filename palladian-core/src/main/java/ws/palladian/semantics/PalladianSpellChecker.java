@@ -478,7 +478,7 @@ public class PalladianSpellChecker {
                     contextUsed = true;
                 }
                 if (rightContext != null) {
-                    count = (int) (100 * s.length() * s.length() * Math.log(1 + contextCounter.count(s + "_" + rightContext)));
+                    count += (int) (100 * s.length() * s.length() * Math.log(1 + contextCounter.count(s + "_" + rightContext)));
                     contextUsed = true;
                 }
             }
