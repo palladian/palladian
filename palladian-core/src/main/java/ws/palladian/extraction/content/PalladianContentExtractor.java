@@ -752,7 +752,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         // try to get it from the biggest headline, take last one as we assume this to be the most specific
-        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1[not(ancestor::header) and not(ancestor::footer)]");
+        List<Node> xhtmlNodes = XPathHelper.getXhtmlNodes(getDocument(), "//h1[not(ancestor::header) and not(ancestor::footer) and not(ancestor::form)]");
 
         for (String excludeNodeXPath : excludeNodes) {
             xhtmlNodes.removeAll(XPathHelper.getXhtmlNodes(getDocument(), excludeNodeXPath + "//h1"));
