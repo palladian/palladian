@@ -3,11 +3,13 @@ package ws.palladian.retrieval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import ws.palladian.helper.Callback;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.retrieval.helper.NoThrottle;
@@ -101,6 +103,9 @@ public class Crawler {
     /** If true, rel="nofollow" links will indeed not be followed. */
     private boolean respectNoFollow = false;
 
+    /** Don't follow links from those sections on the page. */
+    private final Set<String> noFollowXPaths = new HashSet<>();
+
     /** The callback that is called after the crawler finished crawling. */
     private Callback crawlerCallbackOnFinish = null;
 
@@ -152,11 +157,28 @@ public class Crawler {
         Document document = currentDocumentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
-            Set<String> links = HtmlHelper.getLinks(document, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain, urlAttributeModification);
+            Node clonedDocument = document;
+            if (!noFollowXPaths.isEmpty()) { // remove sections of document from which links should not be followed
+                clonedDocument = document.cloneNode(true);
+                for (String noFollowXPath : noFollowXPaths) {
+                    if (noFollowXPath == null || noFollowXPath.isEmpty()) {
+                        continue;
+                    }
+                    List<Node> nodesToRemove = XPathHelper.getXhtmlNodes(clonedDocument, noFollowXPath);
+                    nodesToRemove.addAll(XPathHelper.getNodes(clonedDocument, noFollowXPath));
+                    for (Node node : nodesToRemove) {
+                        Node parentNode = node.getParentNode();
+                        if (parentNode != null) {
+                            parentNode.removeChild(node);
+                        }
+                    }
+                }
+            }
+            Set<String> links = HtmlHelper.getLinks(clonedDocument, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain, urlAttributeModification);
 
             // check if we can get more links out of it
             if (!whiteListLinkDomains.isEmpty()) {
-                Set<String> outLinks = HtmlHelper.getLinks(document, document.getDocumentURI(), false, true, "", false, subDomain, urlAttributeModification);
+                Set<String> outLinks = HtmlHelper.getLinks(clonedDocument, document.getDocumentURI(), false, true, "", false, subDomain, urlAttributeModification);
                 for (String whiteListLinkDomain : whiteListLinkDomains) {
                     List<String> tmpList = outLinks.stream().filter(u -> u.contains(whiteListLinkDomain)).collect(Collectors.toList());
                     links.addAll(tmpList);
@@ -532,6 +554,14 @@ public class Crawler {
 
     public void setErrorCallback(Consumer<String> errorCallback) {
         this.errorCallback = errorCallback;
+    }
+
+    public void addNoFollowXPath(String xpath) {
+        this.noFollowXPaths.add(xpath);
+    }
+
+    public void addNoFollowXPaths(Collection<String> xpaths) {
+        this.noFollowXPaths.addAll(xpaths);
     }
 
     public static void main(String[] args) throws UnknownHostException {
