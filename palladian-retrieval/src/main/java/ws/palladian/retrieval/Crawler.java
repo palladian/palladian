@@ -157,33 +157,7 @@ public class Crawler {
         Document document = currentDocumentRetriever.getWebDocument(currentUrl);
 
         if (document != null) {
-            Node clonedDocument = document;
-            if (!noFollowXPaths.isEmpty()) { // remove sections of document from which links should not be followed
-                clonedDocument = document.cloneNode(true);
-                for (String noFollowXPath : noFollowXPaths) {
-                    if (noFollowXPath == null || noFollowXPath.isEmpty()) {
-                        continue;
-                    }
-                    List<Node> nodesToRemove = XPathHelper.getXhtmlNodes(clonedDocument, noFollowXPath);
-                    nodesToRemove.addAll(XPathHelper.getNodes(clonedDocument, noFollowXPath));
-                    for (Node node : nodesToRemove) {
-                        Node parentNode = node.getParentNode();
-                        if (parentNode != null) {
-                            parentNode.removeChild(node);
-                        }
-                    }
-                }
-            }
-            Set<String> links = HtmlHelper.getLinks(clonedDocument, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain, urlAttributeModification);
-
-            // check if we can get more links out of it
-            if (!whiteListLinkDomains.isEmpty()) {
-                Set<String> outLinks = HtmlHelper.getLinks(clonedDocument, document.getDocumentURI(), false, true, "", false, subDomain, urlAttributeModification);
-                for (String whiteListLinkDomain : whiteListLinkDomains) {
-                    List<String> tmpList = outLinks.stream().filter(u -> u.contains(whiteListLinkDomain)).collect(Collectors.toList());
-                    links.addAll(tmpList);
-                }
-            }
+            Set<String> links = getDocumentLinks(document);
 
             if (urlStack.isEmpty() || visitedUrls.isEmpty() || (System.currentTimeMillis() / 1000) % 5 == 0) {
                 LOGGER.info("retrieved {} links from {} || stack size: {}, visited: {}", new Object[]{links.size(), currentUrl, urlStack.size(), visitedUrls.size()});
@@ -196,6 +170,40 @@ public class Crawler {
         }
 
         release(currentDocumentRetriever);
+    }
+
+    protected Set<String> getDocumentLinks(Document document) {
+        if (document == null) {
+            return new HashSet<>();
+        }
+        Node clonedDocument = document;
+        if (!noFollowXPaths.isEmpty()) { // remove sections of document from which links should not be followed
+            clonedDocument = document.cloneNode(true);
+            for (String noFollowXPath : noFollowXPaths) {
+                if (noFollowXPath == null || noFollowXPath.isEmpty()) {
+                    continue;
+                }
+                List<Node> nodesToRemove = XPathHelper.getXhtmlNodes(clonedDocument, noFollowXPath);
+                nodesToRemove.addAll(XPathHelper.getNodes(clonedDocument, noFollowXPath));
+                for (Node node : nodesToRemove) {
+                    Node parentNode = node.getParentNode();
+                    if (parentNode != null) {
+                        parentNode.removeChild(node);
+                    }
+                }
+            }
+        }
+        Set<String> links = HtmlHelper.getLinks(clonedDocument, document.getDocumentURI(), inDomain, outDomain, "", respectNoFollow, subDomain, urlAttributeModification);
+
+        // check if we can get more links out of it
+        if (!whiteListLinkDomains.isEmpty()) {
+            Set<String> outLinks = HtmlHelper.getLinks(clonedDocument, document.getDocumentURI(), false, true, "", false, subDomain, urlAttributeModification);
+            for (String whiteListLinkDomain : whiteListLinkDomains) {
+                List<String> tmpList = outLinks.stream().filter(u -> u.contains(whiteListLinkDomain)).collect(Collectors.toList());
+                links.addAll(tmpList);
+            }
+        }
+        return links;
     }
 
     public void setSilentStopTime(int stopTimeInMinutes) {
@@ -319,10 +327,14 @@ public class Crawler {
         if (iterator.hasNext()) {
             String url = iterator.next();
             urlStack.remove(url);
-            visitedUrls.add(url);
+            addVisitedUrl(url);
             return url;
         }
         return null;
+    }
+
+    protected void addVisitedUrl(String url) {
+        visitedUrls.add(url);
     }
 
     public void setStopCount(int number) {
@@ -377,7 +389,7 @@ public class Crawler {
         this.urlAttributeModification.add(attributeToAddToUrl);
     }
 
-    private synchronized void addUrlsToStack(Set<String> urls, String sourceUrl) {
+    protected synchronized void addUrlsToStack(Set<String> urls, String sourceUrl) {
         for (String url : urls) {
             addUrlToStack(url, sourceUrl);
         }
