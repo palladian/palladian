@@ -85,10 +85,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             profile.setPreference("browser.download.manager.showWhenStarting", false);
 
             FirefoxOptions options = new FirefoxOptions();
-            options.setHeadless(true);
             options.setAcceptInsecureCerts(true);
             options.addPreference("general.useragent.override", userAgent);
             options.addPreference("intl.accept_languages", "en-US");
+            options.addArguments("--headless");
             options.setProfile(profile);
             if (binaryPath != null) {
                 options.setBinary(binaryPath);
@@ -111,9 +111,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             prefs.put("download.prompt_for_download", false);
 
             ChromeOptions options = new ChromeOptions();
-            options.setHeadless(true);
             options.setAcceptInsecureCerts(true);
 
+            options.addArguments("--headless");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
@@ -152,9 +152,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             prefs.put("download.prompt_for_download", false);
 
             ChromeOptions options = new ChromeOptions();
-            options.setHeadless(true);
             options.setAcceptInsecureCerts(true);
 
+            options.addArguments("--headless");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
@@ -371,7 +371,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         Document document = null;
 
         try {
-            InputStream stream = new ByteArrayInputStream(driver.getPageSource().getBytes(StandardCharsets.UTF_8.name()));
+            InputStream stream = new ByteArrayInputStream(driver.getPageSource().getBytes(StandardCharsets.UTF_8));
             document = ParserFactory.createHtmlParser().parse(stream);
             document.setDocumentURI(driver.getCurrentUrl());
         } catch (Exception e) {

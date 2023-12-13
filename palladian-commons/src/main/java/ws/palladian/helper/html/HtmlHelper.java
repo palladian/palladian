@@ -743,7 +743,7 @@ public final class HtmlHelper {
         return getLinks(document, originalDocumentUrl, inDomain, outDomain, prefix, respectNoFollow, includeSubdomains, new HashSet<>());
     }
 
-    public static Set<String> getLinks(Document document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow,
+    public static Set<String> getLinks(Node document, String originalDocumentUrl, boolean inDomain, boolean outDomain, String prefix, boolean respectNoFollow,
             boolean includeSubdomains, Set<String> urlAttributeModification) {
         Set<String> pageLinks = new HashSet<>();
 
