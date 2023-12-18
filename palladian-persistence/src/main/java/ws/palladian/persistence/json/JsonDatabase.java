@@ -128,7 +128,7 @@ public class JsonDatabase {
             add(collectionName, jsonDocument);
             return Action.ADD;
         } else {
-            for (String key : existingDocument.keySet()) {
+            for (String key : jsonDocument.keySet()) {
                 // only add fields that are not in the existing document
                 if (!existingDocument.containsKey(key)) {
                     existingDocument.put(key, jsonDocument.get(key));
