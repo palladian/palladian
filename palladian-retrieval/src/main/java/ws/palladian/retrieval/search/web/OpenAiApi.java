@@ -29,6 +29,8 @@ public class OpenAiApi {
     public static final String CONFIG_API_KEY = "api.openai.key";
     public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
 
+    private static final String DEFAULT_MODEL = "gpt-4-1106-preview";
+
     public OpenAiApi(String apiKey) {
         this.apiKey = apiKey;
     }
@@ -85,7 +87,7 @@ public class OpenAiApi {
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
-        return chat(messages, temperature, usedTokens, "gpt-4");
+        return chat(messages, temperature, usedTokens, DEFAULT_MODEL);
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {

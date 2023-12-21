@@ -1131,6 +1131,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                     if (graphArray != null) {
                         for (int i = 0; i < graphArray.size(); i++) {
                             JsonObject jsonObject1 = graphArray.tryGetJsonObject(i);
+                            if (jsonObject1 == null) {
+                                continue;
+                            }
                             String type = Optional.ofNullable(jsonObject1.tryGetString("@type")).orElse("").toLowerCase();
                             if (type.contains("article")) {
                                 return jsonObject1;
