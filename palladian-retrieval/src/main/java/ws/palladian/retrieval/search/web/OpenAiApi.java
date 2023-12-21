@@ -113,7 +113,7 @@ public class OpenAiApi {
         String content = null;
 
         try {
-            content = StringHelper.clean(responseJson.tryQueryString("choices[0]/message/content"));
+            content = responseJson.tryQueryString("choices[0]/message/content");
 
             if (usedTokens != null) {
                 usedTokens.addAndGet(responseJson.tryQueryInt("usage/total_tokens"));
