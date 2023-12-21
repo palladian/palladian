@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
  *
  * @author David Urbansky
  * @author Philipp Katz
+ * @author Jaroslav Vankat
  */
 public final class XPathHelper {
     /**

@@ -87,16 +87,19 @@ public class OpenAiApi {
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
-        return chat(messages, temperature, usedTokens, DEFAULT_MODEL);
+        return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
     }
 
-    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
         requestJson.put("messages", messages);
         requestJson.put("model", modelName);
         requestJson.put("temperature", temperature);
+        if (maxTokens != null) {
+            requestJson.put("max_tokens", maxTokens);
+        }
         THROTTLE.hold();
         String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/chat/completions", requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
