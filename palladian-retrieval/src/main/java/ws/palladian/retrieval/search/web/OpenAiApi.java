@@ -101,7 +101,7 @@ public class OpenAiApi {
             requestJson.put("max_tokens", maxTokens);
         }
         THROTTLE.hold();
-        String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/chat/completions", requestJson, false);
+        String postResponseText = documentRetriever.postJsonObject("https://api.openai.com/v1/chat/completions", requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
             throw new Exception("Could not parse json " + postResponseText);
