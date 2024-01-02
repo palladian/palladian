@@ -90,6 +90,10 @@ public class OpenAiApi {
         return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
     }
 
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
+        return chat(messages, temperature, usedTokens, modelName, null);
+    }
+
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
