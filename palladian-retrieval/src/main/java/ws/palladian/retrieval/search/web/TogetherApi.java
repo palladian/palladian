@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A wrapper for Together's APIs.
  * https://docs.together.ai/reference/inference
  *
+ * List of models: https://docs.together.ai/docs/inference-models
+ *
  * @author David Urbansky
  * Created 02.01.2024
  */
