@@ -604,6 +604,7 @@ public enum UnitType {
         unitList.add("in");
         unitList.add("\"");
         unitList.add("”");
+        unitList.add("''");
         UnitType.LENGTH.units.add(Pair.of(unitList, 2.54));
 
         unitList = new ArrayList<>();

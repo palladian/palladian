@@ -27,7 +27,17 @@ Palladian is available through Maven on “The Central Repository”. Add it to 
 
 To use the `SNAPSHOT` builds, make sure to configure your `~/.m2/settings.xml` as shown [here](https://stackoverflow.com/a/7717234).
 
+The latest snapshot version can be used like this:
+
+```xml
+<dependency>
+  <groupId>ws.palladian</groupId>
+  <artifactId>palladian-core</artifactId>
+  <version>3.0.0-SNAPSHOT</version>
+</dependency>
+```
+
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2023.
+The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2024.

@@ -29,6 +29,8 @@ public class OpenAiApi {
     public static final String CONFIG_API_KEY = "api.openai.key";
     public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
 
+    private static final String DEFAULT_MODEL = "gpt-4-1106-preview";
+
     public OpenAiApi(String apiKey) {
         this.apiKey = apiKey;
     }
@@ -85,18 +87,25 @@ public class OpenAiApi {
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
-        return chat(messages, temperature, usedTokens, "gpt-4");
+        return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
+        return chat(messages, temperature, usedTokens, modelName, null);
+    }
+
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
         requestJson.put("messages", messages);
         requestJson.put("model", modelName);
         requestJson.put("temperature", temperature);
+        if (maxTokens != null) {
+            requestJson.put("max_tokens", maxTokens);
+        }
         THROTTLE.hold();
-        String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/chat/completions", requestJson, false);
+        String postResponseText = documentRetriever.postJsonObject("https://api.openai.com/v1/chat/completions", requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
             throw new Exception("Could not parse json " + postResponseText);
@@ -108,7 +117,7 @@ public class OpenAiApi {
         String content = null;
 
         try {
-            content = StringHelper.clean(responseJson.tryQueryString("choices[0]/message/content"));
+            content = responseJson.tryQueryString("choices[0]/message/content");
 
             if (usedTokens != null) {
                 usedTokens.addAndGet(responseJson.tryQueryInt("usage/total_tokens"));

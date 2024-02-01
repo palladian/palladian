@@ -7,6 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.collection.LruMap;
 import ws.palladian.helper.nlp.StringHelper;
 
 import javax.xml.namespace.NamespaceContext;
@@ -38,6 +39,7 @@ import java.util.regex.Pattern;
  *
  * @author David Urbansky
  * @author Philipp Katz
+ * @author Jaroslav Vankat
  */
 public final class XPathHelper {
     /**
@@ -55,6 +57,7 @@ public final class XPathHelper {
     private static final Pattern AND_OR = Pattern.compile("and|or");
     private static final Pattern XHTML_TAGGABLE = Pattern.compile("[a-zA-Z][\\w]*|\\*");
     private static final Pattern XHTML_NS = Pattern.compile("(\"[^\"]+\")|('[^']+')");
+    private static final Map<String, XPathExpression> XPATH_CACHE = Collections.synchronizedMap(LruMap.accessOrder(10000));
 
     private static class MyNamespaceContext implements NamespaceContext {
         private final Map<String, String> namespaces = new HashMap<>();
@@ -104,6 +107,33 @@ public final class XPathHelper {
 
         List<Node> ret = new ArrayList<>();
 
+        try {
+            XPathExpression xPathExpression = compileOrGet(xPath, namespaces);
+            NodeList nodes = (NodeList) xPathExpression.evaluate(node, XPathConstants.NODESET);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                ret.add(nodes.item(i));
+            }
+        } catch (XPathExpressionException e) {
+            // TODO this exception should be thrown
+            LOGGER.error("{} for XPath \"{}\" : {}", new Object[]{e, xPath, e.getMessage(), e});
+        }
+
+        return ret;
+    }
+
+    private static XPathExpression compileOrGet(String xPath, Map<String, String> namespaces) throws XPathExpressionException {
+        if (namespaces != null && !namespaces.isEmpty()) {
+            return compile(xPath, namespaces);
+        }
+        if (XPATH_CACHE.containsKey(xPath)) {
+            return XPATH_CACHE.get(xPath);
+        }
+        XPathExpression xPathExpression = compile(xPath, namespaces);
+        XPATH_CACHE.put(xPath, xPathExpression);
+        return xPathExpression;
+    }
+
+    private static XPathExpression compile(String xPath, Map<String, String> namespaces) throws XPathExpressionException {
         XPathFactory factory = XPathFactory.newInstance();
         XPath xPathObject = factory.newXPath();
 
@@ -117,18 +147,7 @@ public final class XPathHelper {
             }
         }
         xPathObject.setNamespaceContext(namespaceContext);
-        try {
-            XPathExpression xPathExpression = xPathObject.compile(xPath);
-            NodeList nodes = (NodeList) xPathExpression.evaluate(node, XPathConstants.NODESET);
-            for (int i = 0; i < nodes.getLength(); i++) {
-                ret.add(nodes.item(i));
-            }
-        } catch (XPathExpressionException e) {
-            // TODO this exception should be thrown
-            LOGGER.error("{} for XPath \"{}\" : {}", new Object[]{e, xPath, e.getMessage(), e});
-        }
-
-        return ret;
+        return xPathObject.compile(xPath);
     }
 
     /**

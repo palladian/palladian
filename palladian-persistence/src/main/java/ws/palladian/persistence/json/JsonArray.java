@@ -67,7 +67,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         }
         try {
             return new JsonArray(source);
-        } catch (JsonException e) {
+        } catch (Exception e) {
             return null;
         }
     }
