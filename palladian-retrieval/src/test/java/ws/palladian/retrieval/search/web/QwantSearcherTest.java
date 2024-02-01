@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -23,6 +24,7 @@ public class QwantSearcherTest {
         QwantSearcher searcher = new QwantSearcher();
         List<WebContent> results = searcher.search("palladian", 10, Language.ENGLISH);
         CollectionHelper.print(results);
+        collector.checkThat(results.size(), Matchers.greaterThan(0));
         for (WebContent result : results) {
             collector.checkThat(result.getUrl().isEmpty(), is(false));
         }
