@@ -785,6 +785,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return cleanTitle(resultTitle);
     }
 
+    public JsonObject getSchemaJson() {
+        return schemaJson;
+    }
+
     private String cleanTitle(String title) {
         //        return title.replaceAll(" - [^ ]+$", "").trim();
         return title.trim();
