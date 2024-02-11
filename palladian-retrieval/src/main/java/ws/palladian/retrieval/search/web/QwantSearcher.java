@@ -1,17 +1,16 @@
 package ws.palladian.retrieval.search.web;
 
+import com.squareup.okhttp.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -19,14 +18,16 @@ import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * <p>
  * Using the unofficial Qwant API without limits.
- * </p>
+ *
+ * See https://api.qwant.com/api/suggest/?q=shre&client=opensearch
  *
  * @author David Urbansky
  * @since 18.05.2019
@@ -63,24 +64,31 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
         // Qwant gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
         double numChunks = Math.min(10, Math.ceil((double) query.getResultCount() / 10));
 
-        for (int start = 1; start <= numChunks; start++) {
+        for (int start = 0; start <= numChunks; start += 10) {
             String searchUrl = createRequestUrl(query.getText(), start, Math.min(10, query.getResultCount() - results.size()), query.getLanguage());
             LOGGER.debug("Search with URL " + searchUrl);
 
-            HttpResult httpResult;
+            OkHttpClient okHttpClient = new OkHttpClient();
+
+            // set headers
+            okHttpClient.interceptors().add(chain -> chain.proceed(chain.request().newBuilder().addHeader("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36").addHeader("Accept",
+                    "application/json, text/plain, */*").addHeader("Accept-Language", "en-US,en;q=0.9").addHeader("Origin",
+                    "https://www.qwant.com").build()));
+
+            String jsonString;
             try {
-                httpResult = retriever.httpGet(searchUrl);
-            } catch (HttpException e) {
-                throw new SearcherException("HTTP exception while accessing " + getName() + " with URL \"" + searchUrl + "\": " + e.getMessage(), e);
+                jsonString = okHttpClient.newCall(new com.squareup.okhttp.Request.Builder().url(searchUrl).build()).execute().body().string();
+            } catch (IOException e) {
+                throw new SearcherException("Search request failed.");
             }
 
-            String jsonString = httpResult.getStringContent();
             if (StringUtils.isBlank(jsonString)) {
                 throw new SearcherException("JSON response is empty.");
             }
             JsonObject responseJson;
             try {
-                responseJson = new JsonObject(jsonString);
+                responseJson = JsonObject.tryParse(jsonString);
                 checkError(responseJson);
                 List<WebContent> current = parse(responseJson);
                 if (current.isEmpty()) {
@@ -90,7 +98,7 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
                 if (resultCount == null) {
                     resultCount = parseResultCount(responseJson);
                 }
-            } catch (JsonException e) {
+            } catch (Exception e) {
                 throw new SearcherException("Error parsing the response from URL \"" + searchUrl + "\" (JSON was: \"" + jsonString + "\"): " + e.getMessage(), e);
             }
         }
@@ -100,13 +108,14 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
 
     private String createRequestUrl(String query, int offset, int num, Language language) {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("https://api.qwant.com/api/search/web");
+        urlBuilder.append("https://api.qwant.com/v3/search/web");
         urlBuilder.append("?count=").append(num);
         urlBuilder.append("&offset=").append(offset);
         urlBuilder.append("&q=").append(UrlHelper.encodeParameter(query));
-        urlBuilder.append("&t=web");
+        urlBuilder.append("&tgp=1");
         urlBuilder.append("&safesearch=0");
         urlBuilder.append("&uiv=4");
+
         if (language != null) {
             urlBuilder.append("&locale=").append(getLanguageCode(language));
         }
@@ -190,7 +199,14 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
      * default visibility for unit testing.
      */
     static List<WebContent> parse(JsonObject jsonObject) {
-        JsonArray jsonItems = jsonObject.tryQueryJsonArray("data/result/items");
+        JsonArray mainlines = jsonObject.tryQueryJsonArray("data/result/items/mainline");
+        // get the one with type == web
+        Optional<Object> first = mainlines.stream().filter(o -> ((JsonObject) o).tryGetString("type").equals("web")).findFirst();
+        if (!first.isPresent()) {
+            return Collections.emptyList();
+        }
+        JsonObject webMainline = (JsonObject) first.get();
+        JsonArray jsonItems = webMainline.tryQueryJsonArray("items");
         if (jsonItems == null) {
             LOGGER.warn("JSON result did not contain an 'items' property. (JSON = '" + jsonObject.toString() + "'.");
             return Collections.emptyList();
