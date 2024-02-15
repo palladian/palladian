@@ -44,7 +44,6 @@ public class DateAndTimeTagger implements Tagger {
         List<ExtractedDate> allDates = DateParser.findDates(text, dateFormats);
 
         for (ExtractedDate dateTime : allDates) {
-
             // get the offset
             List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(text, dateTime.getDateString());
 
