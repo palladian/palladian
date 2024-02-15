@@ -80,7 +80,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             builder.setTitle(XPathHelper.getXhtmlNodeTextContent(node, ".//h2"));
             String url = XPathHelper.getXhtmlNodeTextContent(node, ".//h2/a/@href");
             builder.setUrl(url);
-            if (!url.isEmpty()) {
+            if (!url.isEmpty() && !url.contains("?ad_domain=")) {
                 result.add(builder.create());
             }
         }
