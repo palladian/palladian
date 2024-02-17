@@ -2,9 +2,8 @@ package ws.palladian.extraction.entity;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
-import ws.palladian.core.Annotation;
-import ws.palladian.core.ImmutableAnnotation;
 import ws.palladian.core.Tagger;
+import ws.palladian.extraction.date.DateAnnotation;
 import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
@@ -38,8 +37,8 @@ public class DateAndTimeTagger implements Tagger {
     }
 
     @Override
-    public List<Annotation> getAnnotations(String text) {
-        List<Annotation> annotations = new ArrayList<>();
+    public List<DateAnnotation> getAnnotations(String text) {
+        List<DateAnnotation> annotations = new ArrayList<>();
 
         List<ExtractedDate> allDates = DateParser.findDates(text, dateFormats);
 
@@ -48,7 +47,7 @@ public class DateAndTimeTagger implements Tagger {
             List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(text, dateTime.getDateString());
 
             for (Integer index : occurrenceIndices) {
-                annotations.add(new ImmutableAnnotation(index, dateTime.getDateString(), DATETIME_TAG_NAME));
+                annotations.add(new DateAnnotation(index, dateTime.getDateString(), dateTime));
             }
         }
 
