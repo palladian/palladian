@@ -47,9 +47,6 @@ import java.util.zip.*;
  * @see <a href="http://www.javapractices.com/topic/TopicAction.do?Id=42">Reading and writing text files</a>
  */
 public final class FileHelper {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
 
     /**
@@ -1828,7 +1825,7 @@ public final class FileHelper {
 
         return concatenated;
     }
-
+    
     /**
      * Get the SHA1 hash of the file's content.
      *

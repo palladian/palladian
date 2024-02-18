@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class JsonUtils {
     private JsonUtils() {
@@ -390,5 +391,38 @@ public class JsonUtils {
         }
 
         return filteredJson;
+    }
+
+    /**
+     * Rewrite key names in a json object.
+     */
+    public static JsonObject snakeCaseKeys(JsonObject jso) {
+        Pattern matchPattern = Pattern.compile("(?<=[a-z])([A-Z])");
+        Set<String> keys = new HashSet<>(jso.keySet());
+        for (String key : keys) {
+            String newKey = matchPattern.matcher(key).replaceAll("_$1").toLowerCase();
+            if (newKey.equals(key)) {
+                continue;
+            }
+            jso.put(newKey, jso.get(key));
+            jso.remove(key);
+        }
+        keys = jso.keySet();
+        for (String key : keys) {
+            JsonObject child = jso.tryGetJsonObject(key);
+            if (child != null) {
+                snakeCaseKeys(child);
+            }
+            JsonArray childArray = jso.tryGetJsonArray(key);
+            if (childArray != null) {
+                for (Object o : childArray) {
+                    if (o instanceof JsonObject) {
+                        snakeCaseKeys((JsonObject) o);
+                    }
+                }
+            }
+        }
+
+        return jso;
     }
 }
