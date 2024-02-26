@@ -54,8 +54,6 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebContent> result = new ArrayList<>();
-
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
         String requestUrl = String.format(HTML_URL, UrlHelper.encodeParameter(query));
@@ -69,6 +67,11 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
         }
 
+        return search(document, resultCount);
+    }
+
+    public List<WebContent> search(Document document, int resultCount) throws SearcherException {
+        List<WebContent> result = new ArrayList<>();
         if (document == null) {
             return result;
         }
@@ -95,9 +98,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
     }
 
     /**
-     * <p>
      * Gets the number of HTTP requests sent to DuckDuckGo.
-     * </p>
      *
      * @return
      */
