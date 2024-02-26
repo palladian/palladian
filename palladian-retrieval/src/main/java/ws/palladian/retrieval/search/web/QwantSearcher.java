@@ -5,12 +5,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
-import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.HttpRetriever;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -61,11 +60,14 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
         List<WebContent> results = new ArrayList<>();
         Long resultCount = null;
 
+        // override user result count as it has to be 10
+        int resultCountRequested = 10;
+
         // Qwant gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
-        double numChunks = Math.min(10, Math.ceil((double) query.getResultCount() / 10));
+        double numChunks = Math.min(10, Math.ceil((double) resultCountRequested / 10));
 
         for (int start = 0; start <= numChunks; start += 10) {
-            String searchUrl = createRequestUrl(query.getText(), start, Math.min(10, query.getResultCount() - results.size()), query.getLanguage());
+            String searchUrl = createRequestUrl(query.getText(), start, Math.min(10, resultCountRequested - results.size()), query.getLanguage());
             LOGGER.debug("Search with URL " + searchUrl);
 
             OkHttpClient okHttpClient = new OkHttpClient();
@@ -73,8 +75,7 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
             // set headers
             okHttpClient.interceptors().add(chain -> chain.proceed(chain.request().newBuilder().addHeader("User-Agent",
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36").addHeader("Accept",
-                    "application/json, text/plain, */*").addHeader("Accept-Language", "en-US,en;q=0.9").addHeader("Origin",
-                    "https://www.qwant.com").build()));
+                    "application/json, text/plain, */*").addHeader("Accept-Language", "en-US,en;q=0.9").addHeader("Origin", "https://www.qwant.com").build()));
 
             String jsonString;
             try {
