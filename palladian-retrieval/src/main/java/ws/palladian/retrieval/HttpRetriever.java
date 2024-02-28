@@ -213,9 +213,7 @@ public class HttpRetriever {
     }
 
     /**
-     * <p>
      * Performs an HTTP HEAD operation.
-     * </p>
      *
      * @param url the URL for the HEAD, not <code>null</code> or empty.
      * @return response for the HEAD.

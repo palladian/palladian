@@ -709,7 +709,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             attributeText = StringHelper.trim(attributeText);
             size = (int) (0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
         } else {
-            attributeText = attributeText.replace("px", "");
+            attributeText = attributeText.replace("px", "").replaceAll("\\.[0-9]+", "");
             attributeText = StringHelper.trim(attributeText);
             size = Integer.parseInt(attributeText);
         }
