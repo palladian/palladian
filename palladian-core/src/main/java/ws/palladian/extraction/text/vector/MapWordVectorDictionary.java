@@ -24,7 +24,7 @@ public class MapWordVectorDictionary implements WordVectorDictionary {
     }
 
     public static MapWordVectorDictionary readFromVecFile(File vecFile, final int lineLimit) {
-        ProgressMonitor progressMonitor = new ProgressMonitor(FileHelper.getNumberOfLines(vecFile), 0.1, "Reading vectors from " + vecFile);
+        ProgressMonitor progressMonitor = new ProgressMonitor(FileHelper.getNumberOfLines(vecFile), 5., "Reading vectors from " + vecFile);
         final Map<String, float[]> entries = new HashMap<>();
         final int[] vectorSize = {-1};
         final boolean[] caseSensitive = {false};

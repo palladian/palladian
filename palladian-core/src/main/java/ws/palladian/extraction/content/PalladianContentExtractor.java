@@ -333,7 +333,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         parentXpath = cleanXPath(parentXpath);
 
-        resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
+        // if there are many matches for the result node, we go to the parent
+        List<Node> parentNodes = XPathHelper.getXhtmlNodes(getDocument(), parentXpath);
+        while (parentNodes.size() > 1) {
+            parentXpath = XPathHelper.getParentXPath(parentXpath);
+            parentNodes = XPathHelper.getXhtmlNodes(getDocument(), parentXpath);
+        }
+
+        resultNode = CollectionHelper.getFirst(parentNodes);
         if (resultNode == null) {
             parentXpath = parentXpath.replaceAll("/[^x].*?:.*?/", "//");
             resultNode = XPathHelper.getXhtmlNode(getDocument(), parentXpath);
@@ -702,7 +709,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             attributeText = StringHelper.trim(attributeText);
             size = (int) (0.01 * Integer.parseInt(attributeText) * DEFAULT_IMAGE_CONTAINER_SIZE);
         } else {
-            attributeText = attributeText.replace("px", "");
+            attributeText = attributeText.replace("px", "").replaceAll("\\.[0-9]+", "");
             attributeText = StringHelper.trim(attributeText);
             size = Integer.parseInt(attributeText);
         }

@@ -393,10 +393,16 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
         }
     }
 
+    public JsonArray tryGetJsonArray(String key, JsonArray defaultValue) {
+        try {
+            return getJsonArray(key);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     /**
-     * <p>
      * Get the {@link JsonObject} value associated with a key.
-     * </p>
      *
      * @param key A key string.
      * @return A JsonObject value, or <code>null</code> in case there is no value with specified key, or the value is no
@@ -416,6 +422,14 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
             }
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public JsonObject tryGetJsonObject(String key, JsonObject defaultValue) {
+        try {
+            return getJsonObject(key);
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
  * @author Philipp Katz
  */
 public class ImageHandlerTest {
-
     @Test
     public void testClusterImages() throws FileNotFoundException {
         Collection<String> imageUrls = new ArrayList<>();
@@ -136,7 +135,7 @@ public class ImageHandlerTest {
         List<Color> detectedColors = ImageHandler.detectColors(image);
         assertEquals(3, detectedColors.size());
         assertEquals(new Color("#273e7a", "Congress Blue", "Blue"), detectedColors.get(0));
-        assertEquals(new Color("#cc1b36", "crimson", "Red"), detectedColors.get(1));
+        assertEquals(new Color("#cc1b36", "Crimson", "Red"), detectedColors.get(1));
         assertEquals(new Color("#eddfeb", "Carousel Pink", "Pink"), detectedColors.get(2));
     }
 }

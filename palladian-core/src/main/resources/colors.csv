@@ -76,18 +76,18 @@
 #2A52BE;Cerulean Blue;Blue
 #2B0202;Sepia Black;Black
 #2E8B57;Sea Green;Green
-#2F4F4F;dark slate gray;Gray
-#32CD32;lime green;Green
+#2F4F4F;Dark Slate Gray;Gray
+#32CD32;Lime Green;Green
 #384555;Oxford Blue;Blue
 #3B91B4;Boston Blue;Blue
 #3C493A;Lunar Green;Green
-#3CB371;medium sea green;Green
+#3CB371;Medium Sea green;Green
 #3E3A44;Ship Gray;Gray
 #3F5D53;Mineral Green;Green
 #401801;Brown Pod;Brown
 #403D19;Thatch Green;Green
 #40A860;Chateau Green;Green
-#40E0D0;turquoise;Cyan
+#40E0D0;Turquoise;Cyan
 #4169E1;Royal Blue;Blue
 #41AA78;Ocean Green;Green
 #441D00;Morocco Brown;Brown
@@ -97,8 +97,8 @@
 #480404;Rustic Red;Red
 #481C1C;Cocoa Bean;Brown
 #483131;Woody Brown;Brown
-#483D8B;dark slate blue;Purple
-#48D1CC;medium turquoise;Cyan
+#483D8B;Dark Slate Blue;Purple
+#48D1CC;Medium Turquoise;Cyan
 #495400;Verdun Green;Green
 #4B0082;Indigo;Purple
 #4F7942;Fern Green;Green
@@ -106,11 +106,11 @@
 #516E3D;Chalet Green;Green
 #51808F;Smalt Blue;Blue
 #53824B;Hippie Green;Green
-#556B2F;dark olive green;Green
+#556B2F;Dark Olive Green;Green
 #5590D9;Havelock Blue;Blue
 #56B4BE;Fountain Blue;Blue
 #589AAF;Hippie Blue;Blue
-#5F9EA0;cadet blue;Blue
+#5F9EA0;Cadet Blue;Blue
 #61845F;Glade Green;Green
 #6495ED;Cornflower Blue;Blue
 #66CDAA;Medium Aqua Marine;Green
@@ -125,59 +125,59 @@
 #71D9E2;Aquamarine Blue;Blue
 #72010F;Venetian Red;Red
 #76D7EA;Sky Blue;Blue
-#778899;light slate gray;Gray
+#778899;Light Slate gray;Gray
 #77DD77;Pastel Green;Green
 #78866B;Camouflage Green;Green
 #7A58C1;Fuchsia Blue;Blue
-#7B68EE;medium slate blue;Purple
+#7B68EE;Medium Slate Blue;Purple
 #7C881A;Trendy Green;Green
-#7CFC00;lawn green;Green
+#7CFC00;Lawn Green;Green
 #7F76D3;Moody Blue;Blue
-#7FFF00;chart reuse;Green
-#7FFFD4;aqua marine;Green
-#800000;maroon;Red
-#800080;purple;Purple
+#7FFF00;Chart Reuse;Green
+#7FFFD4;Aqua Marine;Green
+#800000;Maroon;Red
+#800080;Purple;Purple
 #801818;Falu Red;Red
-#808000;olive;Green
+#808000;Olive;Green
 #808080;Gray;Gray
 #816E71;Spicy Pink;Pink
 #819885;Spanish Green;Green
 #8581D9;Chetwode Blue;Blue
-#87CEEB;sky blue;Blue
-#87CEFA;light sky blue;Blue
+#87CEEB;Sky Blue;Blue
+#87CEFA;Light Sky blue;Blue
 #893843;Solid Pink;Pink
 #894367;Cannon Pink;Pink
-#8A2BE2;blue violet;Purple
+#8A2BE2;Blue Violet;Purple
 #8AB9F1;Jordy Blue;Blue
-#8B0000;dark red;Red
-#8B008B;dark magenta;Purple
-#8B4513;saddle brown;Brown
+#8B0000;Dark Red;Red
+#8B008B;Dark Magenta;Purple
+#8B4513;Saddle Brown;Brown
 #8C055E;Cardinal Pink;Pink
 #8C6495;Trendy Pink;Pink
 #8D8974;Granite Green;Green
 #8DA8CC;Polo Blue;Blue
-#8FBC8F;dark sea green;Green
+#8FBC8F;Dark Sea Green;Green
 #8FD6B4;Vista Blue;Blue
-#90EE90;light green;Green
-#9370DB;medium purple;Purple
+#90EE90;Light Green;Green
+#9370DB;Medium Purple;Purple
 #93DFB8;Algae Green;Green
-#9400D3;dark violet;Purple
+#9400D3;Dark Violet;Purple
 #96BBAB;Summer Green;Green
 #98FF98;Mint Green;Green
-#9932CC;dark orchid;Purple
+#9932CC;Dark Orchid;Purple
 #997A8D;Mountbatten Pink;Pink
 #9AC2B8;Shadow Green;Green
-#9ACD32;yellow green;Green
+#9ACD32;Yellow Green;Green
 #9EB1CD;Rock Blue;Blue
-#A0522D;sienna;Brown
-#A52A2A;brown;Red
-#A9A9A9;dark gray / dark grey;Gray
-#ADD8E6;light blue;Blue
-#ADFF2F;green yellow;Green
-#AFEEEE;pale turquoise;Blue
-#B0C4DE;light steel blue;Blue
-#B0E0E6;powder blue;Blue
-#B22222;firebrick;Red
+#A0522D;Sienna;Brown
+#A52A2A;Brown;Red
+#A9A9A9;Dark Gray;Gray
+#ADD8E6;Light Blue;Blue
+#ADFF2F;Green Yellow;Green
+#AFEEEE;Pale Turquoise;Blue
+#B0C4DE;Light Steel Blue;Blue
+#B0E0E6;Powder Blue;Blue
+#B22222;Firebrick;Red
 #B8860B;Dark Golden Rod;Yellow
 #BA55D3;Medium Orchid;Purple
 #BC8F8F;Rosy Brown;Brown
@@ -186,68 +186,68 @@
 #C71585;Medium Violet Red;Pink
 #CD5C5C;Indian Red;Red
 #CD853F;Peru;Brown
-#D2691E;chocolate;Brown
-#D2B48C;tan;Brown
+#D2691E;Chocolate;Brown
+#D2B48C;Tan;Brown
 #D3D3D3;Light Gray;Gray
-#D8BFD8;thistle;Pink
-#DA70D6;orchid;Pink
+#D8BFD8;Thistle;Pink
+#DA70D6;Orchid;Pink
 #DAA520;Golden Rod;Yellow
-#DB7093;pale violet red;Pink
-#DC143C;crimson;Red
-#DCDCDC;gainsboro;Gray
-#DDA0DD;plum;Pink
-#DEB887;burly wood;Brown
-#E0FFFF;light cyan;Cyan
-#E6E6FA;lavender;Purple
-#E9967A;dark salmon;Red
-#EE82EE;violet;Pink
-#EEE8AA;pale golden rod;Green
-#F08080;light coral;Red
-#F0E68C;khaki;Green
-#F0F8FF;alice blue;Blue
-#F0FFF0;honeydew;Green
-#F0FFFF;azure;Blue
-#F4A460;sandy brown;Brown
-#F5DEB3;wheat;Yellow
-#F5F5DC;beige;Yellow
-#F5F5F5;white smoke;Gray
-#F5FFFA;mint cream;Blue
-#F8F8FF;ghost white;Purple
-#FA8072;salmon;Red
-#FAEBD7;antique white;Yellow
-#FAF0E6;linen;Brown
+#DB7093;Pale Violet Red;Pink
+#DC143C;Crimson;Red
+#DCDCDC;Gainsboro;Gray
+#DDA0DD;Plum;Pink
+#DEB887;Burly Wood;Brown
+#E0FFFF;Light Cyan;Cyan
+#E6E6FA;Lavender;Purple
+#E9967A;Dark Salmon;Red
+#EE82EE;Violet;Pink
+#EEE8AA;Pale Golden Rod;Green
+#F08080;Light Coral;Red
+#F0E68C;Khaki;Green
+#F0F8FF;Alice Blue;Blue
+#F0FFF0;Honeydew;Green
+#F0FFFF;Azure;Blue
+#F4A460;Sandy Brown;Brown
+#F5DEB3;Wheat;Yellow
+#F5F5DC;Beige;Yellow
+#F5F5F5;White Smoke;Gray
+#F5FFFA;Mint Cream;Blue
+#F8F8FF;Ghost White;Purple
+#FA8072;Salmon;Red
+#FAEBD7;Antique White;Yellow
+#FAF0E6;Linen;Brown
 #FAFAD2;Light Golden Rod Yellow;Yellow
-#FDF5E6;old lace;Yellow
-#FF0000;red;Red
-#FF00FF;magenta / fuchsia;Pink
-#FF1493;deep pink;Pink
-#FF4500;orange red;Orange
-#FF6347;tomato;Red
-#FF69B4;hot pink;Pink
-#FF7F50;coral;Red
-#FF8C00;dark orange;Orange
-#FFA07A;light salmon;Red
-#FFA500;orange;Orange
-#FFB6C1;light pink;Pink
-#FFC0CB;pink;Pink
-#FFD700;gold;Yellow
-#FFDAB9;peach puff;Orange
-#FFDEAD;navajo white;Orange
-#FFE4B5;moccasin;Orange
-#FFE4C4;bisque;Yellow
-#FFE4E1;misty rose;Pink
-#FFEBCD;blanched almond;Yellow
-#FFEFD5;papaya whip;Orange
-#FFF0F5;lavender blush;Pink
-#FFF5EE;sea shell;Pink
-#FFF8DC;corn silk;Yellow
-#FFFACD;lemon chiffon;Yellow
-#FFFAF0;floral white;Yellow
-#FFFAFA;snow;Pink
-#FFFF00;yellow;Yellow
-#FFFFE0;light yellow;Yellow
-#FFFFF0;ivory;Yellow
-#FFFFFF;white;White
+#FDF5E6;Old Lace;Yellow
+#FF0000;Red;Red
+#FF00FF;Magenta;Pink
+#FF1493;Deep Pink;Pink
+#FF4500;Orange Red;Orange
+#FF6347;Tomato;Red
+#FF69B4;Hot Pink;Pink
+#FF7F50;Coral;Red
+#FF8C00;Dark Orange;Orange
+#FFA07A;Light Salmon;Red
+#FFA500;Orange;Orange
+#FFB6C1;Light Pink;Pink
+#FFC0CB;Pink;Pink
+#FFD700;Gold;Yellow
+#FFDAB9;Peach Puff;Orange
+#FFDEAD;Navajo White;Orange
+#FFE4B5;Moccasin;Orange
+#FFE4C4;Bisque;Yellow
+#FFE4E1;Misty Rose;Pink
+#FFEBCD;Blanched Almond;Yellow
+#FFEFD5;Papaya Whip;Orange
+#FFF0F5;Lavender Blush;Pink
+#FFF5EE;Sea Shell;Pink
+#FFF8DC;Corn Silk;Yellow
+#FFFACD;Lemon Chiffon;Yellow
+#FFFAF0;Floral White;Yellow
+#FFFAFA;Wnow;Pink
+#FFFF00;Yellow;Yellow
+#FFFFE0;Light Yellow;Yellow
+#FFFFF0;Ivory;Yellow
+#FFFFFF;White;White
 A3E3ED;Blizzard Blue;Blue
 A72525;Mexican Red;Red
 A9B2C3;Cadet Blue;Blue

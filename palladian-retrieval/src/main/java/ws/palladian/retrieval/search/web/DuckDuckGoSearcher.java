@@ -8,6 +8,7 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -53,8 +54,6 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
-        List<WebContent> result = new ArrayList<>();
-
         DocumentRetriever documentRetriever = new DocumentRetriever();
 
         String requestUrl = String.format(HTML_URL, UrlHelper.encodeParameter(query));
@@ -68,6 +67,11 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
         }
 
+        return search(document, resultCount);
+    }
+
+    public List<WebContent> search(Document document, int resultCount) throws SearcherException {
+        List<WebContent> result = new ArrayList<>();
         if (document == null) {
             return result;
         }
@@ -77,10 +81,10 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
         for (Node node : resultBodies) {
             BasicWebContent.Builder builder = new BasicWebContent.Builder();
             builder.setSummary(XPathHelper.getXhtmlNodeTextContent(node, ".//a[contains(@class,'result__snippet')]"));
-            builder.setTitle(XPathHelper.getXhtmlNodeTextContent(node, ".//h2"));
+            builder.setTitle(StringHelper.trim(XPathHelper.getXhtmlNodeTextContent(node, ".//h2")));
             String url = XPathHelper.getXhtmlNodeTextContent(node, ".//h2/a/@href");
             builder.setUrl(url);
-            if (!url.isEmpty()) {
+            if (!url.isEmpty() && !url.contains("?ad_domain=")) {
                 result.add(builder.create());
             }
         }
@@ -94,9 +98,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
     }
 
     /**
-     * <p>
      * Gets the number of HTTP requests sent to DuckDuckGo.
-     * </p>
      *
      * @return
      */
