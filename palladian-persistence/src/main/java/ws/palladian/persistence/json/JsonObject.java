@@ -270,7 +270,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Boolean tryGetBoolean(String key) {
         try {
-            return getBoolean(key);
+            if (containsKey(key)) {
+                return getBoolean(key);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -278,7 +282,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Boolean tryGetBoolean(String key, Boolean defaultValue) {
         try {
-            return getBoolean(key);
+            if (containsKey(key)) {
+                return getBoolean(key);
+            } else {
+                return defaultValue;
+            }
         } catch (Exception e) {
             return defaultValue;
         }
@@ -299,7 +307,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Double tryGetDouble(String key) {
         try {
-            return getDouble(key);
+            if (containsKey(key)) {
+                return getDouble(key);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -307,7 +319,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Double tryGetDouble(String key, Double defaultValue) {
         try {
-            return getDouble(key);
+            if (containsKey(key)) {
+                return getDouble(key);
+            } else {
+                return defaultValue;
+            }
         } catch (Exception e) {
             return defaultValue;
         }
@@ -329,7 +345,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Integer tryGetInt(String key) {
         try {
-            return getInt(key);
+            if (containsKey(key)) {
+                return getInt(key);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -337,7 +357,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Integer tryGetInt(String key, Integer defaultValue) {
         try {
-            return getInt(key);
+            if (containsKey(key)) {
+                return getInt(key);
+            } else {
+                return defaultValue;
+            }
         } catch (Exception e) {
             return defaultValue;
         }
@@ -359,7 +383,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public JsonArray tryGetJsonArray(String key) {
         try {
-            return getJsonArray(key);
+            if (containsKey(key)) {
+                return getJsonArray(key);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -381,7 +409,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public JsonObject tryGetJsonObject(String key) {
         try {
-            return getJsonObject(key);
+            if (containsKey(key)) {
+                return getJsonObject(key);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -408,7 +440,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Long tryGetLong(String key) {
         try {
-            return getLong(key);
+            if (containsKey(key)) {
+                return getLong(key);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -416,7 +452,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public Long tryGetLong(String key, Long defaultValue) {
         try {
-            return getLong(key);
+            if (containsKey(key)) {
+                return getLong(key);
+            } else {
+                return defaultValue;
+            }
         } catch (Exception e) {
             return defaultValue;
         }
@@ -441,7 +481,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public String tryGetString(String key) {
         try {
-            return getString(key);
+            if (containsKey(key)) {
+                return getString(key);
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -449,7 +493,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
 
     public String tryGetString(String key, String defaultValue) {
         try {
-            return getString(key);
+            if (containsKey(key)) {
+                return getString(key);
+            } else {
+                return defaultValue;
+            }
         } catch (Exception e) {
             return defaultValue;
         }
