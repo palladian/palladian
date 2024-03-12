@@ -1,5 +1,7 @@
 package ws.palladian.persistence.json;
 
+import ws.palladian.helper.nlp.PatternHelper;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -393,11 +395,22 @@ public class JsonUtils {
         return filteredJson;
     }
 
+    public static JsonArray snakeCaseKeys(JsonArray jso) {
+        for (int i = 0; i < jso.size(); i++) {
+            Object o = jso.get(i);
+            if (o instanceof JsonObject) {
+                snakeCaseKeys((JsonObject) o);
+            }
+        }
+
+        return jso;
+    }
+
     /**
      * Rewrite key names in a json object.
      */
     public static JsonObject snakeCaseKeys(JsonObject jso) {
-        Pattern matchPattern = Pattern.compile("(?<=[a-z])([A-Z])");
+        Pattern matchPattern = PatternHelper.compileOrGet("(?<=[a-z])([A-Z])");
         Set<String> keys = new HashSet<>(jso.keySet());
         for (String key : keys) {
             String newKey = matchPattern.matcher(key).replaceAll("_$1").toLowerCase();
@@ -424,5 +437,70 @@ public class JsonUtils {
         }
 
         return jso;
+    }
+
+    /**
+     * Rewrite key names in a json object.
+     */
+    public static void replace(JsonObject json, String fieldName, String newFieldName) {
+        if (json.containsKey(fieldName)) {
+            json.put(newFieldName, json.get(fieldName));
+            json.remove(fieldName);
+        }
+        for (String key : json.keySet()) {
+            Object value = json.get(key);
+            if (value instanceof JsonObject) {
+                replace((JsonObject) value, fieldName, newFieldName);
+            } else if (value instanceof JsonArray) {
+                for (Object o : (JsonArray) value) {
+                    if (o instanceof JsonObject) {
+                        replace((JsonObject) o, fieldName, newFieldName);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void remove(JsonArray jsonArray, String fieldToRemove) {
+        for (Object o : jsonArray) {
+            if (o instanceof JsonObject) {
+                remove((JsonObject) o, fieldToRemove);
+            }
+        }
+    }
+
+    public static void remove(JsonObject jso, String fieldToRemove) {
+        jso.remove(fieldToRemove);
+        for (String key : jso.keySet()) {
+            Object value = jso.get(key);
+            if (value instanceof JsonObject) {
+                remove((JsonObject) value, fieldToRemove);
+            } else if (value instanceof JsonArray) {
+                remove((JsonArray) value, fieldToRemove);
+            }
+        }
+    }
+
+    public static void valueReplace(JsonArray jsonArray, String fieldName, Pattern pattern, String replacement) {
+        for (Object o : jsonArray) {
+            if (o instanceof JsonObject) {
+                valueReplace((JsonObject) o, fieldName, pattern, replacement);
+            }
+        }
+    }
+
+    public static void valueReplace(JsonObject jso, String fieldName, Pattern pattern, String replacement) {
+        Object value = jso.get(fieldName);
+        if (value instanceof String) {
+            jso.put(fieldName, pattern.matcher((String) value).replaceAll(replacement));
+        }
+        for (String key : jso.keySet()) {
+            value = jso.get(key);
+            if (value instanceof JsonObject) {
+                valueReplace((JsonObject) value, fieldName, pattern, replacement);
+            } else if (value instanceof JsonArray) {
+                valueReplace((JsonArray) value, fieldName, pattern, replacement);
+            }
+        }
     }
 }
