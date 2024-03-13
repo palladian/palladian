@@ -451,10 +451,22 @@ public class DocumentRetriever extends WebDocumentRetriever {
     }
 
     private Document parse(HttpResult httpResult, boolean xml) throws ParserException {
-        Document doc = getParser(xml).parse(httpResult);
-        if (addHttpEquivHeaders(doc, httpResult)) {
+        Document doc = parseWithFallback(httpResult, xml);
+        if (addHttpEquivHeaders(doc, httpResult)) { // FIXME this happens a lot, should it only happen when charset header is found?
             // parse again, e.g. content-type header (charset) might have been modified
+            doc = parseWithFallback(httpResult, xml);
+        }
+        return doc;
+    }
+
+    private Document parseWithFallback(HttpResult httpResult, boolean xml) throws ParserException {
+        Document doc = null;
+        try {
             doc = getParser(xml).parse(httpResult);
+        } catch (Error e) {
+            if (!xml) {
+                doc = ParserFactory.createHtmlParser2().parse(httpResult);
+            }
         }
         return doc;
     }

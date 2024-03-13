@@ -49,10 +49,10 @@ public class PalladianContentExtractorTest {
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
 
-        // Italian FIXME, document can't be parsed
-        //        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.corriere.it/"));
-        //        language = palladianContentExtractor.detectLanguage();
-        //        collector.checkThat(language, is(Language.ITALIAN));
+        // Italian
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.corriere.it/"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.ITALIAN));
 
         // Greek
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://socialobservatory.crete.gov.gr/"));

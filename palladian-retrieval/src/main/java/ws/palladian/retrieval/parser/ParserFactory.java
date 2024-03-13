@@ -25,6 +25,10 @@ public final class ParserFactory {
         return new ValidatorNuParser();
     }
 
+    public static DocumentParser createHtmlParser2() {
+        return new JsoupParser();
+    }
+
     /**
      * <p>
      * Create and XML parser, which can be used for parsing well-formed XML content to DOM documents.
