@@ -452,8 +452,9 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
     private Document parse(HttpResult httpResult, boolean xml) throws ParserException {
         Document doc = parseWithFallback(httpResult, xml);
-        if (addHttpEquivHeaders(doc, httpResult)) { // FIXME this happens a lot, should it only happen when charset header is found?
-            // parse again, e.g. content-type header (charset) might have been modified
+
+        // parse again, e.g. content-type header (charset) might have been modified
+        if (addHttpEquivContentTypeHeaders(doc, httpResult)) {
             doc = parseWithFallback(httpResult, xml);
         }
         return doc;
@@ -486,15 +487,15 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
     /**
      * <p>
-     * Reads http-equiv meta tags and adds them to {@link HttpResult} headers.
+     * Reads http-equiv meta content-type tag and adds it to {@link HttpResult} headers.
      * </p>
      *
      * @param doc        the document to process.
      * @param httpResult the http result to enhance.
-     * @return <code>true</code> if http-equiv meta tags were extracted and added to headers, <code>false</code> otherwise.
+     * @return <code>true</code> if http-equiv content-type meta tag was extracted and added to headers, <code>false</code> otherwise.
      */
 
-    private boolean addHttpEquivHeaders(Document doc, HttpResult httpResult) {
+    private boolean addHttpEquivContentTypeHeaders(Document doc, HttpResult httpResult) {
         boolean result = false;
         List<Node> httpEquivMeta = XPathHelper.getXhtmlNodes(doc, "//meta[@http-equiv]");
         if (!httpEquivMeta.isEmpty()) {
@@ -505,7 +506,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
                 Node headerContentAttr = node.getAttributes().getNamedItem("content");
                 String headerName = headerNameAttr != null ? headerNameAttr.getTextContent() : null;
                 String headerValue = headerContentAttr != null ? headerContentAttr.getTextContent() : null;
-                if (headerName != null && headerValue != null) {
+                if (headerName != null && headerValue != null && headerName.equalsIgnoreCase("content-type")) {
                     List<String> headerValues = httpResult.getHeader(headerName);
                     if (headerValues == null) {
                         headerValues = new ArrayList<>();
