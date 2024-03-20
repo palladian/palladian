@@ -65,9 +65,10 @@ public class OpenAiApi {
         }
 
         JsonArray embeddingArray = responseJson.tryQueryJsonArray("data[0]/embedding");
-        float[] embedding = new float[embeddingArray.size()];
-        for (Object o : embeddingArray) {
-            embedding[embeddingArray.indexOf(o)] = Float.parseFloat(o.toString());
+        int vectorSize = embeddingArray.size();
+        float[] embedding = new float[vectorSize];
+        for (int i = 0; i < vectorSize; i++) {
+            embedding[i] = Float.parseFloat(embeddingArray.tryGetString(i));
         }
 
         if (usedTokens != null) {
