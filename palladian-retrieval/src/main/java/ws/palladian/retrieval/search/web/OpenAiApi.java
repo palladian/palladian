@@ -30,6 +30,8 @@ public class OpenAiApi {
     public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
 
     private static final String DEFAULT_MODEL = "gpt-4-1106-preview";
+    public static final String EMBEDDING_MODEL_SMALL = "text-embedding-3-small";
+    public static final String EMBEDDING_MODEL_LARGE = "text-embedding-3-large";
 
     public OpenAiApi(String apiKey) {
         this.apiKey = apiKey;
@@ -44,11 +46,14 @@ public class OpenAiApi {
     }
 
     public float[] getEmbedding(String text, AtomicInteger usedTokens) throws Exception {
+        return getEmbedding(text, usedTokens, EMBEDDING_MODEL_SMALL);
+    }
+    public float[] getEmbedding(String text, AtomicInteger usedTokens, String embeddingModel) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
         JsonObject requestJson = new JsonObject();
         requestJson.put("input", text);
-        requestJson.put("model", "text-embedding-ada-002");
+        requestJson.put("model", embeddingModel);
         THROTTLE.hold();
         String postResponseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/embeddings", requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
