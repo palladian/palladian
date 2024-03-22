@@ -40,9 +40,6 @@ import java.util.regex.Pattern;
  * @see <a href="https://developers.google.com/youtube/v3/docs/videos">Videos resource</a>
  */
 public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 
     /**
@@ -217,7 +214,6 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
 
         // retrieve data about the found video IDs
         for (int i = 0; i < videoIds.size(); i += MAX_RESULTS_PER_PAGE) {
-
             List<String> currentChunk = videoIds.subList(i, Math.min(i + MAX_RESULTS_PER_PAGE, videoIds.size()));
             String url = buildListUrl(currentChunk);
 

@@ -92,7 +92,7 @@ public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
     }
 
     public IntOpenHashSet getValuesBetween(float lowerBound, float upperBound) {
-        IntOpenHashSet values = new IntOpenHashSet();
+        IntArrayList values = new IntArrayList();
 
         for (Float2ObjectMap.Entry<IntOpenHashSet> entry : float2ObjectEntrySet()) {
             float v = entry.getFloatKey();
@@ -105,7 +105,7 @@ public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
             }
         }
 
-        return values;
+        return new IntOpenHashSet(values);
     }
 
     public void put(double key, int c) {
