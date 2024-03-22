@@ -8,18 +8,14 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * <p>
  * Convert units.
- * </p>
  *
  * @author David Urbansky
  */
 public class UnitConverter {
 
     /**
-     * <p>
      * Convert an amount from one unit to another.
-     * </p>
      *
      * @param amount   The amount to convert.
      * @param fromUnit The source unit.

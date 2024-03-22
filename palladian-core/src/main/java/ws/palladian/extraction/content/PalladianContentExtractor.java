@@ -1058,6 +1058,26 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
+        // main image srcset
+        xhtmlNode = XPathHelper.getXhtmlNode(getDocument(), "//picture[contains(@class,'image-story')]//img");
+        if (xhtmlNode != null && !excludeImageNodes.contains(xhtmlNode)) {
+            Node xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode, ".//@src");
+            if (xhtmlNode1 != null) {
+                String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, xhtmlNode1.getTextContent().trim());
+                return new BasicWebImage.Builder().setImageUrl(url).create();
+            } else {
+                xhtmlNode1 = XPathHelper.getXhtmlNode(xhtmlNode, ".//@srcset");
+                if (xhtmlNode1 != null) {
+                    String textContent = xhtmlNode1.getTextContent();
+                    String[] split = textContent.split(",");
+                    if (split.length > 0) {
+                        String url = UrlHelper.makeFullUrl(getDocument().getDocumentURI(), null, split[0].trim());
+                        return new BasicWebImage.Builder().setImageUrl(url).create();
+                    }
+                }
+            }
+        }
+
         // try something else
         WebImage image = null;
         List<WebImage> images = new ArrayList<>();
