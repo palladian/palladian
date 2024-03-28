@@ -3,6 +3,7 @@ package ws.palladian.retrieval.analysis;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ws.palladian.helper.ProgressMonitor;
+import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
@@ -36,7 +37,7 @@ public class SitemapRetriever {
     private final static Pattern LOC_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</loc)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern PRIORITY_PATTERN = Pattern.compile("(?<=>)[0-9.]+?(?=</priority)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern LAST_MOD_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</lastmod)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    private final static Pattern ALL = Pattern.compile(".");
+    public final static Pattern ALL = Pattern.compile(".");
 
     public SitemapRetriever() {
         HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
@@ -78,6 +79,14 @@ public class SitemapRetriever {
     }
 
     public Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
+        return getSitemap(sitemapUrl, urlToPriorityMap, goalNodePattern, include, new ProgressMonitor(0.1));
+    }
+
+    public Sitemap getSitemap(String sitemapUrl, Pattern goalNodePattern, boolean include, ProgressReporter progress) {
+        return getSitemap(sitemapUrl, new HashMap<>(), goalNodePattern, include, progress);
+    }
+
+    private Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, ProgressReporter progress) {
         Sitemap sitemap = new Sitemap();
 
         String sitemapContent;
@@ -127,7 +136,7 @@ public class SitemapRetriever {
                 break;
             case INDEX:
                 List<String> urls = StringHelper.getRegexpMatches(LOC_PATTERN, sitemapContent);
-                ProgressMonitor sitemapRetriever = new ProgressMonitor(urls.size(), 0.1, "SitemapRetriever (" + sitemapUrl + ")");
+                progress.startTask("SitemapRetriever (" + sitemapUrl + ")", urls.size());
                 for (String sitemapLinkUrl : urls) {
                     // clean url
                     sitemapLinkUrl = normalizeUrl(sitemapLinkUrl);
@@ -165,12 +174,12 @@ public class SitemapRetriever {
                     FileHelper.delete(downloadPath);
                     FileHelper.delete(unzippedPath);
 
-                    sitemapRetriever.incrementAndPrintProgress();
+                    progress.increment();
                 }
                 break;
         }
 
-        return sitemap;
+        return sitemap;        
     }
 
     private String cleanUpSitemap(String sitemapText) {
