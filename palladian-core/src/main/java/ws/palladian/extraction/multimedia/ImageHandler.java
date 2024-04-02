@@ -399,7 +399,7 @@ public class ImageHandler {
             saveImage(image, FileHelper.getFileType(file.getAbsolutePath()), file.getAbsolutePath());
         }
     }
-    
+
     public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight, boolean fitWithoutDistortion) {
         if (bufferedImage == null) {
             LOGGER.warn("given image was NULL");
@@ -423,7 +423,7 @@ public class ImageHandler {
     }
 
     /**
-     * Download and save a picture from a URL. The image extension will automatically be added to the save path depending on the the image format.
+     * Download and save a picture from a URL. The image extension will automatically be added to the save path depending on the image format.
      *
      * @param url      The URL of the image.
      * @param savePath The path to which the image should be saved.

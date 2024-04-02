@@ -47,9 +47,6 @@ import java.util.regex.Pattern;
  * @author David Urbansky
  */
 public class PalladianContentExtractor extends WebPageContentExtractor {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianContentExtractor.class);
 
     private static final List<String> MAIN_NODE_HINTS = new ArrayList<>();
@@ -132,6 +129,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // MAIN_NODE_HINTS.add("article");
         // MAIN_NODE_HINTS.add("content");
         // MAIN_NODE_HINTS.add("post");
+        MAIN_NODE_HINTS.add("page-storyBody");
         MAIN_NODE_HINTS.add("st_text_c");
     }
 
@@ -435,6 +433,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'footer']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pagefooter']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'sidebar']//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[contains(translate(@class,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'page-header')]//*"));
         // remove scripts / style / iframes etc.
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//*[(self::xhtml:style) or (self::xhtml:script) or (self::xhtml:iframe)]"));
 

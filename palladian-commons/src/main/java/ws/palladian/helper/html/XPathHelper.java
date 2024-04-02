@@ -55,7 +55,7 @@ public final class XPathHelper {
     private static final String XHTML_COLON = "xhtml:";
 
     private static final Pattern AND_OR = Pattern.compile("and|or");
-    private static final Pattern XHTML_TAGGABLE = Pattern.compile("[a-zA-Z][\\w]*|\\*");
+    private static final Pattern XHTML_TAGGABLE = Pattern.compile("[a-zA-Z][\\w-]*|\\*");
     private static final Pattern XHTML_NS = Pattern.compile("(\"[^\"]+\")|('[^']+')");
     private static final Map<String, XPathExpression> XPATH_CACHE = Collections.synchronizedMap(LruMap.accessOrder(10000));
 
