@@ -213,12 +213,15 @@ public class ImageHandler {
                 }
                 try {
                     bufferedImage = ImageIO.read(new ByteArrayInputStream(httpResult.getContent()));
-
-                    if (bufferedImage == null) {
-                        bufferedImage = ImageIO.read(new URL(url));
-                    }
                 } catch (Exception e) {
                     LOGGER.error(url + ", " + e.getMessage(), e);
+                }
+                if (bufferedImage == null) {
+                    try {
+                        bufferedImage = ImageIO.read(new URL(url));
+                    } catch (Exception e) {
+                        LOGGER.error(url + ", " + e.getMessage(), e);
+                    }
                 }
             } else {
                 try {
