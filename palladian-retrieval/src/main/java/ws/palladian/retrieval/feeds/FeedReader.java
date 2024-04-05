@@ -9,7 +9,6 @@ import ws.palladian.retrieval.HttpRetriever;
 import java.util.Timer;
 
 /**
- * <p>
  * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
  *
  * @author David Urbansky
@@ -17,9 +16,6 @@ import java.util.Timer;
  * @author Philipp Katz
  */
 public final class FeedReader {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedReader.class);
 
     private final FeedReaderSettings settings;
@@ -33,7 +29,6 @@ public final class FeedReader {
     private final Timer checkScheduler;
 
     /**
-     * <p>
      * Create a new FeedReader with the specified settings.
      *
      * @param settings The configuration, not <code>null</code>.
@@ -45,7 +40,6 @@ public final class FeedReader {
     }
 
     /**
-     * <p>
      * Start reading.
      */
     public void start() {

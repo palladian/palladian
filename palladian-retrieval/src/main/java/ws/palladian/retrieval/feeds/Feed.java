@@ -21,7 +21,6 @@ import java.util.*;
  * @author Sandro Reichert
  */
 public class Feed {
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Feed.class);
 
     /** Internal database identifier. */

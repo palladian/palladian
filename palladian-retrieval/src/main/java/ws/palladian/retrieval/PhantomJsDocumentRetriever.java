@@ -32,11 +32,11 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKey;
 
     /**
-     * 424 means the source took too long to reply but we still might have the content we want.
+     * 424 and 408 means the source took too long to reply but we still might have the content we want.
      *
      * @implNote https://phantomjscloud.com/docs/#:~:text=424%20%3A%20Failed%20Dependency%20The%20target,or%20make%20sure%20your%20requestSettings.&text=Extra%20Info%3A%20The%20424%20error,page%20URL%20does%20not%20load.
      */
-    private boolean count424aSuccess = false;
+    private boolean count424and408Success = false;
 
     public static final String CONFIG_API_KEY = "api.phantomjscloud.key";
 
@@ -47,11 +47,11 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public boolean isCount424aSuccess() {
-        return count424aSuccess;
+        return count424and408Success;
     }
 
     public void setCount424aSuccess(boolean count424aSuccess) {
-        this.count424aSuccess = count424aSuccess;
+        this.count424and408Success = count424aSuccess;
     }
 
     @Override
@@ -120,7 +120,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
 
         int statusCode = Optional.ofNullable(response.tryQueryInt("content/statusCode")).orElse(200);
 
-        if (htmlContentString == null || (statusCode >= 400 && !(count424aSuccess && statusCode == 424))) {
+        if (htmlContentString == null || (statusCode >= 400 && !(count424and408Success && (statusCode == 424 || statusCode == 408)))) {
             return null;
         }
 
