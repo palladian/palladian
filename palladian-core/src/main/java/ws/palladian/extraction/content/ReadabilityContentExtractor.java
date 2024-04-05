@@ -54,8 +54,6 @@ import java.util.regex.Pattern;
  * @see <a href="http://code.google.com/p/arc90labs-readability">JavaScript Source</a>
  */
 public class ReadabilityContentExtractor extends WebPageContentExtractor {
-
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ReadabilityContentExtractor.class);
 
     /** name of attribute for storing readability values in DOM elements */
@@ -125,8 +123,7 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      */
     @Override
     public String getResultText() {
-        String result = HtmlHelper.documentToReadableText(getResultNode());
-        return result;
+        return HtmlHelper.documentToReadableText(getResultNode());
     }
 
     /*
@@ -360,9 +357,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * Prepare the article node for display. Clean out any inline styles, iframes, forms, strip extraneous
      * <p>
      * tags, etc.
-     *
-     * @param Element
-     * @return void
      **/
     private void prepArticle(Element articleContent) {
 
@@ -419,9 +413,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     /**
      * Initialize a node with the readability object. Also checks the className/id for special names to add to its
      * score.
-     *
-     * @param Element
-     * @return void
      **/
     private void initializeNode(Element node) {
 
@@ -691,9 +682,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Get the inner text of a node - cross browser compatibly. This also strips out any excess whitespace to be found.
-     *
-     * @param Element
-     * @return string
      **/
     private String getInnerText(Element e) {
         return getInnerText(e, true);
@@ -715,9 +703,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * Remove the style attribute on every e and under.
      *
      * todo: Test if getElementsByTagName(*) is faster.
-     *
-     * @param Element
-     * @return void
      **/
     private void cleanStyles(Element e) {
         Node cur = e.getFirstChild();
@@ -745,9 +730,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
     /**
      * Get the density of links as a percentage of the content This is the amount of text that is inside a link divided
      * by the total text in the node.
-     *
-     * @param Element
-     * @return number (float)
      **/
     private float getLinkDensity(Element e) {
 
@@ -765,9 +747,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Get an elements class/id weight. Uses regular expressions to tell if this element looks good or bad.
-     *
-     * @param Element
-     * @return number (Integer)
      **/
     private int getClassIdWeight(Element e) {
 
@@ -805,10 +784,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Clean a node of all elements of type "tag". (Unless it's a youtube/vimeo video. People love movies.)
-     *
-     * @param Element
-     * @param string  tag to clean
-     * @return void
      **/
     private void clean(Element e, String tag) {
 
@@ -849,7 +824,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
      * @return void
      **/
     private void cleanConditionally(Element e, String tag) {
-
         if (!cleanConditionally) {
             return;
         }
@@ -925,9 +899,6 @@ public class ReadabilityContentExtractor extends WebPageContentExtractor {
 
     /**
      * Clean out spurious headers from an Element. Checks things like classnames and link density.
-     *
-     * @param Element
-     * @return void
      **/
     private void cleanHeaders(Element e) {
         for (int headerIndex = 1; headerIndex < 7; headerIndex++) {

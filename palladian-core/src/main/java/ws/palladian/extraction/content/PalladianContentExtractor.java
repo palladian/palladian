@@ -14,6 +14,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.date.TimeIntervalParser;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.io.FileHelper;
@@ -27,7 +28,9 @@ import ws.palladian.retrieval.ImageSizeComparator;
 import ws.palladian.retrieval.PageAnalyzer;
 import ws.palladian.retrieval.XPathSet;
 import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.resources.WebVideo;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -39,7 +42,6 @@ import java.util.regex.Pattern;
  * The PalladianContentExtractor extracts clean sentences from (English) texts. That is, short phrases are not included in the output. Consider the
  * {@link ReadabilityContentExtractor} for general content. The main difference is that this class also finds sentences in comment sections of web pages.
  * </p>
- * <p/>
  * <p>
  * Score on boilerplate dataset: 0.76088387 (r1505);
  * </p>
@@ -105,6 +107,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private static final int DEFAULT_IMAGE_CONTAINER_SIZE = 500;
 
     private List<WebImage> imageUrls;
+    private List<WebVideo> videos;
 
     static {
         MAIN_NODE_HINTS.add("articleText");
@@ -588,6 +591,35 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         images.addAll(filteredImages);
     }
 
+    public List<WebVideo> getVideos() {
+        if (videos != null) {
+            return videos;
+        }
+        videos = new ArrayList<>();
+        // try getting videos
+        if (schemaJson != null) {
+            JsonObject videoJson = schemaJson.tryGetJsonObject("video");
+            if (videoJson != null) {
+                BasicWebVideo.Builder builder = new BasicWebVideo.Builder();
+                builder.setTitle(videoJson.tryGetString("name"));
+                builder.setVideoUrl(Optional.ofNullable(videoJson.tryGetString("contentUrl")).orElse(videoJson.tryGetString("embedUrl")));
+                builder.setSummary(videoJson.tryGetString("description"));
+                builder.setThumbnailUrl(videoJson.tryGetString("thumbnailUrl"));
+                String durationString = videoJson.tryGetString("duration");
+                if (durationString != null && !durationString.isEmpty()) {
+                    try {
+                        builder.setDuration(TimeIntervalParser.parse(durationString).intValue());
+                    } catch (Exception e) {
+                        LOGGER.error("could not parse video duration: " + durationString);
+                    }
+                }
+                videos.add(builder.create());
+            }
+        }
+
+        return videos;
+    }
+
     public List<WebImage> getImages() {
         if (outerResultNode != null) {
             return getImages(outerResultNode, getDocument(), new HashSet<>());
@@ -883,9 +915,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     /**
-     * <p>
      * Use several indicators in the site's HTML to detect its language.
-     * </p>
      */
     public Language detectLanguage() {
         // look in HTML lang attribute <html lang="de">
