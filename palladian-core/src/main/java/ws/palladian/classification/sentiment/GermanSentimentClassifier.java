@@ -30,7 +30,6 @@ import java.util.Map.Entry;
  * @author David Urbansky
  */
 public class GermanSentimentClassifier extends AbstractSentimentClassifier implements Serializable {
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GermanSentimentClassifier.class);
 
     /** Serial Version UID. */
@@ -167,11 +166,11 @@ public class GermanSentimentClassifier extends AbstractSentimentClassifier imple
                 if (sentiment > -10101) {
                     sentiment *= emphasizeWeight;
                     if (sentiment > 0) {
-                        LOGGER.debug("positive word: " + token + " (" + sentiment + ")");
+                        //                        LOGGER.debug("positive word: " + token + " (" + sentiment + ")");
                         // positiveSentimentSum += sentiment;
                         positiveSentimentSumSentence += sentiment;
                     } else {
-                        LOGGER.debug("negative word: " + token + " (" + sentiment + ")");
+                        //                        LOGGER.debug("negative word: " + token + " (" + sentiment + ")");
                         // negativeSentimentSum += Math.abs(sentiment);
                         negativeSentimentSumSentence += Math.abs(sentiment);
                     }
