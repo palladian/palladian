@@ -12,9 +12,7 @@ import ws.palladian.helper.nlp.StringHelper;
  */
 public class TimeIntervalParser {
     /**
-     * <p>
      * Return the number of seconds to which the interval in the string was normalized.
-     * </p>
      *
      * @param string The input string.
      * @return The number of seconds of the mentioned time interval. Returns <tt>Null</tt> if nothing was found.
@@ -27,6 +25,9 @@ public class TimeIntervalParser {
         boolean parsed = false;
 
         string = StringHelper.clean(string);
+
+        // remove fractional seconds
+        string = string.replaceAll("\\.\\d+(?=[Ss])", "");
 
         try {
             days = Integer.parseInt(StringHelper.getRegexpMatch("[0-9]+(?=\\s?([dD]ays?))", string));

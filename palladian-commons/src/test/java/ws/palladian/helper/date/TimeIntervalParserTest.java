@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class TimeIntervalParserTest {
     @Test
     public void testParse() {
+        assertEquals(89, TimeIntervalParser.parse("P1M29.650000000000006S"), 0.1);
         assertEquals(7200, TimeIntervalParser.parse("2 h"), 1);
         assertEquals(250, TimeIntervalParser.parse("PT4M10S"), 0.1);
         assertEquals(9910, TimeIntervalParser.parse("PT2H45M10S"), 0.1);
