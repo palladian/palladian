@@ -685,7 +685,6 @@ public final class FileHelper {
                 writer.write(NEWLINE_CHARACTER);
             }
             success = true;
-
         } catch (IOException e) {
             LOGGER.error(e.getMessage() + " : " + filePath, e);
         } finally {
@@ -1825,7 +1824,7 @@ public final class FileHelper {
 
         return concatenated;
     }
-    
+
     /**
      * Get the SHA1 hash of the file's content.
      *

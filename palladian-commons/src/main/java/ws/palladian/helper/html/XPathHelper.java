@@ -56,6 +56,7 @@ public final class XPathHelper {
 
     private static final Pattern AND_OR = Pattern.compile("and|or");
     private static final Pattern XHTML_TAGGABLE = Pattern.compile("[a-zA-Z][\\w-]*|\\*");
+    private static final Pattern XHTML_TAG_MASK = Pattern.compile("(preceding-sibling|following-sibling|ancestor-or-self|descendant-or-self)");
     private static final Pattern XHTML_NS = Pattern.compile("(\"[^\"]+\")|('[^']+')");
     private static final Map<String, XPathExpression> XPATH_CACHE = Collections.synchronizedMap(LruMap.accessOrder(10000));
 
@@ -505,6 +506,8 @@ public final class XPathHelper {
 
         // first we need to mask everything in quotes as this must not be analyzed for namespaces
         List<String> toMask = StringHelper.getRegexpMatches(XHTML_NS, xPath);
+        toMask.addAll(StringHelper.getRegexpMatches(XHTML_TAG_MASK, xPath));
+
         int maskId = 0;
         Map<String, String> unmaskMap = new HashMap<>();
         for (String quoted : toMask) {

@@ -28,6 +28,10 @@ import static org.junit.Assert.assertNotNull;
 public class XPathHelperTest {
     @Test
     public void testAddNamespaceToXPath() {
+        assertEquals("//xhtml:div[contains(@class, 'ph-main')]//xhtml:article-body//xhtml:h3",
+                XPathHelper.addXhtmlNsToXPath("//div[contains(@class, 'ph-main')]//article-body//h3"));
+        assertEquals("//xhtml:*[starts-with(@class, 'ph-main')]//xhtml:article//xhtml:h3/following-sibling::xhtml:*",
+                XPathHelper.addXhtmlNsToXPath("//*[starts-with(@class, 'ph-main')]//article//h3/following-sibling::*"));
         assertEquals("//xhtml:a[contains(@class,'breadcrumb__link') and @title=\"Leistungen und Services\"]/xhtml:span",
                 XPathHelper.addXhtmlNsToXPath("//a[contains(@class,'breadcrumb__link') and @title=\"Leistungen und Services\"]/span"));
         assertEquals("//xhtml:body[//xhtml:script[contains(text(),',2308,')] and //xhtml:link[@rel='canonical' and contains(@href,'events/more')]]",
