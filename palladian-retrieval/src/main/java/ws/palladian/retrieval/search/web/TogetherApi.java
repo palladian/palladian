@@ -21,12 +21,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author David Urbansky
  * Created 02.01.2024
  */
-public class TogetherApi {
+public class TogetherApi extends AiApi {
     private final TimeWindowRequestThrottle throttle;
     private static final Logger LOGGER = LoggerFactory.getLogger(TogetherApi.class);
 
     private final String apiKey;
 
+    private static final String DEFAULT_MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1";
     public static final String CONFIG_API_KEY = "api.together.key";
     public static final String CONFIG_API_QPS = "api.together.qps";
 
@@ -39,26 +40,12 @@ public class TogetherApi {
         this(configuration.getString(CONFIG_API_KEY), configuration.getInt(CONFIG_API_QPS, 1));
     }
 
-    public String chat(String prompt, String modelName) throws Exception {
-        JsonObject message = new JsonObject();
-        message.put("role", "user");
-        message.put("content", prompt);
-        JsonArray messages = new JsonArray();
-        messages.add(message);
-
-        return chat(messages, 1.0, new AtomicInteger(), modelName, null);
+    @Override
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
+        return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
     }
 
-    public String chat(String prompt, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
-        JsonObject message = new JsonObject();
-        message.put("role", "user");
-        message.put("content", prompt);
-        JsonArray messages = new JsonArray();
-        messages.add(message);
-
-        return chat(messages, temperature, usedTokens, modelName, null);
-    }
-
+    @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());

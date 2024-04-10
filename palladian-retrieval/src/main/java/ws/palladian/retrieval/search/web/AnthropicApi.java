@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created 20.03.2024
  * See https://docs.anthropic.com/claude/reference
  */
-public class AnthropicApi {
+public class AnthropicApi extends AiApi {
     private static final TimeWindowRequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 5);
     private static final Logger LOGGER = LoggerFactory.getLogger(AnthropicApi.class);
 
@@ -29,8 +29,8 @@ public class AnthropicApi {
     public static final String CONFIG_API_KEY = "api.anthropic.key";
 
     /** See https://docs.anthropic.com/claude/docs/models-overview */
-        private static final String DEFAULT_MODEL = "claude-3-opus-20240229";
-//    private static final String DEFAULT_MODEL = "claude-3-haiku-20240307";
+    private static final String DEFAULT_MODEL = "claude-3-opus-20240229";
+    //    private static final String DEFAULT_MODEL = "claude-3-haiku-20240307";
 
     public AnthropicApi(String apiKey) {
         this.apiKey = apiKey;
@@ -40,28 +40,12 @@ public class AnthropicApi {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
-    public String chat(String prompt) throws Exception {
-        return chat(prompt, 1.0, null);
-    }
-
-    public String chat(String prompt, double temperature, AtomicInteger usedTokens) throws Exception {
-        JsonObject message = new JsonObject();
-        message.put("role", "user");
-        message.put("content", prompt);
-        JsonArray messages = new JsonArray();
-        messages.add(message);
-
-        return chat(messages, temperature, usedTokens);
-    }
-
+    @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
         return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
     }
 
-    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
-        return chat(messages, temperature, usedTokens, modelName, null);
-    }
-
+    @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("x-api-key", apiKey).put("anthropic-version", "2023-06-01").create());

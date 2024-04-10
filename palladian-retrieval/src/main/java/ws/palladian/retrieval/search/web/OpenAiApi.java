@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author David Urbansky
  * Created 15.02.2023
  */
-public class OpenAiApi {
+public class OpenAiApi extends AiApi {
     private static final TimeWindowRequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 3500);
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAiApi.class);
 
@@ -79,28 +79,12 @@ public class OpenAiApi {
         return embedding;
     }
 
-    public String chat(String prompt) throws Exception {
-        return chat(prompt, 1.0, null);
-    }
-
-    public String chat(String prompt, double temperature, AtomicInteger usedTokens) throws Exception {
-        JsonObject message = new JsonObject();
-        message.put("role", "user");
-        message.put("content", prompt);
-        JsonArray messages = new JsonArray();
-        messages.add(message);
-
-        return chat(messages, temperature, usedTokens);
-    }
-
+    @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
         return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
     }
 
-    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
-        return chat(messages, temperature, usedTokens, modelName, null);
-    }
-
+    @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("Authorization", "Bearer " + apiKey).create());
