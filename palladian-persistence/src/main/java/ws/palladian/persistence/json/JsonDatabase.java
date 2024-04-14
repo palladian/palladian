@@ -170,7 +170,10 @@ public class JsonDatabase {
             List<JsonObject> jsonObjects = new ArrayList<>();
             for (int i = 0; i < objects.size(); i++) {
                 String filePath = objects.get(i);
-                jsonObjects.add(JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(filePath)))));
+                JsonObject obj = JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(filePath))));
+                if (obj != null) {
+                    jsonObjects.add(obj);
+                }
             }
             return jsonObjects;
         }

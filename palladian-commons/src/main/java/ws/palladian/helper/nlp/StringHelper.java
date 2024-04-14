@@ -723,6 +723,7 @@ public final class StringHelper {
     /**
      * Check whether a given string contains a numeric value.
      * NOTE: the number must be by itself and not within or at the end of a word, e.g. V200 does NOT contain a number according to this logic
+     *
      * @param searchString The search string.
      * @return True if the string contains a numeric value, else false.
      */
@@ -1838,6 +1839,33 @@ public final class StringHelper {
         text = StringHelper.replaceWord("80", "eighty", text);
         text = StringHelper.replaceWord("90", "ninety", text);
         text = StringHelper.replaceWord("100", "one hundred", text);
+        return text;
+    }
+
+    public static String romanNumberToArabicNumber(String text, boolean ignoreOne) {
+        if (!ignoreOne) {
+            text = StringHelper.replaceWord("i", "1", text);
+        }
+        text = StringHelper.replaceWord("ii", "2", text);
+        text = StringHelper.replaceWord("iii", "3", text);
+        text = StringHelper.replaceWord("iv", "4", text);
+        text = StringHelper.replaceWord("v", "5", text);
+        text = StringHelper.replaceWord("vi", "6", text);
+        text = StringHelper.replaceWord("vii", "7", text);
+        text = StringHelper.replaceWord("viii", "8", text);
+        text = StringHelper.replaceWord("ix", "9", text);
+        text = StringHelper.replaceWord("x", "10", text);
+        text = StringHelper.replaceWord("xi", "11", text);
+        text = StringHelper.replaceWord("xii", "12", text);
+        text = StringHelper.replaceWord("xiii", "13", text);
+        text = StringHelper.replaceWord("xiv", "14", text);
+        text = StringHelper.replaceWord("xv", "15", text);
+        text = StringHelper.replaceWord("xvi", "16", text);
+        text = StringHelper.replaceWord("xvii", "17", text);
+        text = StringHelper.replaceWord("xviii", "18", text);
+        text = StringHelper.replaceWord("xix", "19", text);
+        text = StringHelper.replaceWord("xx", "20", text);
+
         return text;
     }
 
