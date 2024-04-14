@@ -2,6 +2,7 @@ package ws.palladian.retrieval.ranking.services;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import ws.palladian.helper.UrlHelper;
@@ -20,6 +21,36 @@ import ws.palladian.retrieval.ranking.RankingType;
  */
 public final class OpenPageRank extends AbstractRankingService {
 
+    public static final class OpenPageRankMetaInfo implements RankingServiceMetaInfo<OpenPageRank> {
+        private static final DefaultConfigurationOption API_KEY_OPTION = new DefaultConfigurationOption(String.class, "API Key", "apikey");
+
+        @Override
+        public List<RankingType> getRankingTypes() {
+            return RANKING_TYPES;
+        }
+
+        @Override
+        public String getServiceName() {
+            return "OpenPageRank";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption> getConfigurationOptions() {
+            return Arrays.asList(API_KEY_OPTION);
+        }
+
+        @Override
+        public OpenPageRank create(Map<ConfigurationOption, ?> config) {
+            var apiKey = (String) config.get(API_KEY_OPTION);
+            return new OpenPageRank(apiKey);
+        }
+    }
+
     private static final String SERVICE_ID = "openpagerank";
 
     public static final RankingType RANKING_TYPE_PAGE_RANK_INTEGER = new RankingType("page_rank_integer",
@@ -28,7 +59,13 @@ public final class OpenPageRank extends AbstractRankingService {
     public static final RankingType RANKING_TYPE_PAGE_RANK_DECIMAL = new RankingType("page_rank_decimal",
             "OPR decimal value", "");
 
-    public  static final RankingType RANKING_TYPE_RANK = new RankingType("rank", "OPR rank", "");
+    public static final RankingType RANKING_TYPE_RANK = new RankingType("rank", "OPR rank", "");
+
+    private static final List<RankingType> RANKING_TYPES = Arrays.asList( //
+            RANKING_TYPE_PAGE_RANK_INTEGER, //
+            RANKING_TYPE_PAGE_RANK_DECIMAL, //
+            RANKING_TYPE_RANK //
+    );
 
     private final String apiKey;
 
@@ -66,11 +103,7 @@ public final class OpenPageRank extends AbstractRankingService {
 
     @Override
     public List<RankingType> getRankingTypes() {
-        return Arrays.asList( //
-                RANKING_TYPE_PAGE_RANK_INTEGER, //
-                RANKING_TYPE_PAGE_RANK_DECIMAL, //
-                RANKING_TYPE_RANK //
-        );
+        return RANKING_TYPES;
     }
 
     @Override

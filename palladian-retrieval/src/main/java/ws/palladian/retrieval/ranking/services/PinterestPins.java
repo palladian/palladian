@@ -11,7 +11,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -23,6 +25,35 @@ import java.util.List;
  * @author Philipp Katz
  */
 public final class PinterestPins extends AbstractRankingService implements RankingService {
+
+    public static final class PinterestPinsMetaInfo implements RankingServiceMetaInfo<PinterestPins> {
+
+        @Override
+        public List<RankingType> getRankingTypes() {
+            return RANKING_TYPES;
+        }
+
+        @Override
+        public String getServiceName() {
+            return "Pinterest";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PinterestPins create(Map<ConfigurationOption, ?> config) {
+            return new PinterestPins();
+        }
+
+    }
 
     /** The id of this service. */
     private static final String SERVICE_ID = "pinterest";

@@ -17,6 +17,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -27,6 +28,36 @@ import java.util.List;
  * @see <a href="https://www.sharedcount.com/api-docs/getting-started">API Information</a>
  */
 public final class SharedCount extends AbstractRankingService {
+
+    public static final class SharedCountMetaInfo implements RankingServiceMetaInfo<SharedCount> {
+        private static final DefaultConfigurationOption API_KEY_OPTION = new DefaultConfigurationOption(String.class, "API Key", "apikey");
+
+        @Override
+        public List<RankingType> getRankingTypes() {
+            return RANKING_TYPES;
+        }
+
+        @Override
+        public String getServiceName() {
+            return "SharedCount";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption> getConfigurationOptions() {
+            return Arrays.asList(API_KEY_OPTION);
+        }
+
+        @Override
+        public SharedCount create(Map<ConfigurationOption, ?> config) {
+            var apiKey = (String) config.get(API_KEY_OPTION);
+            return new SharedCount(apiKey);
+        }
+    }
 
     /** The id of this service. */
     private static final String SERVICE_ID = "sharedcount";

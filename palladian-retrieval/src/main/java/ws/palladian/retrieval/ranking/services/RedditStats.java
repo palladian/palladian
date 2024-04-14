@@ -14,7 +14,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -30,6 +32,35 @@ import java.util.List;
  * @see http://code.reddit.com/wiki/API
  */
 public final class RedditStats extends AbstractRankingService implements RankingService {
+
+    public static final class RedditStatsMetaInfo implements RankingServiceMetaInfo<RedditStats> {
+
+        @Override
+        public List<RankingType> getRankingTypes() {
+            return RANKING_TYPES;
+        }
+
+        @Override
+        public String getServiceName() {
+            return "Reddit";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public RedditStats create(Map<ConfigurationOption, ?> config) {
+            return new RedditStats();
+        }
+
+    }
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(RedditStats.class);

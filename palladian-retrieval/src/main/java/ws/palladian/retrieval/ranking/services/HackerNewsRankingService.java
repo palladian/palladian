@@ -11,7 +11,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Ranking Service based on Hacker News via <a href="https://hn.algolia.com/api">HN Search API</a>.
@@ -19,6 +21,35 @@ import java.util.List;
  * @author Philipp Katz
  */
 public final class HackerNewsRankingService extends AbstractRankingService {
+
+    public static final class HackerNewsMetaInfo implements RankingServiceMetaInfo<HackerNewsRankingService> {
+
+        @Override
+        public List<RankingType> getRankingTypes() {
+            return RANKING_TYPES;
+        }
+
+        @Override
+        public String getServiceName() {
+            return "Hacker News";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public HackerNewsRankingService create(Map<ConfigurationOption, ?> config) {
+            return new HackerNewsRankingService();
+        }
+
+    }
 
     private static final String SERVICE_ID = "hackernews";
 

@@ -18,6 +18,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -34,6 +35,38 @@ import java.util.List;
  * @see http://www.bibsonomy.org
  */
 public final class BibsonomyBookmarks extends AbstractRankingService implements RankingService {
+
+    public static final class BibsonomyBookmarksMetaInfo implements RankingServiceMetaInfo<BibsonomyBookmarks> {
+        private static final DefaultConfigurationOption LOGIN_OPTION = new DefaultConfigurationOption(String.class, "Login", "login");
+        private static final DefaultConfigurationOption API_KEY_OPTION = new DefaultConfigurationOption(String.class, "API Key", "apikey");
+
+        @Override
+        public List<RankingType> getRankingTypes() {
+            return RANKING_TYPES;
+        }
+
+        @Override
+        public String getServiceName() {
+            return "BibSonomy";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption> getConfigurationOptions() {
+            return Arrays.asList(LOGIN_OPTION, API_KEY_OPTION);
+        }
+
+        @Override
+        public BibsonomyBookmarks create(Map<ConfigurationOption, ?> config) {
+            var login = (String) config.get(LOGIN_OPTION);
+            var apiKey = (String) config.get(API_KEY_OPTION);
+            return new BibsonomyBookmarks(login, apiKey);
+        }
+    }
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BibsonomyBookmarks.class);

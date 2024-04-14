@@ -15,7 +15,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,6 +28,35 @@ import java.util.concurrent.TimeUnit;
  * @author David Urbansky
  */
 public final class GoogleCachedPage extends AbstractRankingService implements RankingService {
+
+    public static final class GoogleCachedPageMetaInfo implements RankingServiceMetaInfo<GoogleCachedPage> {
+
+        @Override
+        public List<RankingType> getRankingTypes() {
+            return RANKING_TYPES;
+        }
+
+        @Override
+        public String getServiceName() {
+            return "Google Cached Page";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public GoogleCachedPage create(Map<ConfigurationOption, ?> config) {
+            return new GoogleCachedPage();
+        }
+
+    }
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCachedPage.class);
