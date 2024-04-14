@@ -59,7 +59,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
 
             while (!success) {
 
-                HttpResult httpHead = retriever.execute(new HttpRequest2Builder(HttpMethod.HEAD, requestUrl).create());
+                HttpResult httpHead = retriever.execute(new HttpRequest2Builder(HttpMethod.GET, requestUrl).create());
 
                 success = true;
 
