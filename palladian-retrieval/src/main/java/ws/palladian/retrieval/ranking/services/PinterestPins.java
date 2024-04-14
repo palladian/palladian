@@ -35,7 +35,7 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        String requestUrl = "http://api.pinterest.com/v1/urls/count.json?callback=receiveCount&url=" + UrlHelper.encodeParameter(url);
+        String requestUrl = "https://api.pinterest.com/v1/urls/count.json?callback=receiveCount&url=" + UrlHelper.encodeParameter(url);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
