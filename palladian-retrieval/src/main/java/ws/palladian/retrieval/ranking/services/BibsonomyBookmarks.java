@@ -41,7 +41,7 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
         private static final DefaultConfigurationOption API_KEY_OPTION = new DefaultConfigurationOption(String.class, "API Key", "apikey");
 
         @Override
-        public List<RankingType> getRankingTypes() {
+        public List<RankingType<?>> getRankingTypes() {
             return RANKING_TYPES;
         }
 
@@ -85,10 +85,10 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     private static final String SERVICE_ID = "bibsonomy";
 
     /** The ranking value types of this service **/
-    public static final RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of bookmarks users have created for this url.");
+    public static final RankingType<Integer> BOOKMARKS = new RankingType<Integer>("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of bookmarks users have created for this url.", Integer.class);
 
     /** All available ranking tpyes by {@link BibsonomyBookmarks}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(BOOKMARKS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(BOOKMARKS);
 
     /**
      * <p>
@@ -157,7 +157,7 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

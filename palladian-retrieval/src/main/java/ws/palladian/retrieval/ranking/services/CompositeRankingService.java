@@ -72,8 +72,8 @@ public final class CompositeRankingService extends AbstractRankingService implem
 
     @SuppressWarnings("deprecation")
     @Override
-    public List<RankingType> getRankingTypes() {
-        List<RankingType> rankingTypes = new ArrayList<>();
+    public List<RankingType<?>> getRankingTypes() {
+        List<RankingType<?>> rankingTypes = new ArrayList<>();
         for (RankingService rankingService : rankingServices) {
             rankingTypes.addAll(rankingService.getRankingTypes());
         }

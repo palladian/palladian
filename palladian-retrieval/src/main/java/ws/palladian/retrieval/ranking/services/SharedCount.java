@@ -33,7 +33,7 @@ public final class SharedCount extends AbstractRankingService {
         private static final DefaultConfigurationOption API_KEY_OPTION = new DefaultConfigurationOption(String.class, "API Key", "apikey");
 
         @Override
-        public List<RankingType> getRankingTypes() {
+        public List<RankingType<?>> getRankingTypes() {
             return RANKING_TYPES;
         }
 
@@ -63,15 +63,15 @@ public final class SharedCount extends AbstractRankingService {
     private static final String SERVICE_ID = "sharedcount";
 
     /** The ranking value types of this service. */
-    public static final RankingType FACEBOOK_TOTAL = new RankingType("sharedcount_facebook_total", "Facebook total count (SharedCount)");
-    public static final RankingType FACEBOOK_COMMENT = new RankingType("sharedcount_facebook_comment", "Facebook comment count (SharedCount)");
-    public static final RankingType FACEBOOK_SHARE = new RankingType("sharedcount_facebook_share", "Facebook share count (SharedCount)");
-    public static final RankingType FACEBOOK_REACTION = new RankingType("sharedcount_facebook_reaction", "Facebook reaction count (SharedCount)");
-    public static final RankingType FACEBOOK_COMMENT_PLUGIN = new RankingType("sharedcount_facebook_comment_plugin", "Facebook comment plugin count (SharedCount)");
-    public static final RankingType PINTEREST = new RankingType("sharedcount_pinterest", "Pinterest (SharedCount)");
+    public static final RankingType<Integer> FACEBOOK_TOTAL = new RankingType<>("sharedcount_facebook_total", "Facebook total count (SharedCount)", null, Integer.class);
+    public static final RankingType<Integer> FACEBOOK_COMMENT = new RankingType<>("sharedcount_facebook_comment", "Facebook comment count (SharedCount)", null, Integer.class);
+    public static final RankingType<Integer> FACEBOOK_SHARE = new RankingType<>("sharedcount_facebook_share", "Facebook share count (SharedCount)", null, Integer.class);
+    public static final RankingType<Integer> FACEBOOK_REACTION = new RankingType<>("sharedcount_facebook_reaction", "Facebook reaction count (SharedCount)", null, Integer.class);
+    public static final RankingType<Integer> FACEBOOK_COMMENT_PLUGIN = new RankingType<>("sharedcount_facebook_comment_plugin", "Facebook comment plugin count (SharedCount)", null, Integer.class);
+    public static final RankingType<Integer> PINTEREST = new RankingType<>("sharedcount_pinterest", "Pinterest (SharedCount)", null, Integer.class);
 
     /** All available ranking types by AlexaRank. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList( //
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList( //
             FACEBOOK_TOTAL, //
             FACEBOOK_COMMENT, //
             FACEBOOK_SHARE, //
@@ -164,7 +164,7 @@ public final class SharedCount extends AbstractRankingService {
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

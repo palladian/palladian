@@ -36,7 +36,7 @@ public interface RankingService {
      */
     public interface RankingServiceMetaInfo<R extends RankingService> {
         /** @return All ranking types of this ranking service. */
-        List<RankingType> getRankingTypes();
+        List<RankingType<?>> getRankingTypes();
 
         /** @return The human-readable name of the ranking service. */
         String getServiceName();
@@ -100,7 +100,7 @@ public interface RankingService {
      * @deprecated Get via {@link RankingServiceMetaInfo}
      */
     @Deprecated
-    List<RankingType> getRankingTypes();
+    List<RankingType<?>> getRankingTypes();
 
     /**
      * <p>
@@ -111,6 +111,6 @@ public interface RankingService {
      * @deprecated Get via {@link RankingServiceMetaInfo}
      */
     @Deprecated
-    RankingType getRankingType(String id);
+    RankingType<?> getRankingType(String id);
 
 }

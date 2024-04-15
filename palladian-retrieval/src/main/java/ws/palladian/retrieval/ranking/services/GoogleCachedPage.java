@@ -32,7 +32,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
     public static final class GoogleCachedPageMetaInfo implements RankingServiceMetaInfo<GoogleCachedPage> {
 
         @Override
-        public List<RankingType> getRankingTypes() {
+        public List<RankingType<?>> getRankingTypes() {
             return RANKING_TYPES;
         }
 
@@ -65,10 +65,10 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
     private static final String SERVICE_ID = "Google Cache";
 
     /** The ranking value types of this service **/
-    public static final RankingType GOOGLE_CACHED = new RankingType("googlecached", "Google Indexed", "Whether the page is in Google's Cache");
+    public static final RankingType<Short> GOOGLE_CACHED = new RankingType<>("googlecached", "Google Indexed", "Whether the page is in Google's Cache", Short.class);
 
     /** All available ranking types by {@link GoogleCachedPage}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(GOOGLE_CACHED);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(GOOGLE_CACHED);
 
     /** Fields to check the service availability. */
     private long sleepTime = TimeUnit.SECONDS.toMillis(10);
@@ -81,7 +81,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
         Ranking.Builder builder = new Ranking.Builder(this, url);
 
         THROTTLE.hold();
-        int indexed = 0;
+        short indexed = 0;
         String requestUrl = "http://webcache.googleusercontent.com/search?q=cache:" + url;
 
         try {
@@ -123,7 +123,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

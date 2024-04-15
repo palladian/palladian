@@ -36,7 +36,7 @@ public final class RedditStats extends AbstractRankingService implements Ranking
     public static final class RedditStatsMetaInfo implements RankingServiceMetaInfo<RedditStats> {
 
         @Override
-        public List<RankingType> getRankingTypes() {
+        public List<RankingType<?>> getRankingTypes() {
             return RANKING_TYPES;
         }
 
@@ -71,10 +71,10 @@ public final class RedditStats extends AbstractRankingService implements Ranking
     private static final String SERVICE_ID = "reddit";
 
     /** The ranking value types of this service **/
-    public static final RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes", "The number of up-votes minus down-votes for this url on reddit.com.");
-    public static final RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments", "The number of comments users have left for this url on reddit.com.");
+    public static final RankingType<Integer> VOTES = new RankingType<>("reddit_votes", "Reddit.com votes", "The number of up-votes minus down-votes for this url on reddit.com.", Integer.class);
+    public static final RankingType<Integer> COMMENTS = new RankingType<>("reddit_comments", "Reddit.com comments", "The number of comments users have left for this url on reddit.com.", Integer.class);
     /** All available ranking types by {@link RedditStats}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
@@ -116,7 +116,7 @@ public final class RedditStats extends AbstractRankingService implements Ranking
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 }

@@ -25,7 +25,7 @@ public final class HackerNewsRankingService extends AbstractRankingService {
     public static final class HackerNewsMetaInfo implements RankingServiceMetaInfo<HackerNewsRankingService> {
 
         @Override
-        public List<RankingType> getRankingTypes() {
+        public List<RankingType<?>> getRankingTypes() {
             return RANKING_TYPES;
         }
 
@@ -53,12 +53,12 @@ public final class HackerNewsRankingService extends AbstractRankingService {
 
     private static final String SERVICE_ID = "hackernews";
 
-    public static final RankingType POINTS = new RankingType("points", "Hacker News Points", "The summed points from the first ten hits for the URL on Hacker News.");
-    public static final RankingType COMMENTS = new RankingType("comments", "Hacker News Comments",
-            "The summed number of comments from the first ten hits for the URL on Hacker News.");
-    public static final RankingType HITS = new RankingType("hits", "Hacker News Hits", "The number of hits for the URL on Hacker News.");
+    public static final RankingType<Long> POINTS = new RankingType<>("points", "Hacker News Points", "The summed points from the first ten hits for the URL on Hacker News.", Long.class);
+    public static final RankingType<Long> COMMENTS = new RankingType<>("comments", "Hacker News Comments",
+            "The summed number of comments from the first ten hits for the URL on Hacker News.", Long.class);
+    public static final RankingType<Long> HITS = new RankingType<>("hits", "Hacker News Hits", "The number of hits for the URL on Hacker News.", Long.class);
 
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POINTS, COMMENTS, HITS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(POINTS, COMMENTS, HITS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
@@ -98,7 +98,7 @@ public final class HackerNewsRankingService extends AbstractRankingService {
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

@@ -18,7 +18,7 @@ public class Ranking {
 
         private final RankingService service;
         private final String url;
-        private final Map<RankingType, Number> values;
+        private final Map<RankingType<?>, Number> values;
         private Date retrieved = new Date();
 
         public Builder(RankingService service, String url) {
@@ -27,16 +27,13 @@ public class Ranking {
             this.values = new HashMap<>();
         }
 
-        public Builder add(RankingType type, Number value) {
+        public <T extends Number> Builder add(RankingType<T> type, T value) {
             this.values.put(type, value);
             return this;
         }
 
         public Builder addAll(Ranking ranking) {
-            Set<Entry<RankingType, Number>> entries = ranking.getValues().entrySet();
-            for (Entry<RankingType, Number> entry : entries) {
-                add(entry.getKey(), entry.getValue());
-            }
+            values.putAll(ranking.getValues());
             return this;
         }
 
@@ -61,7 +58,7 @@ public class Ranking {
     private final RankingService service;
 
     /** The ranking values */
-    private final Map<RankingType, Number> values;
+    private final Map<RankingType<?>, Number> values;
 
     /** The URL these ranking values are for */
     private final String url;
@@ -72,7 +69,7 @@ public class Ranking {
     /** Constructor for {@link Builder}. */
     private Ranking(Builder builder) {
         this.service = builder.service;
-        this.values = new HashMap<RankingType, Number>(builder.values);
+        this.values = new HashMap<RankingType<?>, Number>(builder.values);
         this.url = builder.url;
         this.retrieved = builder.retrieved;
     }
@@ -88,7 +85,7 @@ public class Ranking {
      *
      * @return pairs of ranking type and ranking value
      */
-    public Map<RankingType, Number> getValues() {
+    public Map<RankingType<?>, Number> getValues() {
         return Collections.unmodifiableMap(values);
     }
 
@@ -106,8 +103,8 @@ public class Ranking {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Ranking for ").append(getUrl());
         stringBuilder.append(" from ").append(getService().getServiceId()).append(":");
-        for (Entry<RankingType, ? extends Number> entry : getValues().entrySet()) {
-            RankingType rankingType = entry.getKey();
+        for (Entry<RankingType<?>, ? extends Number> entry : getValues().entrySet()) {
+            RankingType<?> rankingType = entry.getKey();
             Number rankingValue = entry.getValue();
             stringBuilder.append(" ").append(rankingType.getId()).append("=").append(rankingValue);
         }

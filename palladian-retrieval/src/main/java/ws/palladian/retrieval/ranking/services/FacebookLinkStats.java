@@ -41,17 +41,17 @@ public final class FacebookLinkStats extends AbstractRankingService {
     public static final String SERVICE_ID = "facebook";
 
     /** The ranking value types of this service **/
-    public static final RankingType LIKES = new RankingType("facebook_likes", "Facebook Likes",
-            "The number of times Facebook users have \"Liked\" the page, or liked any comments or re-shares of this page.");
+    public static final RankingType<Integer> LIKES = new RankingType<>("facebook_likes", "Facebook Likes",
+            "The number of times Facebook users have \"Liked\" the page, or liked any comments or re-shares of this page.", Integer.class);
 
-    public static final RankingType SHARES = new RankingType("facebook_shares", "Facebook Shares", "The number of times users have shared the page on Facebook.");
+    public static final RankingType<Integer> SHARES = new RankingType<>("facebook_shares", "Facebook Shares", "The number of times users have shared the page on Facebook.", Integer.class);
 
-    public static final RankingType COMMENTS = new RankingType("facebook_comments", "Facebook Comments", "The number of comments users have made on the shared story.");
+    public static final RankingType<Integer> COMMENTS = new RankingType<>("facebook_comments", "Facebook Comments", "The number of comments users have made on the shared story.", Integer.class);
 
-    public static final RankingType ALL = new RankingType("facebook_all", "Facebook Likes+Shares+Comments", "The sum of likes, shares and comments on Facebook.");
+    public static final RankingType<Integer> ALL = new RankingType<>("facebook_all", "Facebook Likes+Shares+Comments", "The sum of likes, shares and comments on Facebook.", Integer.class);
 
     /** All available ranking types by {@link FacebookLinkStats}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS, ALL);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(LIKES, SHARES, COMMENTS, ALL);
 
     /**
      * Facebook allows 600 calls per 600 seconds; see:
@@ -178,7 +178,7 @@ public final class FacebookLinkStats extends AbstractRankingService {
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

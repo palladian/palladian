@@ -29,7 +29,7 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
     public static final class PinterestPinsMetaInfo implements RankingServiceMetaInfo<PinterestPins> {
 
         @Override
-        public List<RankingType> getRankingTypes() {
+        public List<RankingType<?>> getRankingTypes() {
             return RANKING_TYPES;
         }
 
@@ -59,10 +59,10 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
     private static final String SERVICE_ID = "pinterest";
 
     /** The ranking value types of this service **/
-    public static final RankingType PINS = new RankingType("pinterestpins", "Pinterest Pins", "The Number of Pins on Pinterest");
+    public static final RankingType<Long> PINS = new RankingType<>("pinterestpins", "Pinterest Pins", "The Number of Pins on Pinterest", Long.class);
 
     /** All available ranking types by {@link PinterestPins}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(PINS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(PINS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
@@ -95,7 +95,7 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 
