@@ -100,6 +100,7 @@ public class Ranking {
         return retrieved;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
