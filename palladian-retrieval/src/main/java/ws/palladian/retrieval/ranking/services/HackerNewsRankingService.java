@@ -79,8 +79,8 @@ public final class HackerNewsRankingService extends AbstractRankingService {
             long summedComments = 0;
             for (int i = 0; i < jsonHits.size(); i++) {
                 JsonObject jsonHit = jsonHits.getJsonObject(i);
-                summedPoints += jsonHit.getLong("points");
-                summedComments = jsonHit.getLong("num_comments");
+                summedPoints += jsonHit.tryGetLong("points", 0l);
+                summedComments = jsonHit.tryGetLong("num_comments", 0l);
             }
             Ranking.Builder rankingBuilder = new Ranking.Builder(this, url);
             rankingBuilder.add(POINTS, summedPoints);
@@ -106,7 +106,8 @@ public final class HackerNewsRankingService extends AbstractRankingService {
         // Ranking for http://apple.com from hackernews: comments=151 points=10618 hits=4298
         // Ranking for https://apple.com from hackernews: comments=114 points=5581 hits=4172
         // Ranking for apple.com from hackernews: comments=492 points=11923 hits=4304
-        Ranking result = new HackerNewsRankingService().getRanking("apple.com");
+        // Ranking result = new HackerNewsRankingService().getRanking("apple.com");
+        Ranking result = new HackerNewsRankingService().getRanking("https://news.ycombinator.com/");
         System.out.println(result);
     }
 
