@@ -24,4 +24,9 @@ public class Range<V> {
     public void setMax(V max) {
         this.max = max;
     }
+
+    @Override
+    public String toString() {
+        return "Range{" + "min=" + min + ", max=" + max + '}';
+    }
 }
