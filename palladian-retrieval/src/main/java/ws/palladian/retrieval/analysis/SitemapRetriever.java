@@ -376,7 +376,7 @@ public class SitemapRetriever {
         return Arrays.stream(robotsTxt.split("\n")) //
                 .filter(line -> line.startsWith(ROBOTS_TXT_SITEMAP_PREFIX)) //
                 .map(line -> line.replace(ROBOTS_TXT_SITEMAP_PREFIX, "").trim()) //
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {
