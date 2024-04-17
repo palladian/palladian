@@ -21,6 +21,8 @@ import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,7 +99,12 @@ public class SitemapRetriever {
 
         // is the sitemap gzipped?
         if (FileHelper.getFileType(sitemapUrl).equalsIgnoreCase("gz")) {
-            String tempPath = "data/temp/sitemapIndex-" + System.currentTimeMillis() + "-" + ((int) (Math.random() * 10000)) + ".xml";
+            String tempPath;
+            try {
+                tempPath = Files.createTempFile("sitemap-", ".xml").toString();
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not create temporary file", e);
+            }
             documentRetriever.getHttpRetriever().downloadAndSave(sitemapUrl, tempPath + ".gzipped",
                     Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
             FileHelper.ungzipFile(tempPath + ".gzipped", tempPath);
