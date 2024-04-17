@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
@@ -38,6 +39,7 @@ public class SitemapRetriever {
     private final static Pattern PRIORITY_PATTERN = Pattern.compile("(?<=>)[0-9.]+?(?=</priority)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private final static Pattern LAST_MOD_PATTERN = Pattern.compile("(?<=>)[^>]+?(?=</lastmod)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     public final static Pattern ALL = Pattern.compile(".");
+    private static final String ROBOTS_TXT_SITEMAP_PREFIX = "Sitemap:";
 
     public SitemapRetriever() {
         HttpRetriever httpRetriever = new HttpRetrieverFactory(true).create();
@@ -376,4 +378,20 @@ public class SitemapRetriever {
     public void setParseXml(boolean parseXml) {
         this.parseXml = parseXml;
     }
+
+    /**
+     * Try to find sitemaps via robots.txt in a given a URL.
+     * 
+     * @param url The URL.
+     * @return The discovered sitemaps, or an empty list.
+     */
+    public List<String> findSitemaps(String url) {
+        var domain = UrlHelper.getDomain(url, true);
+        var robotsTxt = documentRetriever.getText(domain + "/robots.txt");
+        return Arrays.stream(robotsTxt.split("\n")) //
+                .filter(line -> line.startsWith(ROBOTS_TXT_SITEMAP_PREFIX)) //
+                .map(line -> line.replace(ROBOTS_TXT_SITEMAP_PREFIX, "").trim()) //
+                .toList();
+    }
+
 }
