@@ -2,6 +2,8 @@ package ws.palladian.retrieval.analysis;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.UrlHelper;
@@ -81,14 +83,14 @@ public class SitemapRetriever {
     }
 
     public Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
-        return getSitemap(sitemapUrl, urlToPriorityMap, goalNodePattern, include, new ProgressMonitor(0.1));
+        return getSitemap(sitemapUrl, urlToPriorityMap, goalNodePattern, include, new ProgressMonitor(0.1), new HashSet<String>());
     }
 
     public Sitemap getSitemap(String sitemapUrl, Pattern goalNodePattern, boolean include, ProgressReporter progress) {
-        return getSitemap(sitemapUrl, new HashMap<>(), goalNodePattern, include, progress);
+        return getSitemap(sitemapUrl, new HashMap<>(), goalNodePattern, include, progress, new HashSet<String>());
     }
 
-    private Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, ProgressReporter progress) {
+    private Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, ProgressReporter progress, Set<String> duplicateCheck) {
         Sitemap sitemap = new Sitemap();
 
         String sitemapContent;
@@ -143,38 +145,18 @@ public class SitemapRetriever {
                     // clean url
                     sitemapLinkUrl = normalizeUrl(sitemapLinkUrl);
 
-                    // is it gzipped?
-                    boolean gzipped = FileHelper.getFileType(sitemapLinkUrl).equalsIgnoreCase("gz");
-
-                    // download
-                    String downloadPath = "data/temp/sitemap-" + System.currentTimeMillis() + "-" + ((int) (Math.random() * 10000)) + ".xml.gzipped";
-                    String unzippedPath = downloadPath.replace(".gzipped", "");
-                    documentRetriever.getHttpRetriever().downloadAndSave(sitemapLinkUrl, downloadPath,
-                            Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>()), false);
-
-                    // unzip
-                    if (gzipped) {
-                        FileHelper.ungzipFile(downloadPath, unzippedPath);
-                    } else {
-                        FileHelper.copyFile(downloadPath, unzippedPath);
+                    if (!duplicateCheck.contains(sitemapLinkUrl)) {
+                        var currentSitemap = getSitemap(//
+                                sitemapLinkUrl, //
+                                urlToPriorityMap, //
+                                goalNodePattern, //
+                                include, //
+                                NoProgress.INSTANCE, // cannot really determine the progress during recursion
+                                duplicateCheck // prevent infinite loops during recursion
+                        );
+                        sitemap.addUrls(currentSitemap.getUrlSet());
+                        duplicateCheck.add(sitemapLinkUrl);
                     }
-
-                    // read
-                    String sitemapText = FileHelper.tryReadFileToString(unzippedPath);
-                    if (sitemapText == null) {
-                        continue;
-                    }
-                    Sitemap sitemap2;
-                    if (parseXml) {
-                        sitemap2 = getUrlsFromSitemapParsed(sitemapText, goalNodePattern, include);
-                    } else {
-                        sitemap2 = getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include);
-                    }
-                    sitemap.addUrls(sitemap2.getUrlSet());
-
-                    // clean up files
-                    FileHelper.delete(downloadPath);
-                    FileHelper.delete(unzippedPath);
 
                     progress.increment();
                 }
@@ -284,10 +266,6 @@ public class SitemapRetriever {
         return new Sitemap(new LinkedHashSet<>(entries));
     }
 
-    private Sitemap getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include) {
-        return getUrlsFromSitemap(sitemapText, urlToPriorityMap, goalNodePattern, include, true);
-    }
-
     private Sitemap getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, boolean needsCleaning) {
         if (needsCleaning) {
             sitemapText = cleanUpSitemap(sitemapText);
@@ -392,6 +370,14 @@ public class SitemapRetriever {
                 .filter(line -> line.startsWith(ROBOTS_TXT_SITEMAP_PREFIX)) //
                 .map(line -> line.replace(ROBOTS_TXT_SITEMAP_PREFIX, "").trim()) //
                 .toList();
+    }
+
+    public static void main(String[] args) {
+        var url = "https://www.apple.com/shop/sitemap.xml";
+        var sitemap = new SitemapRetriever().getSitemap(url, ALL, true, new ProgressMonitor());
+        System.out.println(sitemap.getUrlSet().size());
+        // old version - 499 results (no HTML pages, just further sitemap XML files)
+        // new version - 259222
     }
 
 }
