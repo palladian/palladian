@@ -12,6 +12,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -20,8 +21,10 @@ import ws.palladian.retrieval.search.SearcherException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -35,6 +38,34 @@ import java.util.List;
  * api if it exists?</a>
  */
 public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
+
+    public static final class WikipediaSearcherMetaInfo implements SearcherMetaInfo<WikipediaSearcher, WebContent> {
+        @Override
+        public String getSearcherName() {
+            return NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "wikipedia";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public WikipediaSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new WikipediaSearcher();
+        }
+    }
+
     /**
      * The name of this searcher.
      */

@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+
 /**
  * <p>
  * Interface for ranking service implementations.
@@ -12,71 +14,6 @@ import java.util.Map;
  * @author Julien Schmehl
  */
 public interface RankingService {
-
-    /** @since 3.0.0 */
-    public interface ConfigurationOption<T> {
-        /** @return Type of the config option (currently only used: String). */
-        Class<T> getType();
-
-        /**
-         * @return A human-readable name of the configuration option (e.g. 'API Key')
-         *         which can be presented in the UI.
-         */
-        String getName();
-
-        /** @return Unique identifier of the config option (e.g. 'apikey') */
-        String getKey();
-
-        T get(Map<ConfigurationOption<?>, ?> config);
-    }
-
-    public static abstract class BaseConfigurationOption<T> implements ConfigurationOption<T> {
-        private final String name;
-        private final String key;
-        private final Class<T> type;
-
-        protected BaseConfigurationOption(Class<T> type, String name, String key) {
-            this.type = type;
-            this.name = name;
-            this.key = key;
-        }
-
-        @Override
-        public final Class<T> getType() {
-            return type;
-        }
-
-        @Override
-        public final String getName() {
-            return name;
-        }
-
-        @Override
-        public final String getKey() {
-            return key;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public final T get(Map<ConfigurationOption<?>, ?> config) {
-            return (T) config.get(this);
-        }
-    }
-
-    /** @since 3.0.0 */
-    public static final class StringConfigurationOption extends BaseConfigurationOption<String> {
-        public StringConfigurationOption(String name, String key) {
-            super(String.class, name, key);
-        }
-    }
-
-    /** @since 3.0.0 */
-    public static final class StringListConfigurationOption extends BaseConfigurationOption<List<String>> {
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        public StringListConfigurationOption(String name, String key) {
-            super((Class<List<String>>) ((Class)List.class), name, key);
-        }
-    }
 
     /**
      * Meta information and factory for a ranking service. It describes the ranking

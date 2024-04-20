@@ -15,6 +15,8 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebImage;
@@ -40,6 +42,35 @@ import java.util.regex.Pattern;
  * @see <a href="https://developers.google.com/youtube/v3/docs/videos">Videos resource</a>
  */
 public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> {
+    public static final class YouTubeSearcherMetaInfo implements SearcherMetaInfo<YouTubeSearcher, WebVideo> {
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "youtube";
+        }
+
+        @Override
+        public Class<WebVideo> getResultType() {
+            return WebVideo.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(API_KEY_OPTION);
+        }
+
+        @Override
+        public YouTubeSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = API_KEY_OPTION.get(config);
+            return new YouTubeSearcher(apiKey);
+        }
+    }
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 
     /**

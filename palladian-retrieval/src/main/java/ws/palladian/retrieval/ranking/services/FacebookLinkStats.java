@@ -12,6 +12,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpMethod;
 import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.ranking.Ranking;

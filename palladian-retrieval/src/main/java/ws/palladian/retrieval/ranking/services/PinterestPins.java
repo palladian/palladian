@@ -5,6 +5,7 @@ import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingService;
 import ws.palladian.retrieval.ranking.RankingServiceException;

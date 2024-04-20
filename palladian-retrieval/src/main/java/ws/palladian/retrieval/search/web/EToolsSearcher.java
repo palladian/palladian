@@ -11,6 +11,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -19,7 +20,9 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -30,6 +33,38 @@ import java.util.List;
  * @author Philipp Katz
  */
 public final class EToolsSearcher extends AbstractSearcher<WebContent> {
+
+    public static final class EToolsSearcherMetaInfo implements SearcherMetaInfo<EToolsSearcher, WebContent> {
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "etools";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public EToolsSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new EToolsSearcher();
+        }
+
+        @Override
+        public boolean isDeprecated() {
+            return true;
+        }
+    }
 
     private static final String SEARCHER_NAME = "ETools";
 

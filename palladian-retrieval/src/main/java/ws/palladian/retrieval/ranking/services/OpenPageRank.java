@@ -11,6 +11,8 @@ import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpMethod;
 import ws.palladian.retrieval.HttpRequest2Builder;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;

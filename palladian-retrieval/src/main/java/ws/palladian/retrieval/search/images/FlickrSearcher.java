@@ -16,6 +16,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebImage;
@@ -38,6 +40,36 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="http://www.flickr.com/services/api/misc.api_keys.html">Obtaining an API key</a>
  */
 public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
+    public static final class FlickrSearcherMetaInfo implements SearcherMetaInfo<FlickrSearcher, WebImage> {
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "flickr";
+        }
+
+        @Override
+        public Class<WebImage> getResultType() {
+            return WebImage.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(API_KEY_OPTION);
+        }
+
+        @Override
+        public FlickrSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = API_KEY_OPTION.get(config);
+            return new FlickrSearcher(apiKey);
+        }
+    }
+
     /**
      * The logger for this class.
      */
