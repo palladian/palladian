@@ -18,6 +18,20 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
+ * Determine the number of links within the Wikipedia - i.e. how often has been
+ * linked from the Wikipedia to a given URL. This service will provide two
+ * values:
+ * 
+ * (1) wikipedia_exturl_domain_xx - Number of outgoing links for the URL's
+ * domain.
+ * 
+ * (2) wikipedia_exturl_page_xx - Number of outgoing links for the URL itself.
+ * 
+ * The value is always in the range from 0 ... 500 due the the API (i.e. even if
+ * there would be more than 500 outgoing links, the value will be capped at this
+ * value).
+ * 
+ * 
  * @author Philipp Katz
  * @since 3.0.0
  */
@@ -77,6 +91,8 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
             for (var lang : langs) {
                 var numMatchesPage = retrieveRanking(url, lang);
                 builder.add(rankingTypePage(lang), numMatchesPage);
+                // TODO - add caching for domain requests, as they will repeat when retrieving
+                // several URLs from a site
                 var numMatchesDomain = retrieveRanking(UrlHelper.getDomain(url), lang);
                 builder.add(rankingTypeDomain(lang), numMatchesDomain);
             }

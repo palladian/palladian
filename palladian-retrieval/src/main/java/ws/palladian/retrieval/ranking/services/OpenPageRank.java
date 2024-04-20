@@ -16,8 +16,16 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 /**
+ * Ranking based on the “Open Page Rank” API.
+ * 
+ * The data is based on the data from Common Crawl and Common Search. Currently
+ * only ranking values for domains are available.
+ * 
  * @author Philipp Katz
  * @since 3.0.0
+ * 
+ * @see https://www.domcop.com/openpagerank/
+ * @see https://www.domcop.com/openpagerank/frequently-asked-questions
  */
 public final class OpenPageRank extends AbstractRankingService {
 
