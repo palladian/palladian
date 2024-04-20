@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
+import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpException;
@@ -43,6 +46,7 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
 
         @Override
         public WikipediaExternalLinks create(Map<ConfigurationOption, ?> config) {
+            // TODO - make configurable
             return new WikipediaExternalLinks();
         }
 
@@ -52,11 +56,27 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
     private static final String SERVICE_ID = "wikipedia";
 
     /** The ranking value types of this service **/
-    public static final RankingType<Integer> WIKIPEDIA_LINKS = new RankingType<>("wikipedia_exturl",
-            "Wikipedia External URLs", "The Number of External URLs on the English Wikipedia", Integer.class);
+    public static final RankingType<Integer> WIKIPEDIA_LINKS_PAGE = new RankingType<>("wikipedia_exturl_page",
+            "Wikipedia External page URLs", "The Number of External URLs on the English Wikipedia", Integer.class);
+    public static final RankingType<Integer> WIKIPEDIA_LINKS_DOMAIN = new RankingType<>("wikipedia_exturl_domain",
+            "Wikipedia External domain URLs", "The Number of External URLs to the domain on the English Wikipedia",
+            Integer.class);
 
     /** All available ranking types by {@link PinterestPins}. */
-    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(WIKIPEDIA_LINKS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(//
+            WIKIPEDIA_LINKS_PAGE, //
+            WIKIPEDIA_LINKS_DOMAIN //
+    );
+
+    private final Language lang;
+
+    public WikipediaExternalLinks() {
+        this(Language.ENGLISH);
+    }
+
+    public WikipediaExternalLinks(Language lang) {
+        this.lang = Objects.requireNonNull(lang);
+    }
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
@@ -64,20 +84,30 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
         // TODO - allow to query other media wiki platforms
         // TODO - support other languages
         try {
-            var urlWithoutProtocol = url.replaceAll("https?:\\/\\/", "");
-            var apiUrl = "https://en.wikipedia.org/w/api.php?action=query&list=exturlusage&euquery="
-                    + urlWithoutProtocol + "&eulimit=500&eunamespace=0&format=json";
-            var result = retriever.httpGet(apiUrl);
-            if (result.errorStatus()) {
-                throw new RankingServiceException("Encountered status " + result.getStatusCode());
-            }
-            var jsonResult = new JsonObject(result.getStringContent());
-            // we can query for max 500 results (see eulimit), thus this is in range 0 ... 500
-            var numMatches = jsonResult.queryJsonArray("query/exturlusage").size();
-            return new Ranking.Builder(this, url).add(WIKIPEDIA_LINKS, numMatches).create();
+            var builder = new Ranking.Builder(this, url);
+            var numMatchesPage = retrieveRanking(url);
+            builder.add(WIKIPEDIA_LINKS_PAGE, numMatchesPage);
+            var numMatchesDomain = retrieveRanking(UrlHelper.getDomain(url));
+            builder.add(WIKIPEDIA_LINKS_DOMAIN, numMatchesDomain);
+            return builder.create();
         } catch (HttpException | JsonException e) {
             throw new RankingServiceException(e);
         }
+    }
+
+    private int retrieveRanking(String url) throws HttpException, RankingServiceException, JsonException {
+        var urlWithoutProtocol = url.replaceAll("https?:\\/\\/", "");
+        var apiUrl = "https://" + lang.getIso6391() + ".wikipedia.org/w/api.php?action=query&list=exturlusage&euquery="
+                + urlWithoutProtocol + "&eulimit=500&eunamespace=0&format=json";
+        var result = retriever.httpGet(apiUrl);
+        if (result.errorStatus()) {
+            throw new RankingServiceException("Encountered status " + result.getStatusCode());
+        }
+        var jsonResult = new JsonObject(result.getStringContent());
+        // we can query for max 500 results (see eulimit),
+        // thus this is in range 0 ... 500
+        var numMatches = jsonResult.queryJsonArray("query/exturlusage").size();
+        return numMatches;
     }
 
     @Override
@@ -91,9 +121,15 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
     }
 
     public static void main(String[] args) throws RankingServiceException {
-        var ranking = new WikipediaExternalLinks().getRanking(Arrays.asList("https://www.sueddeutsche.de/",
-                "http://palladian.ws", "https://lineupr.com", "https://nodepit.com"));
-        CollectionHelper.print(ranking);
+        var ranking = new WikipediaExternalLinks().getRanking(Arrays.asList(
+                "https://www.sueddeutsche.de/wirtschaft/entwurf-fuer-ceta-verhandlungen-ueber-freihandelsabkommen-mit-kanada-abgeschlossen-1.2078844", //
+                "https://www.sueddeutsche.de/", //
+                "http://palladian.ws", //
+                "https://lineupr.com", //
+                "https://lineupr.com/en/workflow", //
+                "https://nodepit.com" //
+        ));
+        CollectionHelper.print(ranking.values());
     }
 
 }
