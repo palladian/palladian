@@ -89,6 +89,23 @@ public class Ranking {
         return Collections.unmodifiableMap(values);
     }
 
+    /**
+     * Get a ranking by its ID.
+     * 
+     * @param id
+     * @return The value or null.
+     * @since 3.0.0
+     */
+    public Number getRankingById(String id) {
+        return getValues() //
+                .entrySet() //
+                .stream() //
+                .filter(entry -> entry.getKey().getId().equals(id)) //
+                .map(Entry::getValue) //
+                .findFirst() //
+                .orElseThrow();
+    }
+
     public String getUrl() {
         return url;
     }

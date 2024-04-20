@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
@@ -128,19 +127,6 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
         return new RankingType<>("wikipedia_exturl_page_" + lang.getIso6391(),
                 "Wikipedia External page URLs for " + lang.getName(),
                 "The Number of External URLs on the " + lang.getName() + " Wikipedia", Integer.class);
-    }
-
-    public static void main(String[] args) throws RankingServiceException {
-        var langs = Arrays.asList(Language.ENGLISH, Language.GERMAN);
-        var ranking = new WikipediaExternalLinks(langs).getRanking(Arrays.asList(
-                "https://www.sueddeutsche.de/wirtschaft/entwurf-fuer-ceta-verhandlungen-ueber-freihandelsabkommen-mit-kanada-abgeschlossen-1.2078844", //
-                "https://www.sueddeutsche.de/", //
-                "http://palladian.ws", //
-                "https://lineupr.com", //
-                "https://lineupr.com/en/workflow", //
-                "https://nodepit.com" //
-        ));
-        CollectionHelper.print(ranking.values());
     }
 
 }
