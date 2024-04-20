@@ -13,6 +13,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -21,8 +23,10 @@ import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Searcher for the <a href="http://stackexchange.com">Stack Exchange network</a>.
@@ -31,6 +35,37 @@ import java.util.List;
  * @see <a href="http://api.stackexchange.com">Stack Exchange API</a>
  */
 public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebContent> {
+
+    public static final class StackExchangeSearcherMetaInfo
+            implements SearcherMetaInfo<StackExchangeSearcher, WebContent> {
+        private static final StringConfigurationOption SITE_OPTION = new StringConfigurationOption("Site", "site", "stackoverflow");
+
+        @Override
+        public String getSearcherName() {
+            return NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "stack_exchange";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(SITE_OPTION);
+        }
+
+        @Override
+        public StackExchangeSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            var site = SITE_OPTION.get(config);
+            return new StackExchangeSearcher(site);
+        }
+    }
 
     // TODO provide authentication mechanisms
 

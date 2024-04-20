@@ -10,6 +10,7 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -32,6 +34,35 @@ import java.util.Optional;
  * @since 18.05.2019
  */
 public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> {
+
+    public static final class QwantSearcherMetaInfo implements SearcherMetaInfo<QwantSearcher, WebContent> {
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "qwant";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public QwantSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new QwantSearcher();
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(QwantSearcher.class);
 
     /**

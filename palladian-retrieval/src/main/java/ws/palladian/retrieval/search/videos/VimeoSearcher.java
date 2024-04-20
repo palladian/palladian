@@ -9,6 +9,8 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.*;
@@ -17,8 +19,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -30,6 +34,46 @@ import java.util.TimeZone;
  * @see <a href="http://developer.vimeo.com/apis/advanced/methods/vimeo.videos.search">API documentation</a>
  */
 public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
+    public static final class VimeoSearcherMetaInfo implements SearcherMetaInfo<VimeoSearcher, WebVideo> {
+        private static final StringConfigurationOption CONSUMER_KEY_OPTION = new StringConfigurationOption(
+                "Consumer Key", "consumerKey");
+        private static final StringConfigurationOption CONSUMER_SECRET_OPTION = new StringConfigurationOption(
+                "Consumer Secret", "consumerSecret");
+        private static final StringConfigurationOption ACCESS_TOKEN_OPTION = new StringConfigurationOption(
+                "Access Token", "accessToken");
+        private static final StringConfigurationOption ACCESS_TOKEN_SECRET_OPTION = new StringConfigurationOption(
+                "Access Token Secret", "accessTokenSecet");
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "vimeo";
+        }
+
+        @Override
+        public Class<WebVideo> getResultType() {
+            return WebVideo.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(CONSUMER_KEY_OPTION, CONSUMER_SECRET_OPTION, ACCESS_TOKEN_OPTION,
+                    ACCESS_TOKEN_SECRET_OPTION);
+        }
+
+        @Override
+        public VimeoSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            var consumerKey = CONSUMER_KEY_OPTION.get(config);
+            var consumerSecret = CONSUMER_SECRET_OPTION.get(config);
+            var accessToken = ACCESS_TOKEN_OPTION.get(config);
+            var accessTokenSecret = ACCESS_TOKEN_SECRET_OPTION.get(config);
+            return new VimeoSearcher(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+        }
+    }
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(VimeoSearcher.class);

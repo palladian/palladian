@@ -13,6 +13,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringListConfigurationOption;
 import ws.palladian.retrieval.ranking.Ranking;
 import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
@@ -39,7 +41,7 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
 
     public static final class WikipediaExternalLinksMetaInfo implements RankingServiceMetaInfo<WikipediaExternalLinks> {
         private static final StringListConfigurationOption LANGUAGE_OPTION = new StringListConfigurationOption(
-                "Language Codes", "language_codes");
+                "Language Codes", "language_codes", Arrays.asList(Language.ENGLISH.getIso6391()));
 
         @Override
         public String getServiceName() {

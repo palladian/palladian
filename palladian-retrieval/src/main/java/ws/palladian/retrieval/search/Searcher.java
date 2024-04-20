@@ -1,9 +1,11 @@
 package ws.palladian.retrieval.search;
 
 import ws.palladian.helper.constants.Language;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.WebContent;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -18,6 +20,44 @@ import java.util.List;
  * @author Philipp Katz
  */
 public interface Searcher<R extends WebContent> {
+
+    /**
+     * Meta information and factory for a searcher service. It describes the searcher
+     * result types, configuration options, and allows to instantiate the service.
+     *
+     * @since 3.0.0
+     */
+    public interface SearcherMetaInfo<S extends Searcher<C>, C extends WebContent> {
+        /** @return The human-readable name of the ranking service. */
+        String getSearcherName();
+
+        /** @return The ID of this ranking service. */
+        String getSearcherId();
+
+        /** @return The type of result which this searcher produces. */
+        Class<C> getResultType();
+
+        /** @return Config options which are required for this ranking service. */
+        List<ConfigurationOption<?>> getConfigurationOptions();
+
+        /**
+         * Instantiate a new searcher.
+         *
+         * @param config The configuration (see {@link #getConfigurationOptions()})
+         * @return The ranking service instance.
+         */
+        S create(Map<ConfigurationOption<?>, ?> config);
+
+        /**
+         * @return <code>true</code> in case the use of this {@link Searcher} is
+         *         deprecated, e.g. the API is not supported any more or it is based on
+         *         an unofficial API.
+         */
+        default boolean isDeprecated() {
+            return false;
+        }
+    }
+
     /**
      * The default language to use for search.
      */
@@ -109,12 +149,16 @@ public interface Searcher<R extends WebContent> {
 
     /**
      * @return A human-readable description for this {@link Searcher}.
+     * @deprecated Get this from {@link SearcherMetaInfo}
      */
+    @Deprecated
     String getName();
 
     /**
      * @return <code>true</code> in case the use of this {@link Searcher} is deprecated, e.g. the API is not supported
      * any more or it is based on an unofficial API.
+     * @deprecated Get this from {@link SearcherMetaInfo}
      */
+    @Deprecated
     boolean isDeprecated();
 }

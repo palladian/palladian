@@ -7,6 +7,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpMethod;
 import ws.palladian.retrieval.HttpRequest2Builder;
 import ws.palladian.retrieval.HttpResult;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.ranking.Ranking;
