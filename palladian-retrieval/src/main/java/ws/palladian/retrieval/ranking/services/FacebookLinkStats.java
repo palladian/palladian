@@ -38,12 +38,7 @@ public final class FacebookLinkStats extends AbstractRankingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FacebookLinkStats.class);
 
     public static final class FacebookLinkStatsMetaInfo implements RankingServiceMetaInfo<FacebookLinkStats> {
-        private static final DefaultConfigurationOption ACCESS_TOKEN_OPTION = new DefaultConfigurationOption(String.class, "Access Token", "access_token");
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
+        private static final StringConfigurationOption ACCESS_TOKEN_OPTION = new StringConfigurationOption("Access Token", "access_token");
 
         @Override
         public String getServiceName() {
@@ -56,13 +51,13 @@ public final class FacebookLinkStats extends AbstractRankingService {
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
             return Arrays.asList(ACCESS_TOKEN_OPTION);
         }
 
         @Override
-        public FacebookLinkStats create(Map<ConfigurationOption, ?> config) {
-            var apiKey = (String) config.get(ACCESS_TOKEN_OPTION);
+        public FacebookLinkStats create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = ACCESS_TOKEN_OPTION.get(config);
             return new FacebookLinkStats(apiKey);
         }
     }

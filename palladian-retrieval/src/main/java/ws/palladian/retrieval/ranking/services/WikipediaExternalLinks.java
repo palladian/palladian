@@ -1,10 +1,12 @@
 package ws.palladian.retrieval.ranking.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -23,11 +25,8 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class WikipediaExternalLinks extends AbstractRankingService {
 
     public static final class WikipediaExternalLinksMetaInfo implements RankingServiceMetaInfo<WikipediaExternalLinks> {
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
+        private static final StringListConfigurationOption LANGUAGE_OPTION = new StringListConfigurationOption(
+                "Language Codes", "language_codes");
 
         @Override
         public String getServiceName() {
@@ -40,14 +39,19 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
-            return Collections.emptyList();
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(LANGUAGE_OPTION);
         }
 
         @Override
-        public WikipediaExternalLinks create(Map<ConfigurationOption, ?> config) {
-            // TODO - make configurable
-            return new WikipediaExternalLinks();
+        public WikipediaExternalLinks create(Map<ConfigurationOption<?>, ?> config) {
+            var languages = LANGUAGE_OPTION.get(config);
+            var langObjs = languages //
+                    .stream() //
+                    .map(Language::getByIso6391) //
+                    .filter(v -> v != null) // remove languages which do not exist
+                    .collect(Collectors.toList());
+            return new WikipediaExternalLinks(langObjs);
         }
 
     }
@@ -55,47 +59,36 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
     /** The id of this service. */
     private static final String SERVICE_ID = "wikipedia";
 
-    /** The ranking value types of this service **/
-    public static final RankingType<Integer> WIKIPEDIA_LINKS_PAGE = new RankingType<>("wikipedia_exturl_page",
-            "Wikipedia External page URLs", "The Number of External URLs on the English Wikipedia", Integer.class);
-    public static final RankingType<Integer> WIKIPEDIA_LINKS_DOMAIN = new RankingType<>("wikipedia_exturl_domain",
-            "Wikipedia External domain URLs", "The Number of External URLs to the domain on the English Wikipedia",
-            Integer.class);
-
-    /** All available ranking types by {@link PinterestPins}. */
-    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(//
-            WIKIPEDIA_LINKS_PAGE, //
-            WIKIPEDIA_LINKS_DOMAIN //
-    );
-
-    private final Language lang;
+    private final List<Language> langs;
 
     public WikipediaExternalLinks() {
-        this(Language.ENGLISH);
+        this(Collections.singletonList(Language.ENGLISH));
     }
 
-    public WikipediaExternalLinks(Language lang) {
-        this.lang = Objects.requireNonNull(lang);
+    public WikipediaExternalLinks(List<Language> langs) {
+        this.langs = Objects.requireNonNull(langs);
     }
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
         // https://en.wikipedia.org/wiki/Help:Linksearch#:~:text=Special%3ALinksearch%20is%20a%20special,the%20link%20on%20that%20page.
         // TODO - allow to query other media wiki platforms
-        // TODO - support other languages
         try {
             var builder = new Ranking.Builder(this, url);
-            var numMatchesPage = retrieveRanking(url);
-            builder.add(WIKIPEDIA_LINKS_PAGE, numMatchesPage);
-            var numMatchesDomain = retrieveRanking(UrlHelper.getDomain(url));
-            builder.add(WIKIPEDIA_LINKS_DOMAIN, numMatchesDomain);
+            for (var lang : langs) {
+                var numMatchesPage = retrieveRanking(url, lang);
+                builder.add(rankingTypePage(lang), numMatchesPage);
+                var numMatchesDomain = retrieveRanking(UrlHelper.getDomain(url), lang);
+                builder.add(rankingTypeDomain(lang), numMatchesDomain);
+            }
             return builder.create();
         } catch (HttpException | JsonException e) {
             throw new RankingServiceException(e);
         }
     }
 
-    private int retrieveRanking(String url) throws HttpException, RankingServiceException, JsonException {
+    private int retrieveRanking(String url, Language lang)
+            throws HttpException, RankingServiceException, JsonException {
         var urlWithoutProtocol = url.replaceAll("https?:\\/\\/", "");
         var apiUrl = "https://" + lang.getIso6391() + ".wikipedia.org/w/api.php?action=query&list=exturlusage&euquery="
                 + urlWithoutProtocol + "&eulimit=500&eunamespace=0&format=json";
@@ -117,11 +110,29 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
 
     @Override
     public List<RankingType<?>> getRankingTypes() {
-        return RANKING_TYPES;
+        List<RankingType<?>> rankingTypes = new ArrayList<>();
+        for (var lang : langs) {
+            rankingTypes.add(rankingTypePage(lang));
+            rankingTypes.add(rankingTypeDomain(lang));
+        }
+        return rankingTypes;
+    }
+
+    private static RankingType<Integer> rankingTypeDomain(Language lang) {
+        return new RankingType<>("wikipedia_exturl_domain_" + lang.getIso6391(),
+                "Wikipedia External domain URLs " + lang.getName(),
+                "The Number of External URLs to the domain on the " + lang.getName() + " Wikipedia", Integer.class);
+    }
+
+    private static RankingType<Integer> rankingTypePage(Language lang) {
+        return new RankingType<>("wikipedia_exturl_page_" + lang.getIso6391(),
+                "Wikipedia External page URLs for " + lang.getName(),
+                "The Number of External URLs on the " + lang.getName() + " Wikipedia", Integer.class);
     }
 
     public static void main(String[] args) throws RankingServiceException {
-        var ranking = new WikipediaExternalLinks().getRanking(Arrays.asList(
+        var langs = Arrays.asList(Language.ENGLISH, Language.GERMAN);
+        var ranking = new WikipediaExternalLinks(langs).getRanking(Arrays.asList(
                 "https://www.sueddeutsche.de/wirtschaft/entwurf-fuer-ceta-verhandlungen-ueber-freihandelsabkommen-mit-kanada-abgeschlossen-1.2078844", //
                 "https://www.sueddeutsche.de/", //
                 "http://palladian.ws", //

@@ -22,12 +22,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 public final class OpenPageRank extends AbstractRankingService {
 
     public static final class OpenPageRankMetaInfo implements RankingServiceMetaInfo<OpenPageRank> {
-        private static final DefaultConfigurationOption API_KEY_OPTION = new DefaultConfigurationOption(String.class, "API Key", "apikey");
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
 
         @Override
         public String getServiceName() {
@@ -40,13 +35,13 @@ public final class OpenPageRank extends AbstractRankingService {
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
             return Arrays.asList(API_KEY_OPTION);
         }
 
         @Override
-        public OpenPageRank create(Map<ConfigurationOption, ?> config) {
-            var apiKey = (String) config.get(API_KEY_OPTION);
+        public OpenPageRank create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = API_KEY_OPTION.get(config);
             return new OpenPageRank(apiKey);
         }
     }

@@ -30,12 +30,6 @@ import java.util.concurrent.TimeUnit;
 public final class GoogleCachedPage extends AbstractRankingService implements RankingService {
 
     public static final class GoogleCachedPageMetaInfo implements RankingServiceMetaInfo<GoogleCachedPage> {
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
-
         @Override
         public String getServiceName() {
             return "Google Cached Page";
@@ -47,12 +41,12 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
             return Collections.emptyList();
         }
 
         @Override
-        public GoogleCachedPage create(Map<ConfigurationOption, ?> config) {
+        public GoogleCachedPage create(Map<ConfigurationOption<?>, ?> config) {
             return new GoogleCachedPage();
         }
 

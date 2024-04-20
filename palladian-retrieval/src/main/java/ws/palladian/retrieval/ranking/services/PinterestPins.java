@@ -27,12 +27,6 @@ import java.util.Map;
 public final class PinterestPins extends AbstractRankingService implements RankingService {
 
     public static final class PinterestPinsMetaInfo implements RankingServiceMetaInfo<PinterestPins> {
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
-
         @Override
         public String getServiceName() {
             return "Pinterest";
@@ -44,12 +38,12 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
             return Collections.emptyList();
         }
 
         @Override
-        public PinterestPins create(Map<ConfigurationOption, ?> config) {
+        public PinterestPins create(Map<ConfigurationOption<?>, ?> config) {
             return new PinterestPins();
         }
 

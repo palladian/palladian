@@ -14,9 +14,9 @@ import java.util.Map;
 public interface RankingService {
 
     /** @since 3.0.0 */
-    public interface ConfigurationOption {
+    public interface ConfigurationOption<T> {
         /** @return Type of the config option (currently only used: String). */
-        Class<?> getType();
+        Class<T> getType();
 
         /**
          * @return A human-readable name of the configuration option (e.g. 'API Key')
@@ -26,6 +26,56 @@ public interface RankingService {
 
         /** @return Unique identifier of the config option (e.g. 'apikey') */
         String getKey();
+
+        T get(Map<ConfigurationOption<?>, ?> config);
+    }
+
+    public static abstract class BaseConfigurationOption<T> implements ConfigurationOption<T> {
+        private final String name;
+        private final String key;
+        private final Class<T> type;
+
+        protected BaseConfigurationOption(Class<T> type, String name, String key) {
+            this.type = type;
+            this.name = name;
+            this.key = key;
+        }
+
+        @Override
+        public final Class<T> getType() {
+            return type;
+        }
+
+        @Override
+        public final String getName() {
+            return name;
+        }
+
+        @Override
+        public final String getKey() {
+            return key;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public final T get(Map<ConfigurationOption<?>, ?> config) {
+            return (T) config.get(this);
+        }
+    }
+
+    /** @since 3.0.0 */
+    public static final class StringConfigurationOption extends BaseConfigurationOption<String> {
+        public StringConfigurationOption(String name, String key) {
+            super(String.class, name, key);
+        }
+    }
+
+    /** @since 3.0.0 */
+    public static final class StringListConfigurationOption extends BaseConfigurationOption<List<String>> {
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        public StringListConfigurationOption(String name, String key) {
+            super((Class<List<String>>) ((Class)List.class), name, key);
+        }
     }
 
     /**
@@ -35,9 +85,6 @@ public interface RankingService {
      * @since 3.0.0
      */
     public interface RankingServiceMetaInfo<R extends RankingService> {
-        /** @return All ranking types of this ranking service. */
-        List<RankingType<?>> getRankingTypes();
-
         /** @return The human-readable name of the ranking service. */
         String getServiceName();
 
@@ -45,7 +92,7 @@ public interface RankingService {
         String getServiceId();
 
         /** @return Config options which are required for this ranking service. */
-        List<ConfigurationOption> getConfigurationOptions();
+        List<ConfigurationOption<?>> getConfigurationOptions();
 
         /**
          * Instantiate a new ranking service.
@@ -53,7 +100,7 @@ public interface RankingService {
          * @param config The configuration (see {@link #getConfigurationOptions()})
          * @return The ranking service instance.
          */
-        R create(Map<ConfigurationOption, ?> config);
+        R create(Map<ConfigurationOption<?>, ?> config);
     }
 
     /**
@@ -97,9 +144,7 @@ public interface RankingService {
      * </p>
      *
      * @return A list of ranking types
-     * @deprecated Get via {@link RankingServiceMetaInfo}
      */
-    @Deprecated
     List<RankingType<?>> getRankingTypes();
 
     /**
@@ -108,9 +153,7 @@ public interface RankingService {
      * </p>
      *
      * @return The ranking type for the given id, or <code>null</code> if no such {@link RankingType}
-     * @deprecated Get via {@link RankingServiceMetaInfo}
      */
-    @Deprecated
     RankingType<?> getRankingType(String id);
 
 }

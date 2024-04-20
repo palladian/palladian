@@ -70,7 +70,6 @@ public final class CompositeRankingService extends AbstractRankingService implem
         return "compositeRankingService";
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public List<RankingType<?>> getRankingTypes() {
         List<RankingType<?>> rankingTypes = new ArrayList<>();

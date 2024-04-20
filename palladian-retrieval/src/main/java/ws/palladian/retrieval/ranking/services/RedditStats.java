@@ -34,12 +34,6 @@ import java.util.Map;
 public final class RedditStats extends AbstractRankingService implements RankingService {
 
     public static final class RedditStatsMetaInfo implements RankingServiceMetaInfo<RedditStats> {
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
-
         @Override
         public String getServiceName() {
             return "Reddit";
@@ -51,12 +45,12 @@ public final class RedditStats extends AbstractRankingService implements Ranking
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
             return Collections.emptyList();
         }
 
         @Override
-        public RedditStats create(Map<ConfigurationOption, ?> config) {
+        public RedditStats create(Map<ConfigurationOption<?>, ?> config) {
             return new RedditStats();
         }
 

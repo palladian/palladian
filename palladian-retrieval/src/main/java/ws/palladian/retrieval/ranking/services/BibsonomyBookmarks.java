@@ -37,13 +37,8 @@ import java.util.Map;
 public final class BibsonomyBookmarks extends AbstractRankingService implements RankingService {
 
     public static final class BibsonomyBookmarksMetaInfo implements RankingServiceMetaInfo<BibsonomyBookmarks> {
-        private static final DefaultConfigurationOption LOGIN_OPTION = new DefaultConfigurationOption(String.class, "Login", "login");
-        private static final DefaultConfigurationOption API_KEY_OPTION = new DefaultConfigurationOption(String.class, "API Key", "apikey");
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
+        private static final StringConfigurationOption LOGIN_OPTION = new StringConfigurationOption("Login", "login");
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
 
         @Override
         public String getServiceName() {
@@ -56,14 +51,14 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
             return Arrays.asList(LOGIN_OPTION, API_KEY_OPTION);
         }
 
         @Override
-        public BibsonomyBookmarks create(Map<ConfigurationOption, ?> config) {
-            var login = (String) config.get(LOGIN_OPTION);
-            var apiKey = (String) config.get(API_KEY_OPTION);
+        public BibsonomyBookmarks create(Map<ConfigurationOption<?>, ?> config) {
+            var login = LOGIN_OPTION.get(config);
+            var apiKey = API_KEY_OPTION.get(config);
             return new BibsonomyBookmarks(login, apiKey);
         }
     }

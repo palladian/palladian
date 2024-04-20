@@ -23,12 +23,6 @@ import java.util.Map;
 public final class HackerNewsRankingService extends AbstractRankingService {
 
     public static final class HackerNewsMetaInfo implements RankingServiceMetaInfo<HackerNewsRankingService> {
-
-        @Override
-        public List<RankingType<?>> getRankingTypes() {
-            return RANKING_TYPES;
-        }
-
         @Override
         public String getServiceName() {
             return "Hacker News";
@@ -40,12 +34,12 @@ public final class HackerNewsRankingService extends AbstractRankingService {
         }
 
         @Override
-        public List<ConfigurationOption> getConfigurationOptions() {
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
             return Collections.emptyList();
         }
 
         @Override
-        public HackerNewsRankingService create(Map<ConfigurationOption, ?> config) {
+        public HackerNewsRankingService create(Map<ConfigurationOption<?>, ?> config) {
             return new HackerNewsRankingService();
         }
 
