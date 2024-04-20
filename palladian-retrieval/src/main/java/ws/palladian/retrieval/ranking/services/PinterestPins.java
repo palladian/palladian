@@ -47,6 +47,15 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
             return new PinterestPins();
         }
 
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://developers.pinterest.com";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "The number of pins of a URL on Pinterest.";
+        }
     }
 
     /** The id of this service. */

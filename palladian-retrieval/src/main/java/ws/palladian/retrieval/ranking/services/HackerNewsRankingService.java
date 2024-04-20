@@ -43,6 +43,15 @@ public final class HackerNewsRankingService extends AbstractRankingService {
             return new HackerNewsRankingService();
         }
 
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://hn.algolia.com/api";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Get the summed points, the number of comments, and the number of hits for a URL on Hacker News.";
+        }
     }
 
     private static final String SERVICE_ID = "hackernews";

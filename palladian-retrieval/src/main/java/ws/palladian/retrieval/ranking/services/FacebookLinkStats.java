@@ -60,6 +60,16 @@ public final class FacebookLinkStats extends AbstractRankingService {
             var apiKey = ACCESS_TOKEN_OPTION.get(config);
             return new FacebookLinkStats(apiKey);
         }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://developers.facebook.com/docs/graph-api/";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Get the number of reactions, shares, and comments on Facebook.";
+        }
     }
 
     /** The id of this service. */

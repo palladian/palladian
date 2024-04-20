@@ -101,6 +101,21 @@ public interface RankingService {
          * @return The ranking service instance.
          */
         R create(Map<ConfigurationOption<?>, ?> config);
+
+        /**
+         * @return A URL which represents the given service, respectively API - ideally
+         *         it should link to a page with the API specification and / or a place
+         *         where the user can create an API key. If no such documentation
+         *         exists, return `null`.
+         */
+        String getServiceDocumentationUrl();
+        
+        /**
+         * @return A short and to the point, plain text description of this service. At
+         *         least one full grammatically correct English sentence ending with a
+         *         full stop. If no description is available, return `null`.
+         */
+        String getServiceDescription();
     }
 
     /**

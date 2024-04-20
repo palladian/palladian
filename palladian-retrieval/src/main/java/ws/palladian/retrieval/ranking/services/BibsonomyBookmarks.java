@@ -38,7 +38,8 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
 
     public static final class BibsonomyBookmarksMetaInfo implements RankingServiceMetaInfo<BibsonomyBookmarks> {
         private static final StringConfigurationOption LOGIN_OPTION = new StringConfigurationOption("Login", "login");
-        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key",
+                "apikey");
 
         @Override
         public String getServiceName() {
@@ -60,6 +61,18 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
             var login = LOGIN_OPTION.get(config);
             var apiKey = API_KEY_OPTION.get(config);
             return new BibsonomyBookmarks(login, apiKey);
+        }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://bitbucket.org/bibsonomy/bibsonomy/wiki/documentation/api/REST%20API";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Get the number of bookmarks of a given URL on BibSonomy. It returns the number for all bookmarks "
+                    + "containing the URL or a longer version, e.g. “www.google.com” will give number for all bookmarks "
+                    + "containing “www.google.com/…”.";
         }
     }
 

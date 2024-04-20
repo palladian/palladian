@@ -50,6 +50,15 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
             return new GoogleCachedPage();
         }
 
+        @Override
+        public String getServiceDocumentationUrl() {
+            return null;
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Find whether a certain URL has been cached by Google.";
+        }
     }
 
     /** The class logger. */

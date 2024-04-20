@@ -54,6 +54,15 @@ public final class RedditStats extends AbstractRankingService implements Ranking
             return new RedditStats();
         }
 
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://www.reddit.com/dev/api";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "The number of votes and comments on Reddit.";
+        }
     }
 
     /** The class logger. */

@@ -52,6 +52,17 @@ public final class OpenPageRank extends AbstractRankingService {
             var apiKey = API_KEY_OPTION.get(config);
             return new OpenPageRank(apiKey);
         }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://www.domcop.com/openpagerank/";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "The ranking based on the “Open Page Rank”. The data is based on the data from Common Crawl and "
+                    + "Common Search. Currently only ranking values for domains are available.";
+        }
     }
 
     private static final String SERVICE_ID = "openpagerank";

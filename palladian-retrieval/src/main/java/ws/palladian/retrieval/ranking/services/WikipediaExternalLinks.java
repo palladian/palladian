@@ -67,6 +67,19 @@ public final class WikipediaExternalLinks extends AbstractRankingService {
             return new WikipediaExternalLinks(langObjs);
         }
 
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://www.mediawiki.org/wiki/API:Exturlusage";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Determine the number of links within the Wikipedia – i.e. how often has been linked from the "
+                    + "Wikipedia to a given URL. This service will provide two values: (1) Number of outgoing links "
+                    + "for the URL’s domain. (2) Number of outgoing links for the URL itself. The value is always in "
+                    + "the range from 0 … 500 due the the API (i.e. even if there would be more than 500 outgoing "
+                    + "links, the value will be capped at this value).";
+        }
     }
 
     /** The id of this service. */

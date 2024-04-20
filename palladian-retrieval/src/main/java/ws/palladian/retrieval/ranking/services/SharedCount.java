@@ -52,6 +52,16 @@ public final class SharedCount extends AbstractRankingService {
             var apiKey = API_KEY_OPTION.get(config);
             return new SharedCount(apiKey);
         }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://www.sharedcount.com/api-docs/getting-started";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "ShareCount provides share counts, currently for the services Facebook and Pinterest.";
+        }
     }
 
     /** The id of this service. */
