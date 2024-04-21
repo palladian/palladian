@@ -14,9 +14,6 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.ranking.Ranking;
-import ws.palladian.retrieval.ranking.RankingServiceException;
-import ws.palladian.retrieval.ranking.services.SemRush;
 
 import java.io.*;
 import java.util.HashMap;
@@ -125,13 +122,13 @@ public class SitemapAnalyzer {
                 // indexed = -1;
                 // }
                 Number inExt = null;
-                try {
-                    SemRush semRush = new SemRush();
-                    Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
-                    inExt = ranking2.getValues().get(SemRush.BACKLINKS_PAGE);
-                } catch (RankingServiceException e) {
-                    LOGGER.error("Error retrieving ranking: " + e.getMessage(), e);
-                }
+//                try {
+//                    SemRush semRush = new SemRush();
+//                    Ranking ranking2 = semRush.getRanking(document.getDocumentURI());
+//                    inExt = ranking2.getValues().get(SemRush.BACKLINKS_PAGE);
+//                } catch (RankingServiceException e) {
+//                    LOGGER.error("Error retrieving ranking: " + e.getMessage(), e);
+//                }
 
                 map.put("in-ext", inExt);
                 map.put("out-int", outInt.size());

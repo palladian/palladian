@@ -18,6 +18,7 @@ import ws.palladian.retrieval.ranking.RankingType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -34,6 +35,46 @@ import java.util.List;
  * @see http://www.bibsonomy.org
  */
 public final class BibsonomyBookmarks extends AbstractRankingService implements RankingService {
+
+    public static final class BibsonomyBookmarksMetaInfo implements RankingServiceMetaInfo<BibsonomyBookmarks> {
+        private static final StringConfigurationOption LOGIN_OPTION = new StringConfigurationOption("Login", "login");
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key",
+                "apikey");
+
+        @Override
+        public String getServiceName() {
+            return "BibSonomy";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(LOGIN_OPTION, API_KEY_OPTION);
+        }
+
+        @Override
+        public BibsonomyBookmarks create(Map<ConfigurationOption<?>, ?> config) {
+            var login = LOGIN_OPTION.get(config);
+            var apiKey = API_KEY_OPTION.get(config);
+            return new BibsonomyBookmarks(login, apiKey);
+        }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://bitbucket.org/bibsonomy/bibsonomy/wiki/documentation/api/REST%20API";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Get the number of bookmarks of a given URL on BibSonomy. It returns the number for all bookmarks "
+                    + "containing the URL or a longer version, e.g. “www.google.com” will give number for all bookmarks "
+                    + "containing “www.google.com/…”.";
+        }
+    }
 
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(BibsonomyBookmarks.class);
@@ -52,10 +93,10 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     private static final String SERVICE_ID = "bibsonomy";
 
     /** The ranking value types of this service **/
-    public static final RankingType BOOKMARKS = new RankingType("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of bookmarks users have created for this url.");
+    public static final RankingType<Integer> BOOKMARKS = new RankingType<Integer>("bibsonomy_bookmarks", "Bibsonomy Bookmarks", "The number of bookmarks users have created for this url.", Integer.class);
 
     /** All available ranking tpyes by {@link BibsonomyBookmarks}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(BOOKMARKS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(BOOKMARKS);
 
     /**
      * <p>
@@ -124,7 +165,7 @@ public final class BibsonomyBookmarks extends AbstractRankingService implements 
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

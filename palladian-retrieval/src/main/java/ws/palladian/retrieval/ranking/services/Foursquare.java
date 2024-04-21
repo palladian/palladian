@@ -34,12 +34,12 @@ public final class Foursquare extends AbstractRankingService implements RankingS
     private static final String SERVICE_ID = "foursquare";
 
     /** The ranking value types of this service **/
-    public static final RankingType FOURSQUARE_CHECKINS = new RankingType("checkins", "Foursquare Checkins", "The number of foursquare checkins of the location.");
+    public static final RankingType<Integer> FOURSQUARE_CHECKINS = new RankingType<>("checkins", "Foursquare Checkins", "The number of foursquare checkins of the location.", Integer.class);
 
-    public static final RankingType FOURSQUARE_LIKES = new RankingType("likes", "Foursquare Likes", "The number of foursquare likes of the location.");
+    public static final RankingType<Integer> FOURSQUARE_LIKES = new RankingType<>("likes", "Foursquare Likes", "The number of foursquare likes of the location.", Integer.class);
 
     /** All available ranking types by {@link Foursquare}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(FOURSQUARE_CHECKINS, FOURSQUARE_LIKES);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(FOURSQUARE_CHECKINS, FOURSQUARE_LIKES);
 
     private final String clientId;
 
@@ -116,7 +116,7 @@ public final class Foursquare extends AbstractRankingService implements RankingS
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

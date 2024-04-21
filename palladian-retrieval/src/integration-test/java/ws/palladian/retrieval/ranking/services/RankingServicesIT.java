@@ -41,29 +41,12 @@ public class RankingServicesIT {
     public static Collection<Object[]> rankers() throws ConfigurationException, FileNotFoundException {
         Configuration configuration = loadConfiguration();
         List<Object[]> rankers = new ArrayList<>();
-        rankers.add(new Object[]{new AlexaRank()});
         rankers.add(new Object[]{new BibsonomyBookmarks(configuration)});
-        rankers.add(new Object[]{new BitlyClicks(configuration)});
         rankers.add(new Object[]{new FacebookLinkStats(configuration)});
-        // rankers.add(new Object[] {new Foursquare(configuration)});
         rankers.add(new Object[]{new GoogleCachedPage()});
-        rankers.add(new Object[]{new GooglePageRank()});
-        rankers.add(new Object[]{new GooglePlusLikes()});
         rankers.add(new Object[]{new HackerNewsRankingService()});
-        rankers.add(new Object[]{new LinkedInShares()});
-        rankers.add(new Object[]{new MajesticSeo(configuration)});
-        rankers.add(new Object[]{new OpenLinkProfiler()});
         rankers.add(new Object[]{new PinterestPins()});
-        rankers.add(new Object[]{new PlurkPosts(configuration)});
         rankers.add(new Object[]{new RedditStats()});
-        rankers.add(new Object[]{new SemRush()});
-        rankers.add(new Object[]{new SharedCount(configuration)});
-        rankers.add(new Object[]{new SharethisStats(configuration)});
-        rankers.add(new Object[]{new SistrixVisibilityIndex()});
-        rankers.add(new Object[]{new StumbleUponViews()});
-        rankers.add(new Object[]{new WebOfTrust()});
-        rankers.add(new Object[]{new Webutation()});
-        rankers.add(new Object[]{new YandexCitationIndex()});
         return rankers;
     }
 

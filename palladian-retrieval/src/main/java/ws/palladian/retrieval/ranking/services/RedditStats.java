@@ -14,7 +14,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -31,6 +33,38 @@ import java.util.List;
  */
 public final class RedditStats extends AbstractRankingService implements RankingService {
 
+    public static final class RedditStatsMetaInfo implements RankingServiceMetaInfo<RedditStats> {
+        @Override
+        public String getServiceName() {
+            return "Reddit";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public RedditStats create(Map<ConfigurationOption<?>, ?> config) {
+            return new RedditStats();
+        }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://www.reddit.com/dev/api";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "The number of votes and comments on Reddit.";
+        }
+    }
+
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(RedditStats.class);
 
@@ -40,10 +74,10 @@ public final class RedditStats extends AbstractRankingService implements Ranking
     private static final String SERVICE_ID = "reddit";
 
     /** The ranking value types of this service **/
-    public static final RankingType VOTES = new RankingType("reddit_votes", "Reddit.com votes", "The number of up-votes minus down-votes for this url on reddit.com.");
-    public static final RankingType COMMENTS = new RankingType("reddit_comments", "Reddit.com comments", "The number of comments users have left for this url on reddit.com.");
+    public static final RankingType<Integer> VOTES = new RankingType<>("reddit_votes", "Reddit.com votes", "The number of up-votes minus down-votes for this url on reddit.com.", Integer.class);
+    public static final RankingType<Integer> COMMENTS = new RankingType<>("reddit_comments", "Reddit.com comments", "The number of comments users have left for this url on reddit.com.", Integer.class);
     /** All available ranking types by {@link RedditStats}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(VOTES, COMMENTS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
@@ -85,7 +119,7 @@ public final class RedditStats extends AbstractRankingService implements Ranking
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 }

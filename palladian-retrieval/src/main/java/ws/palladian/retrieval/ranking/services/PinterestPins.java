@@ -11,7 +11,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -24,18 +26,50 @@ import java.util.List;
  */
 public final class PinterestPins extends AbstractRankingService implements RankingService {
 
+    public static final class PinterestPinsMetaInfo implements RankingServiceMetaInfo<PinterestPins> {
+        @Override
+        public String getServiceName() {
+            return "Pinterest";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public PinterestPins create(Map<ConfigurationOption<?>, ?> config) {
+            return new PinterestPins();
+        }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://developers.pinterest.com";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "The number of pins of a URL on Pinterest.";
+        }
+    }
+
     /** The id of this service. */
     private static final String SERVICE_ID = "pinterest";
 
     /** The ranking value types of this service **/
-    public static final RankingType PINS = new RankingType("pinterestpins", "Pinterest Pins", "The Number of Pins on Pinterest");
+    public static final RankingType<Long> PINS = new RankingType<>("pinterestpins", "Pinterest Pins", "The Number of Pins on Pinterest", Long.class);
 
     /** All available ranking types by {@link PinterestPins}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(PINS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(PINS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
-        String requestUrl = "http://api.pinterest.com/v1/urls/count.json?callback=receiveCount&url=" + UrlHelper.encodeParameter(url);
+        String requestUrl = "https://api.pinterest.com/v1/urls/count.json?callback=receiveCount&url=" + UrlHelper.encodeParameter(url);
         HttpResult httpResult;
         try {
             httpResult = retriever.httpGet(requestUrl);
@@ -64,7 +98,7 @@ public final class PinterestPins extends AbstractRankingService implements Ranki
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 

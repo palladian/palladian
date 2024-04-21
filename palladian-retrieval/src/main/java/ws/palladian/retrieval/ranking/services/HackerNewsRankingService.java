@@ -11,7 +11,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Ranking Service based on Hacker News via <a href="https://hn.algolia.com/api">HN Search API</a>.
@@ -20,14 +22,46 @@ import java.util.List;
  */
 public final class HackerNewsRankingService extends AbstractRankingService {
 
+    public static final class HackerNewsMetaInfo implements RankingServiceMetaInfo<HackerNewsRankingService> {
+        @Override
+        public String getServiceName() {
+            return "Hacker News";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public HackerNewsRankingService create(Map<ConfigurationOption<?>, ?> config) {
+            return new HackerNewsRankingService();
+        }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return "https://hn.algolia.com/api";
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Get the summed points, the number of comments, and the number of hits for a URL on Hacker News.";
+        }
+    }
+
     private static final String SERVICE_ID = "hackernews";
 
-    public static final RankingType POINTS = new RankingType("points", "Hacker News Points", "The summed points from the first ten hits for the URL on Hacker News.");
-    public static final RankingType COMMENTS = new RankingType("comments", "Hacker News Comments",
-            "The summed number of comments from the first ten hits for the URL on Hacker News.");
-    public static final RankingType HITS = new RankingType("hits", "Hacker News Hits", "The number of hits for the URL on Hacker News.");
+    public static final RankingType<Long> POINTS = new RankingType<>("points", "Hacker News Points", "The summed points from the first ten hits for the URL on Hacker News.", Long.class);
+    public static final RankingType<Long> COMMENTS = new RankingType<>("comments", "Hacker News Comments",
+            "The summed number of comments from the first ten hits for the URL on Hacker News.", Long.class);
+    public static final RankingType<Long> HITS = new RankingType<>("hits", "Hacker News Hits", "The number of hits for the URL on Hacker News.", Long.class);
 
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(POINTS, COMMENTS, HITS);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(POINTS, COMMENTS, HITS);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
@@ -48,8 +82,8 @@ public final class HackerNewsRankingService extends AbstractRankingService {
             long summedComments = 0;
             for (int i = 0; i < jsonHits.size(); i++) {
                 JsonObject jsonHit = jsonHits.getJsonObject(i);
-                summedPoints += jsonHit.getLong("points");
-                summedComments = jsonHit.getLong("num_comments");
+                summedPoints += jsonHit.tryGetLong("points", 0l);
+                summedComments = jsonHit.tryGetLong("num_comments", 0l);
             }
             Ranking.Builder rankingBuilder = new Ranking.Builder(this, url);
             rankingBuilder.add(POINTS, summedPoints);
@@ -67,7 +101,7 @@ public final class HackerNewsRankingService extends AbstractRankingService {
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 
@@ -75,7 +109,8 @@ public final class HackerNewsRankingService extends AbstractRankingService {
         // Ranking for http://apple.com from hackernews: comments=151 points=10618 hits=4298
         // Ranking for https://apple.com from hackernews: comments=114 points=5581 hits=4172
         // Ranking for apple.com from hackernews: comments=492 points=11923 hits=4304
-        Ranking result = new HackerNewsRankingService().getRanking("apple.com");
+        // Ranking result = new HackerNewsRankingService().getRanking("apple.com");
+        Ranking result = new HackerNewsRankingService().getRanking("https://news.ycombinator.com/");
         System.out.println(result);
     }
 

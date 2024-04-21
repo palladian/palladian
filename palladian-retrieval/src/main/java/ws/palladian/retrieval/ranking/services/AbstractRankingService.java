@@ -67,9 +67,9 @@ public abstract class AbstractRankingService implements RankingService {
     }
 
     @Override
-    public RankingType getRankingType(String id) {
-        List<RankingType> rankingTypes = getRankingTypes();
-        for (RankingType rankingType : rankingTypes) {
+    public RankingType<?> getRankingType(String id) {
+        List<RankingType<?>> rankingTypes = getRankingTypes();
+        for (RankingType<?> rankingType : rankingTypes) {
             if (rankingType.getId().equals(id)) {
                 return rankingType;
             }
@@ -77,6 +77,7 @@ public abstract class AbstractRankingService implements RankingService {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public String toString() {
         return getServiceId();

@@ -15,7 +15,9 @@ import ws.palladian.retrieval.ranking.RankingServiceException;
 import ws.palladian.retrieval.ranking.RankingType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,6 +29,38 @@ import java.util.concurrent.TimeUnit;
  */
 public final class GoogleCachedPage extends AbstractRankingService implements RankingService {
 
+    public static final class GoogleCachedPageMetaInfo implements RankingServiceMetaInfo<GoogleCachedPage> {
+        @Override
+        public String getServiceName() {
+            return "Google Cached Page";
+        }
+
+        @Override
+        public String getServiceId() {
+            return SERVICE_ID;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public GoogleCachedPage create(Map<ConfigurationOption<?>, ?> config) {
+            return new GoogleCachedPage();
+        }
+
+        @Override
+        public String getServiceDocumentationUrl() {
+            return null;
+        }
+
+        @Override
+        public String getServiceDescription() {
+            return "Find whether a certain URL has been cached by Google.";
+        }
+    }
+
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCachedPage.class);
 
@@ -34,10 +68,10 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
     private static final String SERVICE_ID = "Google Cache";
 
     /** The ranking value types of this service **/
-    public static final RankingType GOOGLE_CACHED = new RankingType("googlecached", "Google Indexed", "Whether the page is in Google's Cache");
+    public static final RankingType<Short> GOOGLE_CACHED = new RankingType<>("googlecached", "Google Indexed", "Whether the page is in Google's Cache", Short.class);
 
     /** All available ranking types by {@link GoogleCachedPage}. */
-    private static final List<RankingType> RANKING_TYPES = Arrays.asList(GOOGLE_CACHED);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(GOOGLE_CACHED);
 
     /** Fields to check the service availability. */
     private long sleepTime = TimeUnit.SECONDS.toMillis(10);
@@ -50,7 +84,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
         Ranking.Builder builder = new Ranking.Builder(this, url);
 
         THROTTLE.hold();
-        int indexed = 0;
+        short indexed = 0;
         String requestUrl = "http://webcache.googleusercontent.com/search?q=cache:" + url;
 
         try {
@@ -59,7 +93,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
 
             while (!success) {
 
-                HttpResult httpHead = retriever.execute(new HttpRequest2Builder(HttpMethod.HEAD, requestUrl).create());
+                HttpResult httpHead = retriever.execute(new HttpRequest2Builder(HttpMethod.GET, requestUrl).create());
 
                 success = true;
 
@@ -92,7 +126,7 @@ public final class GoogleCachedPage extends AbstractRankingService implements Ra
     }
 
     @Override
-    public List<RankingType> getRankingTypes() {
+    public List<RankingType<?>> getRankingTypes() {
         return RANKING_TYPES;
     }
 
