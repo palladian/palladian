@@ -135,7 +135,7 @@ public final class PageAnalyzer {
             return xpaths;
         }
         try {
-            xpaths = visit(document.getLastChild(), keyword, wordMatch, xpaths);
+            xpaths = visit(document.getLastChild(), keyword, keyword.toLowerCase(), wordMatch, xpaths);
         } catch (StackOverflowError | Exception e) {
             LOGGER.error(document.getDocumentURI(), e);
         }
@@ -323,7 +323,7 @@ public final class PageAnalyzer {
      * @param wordMatch If true a whole word has to match the keyword.
      * @param xpaths    A set of xPath satisfying the conditions.
      */
-    private static Set<String> visit(Node node, String keyword, boolean wordMatch, Set<String> xpaths) {
+    private static Set<String> visit(Node node, String keyword, String lowerCaseKeyword, boolean wordMatch, Set<String> xpaths) {
         // System.out.println(indent+node.getNodeName());
 
         try {
@@ -332,7 +332,7 @@ public final class PageAnalyzer {
                 // check whether the keyword appears in the node text, do not consider comment nodes (type 8)
                 // TODO do not take if attribute is part of another word like CAPITALism
                 String nodeValue = child.getNodeValue();
-                if (child.getTextContent().contains(keyword) || (nodeValue != null && child.getNodeType() != 8 && nodeValue.toLowerCase().contains(keyword.toLowerCase()))) {
+                if (child.getTextContent().contains(keyword) || (nodeValue != null && child.getNodeType() != 8 && nodeValue.toLowerCase().contains(lowerCaseKeyword))) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch && nodeValue != null) {
@@ -354,7 +354,7 @@ public final class PageAnalyzer {
                 }
 
                 // if (depth == 200) return xpaths;
-                xpaths = visit(child, keyword, wordMatch, xpaths);
+                xpaths = visit(child, keyword, lowerCaseKeyword, wordMatch, xpaths);
                 child = child.getNextSibling();
             }
         } catch (Exception e) {
