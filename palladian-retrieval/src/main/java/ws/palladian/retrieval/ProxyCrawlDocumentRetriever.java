@@ -9,13 +9,11 @@ import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>
  * Download content from a different IP via Crawlbase.
- * </p>
  *
  * @author David Urbansky
  * @see <a href="https://crawlbase.com/docs/crawling-api/">Crawlbase API Docs</a>
- * 18.05.2021
+ * @since 18.05.2021
  */
 public class ProxyCrawlDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKeyPlain;

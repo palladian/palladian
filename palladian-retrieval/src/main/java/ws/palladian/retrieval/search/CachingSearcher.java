@@ -8,15 +8,12 @@ import ws.palladian.retrieval.resources.WebContent;
 import java.util.List;
 
 /**
- * <p>
  * Cache for an arbitrary {@link Searcher}.
- * </p>
  *
  * @param <R> The result type of the {@link Searcher}.
  * @author Philipp Katz
  */
 public class CachingSearcher<R extends WebContent> extends AbstractSearcher<R> {
-
     private final Searcher<R> searcher;
 
     private final LruMap<String, List<R>> searchCache;

@@ -9,15 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>
  * The Cache can be used to store data objects such as model files. These files do not have to be re-read from hard disk
  * every time they are needed.
- * </p>
  *
  * @author David Urbansky
  */
 public class Cache {
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(Cache.class);
 
     /** List of objects in the cache. */

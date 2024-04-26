@@ -118,9 +118,7 @@ public final class PageAnalyzer {
     }
 
     /**
-     * <p>
      * Get all xPaths to the specified keyword in the specified document. The function does not return duplicates.
-     * </p>
      *
      * @param document The document.
      * @param keyword  The keyword.
@@ -331,23 +329,8 @@ public final class PageAnalyzer {
         try {
             Node child = node.getFirstChild();
             while (child != null) {
-                // System.out.println(" "+node.getNodeName()+" "+child.getNodeName());
-                // if (child.getNodeType() == 3) System.out.println(child.getTextContent());
-
                 // check whether the keyword appears in the node text, do not consider comment nodes (type 8)
                 // TODO do not take if attribute is part of another word like CAPITALism
-
-                // if (child
-                // .getTextContent()
-                // .contains(
-                // "BERLIN (Reuters) - Germany will not back a Palestinian bid for a diplomatic upgrade at the United Nations, the government spokesman said on Wednesday."))
-                // {
-                // System.out.println("found tc:" + child.getTextContent());
-                // }
-
-                // System.out.println("found " + child.getNodeType() + "," + child.getNodeName() + ","
-                // + child.getNodeValue());
-
                 String nodeValue = child.getNodeValue();
                 if (child.getTextContent().contains(keyword) || (nodeValue != null && child.getNodeType() != 8 && nodeValue.toLowerCase().contains(keyword.toLowerCase()))) {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
@@ -357,13 +340,13 @@ public final class PageAnalyzer {
                         Matcher m = pattern.matcher(nodeValue);
                         if (m.find()) {
                             String xpath = constructXPath(child);
-                            if (xpath.length() > 0) {
+                            if (!xpath.isEmpty()) {
                                 xpaths.add(xpath);
                             }
                         }
                     } else {
                         String xpath = constructXPath(child);
-                        if (xpath.length() > 0) {
+                        if (!xpath.isEmpty()) {
                             xpaths.add(xpath);
                         }
                     }
