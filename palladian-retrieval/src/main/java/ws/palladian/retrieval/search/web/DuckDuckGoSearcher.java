@@ -74,11 +74,6 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
 
-//	/**
-//	 * The number of entries which are returned for each page.
-//	 */
-//	private static final int ENTRIES_PER_PAGE = 10;
-
     /**
      * Prevent over penetrating the searcher.
      */

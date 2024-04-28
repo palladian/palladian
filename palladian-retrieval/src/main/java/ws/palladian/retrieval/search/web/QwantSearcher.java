@@ -8,8 +8,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
@@ -65,21 +63,7 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QwantSearcher.class);
 
-    /**
-     * The name of this WebSearcher.
-     */
     private static final String SEARCHER_NAME = "Qwant";
-
-    private final HttpRetriever retriever;
-
-    /**
-     * <p>
-     * Creates a new Qwant Searcher.
-     * </p>
-     */
-    public QwantSearcher() {
-        this.retriever = HttpRetrieverFactory.getHttpRetriever();
-    }
 
     @Override
     public String getName() {
@@ -227,10 +211,7 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
         }
     }
 
-    /**
-     * default visibility for unit testing.
-     */
-    static List<WebContent> parse(JsonObject jsonObject) {
+    private static List<WebContent> parse(JsonObject jsonObject) {
         JsonArray mainlines = jsonObject.tryQueryJsonArray("data/result/items/mainline");
         // get the one with type == web
         Optional<Object> first = mainlines.stream().filter(o -> ((JsonObject) o).tryGetString("type").equals("web")).findFirst();
