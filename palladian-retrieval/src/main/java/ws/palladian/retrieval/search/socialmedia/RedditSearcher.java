@@ -10,6 +10,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -17,20 +18,50 @@ import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
- * Searcher for <a href="http://www.reddit.com">reddit.com</a>.
+ * Searcher for <a href="https://www.reddit.com">reddit.com</a>.
  * </p>
  *
  * @author Philipp Katz
- * @see <a href="http://www.reddit.com/dev/api">reddit.com API documentation</a>
+ * @see <a href="https://www.reddit.com/dev/api">reddit.com API documentation</a>
  * @see <a href="https://github.com/reddit/reddit/wiki/API">GitHub: reddit API</a>
  */
 public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent> {
+
+    public static final class RedditSearcherMetaInfo implements SearcherMetaInfo<RedditSearcher, WebContent> {
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "reddit";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public RedditSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new RedditSearcher();
+        }
+    }
 
     public static enum Sorting implements Facet {
 
@@ -53,7 +84,7 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
     private static final Logger LOGGER = LoggerFactory.getLogger(RedditSearcher.class);
 
     /* The name of this searcher. */
-    private static final String SEARCHER_NAME = "reddit.com";
+    private static final String SEARCHER_NAME = "Reddit";
 
     /** Reddit API allows 30 requests/minute. */
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 28);
@@ -95,11 +126,15 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     builder.setTitle(jsonChildData.getString("title"));
                     builder.setSummary(jsonChildData.getString("selftext"));
-                    builder.setUrl(jsonChildData.getString("url"));
+                    var url = jsonChildData.getString("url");
+                    if (!url.matches("^https?://.*")) {
+                        url = "https://www.reddit.com" + url;
+                    }
+                    builder.setUrl(url);
                     builder.setPublished(new Date((long) jsonChildData.getInt("created_utc") * 1000));
                     builder.setSource(SEARCHER_NAME);
 
-                    // create "fullname"; see http://www.reddit.com/dev/api
+                    // create "fullname"; see https://www.reddit.com/dev/api
                     String fullName = jsonChild.getString("kind") + "_" + jsonChildData.getString("id");
                     builder.setIdentifier(fullName);
 
@@ -108,7 +143,7 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
                         break paging;
                     }
                 }
-                pagingAfter = jsonData.getString("after");
+                pagingAfter = jsonData.tryGetString("after");
                 if (pagingAfter == null) {
                     break;
                 }
@@ -121,7 +156,7 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
 
     private static String makeQueryUrl(MultifacetQuery query, String after, int limit) {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("http://www.reddit.com/search.json");
+        urlBuilder.append("https://www.reddit.com/search.json");
         urlBuilder.append("?limit=").append(limit);
         urlBuilder.append("&q=").append(query.getText());
         Facet temp = query.getFacet(Sorting.IDENTIFIER);
