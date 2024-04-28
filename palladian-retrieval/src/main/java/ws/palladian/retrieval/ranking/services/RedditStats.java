@@ -69,7 +69,7 @@ public final class RedditStats extends AbstractRankingService implements Ranking
     /** The class logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(RedditStats.class);
 
-    private static final String GET_INFO = "http://www.reddit.com/api/info.json?url=";
+    private static final String GET_INFO = "https://www.reddit.com/api/info.json?url=";
 
     /** The id of this service. */
     private static final String SERVICE_ID = "reddit";
