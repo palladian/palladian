@@ -14,6 +14,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -22,8 +24,10 @@ import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -39,6 +43,40 @@ import java.util.List;
  * @see <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&answer=1210656">Search the entire web</a>
  */
 public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebContent> {
+    public static final class FlickrSearcherMetaInfo implements SearcherMetaInfo<GoogleCustomSearcher, WebContent> {
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key",
+                "apikey");
+        private static final StringConfigurationOption SEARCH_ENGINE_ID_OPTION = new StringConfigurationOption(
+                "Search Engine ID", "search_engine_id");
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "google_custom_searcher";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(API_KEY_OPTION, SEARCH_ENGINE_ID_OPTION);
+        }
+
+        @Override
+        public GoogleCustomSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = API_KEY_OPTION.get(config);
+            var searchEngineId = API_KEY_OPTION.get(config);
+            return new GoogleCustomSearcher(apiKey, searchEngineId);
+        }
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCustomSearcher.class);
 
     /** The name of this WebSearcher. */
