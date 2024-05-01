@@ -25,7 +25,7 @@ import java.util.Optional;
  * </p>
  *
  * @author David Urbansky
- * @see <a href="https://api.creativecommons.engineering/v1/">Creative Commons API Docs</a>
+ * @see <a href="https://api.openverse.engineering/v1/">Creative Commons API Docs</a>
  */
 public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     public static final class CreativeCommonsSearcherMetaInfo implements SearcherMetaInfo<CreativeCommonsSearcher, WebImage> {
@@ -58,7 +58,8 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "Creative Commons";
 
-    private static final int MAX_PER_PAGE = 500;
+    // Maximum is 500 for authenticated requests, and 20 for unauthenticated requests.
+    private static final int MAX_PER_PAGE = 20;
 
     private String licenses = "all-cc,commercial";
 
@@ -123,7 +124,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     }
 
     private String buildRequest(String searchTerms, int page, int resultsPerPage) {
-        String url = String.format("https://api.creativecommons.engineering/v1/images?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
+        String url = String.format("https://api.openverse.engineering/v1/images/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
                 UrlHelper.encodeParameter(searchTerms), licenses, page, resultsPerPage);
         if (this.sources != null) {
             url += "&source=" + this.sources;
