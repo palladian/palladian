@@ -6,6 +6,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -13,7 +14,9 @@ import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -25,6 +28,33 @@ import java.util.Optional;
  * @see <a href="https://api.creativecommons.engineering/v1/">Creative Commons API Docs</a>
  */
 public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
+    public static final class CreativeCommonsSearcherMetaInfo implements SearcherMetaInfo<CreativeCommonsSearcher, WebImage> {
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "creative_commons";
+        }
+
+        @Override
+        public Class<WebImage> getResultType() {
+            return WebImage.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public CreativeCommonsSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new CreativeCommonsSearcher();
+        }
+    }
+
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "Creative Commons";
 

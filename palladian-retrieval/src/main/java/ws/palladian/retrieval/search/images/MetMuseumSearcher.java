@@ -9,6 +9,7 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -16,7 +17,9 @@ import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -28,6 +31,33 @@ import java.util.Optional;
  * @see <a href="https://metmuseum.github.io/#search">API Docs</a>
  */
 public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
+    public static final class MetMuseumSearcherMetaInfo implements SearcherMetaInfo<MetMuseumSearcher, WebImage> {
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "met_museum";
+        }
+
+        @Override
+        public Class<WebImage> getResultType() {
+            return WebImage.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public MetMuseumSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new MetMuseumSearcher();
+        }
+    }
+
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "MetMuseum";
     private final DocumentRetriever documentRetriever;

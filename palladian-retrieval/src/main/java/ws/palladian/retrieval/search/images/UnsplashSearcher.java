@@ -9,6 +9,8 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -16,6 +18,7 @@ import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,37 @@ import java.util.Map;
  * @see <a href="https://unsplash.com/documentation">Unsplash API Docs</a>
  */
 public class UnsplashSearcher extends AbstractSearcher<WebImage> {
+    public static final class UnsplashSearcherMetaInfo implements SearcherMetaInfo<UnsplashSearcher, WebImage> {
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key",
+                "apikey");
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "unsplash";
+        }
+
+        @Override
+        public Class<WebImage> getResultType() {
+            return WebImage.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(API_KEY_OPTION);
+        }
+
+        @Override
+        public UnsplashSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = API_KEY_OPTION.get(config);
+            return new UnsplashSearcher(apiKey);
+        }
+    }
+
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "Unsplash";
 
