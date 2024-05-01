@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -65,6 +66,8 @@ public class DocumentRetriever extends WebDocumentRetriever {
     private final HttpRetriever httpRetriever;
 
     public static final String HTTP_RESULT_KEY = "httpResult";
+    public static final String DOWNLOAD_TIME_KEY = "downloadTime";
+    public static final String PARSING_TIME_KEY = "parsingTime";
 
     private List<String> userAgents;
 
@@ -388,6 +391,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
                     document = parse(inputStream, xml);
                     document.setDocumentURI(file.toURI().toString());
                 } else {
+                    StopWatch sw = new StopWatch();
                     HttpRequest2Builder httpRequest2Builder = new HttpRequest2Builder(HttpMethod.GET, cleanUrl);
                     if (globalHeaders != null) {
                         httpRequest2Builder.addHeaders(globalHeaders);
@@ -404,6 +408,9 @@ public class DocumentRetriever extends WebDocumentRetriever {
                         return null;
                     }
 
+                    long downloadTime = sw.getElapsedTime();
+                    sw = new StopWatch();
+
                     document = parse(httpResult, xml);
 
                     // check if got redirected; if so then take the destination URL
@@ -418,6 +425,8 @@ public class DocumentRetriever extends WebDocumentRetriever {
 
                     document.setDocumentURI(cleanUrl);
                     document.setUserData(HTTP_RESULT_KEY, httpResult, null);
+                    document.setUserData(DOWNLOAD_TIME_KEY, downloadTime, null);
+                    document.setUserData(PARSING_TIME_KEY, sw.getElapsedTime(), null);
                 }
 
                 callRetrieverCallback(document);
