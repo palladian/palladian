@@ -20,15 +20,13 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * <p>
- * Search for free images on <a href="https://creativecommons.org">Creative Commons</a>.
- * </p>
+ * Search for free images on <a href="https://openverse.org">Openverse</a>.
  *
  * @author David Urbansky
  * @see <a href="https://api.openverse.engineering/v1/">Creative Commons API Docs</a>
  */
-public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
-    public static final class CreativeCommonsSearcherMetaInfo implements SearcherMetaInfo<CreativeCommonsSearcher, WebImage> {
+public class OpenverseSearcher extends AbstractSearcher<WebImage> {
+    public static final class OpenverseSearcherMetaInfo implements SearcherMetaInfo<OpenverseSearcher, WebImage> {
         @Override
         public String getSearcherName() {
             return SEARCHER_NAME;
@@ -36,7 +34,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
 
         @Override
         public String getSearcherId() {
-            return "creative_commons";
+            return "openverse";
         }
 
         @Override
@@ -50,13 +48,13 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
         }
 
         @Override
-        public CreativeCommonsSearcher create(Map<ConfigurationOption<?>, ?> config) {
-            return new CreativeCommonsSearcher();
+        public OpenverseSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new OpenverseSearcher();
         }
     }
 
     /** The name of this searcher. */
-    private static final String SEARCHER_NAME = "Creative Commons";
+    private static final String SEARCHER_NAME = "Openverse";
 
     // Maximum is 500 for authenticated requests, and 20 for unauthenticated requests.
     private static final int MAX_PER_PAGE = 20;
@@ -66,11 +64,11 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     /** If null, search all sources. */
     private String sources = null;
 
-    public CreativeCommonsSearcher() {
+    public OpenverseSearcher() {
 
     }
 
-    public CreativeCommonsSearcher(int defaultResultCount) {
+    public OpenverseSearcher(int defaultResultCount) {
         super();
         this.defaultResultCount = defaultResultCount;
     }
@@ -155,7 +153,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
     }
 
     public static void main(String[] args) throws SearcherException {
-        CreativeCommonsSearcher searcher = new CreativeCommonsSearcher();
+        OpenverseSearcher searcher = new OpenverseSearcher();
         searcher.setSources(
                 "wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
         List<WebImage> results = searcher.search("brain", 1001);
