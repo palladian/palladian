@@ -133,25 +133,27 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
 
             JsonObject json = new JsonObject(jsonResponse);
             JsonArray jsonArray = json.getJsonArray("objectIDs");
-            for (int i = 0; i < jsonArray.size(); i++) {
-                int objectId = jsonArray.tryGetInt(i);
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    int objectId = jsonArray.tryGetInt(i);
 
-                JsonObject objJson = getObject(objectId);
+                    JsonObject objJson = getObject(objectId);
 
-                if (orientation != null) {
-                    Orientation imageOrientation = getOrientation(objJson);
-                    if (imageOrientation != orientation) {
+                    if (orientation != null) {
+                        Orientation imageOrientation = getOrientation(objJson);
+                        if (imageOrientation != orientation) {
+                            continue;
+                        }
+                    }
+                    String primaryImage = objJson.tryGetString("primaryImage");
+                    if (primaryImage == null || primaryImage.isEmpty()) {
                         continue;
                     }
-                }
-                String primaryImage = objJson.tryGetString("primaryImage");
-                if (primaryImage == null || primaryImage.isEmpty()) {
-                    continue;
-                }
 
-                results.add(buildImage(objJson));
-                if (results.size() >= resultCount) {
-                    break;
+                    results.add(buildImage(objJson));
+                    if (results.size() >= resultCount) {
+                        break;
+                    }
                 }
             }
         } catch (JsonException e) {
