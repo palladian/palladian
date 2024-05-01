@@ -133,6 +133,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
 
             JsonObject json = new JsonObject(jsonResponse);
             JsonArray jsonArray = json.getJsonArray("objectIDs");
+            if (jsonArray!= null) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 int objectId = jsonArray.tryGetInt(i);
 
@@ -153,6 +154,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
                 if (results.size() >= resultCount) {
                     break;
                 }
+            }
             }
         } catch (JsonException e) {
             throw new SearcherException(e.getMessage());
