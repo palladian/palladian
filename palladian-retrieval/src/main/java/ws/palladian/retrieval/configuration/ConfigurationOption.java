@@ -17,4 +17,7 @@ public interface ConfigurationOption<T> {
     String getKey();
 
     T get(Map<ConfigurationOption<?>, ?> config);
+
+    /** @return Whether the option is required or optional. */
+    boolean isRequired();
 }

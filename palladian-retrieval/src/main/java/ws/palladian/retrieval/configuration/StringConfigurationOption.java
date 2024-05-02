@@ -8,4 +8,7 @@ public final class StringConfigurationOption extends BaseConfigurationOption<Str
     public StringConfigurationOption(String name, String key, String defaultValue) {
         super(String.class, name, key, defaultValue);
     }
+    public StringConfigurationOption(String name, String key, String defaultValue, boolean required) {
+        super(String.class, name, key, defaultValue, required);
+    }
 }
