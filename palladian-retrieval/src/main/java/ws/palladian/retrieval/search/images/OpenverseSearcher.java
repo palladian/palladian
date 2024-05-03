@@ -1,5 +1,6 @@
 package ws.palladian.retrieval.search.images;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -120,7 +121,7 @@ public class OpenverseSearcher extends AbstractSearcher<WebImage> {
                 if (jsonResponse.errorStatus()) {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
                 }
-                JsonObject json = new JsonObject(jsonResponse.getStringContent());
+                JsonObject json = new JsonObject(jsonResponse.getStringContent(StandardCharsets.UTF_8));
                 JsonArray jsonArray = json.getJsonArray("results");
                 if (jsonArray != null) {
                     for (int i = 0; i < jsonArray.size(); i++) {
