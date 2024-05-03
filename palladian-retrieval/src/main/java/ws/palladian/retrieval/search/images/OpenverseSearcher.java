@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
@@ -23,8 +22,10 @@ import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 /**
@@ -34,7 +35,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * @see <a href="https://api.openverse.engineering/v1/">Creative Commons API
  *      Docs</a>
  */
-public class OpenverseSearcher extends AbstractSearcher<WebImage> {
+public class OpenverseSearcher extends AbstractMultifacetSearcher<WebImage> {
     public static final class OpenverseSearcherMetaInfo implements SearcherMetaInfo<OpenverseSearcher, WebImage> {
         private static final StringConfigurationOption CLIENT_ID = new StringConfigurationOption("Client ID",
                 "client_id", null, false);
@@ -94,9 +95,9 @@ public class OpenverseSearcher extends AbstractSearcher<WebImage> {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }
-
-    @Override
-    public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+    
+	@Override
+	public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
         String accessToken = null;
         if (clientId != null && clientSecret != null) {
             accessToken = getAccessToken();
@@ -104,14 +105,15 @@ public class OpenverseSearcher extends AbstractSearcher<WebImage> {
         }
 
         List<WebImage> results = new ArrayList<>();
+        Long totalAvailableResults = null;
 
-        resultCount = Math.min(10000, resultCount);
+        var resultCount = Math.min(10000, query.getResultCount());
         int maxPerPage = accessToken != null ? MAX_PER_PAGE_AUTHENTICATED : MAX_PER_PAGE_UNAUTHENTICATED;
         int resultsPerPage = Math.min(maxPerPage, resultCount);
         int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
 
         for (int page = 1; page <= pagesNeeded; page++) {
-            String requestUrl = buildRequest(query, page, Math.min(maxPerPage, resultCount - results.size()));
+            String requestUrl = buildRequest(query.getText(), page, Math.min(maxPerPage, resultCount - results.size()));
             try {
                 var requestBuilder = new HttpRequest2Builder(HttpMethod.GET, requestUrl);
                 if (accessToken != null) {
@@ -122,6 +124,9 @@ public class OpenverseSearcher extends AbstractSearcher<WebImage> {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
                 }
                 JsonObject json = new JsonObject(jsonResponse.getStringContent(StandardCharsets.UTF_8));
+                if (totalAvailableResults == null) {
+                	totalAvailableResults = json.tryGetLong("result_count");
+                }
                 JsonArray jsonArray = json.getJsonArray("results");
                 if (jsonArray != null) {
                     for (int i = 0; i < jsonArray.size(); i++) {
@@ -147,8 +152,8 @@ public class OpenverseSearcher extends AbstractSearcher<WebImage> {
                 throw new SearcherException(e);
             }
         }
-
-        return results;
+        
+        return new SearchResults<>(results, totalAvailableResults);
     }
 
     private String getAccessToken() throws SearcherException {
@@ -186,7 +191,7 @@ public class OpenverseSearcher extends AbstractSearcher<WebImage> {
             url += "&source=" + this.sources;
         }
 
-        System.out.println("request= " + url);
+        System.out.println(url);
         return url;
     }
 
