@@ -7,11 +7,11 @@ import org.junit.Test;
 import ws.palladian.retrieval.search.MultifacetQuery;
 import ws.palladian.retrieval.search.SearcherException;
 
-public class OpenverseSearcherTest {
+public class OpenverseImageSearcherTest {
 
     @Test
     public void testOpenverseSearcher() throws SearcherException {
-        var openverseSearcher = new OpenverseSearcher();
+        var openverseSearcher = new OpenverseImageSearcher();
 
         var query = new MultifacetQuery.Builder().setText("paul klee offrande").setResultCount(10).create();
         var result = openverseSearcher.search(query);

@@ -1,14 +1,11 @@
-package ws.palladian.retrieval.search.images;
+package ws.palladian.retrieval.search;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
@@ -20,58 +17,38 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
-import ws.palladian.retrieval.resources.BasicWebImage;
-import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.License;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.resources.WebContent;
 
 /**
- * Search for free images on <a href="https://openverse.org">Openverse</a>.
+ * Base class for Openverse searchers (image, audio).
  *
  * @author David Urbansky
- * @see <a href="https://api.openverse.engineering/v1/">Creative Commons API
- *      Docs</a>
+ * @author Philipp Katz
+ * @see <a href="https://api.openverse.engineering/v1/">Openverse API</a>
  */
-public class OpenverseSearcher extends AbstractMultifacetSearcher<WebImage> {
-    public static final class OpenverseSearcherMetaInfo implements SearcherMetaInfo<OpenverseSearcher, WebImage> {
+public abstract class AbstractOpenverseSearcher<T extends WebContent> extends AbstractMultifacetSearcher<T> {
+
+    public static abstract class AbstractOpenverseSearcherMetaInfo<T extends WebContent> implements SearcherMetaInfo<AbstractOpenverseSearcher<T>, T> {
         private static final StringConfigurationOption CLIENT_ID = new StringConfigurationOption("Client ID",
                 "client_id", null, false);
         private static final StringConfigurationOption CLIENT_SECRET = new StringConfigurationOption("Client Secret",
                 "client_secret", null, false);
 
         @Override
-        public String getSearcherName() {
-            return SEARCHER_NAME;
-        }
-
-        @Override
-        public String getSearcherId() {
-            return "openverse";
-        }
-
-        @Override
-        public Class<WebImage> getResultType() {
-            return WebImage.class;
-        }
-
-        @Override
-        public List<ConfigurationOption<?>> getConfigurationOptions() {
+        public final List<ConfigurationOption<?>> getConfigurationOptions() {
             return Arrays.asList(CLIENT_ID, CLIENT_SECRET);
         }
 
         @Override
-        public OpenverseSearcher create(Map<ConfigurationOption<?>, ?> config) {
+        public final AbstractOpenverseSearcher<T> create(Map<ConfigurationOption<?>, ?> config) {
             var clientId = CLIENT_ID.get(config);
             var clientSecret = CLIENT_SECRET.get(config);
-            return new OpenverseSearcher(clientId, clientSecret);
+            return create(clientId, clientSecret);
         }
-    }
 
-    /** The name of this searcher. */
-    private static final String SEARCHER_NAME = "Openverse";
+        protected abstract AbstractOpenverseSearcher<T> create(String clientId, String clientSecret);
+
+    }
 
     // Maximum is 500 for authenticated requests, and 20 for unauthenticated
     // requests.
@@ -87,24 +64,20 @@ public class OpenverseSearcher extends AbstractMultifacetSearcher<WebImage> {
 
     private final String clientSecret;
 
-    public OpenverseSearcher() {
-        this(null, null);
-    }
-
-    public OpenverseSearcher(String clientId, String clientSecret) {
+    protected AbstractOpenverseSearcher(String clientId, String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
     }
-    
-	@Override
-	public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
+
+    @Override
+    public final SearchResults<T> search(MultifacetQuery query) throws SearcherException {
         String accessToken = null;
         if (clientId != null && clientSecret != null) {
             accessToken = getAccessToken();
             // TODO cache this
         }
 
-        List<WebImage> results = new ArrayList<>();
+        List<T> results = new ArrayList<>();
         Long totalAvailableResults = null;
 
         var resultCount = Math.min(10000, query.getResultCount());
@@ -125,24 +98,13 @@ public class OpenverseSearcher extends AbstractMultifacetSearcher<WebImage> {
                 }
                 JsonObject json = new JsonObject(jsonResponse.getStringContent(StandardCharsets.UTF_8));
                 if (totalAvailableResults == null) {
-                	totalAvailableResults = json.tryGetLong("result_count");
+                    totalAvailableResults = json.tryGetLong("result_count");
                 }
                 JsonArray jsonArray = json.getJsonArray("results");
                 if (jsonArray != null) {
                     for (int i = 0; i < jsonArray.size(); i++) {
                         JsonObject resultHit = jsonArray.getJsonObject(i);
-                        BasicWebImage.Builder builder = new BasicWebImage.Builder();
-                        builder.setAdditionalData("id", resultHit.tryQueryString("id"));
-                        builder.setUrl(resultHit.tryQueryString("url"));
-                        builder.setImageUrl(resultHit.tryQueryString("url"));
-                        builder.setTitle(resultHit.tryQueryString("title"));
-                        builder.setWidth(Optional.ofNullable(resultHit.tryGetInt("width")).orElse(0));
-                        builder.setHeight(Optional.ofNullable(resultHit.tryGetInt("height")).orElse(0));
-                        builder.setImageType(ImageType.UNKNOWN);
-                        builder.setThumbnailUrl(resultHit.tryQueryString("thumbnail"));
-                        builder.setLicense(License.FREE);
-                        builder.setLicenseLink(resultHit.tryQueryString("license_url"));
-                        results.add(builder.create());
+                        results.add(parseResult(resultHit));
                         if (results.size() >= resultCount) {
                             break;
                         }
@@ -152,9 +114,11 @@ public class OpenverseSearcher extends AbstractMultifacetSearcher<WebImage> {
                 throw new SearcherException(e);
             }
         }
-        
+
         return new SearchResults<>(results, totalAvailableResults);
     }
+
+    protected abstract T parseResult(JsonObject json);
 
     private String getAccessToken() throws SearcherException {
         var requestBuilder = new HttpRequest2Builder(HttpMethod.POST,
@@ -183,22 +147,7 @@ public class OpenverseSearcher extends AbstractMultifacetSearcher<WebImage> {
         }
     }
 
-    private String buildRequest(String searchTerms, int page, int resultsPerPage) {
-        String url = String.format(
-                "https://api.openverse.engineering/v1/images/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
-                UrlHelper.encodeParameter(searchTerms), licenses, page, resultsPerPage);
-        if (this.sources != null) {
-            url += "&source=" + this.sources;
-        }
-
-        System.out.println(url);
-        return url;
-    }
-
-    @Override
-    public String getName() {
-        return SEARCHER_NAME;
-    }
+    protected abstract String buildRequest(String searchTerms, int page, int resultsPerPage);
 
     public String getLicenses() {
         return licenses;
@@ -216,13 +165,4 @@ public class OpenverseSearcher extends AbstractMultifacetSearcher<WebImage> {
         this.sources = sources;
     }
 
-    public static void main(String[] args) throws SearcherException {
-        var searcher = new OpenverseSearcher();
-//		var searcher = new OpenverseSearcher("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-//				"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        searcher.setSources(
-                "wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
-        List<WebImage> results = searcher.search("brain", 100);
-        CollectionHelper.print(results);
-    }
 }
