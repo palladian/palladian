@@ -2,6 +2,8 @@ package ws.palladian.helper;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class ResourcePool<T> {
@@ -31,6 +33,26 @@ public abstract class ResourcePool<T> {
             }
         }
         return pool.take();
+    }
+
+    public T acquire(long timeout, TimeUnit unit) throws Exception {
+        if (!lock.isLocked()) {
+            if (lock.tryLock()) {
+                try {
+                    ++createdObjects;
+                    return createObject();
+                } finally {
+                    if (createdObjects < size) {
+                        lock.unlock();
+                    }
+                }
+            }
+        }
+        T resource = pool.poll(timeout, unit);
+        if (resource == null) {
+            throw new TimeoutException("Timeout waiting for resource");
+        }
+        return resource;
     }
 
     public void recycle(T resource) {
