@@ -10,7 +10,7 @@ import ws.palladian.retrieval.search.AbstractOpenverseSearcher;
  * Search for free audio files on <a href="https://openverse.org">Openverse</a>.
  *
  * @author Philipp Katz
- * @see <a href="https://api.openverse.engineering/v1/">Openverse API</a>
+ * @see <a href="https://api.openverse.org/v1/">Openverse API</a>
  */
 public class OpenverseAudioSearcher extends AbstractOpenverseSearcher<WebAudio> {
     public static final class OpenverseAudioSearcherMetaInfo extends AbstractOpenverseSearcherMetaInfo<WebAudio> {
@@ -59,7 +59,7 @@ public class OpenverseAudioSearcher extends AbstractOpenverseSearcher<WebAudio> 
     @Override
     protected String buildRequest(String searchTerms, int page, int resultsPerPage) {
         String url = String.format(
-                "https://api.openverse.engineering/v1/audio/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
+                "https://api.openverse.org/v1/audio/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
                 UrlHelper.encodeParameter(searchTerms), getLicenses(), page, resultsPerPage);
         if (this.getSources() != null) {
             url += "&source=" + this.getSources();

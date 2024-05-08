@@ -24,7 +24,7 @@ import ws.palladian.retrieval.resources.WebContent;
  *
  * @author David Urbansky
  * @author Philipp Katz
- * @see <a href="https://api.openverse.engineering/v1/">Openverse API</a>
+ * @see <a href="https://api.openverse.org/v1/">Openverse API</a>
  */
 public abstract class AbstractOpenverseSearcher<T extends WebContent> extends AbstractMultifacetSearcher<T> {
 
@@ -122,7 +122,7 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
 
     private String getAccessToken() throws SearcherException {
         var requestBuilder = new HttpRequest2Builder(HttpMethod.POST,
-                "https://api.openverse.engineering/v1/auth_tokens/token/");
+                "https://api.openverse.org/v1/auth_tokens/token/");
         var formEntityBuilder = new FormEncodedHttpEntity.Builder();
         formEntityBuilder.addData("client_id", clientId);
         formEntityBuilder.addData("client_secret", clientSecret);

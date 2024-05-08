@@ -16,7 +16,7 @@ import ws.palladian.retrieval.search.SearcherException;
  * Search for free images on <a href="https://openverse.org">Openverse</a>.
  *
  * @author David Urbansky
- * @see <a href="https://api.openverse.engineering/v1/">Openverse API</a>
+ * @see <a href="https://api.openverse.org/v1/">Openverse API</a>
  */
 public class OpenverseImageSearcher extends AbstractOpenverseSearcher<WebImage> {
     public static final class OpenverseImageSearcherMetaInfo extends AbstractOpenverseSearcherMetaInfo<WebImage> {
@@ -71,7 +71,7 @@ public class OpenverseImageSearcher extends AbstractOpenverseSearcher<WebImage> 
     @Override
     protected String buildRequest(String searchTerms, int page, int resultsPerPage) {
         String url = String.format(
-                "https://api.openverse.engineering/v1/images/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
+                "https://api.openverse.org/v1/images/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
                 UrlHelper.encodeParameter(searchTerms), getLicenses(), page, resultsPerPage);
         if (this.getSources() != null) {
             url += "&source=" + this.getSources();
