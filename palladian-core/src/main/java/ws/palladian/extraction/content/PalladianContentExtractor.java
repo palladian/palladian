@@ -266,8 +266,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         XPathSet xpathset = new XPathSet();
 
         // build xpaths to the sentences in the text, the more sentences we find in one area, the more likely it is the
-        // main content
-        Set<String> uniqueSentences = new HashSet<>(sentences);
+        // main content, take only first 100 sentences, otherwise it takes too long without added benefit
+        List<String> uniqueSentences = CollectionHelper.getFirst(new ArrayList<>(new HashSet<>(sentences)), 100);
         for (String sentence : uniqueSentences) {
             Set<String> xPaths = PageAnalyzer.constructAllXPaths(getDocument(), sentence);
             for (String xPath : xPaths) {

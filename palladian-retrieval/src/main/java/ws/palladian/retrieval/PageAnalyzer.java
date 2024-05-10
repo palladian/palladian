@@ -17,9 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>
  * The PageAnalyzer's responsibility is it to perform generic tasks on the DOM tree.
- * </p>
  *
  * @author David Urbansky
  */
