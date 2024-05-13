@@ -2,11 +2,14 @@ package ws.palladian.helper.normalization;
 
 import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.nlp.PatternHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by David on 30.01.2018.
@@ -211,8 +214,10 @@ public class UnitTranslator {
         }
         inputString = inputString.toLowerCase();
         for (String key : keys) {
-            if (inputString.contains(key.toLowerCase())) {
-                inputString = inputString.replace(key.toLowerCase(), unitTranslations.get(language).get(key));
+            Pattern pattern = PatternHelper.compileOrGet("(?<=[\\d^\\s])(" + key.toLowerCase() + ")(?=($|\\s|[^A-Za-z0-9]))");
+            Matcher matcher = pattern.matcher(inputString);
+            if(matcher.find()) {
+                inputString = matcher.replaceFirst(unitTranslations.get(language).get(key));
                 break;
             }
         }
