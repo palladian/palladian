@@ -84,6 +84,8 @@ public class UnitNormalizerTest {
         collector.checkThat(UnitNormalizer.getNormalizedNumber(5, UnitTranslator.translate("Zoll", Language.GERMAN)), Matchers.is(12.7));
         collector.checkThat(UnitNormalizer.getNormalizedNumber(1, UnitTranslator.translate("kilowattstunde", Language.GERMAN)), Matchers.is(3600000.));
 
+        collector.checkThat(UnitTranslator.translateUnitsOfInput("psi 30", Language.GERMAN), Matchers.is("psi 30"));
+        collector.checkThat(UnitTranslator.translateUnitsOfInput("PS5 neu gekauft!11!!", Language.GERMAN), Matchers.is("ps5 neu gekauft!11!!"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("schleuderdrehzahl 7 U/min", Language.GERMAN), Matchers.is("schleuderdrehzahl 7 rpm"));
         collector.checkThat(UnitTranslator.translateUnitsOfInput("schleuderdrehzahl 7 u/minute", Language.GERMAN), Matchers.is("schleuderdrehzahl 7 rpm"));
         collector.checkThat(
