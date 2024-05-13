@@ -2259,6 +2259,10 @@ public final class StringHelper {
         return string == null || string.isEmpty();
     }
 
+    public static boolean nullOrEmpty(Collection c) {
+        return c == null || c.isEmpty();
+    }
+
     /**
      * The main method.
      *
