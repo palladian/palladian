@@ -25,9 +25,7 @@ import java.util.function.Predicate;
  */
 public final class CollectionHelper {
     /**
-     * <p>
      * Indicate sorting order.
-     * </p>
      */
     public enum Order {
         ASCENDING, DESCENDING
@@ -42,7 +40,6 @@ public final class CollectionHelper {
      * @author Philipp Katz
      */
     private static final class LimitIterator<T> implements Iterator<T> {
-
         final Iterator<T> iterator;
         final int limit;
         int counter = 0;
