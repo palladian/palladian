@@ -2,6 +2,7 @@ package ws.palladian.helper.geo;
 
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
 import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.StopWatch;
@@ -34,9 +35,9 @@ public class Spatial2dIdMapReducedPrecision {
 
         //        System.out.println("latitude matches in " + stopWatch.getElapsedTimeStringAndIncrement());
         List<IdCoordinate> subList = latIds.subList(i1, i2);
-        //        System.out.println("sublist in " + stopWatch.getElapsedTimeStringAndIncrement());
-        latitudeMatches = new HashSet<>(subList);
-        //        System.out.println("to set in " + stopWatch.getElapsedTimeStringAndIncrement());
+        //        System.out.println("sublist (" + subList.size() + ") in " + stopWatch.getElapsedTimeStringAndIncrement());
+        latitudeMatches = new ObjectOpenHashSet<>(subList);
+        //        System.out.println("to set (" + latitudeMatches.size() + ") in " + stopWatch.getElapsedTimeStringAndIncrement());
 
         Set<IdCoordinate> longitudeMatches;
         i1 = CollectionHelper.findIndexBefore(lng1, lngValues);
@@ -44,7 +45,7 @@ public class Spatial2dIdMapReducedPrecision {
         //        System.out.println("longitude matches in " + stopWatch.getElapsedTimeStringAndIncrement());
 
         subList = lngIds.subList(i1, i2);
-        longitudeMatches = subList.stream().filter(latitudeMatches::contains).collect(Collectors.toSet());
+        longitudeMatches = subList.parallelStream().filter(latitudeMatches::contains).collect(Collectors.toSet());
         //        System.out.println("longitude matches stream in " + stopWatch.getElapsedTimeStringAndIncrement());
 
         //        Set<IdCoordinate> latAndLongMatches = new HashSet<>();
@@ -85,7 +86,9 @@ public class Spatial2dIdMapReducedPrecision {
         List<IdCoordinate> inBox = new ArrayList<>(findInBox((float) boundingBox[0], (float) boundingBox[1], (float) boundingBox[2], (float) boundingBox[3]));
 
         // now sort them by distance to given coordinate
-        inBox.sort(Comparator.comparingDouble(o -> GeoUtils.approximateDistance(o.getCoordinate(), sourceCoordinate)));
+        inBox = inBox.parallelStream().sorted(
+                Comparator.comparingDouble(o -> GeoUtils.approximateDistance(lat, lng, sourceCoordinate.getLatitude(), sourceCoordinate.getLongitude()))).collect(
+                Collectors.toList());
 
         return inBox;
     }
