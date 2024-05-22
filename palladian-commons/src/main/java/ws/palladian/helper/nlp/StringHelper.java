@@ -743,6 +743,14 @@ public final class StringHelper {
         return string.replaceAll("\u00A0", " ");
     }
 
+    public static String replaceFirst(String text, String searchString, String replacement) {
+        int pos = text.indexOf(searchString);
+        if (pos == -1) {
+            return text;
+        }
+        return text.substring(0, pos) + replacement + text.substring(pos + searchString.length());
+    }
+
     /**
      * <p>
      * Strips all non-ASCII characters from the supplied string. Useful to remove Asian characters, for example.

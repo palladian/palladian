@@ -49,7 +49,7 @@ public final class RegExp {
     private static final String SEC = MIN;
     public static final String TIMEZONE = "\\s(?:UTC|MEZ|GMT|Z|AEST|BST|EST|CES?T)";
     private static final String TIME_SEC = "(?:" + HOUR + "):(?:" + MIN + "):(?:" + SEC + ")";
-    private static final String FLOAT_SEC_OPT = "(?:\\.\\d*)?";
+    private static final String FLOAT_SEC_OPT = "(?:\\.\\d{0,10})?";
     private static final String AM_PM = "\\s[AP]M"; // AM/PM
     private static final String TIME24 = "(?:" + HOUR + ")(?::(?:" + MIN + ")(?::(?:" + SEC + ")" + FLOAT_SEC_OPT + ")?)?";
     private static final String TIME24_1 = "(?:" + HOUR_1 + ")(?::(?:" + MIN + ")(?::(?:" + SEC + ")" + FLOAT_SEC_OPT + ")?)?";
@@ -242,7 +242,6 @@ public final class RegExp {
 
     // other patterns
     private static final String COLON_FACT_REPRESENTATION_VALUE = "([A-Z]+|[a-z]+|[0-9.]+[A-Z]{1,2}(\\s|,|$)|[0-9.]+[a-z]{1,4}|[0-9.]+)";
-    public static final String COLON_FACT_REPRESENTATION = "[A-Za-z0-9/() ]{1,20}:\\s?(" + COLON_FACT_REPRESENTATION_VALUE + ")+((\\s|,)+" + COLON_FACT_REPRESENTATION_VALUE + ")*";
 
     /** All formats for RFC1036, RFC 1123 and ANSI'C */
     private static final DateFormat[] RFC_FORMATS = new DateFormat[]{DATE_ANSI_C_TZ, DATE_ANSI_C, DATE_RFC_1036_UTC, DATE_RFC_1036, DATE_RFC_1123_UTC, DATE_RFC_1123};

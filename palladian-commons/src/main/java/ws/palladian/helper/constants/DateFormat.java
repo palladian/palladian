@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
  * @author Philipp Katz
  */
 public final class DateFormat {
-
     private final String regex;
     private final String format;
     private Pattern pattern;

@@ -182,9 +182,7 @@ public final class DateParser {
     }
 
     /**
-     * <p>
      * Find all dates in a text by trying the given {@link DateFormat}s.
-     * </p>
      *
      * @param text    The text to check for dates, not <code>null</code>.
      * @param formats A list of formats to try for parsing, not <code>null</code>.
@@ -193,15 +191,16 @@ public final class DateParser {
      */
     public static List<ExtractedDate> findDates(String text, DateFormat... formats) {
         List<ExtractedDate> result = new ArrayList<>();
+        //        StopWatch stopWatch = new StopWatch();
         for (DateFormat format : formats) {
             List<ExtractedDate> dates = findDates(text, format);
             for (ExtractedDate date : dates) {
                 String dateString = date.getDateString();
-                text = text.replaceFirst(dateString, StringUtils.repeat('x', dateString.length()));
+                text = StringHelper.replaceFirst(text, dateString, StringUtils.repeat('x', dateString.length()));
                 result.add(date);
             }
-
         }
+        //        System.out.println(stopWatch.getElapsedTimeString() + ", " + result.size());
         return result;
     }
 
