@@ -21,7 +21,6 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.ImageSizeComparator;
@@ -52,6 +51,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianContentExtractor.class);
 
     private static final List<String> MAIN_NODE_HINTS = new ArrayList<>();
+    private static final List<String> MAIN_NODE_HINTS_ONE_ONLY = new ArrayList<>();
 
     /**
      * The entire document.
@@ -134,6 +134,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // MAIN_NODE_HINTS.add("post");
         MAIN_NODE_HINTS.add("page-storyBody");
         MAIN_NODE_HINTS.add("st_text_c");
+
+        // if only one node matches the hints, we take it
+        MAIN_NODE_HINTS_ONE_ONLY.add("article-jsonld");
+        MAIN_NODE_HINTS_ONE_ONLY.add("article-text");
     }
 
     @Override
@@ -258,7 +262,11 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
         if (content.isEmpty()) {
-            content = HtmlHelper.documentToText(document);
+            if (resultNode != null) {
+                content = HtmlHelper.documentToText(resultNode);
+            } else {
+                content = HtmlHelper.documentToText(document);
+            }
         }
 
         sentences = Tokenizer.getSentences(content, true);
@@ -399,6 +407,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         }
 
         mainContentText = StringHelper.cleanKeepFormat(mainContentText);
+        //        sentences = Tokenizer.getSentences(mainContentText, true);
     }
 
     private int countDirectTextNodes() {
@@ -428,6 +437,8 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         List<Node> removeNodes = new ArrayList<>();
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//header//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//nav//*"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//button"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//form"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'head']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pageheader']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'header']//*"));
@@ -480,6 +491,25 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private Node getMainContentNodeWithHints() {
         Node mainNode = null;
 
+        //        List<Node> articleNodes = XPathHelper.getXhtmlNodes(getDocument(), "//main//article");
+        //        if (articleNodes.size() > 1000) {
+        //            mainNode = articleNodes.get(0);
+        //        } else {
+        for (String hint : MAIN_NODE_HINTS_ONE_ONLY) {
+            List<Node> mainNodes = new ArrayList<>();
+
+            try {
+                mainNodes = XPathHelper.getXhtmlNodes(getDocument(),
+                        "//*[(self::xhtml:div) or (self::xhtml:p) or (self::xhtml:span)][@class='" + hint + "' or contains(@class,'" + hint + " ') or contains(@class,' " + hint
+                                + "') or @itemprop='" + hint + "' or @id='" + hint + "' or @data-testid='" + hint + "']");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (mainNodes.size() == 1) {
+                mainNode = mainNodes.get(0);
+                return mainNode;
+            }
+        }
         for (String hint : MAIN_NODE_HINTS) {
             List<Node> mainNodes = new ArrayList<>();
 
@@ -504,6 +534,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 break;
             }
         }
+        //        }
 
         return mainNode;
     }
@@ -865,29 +896,6 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
         imageUrls = temp;
 
-    }
-
-    /**
-     * <p>
-     * Get the author of the article using the WebKnox API.
-     * </p>
-     *
-     * @param apiKey The WebKnox API key.
-     * @return The detected author name.
-     */
-    public String getAuthorName(String apiKey) {
-        String author = "";
-        String url = "http://webknox.com/api/webpage/author?url=" + getDocument().getDocumentURI() + "&language=en&apiKey=" + apiKey;
-        DocumentRetriever retriever = new DocumentRetriever();
-        // changed to palladian JSON, but untested. Philipp, 2013-09-22
-        String authorsJson = retriever.getText(url);
-        if (authorsJson != null && authorsJson.length() > 0) {
-            try {
-                return new JsonArray(authorsJson).getJsonObject(0).getString("name");
-            } catch (JsonException e) {
-            }
-        }
-        return author;
     }
 
     /**

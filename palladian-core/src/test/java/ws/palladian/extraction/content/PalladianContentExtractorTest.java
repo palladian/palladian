@@ -156,10 +156,22 @@ public class PalladianContentExtractorTest {
 
         extractor = getExtractor("pageContentExtractor/news-worldnewsera.html");
         collector.checkThat(extractor.getResultTitle(), is("United By Constitution, Divided By Religion - WorldNewsEra"));
-        collector.checkThat(extractor.getResultText(), startsWith("Religion is nowhere defined in the Constitution of Indi"));
+        collector.checkThat(extractor.getResultText(), startsWith("Religion is nowhere defined in the Constitution of India"));
         collector.checkThat(extractor.getResultText(), containsString("and stop moving our constitutional courts over religious matters."));
+        collector.checkThat(extractor.getResultText(), not(containsString("Search for")));
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-16 06:59:17"));
         collector.checkThat(extractor.getDominantImage().getImageUrl(), is("https://www.financialexpress.com/wp-content/uploads/2022/03/hijab.jpg"));
+
+        extractor = getExtractor("pageContentExtractor/news-theage.html");
+        collector.checkThat(extractor.getResultTitle(), is("Why this $8 million Toorak home was built upside down"));
+        collector.checkThat(extractor.getResultText(), startsWith("Toorak is home to some of the most stunning residences in Melbourne, but not all of them have views."));
+        // TODO the page breaks article in two parts for some dumb reason
+        //        collector.checkThat(extractor.getResultText(), containsString("“Not many houses in Toorak get really special views.”"));
+        collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-13 13:01:00"));
+        collector.checkThat(extractor.getDominantImage().getImageUrl(),
+                is("https://static.ffx.io/images/$zoom_0.1765%2C$multiply_0.7554%2C$ratio_1.777778%2C$width_1059%2C$x_0%2C$y_107/t_crop_custom/q_86%2Cf_auto/97ba8fb5e0c5ea655c2ff7d2ec49e3e76e81a08b"));
+        collector.checkThat(extractor.getDominantImage().getWidth(), is(800));
+        collector.checkThat(extractor.getDominantImage().getHeight(), is(450));
 
         extractor = getExtractor("pageContentExtractor/news-smh.html");
         collector.checkThat(extractor.getResultTitle(), is("Paper crisis could put news titles out of business"));
@@ -170,17 +182,6 @@ public class PalladianContentExtractorTest {
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-13 13:30:00"));
         collector.checkThat(extractor.getDominantImage().getImageUrl(),
                 is("https://static.ffx.io/images/$zoom_0.2648%2C$multiply_0.7554%2C$ratio_1.777778%2C$width_1059%2C$x_0%2C$y_95/t_crop_custom/q_86%2Cf_auto/d33e1f2b68acb488ccdc74153543aacadf95eac6"));
-        collector.checkThat(extractor.getDominantImage().getWidth(), is(800));
-        collector.checkThat(extractor.getDominantImage().getHeight(), is(450));
-
-        extractor = getExtractor("pageContentExtractor/news-theage.html");
-        collector.checkThat(extractor.getResultTitle(), is("Why this $8 million Toorak home was built upside down"));
-        collector.checkThat(extractor.getResultText(), startsWith("Toorak is home to some of the most stunning residences in Melbourne, but not all of them have views."));
-        // TODO the page breaks article in two parts for some dumb reason
-        //        collector.checkThat(extractor.getResultText(), containsString("“Not many houses in Toorak get really special views.”"));
-        collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-13 13:01:00"));
-        collector.checkThat(extractor.getDominantImage().getImageUrl(),
-                is("https://static.ffx.io/images/$zoom_0.1765%2C$multiply_0.7554%2C$ratio_1.777778%2C$width_1059%2C$x_0%2C$y_107/t_crop_custom/q_86%2Cf_auto/97ba8fb5e0c5ea655c2ff7d2ec49e3e76e81a08b"));
         collector.checkThat(extractor.getDominantImage().getWidth(), is(800));
         collector.checkThat(extractor.getDominantImage().getHeight(), is(450));
 
