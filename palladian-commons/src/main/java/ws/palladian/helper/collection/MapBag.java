@@ -18,7 +18,6 @@ import java.util.Map.Entry;
  * @author David Urbansky
  */
 public class MapBag {
-
     /** Each item is attached to one bag with a certain id. */
     private final Map<String, Integer> map;
 
@@ -71,7 +70,6 @@ public class MapBag {
      * @return A different bag entry.
      */
     public String getDifferentBagEntry(String bagEntry) {
-
         Set<String> bag = getBag(bagEntry);
 
         int size = bag.size();

@@ -6,11 +6,11 @@ import ws.palladian.classification.text.Preprocessor;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.math.SetSimilarity;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public final class FeatureBasedSimilarity extends AbstractStringMetric {
-
     private final FeatureSetting featureSetting;
 
     private final SetSimilarity setSimilarity;
@@ -39,7 +39,7 @@ public final class FeatureBasedSimilarity extends AbstractStringMetric {
 
     private Set<String> extractFeatures(String s) {
         Iterator<String> featureIterator = preprocessor.apply(s);
-        return CollectionHelper.newHashSet(featureIterator);
+        return new HashSet<>(CollectionHelper.newArrayList(featureIterator));
     }
 
     @Override

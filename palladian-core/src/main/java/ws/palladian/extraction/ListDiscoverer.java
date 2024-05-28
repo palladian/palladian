@@ -39,8 +39,6 @@ import java.util.*;
  * @author David Urbansky
  */
 public class ListDiscoverer {
-
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ListDiscoverer.class);
 
     /** Set of URLs that were found in the pagination of the given page */
@@ -112,7 +110,7 @@ public class ListDiscoverer {
             }
 
             Map<String, Integer> xPathMap = paginationPaths.getXPathMap();
-            if (xPathMap.entrySet().size() > 0) {
+            if (!xPathMap.entrySet().isEmpty()) {
                 Map<String, Double> xPathsBySimilarity = new LinkedHashMap<String, Double>();
                 // QGramsDistance stringDistanceMetric = new QGramsDistance();
                 StringMetric stringDistanceMetric = new JaroWinklerSimilarity();
@@ -129,7 +127,7 @@ public class ListDiscoverer {
                     HashSet<String> hrefTexts = new HashSet<String>();
                     for (int i = 0; i < hrefNodes.size(); i++) {
                         String hrefText = hrefNodes.get(i).getTextContent().replaceAll("#.*", "");
-                        if (hrefText.length() == 0) {
+                        if (hrefText.isEmpty()) {
                             samePageLinks++;
                             continue;
                         }

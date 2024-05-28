@@ -34,7 +34,6 @@ public class TfIdfSimilarity extends AbstractStringMetric {
 
     @Override
     public double getSimilarity(String i1, String i2) {
-
         List<String> t1 = CollectionHelper.newArrayList(preprocessor.apply(i1));
         List<String> t2 = CollectionHelper.newArrayList(preprocessor.apply(i2));
 
