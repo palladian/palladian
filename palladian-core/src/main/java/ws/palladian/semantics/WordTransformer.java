@@ -343,7 +343,7 @@ public class WordTransformer {
     public static List<String> splitGermanCompoundWords(String word, boolean forceSplit, boolean allPartsMustBeInDictionary) {
         List<String> parts = splitGermanCompoundWords(word, forceSplit);
         for (String part : parts) {
-            if (!GERMAN_WORDS.contains(part)) {
+            if (allPartsMustBeInDictionary && !GERMAN_WORDS.contains(part)) {
                 return Arrays.asList(word);
             }
         }

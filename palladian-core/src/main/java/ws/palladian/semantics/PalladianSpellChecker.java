@@ -32,17 +32,9 @@ import java.util.regex.Pattern;
  * https://norvig.com/spell-correct.html
  */
 public class PalladianSpellChecker {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(PalladianSpellChecker.class);
     private static final Pattern SPLIT = Pattern.compile("\\s");
     private static final Collection<String> EMPTY_SET = new HashSet<>();
-
-    /**
-     * Support for correcting German compounds. The number of words to allow in a compound.
-     */
-    private int germanCompoundSupport = 0;
 
     /**
      * The longer the words, the longer it takes to create the variations (edits). This is the maxium word length we
@@ -53,9 +45,19 @@ public class PalladianSpellChecker {
     private int minWordLength = 2;
 
     /**
+     * Support for correcting German compounds. The number of words to allow in a compound.
+     */
+    private int germanCompoundSupport = 0;
+
+    /**
      * The number of occurrences for a candidate before we skip breaking German compounds apart.
      */
     private int germanCompoundStopCount = 50;
+
+    /**
+     * The minimum length of a German compound word.
+     */
+    private int germanCompoundMinLength = 4;
 
     /**
      * Manual spelling mappings. Word, e.g. "cov" => "cow" and phrase, e.g. "i pad" => "ipad"
@@ -512,7 +514,7 @@ public class PalladianSpellChecker {
                 List<String> strings = WordTransformer.splitGermanCompoundWords(word);
                 if (strings.size() <= getGermanCompoundWordNumber()) {
                     for (String string : strings) {
-                        if (string.length() < 2) {
+                        if (string.length() < germanCompoundMinLength) {
                             compoundCorrect = false;
                             break;
                         }
@@ -619,6 +621,14 @@ public class PalladianSpellChecker {
 
     public void setGermanCompoundStopCount(int germanCompoundStopCount) {
         this.germanCompoundStopCount = germanCompoundStopCount;
+    }
+
+    public int getGermanCompoundMinLength() {
+        return germanCompoundMinLength;
+    }
+
+    public void setGermanCompoundMinLength(int germanCompoundMinLength) {
+        this.germanCompoundMinLength = germanCompoundMinLength;
     }
 
     protected int getWordCount(String word) {
