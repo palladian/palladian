@@ -65,12 +65,12 @@ public final class FileHelper {
     /**
      * Constant for video file extensions.
      */
-    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid", "wmv");
+    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid", "wmv", "mpeg");
 
     /**
      * Constant for audio file extensions.
      */
-    public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac");
+    public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac", "wma", "m4a");
 
     /**
      * Constant for general binary file extensions, including.
@@ -85,6 +85,7 @@ public final class FileHelper {
     static {
         List<String> binaryFileExtensions = new ArrayList<>();
         binaryFileExtensions.add("pdf");
+        binaryFileExtensions.add("pdc");
         binaryFileExtensions.add("odp");
         binaryFileExtensions.add("ods");
         binaryFileExtensions.add("odt");
@@ -108,6 +109,19 @@ public final class FileHelper {
         binaryFileExtensions.add("swf");
         binaryFileExtensions.add("dll");
         binaryFileExtensions.add("dwg");
+        binaryFileExtensions.add("war");
+        binaryFileExtensions.add("appimage");
+        binaryFileExtensions.add("rpm");
+        binaryFileExtensions.add("dmg");
+        binaryFileExtensions.add("ipa");
+        binaryFileExtensions.add("snap");
+        binaryFileExtensions.add("themepack");
+        binaryFileExtensions.add("txz");
+        binaryFileExtensions.add("msix");
+        binaryFileExtensions.add("p5p");
+        binaryFileExtensions.add("msixbundle");
+        binaryFileExtensions.add("flatpak");
+        binaryFileExtensions.add("nupkg");
         binaryFileExtensions.addAll(VIDEO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
