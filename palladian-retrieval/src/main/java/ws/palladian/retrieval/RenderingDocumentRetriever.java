@@ -16,6 +16,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.ThreadHelper;
@@ -372,7 +373,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
         try {
             InputStream stream = new ByteArrayInputStream(driver.getPageSource().getBytes(StandardCharsets.UTF_8));
-            document = ParserFactory.createHtmlParser().parse(stream);
+            InputSource inputSource = new InputSource(stream);
+            inputSource.setEncoding(StandardCharsets.UTF_8.name());
+            document = ParserFactory.createHtmlParser().parse(inputSource);
             document.setDocumentURI(driver.getCurrentUrl());
         } catch (Exception e) {
             e.printStackTrace();
