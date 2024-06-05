@@ -24,6 +24,9 @@ import java.util.function.Predicate;
  * @author Philipp Katz
  */
 public final class CollectionHelper {
+    // experimentally found value, where parallel streaming is faster than sequential streaming
+    public static final int SET_SIZE_FOR_PARALLEL_STREAMING = 40_000;
+
     /**
      * Indicate sorting order.
      */
@@ -950,12 +953,22 @@ public final class CollectionHelper {
             largerSet = setA;
         }
 
-        IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet();
-        for (int element : smallerSet) {
-            if (largerSet.contains(element)) {
-                intersection.add(element);
+        IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
+        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+            T finalLargerSet = largerSet;
+            smallerSet.intParallelStream().forEach(i -> {
+                if (finalLargerSet.contains(i)) {
+                    intersection.add(i);
+                }
+            });
+        } else {
+            for (int element : smallerSet) {
+                if (largerSet.contains(element)) {
+                    intersection.add(element);
+                }
             }
         }
+
         return intersection;
     }
 
@@ -1002,34 +1015,121 @@ public final class CollectionHelper {
         return count;
     }
 
-    public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
+    //    public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
+    //        if (setA.size() < setB.size()) {
+    //            setA.retainAll(setB);
+    //        } else {
+    //            setB.retainAll(setA);
+    //            setA = setB;
+    //        }
+    //
+    //        return setA;
+    //    }
+    //
+    //    public static IntSortedSet intersectFastWithModification(IntSortedSet setA, IntSortedSet setB) {
+    //        if (setA.size() < setB.size()) {
+    //            setA.retainAll(setB);
+    //        } else {
+    //            setB.retainAll(setA);
+    //            setA = setB;
+    //        }
+    //
+    //        return setA;
+    //    }
+    //
+    public static IntOpenHashSet intersectFastWithModificationOld(IntOpenHashSet setA, IntOpenHashSet setB) {
         if (setA.size() < setB.size()) {
             setA.retainAll(setB);
         } else {
             setB.retainAll(setA);
             setA = setB;
+        }
+
+        return setA;
+    }
+
+    public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
+        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+            AbstractIntSet finalSetA = setA;
+            if (setA.size() < setB.size()) {
+                setA.intParallelStream().forEach(i -> {
+                    if (!setB.contains(i)) {
+                        finalSetA.remove(i);
+                    }
+                });
+            } else {
+                setB.intParallelStream().forEach(i -> {
+                    if (!finalSetA.contains(i)) {
+                        setB.remove(i);
+                    }
+                });
+                setA = setB;
+            }
+        } else {
+            if (setA.size() < setB.size()) {
+                setA.retainAll(setB);
+            } else {
+                setB.retainAll(setA);
+                setA = setB;
+            }
         }
 
         return setA;
     }
 
     public static IntSortedSet intersectFastWithModification(IntSortedSet setA, IntSortedSet setB) {
-        if (setA.size() < setB.size()) {
-            setA.retainAll(setB);
+        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+            IntSortedSet finalSetA = setA;
+            if (setA.size() < setB.size()) {
+                setA.intParallelStream().forEach(i -> {
+                    if (!setB.contains(i)) {
+                        finalSetA.remove(i);
+                    }
+                });
+            } else {
+                setB.intParallelStream().forEach(i -> {
+                    if (!finalSetA.contains(i)) {
+                        setB.remove(i);
+                    }
+                });
+                setA = setB;
+            }
         } else {
-            setB.retainAll(setA);
-            setA = setB;
+            if (setA.size() < setB.size()) {
+                setA.retainAll(setB);
+            } else {
+                setB.retainAll(setA);
+                setA = setB;
+            }
         }
 
         return setA;
     }
 
     public static IntOpenHashSet intersectFastWithModification(IntOpenHashSet setA, IntOpenHashSet setB) {
-        if (setA.size() < setB.size()) {
-            setA.retainAll(setB);
+        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+            IntOpenHashSet finalSetA = setA;
+            if (setA.size() < setB.size()) {
+                setA.intParallelStream().forEach(i -> {
+                    if (!setB.contains(i)) {
+                        finalSetA.remove(i);
+                    }
+                });
+            } else {
+                setB.intParallelStream().forEach(i -> {
+                    if (!finalSetA.contains(i)) {
+                        setB.remove(i);
+                    }
+                });
+                setA = setB;
+            }
         } else {
-            setB.retainAll(setA);
-            setA = setB;
+            if (setA.size() < setB.size()) {
+                setA.retainAll(setB);
+            } else {
+                setB.retainAll(setA);
+                setA = setB;
+            }
         }
 
         return setA;
@@ -1265,16 +1365,19 @@ public final class CollectionHelper {
 
         IntOpenHashSet setA = new IntOpenHashSet();
         IntOpenHashSet setB = new IntOpenHashSet();
-        for (int i = (int) (Math.random() * 10000); i < Math.random() * 1000000000; i++) {
+        for (int i = (int) (Math.random() * 100); i < 1000; i++) {
             setA.add(i);
         }
-        for (int i = (int) (Math.random() * 10000); i < Math.random() * 1000000000; i++) {
+        for (int i = (int) (Math.random() * 100); i < 1000; i++) {
             setB.add(i);
         }
         StopWatch stopWatch = new StopWatch();
-        for (int j = 0; j < 10000; j++) {
+        for (int j = 0; j < 1000; j++) {
             //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
-            AbstractIntSet newSet = CollectionHelper.intersectFastWithModification(setA, setB);
+            //            AbstractIntSet newSet = CollectionHelper.intersectFastWithModificationOld(setA, setB);
+            AbstractIntSet newSet2 = CollectionHelper.intersectFastWithModification(setA, setB);
+            //            System.out.println(newSet.size() + " " + newSet2.size());
+            //            IntSet newSet = CollectionHelper.intersectFast(setA, setB);
             //            AbstractIntSet newSet2 = CollectionHelper.intersectBitSet(setA, setB);
             //            System.out.println(newSet.size() + " " + newSet2.size());
             //            setA.retainAll(setB);
@@ -1282,13 +1385,13 @@ public final class CollectionHelper {
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
-        stopWatch = new StopWatch();
-        for (int j = 0; j < 10000; j++) {
-            //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
-            //            AbstractIntSet newSet = CollectionHelper.intersectBitSet(setA, setB);
-            //            setA.retainAll(setB);
-            //            fastAdd(setA, setB);
-        }
-        System.out.println(stopWatch.getElapsedTimeString());
+        //        stopWatch = new StopWatch();
+        //        for (int j = 0; j < 10000; j++) {
+        //            //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
+        //            //            AbstractIntSet newSet = CollectionHelper.intersectBitSet(setA, setB);
+        //            //            setA.retainAll(setB);
+        //            //            fastAdd(setA, setB);
+        //        }
+        //        System.out.println(stopWatch.getElapsedTimeString());
     }
 }
