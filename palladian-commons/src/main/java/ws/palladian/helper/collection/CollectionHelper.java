@@ -1053,100 +1053,100 @@ public final class CollectionHelper {
     }
 
     public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
-        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
-            AbstractIntSet finalSetA = setA;
-            if (setA.size() < setB.size()) {
-                synchronized (finalSetA) {
-                    finalSetA.intParallelStream().forEach(i -> {
-                        if (!setB.contains(i)) {
-                            finalSetA.remove(i);
-                        }
-                    });
-                }
-            } else {
-                synchronized (setB) {
-                    setB.intParallelStream().forEach(i -> {
-                        if (!finalSetA.contains(i)) {
-                            setB.remove(i);
-                        }
-                    });
-                }
-                setA = setB;
-            }
+        //        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+        //            AbstractIntSet finalSetA = setA;
+        //            if (setA.size() < setB.size()) {
+        //                synchronized (finalSetA) {
+        //                    finalSetA.intParallelStream().forEach(i -> {
+        //                        if (!setB.contains(i)) {
+        //                            finalSetA.remove(i);
+        //                        }
+        //                    });
+        //                }
+        //            } else {
+        //                synchronized (setB) {
+        //                    setB.intParallelStream().forEach(i -> {
+        //                        if (!finalSetA.contains(i)) {
+        //                            setB.remove(i);
+        //                        }
+        //                    });
+        //                }
+        //                setA = setB;
+        //            }
+        //        } else {
+        if (setA.size() < setB.size()) {
+            setA.retainAll(setB);
         } else {
-            if (setA.size() < setB.size()) {
-                setA.retainAll(setB);
-            } else {
-                setB.retainAll(setA);
-                setA = setB;
-            }
+            setB.retainAll(setA);
+            setA = setB;
         }
+        //        }
 
         return setA;
     }
 
     public static IntSortedSet intersectFastWithModification(IntSortedSet setA, IntSortedSet setB) {
-        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
-            IntSortedSet finalSetA = setA;
-            if (setA.size() < setB.size()) {
-                synchronized (finalSetA) {
-                    finalSetA.intParallelStream().forEach(i -> {
-                        if (!setB.contains(i)) {
-                            finalSetA.remove(i);
-                        }
-                    });
-                }
-            } else {
-                synchronized (setB) {
-                    setB.intParallelStream().forEach(i -> {
-                        if (!finalSetA.contains(i)) {
-                            setB.remove(i);
-                        }
-                    });
-                }
-                setA = setB;
-            }
+        //        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+        //            IntSortedSet finalSetA = setA;
+        //            if (setA.size() < setB.size()) {
+        //                synchronized (finalSetA) {
+        //                    finalSetA.intParallelStream().forEach(i -> {
+        //                        if (!setB.contains(i)) {
+        //                            finalSetA.remove(i);
+        //                        }
+        //                    });
+        //                }
+        //            } else {
+        //                synchronized (setB) {
+        //                    setB.intParallelStream().forEach(i -> {
+        //                        if (!finalSetA.contains(i)) {
+        //                            setB.remove(i);
+        //                        }
+        //                    });
+        //                }
+        //                setA = setB;
+        //            }
+        //        } else {
+        if (setA.size() < setB.size()) {
+            setA.retainAll(setB);
         } else {
-            if (setA.size() < setB.size()) {
-                setA.retainAll(setB);
-            } else {
-                setB.retainAll(setA);
-                setA = setB;
-            }
+            setB.retainAll(setA);
+            setA = setB;
         }
+        //        }
 
         return setA;
     }
 
     public static IntOpenHashSet intersectFastWithModification(IntOpenHashSet setA, IntOpenHashSet setB) {
-        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
-            IntOpenHashSet finalSetA = setA;
-            if (setA.size() < setB.size()) {
-                synchronized (finalSetA) {
-                    finalSetA.intParallelStream().forEach(i -> {
-                        if (!setB.contains(i)) {
-                            finalSetA.remove(i);
-                        }
-                    });
-                }
-            } else {
-                synchronized (setB) {
-                    setB.intParallelStream().forEach(i -> {
-                        if (!finalSetA.contains(i)) {
-                            setB.remove(i);
-                        }
-                    });
-                }
-                setA = setB;
-            }
+        //        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+        //            IntOpenHashSet finalSetA = setA;
+        //            if (setA.size() < setB.size()) {
+        //                synchronized (finalSetA) {
+        //                    finalSetA.intParallelStream().forEach(i -> {
+        //                        if (!setB.contains(i)) {
+        //                            finalSetA.remove(i);
+        //                        }
+        //                    });
+        //                }
+        //            } else {
+        //                synchronized (setB) {
+        //                    setB.intParallelStream().forEach(i -> {
+        //                        if (!finalSetA.contains(i)) {
+        //                            setB.remove(i);
+        //                        }
+        //                    });
+        //                }
+        //                setA = setB;
+        //            }
+        //        } else {
+        if (setA.size() < setB.size()) {
+            setA.retainAll(setB);
         } else {
-            if (setA.size() < setB.size()) {
-                setA.retainAll(setB);
-            } else {
-                setB.retainAll(setA);
-                setA = setB;
-            }
+            setB.retainAll(setA);
+            setA = setB;
         }
+        //        }
 
         return setA;
     }

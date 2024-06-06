@@ -8,6 +8,7 @@ import ws.palladian.helper.ProcessHelper;
 import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,9 @@ import java.util.stream.Collectors;
  *
  * @author David Urbansky
  */
-public class Spatial2dIdMapReducedPrecision {
+public class Spatial2dIdMapReducedPrecision implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private FloatArrayList latValues = new FloatArrayList();
     private List<IdCoordinate> latIds = new ObjectArrayList<>();
     private FloatArrayList lngValues = new FloatArrayList();
