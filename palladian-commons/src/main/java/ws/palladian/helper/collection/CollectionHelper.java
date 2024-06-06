@@ -1423,10 +1423,10 @@ public final class CollectionHelper {
         StopWatch stopWatch = new StopWatch();
         for (int j = 0; j < 100; j++) {
             //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
-            AbstractIntSet newSet = CollectionHelper.intersectFastWithModificationOld(setA, setB);
-            AbstractIntSet newSet2 = CollectionHelper.intersectFastWithModification(setA, setB);
-            AbstractIntSet newSet3 = CollectionHelper.intersectFastWithModification2(setA, setB);
-            System.out.println(newSet.size() + " " + newSet3.size() + " " + newSet2.size());
+            //            AbstractIntSet newSet = CollectionHelper.intersectFastWithModificationOld(setA, setB);
+            //            AbstractIntSet newSet2 = CollectionHelper.intersectFastWithModification(setA, setB);
+            //            AbstractIntSet newSet3 = CollectionHelper.intersectFastWithModification2(setA, setB);
+            //            System.out.println(newSet.size() + " " + newSet3.size() + " " + newSet2.size());
             //            IntSet newSet = CollectionHelper.intersectFast(setA, setB);
             //            AbstractIntSet newSet2 = CollectionHelper.intersectBitSet(setA, setB);
             //            System.out.println(newSet.size() + " " + newSet2.size());
