@@ -954,22 +954,9 @@ public final class CollectionHelper {
         }
 
         IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
-        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
-            T finalLargerSet = largerSet;
-            synchronized (smallerSet) {
-                smallerSet.intParallelStream().forEach(i -> {
-                    if (finalLargerSet.contains(i)) {
-                        synchronized (intersection) {
-                            intersection.add(i);
-                        }
-                    }
-                });
-            }
-        } else {
-            for (int element : smallerSet) {
-                if (largerSet.contains(element)) {
-                    intersection.add(element);
-                }
+        for (int element : smallerSet) {
+            if (largerSet.contains(element)) {
+                intersection.add(element);
             }
         }
 
