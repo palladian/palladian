@@ -1040,7 +1040,11 @@ public final class CollectionHelper {
     //    }
 
     public static <T extends IntSet> T intersectFastWithModification(T setA, T setB) {
-        if (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING) {
+        return intersectFastWithModification(setA, setB, false);
+    }
+
+    public static <T extends IntSet> T intersectFastWithModification(T setA, T setB, boolean allowParallelStream) {
+        if (allowParallelStream && (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING)) {
             T finalSetA = setA;
             if (setA.size() < setB.size()) {
                 IntOpenHashSet toRemove = finalSetA.intParallelStream().filter(i -> !setB.contains(i)).boxed().collect(Collectors.toCollection(IntOpenHashSet::new));
