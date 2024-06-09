@@ -42,9 +42,6 @@ import java.util.regex.Pattern;
  * @author Jaroslav Vankat
  */
 public final class XPathHelper {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(XPathHelper.class);
 
     /**
@@ -187,9 +184,7 @@ public final class XPathHelper {
     }
 
     /**
-     * <p>
      * Get a {@link Node} matching the given XPath expression.
-     * </p>
      *
      * @param node  The Node or Document to consider, not <code>null</code>.
      * @param xPath The XPath expression, not <code>null</code> or empty.
@@ -203,9 +198,7 @@ public final class XPathHelper {
     }
 
     /**
-     * <p>
      * Get the {@link Node} with the specified ID.
-     * </p>
      *
      * @param node   The Node or Document to consider, not <code>null</code>.
      * @param nodeId The ID of the Node to return, not <code>null</code> or empty.
@@ -220,9 +213,7 @@ public final class XPathHelper {
     }
 
     /**
-     * <p>
      * Get the parent of the {@link Node} with the specified ID.
-     * </p>
      *
      * @param node   The Node or Document to consider, not <code>null</code>.
      * @param nodeId The ID of the Node to return, not <code>null</code> or empty.
@@ -240,9 +231,7 @@ public final class XPathHelper {
     }
 
     /**
-     * <p>
      * Get the text content of a child node with the given XPath expression.
-     * </p>
      *
      * @param node  The node whose children are considered, not <code>null</code>.
      * @param xPath The XPath expression addressing the node with the sought text content, not <code>null</code> or
@@ -263,9 +252,7 @@ public final class XPathHelper {
     }
 
     /**
-     * <p>
      * Get the text content of a child node with the given XPath expression.
-     * </p>
      *
      * @param node  The node whose children are considered, not <code>null</code>.
      * @param xPath The XPath expression addressing the node with the sought text content, not <code>null</code> or
@@ -428,9 +415,7 @@ public final class XPathHelper {
     }
 
     /**
-     * <p>
      * Check whether {@link Document} has an XHTML namespace declared.
-     * </p>
      *
      * @param document The document.
      * @return <code>true</code> if the document has an XHTML namespace declared, else <code>false</code>.
@@ -440,7 +425,7 @@ public final class XPathHelper {
 
         // added this when adding Validator.nu parser; I'm not sure,
         // whether the code below is still necessary -- Philipp, 2013-01-31
-        if (XHTML_NAMESPACE.equals(document.getFirstChild().getNamespaceURI())) {
+        if (document.getFirstChild() != null && XHTML_NAMESPACE.equals(document.getFirstChild().getNamespaceURI())) {
             return true;
         }
 
