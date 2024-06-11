@@ -389,7 +389,7 @@ public final class PageAnalyzer {
             // TODO allow th to have [] but change getNextSibling then!
             // TODO adding [1] also if no other elements exist could improve performance (XWI)
             String currentNode = node.getNodeName();
-            if ((node.getNextSibling() != null || psCount > 1) && !node.getNodeName().equalsIgnoreCase("html") && !node.getNodeName().equalsIgnoreCase("th")) {
+            if ((node.getNextSibling() != null || psCount > 1) && !node.getNodeName().equalsIgnoreCase("html") && !node.getNodeName().equalsIgnoreCase("th") && !node.getNodeName().equalsIgnoreCase("body")) {
                 currentNode = node.getNodeName() + "[" + psCount + "]";
             }
             // System.out.println(node.getNodeName()+" "+node.getNodeType()+" "+node.getNodeValue());

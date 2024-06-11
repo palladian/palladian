@@ -58,7 +58,7 @@ public abstract class BaseDocumentParser implements DocumentParser {
      * @param charset The charset.
      * @return <code>true</code> in case the charset is supported, false otherwise.
      */
-    private static boolean isSupportedCharset(String charset) {
+    protected static boolean isSupportedCharset(String charset) {
         if (charset == null) {
             return false;
         }

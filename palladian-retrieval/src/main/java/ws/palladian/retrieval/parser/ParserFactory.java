@@ -22,11 +22,11 @@ public final class ParserFactory {
      * @return
      */
     public static DocumentParser createHtmlParser() {
-        return new ValidatorNuParser();
+        return new JsoupParser();
     }
 
     public static DocumentParser createHtmlParser2() {
-        return new JsoupParser();
+        return new ValidatorNuParser();
     }
 
     /**

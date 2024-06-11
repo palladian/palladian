@@ -444,6 +444,12 @@ public final class XPathHelper {
             return true;
         }
 
+        // no namespace is added by Jsoup parser parser on the first child
+        Node nextSibling = document.getFirstChild().getNextSibling();
+        if (nextSibling != null && nextSibling.getNodeName().equalsIgnoreCase("html") && XHTML_NAMESPACE.equals(nextSibling.getNamespaceURI())) {
+            return true;
+        }
+
         boolean result = false;
         Node node = null;
         if (document.getLastChild() != null && document.getLastChild().getAttributes() != null) {
