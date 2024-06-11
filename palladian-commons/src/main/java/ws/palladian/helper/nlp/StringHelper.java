@@ -222,9 +222,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Make first letters of all words upper case.
-     * </p>
      *
      * @param string The term.
      * @return The term with an upper case first letters.

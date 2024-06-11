@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -24,6 +25,9 @@ import java.util.function.Predicate;
  * @author Philipp Katz
  */
 public final class CollectionHelper {
+    // experimentally found value, where parallel streaming is faster than sequential streaming
+    public static final int SET_SIZE_FOR_PARALLEL_STREAMING = 40_000;
+
     /**
      * Indicate sorting order.
      */
@@ -933,9 +937,8 @@ public final class CollectionHelper {
     //        return intersection;
     //    }
     //
-    public static <T extends AbstractIntSet> IntLinkedOpenHashSet intersect(T setA, T setB) {
-        Validate.notNull(setA, "setA must not be null");
-        Validate.notNull(setB, "setB must not be null");
+
+    public static <T extends IntSet> IntLinkedOpenHashSet intersect(T setA, T setB) {
         // the most common variant to calculate an intersection is something like this:
         // Set intersection = new HashSet(setA); intersection.retainAll(setB);
         // however, if both sets have considerably different sizes, this can be optimized,
@@ -950,12 +953,13 @@ public final class CollectionHelper {
             largerSet = setA;
         }
 
-        IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet();
+        IntLinkedOpenHashSet intersection = new IntLinkedOpenHashSet(smallerSet.size());
         for (int element : smallerSet) {
             if (largerSet.contains(element)) {
                 intersection.add(element);
             }
         }
+
         return intersection;
     }
 
@@ -1002,50 +1006,66 @@ public final class CollectionHelper {
         return count;
     }
 
-    public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
-        if (setA.size() < setB.size()) {
-            setA.retainAll(setB);
-        } else {
-            setB.retainAll(setA);
-            setA = setB;
-        }
-
-        return setA;
-    }
-
-    public static IntSortedSet intersectFastWithModification(IntSortedSet setA, IntSortedSet setB) {
-        if (setA.size() < setB.size()) {
-            setA.retainAll(setB);
-        } else {
-            setB.retainAll(setA);
-            setA = setB;
-        }
-
-        return setA;
-    }
-
-    public static IntOpenHashSet intersectFastWithModification(IntOpenHashSet setA, IntOpenHashSet setB) {
-        if (setA.size() < setB.size()) {
-            setA.retainAll(setB);
-        } else {
-            setB.retainAll(setA);
-            setA = setB;
-        }
-
-        return setA;
-    }
-
-    //    public static IntOpenHashSet intersectBitSet(IntOpenHashSet setA, IntOpenHashSet setB) {
-    //        BitSet bitSetA = new BitSet(setA.size());
-    //        BitSet bitSetB = new BitSet(setB.size());
-    //        setA.intParallelStream().forEach(bitSetA::set);
-    //        setB.intParallelStream().forEach(bitSetB::set);
-    //        bitSetA.and(bitSetB);
-    //        IntOpenHashSet intersectedSet = new IntOpenHashSet(bitSetA.cardinality());
-    //        bitSetA.stream().parallel().forEach(intersectedSet::add);
+    //    public static AbstractIntSet intersectFastWithModification(AbstractIntSet setA, AbstractIntSet setB) {
+    //        if (setA.size() < setB.size()) {
+    //            setA.retainAll(setB);
+    //        } else {
+    //            setB.retainAll(setA);
+    //            setA = setB;
+    //        }
     //
-    //        return intersectedSet;
+    //        return setA;
     //    }
+    //
+    //    public static IntSortedSet intersectFastWithModification(IntSortedSet setA, IntSortedSet setB) {
+    //        if (setA.size() < setB.size()) {
+    //            setA.retainAll(setB);
+    //        } else {
+    //            setB.retainAll(setA);
+    //            setA = setB;
+    //        }
+    //
+    //        return setA;
+    //    }
+    //
+    //    public static IntOpenHashSet intersectFastWithModification(IntOpenHashSet setA, IntOpenHashSet setB) {
+    //        if (setA.size() < setB.size()) {
+    //            setA.retainAll(setB);
+    //        } else {
+    //            setB.retainAll(setA);
+    //            setA = setB;
+    //        }
+    //
+    //        return setA;
+    //    }
+
+    public static <T extends IntSet> T intersectFastWithModification(T setA, T setB) {
+        return intersectFastWithModification(setA, setB, false);
+    }
+
+    public static <T extends IntSet> T intersectFastWithModification(T setA, T setB, boolean allowParallelStream) {
+        if (allowParallelStream && (setA.size() + setB.size() > SET_SIZE_FOR_PARALLEL_STREAMING)) {
+            T finalSetA = setA;
+            if (setA.size() < setB.size()) {
+                IntOpenHashSet toRemove = finalSetA.intParallelStream().filter(i -> !setB.contains(i)).boxed().collect(Collectors.toCollection(IntOpenHashSet::new));
+                finalSetA.removeAll(toRemove);
+                return finalSetA;
+            } else {
+                IntOpenHashSet toRemove = setB.intParallelStream().filter(i -> !finalSetA.contains(i)).boxed().collect(Collectors.toCollection(IntOpenHashSet::new));
+                setB.removeAll(toRemove);
+                return setB;
+            }
+        } else {
+            if (setA.size() < setB.size()) {
+                setA.retainAll(setB);
+            } else {
+                setB.retainAll(setA);
+                setA = setB;
+            }
+        }
+
+        return setA;
+    }
 
     /**
      * <p>
@@ -1210,8 +1230,6 @@ public final class CollectionHelper {
     }
 
     public static void main(String[] args) {
-        AbstractIntSet intersect = CollectionHelper.intersect(new IntOpenHashSet(), new IntLinkedOpenHashSet());
-
         //        Map<Integer, IntOpenHashSet> dataMap = new HashMap<>();
         //
         //        BitSet full = new BitSet();
@@ -1265,16 +1283,23 @@ public final class CollectionHelper {
 
         IntOpenHashSet setA = new IntOpenHashSet();
         IntOpenHashSet setB = new IntOpenHashSet();
-        for (int i = (int) (Math.random() * 10000); i < Math.random() * 1000000000; i++) {
+        for (int i = (int) (Math.random() * 100); i < 1000000; i++) {
             setA.add(i);
         }
-        for (int i = (int) (Math.random() * 10000); i < Math.random() * 1000000000; i++) {
+        for (int i = (int) (Math.random() * 100); i < 1000000; i++) {
             setB.add(i);
         }
         StopWatch stopWatch = new StopWatch();
-        for (int j = 0; j < 10000; j++) {
+        for (int j = 0; j < 100; j++) {
+            AbstractIntSet intersect = CollectionHelper.intersect(setA, setB);
+            //            AbstractIntSet intersect2 = CollectionHelper.intersectOld(setA, setB);
+            //            System.out.println(intersect.size() + " " + intersect2.size());
             //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
-            AbstractIntSet newSet = CollectionHelper.intersectFastWithModification(setA, setB);
+            //            AbstractIntSet newSet = CollectionHelper.intersectFastWithModificationOld(setA, setB);
+            //            IntOpenHashSet newSet2 = CollectionHelper.intersectFastWithModification(setA, setB);
+            //            AbstractIntSet newSet3 = CollectionHelper.intersectFastWithModification2(setA, setB);
+            //            System.out.println(newSet.size() + " " + newSet3.size() + " " + newSet2.size());
+            //            IntSet newSet = CollectionHelper.intersectFast(setA, setB);
             //            AbstractIntSet newSet2 = CollectionHelper.intersectBitSet(setA, setB);
             //            System.out.println(newSet.size() + " " + newSet2.size());
             //            setA.retainAll(setB);
@@ -1282,13 +1307,13 @@ public final class CollectionHelper {
         }
         System.out.println(stopWatch.getElapsedTimeString());
 
-        stopWatch = new StopWatch();
-        for (int j = 0; j < 10000; j++) {
-            //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
-            //            AbstractIntSet newSet = CollectionHelper.intersectBitSet(setA, setB);
-            //            setA.retainAll(setB);
-            //            fastAdd(setA, setB);
-        }
-        System.out.println(stopWatch.getElapsedTimeString());
+        //        stopWatch = new StopWatch();
+        //        for (int j = 0; j < 10000; j++) {
+        //            //            AbstractIntSet newSet = CollectionHelper.intersect(setA, setB);
+        //            //            AbstractIntSet newSet = CollectionHelper.intersectBitSet(setA, setB);
+        //            //            setA.retainAll(setB);
+        //            //            fastAdd(setA, setB);
+        //        }
+        //        System.out.println(stopWatch.getElapsedTimeString());
     }
 }

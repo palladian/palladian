@@ -546,7 +546,6 @@ public final class DatasetManager {
      * @param percentageTraining The percentage that should be used for training, e.g. 0.3 = 30%.
      */
     public static void splitDataset(Dataset dataset, double percentageTraining) {
-
         if (dataset.isFirstFieldLink()) {
             LOGGER.warn("can only split datasets which consist of one file");
             return;
@@ -572,9 +571,8 @@ public final class DatasetManager {
 
         }
 
-        FileHelper.writeToFile(dataset.getRootPath() + "training.csv", linesTraining);
-        FileHelper.writeToFile(dataset.getRootPath() + "test.csv", linesTest);
-
+        FileHelper.writeToFile(dataset.getRootPath() + FileHelper.getFileName(dataset.getPath()) + "-training.csv", linesTraining);
+        FileHelper.writeToFile(dataset.getRootPath() + FileHelper.getFileName(dataset.getPath()) + "-test.csv", linesTest);
     }
 
     /**

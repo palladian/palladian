@@ -288,6 +288,9 @@ public class WordTransformerTest {
 
     @Test
     public void testStemEnglishWords() {
+        assertEquals("bab", WordTransformer.stemEnglishWords("babies", true)); // stemming exception
+        assertEquals("flight", WordTransformer.stemEnglishWords("flights", true)); // stemming exception
+        assertEquals("accessibilit", WordTransformer.stemEnglishWords("accessibility", true)); // stemming exception
         assertEquals("accessible", WordTransformer.stemEnglishWords("accessibility")); // stemming exception
         assertEquals("accessible", WordTransformer.stemEnglishWords("accessibilities")); // stemming exception
         assertEquals("edition", WordTransformer.stemEnglishWords("editions")); // stemming exception
@@ -298,12 +301,12 @@ public class WordTransformerTest {
 
     @Test
     public void testStemGermanWords() {
-        assertEquals("bauer", WordTransformer.stemGermanWords("bauer")); // stemming exception
-        assertEquals("bauer", WordTransformer.stemGermanWords("bauer")); // stemming exception
-        assertEquals("poliermaschinemaschin", WordTransformer.stemGermanWords("poliermaschinemaschine"));
-        assertEquals("poliermaschinemaschin", WordTransformer.stemGermanWords("poliermaschinemaschinen"));
-        assertEquals("apfel und apfel", WordTransformer.stemGermanWords("äpfel und apfel"));
-        assertEquals("hose und hose", WordTransformer.stemGermanWords("hose und hosen"));
+        assertEquals("bauer", WordTransformer.stemWords("bauer", Language.GERMAN)); // stemming exception
+        assertEquals("bauer", WordTransformer.stemWords("bauer", Language.GERMAN)); // stemming exception
+        assertEquals("poliermaschinemaschin", WordTransformer.stemWords("poliermaschinemaschine", Language.GERMAN));
+        assertEquals("poliermaschinemaschin", WordTransformer.stemWords("poliermaschinemaschinen", Language.GERMAN));
+        assertEquals("apfel und apfel", WordTransformer.stemWords("äpfel und apfel", Language.GERMAN));
+        assertEquals("hose und hose", WordTransformer.stemWords("hose und hosen", Language.GERMAN));
     }
 
     @Test

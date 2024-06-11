@@ -3,6 +3,7 @@ package ws.palladian.semantics;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.de.GermanLightStemmer;
 import org.apache.lucene.analysis.de.GermanMinimalStemmer;
+import org.apache.lucene.analysis.en.EnglishMinimalStemmer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
@@ -569,10 +570,18 @@ public class WordTransformer {
     }
 
     public static String stemEnglishWords(String words) {
-        return stemWords(words, Language.ENGLISH);
+        return stemWords(words, Language.ENGLISH, false);
+    }
+
+    public static String stemEnglishWords(String words, boolean minimal) {
+        return stemWords(words, Language.ENGLISH, minimal);
     }
 
     public static String stemWords(String words, Language language) {
+        return stemWords(words, language, false);
+    }
+
+    public static String stemWords(String words, Language language, boolean minimal) {
         StringBuilder stemmedString = new StringBuilder();
         String[] split = words.split(" ");
 
@@ -588,7 +597,7 @@ public class WordTransformer {
             if (language == Language.GERMAN) {
                 stemmedString.append(stemGermanWord(word));
             } else if (language == Language.ENGLISH) {
-                stemmedString.append(stemEnglishWord(word));
+                stemmedString.append(stemEnglishWord(word, minimal));
             } else {
                 stemmedString.append(stemWord(word, language));
 
@@ -634,12 +643,28 @@ public class WordTransformer {
     }
 
     public static String stemEnglishWord(String word) {
-        // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
-        String exception = ENGLISH_STEMMING_EXCEPTIONS.get(word.toLowerCase());
-        if (exception != null) {
-            return StringHelper.alignCasing(exception, word);
+        return stemEnglishWord(word, false);
+    }
+
+    public static String stemEnglishWord(String word, boolean minimal) {
+        if (minimal) {
+            int wordLength = word.length();
+            char[] wordCharArray = word.toCharArray();
+            EnglishMinimalStemmer minimalStemmer = new EnglishMinimalStemmer();
+            int index = minimalStemmer.stem(wordCharArray, wordLength);
+            // if last character is a y we remove it
+            if (wordCharArray[index - 1] == 'y') {
+                index--;
+            }
+            return String.valueOf(wordCharArray).substring(0, index);
+        } else {
+            // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
+            String exception = ENGLISH_STEMMING_EXCEPTIONS.get(word.toLowerCase());
+            if (exception != null) {
+                return StringHelper.alignCasing(exception, word);
+            }
+            return new Stemmer(Language.ENGLISH).stem(word);
         }
-        return new Stemmer(Language.ENGLISH).stem(word);
     }
 
     public static void addStemmingException(String original, String stemmed, Language language) {

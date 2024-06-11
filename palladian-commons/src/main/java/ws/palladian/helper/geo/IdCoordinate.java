@@ -1,5 +1,6 @@
 package ws.palladian.helper.geo;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -7,7 +8,9 @@ import java.util.Objects;
  *
  * @author David Urbansky
  */
-public class IdCoordinate {
+public class IdCoordinate implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private int id;
     private GeoCoordinate coordinate;
 
