@@ -288,8 +288,8 @@ public class WordTransformerTest {
 
     @Test
     public void testStemEnglishWords() {
-        assertEquals("bab", WordTransformer.stemEnglishWords("babies", true)); // stemming exception
-        assertEquals("flight", WordTransformer.stemEnglishWords("flights", true)); // stemming exception
+        assertEquals("bab", WordTransformer.stemEnglishWords("babies", true));
+        assertEquals("flight", WordTransformer.stemEnglishWords("flights", true));
         assertEquals("accessibilit", WordTransformer.stemEnglishWords("accessibility", true)); // stemming exception
         assertEquals("accessible", WordTransformer.stemEnglishWords("accessibility")); // stemming exception
         assertEquals("accessible", WordTransformer.stemEnglishWords("accessibilities")); // stemming exception
