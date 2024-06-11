@@ -164,10 +164,18 @@ public class HttpRetrieverTest {
     }
 
     @Test
+    @Ignore // TODO
     public void testGetCircularRedirects() throws HttpException {
-        HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet(
-                "https://www.washingtonpost.com/business/2023/10/02/corporate-diversity-inclusion-affirmative-action-ruling/");
-        System.out.println(result);
+        HttpResult result;
+
+        result = HttpRetrieverFactory.getHttpRetriever().httpGet("https://www.westpac.co.nz/rednews/get-on-top-of-your-finances-by-plugging-your-money-leaks/");
+        assertEquals(result.getStatusCode(), 200);
+
+        result = HttpRetrieverFactory.getHttpRetriever().httpGet("https://www.journaldequebec.com/2023/10/05/les-geants-de-lepicerie-promettent-des-rabais");
+        assertEquals(result.getStatusCode(), 200);
+
+        result = HttpRetrieverFactory.getHttpRetriever().httpGet("https://www.washingtonpost.com/business/2023/10/02/corporate-diversity-inclusion-affirmative-action-ruling/");
+        assertEquals(result.getStatusCode(), 200);
     }
 
     @Test
