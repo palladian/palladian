@@ -595,7 +595,7 @@ public class WordTransformer {
                 trail = matcher.group();
             }
             if (language == Language.GERMAN) {
-                stemmedString.append(stemGermanWord(word, minimal));
+                stemmedString.append(stemGermanWord(word));
             } else if (language == Language.ENGLISH) {
                 stemmedString.append(stemEnglishWord(word, minimal));
             } else {
@@ -624,10 +624,6 @@ public class WordTransformer {
     }
 
     public static String stemGermanWord(String word) {
-        return stemGermanWord(word, false);
-    }
-
-    public static String stemGermanWord(String word, boolean minimal) {
         // NOTE: initializing an object is better than to keep one instance as it blocks otherwise
         String exception = GERMAN_STEMMING_EXCEPTIONS.get(word.toLowerCase());
         if (exception != null) {
@@ -636,7 +632,7 @@ public class WordTransformer {
         int wordLength = word.length();
         int index = wordLength;
         char[] wordCharArray = word.toCharArray();
-        if (wordLength <= 5 || minimal) {
+        if (wordLength <= 5) {
             GermanMinimalStemmer germanLightStemmer = new GermanMinimalStemmer();
             index = germanLightStemmer.stem(wordCharArray, wordLength);
         } else {
