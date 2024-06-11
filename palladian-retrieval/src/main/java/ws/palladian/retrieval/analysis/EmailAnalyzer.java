@@ -11,6 +11,16 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import java.util.Optional;
 
 public class EmailAnalyzer {
+    private final String apiKey;
+
+    public EmailAnalyzer() {
+        this(null);
+    }
+
+    public EmailAnalyzer(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
     public PersonProfile getProfile(String emailAddress) {
         PersonProfile personProfile = new PersonProfile();
         emailAddress = emailAddress.trim().toLowerCase();
@@ -48,7 +58,7 @@ public class EmailAnalyzer {
             personProfile.setImageUrl(thumbnailUrl);
 
             // System.out.println(gravatarResponse.toString(2));
-        } else {
+        } else if (apiKey != null) {
             try {
                 // must be fast or forget about it
                 HttpRetriever quickHttpRetriever = HttpRetrieverFactory.getHttpRetriever();
@@ -59,8 +69,7 @@ public class EmailAnalyzer {
                 DocumentRetriever quickRetriever = new DocumentRetriever(quickHttpRetriever);
 
                 JsonObject parsedEmailJson = quickRetriever.getJsonObject(
-                        "http://api.nameapi.org/rest/v5.3/email/emailnameparser?apiKey=7aa3665e0091c46d78249c7ca9883cbf-user1&emailAddress=" + UrlHelper.encodeParameter(
-                                emailAddress));
+                        "http://api.nameapi.org/rest/v5.3/email/emailnameparser?apiKey=" + apiKey + "&emailAddress=" + UrlHelper.encodeParameter(emailAddress));
 
                 JsonArray nameMatches = Optional.ofNullable(parsedEmailJson.tryGetJsonArray("nameMatches")).orElse(new JsonArray());
                 if (!nameMatches.isEmpty()) {
