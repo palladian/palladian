@@ -59,7 +59,7 @@ public final class HtmlHelper {
     private static final Pattern HTML_TO_READABLE_TEXT = Pattern.compile("<(br|li)\\s?/?>", Pattern.CASE_INSENSITIVE);
     private static final Pattern HTML_TO_READABLE_TEXT2 = Pattern.compile("</p>", Pattern.CASE_INSENSITIVE);
     private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
-    private static final Pattern NORMALIZE_LINE_BREAKS = Pattern.compile("\r\n");
+    public static final Pattern NORMALIZE_LINE_BREAKS = Pattern.compile("\r\n");
     private static final Pattern STRIP_ALL_TAGS = Pattern
             // .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<.*?>", Pattern.DOTALL
             .compile("<!--.*?-->|<script.*?>.*?</script>|<style.*?>.*?</style>|<[^<]*?>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);

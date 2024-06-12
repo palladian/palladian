@@ -8,7 +8,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import ws.palladian.persistence.ParserException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -109,7 +112,7 @@ public final class JsoupParser extends BaseDocumentParser {
             if (key.equals("xmlns") || key.equals("xml")) {
                 continue;
             }
-            namespaces.put("xmlns:" + key, Optional.ofNullable(NAMESPACE_MAP.get(key)).orElse("http://palladian.ws/2024/" + key));
+            namespaces.put("xmlns:" + key, Optional.ofNullable(NAMESPACE_MAP.get(key)).orElse("http://www.w3.org/1999/xhtml" + key));
         }
         for (Map.Entry<String, String> entry : namespaces.entrySet()) {
             if (html.attr(entry.getKey()).isEmpty()) {
