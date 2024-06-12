@@ -92,7 +92,7 @@ public class RatedDateComparator implements Comparator<RatedDate<? extends Extra
     private static int compareTechnique(ExtractedDate date1, ExtractedDate date2) {
         int tech1 = getTypeValue(date1);
         int tech2 = getTypeValue(date2);
-        return Integer.valueOf(tech1).compareTo(tech2);
+        return Integer.valueOf(tech2).compareTo(tech1);
     }
 
     private static int getTypeValue(ExtractedDate date) {

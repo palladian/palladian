@@ -20,10 +20,7 @@ import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -55,9 +52,6 @@ import java.util.function.Consumer;
  * @author Philipp Katz
  */
 public class DocumentRetriever extends WebDocumentRetriever {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentRetriever.class);
 
     /**
@@ -388,7 +382,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
                 if (isFile(cleanUrl)) {
                     File file = new File(cleanUrl);
                     inputStream = new BufferedInputStream(new FileInputStream(cleanUrl));
-                    document = parse(inputStream, xml);
+                    document = parseWithFallback(inputStream, xml);
                     document.setDocumentURI(file.toURI().toString());
                 } else {
                     StopWatch sw = new StopWatch();
@@ -411,7 +405,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
                     long downloadTime = sw.getElapsedTime();
                     sw = new StopWatch();
 
-                    document = parse(httpResult, xml);
+                    document = parseWithFallback(httpResult, xml);
 
                     // check if got redirected; if so then take the destination URL
                     if (httpResult.getLocations().size() > 1) {
@@ -473,9 +467,35 @@ public class DocumentRetriever extends WebDocumentRetriever {
         Document doc = null;
         try {
             doc = getParser(xml).parse(httpResult);
-        } catch (Error e) {
+        } catch (Error | Exception e) {
             if (!xml) {
+                LOGGER.warn("Parsing failed, trying fallback parser: " + e.getMessage());
                 doc = ParserFactory.createHtmlParser2().parse(httpResult);
+            }
+        }
+        return doc;
+    }
+
+    private Document parseWithFallback(InputStream inputStream, boolean xml) {
+        byte[] buffer;
+        try {
+            buffer = inputStream.readAllBytes();
+        } catch (IOException e) {
+            LOGGER.error("Failed to read input stream: " + e.getMessage());
+            return null;
+        }
+
+        Document doc = null;
+        try {
+            doc = getParser(xml).parse(new ByteArrayInputStream(buffer));
+        } catch (Error | Exception e) {
+            if (!xml) {
+                LOGGER.warn("Parsing failed, trying fallback parser: " + e.getMessage());
+                try {
+                    doc = ParserFactory.createHtmlParser2().parse(new ByteArrayInputStream(buffer));
+                } catch (Exception e1) {
+                    LOGGER.error("Fallback parser also failed: " + e1.getMessage());
+                }
             }
         }
         return doc;

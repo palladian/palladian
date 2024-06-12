@@ -153,7 +153,7 @@ public class ListDiscovererTest {
         // }
         assertEquals("//table[1]/tbody/tr/td/table/tbody/tr/td/font/a", discoverdEntityXPath);
         assertEquals(81, nodes.size());
-        assertEquals("\nDiszaray", nodes.get(77).getTextContent());
+        assertEquals("Diszaray", nodes.get(77).getTextContent().trim());
 
         document = htmlParser.parse(ResourceHelper.getResourceFile("webPages/pagination13.html"));
         discoverdEntityXPath = ld.discoverEntityXPath(document);

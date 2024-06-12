@@ -65,7 +65,7 @@ public final class FileHelper {
     /**
      * Constant for video file extensions.
      */
-    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid", "wmv", "mpeg");
+    public static final List<String> VIDEO_FILE_EXTENSIONS = Arrays.asList("mp4", "flv", "avi", "mpeg2", "divx", "mov", "xvid", "wmv", "mpeg", "mpg", "m4v");
 
     /**
      * Constant for audio file extensions.
@@ -122,6 +122,8 @@ public final class FileHelper {
         binaryFileExtensions.add("msixbundle");
         binaryFileExtensions.add("flatpak");
         binaryFileExtensions.add("nupkg");
+        binaryFileExtensions.add("sav");
+        binaryFileExtensions.add("fex");
         binaryFileExtensions.addAll(VIDEO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
