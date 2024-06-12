@@ -6,6 +6,7 @@ import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import ws.palladian.helper.nlp.PatternHelper;
 import ws.palladian.persistence.ParserException;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Parser for HTML documents using Jsoup.
@@ -23,6 +25,7 @@ import java.util.*;
 public final class JsoupParser extends BaseDocumentParser {
 
     private static final Map<String, String> NAMESPACE_MAP = new HashMap<>();
+    private static final Pattern NAMESPACE_REGEX = PatternHelper.compileOrGet("^[a-zA-Z_][a-zA-Z0-9_.-]*$");
 
     static {
         NAMESPACE_MAP.put("xlink", "http://www.w3.org/1999/xlink");
@@ -110,6 +113,9 @@ public final class JsoupParser extends BaseDocumentParser {
             }
             String key = attr.split(":")[0];
             if (key.equals("xmlns") || key.equals("xml")) {
+                continue;
+            }
+            if (!NAMESPACE_REGEX.matcher(key).matches()) {
                 continue;
             }
             namespaces.put("xmlns:" + key, Optional.ofNullable(NAMESPACE_MAP.get(key)).orElse("http://www.w3.org/1999/xhtml" + key));
