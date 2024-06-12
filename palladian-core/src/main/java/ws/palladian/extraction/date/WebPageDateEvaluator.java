@@ -77,7 +77,7 @@ public final class WebPageDateEvaluator {
         Validate.notNull(type, "type must not be null");
 
         List<RatedDate<ExtractedDate>> dates = getDates(document, type);
-        if (dates.size() > 0) {
+        if (!dates.isEmpty()) {
             return dates.get(0);
         }
         return null;
