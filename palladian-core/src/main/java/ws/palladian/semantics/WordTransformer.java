@@ -67,6 +67,7 @@ public class WordTransformer {
      * Exceptions for English stemming.
      */
     private static final Map<String, String> ENGLISH_STEMMING_EXCEPTIONS = new HashMap<>();
+    private static final Map<String, String> ENGLISH_MINIMAL_STEMMING_EXCEPTIONS = new HashMap<>();
 
     private static final Pattern TRIM_CHAR_PATTERN;
 
@@ -144,6 +145,23 @@ public class WordTransformer {
                     continue;
                 }
                 ENGLISH_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            FileHelper.close(inputStream);
+        }
+
+        // English minimal stemming exceptions
+        try {
+            inputStream = WordTransformer.class.getResourceAsStream("/englishMinimalStemmingExceptions.tsv");
+            List<String> list = FileHelper.readFileToArray(inputStream);
+            for (String string : list) {
+                String[] parts = string.split("\t");
+                if (parts[1].isEmpty()) {
+                    continue;
+                }
+                ENGLISH_MINIMAL_STEMMING_EXCEPTIONS.put(parts[0].toLowerCase(), parts[1].toLowerCase());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -648,6 +666,10 @@ public class WordTransformer {
 
     public static String stemEnglishWord(String word, boolean minimal) {
         if (minimal) {
+            String exception = ENGLISH_MINIMAL_STEMMING_EXCEPTIONS.get(word.toLowerCase());
+            if (exception != null) {
+                return StringHelper.alignCasing(exception, word);
+            }
             int wordLength = word.length();
             char[] wordCharArray = word.toCharArray();
             EnglishMinimalStemmer minimalStemmer = new EnglishMinimalStemmer();
