@@ -58,7 +58,7 @@ public final class RowConverters {
                 map.put(columnName, resultSet.getLong(i));
             } else if (columnType == Types.FLOAT) {
                 map.put(columnName, resultSet.getDouble(i));
-            } else if (columnType == Types.DOUBLE || columnType == Types.REAL) {
+            } else if (columnType == Types.DOUBLE || columnType == Types.REAL || columnType == Types.DECIMAL) {
                 map.put(columnName, resultSet.getDouble(i));
             } else if (columnType == Types.BOOLEAN) {
                 map.put(columnName, resultSet.getBoolean(i));
