@@ -125,5 +125,8 @@ public final class JsoupParser extends BaseDocumentParser {
                 html.attr(entry.getKey(), entry.getValue());
             }
         }
+
+        // no matter what, we want the xhtml namespace otherwise the xpath helper won't work
+        html.attr("xmlns", "http://www.w3.org/1999/xhtml");
     }
 }
