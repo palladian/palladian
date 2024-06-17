@@ -100,6 +100,17 @@ public class EmailVerificationResult {
         this.message = message;
     }
 
+    public JsonObject asJson() {
+        JsonObject jso = new JsonObject();
+
+        jso.put("result", result.toString().toLowerCase());
+        jso.put("disposable", isDisposable());
+        jso.put("accept_all", isAcceptAll());
+        jso.put("free_provider", isFree());
+
+        return jso;
+    }
+
     @Override
     public String toString() {
         return "EmailVerificationResult{" + "result=" + result + ", reason='" + reason + '\'' + ", disposable=" + disposable + ", acceptAll=" + acceptAll + ", free=" + free
