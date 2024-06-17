@@ -35,7 +35,7 @@ jobs:
           if [ ${GITHUB_REF#refs/heads/} == "master" ]; then MAVEN_PROFILE="deploy -P release"; fi
           mvn -V -B clean install $MAVEN_PROFILE
         env:
-          OSSRH_USERNAME: palladian
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
