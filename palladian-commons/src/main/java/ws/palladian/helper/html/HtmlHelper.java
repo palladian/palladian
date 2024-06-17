@@ -4,10 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 import ws.palladian.helper.UrlHelper;
@@ -308,6 +305,10 @@ public final class HtmlHelper {
      * @author Philipp Katz
      */
     public static String documentToReadableText(Node node) {
+        return documentToReadableText(node, true);
+    }
+
+    private static String documentToReadableText(Node node, boolean tryFixNamespace) {
         if (node == null) {
             return "";
         }
@@ -355,12 +356,31 @@ public final class HtmlHelper {
         } catch (TransformerFactoryConfigurationError e) {
             LOGGER.error("htmlDocToString:TransformerFactoryConfigurationError", e);
         } catch (TransformerException e) {
+            if (tryFixNamespace && node.getOwnerDocument() != null && XPathHelper.getXhtmlNode(node.getOwnerDocument(), "//html") != null) {
+                boolean namespaceNodeUpdated = false;
+                try {
+                    Node htmlNode = XPathHelper.getXhtmlNode(node.getOwnerDocument(), "//html");
+                    NamedNodeMap attributes = htmlNode.getAttributes();
+                    for (int i = 0; i < attributes.getLength(); i++) {
+                        String nodeName = attributes.item(i).getNodeName();
+                        if (nodeName.contains(":") && node.getAttributes().getNamedItem(nodeName) == null) {
+                            ((Element) node).setAttribute(nodeName, attributes.item(i).getNodeValue());
+                            namespaceNodeUpdated = true;
+                        }
+                    }
+                } catch (Exception e2) {
+                    // ccl
+                }
+                if (namespaceNodeUpdated) {
+                    return documentToReadableText(node, false);
+                }
+            }
             LOGGER.error("htmlDocToString:TransformerException", e);
         }
         String result = builder.toString();
 
         // if the node is an attribute we might want to get its text content
-        if (result.isEmpty()) {
+        if (result.trim().isEmpty()) {
             result = Optional.ofNullable(node.getTextContent()).orElse("");
         }
 
