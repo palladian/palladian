@@ -380,7 +380,7 @@ public final class HtmlHelper {
         String result = builder.toString();
 
         // if the node is an attribute we might want to get its text content
-        if (result.trim().isEmpty()) {
+        if (result.isEmpty()) {
             result = Optional.ofNullable(node.getTextContent()).orElse("");
         }
 
