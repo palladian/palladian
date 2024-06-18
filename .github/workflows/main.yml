@@ -16,10 +16,10 @@ jobs:
     timeout-minutes: 60
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # https://github.com/marketplace/actions/setup-java-jdk#publishing-using-apache-maven
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: zulu
