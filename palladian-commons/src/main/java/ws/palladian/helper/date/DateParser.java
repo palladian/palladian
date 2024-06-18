@@ -103,6 +103,9 @@ public final class DateParser {
      * @return The {@link ExtractedDate}, or <code>null</code> if the specified text contained no matching date.
      */
     public static ExtractedDate findDate(String text) {
+        if (text == null) {
+            return null;
+        }
         return findDate(text, RegExp.ALL_DATE_FORMATS);
     }
 
@@ -117,6 +120,9 @@ public final class DateParser {
      * {@link DateFormat}s.
      */
     public static ExtractedDate findDate(String text, DateFormat... formats) {
+        if (text == null) {
+            return null;
+        }
         for (DateFormat format : formats) {
             // the old code had a catch Throwable around find date, I removed this for now,
             // if exceptions are encountered, try to solve them, and do not just catch them away.
