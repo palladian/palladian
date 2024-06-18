@@ -31,9 +31,10 @@ jobs:
 
       - name: Build (and publish to Sonatype OSSRH when on master)
         run: |
+          MAVEN_TASK="verify"
           # only use -P release when on master branch
-          if [ ${GITHUB_REF#refs/heads/} == "master" ]; then MAVEN_PROFILE="deploy -P release"; fi
-          mvn -V -B clean install $MAVEN_PROFILE
+          if [ ${GITHUB_REF#refs/heads/} == "master" ]; then MAVEN_TASK="deploy -P release"; fi
+          mvn -V -B $MAVEN_TASK
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
