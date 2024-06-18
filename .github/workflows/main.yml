@@ -34,7 +34,7 @@ jobs:
           MAVEN_TASK="verify"
           # only use -P release when on master branch
           if [ ${GITHUB_REF#refs/heads/} == "master" ]; then MAVEN_TASK="deploy -P release"; fi
-          mvn -V -B $MAVEN_TASK
+          mvn -B $MAVEN_TASK
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
