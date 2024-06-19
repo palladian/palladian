@@ -30,9 +30,6 @@ import java.util.stream.Collectors;
  * @author Philipp Katz
  */
 public class WordTransformer {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(WordTransformer.class);
 
     /**
@@ -671,6 +668,10 @@ public class WordTransformer {
                 return StringHelper.alignCasing(exception, word);
             }
             int wordLength = word.length();
+            // don't stem if word is too short
+            if (wordLength <= 3) {
+                return word;
+            }
             char[] wordCharArray = word.toCharArray();
             EnglishMinimalStemmer minimalStemmer = new EnglishMinimalStemmer();
             int index = minimalStemmer.stem(wordCharArray, wordLength);
