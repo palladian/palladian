@@ -1067,6 +1067,18 @@ public final class CollectionHelper {
         return setA;
     }
 
+    public static <T extends IntSet> T intersectFastWithModification(List<T> sets) {
+        // order sets by size ascendingly
+        sets.sort(Comparator.comparingInt(IntSet::size));
+
+        T smallestSet = sets.get(0);
+        for (int i = 1; i < sets.size(); i++) {
+            smallestSet.retainAll(sets.get(i));
+        }
+
+        return smallestSet;
+    }
+
     /**
      * <p>
      * Shuffle the content of the given array.
