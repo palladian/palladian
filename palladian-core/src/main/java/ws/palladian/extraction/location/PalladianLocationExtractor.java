@@ -85,7 +85,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
         for (ClassifiedAnnotation annotation : annotations) {
             String entityValue = LocationExtractorUtils.normalizeName(annotation.getValue()).toLowerCase();
             Collection<Location> locations = lookup.get(entityValue);
-            if (locations.size() > 0) {
+            if (!locations.isEmpty()) {
                 result.addAll(annotation, locations);
             } else {
                 result.addAll(annotation, Collections.emptySet());
