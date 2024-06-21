@@ -94,7 +94,7 @@
         <logback.version>1.2.13</logback.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-        <project.jdk.version>17</project.jdk.version>
+        <project.jdk.version>14</project.jdk.version>
     </properties>
     <profiles>
         <profile>
