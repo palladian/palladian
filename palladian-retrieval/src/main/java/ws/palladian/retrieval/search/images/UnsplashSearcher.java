@@ -33,8 +33,8 @@ import java.util.Map;
  */
 public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     public static final class UnsplashSearcherMetaInfo implements SearcherMetaInfo<UnsplashSearcher, WebImage> {
-        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key",
-                "apikey");
+        private static final StringConfigurationOption ACCESS_KEY_OPTION = new StringConfigurationOption("Applicaiton Access Key",
+                "access_key");
 
         @Override
         public String getSearcherName() {
@@ -53,13 +53,13 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
 
         @Override
         public List<ConfigurationOption<?>> getConfigurationOptions() {
-            return Arrays.asList(API_KEY_OPTION);
+            return Arrays.asList(ACCESS_KEY_OPTION);
         }
 
         @Override
         public UnsplashSearcher create(Map<ConfigurationOption<?>, ?> config) {
-            var apiKey = API_KEY_OPTION.get(config);
-            return new UnsplashSearcher(apiKey);
+            var accessKey = ACCESS_KEY_OPTION.get(config);
+            return new UnsplashSearcher(accessKey);
         }
     }
 
@@ -67,7 +67,7 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     private static final String SEARCHER_NAME = "Unsplash";
 
     /** Identifier for the API key when supplied via {@link Configuration}. */
-    public static final String CONFIG_API_KEY = "api.unsplash.key";
+    public static final String CONFIG_ACCESS_KEY = "api.unsplash.key";
 
     private static final int MAX_PER_PAGE = 30;
 
@@ -78,15 +78,15 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
      * Creates a new Unsplash searcher.
      * </p>
      *
-     * @param apiKey The API key for accessing Unsplash, not <code>null</code> or empty.
+     * @param accessKey The API key for accessing Unsplash, not <code>null</code> or empty.
      */
-    public UnsplashSearcher(String apiKey) {
-        Validate.notEmpty(apiKey, "apiKey must not be empty");
-        this.apiKey = apiKey;
+    public UnsplashSearcher(String accessKey) {
+        Validate.notEmpty(accessKey, "accessKey must not be empty");
+        this.apiKey = accessKey;
     }
 
-    public UnsplashSearcher(String apiKey, int defaultResultCount) {
-        this(apiKey);
+    public UnsplashSearcher(String accessKey, int defaultResultCount) {
+        this(accessKey);
         this.defaultResultCount = defaultResultCount;
     }
 
@@ -96,10 +96,10 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
      * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing Unsplash, which must be
-     *                      provided as string via key {@value UnsplashSearcher#CONFIG_API_KEY} in the configuration.
+     *                      provided as string via key {@value UnsplashSearcher#CONFIG_ACCESS_KEY} in the configuration.
      */
     public UnsplashSearcher(Configuration configuration) {
-        this(configuration.getString(CONFIG_API_KEY));
+        this(configuration.getString(CONFIG_ACCESS_KEY));
     }
 
     public UnsplashSearcher(Configuration config, int defaultResultCount) {
