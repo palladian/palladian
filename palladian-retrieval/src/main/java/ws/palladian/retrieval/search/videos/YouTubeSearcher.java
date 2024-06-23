@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 /**
  * <p>
- * WebSearcher for <a href="http://www.youtube.com/">YouTube</a>.
+ * WebSearcher for <a href="https://www.youtube.com/">YouTube</a>.
  * </p>
  *
  * @author David Urbansky
@@ -70,6 +70,16 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
             var apiKey = API_KEY_OPTION.get(config);
             return new YouTubeSearcher(apiKey);
         }
+
+		@Override
+		public String getSearcherDocumentationUrl() {
+			return "https://developers.google.com/youtube/v3/docs/";
+		}
+
+		@Override
+		public String getSearcherDescription() {
+			return "WebSearcher for <a href=\"https://www.youtube.com/\">YouTube</a>.";
+		}
     }
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 

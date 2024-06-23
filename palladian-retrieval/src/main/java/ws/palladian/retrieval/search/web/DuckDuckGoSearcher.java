@@ -65,6 +65,18 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
         public boolean isDeprecated() {
             return true;
         }
+
+		@Override
+		public String getSearcherDocumentationUrl() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getSearcherDescription() {
+			// TODO Auto-generated method stub
+			return null;
+		}
     }
 
     /**

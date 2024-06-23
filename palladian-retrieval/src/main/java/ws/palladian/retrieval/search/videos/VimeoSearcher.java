@@ -27,11 +27,11 @@ import java.util.TimeZone;
 
 /**
  * <p>
- * WebSearcher for <a href="http://vimeo.com/">Vimeo</a>.
+ * WebSearcher for <a href="https://vimeo.com/">Vimeo</a>.
  * </p>
  *
  * @author Philipp Katz
- * @see <a href="http://developer.vimeo.com/apis/advanced/methods/vimeo.videos.search">API documentation</a>
+ * @see <a href="https://developer.vimeo.com/api/guides/start">API documentation</a>
  */
 public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
     public static final class VimeoSearcherMetaInfo implements SearcherMetaInfo<VimeoSearcher, WebVideo> {
@@ -73,6 +73,16 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             var accessTokenSecret = ACCESS_TOKEN_SECRET_OPTION.get(config);
             return new VimeoSearcher(consumerKey, consumerSecret, accessToken, accessTokenSecret);
         }
+
+		@Override
+		public String getSearcherDocumentationUrl() {
+			return "https://developer.vimeo.com/api/guides/start";
+		}
+
+		@Override
+		public String getSearcherDescription() {
+			return "WebSearcher for <a href=\"https://vimeo.com/\">Vimeo</a>.";
+		}
     }
 
     /** The logger for this class. */
