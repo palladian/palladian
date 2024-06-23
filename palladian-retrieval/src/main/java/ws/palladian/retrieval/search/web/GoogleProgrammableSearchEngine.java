@@ -30,17 +30,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Searcher for Google Programmable Search Engine (previously “Google Custom
- * Search”). The free plan allows max. 100 queries/day. Although not obviously
- * visible, the search engine can be configured to search to <b>entire web</b>;
- * see the links provided below for more information. The searcher return max.
- * 100 items per query.
+ * Searcher for
+ * <a href="https://programmablesearchengine.google.com/about/">Google
+ * Programmable Search Engine</a> (previously “Google Custom Search”). The free
+ * plan allows max. 100 queries/day. Although not obviously visible, the search
+ * engine can be configured to search to <b>entire web</b>; see the links
+ * provided below for more information. The searcher return max. 100 items per
+ * query.
  *
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/custom-search/v1/overview">Overview Google Custom Search</a>
  * @see <a href="http://code.google.com/apis/console/?api=customsearch">Google API console</a>
  * @see <a href="http://www.google.com/cse">Google Custom Search settings</a>
- * @see <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&answer=1210656">Search the entire web</a>
  */
 public final class GoogleProgrammableSearchEngine extends AbstractMultifacetSearcher<WebContent> {
     public static final class GoogleProgrammableSearchEngineMetaInfo implements SearcherMetaInfo<GoogleProgrammableSearchEngine, WebContent> {
@@ -74,6 +75,17 @@ public final class GoogleProgrammableSearchEngine extends AbstractMultifacetSear
             var apiKey = API_KEY_OPTION.get(config);
             var searchEngineId = API_KEY_OPTION.get(config);
             return new GoogleProgrammableSearchEngine(apiKey, searchEngineId);
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://developers.google.com/custom-search/v1/overview";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Searcher for <a href=\"https://programmablesearchengine.google.com/about/\"> "
+                    + "Google Programmable Search Engine</a> (previously “Google Custom Search”).";
         }
     }
 

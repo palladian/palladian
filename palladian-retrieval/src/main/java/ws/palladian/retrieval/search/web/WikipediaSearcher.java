@@ -64,6 +64,16 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
         public WikipediaSearcher create(Map<ConfigurationOption<?>, ?> config) {
             return new WikipediaSearcher();
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://www.mediawiki.org/wiki/API:Search";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for <a href=\"https://www.wikipedia.org\">Wikipedia</a> articles with fulltext search.";
+        }
     }
 
     /**

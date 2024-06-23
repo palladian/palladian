@@ -51,6 +51,16 @@ public class WikipediaImageSearcher extends AbstractSearcher<WebImage> {
         public WikipediaImageSearcher create(Map<ConfigurationOption<?>, ?> config) {
             return new WikipediaImageSearcher();
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://www.mediawiki.org/wiki/Extension:PageImages";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search images on <a href=\"https://www.wikipedia.org\">Wikipedia</a>.";
+        }
     }
 
     public WikipediaImageSearcher() {

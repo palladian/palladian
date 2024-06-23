@@ -48,6 +48,10 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
 
         protected abstract AbstractOpenverseSearcher<T> create(String clientId, String clientSecret);
 
+        @Override
+        public final String getSearcherDocumentationUrl() {
+            return "https://api.openverse.org/v1/";
+        }
     }
 
     // Maximum is 500 for authenticated requests, and 20 for unauthenticated

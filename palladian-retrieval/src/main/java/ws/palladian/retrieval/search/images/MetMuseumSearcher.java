@@ -56,6 +56,16 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
         public MetMuseumSearcher create(Map<ConfigurationOption<?>, ?> config) {
             return new MetMuseumSearcher();
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://metmuseum.github.io/#search";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for free images on <a href=\"http://www.metmuseum.org/\">The Met Museum</a>.";
+        }
     }
 
     /** The name of this searcher. */

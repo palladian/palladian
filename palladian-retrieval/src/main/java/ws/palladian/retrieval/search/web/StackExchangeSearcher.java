@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Searcher for the <a href="http://stackexchange.com">Stack Exchange network</a>.
+ * Searcher for the <a href="http://stackexchange.com">Stack Exchange</a> network.
  *
  * @author Philipp Katz
- * @see <a href="http://api.stackexchange.com">Stack Exchange API</a>
+ * @see <a href="https://api.stackexchange.com">Stack Exchange API</a>
  */
 public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebContent> {
 
@@ -64,6 +64,16 @@ public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebC
         public StackExchangeSearcher create(Map<ConfigurationOption<?>, ?> config) {
             var site = SITE_OPTION.get(config);
             return new StackExchangeSearcher(site);
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://api.stackexchange.com";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Searcher for the <a href=\"https://stackexchange.com\">Stack Exchange network</a>.";
         }
     }
 

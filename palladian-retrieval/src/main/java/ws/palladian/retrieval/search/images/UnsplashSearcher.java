@@ -61,6 +61,16 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
             var accessKey = ACCESS_KEY_OPTION.get(config);
             return new UnsplashSearcher(accessKey);
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://unsplash.com/documentation";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for free images on <a href=\"https://unsplash.com/documentation\">Unsplash</a>.";
+        }
     }
 
     /** The name of this searcher. */

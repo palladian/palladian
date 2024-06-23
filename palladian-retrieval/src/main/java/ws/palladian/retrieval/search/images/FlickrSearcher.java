@@ -68,6 +68,16 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
             var apiKey = API_KEY_OPTION.get(config);
             return new FlickrSearcher(apiKey);
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://www.flickr.com/services/api/";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for images on <a href=\"https://www.flickr.com\">Flickr</a>.";
+        }
     }
 
     /**

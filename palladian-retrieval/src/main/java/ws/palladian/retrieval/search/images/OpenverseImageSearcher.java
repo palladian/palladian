@@ -39,6 +39,11 @@ public class OpenverseImageSearcher extends AbstractOpenverseSearcher<WebImage> 
         protected AbstractOpenverseSearcher<WebImage> create(String clientId, String clientSecret) {
             return new OpenverseImageSearcher(clientId, clientSecret);
         }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for free images on <a href=\"https://openverse.org\">Openverse</a>.";
+        }
     }
 
     /** The name of this searcher. */

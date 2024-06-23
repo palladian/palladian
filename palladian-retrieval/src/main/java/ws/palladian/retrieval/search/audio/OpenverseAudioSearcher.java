@@ -33,6 +33,11 @@ public class OpenverseAudioSearcher extends AbstractOpenverseSearcher<WebAudio> 
         protected AbstractOpenverseSearcher<WebAudio> create(String clientId, String clientSecret) {
             return new OpenverseAudioSearcher(clientId, clientSecret);
         }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for free audio files on <a href=\"https://openverse.org\">Openverse</a>.";
+        }
     }
 
     /** The name of this searcher. */

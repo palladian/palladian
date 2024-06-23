@@ -63,6 +63,17 @@ public final class HackerNewsSearcher extends AbstractMultifacetSearcher<WebCont
         public HackerNewsSearcher create(Map<ConfigurationOption<?>, ?> config) {
             return new HackerNewsSearcher();
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://hn.algolia.com/api";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search posts on <a href=\"https://news.ycombinator.com/news\">Hacker News</a> "
+                    + "via <a href=\"https://www.algolia.com/\">Algolia Search’s API</a>.";
+        }
     }
 
     /** The logger for this class. */

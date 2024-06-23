@@ -61,6 +61,16 @@ public final class RedditSearcher extends AbstractMultifacetSearcher<WebContent>
         public RedditSearcher create(Map<ConfigurationOption<?>, ?> config) {
             return new RedditSearcher();
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://www.reddit.com/dev/api";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for content on <a href=\"https://www.reddit.com\">Reddit</a>.";
+        }
     }
 
     public static enum Sorting implements Facet {

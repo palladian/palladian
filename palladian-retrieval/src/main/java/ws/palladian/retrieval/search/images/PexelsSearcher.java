@@ -60,6 +60,16 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
             var apiKey = API_KEY_OPTION.get(config);
             return new PexelsSearcher(apiKey);
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://www.pexels.com/api/documentation/";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for free images on <a href=\"https://www.pexels.com/\">Pexels</a>.";
+        }
     }
 
     /**

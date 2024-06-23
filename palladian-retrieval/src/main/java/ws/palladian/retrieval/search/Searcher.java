@@ -56,6 +56,22 @@ public interface Searcher<R extends WebContent> {
         default boolean isDeprecated() {
             return false;
         }
+
+        /**
+         * @return A URL which represents the given searcher, respectively API - ideally
+         *         it should link to a page with the API specification and / or a place
+         *         where the user can create an API key. If no such documentation
+         *         exists, return `null`.
+         */
+        String getSearcherDocumentationUrl();
+
+        /**
+         * @return A short and to the point, description of this service (allow inline
+         *         HTML elements). At least one full grammatically correct English
+         *         sentence ending with a full stop. If no description is available,
+         *         return `null`.
+         */
+        String getSearcherDescription();
     }
 
     /**

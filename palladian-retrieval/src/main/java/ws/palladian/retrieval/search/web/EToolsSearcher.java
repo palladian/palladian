@@ -64,6 +64,18 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
         public boolean isDeprecated() {
             return true;
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     private static final String SEARCHER_NAME = "ETools";

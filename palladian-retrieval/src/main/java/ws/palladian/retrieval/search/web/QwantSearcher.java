@@ -59,6 +59,18 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
         public QwantSearcher create(Map<ConfigurationOption<?>, ?> config) {
             return new QwantSearcher();
         }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QwantSearcher.class);

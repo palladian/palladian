@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author David Urbansky
- * @see <a href="http://pixabay.com/api/docs/">Pixabay API</a>
+ * @see <a href="https://pixabay.com/api/docs/">Pixabay API</a>
  */
 public class PixabaySearcher extends AbstractSearcher<WebImage> {
     public static final class PixabaySearcherMetaInfo implements SearcherMetaInfo<PixabaySearcher, WebImage> {
@@ -62,6 +62,16 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
         public PixabaySearcher create(Map<ConfigurationOption<?>, ?> config) {
             var apiKey = API_KEY_OPTION.get(config);
             return new PixabaySearcher(apiKey);
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://pixabay.com/api/docs/";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for public domain images on <a href=\"https://www.pixabay.com/\">Pixabay</a>.";
         }
     }
 
