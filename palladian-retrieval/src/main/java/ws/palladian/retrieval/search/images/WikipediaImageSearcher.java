@@ -23,10 +23,10 @@ import java.util.Map;
  *
  * @see https://www.mediawiki.org/wiki/Extension:PageImages
  */
-public class WikimediaSearcher extends AbstractSearcher<WebImage> {
-    private static final String SEARCHER_NAME = "WikimediaSearcher";
+public class WikipediaImageSearcher extends AbstractSearcher<WebImage> {
+    private static final String SEARCHER_NAME = "Wikipedia Images";
 
-    public static final class WikimediaSearcherMetaInfo implements SearcherMetaInfo<WikimediaSearcher, WebImage> {
+    public static final class WikipediaImageSearcherMetaInfo implements SearcherMetaInfo<WikipediaImageSearcher, WebImage> {
         @Override
         public String getSearcherName() {
             return SEARCHER_NAME;
@@ -34,7 +34,7 @@ public class WikimediaSearcher extends AbstractSearcher<WebImage> {
 
         @Override
         public String getSearcherId() {
-            return "wikimedia";
+            return "wikipedia_image";
         }
 
         @Override
@@ -48,16 +48,16 @@ public class WikimediaSearcher extends AbstractSearcher<WebImage> {
         }
 
         @Override
-        public WikimediaSearcher create(Map<ConfigurationOption<?>, ?> config) {
-            return new WikimediaSearcher();
+        public WikipediaImageSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new WikipediaImageSearcher();
         }
     }
 
-    public WikimediaSearcher() {
+    public WikipediaImageSearcher() {
 
     }
 
-    public WikimediaSearcher(int defaultResultCount) {
+    public WikipediaImageSearcher(int defaultResultCount) {
         super();
         this.defaultResultCount = defaultResultCount;
     }
@@ -97,7 +97,7 @@ public class WikimediaSearcher extends AbstractSearcher<WebImage> {
     }
 
     public static void main(String[] args) throws SearcherException {
-        List<WebImage> results = new WikimediaSearcher().search("socrates", 10, Language.ENGLISH);
+        List<WebImage> results = new WikipediaImageSearcher().search("socrates", 10, Language.ENGLISH);
         CollectionHelper.print(results);
     }
 }
