@@ -273,6 +273,11 @@ public class PalladianSpellChecker {
                 result.add(substringI2 + c + substringI);
             }
 
+            // make it two words
+            if (i > 0 && i < n) {
+                result.add(substringI2 + ' ' + substringI);
+            }
+
             // umlauts
             if (language == Language.GERMAN) {
                 result.add(substringI2 + 'ä' + substringI);
@@ -473,6 +478,16 @@ public class PalladianSpellChecker {
                 continue;
             }
             int count = getWordCount(s);
+
+            if (count == 0 && s.contains(" ")) {
+                String[] split = s.split(" ");
+                int count1 = getWordCount(split[0]);
+                int count2 = getWordCount(split[1]);
+                if (count1 > 0 && count2 > 0) {
+                    count = 1; // set to one to only allow splitting of words if no other candidates are found
+                }
+            }
+
             // look at the context
             if (useContext) {
                 if (leftContext != null) {
