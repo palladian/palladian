@@ -70,7 +70,7 @@ public final class FileHelper {
     /**
      * Constant for audio file extensions.
      */
-    public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac", "wma", "m4a");
+    public static final List<String> AUDIO_FILE_EXTENSIONS = Arrays.asList("mp3", "ogg", "aac", "wav", "flac", "wma", "m4a", "ra");
 
     /**
      * Constant for general binary file extensions, including.
@@ -124,6 +124,13 @@ public final class FileHelper {
         binaryFileExtensions.add("nupkg");
         binaryFileExtensions.add("sav");
         binaryFileExtensions.add("fex");
+        binaryFileExtensions.add("deskthemepack");
+        binaryFileExtensions.add("macos");
+        binaryFileExtensions.add("tpz");
+        binaryFileExtensions.add("uqm");
+        binaryFileExtensions.add("install");
+        binaryFileExtensions.add("run");
+        binaryFileExtensions.add("bz2");
         binaryFileExtensions.addAll(VIDEO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(AUDIO_FILE_EXTENSIONS);
         binaryFileExtensions.addAll(IMAGE_FILE_EXTENSIONS);
