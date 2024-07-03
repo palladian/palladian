@@ -2,6 +2,8 @@ package ws.palladian.retrieval.analysis;
 
 import ws.palladian.persistence.json.JsonObject;
 
+import java.util.Optional;
+
 public class EmailVerificationResult {
     public enum VerfificationResult {
         VALID, INVALID, UNKNOWN
@@ -20,9 +22,10 @@ public class EmailVerificationResult {
     public EmailVerificationResult(JsonObject response) {
         setResult(VerfificationResult.valueOf(response.tryGetString("result").toUpperCase()));
         setReason(response.tryGetString("reason"));
-        setDisposable(response.tryGetBoolean("disposable"));
-        setFree(response.tryGetBoolean("free"));
-        setSafeToSend(response.tryGetBoolean("safe_to_send"));
+        setDisposable(response.tryGetBoolean("disposable", false));
+        setFree(Optional.ofNullable(response.tryGetBoolean("free")).orElse(response.tryGetBoolean("free_provider", false)));
+        setSafeToSend(response.tryGetBoolean("safe_to_send", true));
+        setAcceptAll(response.tryGetBoolean("accept_all", false));
         setUser(response.tryGetString("user"));
         setDomain(response.tryGetString("domain"));
         setMessage(response.tryGetString("message"));
