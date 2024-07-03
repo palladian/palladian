@@ -29,7 +29,7 @@ public class OpenAiApi extends AiApi {
     public static final String CONFIG_API_KEY = "api.openai.key";
     public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
 
-    private static final String DEFAULT_MODEL = "gpt-4-turbo-preview";
+    private static final String DEFAULT_MODEL = "gpt-4o";
     public static final String EMBEDDING_MODEL_SMALL = "text-embedding-3-small";
     public static final String EMBEDDING_MODEL_LARGE = "text-embedding-3-large";
 
@@ -166,7 +166,6 @@ public class OpenAiApi extends AiApi {
         jsonObject.put("size", size);
         THROTTLE.hold();
         String responseText = documentRetriever.tryPostJsonObject("https://api.openai.com/v1/images/generations", jsonObject, false);
-        System.out.println(responseText);
 
         JsonObject responseJson = JsonObject.tryParse(responseText);
         if (responseJson == null) {
