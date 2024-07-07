@@ -12,8 +12,10 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.Optional;
  * @author David Urbansky
  * @see <a href="https://metmuseum.github.io/#search">API Docs</a>
  */
-public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
+public class MetMuseumSearcher extends AbstractMultifacetSearcher<WebImage> {
     public static final class MetMuseumSearcherMetaInfo implements SearcherMetaInfo<MetMuseumSearcher, WebImage> {
         @Override
         public String getSearcherName() {
@@ -123,14 +125,18 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
     }
 
     @Override
-    /**
-     * @param language Supported languages are English.
-     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
-        return search(query, resultCount, language, null);
+    public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
+        return searchInternal(query.getText(), query.getResultCount(), null);
     }
 
     public List<WebImage> search(String query, int resultCount, Language language, Orientation orientation) throws SearcherException {
+        var result = searchInternal(query, resultCount, orientation);
+        return result.getResultList();
+    }
+
+    private SearchResults<WebImage> searchInternal(String query, int resultCount, Orientation orientation) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
+        Long total = null;
 
         resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
 
@@ -142,6 +148,9 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
             }
 
             JsonObject json = new JsonObject(jsonResponse);
+            if (total == null) {
+                total = json.getLong("total");
+            }
             JsonArray jsonArray = json.getJsonArray("objectIDs");
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.size(); i++) {
@@ -170,7 +179,7 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
             throw new SearcherException(e.getMessage());
         }
 
-        return results;
+        return new SearchResults<>(results, total);
     }
 
     public JsonObject getObject(int objectId) {
