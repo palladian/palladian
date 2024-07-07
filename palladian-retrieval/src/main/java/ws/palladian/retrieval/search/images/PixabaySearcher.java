@@ -8,7 +8,8 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -143,18 +144,18 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
         int resultsPerPage = Math.min(100, resultCount);
         int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
 
-        DocumentRetriever documentRetriever = new DocumentRetriever();
+        var retriever = HttpRetrieverFactory.getHttpRetriever();
 
         for (int page = 1; page <= pagesNeeded; page++) {
 
             String requestUrl = buildRequest(query.getText(), page, Math.max(3, Math.min(200, resultCount - results.size())), language);
             try {
                 THROTTLE.hold();
-                String textResponse = documentRetriever.getText(requestUrl);
-                if (textResponse == null) {
-                    throw new SearcherException("Failed to get JSON from " + requestUrl);
+                var response = retriever.httpGet(requestUrl);
+                if (response.errorStatus()) {
+                    throw new SearcherException("Encountered HTTP status " + response.getStatusCode());
                 }
-                JsonObject json = JsonObject.tryParse(textResponse);
+                JsonObject json = JsonObject.tryParse(response.getStringContent());
                 if (totalResults == null) {
                     totalResults = json.getLong("total");
                 }
@@ -179,7 +180,9 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
                 }
 
             } catch (JsonException e) {
-                throw new SearcherException(e.getMessage());
+                throw new SearcherException(e);
+            } catch (HttpException e) {
+                throw new SearcherException(e);
             }
         }
 

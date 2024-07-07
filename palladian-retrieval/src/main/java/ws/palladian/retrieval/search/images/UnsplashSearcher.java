@@ -9,6 +9,10 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
@@ -132,20 +136,17 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         int resultsPerPage = Math.min(MAX_PER_PAGE, resultCount);
         int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
 
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        Map<String, String> globalHeaders = new HashMap<>();
-        globalHeaders.put("Authorization", "Client-ID " + apiKey);
-
-        documentRetriever.setGlobalHeaders(globalHeaders);
+        var retriever = HttpRetrieverFactory.getHttpRetriever();
 
         for (int page = 1; page <= pagesNeeded; page++) {
             String requestUrl = buildRequest(query, page, Math.min(MAX_PER_PAGE, resultCount - results.size()), orientation);
             try {
-                JsonObject jsonResponse = documentRetriever.getJsonObject(requestUrl);
-                if (jsonResponse == null) {
-                    throw new SearcherException("Failed to get JSON from " + requestUrl);
+                var request = new HttpRequest2Builder(HttpMethod.GET, requestUrl).addHeader("Authorization", "Client-ID " + apiKey).create();
+                var response = retriever.execute(request);
+                if (response.errorStatus()) {
+                    throw new SearcherException("Encountered HTTP status " + response.getStatusCode());
                 }
-                JsonObject json = new JsonObject(jsonResponse);
+                JsonObject json = new JsonObject(response.getStringContent());
                 JsonArray jsonArray = json.getJsonArray("results");
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
@@ -167,7 +168,9 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
                     }
                 }
             } catch (JsonException e) {
-                throw new SearcherException(e.getMessage());
+                throw new SearcherException(e);
+            } catch (HttpException e) {
+                throw new SearcherException(e);
             }
         }
 

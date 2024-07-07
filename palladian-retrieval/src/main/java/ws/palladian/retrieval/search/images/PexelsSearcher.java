@@ -7,7 +7,10 @@ import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
-import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpException;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
+import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
@@ -20,7 +23,6 @@ import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -129,21 +131,19 @@ public class PexelsSearcher extends AbstractMultifacetSearcher<WebImage> {
         int resultsPerPage = Math.min(100, resultCount);
         int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
 
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        Map<String, String> globalHeaders = new HashMap<>();
-        globalHeaders.put("Authorization", apiKey);
-
-        documentRetriever.setGlobalHeaders(globalHeaders);
+        var retriever = HttpRetrieverFactory.getHttpRetriever();
 
         for (int page = 1; page <= pagesNeeded; page++) {
 
             String requestUrl = String.format("https://api.pexels.com/v1/search?query=%s&per_page=%s&page=%s",
                     UrlHelper.encodeParameter(query.getText()), resultsPerPage, page);
             try {
-                JsonObject jsonResponse = documentRetriever.getJsonObject(requestUrl);
-                if (jsonResponse == null) {
-                    throw new SearcherException("Failed to get JSON from " + requestUrl);
+                var request = new HttpRequest2Builder(HttpMethod.GET, requestUrl).addHeader("Authorization", apiKey).create();
+                var result = retriever.execute(request);
+                if (result.errorStatus()) {
+                    throw new SearcherException("Encountered HTTP status " + result.getStatusCode());
                 }
+                var jsonResponse = new JsonObject(result.getStringContent());
                 if (totalResults == null) {
                     totalResults = jsonResponse.getLong("total_results");
                 }
@@ -169,7 +169,9 @@ public class PexelsSearcher extends AbstractMultifacetSearcher<WebImage> {
                     }
                 }
             } catch (JsonException e) {
-                throw new SearcherException(e.getMessage());
+                throw new SearcherException(e);
+            } catch (HttpException e) {
+                throw new SearcherException(e);
             }
         }
 

@@ -185,8 +185,9 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
             } catch (HttpException e) {
                 throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request: " + request + "): " + e.getMessage(), e);
             }
-            checkRateLimits(httpResult);
             try {
+                checkError(httpResult);
+                checkRateLimits(httpResult);
                 JsonObject json = new JsonObject(httpResult.getStringContent());
                 availableResults = json.queryLong("/videos/total");
                 List<WebVideo> parsedVideos = parseVideoResult(json);
@@ -195,10 +196,20 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
                 }
                 webResults.addAll(parsedVideos);
             } catch (JsonException e) {
-                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query + "\" with " + getName() + ": " + e.getMessage(), e);
+                throw new SearcherException("Exception parsing the JSON response while searching for \"" + query
+                        + "\" with " + getName() + ": " + e.getMessage(), e);
             }
         }
         return new SearchResults<WebVideo>(webResults, availableResults);
+    }
+
+    private static void checkError(HttpResult httpResult) throws JsonException, SearcherException {
+        var json = new JsonObject(httpResult.getStringContent());
+        var err = json.tryGetJsonObject("err");
+        if (err != null) {
+            var expl = err.tryGetString("expl");
+            throw new SearcherException(expl);
+        }
     }
 
     private static void checkRateLimits(HttpResult httpResult) throws RateLimitedException {

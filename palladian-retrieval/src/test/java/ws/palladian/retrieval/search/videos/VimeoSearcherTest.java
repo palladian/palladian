@@ -1,4 +1,4 @@
-package ws.palladian.retrieval.search.web;
+package ws.palladian.retrieval.search.videos;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -6,11 +6,12 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.ResourceHelper;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.resources.WebVideo;
-import ws.palladian.retrieval.search.videos.VimeoSearcher;
+import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class VimeoSearcherTest {
 
@@ -30,6 +31,17 @@ public class VimeoSearcherTest {
 
         // long resultCount = VimeoSearcher.parseResultCount(jsonString);
         // assertEquals(94609, resultCount);
+    }
+
+    @Test
+    public void testInvalidCredentials() throws SearcherException {
+        try {
+            var searcher = new VimeoSearcher("invalid", "invalid", "invalid", "invalid");
+            searcher.search("kitten", 10);
+            fail();
+        } catch (SearcherException e) {
+            assertEquals(e.getMessage(), "The consumer key passed was not valid.");
+        }
     }
 
 }

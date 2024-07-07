@@ -310,6 +310,12 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
 
             try {
                 JsonObject resultJson = JsonObject.tryParse(jsonString);
+                // check if error, e.g. invalid API key (it will still return a 200!)
+                var stat = resultJson.tryGetString("stat");
+                if ("fail".equals(stat)) {
+                    var message = resultJson.getString("message");
+                    throw new SearcherException(message);
+                }
                 JsonObject photosJson = resultJson.getJsonObject("photos");
                 if (photosJson != null) { // result list (search)
                     if (photosJson.get("total") != null) {
