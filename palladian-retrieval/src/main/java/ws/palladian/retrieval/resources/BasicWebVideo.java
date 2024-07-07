@@ -2,6 +2,7 @@ package ws.palladian.retrieval.resources;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -135,11 +136,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((duration == null) ? 0 : duration.hashCode());
-        result = prime * result + ((rating == null) ? 0 : rating.hashCode());
-        result = prime * result + ((thumbnailUrl == null) ? 0 : thumbnailUrl.hashCode());
-        result = prime * result + ((videoUrl == null) ? 0 : videoUrl.hashCode());
-        result = prime * result + ((views == null) ? 0 : views.hashCode());
+        result = prime * result + Objects.hash(duration, rating, thumbnailUrl, videoUrl, views);
         return result;
     }
 
@@ -152,32 +149,9 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
         if (getClass() != obj.getClass())
             return false;
         BasicWebVideo other = (BasicWebVideo) obj;
-        if (duration == null) {
-            if (other.duration != null)
-                return false;
-        } else if (!duration.equals(other.duration))
-            return false;
-        if (rating == null) {
-            if (other.rating != null)
-                return false;
-        } else if (!rating.equals(other.rating))
-            return false;
-        if (thumbnailUrl == null) {
-            if (other.thumbnailUrl != null)
-                return false;
-        } else if (!thumbnailUrl.equals(other.thumbnailUrl))
-            return false;
-        if (videoUrl == null) {
-            if (other.videoUrl != null)
-                return false;
-        } else if (!videoUrl.equals(other.videoUrl))
-            return false;
-        if (views == null) {
-            if (other.views != null)
-                return false;
-        } else if (!views.equals(other.views))
-            return false;
-        return true;
+        return Objects.equals(duration, other.duration) && Objects.equals(rating, other.rating)
+                && Objects.equals(thumbnailUrl, other.thumbnailUrl) && Objects.equals(videoUrl, other.videoUrl)
+                && Objects.equals(views, other.views);
     }
 
 }

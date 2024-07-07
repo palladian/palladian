@@ -258,13 +258,7 @@ public class BasicWebContent implements WebContent {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((published == null) ? 0 : published.hashCode());
-        result = prime * result + ((summary == null) ? 0 : summary.hashCode());
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
-        result = prime * result + ((url == null) ? 0 : url.hashCode());
-        return result;
+        return Objects.hash(published, summary, title, url);
     }
 
     @Override
@@ -276,27 +270,8 @@ public class BasicWebContent implements WebContent {
         if (getClass() != obj.getClass())
             return false;
         BasicWebContent other = (BasicWebContent) obj;
-        if (published == null) {
-            if (other.published != null)
-                return false;
-        } else if (!published.equals(other.published))
-            return false;
-        if (summary == null) {
-            if (other.summary != null)
-                return false;
-        } else if (!summary.equals(other.summary))
-            return false;
-        if (title == null) {
-            if (other.title != null)
-                return false;
-        } else if (!title.equals(other.title))
-            return false;
-        if (url == null) {
-            if (other.url != null)
-                return false;
-        } else if (!url.equals(other.url))
-            return false;
-        return true;
+        return Objects.equals(published, other.published) && Objects.equals(summary, other.summary)
+                && Objects.equals(title, other.title) && Objects.equals(url, other.url);
     }
 
 }
