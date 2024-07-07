@@ -15,8 +15,10 @@ import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  * @author David Urbansky
  * @see <a href="https://pixabay.com/api/docs/">Pixabay API</a>
  */
-public class PixabaySearcher extends AbstractSearcher<WebImage> {
+public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
     public static final class PixabaySearcherMetaInfo implements SearcherMetaInfo<PixabaySearcher, WebImage> {
         private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
 
@@ -81,6 +83,9 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.pixabay.key";
 
+    private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("id", "cs", "de", "en", "es", "fr", "it",
+            "nl", "no", "hu", "ru", "pl", "pt", "ro", "fi", "sv", "tr", "ja", "ko", "zh");
+
     private final String apiKey;
 
     /**
@@ -123,16 +128,17 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
     }
 
     @Override
-    /**
-     * @param language Supported languages are  id, cs, de, en, es, fr, it, nl, no, hu, ru, pl, pt, ro, fi, sv, tr, ja, ko, and zh.
-     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+    public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
+        Long totalResults = null;
 
+        var language = query.getLanguage();
         if (language == null) {
             language = DEFAULT_SEARCHER_LANGUAGE;
         }
+        checkSupportedLanguage(language);
 
-        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
+        var resultCount = defaultResultCount == null ? query.getResultCount() : defaultResultCount;
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(100, resultCount);
         int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
@@ -141,7 +147,7 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
 
         for (int page = 1; page <= pagesNeeded; page++) {
 
-            String requestUrl = buildRequest(query, page, Math.max(3, Math.min(200, resultCount - results.size())), language);
+            String requestUrl = buildRequest(query.getText(), page, Math.max(3, Math.min(200, resultCount - results.size())), language);
             try {
                 THROTTLE.hold();
                 String textResponse = documentRetriever.getText(requestUrl);
@@ -149,6 +155,9 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
                 }
                 JsonObject json = JsonObject.tryParse(textResponse);
+                if (totalResults == null) {
+                    totalResults = json.getLong("total");
+                }
                 JsonArray jsonArray = Optional.ofNullable(json).orElse(new JsonObject()).tryGetJsonArray("hits");
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
@@ -174,7 +183,18 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
             }
         }
 
-        return results;
+        return new SearchResults<>(results, totalResults);
+    }
+
+    /**
+     * @param language Supported languages are id, cs, de, en, es, fr, it, nl, no,
+     *                 hu, ru, pl, pt, ro, fi, sv, tr, ja, ko, and zh.
+     */
+    private static void checkSupportedLanguage(Language language) {
+        if (!SUPPORTED_LANGUAGES.contains(language.getIso6391())) {
+            throw new IllegalArgumentException(
+                    "Unsupported language: " + language + "; supported are: " + String.join(", ", SUPPORTED_LANGUAGES));
+        }
     }
 
     private ImageType getImageType(String imageTypeString) {
@@ -201,7 +221,8 @@ public class PixabaySearcher extends AbstractSearcher<WebImage> {
 
     public static void main(String[] args) throws SearcherException {
         PixabaySearcher pixabaySearcher = new PixabaySearcher("KEY");
-        List<WebImage> results = pixabaySearcher.search("car", 101);
+        var results = pixabaySearcher.search(new MultifacetQuery.Builder().setText("car").setResultCount(101).create());
+        System.out.println(results.getResultCount());
         CollectionHelper.print(results);
     }
 }

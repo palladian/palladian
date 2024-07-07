@@ -4,7 +4,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
-import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
@@ -13,8 +12,10 @@ import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import java.util.Map;
  * @author David Urbansky
  * @see <a href="https://www.pexels.com/api/documentation/">Pexels API Docs</a>
  */
-public class PexelsSearcher extends AbstractSearcher<WebImage> {
+public class PexelsSearcher extends AbstractMultifacetSearcher<WebImage> {
     public static final class PexelsSearcherMetaInfo implements SearcherMetaInfo<PexelsSearcher, WebImage> {
         private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
 
@@ -119,12 +120,11 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
     }
 
     @Override
-    /**
-     * @param language Supported languages are English.
-     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
+    public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
+        Long totalResults = null;
 
-        resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
+        var resultCount = defaultResultCount == null ? query.getResultCount() : defaultResultCount;
         resultCount = Math.min(1000, resultCount);
         int resultsPerPage = Math.min(100, resultCount);
         int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
@@ -137,11 +137,15 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
 
         for (int page = 1; page <= pagesNeeded; page++) {
 
-            String requestUrl = buildRequest(query, page, Math.min(100, resultCount - results.size()));
+            String requestUrl = String.format("https://api.pexels.com/v1/search?query=%s&per_page=%s&page=%s",
+                    UrlHelper.encodeParameter(query.getText()), resultsPerPage, page);
             try {
                 JsonObject jsonResponse = documentRetriever.getJsonObject(requestUrl);
                 if (jsonResponse == null) {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
+                }
+                if (totalResults == null) {
+                    totalResults = jsonResponse.getLong("total_results");
                 }
                 JsonObject json = new JsonObject(jsonResponse);
                 JsonArray jsonArray = json.tryGetJsonArray("photos", new JsonArray());
@@ -169,11 +173,7 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
             }
         }
 
-        return results;
-    }
-
-    private String buildRequest(String searchTerms, int page, int resultsPerPage) {
-        return String.format("https://api.pexels.com/v1/search?query=%s&per_page=%s&page=%s", UrlHelper.encodeParameter(searchTerms), resultsPerPage, page);
+        return new SearchResults<WebImage>(results, totalResults);
     }
 
     @Override
@@ -183,7 +183,8 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
 
     public static void main(String[] args) throws SearcherException {
         PexelsSearcher searcher = new PexelsSearcher("KEY");
-        List<WebImage> results = searcher.search("pizza", 101);
+        SearchResults<WebImage> results = searcher.search(new MultifacetQuery.Builder().setText("pizza").setResultCount(101).create());
+        System.out.println(results.getResultCount());
         CollectionHelper.print(results);
     }
 }
