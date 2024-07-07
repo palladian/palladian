@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.web;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.persistence.ParserException;
@@ -123,7 +122,7 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
 
     private String buildUrl(String query, int numResults, Language language) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("http://www.etools.ch/partnerSearch.do");
+        stringBuilder.append("https://www.etools.ch/partnerSearch.do");
         stringBuilder.append("?partner=").append(PARTNER_ID);
         stringBuilder.append("&query=").append(UrlHelper.encodeParameter(query));
         stringBuilder.append("&maxRecords=").append(numResults);
@@ -148,12 +147,6 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
     @Override
     public boolean isDeprecated() {
         return true;
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        EToolsSearcher searcher = new EToolsSearcher();
-        List<WebContent> results = searcher.search("cat", 10, Language.ENGLISH);
-        CollectionHelper.print(results);
     }
 
 }
