@@ -146,6 +146,9 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
 
     @Override
     public int getSize() {
+        if (width < 0 || height < 0) {
+            return -1;
+        }
         return Math.abs(width) * Math.abs(height);
     }
 
