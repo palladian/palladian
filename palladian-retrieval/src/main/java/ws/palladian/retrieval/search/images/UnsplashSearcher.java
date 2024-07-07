@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     public static final class UnsplashSearcherMetaInfo implements SearcherMetaInfo<UnsplashSearcher, WebImage> {
-        private static final StringConfigurationOption ACCESS_KEY_OPTION = new StringConfigurationOption("Applicaiton Access Key",
+        private static final StringConfigurationOption ACCESS_KEY_OPTION = new StringConfigurationOption("Application Access Key",
                 "access_key");
 
         @Override
