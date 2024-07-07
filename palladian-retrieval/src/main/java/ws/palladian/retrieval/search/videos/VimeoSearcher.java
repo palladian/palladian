@@ -155,7 +155,7 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
     }
 
     private HttpRequest2 buildRequest(MultifacetQuery query, int page, int resultCount) {
-        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.GET, "http://vimeo.com/api/rest/v2");
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.GET, "https://vimeo.com/api/rest/v2");
         builder.addUrlParam("method", "vimeo.videos.search");
         builder.addUrlParam("query", query.getText());
         builder.addUrlParam("full_response", "true");
