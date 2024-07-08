@@ -19,12 +19,12 @@ import java.util.List;
 public class SearchResults<R extends WebContent> implements Iterable<R> {
     private final List<R> resultList;
 
-    private final Long resultCount;
+    private final Long totalResultCount;
 
-    public SearchResults(List<R> resultList, Long resultCount) {
+    public SearchResults(List<R> resultList, Long totalResultCount) {
         Validate.notNull(resultList, "resultList must not be null");
         this.resultList = resultList;
-        this.resultCount = resultCount;
+        this.totalResultCount = totalResultCount;
     }
 
     public SearchResults(List<R> resultList) {
@@ -56,9 +56,19 @@ public class SearchResults<R extends WebContent> implements Iterable<R> {
     /**
      * @return The number of total available results, or <code>null</code> in case this information is not provided by
      * the searcher.
+     * @deprecated Use {@link #getTotalResultCount()} instead.
      */
+    @Deprecated
     public Long getResultCount() {
-        return resultCount;
+        return totalResultCount;
+    }
+
+    /**
+     * @return The number of total available results, or <code>null</code> in case this information is not provided by
+     * the searcher.
+     */
+    public Long getTotalResultCount() {
+        return totalResultCount;
     }
 
     @Override
@@ -71,9 +81,9 @@ public class SearchResults<R extends WebContent> implements Iterable<R> {
         StringBuilder builder = new StringBuilder();
         builder.append("SearchResults [#results=");
         builder.append(resultList.size());
-        if (resultCount != null) {
+        if (totalResultCount != null) {
             builder.append(", #totalResults=");
-            builder.append(resultCount);
+            builder.append(totalResultCount);
         }
         builder.append("]");
         return builder.toString();

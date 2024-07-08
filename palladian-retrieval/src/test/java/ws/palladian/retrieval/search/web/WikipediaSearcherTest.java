@@ -17,7 +17,7 @@ public class WikipediaSearcherTest {
         assertEquals(75, result.getResultList().size());
         assertEquals("Dresden", result.getResultList().get(0).getTitle());
         assertEquals("https://de.wikipedia.org/wiki/Dresden", result.getResultList().get(0).getUrl());
-        assertTrue(result.getResultCount() > 50_000);
+        assertTrue(result.getTotalResultCount() > 50_000);
     }
 
     @Test
