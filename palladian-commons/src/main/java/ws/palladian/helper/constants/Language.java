@@ -7,6 +7,7 @@ import ws.palladian.helper.StopWatch;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <p>
@@ -67,6 +68,7 @@ public enum Language {
     HUNGARIAN("hu", "hun", "Hungarian", Script.LATIN), //
     ICELANDIC("is", "isl", "Icelandic", Script.LATIN), //
     IDO("io", "ido", "Ido"), //
+    ILO(null, "ilo", "Iloko"), //
     INDONESIAN("id", "ind", "Indonesian"), //
     IRISH("ga", "gle", "Irish", Script.LATIN), //
     ITALIAN("it", "ita", "Italian", Script.LATIN), //
@@ -74,6 +76,7 @@ public enum Language {
     JAPANESE("ja", "jpn", "Japanese", Script.KANA), //
     JAVANESE("jv", "jav", "Javanese"), //
     KABYLE(null, "kab", "Kabyle"), //
+    KANNADA("kn", "kan", "Kannada"), //
     KAQCHIKEL(null, "cak", "Kaqchikel"), //
     KEKCHI(null, "kek", "Q’eqchi’"), //
     KOREAN("ko", "kor", "Korean", Script.HANGEUL), //
@@ -95,6 +98,7 @@ public enum Language {
     MOSSI(null, "mos", "Mossi"), //
     NEPALI("ne", "nep", "Nepali", Script.DEVANGARI), //
     NORTHERN_NDEBELE("nd", "nde", "Northern Ndebele"), //
+    NORTHERN_SAMI("se", "sme", "Northern Sami"), //
     NORWEGIAN("no", "nor", "Norwegian"), //
     NORWEGIAN_BOKMAL("nb", "nob", "Norwegian"), //
     NORWEGIAN_NYNORSK("nn", "nno", "Norwegian"), //
@@ -199,6 +203,10 @@ public enum Language {
      */
     public String getName() {
         return name;
+    }
+
+    public static Language getByAnyIso(String iso) {
+        return Optional.ofNullable(getByIso6391(iso)).orElse(getByIso6392(iso));
     }
 
     /**
