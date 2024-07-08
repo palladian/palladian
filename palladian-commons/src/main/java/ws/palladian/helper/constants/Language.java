@@ -100,6 +100,7 @@ public enum Language {
     NORWEGIAN_NYNORSK("nn", "nno", "Norwegian"), //
     OCCITAN("oc", "oci", "Occitan"), //
     OJIBWE("oj", "oji", "Ojibwe"), //
+    ORIYA("or", "ori", "Oriya"), //
     PASHTO("ps", "pus", "Pashto", Script.ARABIC), //
     PERSIAN("fa", "fas", "Persian", Script.ARABIC), //
     POLISH("pl", "pol", "Polish", Script.LATIN), //
@@ -140,7 +141,8 @@ public enum Language {
     WEST_FRISIAN("fy", "fry", "West Frisian", Script.LATIN), //
     WOLOF("wo", "wol", "Wolof"), //
     XHOSA("xh", "xho", "Xhosa"), //
-    ZARMA(null, "dje", "Zarma"); //
+    ZARMA(null, "dje", "Zarma"), //
+    ZULU("zu", "zul", "Zulu"); //
 
     /**
      * Ten of the most spoken languages (determined by number of countries, see <a
