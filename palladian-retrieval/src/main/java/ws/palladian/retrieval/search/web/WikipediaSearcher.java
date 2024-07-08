@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -25,6 +24,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * <p>
@@ -116,7 +117,9 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     String title = resultItem.getString("title");
                     builder.setTitle(title);
-                    builder.setSummary(HtmlHelper.stripHtmlTags(resultItem.getString("snippet")));
+                    var summary = StringEscapeUtils
+                            .unescapeHtml(HtmlHelper.stripHtmlTags(resultItem.getString("snippet")));
+                    builder.setSummary(summary);
                     builder.setPublished(parseDate(resultItem.getString("timestamp")));
                     builder.setUrl(getPageUrl(baseUrl, title));
                     results.add(builder.create());
@@ -200,17 +203,10 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
     private String getBaseUrl(Language language) {
         switch (language) {
             case GERMAN:
-                return "http://de.wikipedia.org";
+                return "https://de.wikipedia.org";
             default:
-                return "http://en.wikipedia.org";
+                return "https://en.wikipedia.org";
         }
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        WikipediaSearcher searcher = new WikipediaSearcher();
-        List<WebContent> result = searcher.search("dresden", 500, Language.GERMAN);
-        CollectionHelper.print(result);
-        // System.out.println(searcher.getTotalResultCount("cat"));
     }
 
 }
