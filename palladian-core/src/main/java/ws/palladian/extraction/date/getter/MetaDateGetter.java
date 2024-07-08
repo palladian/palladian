@@ -37,13 +37,19 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate> {
 
     @Override
     public List<MetaDate> getDates(HttpResult httpResult) {
-        List<MetaDate> dates = new ArrayList<>();
-        dates.addAll(httpDateGetter.getDates(httpResult));
+        return getDates(httpResult, null);
+    }
+
+    public List<MetaDate> getDates(HttpResult httpResult, Document document) {
+        List<MetaDate> dates = new ArrayList<>(httpDateGetter.getDates(httpResult));
 
         try {
-            Document document = htmlParser.parse(httpResult);
+            if (document == null) {
+                document = htmlParser.parse(httpResult);
+            }
             dates.addAll(headDateGetter.getDates(document));
         } catch (ParserException e) {
+            // ignore
         }
 
         return dates;
@@ -58,7 +64,7 @@ public class MetaDateGetter extends TechniqueDateGetter<MetaDate> {
         // get the http result without querying the URL again, this saves bandwidth and time
         HttpResult httpResult = (HttpResult) document.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
         if (httpResult != null) {
-            return getDates(httpResult);
+            return getDates(httpResult, document);
         }
 
         if (allowHttpRequests) {
