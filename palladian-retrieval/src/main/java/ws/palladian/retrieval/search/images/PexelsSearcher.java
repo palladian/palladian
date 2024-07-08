@@ -101,7 +101,7 @@ public class PexelsSearcher extends AbstractSearcher<WebImage> {
                     throw new SearcherException("Failed to get JSON from " + requestUrl);
                 }
                 JsonObject json = new JsonObject(jsonResponse);
-                JsonArray jsonArray = json.getJsonArray("photos");
+                JsonArray jsonArray = json.tryGetJsonArray("photos", new JsonArray());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JsonObject resultHit = jsonArray.getJsonObject(i);
 

@@ -4,7 +4,6 @@ import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.resources.BasicWebImage;
@@ -85,7 +84,7 @@ public class CreativeCommonsSearcher extends AbstractSearcher<WebImage> {
                         break;
                     }
                 }
-            } catch (JsonException e) {
+            } catch (Exception e) {
                 throw new SearcherException(e.getMessage());
             }
         }
