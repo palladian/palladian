@@ -3,9 +3,9 @@ package ws.palladian.retrieval.search;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.retrieval.resources.WebContent;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -42,15 +42,7 @@ public class SearchResults<R extends WebContent> implements Iterable<R> {
      * @return A list of URLs from the results.
      */
     public List<String> getResultUrls() {
-        List<String> urls = new ArrayList<String>();
-
-        for (R searchResult : this) {
-            if (searchResult.getUrl() != null) {
-                urls.add(searchResult.getUrl());
-            }
-        }
-
-        return urls;
+        return resultList.stream().map(R::getUrl).collect(Collectors.toList());
     }
 
     /**
