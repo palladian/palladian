@@ -46,7 +46,7 @@ public final class StringHelper {
     public static final Pattern PATTERN_LIMITED_WHITESPACES = Pattern.compile("[ ]{2,10}");
     private static final Pattern PATTERN_NON_ASCII_SPACE = Pattern.compile(" ");
     private static final Pattern PATTERN_NON_ASCII = Pattern.compile("[^\\p{ASCII}]");
-    private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{].*?[)\\]}]");
+    private static final Pattern PATTERN_BRACKETS = Pattern.compile("[(\\[{（].*?[)\\]}）]");
     private static final Pattern PATTERN_MULTIPLE_WHITESPACES = Pattern.compile("[ ]{2,}");
     private static final Pattern PATTERN_MULTIPLE_HYPHENS = Pattern.compile("[-]{2,}");
     private static final Pattern PATTERN_DIGIT = Pattern.compile("[^0-9]");
