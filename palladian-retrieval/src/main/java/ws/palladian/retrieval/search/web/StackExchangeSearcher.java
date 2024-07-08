@@ -84,6 +84,8 @@ public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebC
 
     private static final String NAME = "Stack Exchange";
 
+    private static final int MAX_PAGESIZE = 100;
+
     private final String site;
 
     public StackExchangeSearcher(String site) {
@@ -93,50 +95,54 @@ public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebC
 
     @Override
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
-        String queryUrl = createQueryUrl(query);
-        LOGGER.debug("request url = {}", queryUrl);
-        System.out.println(queryUrl);
-        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
-        HttpResult httpResult;
-        try {
-            httpResult = httpRetriever.httpGet(queryUrl);
-        } catch (HttpException e) {
-            throw new SearcherException("Error while accessing \"" + queryUrl + "\"", e);
-        }
-        if (httpResult.errorStatus()) {
-            throw new SearcherException("Encountered HTTP status " + httpResult.getStatusCode() + " while accessing \"" + queryUrl + "\"");
-        }
-        try {
-            List<WebContent> resultList = new ArrayList<>();
-            JsonObject resultJson = new JsonObject(httpResult.getStringContent());
-            JsonArray jsonItems = resultJson.getJsonArray("items");
-            for (int i = 0; i < jsonItems.size(); i++) {
-                JsonObject jsonItem = jsonItems.getJsonObject(i);
-                BasicWebContent.Builder builder = new BasicWebContent.Builder();
-                JsonArray tagArray = jsonItem.getJsonArray("tags");
-                for (int j = 0; j < tagArray.size(); j++) {
-                    builder.addTag(tagArray.getString(j));
-                }
-                builder.setIdentifier(jsonItem.getString("question_id"));
-                builder.setPublished(new Date(jsonItem.getInt("creation_date") * 1000l));
-                builder.setUrl(jsonItem.getString("link"));
-                builder.setTitle(jsonItem.getString("title"));
-                builder.setSource(NAME);
-                resultList.add(builder.create());
+        List<WebContent> resultList = new ArrayList<>();
+        var numPages = (int) Math.ceil((float) query.getResultCount() / MAX_PAGESIZE);
+        for (var page = 1; page <= numPages; page++) {
+            var pagesize = Math.min(MAX_PAGESIZE, query.getResultCount() - resultList.size());
+            String queryUrl = createQueryUrl(query, page, pagesize);
+            LOGGER.debug("request url = {}", queryUrl);
+            HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+            HttpResult httpResult;
+            try {
+                httpResult = httpRetriever.httpGet(queryUrl);
+            } catch (HttpException e) {
+                throw new SearcherException("Error while accessing \"" + queryUrl + "\"", e);
             }
-            return new SearchResults<WebContent>(resultList);
-        } catch (JsonException e) {
-            throw new SearcherException("Error while parsing JSON \"" + httpResult.getStringContent() + "\"", e);
+            if (httpResult.errorStatus()) {
+                throw new SearcherException("Encountered HTTP status " + httpResult.getStatusCode()
+                        + " while accessing \"" + queryUrl + "\"");
+            }
+            try {
+                JsonObject resultJson = new JsonObject(httpResult.getStringContent());
+                JsonArray jsonItems = resultJson.getJsonArray("items");
+                for (int i = 0; i < jsonItems.size(); i++) {
+                    JsonObject jsonItem = jsonItems.getJsonObject(i);
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
+                    JsonArray tagArray = jsonItem.getJsonArray("tags");
+                    for (int j = 0; j < tagArray.size(); j++) {
+                        builder.addTag(tagArray.getString(j));
+                    }
+                    builder.setIdentifier(jsonItem.getString("question_id"));
+                    builder.setPublished(new Date(jsonItem.getInt("creation_date") * 1000l));
+                    builder.setUrl(jsonItem.getString("link"));
+                    builder.setTitle(jsonItem.getString("title"));
+                    builder.setSource(NAME);
+                    resultList.add(builder.create());
+                }
+            } catch (JsonException e) {
+                throw new SearcherException("Error while parsing JSON \"" + httpResult.getStringContent() + "\"", e);
+            }
         }
+        return new SearchResults<WebContent>(resultList);
     }
 
-    private String createQueryUrl(MultifacetQuery query) {
+    private String createQueryUrl(MultifacetQuery query, int page, int pagesize) {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append("http://api.stackexchange.com/2.2/search/advanced");
-        // urlBuilder.append("http://api.stackexchange.com/2.2/search/excerpts");
+        urlBuilder.append("https://api.stackexchange.com/2.3/search/advanced");
         urlBuilder.append("?site=").append(site);
         if (StringUtils.isNotBlank(query.getText())) {
             urlBuilder.append("&q=").append(UrlHelper.encodeParameter(query.getText()));
+            // urlBuilder.append("&title=").append(UrlHelper.encodeParameter(query.getText()));
         }
         if (query.getTags() != null && !query.getTags().isEmpty()) {
             urlBuilder.append("&tags=").append(StringUtils.join(query.getTags(), ';'));
@@ -144,6 +150,8 @@ public final class StackExchangeSearcher extends AbstractMultifacetSearcher<WebC
         if (StringUtils.isNotBlank(query.getUrl())) {
             urlBuilder.append("&url=").append(UrlHelper.encodeParameter(query.getUrl()));
         }
+        urlBuilder.append("&page=").append(page);
+        urlBuilder.append("&pagesize=").append(pagesize);
         return urlBuilder.toString();
     }
 
