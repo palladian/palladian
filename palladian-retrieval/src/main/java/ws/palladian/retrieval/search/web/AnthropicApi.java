@@ -29,8 +29,7 @@ public class AnthropicApi extends AiApi {
     public static final String CONFIG_API_KEY = "api.anthropic.key";
 
     /** See https://docs.anthropic.com/claude/docs/models-overview */
-    private static final String DEFAULT_MODEL = "claude-3-opus-20240229";
-    //    private static final String DEFAULT_MODEL = "claude-3-haiku-20240307";
+    private static final String DEFAULT_MODEL = "claude-3-5-sonnet-20240620";
 
     public AnthropicApi(String apiKey) {
         this.apiKey = apiKey;
