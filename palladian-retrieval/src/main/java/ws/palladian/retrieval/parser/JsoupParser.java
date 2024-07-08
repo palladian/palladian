@@ -111,7 +111,11 @@ public final class JsoupParser extends BaseDocumentParser {
             if (!attr.contains(":")) {
                 continue;
             }
-            String key = attr.split(":")[0];
+            String[] split = attr.split(":");
+            if (split.length != 2) {
+                continue;
+            }
+            String key = split[0];
             if (key.equals("xmlns") || key.equals("xml")) {
                 continue;
             }
