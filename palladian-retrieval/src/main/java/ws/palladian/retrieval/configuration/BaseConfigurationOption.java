@@ -49,4 +49,9 @@ public abstract class BaseConfigurationOption<T> implements ConfigurationOption<
     public final boolean isRequired() {
         return required;
     }
+
+    @Override
+    public T getDefaultValue() {
+        return defaultValue;
+    }
 }

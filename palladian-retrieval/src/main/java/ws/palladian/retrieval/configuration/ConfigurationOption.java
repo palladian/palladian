@@ -20,4 +20,6 @@ public interface ConfigurationOption<T> {
 
     /** @return Whether the option is required or optional. */
     boolean isRequired();
+
+    T getDefaultValue();
 }
