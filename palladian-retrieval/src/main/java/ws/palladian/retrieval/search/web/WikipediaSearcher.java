@@ -14,7 +14,9 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.text.ParseException;
@@ -38,7 +40,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @see <a href="http://stackoverflow.com/questions/964454/how-to-use-wikipedia-api-if-it-exists">How to use wikipedia
  * api if it exists?</a>
  */
-public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
+public final class WikipediaSearcher extends AbstractMultifacetSearcher<WebContent> {
 
     public static final class WikipediaSearcherMetaInfo implements SearcherMetaInfo<WikipediaSearcher, WebContent> {
         @Override
@@ -87,6 +89,8 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
      */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
+    private static final int MAX_CHUNK_SIZE = 50;
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -95,17 +99,22 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
     }
 
     @Override
-    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
+    public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
 
         List<WebContent> results = new ArrayList<>();
-        String baseUrl = getBaseUrl(language);
+        Long totalCount = null;
+        String baseUrl = getBaseUrl(query.getLanguage());
 
         // fetch in chunks of 50 items, this is maximum size
-        for (int offset = 0; offset < resultCount; offset += 50) {
+        for (int offset = 0; offset < query.getResultCount(); offset += MAX_CHUNK_SIZE) {
 
-            JsonObject jsonResult = fetchJsonResponse(query, baseUrl, offset, 50);
+            JsonObject jsonResult = fetchJsonResponse(query.getText(), baseUrl, offset, MAX_CHUNK_SIZE);
 
             try {
+                if (totalCount == null) {
+                    totalCount = jsonResult.queryLong("/query/searchinfo/totalhits");
+                }
+
                 JsonArray searchResults = jsonResult.queryJsonArray("/query/search");
 
                 if (searchResults.size() == 0) {
@@ -124,7 +133,7 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
                     builder.setUrl(getPageUrl(baseUrl, title));
                     results.add(builder.create());
 
-                    if (results.size() == resultCount) {
+                    if (results.size() == query.getResultCount()) {
                         break;
                     }
                 }
@@ -134,7 +143,7 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
             }
         }
 
-        return results;
+        return new SearchResults<>(results,totalCount);
     }
 
     private JsonObject fetchJsonResponse(String query, String baseUrl, int offset, int limit) throws SearcherException {
@@ -150,17 +159,6 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
             return new JsonObject(jsonString);
         } catch (JsonException e) {
             throw new SearcherException("JSON parse error while parsing \"" + jsonString + "\": " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public long getTotalResultCount(String query, Language language) throws SearcherException {
-        String baseUrl = getBaseUrl(language);
-        JsonObject jsonResult = fetchJsonResponse(query, baseUrl, 0, 1);
-        try {
-            return jsonResult.queryLong("/query/searchinfo/totalhits");
-        } catch (JsonException e) {
-            throw new SearcherException("Error while getting the result count.");
         }
     }
 
