@@ -202,6 +202,22 @@ public final class WikipediaSearcher extends AbstractMultifacetSearcher<WebConte
         switch (language) {
             case GERMAN:
                 return "https://de.wikipedia.org";
+            case FRENCH:
+                return "https://fr.wikipedia.org";
+            case ARABIC:
+                return "https://ar.wikipedia.org";
+            case SPANISH:
+                return "https://es.wikipedia.org";
+            case PORTUGUESE:
+                return "https://pt.wikipedia.org";
+            case RUSSIAN:
+                return "https://ru.wikipedia.org";
+            case PERSIAN:
+                return "https://fa.wikipedia.org";
+            case ITALIAN:
+                return "https://it.wikipedia.org";
+            case CHINESE:
+                return "https://zh.wikipedia.org";
             default:
                 return "https://en.wikipedia.org";
         }
