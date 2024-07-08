@@ -31,13 +31,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * <p>
- * Search for <a href="http://www.wikipedia.org">Wikipedia</a> articles with fulltext search.
+ * Search for <a href="https://www.wikipedia.org">Wikipedia</a> articles with fulltext search.
  * </p>
  *
  * @author Philipp Katz
- * @see <a href="http://www.mediawiki.org/wiki/API:Search">MediaWiki API:Search</a>
- * @see <a href="http://de.wikipedia.org/w/api.php">MediaWiki API</a>
- * @see <a href="http://stackoverflow.com/questions/964454/how-to-use-wikipedia-api-if-it-exists">How to use wikipedia
+ * @see <a href="https://www.mediawiki.org/wiki/API:Search">MediaWiki API:Search</a>
+ * @see <a href="https://de.wikipedia.org/w/api.php">MediaWiki API</a>
+ * @see <a href="https://stackoverflow.com/questions/964454/how-to-use-wikipedia-api-if-it-exists">How to use wikipedia
  * api if it exists?</a>
  */
 public final class WikipediaSearcher extends AbstractMultifacetSearcher<WebContent> {
@@ -190,7 +190,7 @@ public final class WikipediaSearcher extends AbstractMultifacetSearcher<WebConte
 
     // build an article URL from an article title; unfortunately, I cannot find any rules from Wikipedia on how to
     // create a link from a article title. I implemented the rules described here:
-    // http://stackoverflow.com/a/9354004/388827
+    // https://stackoverflow.com/a/9354004/388827
     private String getPageUrl(String baseUrl, String pageTitle) {
         String pageUrl = StringHelper.upperCaseFirstLetter(pageTitle);
         pageUrl = pageUrl.replaceAll("\\s+$", "");
