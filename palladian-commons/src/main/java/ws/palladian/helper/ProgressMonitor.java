@@ -350,6 +350,10 @@ public final class ProgressMonitor extends AbstractProgressReporter {
         this.logger = logger;
     }
 
+    public void setTotalSteps(long totalSteps) {
+        this.totalSteps = totalSteps;
+    }
+
     public static void main(String[] args) {
         // int totalSteps = 1700335346;
         // ProgressMonitor pm = new ProgressMonitor(0.1);
