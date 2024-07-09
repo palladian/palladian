@@ -78,7 +78,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
 
         @Override
         public String getSearcherDescription() {
-            return "Search videos on <a href=\"https://www.youtube.com/\">YouTube</a>.";
+            return "Search videos on <a href=\"https://www.youtube.com/\">YouTube</a> using the YouTube Data API v3.";
         }
     }
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
@@ -525,8 +525,8 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         String videoId = entry.queryString("id");
         builder.setIdentifier(videoId);
         builder.setSource(SEARCHER_NAME);
-        builder.setUrl("http://www.youtube.com/watch?v=" + videoId);
-        builder.setVideoUrl("http://www.youtube.com/watch?v=" + videoId);
+        builder.setUrl("https://www.youtube.com/watch?v=" + videoId);
+        builder.setVideoUrl("https://www.youtube.com/watch?v=" + videoId);
         builder.setDuration(parseIso8601Duration(entry.queryString("contentDetails/duration")));
         builder.setViews(entry.tryQueryInt("statistics/viewCount"));
         builder.setSummary(entry.queryString("snippet/description"));
@@ -551,7 +551,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         builder.setAdditionalData("ageRestricted", Optional.ofNullable(entry.tryQueryString("contentDetails/contentRating/ytRating")).orElse("").equals("ytAgeRestricted"));
 
         // no tags available ):
-        // see: http://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
+        // see: https://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
         return builder.create();
     }
 
