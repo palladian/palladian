@@ -67,13 +67,13 @@ public final class GoogleProgrammableSearchEngine extends AbstractMultifacetSear
 
         @Override
         public List<ConfigurationOption<?>> getConfigurationOptions() {
-            return Arrays.asList(API_KEY_OPTION, SEARCH_ENGINE_ID_OPTION);
+            return Arrays.asList(SEARCH_ENGINE_ID_OPTION, API_KEY_OPTION);
         }
 
         @Override
         public GoogleProgrammableSearchEngine create(Map<ConfigurationOption<?>, ?> config) {
             var apiKey = API_KEY_OPTION.get(config);
-            var searchEngineId = API_KEY_OPTION.get(config);
+            var searchEngineId = SEARCH_ENGINE_ID_OPTION.get(config);
             return new GoogleProgrammableSearchEngine(apiKey, searchEngineId);
         }
 
