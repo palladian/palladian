@@ -67,7 +67,10 @@ public final class VimeoSearcher extends AbstractMultifacetSearcher<WebVideo> {
 
         @Override
         public String getSearcherDescription() {
-            return "Search videos on <a href=\"https://vimeo.com/\">Vimeo</a>.";
+            return "Search videos on <a href=\"https://vimeo.com/\">Vimeo</a>. "
+                    + "To use, log in to your Vimeo Account, "
+                    + "<a href=\"https://developer.vimeo.com/apps\">create an app</a>, "
+                    + "generate a “Personal Access Token” with the “public” scope.";
         }
     }
 
