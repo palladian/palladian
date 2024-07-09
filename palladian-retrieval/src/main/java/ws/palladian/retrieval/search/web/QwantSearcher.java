@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Using the unofficial Qwant API without limits.
@@ -77,6 +77,10 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
 
     private static final String SEARCHER_NAME = "Qwant";
 
+    private static final int CHUNK_SIZE = 10;
+
+    private static final int MAX_OFFSET = 40;
+
     @Override
     public String getName() {
         return SEARCHER_NAME;
@@ -85,16 +89,12 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
     @Override
     public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
         List<WebContent> results = new ArrayList<>();
-        Long resultCount = null;
 
-        // override user result count as it has to be 10
-        int resultCountRequested = 10;
+        // Qwant gives chunks of max. 10 items, and allows 5 chunks, i.e. max. 50 results.
+        var numChunks = (int) Math.min(MAX_OFFSET / CHUNK_SIZE, Math.ceil((float) query.getResultCount() / CHUNK_SIZE));
 
-        // Qwant gives chunks of max. 10 items, and allows 10 chunks, i.e. max. 100 results.
-        double numChunks = Math.min(10, Math.ceil((double) resultCountRequested / 10));
-
-        for (int start = 0; start <= numChunks; start += 10) {
-            String searchUrl = createRequestUrl(query.getText(), start, Math.min(10, resultCountRequested - results.size()), query.getLanguage());
+        for (int chunkIdx = 0; chunkIdx <= numChunks; chunkIdx++) {
+            String searchUrl = createRequestUrl(query.getText(), chunkIdx * CHUNK_SIZE, CHUNK_SIZE, query.getLanguage());
             LOGGER.debug("Search with URL " + searchUrl);
 
             OkHttpClient okHttpClient = new OkHttpClient();
@@ -119,19 +119,18 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
                 responseJson = JsonObject.tryParse(jsonString);
                 checkError(responseJson);
                 List<WebContent> current = parse(responseJson);
-                if (current.isEmpty()) {
-                    break;
-                }
-                results.addAll(current);
-                if (resultCount == null) {
-                    resultCount = parseResultCount(responseJson);
+                for (WebContent result : current) {
+                    if (results.size() >= query.getResultCount()) {
+                        break;
+                    }
+                    results.add(result);
                 }
             } catch (Exception e) {
                 throw new SearcherException("Error parsing the response from URL \"" + searchUrl + "\" (JSON was: \"" + jsonString + "\"): " + e.getMessage(), e);
             }
         }
 
-        return new SearchResults<>(results, resultCount);
+        return new SearchResults<>(results);
     }
 
     private String createRequestUrl(String query, int offset, int num, Language language) {
@@ -224,32 +223,36 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
     }
 
     private static List<WebContent> parse(JsonObject jsonObject) {
-        JsonArray mainlines = jsonObject.tryQueryJsonArray("data/result/items/mainline");
-        // get the one with type == web
-        Optional<Object> first = mainlines.stream().filter(o -> ((JsonObject) o).tryGetString("type").equals("web")).findFirst();
-        if (!first.isPresent()) {
-            return Collections.emptyList();
-        }
-        JsonObject webMainline = (JsonObject) first.get();
-        JsonArray jsonItems = webMainline.tryQueryJsonArray("items");
-        if (jsonItems == null) {
-            LOGGER.warn("JSON result did not contain an 'items' property. (JSON = '" + jsonObject.toString() + "'.");
-            return Collections.emptyList();
-        }
         List<WebContent> result = new ArrayList<>();
-        for (int i = 0; i < jsonItems.size(); i++) {
-            JsonObject jsonItem = jsonItems.tryGetJsonObject(i);
-            BasicWebContent.Builder builder = new BasicWebContent.Builder();
-            builder.setTitle(jsonItem.tryGetString("title"));
-            builder.setUrl(jsonItem.tryGetString("url"));
-            builder.setSummary(jsonItem.tryGetString("desc"));
-            builder.setSource(SEARCHER_NAME);
-            result.add(builder.create());
+        JsonArray mainlines = jsonObject.tryQueryJsonArray("data/result/items/mainline");
+        for (var mainlineIdx = 0; mainlineIdx < mainlines.size(); mainlineIdx++) {
+            var currentMainline = mainlines.tryGetJsonObject(mainlineIdx);
+            if (currentMainline == null) {
+                continue;
+            }
+            if ("web".equals(currentMainline.tryGetString("type"))) {
+                var jsonItems = currentMainline.tryGetJsonArray("items");
+                if (jsonItems == null) {
+                    LOGGER.warn("JSON result did not contain an 'items' property. (JSON = '" + jsonObject.toString()
+                            + "'.");
+                }
+                for (int i = 0; i < jsonItems.size(); i++) {
+                    JsonObject jsonItem = jsonItems.tryGetJsonObject(i);
+                    BasicWebContent.Builder builder = new BasicWebContent.Builder();
+                    builder.setTitle(jsonItem.tryGetString("title"));
+                    builder.setUrl(jsonItem.tryGetString("url"));
+                    builder.setSummary(jsonItem.tryGetString("desc"));
+                    builder.setSource(SEARCHER_NAME);
+                    result.add(builder.create());
+                }
+            }
         }
         return result;
     }
 
-    static long parseResultCount(JsonObject jsonObject) {
-        return jsonObject.tryQueryInt("data/result/total");
+    public static void main(String[] args) throws SearcherException {
+        var searcher = new QwantSearcher();
+        var results = searcher.search("olympia", 10);
+        CollectionHelper.print(results);
     }
 }
