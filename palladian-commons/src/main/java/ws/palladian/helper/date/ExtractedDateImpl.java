@@ -36,6 +36,8 @@ public class ExtractedDateImpl implements ExtractedDate, Serializable {
     private int second = -1;
 
     private String timeZone = null;
+    private int utcOffsetMinutes = 0;
+    private boolean ignoreTimeZone = false;
 
     public ExtractedDateImpl() {
         this(System.currentTimeMillis());
@@ -93,8 +95,16 @@ public class ExtractedDateImpl implements ExtractedDate, Serializable {
         this.second = parseLogic.second;
         this.timeZone = parseLogic.timeZone;
         this.dateString = parseLogic.originalDateString;
+        this.utcOffsetMinutes = parseLogic.utcOffsetMinutes;
+        this.ignoreTimeZone = parseLogic.ignoreTimeZone;
         this.format = parseLogic.format.getFormat();
     }
+
+    //    @Override
+    //    public String getNormalizedDateStringSourceTimeZone() {
+    //        long newTs = getNormalizedDate().getTime() + TimeUnit.MINUTES.toMillis(utcOffsetMinutes);
+    //        return DateHelper.getDatetime("yyyy-MM-dd HH:mm:ss", newTs);
+    //    }
 
     @Override
     public String getNormalizedDateString() {
@@ -116,7 +126,7 @@ public class ExtractedDateImpl implements ExtractedDate, Serializable {
         int second = this.second == -1 ? 0 : this.second;
 
         Calendar cal = new GregorianCalendar();
-        if (timeZone != null) {
+        if (timeZone != null && !ignoreTimeZone) {
             cal.setTimeZone(TimeZone.getTimeZone(timeZone));
         }
         cal.set(year, month, day, hour, minute, second);
@@ -210,6 +220,16 @@ public class ExtractedDateImpl implements ExtractedDate, Serializable {
     @Override
     public String getTimeZone() {
         return timeZone;
+    }
+
+    @Override
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    @Override
+    public int getUtcOffsetMinutes() {
+        return utcOffsetMinutes;
     }
 
     @Override

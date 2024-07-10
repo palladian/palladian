@@ -131,7 +131,6 @@ public class RomeFeedParser extends AbstractFeedParser {
         int dateRetries = 0;
 
         for (SyndEntry syndEntry : syndEntries) {
-
             FeedItem item = new FeedItem();
 
             String title = getEntryTitle(syndEntry);

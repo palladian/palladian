@@ -17,6 +17,11 @@ public interface ExtractedDate {
      */
     String getNormalizedDateString();
 
+    //    /**
+    //     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values but keeping the local time of the original string.
+    //     */
+    //    String getNormalizedDateStringSourceTimeZone();
+
     /**
      * Converts this extracted-date in a {@link Date}. <br>
      * Be careful, if a datepart is not given, it will be set to 0. (Except day will be set to 1). <br>
@@ -52,6 +57,10 @@ public interface ExtractedDate {
     int get(int field);
 
     String getTimeZone();
+
+    void setTimeZone(String timeZone);
+
+    int getUtcOffsetMinutes();
 
     /**
      * <p>

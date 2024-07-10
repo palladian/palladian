@@ -48,6 +48,11 @@ public final class RatedDate<D extends ExtractedDate> implements ExtractedDate {
     }
 
     @Override
+    public int getUtcOffsetMinutes() {
+        return date.getUtcOffsetMinutes();
+    }
+
+    @Override
     public String getNormalizedDateString() {
         return date.getNormalizedDateString();
     }

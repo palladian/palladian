@@ -32,8 +32,6 @@ import java.util.regex.Pattern;
  * @author Philipp Katz
  */
 public final class DateParser {
-
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(DateParser.class);
 
     // XXX for performance optimizations to check speed of each regex, remove later. See issue #162
@@ -80,8 +78,13 @@ public final class DateParser {
     }
 
     public static ExtractedDate parseDate(String date, DateFormat format, String timeZone) {
+        return parseDate(date, format, timeZone, false);
+    }
+
+    public static ExtractedDate parseDate(String date, DateFormat format, String timeZone, boolean ignoreTimeZone) {
         DateParserLogic parseLogic = new DateParserLogic(date, format);
         try {
+            parseLogic.setIgnoreTimeZone(ignoreTimeZone);
             parseLogic.setTimeZone(timeZone);
             parseLogic.parse();
         } catch (Exception e) {
@@ -91,6 +94,13 @@ public final class DateParser {
             LOGGER.debug("Stack trace", e);
         }
         return new ExtractedDateImpl(parseLogic);
+    }
+
+    public static ExtractedDate findDateLocalTime(String text) {
+        if (text == null) {
+            return null;
+        }
+        return findDate(text, true, RegExp.ALL_DATE_FORMATS);
     }
 
     /**
@@ -120,13 +130,17 @@ public final class DateParser {
      * {@link DateFormat}s.
      */
     public static ExtractedDate findDate(String text, DateFormat... formats) {
+        return findDate(text, false, formats);
+    }
+
+    public static ExtractedDate findDate(String text, boolean ignoreTimeZone, DateFormat... formats) {
         if (text == null) {
             return null;
         }
         for (DateFormat format : formats) {
             // the old code had a catch Throwable around find date, I removed this for now,
             // if exceptions are encountered, try to solve them, and do not just catch them away.
-            ExtractedDate extractedDate = findDate(text, format);
+            ExtractedDate extractedDate = findDate(text, ignoreTimeZone, format);
             if (extractedDate != null) {
                 return extractedDate;
             }
@@ -145,28 +159,11 @@ public final class DateParser {
      * matched by the given {@link DateFormat}.
      */
     public static ExtractedDate findDate(String text, DateFormat format) {
-        // text = StringHelper.removeDoubleWhitespaces(text);
-        // ExtractedDate result = null;
-        // Matcher matcher = format.getPattern().matcher(text);
-        // if (matcher.find()) {
-        // // Determine, if the found potential date string is directly surrounded by digits.
-        // // In this case, we skip the pattern and advance to the next one.
-        // boolean digitNeighbor = false;
-        // int start = matcher.start();
-        // if (start > 0) {
-        // digitNeighbor = Character.isDigit(text.charAt(start - 1));
-        // }
-        // int end = matcher.end();
-        // // if last character is "/" no check for number is needed.
-        // if (end < text.length() && text.charAt(end - 1) != '/') {
-        // digitNeighbor = Character.isDigit(text.charAt(end));
-        // }
-        // if (!digitNeighbor) {
-        // result = parseDate(matcher.group(), format);
-        // }
-        // }
-        // return result;
-        List<ExtractedDate> extractedDates = findDates(text, format);
+        return findDate(text, false, format);
+    }
+
+    public static ExtractedDate findDate(String text, boolean ignoreTimeZone, DateFormat format) {
+        List<ExtractedDate> extractedDates = findDates(text, ignoreTimeZone, format);
         if (extractedDates.isEmpty()) {
             return null;
         }
@@ -196,10 +193,14 @@ public final class DateParser {
      * never <code>null</code>.
      */
     public static List<ExtractedDate> findDates(String text, DateFormat... formats) {
+        return findDates(text, false, formats);
+    }
+
+    public static List<ExtractedDate> findDates(String text, boolean ignoreTimeZone, DateFormat... formats) {
         List<ExtractedDate> result = new ArrayList<>();
         //        StopWatch stopWatch = new StopWatch();
         for (DateFormat format : formats) {
-            List<ExtractedDate> dates = findDates(text, format);
+            List<ExtractedDate> dates = findDates(text, ignoreTimeZone, format);
             for (ExtractedDate date : dates) {
                 String dateString = date.getDateString();
                 text = StringHelper.replaceFirst(text, dateString, StringUtils.repeat('x', dateString.length()));
@@ -221,6 +222,10 @@ public final class DateParser {
      * never <code>null</code>.
      */
     public static List<ExtractedDate> findDates(String text, DateFormat format) {
+        return findDates(text, false, format);
+    }
+
+    public static List<ExtractedDate> findDates(String text, boolean ignoreTimeZone, DateFormat format) {
         StopWatch stopWatch = new StopWatch();
         text = StringHelper.removeDoubleWhitespaces(text);
         List<ExtractedDate> result = new ArrayList<>();
@@ -245,7 +250,7 @@ public final class DateParser {
                 digitNeighbor = Character.isDigit(text.charAt(end));
             }
             if (!digitNeighbor) {
-                ExtractedDate extractedDate = parseDate(matcher.group(), format);
+                ExtractedDate extractedDate = parseDate(matcher.group(), format, null, ignoreTimeZone);
                 result.add(extractedDate);
             }
         }

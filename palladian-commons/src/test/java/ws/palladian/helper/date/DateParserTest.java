@@ -18,9 +18,7 @@ import static org.junit.Assert.assertNull;
 /** @formatter:off */
 public class DateParserTest {
     /**
-     * <p>
      * Test for finding dates with no explicitly given format.
-     * </p>
      */
     @Test
     public void testFindDate1() {
@@ -126,9 +124,40 @@ public class DateParserTest {
     }
 
     /**
-     * <p>
+     * Test for finding dates but ignoring any time offsets. This helps us to find and format a date without moving it to another time zone.
+     */
+    @Test
+    public void testFindDateKeepLocalTime() {
+        ExtractedDate date;
+
+        ExtractedDate date1 = DateParser.findDate("02-07-2024 20:07:49");
+        date1.setTimeZone("UTC");
+        assertEquals(1719950869000L, date1.getLongDate());
+        assertEquals(1719950869000L, date1.getNormalizedDate().getTime());
+
+        date = DateParser.findDateLocalTime("02-07-2024 20:07:49 EST");
+        assertEquals("2024-07-02 20:07:49", date.getNormalizedDateString());
+        long ts1 = date.getNormalizedDate().getTime();
+//        assertEquals(0, date.getUtcOffsetMinutes());
+
+        date = DateParser.findDateLocalTime("02-07-2024 20:07:49 CEST");
+        assertEquals("2024-07-02 20:07:49", date.getNormalizedDateString());
+        assertEquals(ts1, date.getNormalizedDate().getTime());
+        //        assertEquals(0, date.getUtcOffsetMinutes());
+
+        date = DateParser.findDateLocalTime("02-07-2024 20:07:49");
+        assertEquals("2024-07-02 20:07:49", date.getNormalizedDateString());
+        assertEquals(ts1, date.getNormalizedDate().getTime());
+
+        date = DateParser.findDateLocalTime("02-07-2024 20:07:49 +0100");
+        assertEquals("2024-07-02 20:07:49", date.getNormalizedDateString());
+        assertEquals(ts1, date.getNormalizedDate().getTime());
+        //        assertEquals(60, date.getUtcOffsetMinutes());
+        //        assertEquals(0, date.getUtcOffsetMinutes());
+    }
+
+    /**
      * Test for finding dates with explicitly given format.
-     * </p>
      */
     @Test
     public void testFindDate2() {
@@ -314,7 +343,6 @@ public class DateParserTest {
         assertEquals(text, date.getNormalizedDateString());
 
         // EU & USA time
-
         text = "2010-07-02 19:07:49";
         date = DateParser.findDate("02.07.2010 20:07:49 +0100", RegExp.DATE_EU_D_MM_Y_T);
         assertEquals(text, date.getNormalizedDateString());

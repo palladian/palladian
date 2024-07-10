@@ -33,11 +33,11 @@ final class DateParserLogic {
     int minute;
     int second;
     String timeZone;
+    int utcOffsetMinutes;
+    boolean ignoreTimeZone = false;
 
     /**
-     * <p>
      * Initialize the date parse logic with the provided date string and the given format used for parsing.
-     * </p>
      *
      * @param dateString The date string to be parsed, not <code>null</code>.
      * @param dateFormat The format describing the structure of the date string, not <code>null</code>.
@@ -59,12 +59,9 @@ final class DateParserLogic {
     }
 
     /**
-     * <p>
      * Parse the supplied date string by using the given format.
-     * </p>
      */
     void parse() {
-
         String dateString = originalDateString;
         String[] timeZoneSplit = splitTimeZone(dateString);
         if (timeZoneSplit != null) {
@@ -443,7 +440,7 @@ final class DateParserLogic {
             }
         }
         setActualTimeValues(cleanedTime);
-        if (diffToUtc != null) {
+        if (diffToUtc != null && !isIgnoreTimeZone()) {
             setTimeDiff(diffToUtc, separator);
         }
     }
@@ -460,7 +457,6 @@ final class DateParserLogic {
      * @param time The string with the time in format <code>HH:MM</code> or <code>HH</code>.
      * @param sign The sign, either <code>+</code> or <code>-</code>.
      */
-    // TODO wouldn't it be better, to store the time difference instead of modifying the actual time?
     void setTimeDiff(String time, String sign) {
         if (year == -1 || month == -1 || day == -1 || hour == -1) {
             return;
@@ -483,14 +479,26 @@ final class DateParserLogic {
             tempMinute2 = minute;
         }
 
+        //        int plusMinus = 1;
         Calendar calendar = new GregorianCalendar(year, month - 1, day, hour, tempMinute2);
-        if (sign.equalsIgnoreCase("-")) {
+        if (sign.equals("-")) {
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + tempHour);
             calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + tempMinute);
+            //            plusMinus = -1;
         } else {
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - tempHour);
             calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - tempMinute);
         }
+
+        //        if ("cest".equalsIgnoreCase(timeZone)) {
+        //            ZoneId cest = ZoneId.of("Europe/Berlin"); // Use a location that observes CEST
+        //            ZonedDateTime utcTime = ZonedDateTime.now(ZoneId.of("UTC"));
+        //            ZonedDateTime cestTime = ZonedDateTime.now(cest);
+        //            this.utcOffsetMinutes = cestTime.getOffset().getTotalSeconds() - utcTime.getOffset().getTotalSeconds();
+        //        } else {
+        //            this.utcOffsetMinutes = plusMinus * ((Math.max(tempHour, 0) * 60) + Math.max(tempMinute, 0));
+        //        }
+
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH) + 1;
         day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -690,6 +698,14 @@ final class DateParserLogic {
 
     public void setTimeZone(String timeZone) {
         this.timeZone = timeZone;
+    }
+
+    public boolean isIgnoreTimeZone() {
+        return ignoreTimeZone;
+    }
+
+    public void setIgnoreTimeZone(boolean ignoreTimeZone) {
+        this.ignoreTimeZone = ignoreTimeZone;
     }
 
     @Override
