@@ -92,6 +92,11 @@ public final class RatedDate<D extends ExtractedDate> implements ExtractedDate {
         return date.getTimeZone();
     }
 
+    @Override
+    public void setTimeZone(String timeZone) {
+        date.setTimeZone(timeZone);
+    }
+
     //    @Override
     //    public void set(int field, int value) {
     //        date.set(field, value);
