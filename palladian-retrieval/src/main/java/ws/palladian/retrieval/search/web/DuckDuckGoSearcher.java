@@ -88,7 +88,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
      * The JavaScript URL for the search results.
      */
     // private static final String JS_URL = "https://duckduckgo.com/d.js?q=%s&t=A&l=us-en&p=1&s=%s";
-    private static final String HTML_URL = "https://duckduckgo.com/html/?q=%s";
+    private static final String HTML_URL = "https://html.duckduckgo.com/html/?q=%s";
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
