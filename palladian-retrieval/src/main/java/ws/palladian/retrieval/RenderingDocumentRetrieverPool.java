@@ -65,7 +65,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     }
 
     @Override
-    protected RenderingDocumentRetriever createObject() {
+    public RenderingDocumentRetriever createObject() {
         return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath, additionalOptions);
     }
 
