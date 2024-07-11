@@ -2,6 +2,7 @@ package ws.palladian.helper.conversion;
 
 import ws.palladian.helper.constants.TemperatureUnit;
 import ws.palladian.helper.constants.UnitType;
+import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.normalization.UnitNormalizer;
 
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class UnitConverter {
 
         double normalizedAmount = UnitNormalizer.getNormalizedNumber(amount, fromUnit);
         double divisor = UnitNormalizer.unitLookup(toUnit);
-        return normalizedAmount / divisor;
+        return MathHelper.round(normalizedAmount / divisor, 8);
     }
 
     public static Double convertTemperature(Double amount, String fromUnit, String toUnit) {

@@ -14,6 +14,8 @@ public class UnitConverterTest {
 
     @Test
     public void testConvertUnit() {
+        assertEquals(63, UnitConverter.convert(63., "mm", "mm"), 0.);
+        assertEquals(6.3, UnitConverter.convert(63., "mm", "cm"), 0.);
         assertEquals(32., UnitConverter.convert(0., "celsius", "fahrenheit"), 0.01);
         assertEquals(273.15, UnitConverter.convert(0., "celsius", "kelvin"), 0.01);
         assertEquals(0., UnitConverter.convert(32., "fahrenheit", "celsius"), 0.01);
