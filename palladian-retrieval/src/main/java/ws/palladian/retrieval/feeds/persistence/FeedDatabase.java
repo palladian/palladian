@@ -346,7 +346,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return true if all items have been added.
      */
     private boolean addCacheItems(Feed feed) {
-
         List<List<Object>> batchArgs = new ArrayList<>();
         Map<String, Date> cachedItems = feed.getCachedItems();
         for (String hash : cachedItems.keySet()) {
@@ -365,13 +364,13 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     /**
      * Get all cached items (hash, publish date) from this feed.
      *
-     * @param id The feed id.
+     * @param feedId The feed id.
      * @return All cached items (hash, publish date) or empty map if no item is cached. Never <code>null</code>.
      */
-    protected Map<String, Date> getCachedItemsById(int id) {
+    protected Map<String, Date> getCachedItemsById(int feedId) {
         Map<String, Date> cachedItems = new HashMap<>();
 
-        List<CachedItem> itemList = runQuery(FeedCacheItemRowConverter.INSTANCE, GET_CACHE_ITEMS_BY_ID, id);
+        List<CachedItem> itemList = runQuery(FeedCacheItemRowConverter.INSTANCE, GET_CACHE_ITEMS_BY_ID, feedId);
         for (CachedItem item : itemList) {
             cachedItems.put(item.getHash(), item.getCorrectedPublishDate());
         }

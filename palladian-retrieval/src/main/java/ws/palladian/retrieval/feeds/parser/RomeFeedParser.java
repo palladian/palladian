@@ -1,10 +1,7 @@
 package ws.palladian.retrieval.feeds.parser;
 
 import com.rometools.rome.feed.rss.Guid;
-import com.rometools.rome.feed.synd.SyndContent;
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.feed.synd.SyndPerson;
+import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import org.apache.commons.lang.StringUtils;
@@ -107,7 +104,7 @@ public class RomeFeedParser extends AbstractFeedParser {
             result.getMetaInformation().setSiteUrl(syndFeed.getLink().trim());
         }
 
-        if (syndFeed.getTitle() != null && syndFeed.getTitle().length() > 0) {
+        if (syndFeed.getTitle() != null && !syndFeed.getTitle().isEmpty()) {
             result.getMetaInformation().setTitle(syndFeed.getTitle().trim());
         }
 
@@ -163,6 +160,22 @@ public class RomeFeedParser extends AbstractFeedParser {
             }
 
             Map<String, Object> additionalData = getAdditionalData(syndEntry);
+            List<SyndEnclosure> enclosures = syndEntry.getEnclosures();
+            if (enclosures != null) {
+                for (SyndEnclosure enclosure : enclosures) {
+                    String type = enclosure.getType();
+                    if (type != null) {
+                        type = type.toLowerCase();
+                        if (type.contains("image")) {
+                            additionalData.put("image", enclosure.getUrl());
+                        } else if (type.contains("video")) {
+                            additionalData.put("video", enclosure.getUrl());
+                        } else if (type.contains("audio")) {
+                            additionalData.put("audio", enclosure.getUrl());
+                        }
+                    }
+                }
+            }
             item.setAdditionalData(additionalData);
 
             feed.addItem(item);
