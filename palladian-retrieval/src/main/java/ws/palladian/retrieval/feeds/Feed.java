@@ -301,11 +301,11 @@ public class Feed {
                 pubDate = new Date(pollTime);
                 warnings.append("Entry has a pub date in the future, feed entry : ").append(logMessage).append(timestampUsed);
                 // is entry older than last but one poll? If so, we should have seen it before so pubDate must be wrong.
-            } else if (lastButOnePollTimeFeed != null && !pubDate.after(lastButOnePollTimeFeed)) {
-                pubDate = new Date(pollTime);
-                warnings.append("Entry has a pub date in the past of the last but one poll, feed entry : ").append(logMessage).append(timestampUsed);
-
-                // Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), date must be wrong
+                //            } else if (lastButOnePollTimeFeed != null && !pubDate.after(lastButOnePollTimeFeed)) {
+                //                pubDate = new Date(pollTime);
+                //                warnings.append("Entry has a pub date in the past of the last but one poll, feed entry : ").append(logMessage).append(timestampUsed);
+                //
+                //                // Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), date must be wrong
             } else if (pubDate.getTime() < 631152000) {
                 pubDate = new Date(pollTime);
                 warnings.append("Entry has a pub date older than 01.01.1990 00:00 (Unix 631152000), feed entry : ").append(logMessage).append(timestampUsed);
