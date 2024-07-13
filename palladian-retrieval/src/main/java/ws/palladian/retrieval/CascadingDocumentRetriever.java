@@ -20,9 +20,6 @@ import java.util.concurrent.TimeUnit;
  * @author David Urbansky
  */
 public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(CascadingDocumentRetriever.class);
     public static final String RETRIEVER_PLAIN = "Plain";
     public static final String RETRIEVER_RENDERING_POOL = "RenderingPool";
@@ -319,11 +316,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     private boolean shouldMakeRequest(String retrieverKey, JsEnabledDocumentRetriever renderingDocumentRetriever) {
         Integer[] retrieverSettings = failingThresholdAndNumberOfRequestsToSkip.get(retrieverKey);
-        if (renderingDocumentRetriever != null && renderingDocumentRetriever.requestsLeft() < 1) {
-            return false;
-        }
         if (retrieverSettings == null) {
             return true;
+        }
+        if (renderingDocumentRetriever != null && renderingDocumentRetriever.requestsLeft() < 1) {
+            return false;
         }
         Integer[] pair = requestTracker.get(retrieverKey);
         if (pair == null) {
@@ -351,17 +348,17 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return integers[2];
     }
 
+    public Map<String, Integer[]> getRequestTracker() {
+        return requestTracker;
+    }
+
     private boolean isGoodDocument(Document document) {
         if (document == null) {
             return false;
         }
         String s = HtmlHelper.getInnerXml(document);
         if (!getGoodDocumentIndicatorTexts().isEmpty()) {
-            if (StringHelper.containsAny(s, getGoodDocumentIndicatorTexts())) {
-                return true;
-            } else {
-                return false;
-            }
+            return StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
         }
         if (StringHelper.containsAny(s, getBadDocumentIndicatorTexts())) {
             return false;

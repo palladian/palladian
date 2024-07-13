@@ -55,7 +55,7 @@ public class MavUpdateStrategy extends AbstractUpdateStrategy {
             minCheckInterval = (int) (fps.getAveragePostGap() / TimeUnit.MINUTES.toMillis(1));
             maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / TimeUnit.MINUTES.toMillis(1));
         } else {
-            if (fps.getIntervals().size() > 0) {
+            if (!fps.getIntervals().isEmpty()) {
                 double averagePostGap = fps.getAveragePostGap();
                 if (averagePostGap == 0D) {
                     // in case of feeds with pattern chunked and on-the-fly that have only one "distinct" timestamp

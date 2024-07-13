@@ -63,8 +63,7 @@ public class FeedPostStatistics {
         calculateStatistics(feed);
     }
 
-    private final void calculateStatistics(Feed feed) {
-
+    private void calculateStatistics(Feed feed) {
         Collection<Date> feedPubdates = feed.getCorrectedItemTimestamps();
 
         long timeOldestEntry = Long.MAX_VALUE;
@@ -73,7 +72,7 @@ public class FeedPostStatistics {
 
         // keep a list of times to find out the median of the time differences between posts, average is not good since
         // one very old post can bias the value
-        List<Long> timeList = new ArrayList<Long>();
+        List<Long> timeList = new ArrayList<>();
 
         if (feedPubdates == null) {
             return;
@@ -97,7 +96,7 @@ public class FeedPostStatistics {
 
         Collections.sort(timeList);
 
-        intervals = new ArrayList<Long>();
+        intervals = new ArrayList<>();
         for (int i = 1; i < timeList.size(); i++) {
             intervals.add(timeList.get(i) - timeList.get(i - 1));
         }
@@ -106,7 +105,7 @@ public class FeedPostStatistics {
         // TODO: do we really need to set these fake values? In case the feed has an empty window, we set two fake
         // timestamps and calculate some statistics that are not valid. I think this code is very old. In the past, we
         // ignored empty and single item feeds. -- Sandro 15.07.2011
-        if (timeList.size() > 0) {
+        if (!timeList.isEmpty()) {
             // in case no pub date was found correctly, we set the newest entry time to now so we know next time which
             // entries are newer
             if (timeNewestEntry == 0) {
