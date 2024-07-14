@@ -75,7 +75,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         String downloadFilePath = "data/selenium-downloads";
         if (browser == DriverManagerType.FIREFOX) {
             if (driverVersionCode != null) {
-                WebDriverManager.firefoxdriver().browserVersion(driverVersionCode).setup();
+                WebDriverManager.firefoxdriver().driverVersion(driverVersionCode).setup();
             } else {
                 WebDriverManager.firefoxdriver().setup();
             }
@@ -102,7 +102,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             driver = new FirefoxDriver(options);
         } else if (browser == DriverManagerType.CHROME) {
             if (driverVersionCode != null) {
-                WebDriverManager.chromedriver().browserVersion(driverVersionCode).setup();
+                //                WebDriverManager.chromedriver().browserVersion(driverVersionCode).setup();
+                WebDriverManager.chromedriver().driverVersion(driverVersionCode).setup();
             } else {
                 WebDriverManager.chromedriver().setup();
             }
@@ -143,7 +144,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             driver = new ChromeDriver(options);
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
-                WebDriverManager.chromiumdriver().browserVersion(driverVersionCode).setup();
+                WebDriverManager.chromiumdriver().driverVersion(driverVersionCode).setup();
             } else {
                 WebDriverManager.chromiumdriver().setup();
             }

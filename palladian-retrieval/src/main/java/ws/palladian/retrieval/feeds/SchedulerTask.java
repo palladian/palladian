@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
  * @author Philipp Katz
  */
 class SchedulerTask extends TimerTask {
-    /** The logger for objects of this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerTask.class);
 
     /** The thread pool managing threads that read feeds. */

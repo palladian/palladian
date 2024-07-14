@@ -61,9 +61,6 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="http://hc.apache.org/">Apache HttpComponents</a>
  */
 public class HttpRetriever {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
 
     // ///////////// constants with default configuration ////////

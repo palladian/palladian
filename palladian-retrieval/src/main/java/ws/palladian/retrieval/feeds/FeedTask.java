@@ -30,7 +30,6 @@ import static ws.palladian.retrieval.feeds.FeedTaskResult.*;
  * @see FeedReader
  */
 class FeedTask implements Callable<FeedTaskResult> {
-    /** The logger for this class. */
     private final static Logger LOGGER = LoggerFactory.getLogger(FeedTask.class);
 
     /** The feed retrieved by this task. */
@@ -62,6 +61,7 @@ class FeedTask implements Callable<FeedTaskResult> {
             HttpResult httpResult;
             try {
                 HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+
                 httpRetriever.setMaxFileSize(settings.getMaximumFeedSize());
                 // remember the time the feed has been checked
                 feed.setLastPollTime(new Date());
@@ -93,7 +93,6 @@ class FeedTask implements Callable<FeedTaskResult> {
             } else {
                 // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
-
                     updateCheckIntervals(feed);
                     feed.setLastSuccessfulCheckTime(feed.getLastPollTime());
                     try {
@@ -104,7 +103,6 @@ class FeedTask implements Callable<FeedTaskResult> {
 
                     // case 3: default case, try to process the feed.
                 } else {
-
                     // store http header information
                     feed.setLastETag(httpResult.getHeaderString("ETag"));
                     feed.setHttpLastModified(HttpHelper.getDateFromHeader(httpResult, "Last-Modified", false));
