@@ -1,23 +1,19 @@
 package ws.palladian.retrieval.search;
 
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonException;
+import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
+import ws.palladian.retrieval.resources.WebContent;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
-import ws.palladian.persistence.json.JsonObject;
-import ws.palladian.retrieval.FormEncodedHttpEntity;
-import ws.palladian.retrieval.HttpException;
-import ws.palladian.retrieval.HttpMethod;
-import ws.palladian.retrieval.HttpRequest2Builder;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetrieverFactory;
-import ws.palladian.retrieval.configuration.ConfigurationOption;
-import ws.palladian.retrieval.configuration.StringConfigurationOption;
-import ws.palladian.retrieval.resources.WebContent;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for Openverse searchers (image, audio).
@@ -29,10 +25,8 @@ import ws.palladian.retrieval.resources.WebContent;
 public abstract class AbstractOpenverseSearcher<T extends WebContent> extends AbstractMultifacetSearcher<T> {
 
     public static abstract class AbstractOpenverseSearcherMetaInfo<T extends WebContent> implements SearcherMetaInfo<AbstractOpenverseSearcher<T>, T> {
-        private static final StringConfigurationOption CLIENT_ID = new StringConfigurationOption("Client ID",
-                "client_id", null, false);
-        private static final StringConfigurationOption CLIENT_SECRET = new StringConfigurationOption("Client Secret",
-                "client_secret", null, false);
+        private static final StringConfigurationOption CLIENT_ID = new StringConfigurationOption("Client ID", "client_id", null, false);
+        private static final StringConfigurationOption CLIENT_SECRET = new StringConfigurationOption("Client Secret", "client_secret", null, false);
 
         @Override
         public final List<ConfigurationOption<?>> getConfigurationOptions() {
@@ -57,7 +51,7 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
     // Maximum is 500 for authenticated requests, and 20 for unauthenticated
     // requests.
     private static final int MAX_PER_PAGE_UNAUTHENTICATED = 20;
-    private static final int MAX_PER_PAGE_AUTHENTICATED = 500;
+    private static final int MAX_PER_PAGE_AUTHENTICATED = 50;
 
     private String licenses = "all-cc,commercial";
 
@@ -67,6 +61,9 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
     private final String clientId;
 
     private final String clientSecret;
+
+    private String accessToken = null;
+    private Long accessTokenExpirationTs = null;
 
     protected AbstractOpenverseSearcher(String clientId, String clientSecret) {
         this.clientId = clientId;
@@ -78,7 +75,6 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
         String accessToken = null;
         if (clientId != null && clientSecret != null) {
             accessToken = getAccessToken();
-            // TODO cache this
         }
 
         List<T> results = new ArrayList<>();
@@ -126,8 +122,10 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
     protected abstract T parseResult(JsonObject json);
 
     private String getAccessToken() throws SearcherException {
-        var requestBuilder = new HttpRequest2Builder(HttpMethod.POST,
-                "https://api.openverse.org/v1/auth_tokens/token/");
+        if (accessToken != null && accessTokenExpirationTs != null && System.currentTimeMillis() < accessTokenExpirationTs) {
+            return accessToken;
+        }
+        var requestBuilder = new HttpRequest2Builder(HttpMethod.POST, "https://api.openverse.org/v1/auth_tokens/token/");
         var formEntityBuilder = new FormEncodedHttpEntity.Builder();
         formEntityBuilder.addData("client_id", clientId);
         formEntityBuilder.addData("client_secret", clientSecret);
@@ -141,12 +139,13 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
             throw new SearcherException("HTTP error", e);
         }
         if (response.errorStatus()) {
-            throw new SearcherException(
-                    "HTTP status " + response.getStatusCode() + " from token endpoint: " + response.getStringContent());
+            throw new SearcherException("HTTP status " + response.getStatusCode() + " from token endpoint: " + response.getStringContent());
         }
         try {
-            var jsonResponse = new JsonObject(response.getStringContent());
-            return jsonResponse.getString("access_token");
+            JsonObject jsonResponse = new JsonObject(response.getStringContent());
+            accessToken = jsonResponse.getString("access_token");
+            accessTokenExpirationTs = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(jsonResponse.getInt("expires_in"));
+            return accessToken;
         } catch (JsonException e) {
             throw new SearcherException("Could not parse JSON: " + response.getStringContent(), e);
         }

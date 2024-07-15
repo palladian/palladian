@@ -1,16 +1,15 @@
 package ws.palladian.retrieval.search.images;
 
-import java.util.List;
-import java.util.Optional;
-
+import org.apache.commons.configuration.Configuration;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractOpenverseSearcher;
 import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
+
+import java.util.Optional;
 
 /**
  * Search for free images on <a href="https://openverse.org">Openverse</a>.
@@ -49,8 +48,21 @@ public class OpenverseImageSearcher extends AbstractOpenverseSearcher<WebImage> 
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "Openverse Image";
 
+    /** Keys for configuration parameters. */
+    public static final String CONFIG_CLIENT_ID = "api.openverse.client_id";
+    public static final String CONFIG_CLIENT_SECRET = "api.openverse.client_secret";
+
     public OpenverseImageSearcher() {
         this(null, null);
+    }
+
+    public OpenverseImageSearcher(Configuration config, int defaultResultCount) {
+        this(config);
+        this.defaultResultCount = defaultResultCount;
+    }
+
+    public OpenverseImageSearcher(Configuration config) {
+        super(config.getString(CONFIG_CLIENT_ID), config.getString(CONFIG_CLIENT_SECRET));
     }
 
     public OpenverseImageSearcher(String clientId, String clientSecret) {
@@ -80,9 +92,8 @@ public class OpenverseImageSearcher extends AbstractOpenverseSearcher<WebImage> 
 
     @Override
     protected String buildRequest(String searchTerms, int page, int resultsPerPage) {
-        String url = String.format(
-                "https://api.openverse.org/v1/images/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true",
-                UrlHelper.encodeParameter(searchTerms), getLicenses(), page, resultsPerPage);
+        String url = String.format("https://api.openverse.org/v1/images/?q=%s&license_type=%s&page=%s&page_size=%s&mature=true", UrlHelper.encodeParameter(searchTerms),
+                getLicenses(), page, resultsPerPage);
         if (this.getSources() != null) {
             url += "&source=" + this.getSources();
         }
@@ -95,13 +106,11 @@ public class OpenverseImageSearcher extends AbstractOpenverseSearcher<WebImage> 
     }
 
     public static void main(String[] args) throws SearcherException {
-        var searcher = new OpenverseImageSearcher();
-//		var searcher = new OpenverseSearcher("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-//				"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-        searcher.setSources(
-                "wikimedia,thorvaldsensmuseum,thingiverse,svgsilh,sketchfab,rijksmuseum,rawpixel,phylopic,nypl,museumsvictoria,met,mccordmuseum,iha,geographorguk,floraon,eol,digitaltmuseum,deviantart,clevelandmuseum,brooklynmuseum,behance,animaldiversity,WoRMS,CAPL,500px");
-        List<WebImage> results = searcher.search("brain", 100);
-        CollectionHelper.print(results);
+        //        OpenverseImageSearcher searcher = new OpenverseImageSearcher();
+        //		var searcher = new OpenverseSearcher("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        //				"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        //        List<WebImage> results = searcher.search("brain", 100);
+        //        CollectionHelper.print(results);
     }
 
 }
