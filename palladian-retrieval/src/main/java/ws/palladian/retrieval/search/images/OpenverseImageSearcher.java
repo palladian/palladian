@@ -57,6 +57,11 @@ public class OpenverseImageSearcher extends AbstractOpenverseSearcher<WebImage> 
         super(clientId, clientSecret);
     }
 
+    public OpenverseImageSearcher(String clientId, String clientSecret, int defaultResultCount) {
+        this(clientId, clientSecret);
+        this.defaultResultCount = defaultResultCount;
+    }
+
     @Override
     protected WebImage parseResult(JsonObject resultHit) {
         BasicWebImage.Builder builder = new BasicWebImage.Builder();

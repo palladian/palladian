@@ -84,7 +84,8 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
         List<T> results = new ArrayList<>();
         Long totalAvailableResults = null;
 
-        var resultCount = Math.min(10000, query.getResultCount());
+        var resultCountTemp = defaultResultCount == null ? query.getResultCount() : defaultResultCount;
+        var resultCount = Math.min(10000, resultCountTemp);
         int maxPerPage = accessToken != null ? MAX_PER_PAGE_AUTHENTICATED : MAX_PER_PAGE_UNAUTHENTICATED;
         int resultsPerPage = Math.min(maxPerPage, resultCount);
         int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
