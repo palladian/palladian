@@ -48,8 +48,7 @@ public abstract class AbstractOpenverseSearcher<T extends WebContent> extends Ab
         }
     }
 
-    // Maximum is 500 for authenticated requests, and 20 for unauthenticated
-    // requests.
+    // Maximum is 50 for authenticated requests, and 20 for unauthenticated requests.
     private static final int MAX_PER_PAGE_UNAUTHENTICATED = 20;
     private static final int MAX_PER_PAGE_AUTHENTICATED = 50;
 
