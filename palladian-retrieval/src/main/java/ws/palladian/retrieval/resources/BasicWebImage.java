@@ -5,6 +5,7 @@ import ws.palladian.retrieval.search.images.ImageType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -146,6 +147,9 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
 
     @Override
     public int getSize() {
+        if (width < 0 || height < 0) {
+            return -1;
+        }
         return Math.abs(width) * Math.abs(height);
     }
 
@@ -213,14 +217,8 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result + ((fileType == null) ? 0 : fileType.hashCode());
-        result = prime * result + height;
-        result = prime * result + ((imageType == null) ? 0 : imageType.hashCode());
-        result = prime * result + ((imageUrl == null) ? 0 : imageUrl.hashCode());
-        result = prime * result + ((license == null) ? 0 : license.hashCode());
-        result = prime * result + ((licenseLink == null) ? 0 : licenseLink.hashCode());
-        result = prime * result + ((thumbnailUrl == null) ? 0 : thumbnailUrl.hashCode());
-        result = prime * result + width;
+        result = prime * result
+                + Objects.hash(fileType, height, imageType, imageUrl, license, licenseLink, thumbnailUrl, width);
         return result;
     }
 
@@ -233,34 +231,9 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         if (getClass() != obj.getClass())
             return false;
         BasicWebImage other = (BasicWebImage) obj;
-        if (fileType == null) {
-            if (other.fileType != null)
-                return false;
-        } else if (!fileType.equals(other.fileType))
-            return false;
-        if (height != other.height)
-            return false;
-        if (imageType != other.imageType)
-            return false;
-        if (imageUrl == null) {
-            if (other.imageUrl != null)
-                return false;
-        } else if (!imageUrl.equals(other.imageUrl))
-            return false;
-        if (license != other.license)
-            return false;
-        if (licenseLink == null) {
-            if (other.licenseLink != null)
-                return false;
-        } else if (!licenseLink.equals(other.licenseLink))
-            return false;
-        if (thumbnailUrl == null) {
-            if (other.thumbnailUrl != null)
-                return false;
-        } else if (!thumbnailUrl.equals(other.thumbnailUrl))
-            return false;
-        if (width != other.width)
-            return false;
-        return true;
+        return Objects.equals(fileType, other.fileType) && height == other.height && imageType == other.imageType
+                && Objects.equals(imageUrl, other.imageUrl) && license == other.license
+                && Objects.equals(licenseLink, other.licenseLink) && Objects.equals(thumbnailUrl, other.thumbnailUrl)
+                && width == other.width;
     }
 }

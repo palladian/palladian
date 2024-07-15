@@ -14,6 +14,8 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
 import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
@@ -22,27 +24,75 @@ import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
- * <p>
- * Searcher for Google Custom Search. The free plan allows max. 100 queries/day. Although not obviously visible, the
- * search engine can be configured to search to <b>entire web</b>; see the links provided below for more information.
- * The searcher return max. 100 items per query.
- * </p>
+ * Searcher for
+ * <a href="https://programmablesearchengine.google.com/about/">Google
+ * Programmable Search Engine</a> (previously “Google Custom Search”). The free
+ * plan allows max. 100 queries/day. Although not obviously visible, the search
+ * engine can be configured to search to <b>entire web</b>; see the links
+ * provided below for more information. The searcher return max. 100 items per
+ * query.
  *
  * @author Philipp Katz
  * @see <a href="https://developers.google.com/custom-search/v1/overview">Overview Google Custom Search</a>
  * @see <a href="http://code.google.com/apis/console/?api=customsearch">Google API console</a>
  * @see <a href="http://www.google.com/cse">Google Custom Search settings</a>
- * @see <a href="http://support.google.com/customsearch/bin/answer.py?hl=en&answer=1210656">Search the entire web</a>
  */
-public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebContent> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCustomSearcher.class);
+public final class GoogleProgrammableSearchEngine extends AbstractMultifacetSearcher<WebContent> {
+    public static final class GoogleProgrammableSearchEngineMetaInfo implements SearcherMetaInfo<GoogleProgrammableSearchEngine, WebContent> {
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key",
+                "apikey");
+        private static final StringConfigurationOption SEARCH_ENGINE_ID_OPTION = new StringConfigurationOption(
+                "Search Engine ID", "search_engine_id");
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "google_custom_searcher";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(SEARCH_ENGINE_ID_OPTION, API_KEY_OPTION);
+        }
+
+        @Override
+        public GoogleProgrammableSearchEngine create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = API_KEY_OPTION.get(config);
+            var searchEngineId = SEARCH_ENGINE_ID_OPTION.get(config);
+            return new GoogleProgrammableSearchEngine(apiKey, searchEngineId);
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://developers.google.com/custom-search/v1/overview";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Searcher for <a href=\"https://programmablesearchengine.google.com/about/\"> "
+                    + "Google Programmable Search Engine</a> (previously “Google Custom Search”).";
+        }
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleProgrammableSearchEngine.class);
 
     /** The name of this WebSearcher. */
-    private static final String SEARCHER_NAME = "Google Custom Search";
+    private static final String SEARCHER_NAME = "Google Programmable Search Engine";
 
     /** The identifier of the {@link Configuration} key for the api key. */
     public static final String CONFIG_API_KEY = "api.google.key";
@@ -59,14 +109,12 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
     private final HttpRetriever retriever;
 
     /**
-     * <p>
-     * Creates a new GoogleCustomSearcher.
-     * </p>
+     * Creates a new GoogleProgrammableSearchEngine.
      *
      * @param apiKey                 The API key for accessing Google Custom Search, not empty or <code>null</code>.
      * @param searchEngineIdentifier The identifier of the custom search, not empty or <code>null</code>.
      */
-    public GoogleCustomSearcher(String apiKey, String searchEngineIdentifier) {
+    public GoogleProgrammableSearchEngine(String apiKey, String searchEngineIdentifier) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         Validate.notEmpty(searchEngineIdentifier, "searchEngineIdentifier must not be empty");
 
@@ -76,14 +124,12 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
     }
 
     /**
-     * <p>
-     * Creates a new GoogleCustomSearcher.
-     * </p>
+     * Creates a new GoogleProgrammableSearchEngine.
      *
      * @param configuration The configuration which must provide an API key with the identifier {@value #CONFIG_API_KEY}
      *                      and a search engine identifier {@value #CONFIG_SEARCH_ENGINE_IDENTIFIER}.
      */
-    public GoogleCustomSearcher(Configuration configuration) {
+    public GoogleProgrammableSearchEngine(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY), configuration.getString(CONFIG_SEARCH_ENGINE_IDENTIFIER));
     }
 
@@ -110,7 +156,7 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
             try {
                 httpResult = retriever.httpGet(searchUrl);
             } catch (HttpException e) {
-                throw new SearcherException("HTTP exception while accessing Google Custom Search with URL \"" + searchUrl + "\": " + e.getMessage(), e);
+                throw new SearcherException("HTTP exception while accessing URL \"" + searchUrl + "\": " + e.getMessage(), e);
             }
 
             String jsonString = httpResult.getStringContent();
@@ -232,7 +278,7 @@ public final class GoogleCustomSearcher extends AbstractMultifacetSearcher<WebCo
             if (jsonError != null) {
                 int errorCode = jsonError.getInt("code");
                 String message = jsonError.getString("message");
-                throw new SearcherException("Error from Google Custom Search API: " + message + " (" + errorCode + ").");
+                throw new SearcherException("Error from API: " + message + " (" + errorCode + ").");
             }
         } catch (JsonException e) {
             throw new SearcherException("Could not parse JSON response ('" + jsonString + "').", e);

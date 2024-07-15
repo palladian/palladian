@@ -15,6 +15,8 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.*;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
+import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebImage;
@@ -30,7 +32,7 @@ import java.util.regex.Pattern;
 
 /**
  * <p>
- * WebSearcher for <a href="http://www.youtube.com/">YouTube</a>.
+ * WebSearcher for <a href="https://www.youtube.com/">YouTube</a>.
  * </p>
  *
  * @author David Urbansky
@@ -40,6 +42,45 @@ import java.util.regex.Pattern;
  * @see <a href="https://developers.google.com/youtube/v3/docs/videos">Videos resource</a>
  */
 public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> {
+    public static final class YouTubeSearcherMetaInfo implements SearcherMetaInfo<YouTubeSearcher, WebVideo> {
+        private static final StringConfigurationOption API_KEY_OPTION = new StringConfigurationOption("API Key", "apikey");
+
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "youtube";
+        }
+
+        @Override
+        public Class<WebVideo> getResultType() {
+            return WebVideo.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Arrays.asList(API_KEY_OPTION);
+        }
+
+        @Override
+        public YouTubeSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            var apiKey = API_KEY_OPTION.get(config);
+            return new YouTubeSearcher(apiKey);
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://developers.google.com/youtube/v3/docs/";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search videos on <a href=\"https://www.youtube.com/\">YouTube</a> using the YouTube Data API v3.";
+        }
+    }
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 
     /**
@@ -484,8 +525,8 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         String videoId = entry.queryString("id");
         builder.setIdentifier(videoId);
         builder.setSource(SEARCHER_NAME);
-        builder.setUrl("http://www.youtube.com/watch?v=" + videoId);
-        builder.setVideoUrl("http://www.youtube.com/watch?v=" + videoId);
+        builder.setUrl("https://www.youtube.com/watch?v=" + videoId);
+        builder.setVideoUrl("https://www.youtube.com/watch?v=" + videoId);
         builder.setDuration(parseIso8601Duration(entry.queryString("contentDetails/duration")));
         builder.setViews(entry.tryQueryInt("statistics/viewCount"));
         builder.setSummary(entry.queryString("snippet/description"));
@@ -510,7 +551,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         builder.setAdditionalData("ageRestricted", Optional.ofNullable(entry.tryQueryString("contentDetails/contentRating/ytRating")).orElse("").equals("ytAgeRestricted"));
 
         // no tags available ):
-        // see: http://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
+        // see: https://stackoverflow.com/questions/12501957/video-tags-no-longer-available-via-youtube-api
         return builder.create();
     }
 

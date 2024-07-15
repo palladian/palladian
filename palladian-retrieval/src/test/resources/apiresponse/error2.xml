@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<yandexsearch version="1.0"><request><query></query><page>0</page><sortby order="descending" priority="no">rlv</sortby><maxpassages>2</maxpassages><groupings><groupby attr="d" mode="deep" groups-on-page="10" docs-in-group="1" curcateg="-1" /></groupings></request><response date="20120309T232005"><error code="2">Задан пустой поисковый запрос</error></response></yandexsearch>

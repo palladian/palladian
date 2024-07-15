@@ -3,7 +3,7 @@ package ws.palladian.retrieval.search.web;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-import ws.palladian.helper.collection.CollectionHelper;
+// import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.retrieval.resources.WebContent;
 
@@ -22,7 +22,7 @@ public class DuckDuckGoSearcherTest {
     public void testSearch() throws Exception {
         DuckDuckGoSearcher duckDuckGoSearcher = new DuckDuckGoSearcher();
         List<WebContent> results = duckDuckGoSearcher.search("palladian", 10, Language.ENGLISH);
-        CollectionHelper.print(results);
+        // CollectionHelper.print(results);
         collector.checkThat(results.size(), is(10));
         for (WebContent result : results) {
             collector.checkThat(result.getUrl().isEmpty(), is(false));

@@ -13,12 +13,12 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class GoogleCustomSearcherTest {
+public class GoogleProgrammableSearchEngineTest {
 
     @Test
     public void testParsing() throws JsonException, IOException {
         String jsonString = FileHelper.readFileToString(ResourceHelper.getResourceFile("/apiresponse/googleCustomSearchResponse.json"));
-        List<WebContent> results = GoogleCustomSearcher.parse(jsonString);
+        List<WebContent> results = GoogleProgrammableSearchEngine.parse(jsonString);
         assertEquals(10, results.size());
 
         assertEquals("Palladian architecture - Wikipedia, the free encyclopedia", results.get(0).getTitle());
@@ -27,7 +27,7 @@ public class GoogleCustomSearcherTest {
                 "Palladian architecture is a European style of architecture derived from the   designs of the Venetian architect Andrea Palladio (1508–1580). The term \"  Palladian\" ...",
                 results.get(0).getSummary());
 
-        long resultCount = GoogleCustomSearcher.parseResultCount(jsonString);
+        long resultCount = GoogleProgrammableSearchEngine.parseResultCount(jsonString);
         assertEquals(147000, resultCount);
     }
 
@@ -35,10 +35,10 @@ public class GoogleCustomSearcherTest {
     public void testParsingErrorResponse() throws IOException {
         String jsonString = FileHelper.readFileToString(ResourceHelper.getResourceFile("/apiresponse/googleCustomSearchErrorResponse.json"));
         try {
-            GoogleCustomSearcher.checkError(jsonString);
+            GoogleProgrammableSearchEngine.checkError(jsonString);
             fail();
         } catch (SearcherException e) {
-            assertEquals("Error from Google Custom Search API: Invalid Value (400).", e.getMessage());
+            assertEquals("Error from API: Invalid Value (400).", e.getMessage());
         }
     }
 

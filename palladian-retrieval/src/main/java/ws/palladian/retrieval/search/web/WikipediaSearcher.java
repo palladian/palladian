@@ -1,7 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
@@ -12,29 +11,74 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * <p>
- * Search for <a href="http://www.wikipedia.org">Wikipedia</a> articles with fulltext search.
+ * Search for <a href="https://www.wikipedia.org">Wikipedia</a> articles with fulltext search.
  * </p>
  *
  * @author Philipp Katz
- * @see <a href="http://www.mediawiki.org/wiki/API:Search">MediaWiki API:Search</a>
- * @see <a href="http://de.wikipedia.org/w/api.php">MediaWiki API</a>
- * @see <a href="http://stackoverflow.com/questions/964454/how-to-use-wikipedia-api-if-it-exists">How to use wikipedia
+ * @see <a href="https://www.mediawiki.org/wiki/API:Search">MediaWiki API:Search</a>
+ * @see <a href="https://de.wikipedia.org/w/api.php">MediaWiki API</a>
+ * @see <a href="https://stackoverflow.com/questions/964454/how-to-use-wikipedia-api-if-it-exists">How to use wikipedia
  * api if it exists?</a>
  */
-public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
+public final class WikipediaSearcher extends AbstractMultifacetSearcher<WebContent> {
+
+    public static final class WikipediaSearcherMetaInfo implements SearcherMetaInfo<WikipediaSearcher, WebContent> {
+        @Override
+        public String getSearcherName() {
+            return NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "wikipedia";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public WikipediaSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new WikipediaSearcher();
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://www.mediawiki.org/wiki/API:Search";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for <a href=\"https://www.wikipedia.org\">Wikipedia</a> articles with fulltext search.";
+        }
+    }
+
     /**
      * The name of this searcher.
      */
@@ -45,6 +89,8 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
      */
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
+    private static final int MAX_CHUNK_SIZE = 50;
+
     private final HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
 
     @Override
@@ -53,17 +99,22 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
     }
 
     @Override
-    public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
+    public SearchResults<WebContent> search(MultifacetQuery query) throws SearcherException {
 
         List<WebContent> results = new ArrayList<>();
-        String baseUrl = getBaseUrl(language);
+        Long totalCount = null;
+        String baseUrl = getBaseUrl(query.getLanguage());
 
         // fetch in chunks of 50 items, this is maximum size
-        for (int offset = 0; offset < resultCount; offset += 50) {
+        for (int offset = 0; offset < query.getResultCount(); offset += MAX_CHUNK_SIZE) {
 
-            JsonObject jsonResult = fetchJsonResponse(query, baseUrl, offset, 50);
+            JsonObject jsonResult = fetchJsonResponse(query.getText(), baseUrl, offset, MAX_CHUNK_SIZE);
 
             try {
+                if (totalCount == null) {
+                    totalCount = jsonResult.queryLong("/query/searchinfo/totalhits");
+                }
+
                 JsonArray searchResults = jsonResult.queryJsonArray("/query/search");
 
                 if (searchResults.size() == 0) {
@@ -75,12 +126,14 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
                     BasicWebContent.Builder builder = new BasicWebContent.Builder();
                     String title = resultItem.getString("title");
                     builder.setTitle(title);
-                    builder.setSummary(HtmlHelper.stripHtmlTags(resultItem.getString("snippet")));
+                    var summary = StringEscapeUtils
+                            .unescapeHtml(HtmlHelper.stripHtmlTags(resultItem.getString("snippet")));
+                    builder.setSummary(summary);
                     builder.setPublished(parseDate(resultItem.getString("timestamp")));
                     builder.setUrl(getPageUrl(baseUrl, title));
                     results.add(builder.create());
 
-                    if (results.size() == resultCount) {
+                    if (results.size() == query.getResultCount()) {
                         break;
                     }
                 }
@@ -90,7 +143,7 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
             }
         }
 
-        return results;
+        return new SearchResults<>(results,totalCount);
     }
 
     private JsonObject fetchJsonResponse(String query, String baseUrl, int offset, int limit) throws SearcherException {
@@ -106,17 +159,6 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
             return new JsonObject(jsonString);
         } catch (JsonException e) {
             throw new SearcherException("JSON parse error while parsing \"" + jsonString + "\": " + e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public long getTotalResultCount(String query, Language language) throws SearcherException {
-        String baseUrl = getBaseUrl(language);
-        JsonObject jsonResult = fetchJsonResponse(query, baseUrl, 0, 1);
-        try {
-            return jsonResult.queryLong("/query/searchinfo/totalhits");
-        } catch (JsonException e) {
-            throw new SearcherException("Error while getting the result count.");
         }
     }
 
@@ -148,7 +190,7 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
 
     // build an article URL from an article title; unfortunately, I cannot find any rules from Wikipedia on how to
     // create a link from a article title. I implemented the rules described here:
-    // http://stackoverflow.com/a/9354004/388827
+    // https://stackoverflow.com/a/9354004/388827
     private String getPageUrl(String baseUrl, String pageTitle) {
         String pageUrl = StringHelper.upperCaseFirstLetter(pageTitle);
         pageUrl = pageUrl.replaceAll("\\s+$", "");
@@ -159,17 +201,26 @@ public final class WikipediaSearcher extends AbstractSearcher<WebContent> {
     private String getBaseUrl(Language language) {
         switch (language) {
             case GERMAN:
-                return "http://de.wikipedia.org";
+                return "https://de.wikipedia.org";
+            case FRENCH:
+                return "https://fr.wikipedia.org";
+            case ARABIC:
+                return "https://ar.wikipedia.org";
+            case SPANISH:
+                return "https://es.wikipedia.org";
+            case PORTUGUESE:
+                return "https://pt.wikipedia.org";
+            case RUSSIAN:
+                return "https://ru.wikipedia.org";
+            case PERSIAN:
+                return "https://fa.wikipedia.org";
+            case ITALIAN:
+                return "https://it.wikipedia.org";
+            case CHINESE:
+                return "https://zh.wikipedia.org";
             default:
-                return "http://en.wikipedia.org";
+                return "https://en.wikipedia.org";
         }
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        WikipediaSearcher searcher = new WikipediaSearcher();
-        List<WebContent> result = searcher.search("dresden", 500, Language.GERMAN);
-        CollectionHelper.print(result);
-        // System.out.println(searcher.getTotalResultCount("cat"));
     }
 
 }

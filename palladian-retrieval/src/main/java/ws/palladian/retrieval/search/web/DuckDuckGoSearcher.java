@@ -10,6 +10,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebContent;
 import ws.palladian.retrieval.resources.WebContent;
@@ -17,7 +18,9 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -29,17 +32,52 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Philipp Katz
  */
 public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
+
+    private static final String NAME = "DuckDuckGo";
+
+    public static final class DuckDuckGoSearcherMetaInfo implements SearcherMetaInfo<DuckDuckGoSearcher, WebContent> {
+        @Override
+        public String getSearcherName() {
+            return NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "duck_duck_go";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public DuckDuckGoSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new DuckDuckGoSearcher();
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return null;
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Scrape search results from <a href=\"https://duckduckgo.com/\">DuckDuckGo</a>.";
+        }
+    }
+
     /**
      * The logger for this class.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(DuckDuckGoSearcher.class);
 
     private static final AtomicInteger TOTAL_REQUEST_COUNT = new AtomicInteger();
-
-    /**
-     * The number of entries which are returned for each page.
-     */
-    private static final int ENTRIES_PER_PAGE = 10;
 
     /**
      * Prevent over penetrating the searcher.
@@ -50,7 +88,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
      * The JavaScript URL for the search results.
      */
     // private static final String JS_URL = "https://duckduckgo.com/d.js?q=%s&t=A&l=us-en&p=1&s=%s";
-    private static final String HTML_URL = "https://duckduckgo.com/html/?q=%s";
+    private static final String HTML_URL = "https://html.duckduckgo.com/html/?q=%s";
 
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
@@ -94,7 +132,7 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
 
     @Override
     public String getName() {
-        return "DuckDuckGo";
+        return NAME;
     }
 
     /**

@@ -11,6 +11,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -23,8 +24,10 @@ import ws.palladian.retrieval.search.SearcherException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,10 +35,49 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Philipp Katz
  */
-public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebContent> {
+public final class HackerNewsSearcher extends AbstractMultifacetSearcher<WebContent> {
+
+    public static final class HackerNewsSearcherMetaInfo implements SearcherMetaInfo<HackerNewsSearcher, WebContent> {
+
+        @Override
+        public String getSearcherName() {
+            return NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "hackernews";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public HackerNewsSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new HackerNewsSearcher();
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://hn.algolia.com/api";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search posts on <a href=\"https://news.ycombinator.com/news\">Hacker News</a> "
+                    + "via <a href=\"https://www.algolia.com/\">Algolia Search’s API</a>.";
+        }
+    }
 
     /** The logger for this class. */
-    private static final Logger LOGGER = LoggerFactory.getLogger(HackernewsSearcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HackerNewsSearcher.class);
 
     private static final String NAME = "Hackernews";
 
@@ -44,7 +86,7 @@ public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebCont
     private static final HttpRetriever HTTP_RETRIEVER = HttpRetrieverFactory.getHttpRetriever();
 
     /** The pattern for parsing the date. */
-    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssX";
 
     private static final int RESULTS_PER_PAGE = 20;
 
@@ -74,7 +116,6 @@ public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebCont
                 HttpResult httpResult = HTTP_RETRIEVER.httpGet(queryUrl);
                 THROTTLE.hold();
                 JsonObject jsonResult = new JsonObject(httpResult.getStringContent());
-                System.out.println(httpResult.getStringContent());
 
                 JsonArray jsonHits = jsonResult.getJsonArray("hits");
                 if (jsonHits.isEmpty()) {
@@ -84,10 +125,14 @@ public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebCont
                     JsonObject currentHit = jsonHits.getJsonObject(i);
                     BasicWebContent.Builder resultBuilder = new BasicWebContent.Builder();
                     resultBuilder.setTitle(currentHit.getString("title"));
-                    resultBuilder.setUrl(currentHit.getString("url"));
+                    resultBuilder.setUrl(currentHit.tryGetString("url"));
                     resultBuilder.setPublished(parseDate(currentHit.getString("created_at")));
                     resultBuilder.setIdentifier(currentHit.getString("objectID"));
                     resultBuilder.setSource(NAME);
+                    var storyText = currentHit.tryGetString("story_text");
+                    if (storyText != null && !storyText.isBlank()) {
+                        resultBuilder.setSummary(storyText);
+                    }
                     resultList.add(resultBuilder.create());
                     if (resultList.size() >= query.getResultCount()) {
                         break;
@@ -115,8 +160,8 @@ public final class HackernewsSearcher extends AbstractMultifacetSearcher<WebCont
     }
 
     public static void main(String[] args) throws SearcherException {
-        MultifacetQuery query = new MultifacetQuery.Builder().setText("github").setResultCount(10).create();
-        SearchResults<WebContent> results = new HackernewsSearcher().search(query);
+        MultifacetQuery query = new MultifacetQuery.Builder().setText("github").setResultCount(50).create();
+        SearchResults<WebContent> results = new HackerNewsSearcher().search(query);
         CollectionHelper.print(results);
     }
 

@@ -9,14 +9,19 @@ import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractSearcher;
+import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
 import ws.palladian.retrieval.search.License;
+import ws.palladian.retrieval.search.MultifacetQuery;
+import ws.palladian.retrieval.search.SearchResults;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -27,7 +32,44 @@ import java.util.Optional;
  * @author David Urbansky
  * @see <a href="https://metmuseum.github.io/#search">API Docs</a>
  */
-public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
+public class MetMuseumSearcher extends AbstractMultifacetSearcher<WebImage> {
+    public static final class MetMuseumSearcherMetaInfo implements SearcherMetaInfo<MetMuseumSearcher, WebImage> {
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "met_museum";
+        }
+
+        @Override
+        public Class<WebImage> getResultType() {
+            return WebImage.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public MetMuseumSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new MetMuseumSearcher();
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://metmuseum.github.io/#search";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search for free images on <a href=\"http://www.metmuseum.org/\">The Met Museum</a>.";
+        }
+    }
+
     /** The name of this searcher. */
     private static final String SEARCHER_NAME = "MetMuseum";
     private final DocumentRetriever documentRetriever;
@@ -83,14 +125,18 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
     }
 
     @Override
-    /**
-     * @param language Supported languages are English.
-     */ public List<WebImage> search(String query, int resultCount, Language language) throws SearcherException {
-        return search(query, resultCount, language, null);
+    public SearchResults<WebImage> search(MultifacetQuery query) throws SearcherException {
+        return searchInternal(query.getText(), query.getResultCount(), null);
     }
 
     public List<WebImage> search(String query, int resultCount, Language language, Orientation orientation) throws SearcherException {
+        var result = searchInternal(query, resultCount, orientation);
+        return result.getResultList();
+    }
+
+    private SearchResults<WebImage> searchInternal(String query, int resultCount, Orientation orientation) throws SearcherException {
         List<WebImage> results = new ArrayList<>();
+        Long total = null;
 
         resultCount = defaultResultCount == null ? resultCount : defaultResultCount;
 
@@ -102,33 +148,38 @@ public class MetMuseumSearcher extends AbstractSearcher<WebImage> {
             }
 
             JsonObject json = new JsonObject(jsonResponse);
+            if (total == null) {
+                total = json.getLong("total");
+            }
             JsonArray jsonArray = json.getJsonArray("objectIDs");
-            for (int i = 0; i < jsonArray.size(); i++) {
-                int objectId = jsonArray.tryGetInt(i);
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    int objectId = jsonArray.tryGetInt(i);
 
-                JsonObject objJson = getObject(objectId);
+                    JsonObject objJson = getObject(objectId);
 
-                if (orientation != null) {
-                    Orientation imageOrientation = getOrientation(objJson);
-                    if (imageOrientation != orientation) {
+                    if (orientation != null) {
+                        Orientation imageOrientation = getOrientation(objJson);
+                        if (imageOrientation != orientation) {
+                            continue;
+                        }
+                    }
+                    String primaryImage = objJson.tryGetString("primaryImage");
+                    if (primaryImage == null || primaryImage.isEmpty()) {
                         continue;
                     }
-                }
-                String primaryImage = objJson.tryGetString("primaryImage");
-                if (primaryImage == null || primaryImage.isEmpty()) {
-                    continue;
-                }
 
-                results.add(buildImage(objJson));
-                if (results.size() >= resultCount) {
-                    break;
+                    results.add(buildImage(objJson));
+                    if (results.size() >= resultCount) {
+                        break;
+                    }
                 }
             }
         } catch (JsonException e) {
             throw new SearcherException(e.getMessage());
         }
 
-        return results;
+        return new SearchResults<>(results, total);
     }
 
     public JsonObject getObject(int objectId) {

@@ -3,7 +3,6 @@ package ws.palladian.retrieval.search.web;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.persistence.ParserException;
@@ -11,6 +10,7 @@ import ws.palladian.retrieval.HttpException;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.parser.DocumentParser;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -19,7 +19,9 @@ import ws.palladian.retrieval.search.AbstractSearcher;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -30,6 +32,50 @@ import java.util.List;
  * @author Philipp Katz
  */
 public final class EToolsSearcher extends AbstractSearcher<WebContent> {
+
+    public static final class EToolsSearcherMetaInfo implements SearcherMetaInfo<EToolsSearcher, WebContent> {
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "etools";
+        }
+
+        @Override
+        public Class<WebContent> getResultType() {
+            return WebContent.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public EToolsSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new EToolsSearcher();
+        }
+
+        @Override
+        public boolean isDeprecated() {
+            return true;
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+    }
 
     private static final String SEARCHER_NAME = "ETools";
 
@@ -76,7 +122,7 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
 
     private String buildUrl(String query, int numResults, Language language) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("http://www.etools.ch/partnerSearch.do");
+        stringBuilder.append("https://www.etools.ch/partnerSearch.do");
         stringBuilder.append("?partner=").append(PARTNER_ID);
         stringBuilder.append("&query=").append(UrlHelper.encodeParameter(query));
         stringBuilder.append("&maxRecords=").append(numResults);
@@ -101,12 +147,6 @@ public final class EToolsSearcher extends AbstractSearcher<WebContent> {
     @Override
     public boolean isDeprecated() {
         return true;
-    }
-
-    public static void main(String[] args) throws SearcherException {
-        EToolsSearcher searcher = new EToolsSearcher();
-        List<WebContent> results = searcher.search("cat", 10, Language.ENGLISH);
-        CollectionHelper.print(results);
     }
 
 }

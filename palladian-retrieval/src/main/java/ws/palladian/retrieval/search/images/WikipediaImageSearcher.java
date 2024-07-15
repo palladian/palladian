@@ -6,6 +6,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 import ws.palladian.retrieval.search.AbstractSearcher;
@@ -13,19 +14,60 @@ import ws.palladian.retrieval.search.License;
 import ws.palladian.retrieval.search.SearcherException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Searching wikimedia.
  *
  * @see https://www.mediawiki.org/wiki/Extension:PageImages
  */
-public class WikimediaSearcher extends AbstractSearcher<WebImage> {
-    public WikimediaSearcher() {
+public class WikipediaImageSearcher extends AbstractSearcher<WebImage> {
+    private static final String SEARCHER_NAME = "Wikipedia Images";
+
+    public static final class WikipediaImageSearcherMetaInfo implements SearcherMetaInfo<WikipediaImageSearcher, WebImage> {
+        @Override
+        public String getSearcherName() {
+            return SEARCHER_NAME;
+        }
+
+        @Override
+        public String getSearcherId() {
+            return "wikipedia_image";
+        }
+
+        @Override
+        public Class<WebImage> getResultType() {
+            return WebImage.class;
+        }
+
+        @Override
+        public List<ConfigurationOption<?>> getConfigurationOptions() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public WikipediaImageSearcher create(Map<ConfigurationOption<?>, ?> config) {
+            return new WikipediaImageSearcher();
+        }
+
+        @Override
+        public String getSearcherDocumentationUrl() {
+            return "https://www.mediawiki.org/wiki/Extension:PageImages";
+        }
+
+        @Override
+        public String getSearcherDescription() {
+            return "Search images on <a href=\"https://www.wikipedia.org\">Wikipedia</a>.";
+        }
+    }
+
+    public WikipediaImageSearcher() {
 
     }
 
-    public WikimediaSearcher(int defaultResultCount) {
+    public WikipediaImageSearcher(int defaultResultCount) {
         super();
         this.defaultResultCount = defaultResultCount;
     }
@@ -54,18 +96,18 @@ public class WikimediaSearcher extends AbstractSearcher<WebImage> {
             builder.setLicense(License.FREE);
             webImages.add(builder.create());
         } catch (Exception e) {
-            // ccl
+            throw new SearcherException(e);
         }
         return webImages;
     }
 
     @Override
     public String getName() {
-        return "WikimediaSearcher";
+        return SEARCHER_NAME;
     }
 
     public static void main(String[] args) throws SearcherException {
-        List<WebImage> results = new WikimediaSearcher().search("socrates", 10, Language.ENGLISH);
+        List<WebImage> results = new WikipediaImageSearcher().search("socrates", 10, Language.ENGLISH);
         CollectionHelper.print(results);
     }
 }
