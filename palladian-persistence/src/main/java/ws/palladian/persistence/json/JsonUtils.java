@@ -482,11 +482,18 @@ public class JsonUtils {
     }
 
     public static void valueReplace(JsonArray jsonArray, String fieldName, Pattern pattern, String replacement) {
+        Set<String> toRemove = new HashSet<>();
+        Set<String> toAdd = new HashSet<>();
         for (Object o : jsonArray) {
             if (o instanceof JsonObject) {
                 valueReplace((JsonObject) o, fieldName, pattern, replacement);
+            } else if (o instanceof String) {
+                toRemove.add((String) o);
+                toAdd.add(pattern.matcher((String) o).replaceAll(replacement));
             }
         }
+        jsonArray.removeAll(toRemove);
+        jsonArray.addAll(toAdd);
     }
 
     public static void valueReplace(JsonObject jso, String fieldName, Pattern pattern, String replacement) {
