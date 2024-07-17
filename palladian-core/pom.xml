@@ -47,6 +47,7 @@
     </build>
     <properties>
         <lucene-version>8.11.2</lucene-version>
+        <twelvemonkeys-version>3.11.0</twelvemonkeys-version>
     </properties>
     <dependencies>
         <dependency>
@@ -72,17 +73,17 @@
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-core</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys-version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-jpeg</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys-version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-webp</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys-version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
