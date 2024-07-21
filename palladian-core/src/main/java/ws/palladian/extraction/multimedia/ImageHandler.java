@@ -929,7 +929,7 @@ public class ImageHandler {
                 colors.add(bestMatchColor);
             }
 
-            if (seenMainColors.size() >= 3) {
+            if (seenMainColors.size() >= 5) {
                 break;
             }
         }
