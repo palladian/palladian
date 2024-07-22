@@ -113,7 +113,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             prefs.put("download.prompt_for_download", false);
 
             ChromeOptions options = new ChromeOptions();
-            options.setAcceptInsecureCerts(true);
+            try {
+                options.setAcceptInsecureCerts(true);
+            } catch (Throwable throwable) {
+                LOGGER.error("problem setting accept insecure certs", throwable);
+            }
 
             options.addArguments("--headless");
             options.addArguments("--lang=en-US");
