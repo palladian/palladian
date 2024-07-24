@@ -2,6 +2,7 @@ package ws.palladian.retrieval.analysis;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import ws.palladian.helper.UrlHelper;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
@@ -58,7 +59,8 @@ public class EmailAnalyzer {
             personProfile.setImageUrl(thumbnailUrl);
 
             // System.out.println(gravatarResponse.toString(2));
-        } else if (apiKey != null) {
+        }
+        if (apiKey != null && StringHelper.nullOrEmpty(personProfile.getLastName())) {
             try {
                 // must be fast or forget about it
                 HttpRetriever quickHttpRetriever = HttpRetrieverFactory.getHttpRetriever();
