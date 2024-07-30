@@ -76,6 +76,9 @@ public class NormalizationTest {
 
     @Test
     public void testGetNormalizedNumber() {
+        assertEquals(190.5, UnitNormalizer.getNormalizedNumber("6 feet 3 inches"), 0.1);
+        assertEquals(190.5, UnitNormalizer.getNormalizedNumber("6'3\""), 0.1);
+        assertEquals(25000, UnitNormalizer.getNormalizedNumber("25kbps"), 0.1);
         assertEquals(0, UnitNormalizer.getNormalizedNumber("32 °F"), 2);
         assertEquals(20., UnitNormalizer.getNormalizedNumber("20 °C"), 2);
         assertEquals(0.02, UnitNormalizer.getNormalizedNumber(20, "µl"), 2);
@@ -87,7 +90,6 @@ public class NormalizationTest {
         assertEquals(8766000, UnitNormalizer.getNormalizedNumber("8766 cgs"), 0.1);
         assertEquals(2.5, UnitNormalizer.getNormalizedNumber("2500mAh"), 0.1);
 
-        assertEquals(25000, UnitNormalizer.getNormalizedNumber("25kbps"), 0.1);
         assertEquals(3000000, UnitNormalizer.getNormalizedNumber("3mBit/s"), 0.1);
 
         assertEquals(0.35, UnitNormalizer.getNormalizedNumber("3.5mm"), 0.1);
@@ -137,10 +139,10 @@ public class NormalizationTest {
 
     @Test
     public void testHandleSpecialFormat() {
+        assertEquals(UnitNormalizer.handleSpecialFormat(5, "' 9\"", 3), 175.26, 0);
         assertEquals(UnitNormalizer.handleSpecialFormat(6.0, "' 2'',", 3), 187.96, 0);
         assertEquals(UnitNormalizer.handleSpecialFormat(5, "' 9''", 3), 175.26, 0);
         assertEquals(UnitNormalizer.handleSpecialFormat(5, "'9''", 3), 175.26, 0);
-        assertEquals(UnitNormalizer.handleSpecialFormat(5, "' 9\"", 3), 175.26, 0);
         assertEquals(UnitNormalizer.handleSpecialFormat(5, "'9\"", 3), 175.26, 0);
         assertEquals(UnitNormalizer.handleSpecialFormat(0, ":59", 3), 59.0, 0);
         assertEquals(UnitNormalizer.handleSpecialFormat(2, ":44", 3), 164.0, 0);
