@@ -76,6 +76,8 @@ public class NormalizationTest {
 
     @Test
     public void testGetNormalizedNumber() {
+        assertEquals(317.5, UnitNormalizer.getNormalizedNumber("10'5\""), 0.1);
+        assertEquals(24.13, UnitNormalizer.getNormalizedNumber("9 1/2 inch"), 0.1);
         assertEquals(190.5, UnitNormalizer.getNormalizedNumber("6 feet 3 inches"), 0.1);
         assertEquals(190.5, UnitNormalizer.getNormalizedNumber("6'3\""), 0.1);
         assertEquals(25000, UnitNormalizer.getNormalizedNumber("25kbps"), 0.1);

@@ -679,10 +679,18 @@ public class UnitNormalizer {
             words = unitText.trim().split("(?<=[0-9])(?=\\w)");
         }
 
-        double number = Double.parseDouble(words[0]);
+        //        double number = Double.parseDouble(words[0]);
+        Double number = MathHelper.parseStringNumber(unitText, null);
+
+        if (number == null) {
+            throw new NullPointerException("No number found in " + unitText);
+        }
 
         String newUnitText = "";
         for (int i = 1; i < words.length; i++) {
+            if (newUnitText.isEmpty() && StringHelper.containsNumber(words[i].substring(0, 1))) {
+                continue;
+            }
             newUnitText += words[i] + " ";
         }
         return getNormalizedNumber(number, newUnitText.trim(), -1, "");
