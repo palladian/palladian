@@ -69,6 +69,7 @@ public class PalladianSpellChecker {
      * Keep track of the context around words and use it to improve decision when correcting words.
      */
     private boolean useContext;
+    private int wordLengthForContextUse = 3; // the minimum word length to use context, avoid turning "or" into "of" etc.
     private final Bag<String> contextCounter = new Bag<>();
     private Language language = Language.ENGLISH;
 
@@ -196,6 +197,14 @@ public class PalladianSpellChecker {
 
     public boolean isUseContext() {
         return useContext;
+    }
+
+    public int getWordLengthForContextUse() {
+        return wordLengthForContextUse;
+    }
+
+    public void setWordLengthForContextUse(int wordLengthForContextUse) {
+        this.wordLengthForContextUse = wordLengthForContextUse;
     }
 
     public void addManualMapping(String source, String target) {
@@ -461,7 +470,7 @@ public class PalladianSpellChecker {
             wordKnown.set(true);
 
             // if we use context we might want to change the word even though it exists in the given spelling
-            if (!useContext) {
+            if (!(useContext && word.length() >= wordLengthForContextUse)) {
                 if (uppercase) {
                     return StringHelper.upperCaseFirstLetter(word);
                 }
@@ -472,11 +481,11 @@ public class PalladianSpellChecker {
         List<String> list = edits(word);
         Map<Integer, String> candidates = new HashMap<>();
         candidates.put(wordCountGivenWord, word);
-        boolean contextUsed = false;
         for (String s : list) {
             if (s.isEmpty()) {
                 continue;
             }
+            boolean contextUsed = false;
             int count = getWordCount(s);
 
             if (count == 0 && s.contains(" ")) {
@@ -505,7 +514,7 @@ public class PalladianSpellChecker {
                     }
                 }
             }
-            if (count > 0) {
+            if (count > 0 && contextUsed) {
                 if (useContext && s.equals(word)) {
                     wordCountGivenWord += count;
                 }
@@ -513,12 +522,12 @@ public class PalladianSpellChecker {
             }
         }
 
-        if (wordCountGivenWord > 0 && !contextUsed) {
-            if (uppercase) {
-                return StringHelper.upperCaseFirstLetter(word);
-            }
-            return word;
-        }
+        //        if (wordCountGivenWord > 0 && !contextUsed) {
+        //            if (uppercase) {
+        //                return StringHelper.upperCaseFirstLetter(word);
+        //            }
+        //            return word;
+        //        }
 
         // German words can be compounds, e.g. "Goldkette", we most likely don't have all these words in the dictionary
         // and might cause incorrect corrections, we therefore split the compound and test its parts for misspellings
