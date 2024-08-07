@@ -16,14 +16,11 @@ import java.util.*;
  */
 public interface MultifacetQuery {
     /**
-     * <p>
      * Builder for creating a {@link MultifacetQuery}.
-     * </p>
      *
      * @author Philipp Katz
      */
     class Builder implements Factory<MultifacetQuery> {
-
         /** Default number of results if not specified explicitly. */
         private static final int DEFAULT_RESULT_COUNT = 10;
 

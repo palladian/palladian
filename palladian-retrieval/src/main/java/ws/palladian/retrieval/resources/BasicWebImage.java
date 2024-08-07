@@ -8,19 +8,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>
  * {@link BasicWebImage}s represent search results from image searches on web search engines. For instantiation use the
  * {@link Builder}.
- * </p>
  *
  * @author Philipp Katz
  * @author David Urbansky
  */
 public class BasicWebImage extends BasicWebContent implements WebImage {
     /**
-     * <p>
      * Builder for creating new instances of {@link WebImage}.
-     * </p>
      *
      * @author Philipp Katz
      */
@@ -217,8 +213,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
-                + Objects.hash(fileType, height, imageType, imageUrl, license, licenseLink, thumbnailUrl, width);
+        result = prime * result + Objects.hash(fileType, height, imageType, imageUrl, license, licenseLink, thumbnailUrl, width);
         return result;
     }
 
@@ -231,9 +226,7 @@ public class BasicWebImage extends BasicWebContent implements WebImage {
         if (getClass() != obj.getClass())
             return false;
         BasicWebImage other = (BasicWebImage) obj;
-        return Objects.equals(fileType, other.fileType) && height == other.height && imageType == other.imageType
-                && Objects.equals(imageUrl, other.imageUrl) && license == other.license
-                && Objects.equals(licenseLink, other.licenseLink) && Objects.equals(thumbnailUrl, other.thumbnailUrl)
-                && width == other.width;
+        return Objects.equals(fileType, other.fileType) && height == other.height && imageType == other.imageType && Objects.equals(imageUrl, other.imageUrl)
+                && license == other.license && Objects.equals(licenseLink, other.licenseLink) && Objects.equals(thumbnailUrl, other.thumbnailUrl) && width == other.width;
     }
 }

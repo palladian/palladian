@@ -3,9 +3,7 @@ package ws.palladian.retrieval.search.videos;
 import ws.palladian.retrieval.search.Facet;
 
 /**
- * <p>
  * Channel fact
- * </p>
  *
  * @author David Urbansky
  */

@@ -100,9 +100,7 @@ public final class FlickrSearcher extends AbstractMultifacetSearcher<WebImage> {
     private final HttpRetriever retriever;
 
     /**
-     * <p>
      * Search facet allowing to specify a/multiple {@link License}.
-     * </p>
      *
      * @author Philipp Katz
      */
