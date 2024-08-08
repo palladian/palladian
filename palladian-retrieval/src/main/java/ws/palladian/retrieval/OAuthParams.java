@@ -79,6 +79,17 @@ public final class OAuthParams {
         this(consumerKey, consumerSecret, accessToken, accessTokenSecret, SignatureMethod.HMAC_SHA1, null);
     }
 
+    /**
+     * Create a {@link OAuthParams} instance using HMAC-SHA1.
+     *
+     * @param consumerKey       The consumer key, not <code>null</code>.
+     * @param consumerSecret    The consumer secret, not <code>null</code>.
+     * @since 3.0
+     */
+    public OAuthParams(String consumerKey, String consumerSecret) {
+        this(consumerKey, consumerSecret, null, null);
+    }
+
     public String getConsumerKey() {
         return consumerKey;
     }
