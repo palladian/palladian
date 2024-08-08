@@ -52,7 +52,7 @@ public class NounProjectSearcher extends AbstractMultifacetSearcher<WebImage> {
 
         @Override
         public List<ConfigurationOption<?>> getConfigurationOptions() {
-            return Arrays.asList(API_KEY_OPTION);
+            return Arrays.asList(API_KEY_OPTION, API_KEY_SECRET_OPTION);
         }
 
         @Override
