@@ -170,6 +170,8 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
+        assertEquals(0.00047, MathHelper.parseStringNumber("4.7e-4 cm"), 0.001);
+        assertEquals(60000000, MathHelper.parseStringNumber("6.0E7 mpix"), 0.001);
         assertEquals(-15, MathHelper.parseStringNumber("-15 °C"), 0.001);
         assertEquals(15, MathHelper.parseStringNumber("-abcl 15 °C"), 0.001);
         assertEquals(37, MathHelper.parseStringNumber("-gr. 37"), 0.001);
@@ -183,7 +185,6 @@ public class MathHelperTest {
         assertEquals(0.36, MathHelper.parseStringNumber("0,36", 0.0), 0.01);
         assertEquals(0.36, MathHelper.parseStringNumber("0,36 whatever", 0.0), 0.01);
         assertEquals(0.0, MathHelper.parseStringNumber("no numbers here", 0.0), 0.01);
-        assertEquals(60000000, MathHelper.parseStringNumber("6.0E7 mpix"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1.5 c. bowls"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("0.5 bla"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("1/2 bla"), 0.001);
