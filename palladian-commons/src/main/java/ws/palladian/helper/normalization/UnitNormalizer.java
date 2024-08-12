@@ -672,7 +672,7 @@ public class UnitNormalizer {
 
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
         // add space in case it's missing "2.4Ghz" => "2.4 Ghz"
-        unitText = PatternHelper.compileOrGet("(\\d)([A-Za-z°'\"])").matcher(unitText).replaceFirst("$1 $2").trim();
+        unitText = PatternHelper.compileOrGet("(\\d(?:e-?\\d+)?)(?!e-?\\d)([A-Za-z°'\"])").matcher(unitText).replaceFirst("$1 $2").trim();
         String[] words = unitText.split(" ");
 
         if (words.length == 0) {
