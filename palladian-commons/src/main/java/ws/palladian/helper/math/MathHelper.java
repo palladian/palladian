@@ -9,11 +9,13 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
+import ws.palladian.helper.nlp.StringHelper;
 
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -885,7 +887,25 @@ public final class MathHelper {
         return parseStringNumber(stringNumber, null);
     }
 
+    public static List<Double> parseStringNumbers(String stringNumber) {
+        List<Double> numbers = new ArrayList<>();
+
+        List<String> rest = new ArrayList<>();
+        Double number = parseStringNumber(stringNumber, null, rest);
+        numbers.add(number);
+        if (!rest.isEmpty()) {
+            numbers.add(parseStringNumber(rest.get(0), null, rest));
+        }
+        CollectionHelper.removeNulls(numbers);
+
+        return numbers;
+    }
+
     public static Double parseStringNumber(String stringNumber, Double defaultIfNothingFound) {
+        return parseStringNumber(stringNumber, defaultIfNothingFound, new ArrayList<>());
+    }
+
+    public static Double parseStringNumber(String stringNumber, Double defaultIfNothingFound, List<String> rest) {
         Validate.notNull(stringNumber);
 
         stringNumber = stringNumber.toLowerCase();
@@ -1033,6 +1053,9 @@ public final class MathHelper {
         //// parse the rest
         stringNumber = " " + stringNumber;
         stringNumber = CLEAN_PATTERN1.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
+        if (rest != null) {
+            rest.addAll(StringHelper.getRegexpMatches(CLEAN_PATTERN1_AFTER, stringNumber).stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList()));
+        }
         stringNumber = CLEAN_PATTERN1_AFTER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
 
         // comma to periods if there are commas for decimal separation

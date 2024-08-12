@@ -1,7 +1,9 @@
 package ws.palladian.helper.math;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import ws.palladian.helper.collection.AbstractIterator;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.io.ResourceHelper;
@@ -11,9 +13,12 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class MathHelperTest {
+    @Rule
+    public ErrorCollector collector = new ErrorCollector();
 
     @Test
     public void testCantorize() {
@@ -170,6 +175,12 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
+        collector.checkThat(MathHelper.parseStringNumbers("2 3/4").size(), is(1));
+        collector.checkThat(MathHelper.parseStringNumbers("27 / 32").size(), is(2));
+    }
+
+    @Test
+    public void testParseStringNumber() {
         assertEquals(0.00047, MathHelper.parseStringNumber("4.7e-4 cm"), 0.001);
         assertEquals(60000000, MathHelper.parseStringNumber("6.0E7 mpix"), 0.001);
         assertEquals(-15, MathHelper.parseStringNumber("-15 °C"), 0.001);
