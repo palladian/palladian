@@ -1,17 +1,15 @@
 package ws.palladian.retrieval.search.images;
 
-import com.google.api.client.auth.oauth.OAuthHmacSigner;
-import com.google.api.client.auth.oauth.OAuthParameters;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.apache.ApacheHttpTransport;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.retrieval.HttpMethod;
+import ws.palladian.retrieval.HttpRequest2Builder;
+import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.OAuthParams;
+import ws.palladian.retrieval.OAuthUtil;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -52,7 +50,7 @@ public class NounProjectSearcher extends AbstractMultifacetSearcher<WebImage> {
 
         @Override
         public List<ConfigurationOption<?>> getConfigurationOptions() {
-            return Arrays.asList(API_KEY_OPTION);
+            return Arrays.asList(API_KEY_OPTION, API_KEY_SECRET_OPTION);
         }
 
         @Override
@@ -167,25 +165,16 @@ public class NounProjectSearcher extends AbstractMultifacetSearcher<WebImage> {
     }
 
     private JsonObject makeRequest(String requestUrl) throws IOException, SearcherException {
-        OAuthHmacSigner signer = new OAuthHmacSigner();
-        signer.clientSharedSecret = apiSecret;
-
-        OAuthParameters parameters = new OAuthParameters();
-        parameters.consumerKey = apiKey;
-        parameters.signer = signer;
-        parameters.version = "1.0";
-
-        HttpRequestFactory requestFactory = new ApacheHttpTransport().createRequestFactory(parameters);
-        GenericUrl url = new GenericUrl(requestUrl);
-
-        HttpRequest request = requestFactory.buildGetRequest(url);
-        HttpResponse response = request.execute();
-
-        if (response.getStatusCode() >= 400) {
-            throw new SearcherException("Request failed with status code " + response.getStatusCode());
+        var oautUtil = new OAuthUtil(new OAuthParams(apiKey, apiSecret));
+        var request = new HttpRequest2Builder(HttpMethod.GET, requestUrl).create();
+        var signedRequest = oautUtil.createSignedRequest(request);
+        var retriever = HttpRetrieverFactory.getHttpRetriever();
+        var result = retriever.execute(signedRequest);
+        if (result.errorStatus()) {
+            throw new SearcherException("Request failed with status code " + result.getStatusCode());
         }
 
-        return JsonObject.tryParse(response.parseAsString());
+        return JsonObject.tryParse(result.getStringContent());
     }
 
     @Override
