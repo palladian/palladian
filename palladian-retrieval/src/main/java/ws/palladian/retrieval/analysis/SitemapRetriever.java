@@ -391,7 +391,7 @@ public class SitemapRetriever {
                 .collect(Collectors.toList());
     }
 
-    public static void main(String[] args) g{
+    public static void main(String[] args) {
         var url = "https://www.apple.com/shop/sitemap.xml";
         var sitemap = new SitemapRetriever().getSitemap(url, ALL, true, new ProgressMonitor());
         System.out.println(sitemap.getUrlSet().size());
