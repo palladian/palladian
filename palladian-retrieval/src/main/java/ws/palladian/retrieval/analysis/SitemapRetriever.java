@@ -207,7 +207,7 @@ public class SitemapRetriever {
         }
     }
 
-    public Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
+    public static Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
         Pattern pattern = PatternHelper.compileOrGet("<!\\[CDATA\\[([^<>]+)]\\]>"); // CDATA can result in the extracted urls being empty, remove it in advance
         Matcher matcher = pattern.matcher(sitemapText);
         sitemapText = matcher.replaceAll("$1");
@@ -218,14 +218,14 @@ public class SitemapRetriever {
             List<Node> urlNodes = Collections.emptyList();
             try {
                 xmlDocument = ParserFactory.createXmlParser().parse(new StringInputStream(sitemapText));
-                urlNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//url");
+                urlNodes = getUrlsFromSitemapXmlDocument(xmlDocument);
             } catch (Exception e) {
                 // ccl
             }
 
             if (urlNodes.isEmpty()) { // fallback to forgiving html parser
                 xmlDocument = ParserFactory.createHtmlParser().parse(new StringInputStream(sitemapText));
-                urlNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//url");
+                urlNodes = getUrlsFromSitemapXmlDocument(xmlDocument);
             }
 
             for (Node urlNode : urlNodes) {
@@ -271,6 +271,18 @@ public class SitemapRetriever {
         }
 
         return new Sitemap(new LinkedHashSet<>(entries));
+    }
+
+    private static List<Node> getUrlsFromSitemapXmlDocument(Document xmlDocument) {
+        List<Node> urlNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//url");
+        if (urlNodes.isEmpty()) {
+            Map<String, String> namespace = MapBuilder.createPut("sitemap", "http://www.sitemaps.org/schemas/sitemap/0.9").create();
+            urlNodes = XPathHelper.getNodes(xmlDocument, "//sitemap:url", namespace);
+        }
+        if (urlNodes.isEmpty()) {
+            urlNodes = XPathHelper.getXhtmlNodes(xmlDocument, "//*[local-name()='url']");
+        }
+        return urlNodes;
     }
 
     private Sitemap getUrlsFromSitemap(String sitemapText, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, boolean needsCleaning) {
@@ -344,7 +356,7 @@ public class SitemapRetriever {
      * @return The normalized URL.
      * @link https://www.sitemaps.org/protocol.html#escaping
      */
-    protected String normalizeUrl(String url) {
+    protected static String normalizeUrl(String url) {
         url = url.replace("<![CDATA[", "").replace("]]>", "").trim();
 
         url = url.replace("&amp;", "&");
@@ -379,10 +391,11 @@ public class SitemapRetriever {
                 .collect(Collectors.toList());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) g{
         var url = "https://www.apple.com/shop/sitemap.xml";
         var sitemap = new SitemapRetriever().getSitemap(url, ALL, true, new ProgressMonitor());
         System.out.println(sitemap.getUrlSet().size());
+
         // old version - 499 results (no HTML pages, just further sitemap XML files)
         // new version - 259222
     }
