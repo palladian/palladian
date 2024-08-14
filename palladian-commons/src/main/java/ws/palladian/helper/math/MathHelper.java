@@ -43,7 +43,7 @@ public final class MathHelper {
 
     private static final Pattern FRACTION_PATTERN = Pattern.compile("(\\d+)/(\\d+)");
     private static final Pattern EX_PATTERN = Pattern.compile("\\d+\\.\\d+e-?\\d+");
-    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9]+?(?=-?\\d|$)");
+    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9]+(?=-|$|\\s)");
     private static final Pattern CLEAN_PATTERN1_AFTER = Pattern.compile("(?<=\\d)[^0-9., ]*( .*)?");
     private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
@@ -1025,6 +1025,7 @@ public final class MathHelper {
         }
 
         // resolve fractions like "1/2"
+        String lastFractionFound = "";
         Matcher matcher = FRACTION_PATTERN.matcher(stringNumber);
         if (matcher.find()) {
             int nominator = Integer.parseInt(matcher.group(1));
@@ -1032,21 +1033,23 @@ public final class MathHelper {
             if (value == null) {
                 value = 0.;
             }
-            value += nominator / (double) denominator;
+            double v = nominator / (double) denominator;
+            value += v;
+            lastFractionFound = v + "";
             stringNumber = stringNumber.replace(matcher.group(), StringUtils.EMPTY);
         }
 
         // number.numberEX e.g. 4.4353E3 = 4435.3
-        Matcher exPattern = EX_PATTERN.matcher(stringNumber);
+        Matcher exPattern = EX_PATTERN.matcher(lastFractionFound + stringNumber);
         if (exPattern.find()) {
             try {
                 if (value == null) {
                     value = 0.;
                 }
-                value += Double.parseDouble(exPattern.group(0));
+                value = Double.parseDouble(exPattern.group(0));
                 return value;
             } catch (Exception e) {
-                // ccl
+                return defaultIfNothingFound;
             }
         }
 
@@ -1072,7 +1075,7 @@ public final class MathHelper {
                 }
                 value += Double.parseDouble(stringNumber);
             } catch (Exception e) {
-                // ccl
+                return defaultIfNothingFound;
             }
         }
 

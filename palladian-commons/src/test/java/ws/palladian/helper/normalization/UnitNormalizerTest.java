@@ -15,8 +15,10 @@ public class UnitNormalizerTest {
     public void testDetectUnit() {
         String input;
 
+        collector.checkThat(UnitNormalizer.detectUnit("display size in mm"), Matchers.is("mm"));
+        collector.checkThat(UnitNormalizer.detectUnit("display size (in)"), Matchers.is("in"));
         collector.checkThat(UnitNormalizer.getUnitType("°C"), Matchers.is(UnitType.TEMPERATURE));
-        
+
         collector.checkThat(UnitNormalizer.getUnitType("N"), Matchers.is(UnitType.FORCE));
         collector.checkThat(UnitNormalizer.getUnitType("km/h"), Matchers.is(UnitType.SPEED));
 

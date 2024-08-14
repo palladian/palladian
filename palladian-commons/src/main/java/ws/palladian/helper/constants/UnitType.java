@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
  * The type of a unit, e.g. "weight" for units such as "g", "tons" etc.
- * </p>
  *
  * @author David Urbansky
  */

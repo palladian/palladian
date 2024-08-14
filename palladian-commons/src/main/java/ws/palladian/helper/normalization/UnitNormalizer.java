@@ -37,7 +37,7 @@ public class UnitNormalizer {
         ALL_UNITS.sort(StringLengthComparator.INSTANCE);
 
         for (String unit : ALL_UNITS) {
-            PATTERNS.put(unit, Pattern.compile("(?<=\\d|\\s|^)" + Pattern.quote(unit) + "(?=$|[-.,;:*)]|\\s)", Pattern.CASE_INSENSITIVE));
+            PATTERNS.put(unit, Pattern.compile("(?<=\\d|[(]|\\s|^)" + Pattern.quote(unit) + "(?=$|[-.,;:*)]|\\s)", Pattern.CASE_INSENSITIVE));
         }
     }
 
@@ -147,7 +147,15 @@ public class UnitNormalizer {
 
     public static String detectUnit(String text) {
         for (String unit : ALL_UNITS) {
-            if (PATTERNS.get(unit).matcher(text).find()) {
+            Matcher matcher = PATTERNS.get(unit).matcher(text);
+            if (matcher.find()) {
+                // special handling for "in" because it is "inch" but often another unit comes after, e.g. "height in cm" => cm not in
+                if (matcher.group().equals("in")) {
+                    String anotherUnitFound = detectUnit(text.substring(matcher.end()));
+                    if (anotherUnitFound != null) {
+                        return anotherUnitFound;
+                    }
+                }
                 return unit;
             }
         }
