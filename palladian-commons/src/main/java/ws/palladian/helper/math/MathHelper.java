@@ -48,6 +48,7 @@ public final class MathHelper {
     private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
     private static final Pattern CLEAN_PATTERN4 = Pattern.compile("(?<=\\d),(?=\\d\\d?($|\\s))");
+    public static final Pattern PARENTHESES_PATTERN = Pattern.compile("[(){}\\[\\]]");
 
     /**
      * The supported confidence levels.
@@ -1073,6 +1074,7 @@ public final class MathHelper {
                 if (value == null) {
                     value = 0.;
                 }
+                stringNumber = PARENTHESES_PATTERN.matcher(stringNumber).replaceAll("");
                 value += Double.parseDouble(stringNumber);
             } catch (Exception e) {
                 return defaultIfNothingFound;

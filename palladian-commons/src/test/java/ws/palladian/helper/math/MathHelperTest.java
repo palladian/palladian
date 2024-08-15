@@ -181,6 +181,7 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumber() {
+        assertEquals(8., MathHelper.parseStringNumber("bla bla test . . . GREAT. (8"), 0.001);
         assertEquals(0.0005, MathHelper.parseStringNumber("1/2e-4 cm"), 0.001);
         assertEquals(3.125, MathHelper.parseStringNumber("3 1/8 bla"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("1/2 bla"), 0.001);
