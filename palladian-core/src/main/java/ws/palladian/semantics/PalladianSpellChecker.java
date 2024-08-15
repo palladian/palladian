@@ -514,7 +514,7 @@ public class PalladianSpellChecker {
                     }
                 }
             }
-            if (count > 0 && contextUsed) {
+            if (count > 0/* && contextUsed*/) {
                 if (useContext && s.equals(word)) {
                     wordCountGivenWord += count;
                 }
