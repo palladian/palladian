@@ -59,6 +59,8 @@ public class NormalizationTest {
 
     @Test
     public void testDetectUnit() {
+        assertEquals("hz", UnitNormalizer.detectUnit("100 hz", UnitType.FREQUENCY));
+        assertEquals("hz", UnitNormalizer.detectUnit("100 hz"));
         assertEquals("t", UnitNormalizer.detectUnit("8 t"));
         assertEquals("kg/m³", UnitNormalizer.detectUnit("8 kg/m³"));
         assertEquals("ghz", UnitNormalizer.detectUnit("8 in ghz"));
@@ -70,12 +72,12 @@ public class NormalizationTest {
         assertEquals("miles", UnitNormalizer.detectUnit("1.5miles"));
         assertEquals("liters", UnitNormalizer.detectUnit("2 liters of milk"));
         assertEquals("g", UnitNormalizer.detectUnit("2g"));
-        assertEquals("hz", UnitNormalizer.detectUnit("100 hz"));
-        assertEquals("hz", UnitNormalizer.detectUnit("100 hz", UnitType.FREQUENCY));
     }
 
     @Test
     public void testGetNormalizedNumber() {
+        assertEquals(317.5, UnitNormalizer.getNormalizedNumber("10ft 5in"), 0.1);
+        assertEquals(190.5, UnitNormalizer.getNormalizedNumber("6ft 3in"), 0.1);
         assertEquals(1193.8, UnitNormalizer.getNormalizedNumber("4.7e2 in"), 0.1);
         assertEquals(6.985, UnitNormalizer.getNormalizedNumber("2-3/4\""), 0.1);
         assertEquals(0.0011938, UnitNormalizer.getNormalizedNumber("4.7e-4 in"), 0.1);

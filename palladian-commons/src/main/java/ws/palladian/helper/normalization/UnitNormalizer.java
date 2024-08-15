@@ -167,16 +167,14 @@ public class UnitNormalizer {
         for (String unit : unitType.getUnitNames()) {
             Matcher matcher = PATTERNS.get(unit).matcher(text);
             if (matcher.find()) {
-                if (matcher.find()) {
-                    // special handling for "in" because it is "inch" but often another unit comes after, e.g. "height in cm" => cm not in
-                    if (matcher.group().equals("in")) {
-                        String anotherUnitFound = detectUnit(text.substring(matcher.end()));
-                        if (anotherUnitFound != null) {
-                            return anotherUnitFound;
-                        }
+                // special handling for "in" because it is "inch" but often another unit comes after, e.g. "height in cm" => cm not in
+                if (matcher.group().equals("in")) {
+                    String anotherUnitFound = detectUnit(text.substring(matcher.end()));
+                    if (anotherUnitFound != null) {
+                        return anotherUnitFound;
                     }
-                    return unit;
                 }
+                return unit;
             }
         }
         return null;
