@@ -44,6 +44,7 @@ public final class MathHelper {
     private static final Pattern FRACTION_PATTERN = Pattern.compile("(\\d+)/(\\d+)");
     private static final Pattern EX_PATTERN = Pattern.compile("\\d+\\.\\d+e-?\\d+");
     private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9]+(?=-|$|\\s)");
+    private static final Pattern CLEAN_BEFORE_NUMBER = Pattern.compile("^[^0-9]+");
     private static final Pattern CLEAN_PATTERN1_AFTER = Pattern.compile("(?<=\\d)[^0-9., ]*( .*)?");
     private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
@@ -885,6 +886,11 @@ public final class MathHelper {
      * @return The parsed double.
      */
     public static Double parseStringNumber(String stringNumber) {
+        return parseStringNumber(stringNumber, null);
+    }
+
+    public static Double forceParseStringNumber(String stringNumber) {
+        stringNumber = CLEAN_BEFORE_NUMBER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         return parseStringNumber(stringNumber, null);
     }
 
