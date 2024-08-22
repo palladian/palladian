@@ -209,6 +209,7 @@ public class MathHelperTest {
         assertEquals(1.5, MathHelper.parseStringNumber("1½ bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
         assertEquals(1777, MathHelper.parseStringNumber("1,777"), 0.001);
+        assertEquals(1, MathHelper.parseStringNumber("$1"), 0.001);
     }
 
     @Test
