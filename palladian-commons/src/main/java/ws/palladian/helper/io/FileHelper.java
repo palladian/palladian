@@ -182,6 +182,10 @@ public final class FileHelper {
         return filePath;
     }
 
+    public static String getFileNameWithType(String path) {
+        return getFileName(path) + "." + getFileType(path);
+    }
+
     /**
      * Gets the file name without the file type.
      *
