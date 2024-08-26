@@ -2,7 +2,6 @@ package ws.palladian.helper.nlp;
 
 import ws.palladian.helper.collection.LruMap;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -12,17 +11,20 @@ import java.util.regex.Pattern;
  * @author David Urbansky
  */
 public class PatternHelper {
-    private static final Map<String, Pattern> PATTERN_CACHE = Collections.synchronizedMap(LruMap.accessOrder(10000));
+    private static final Map<String, Pattern> PATTERN_CACHE = LruMap.accessOrder(10000);
 
     public static Pattern compileOrGet(String string) {
         return compileOrGet(string, 0);
     }
 
     public static Pattern compileOrGet(String string, int flags) {
-        Pattern pattern = PATTERN_CACHE.get(string + "_" + flags);
+        String cacheKey = string + "_" + flags;
+        Pattern pattern = PATTERN_CACHE.get(cacheKey);
         if (pattern == null) {
             pattern = Pattern.compile(string, flags);
-            PATTERN_CACHE.put(string + "_" + flags, pattern);
+            synchronized (PATTERN_CACHE) {
+                PATTERN_CACHE.put(cacheKey, pattern);
+            }
         }
         return pattern;
     }
