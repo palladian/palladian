@@ -407,9 +407,7 @@ public final class UrlHelper {
     }
 
     /**
-     * <p>
      * Encode a String to be used as URL parameter.
-     * </p>
      *
      * @param string The string to be encoded.
      * @return The encoded string.

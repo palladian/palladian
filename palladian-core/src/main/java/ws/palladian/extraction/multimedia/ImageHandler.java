@@ -14,9 +14,7 @@ import ws.palladian.helper.io.LineAction;
 import ws.palladian.helper.math.FatStats;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
-import ws.palladian.retrieval.HttpResult;
-import ws.palladian.retrieval.HttpRetriever;
-import ws.palladian.retrieval.HttpRetrieverFactory;
+import ws.palladian.retrieval.*;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
 
@@ -188,7 +186,8 @@ public class ImageHandler {
             if (url.startsWith("http:") || url.startsWith("https:")) {
                 HttpRetriever retriever = HttpRetrieverFactory.getHttpRetriever();
                 url = url.replace(" ", "%20");
-                HttpResult httpResult = retriever.httpGet(url);
+                HttpRequest2 httpRequest = new HttpRequest2Builder(HttpMethod.GET, url).createLeaveSpecialCharacters();
+                HttpResult httpResult = retriever.execute(httpRequest);
                 if (httpResult.getStatusCode() >= 400) {
                     LOGGER.error("Could not load image from URL " + url + ", status code " + httpResult.getStatusCode());
                     return null;

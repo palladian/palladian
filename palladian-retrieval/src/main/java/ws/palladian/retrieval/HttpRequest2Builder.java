@@ -75,11 +75,21 @@ public final class HttpRequest2Builder implements Factory<HttpRequest2> {
     public HttpRequest2 create() {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(baseUrl);
-        if (urlParams.size() > 0) {
+        if (!urlParams.isEmpty()) {
             urlBuilder.append('?');
             urlBuilder.append(UrlHelper.createParameterString(urlParams));
         }
         return new ImmutableHttpRequest2(urlBuilder.toString(), method, headers, entity);
     }
 
+    /* Especially for image the $ sign is interpreted a special way and must not be URL encoded */
+    public HttpRequest2 createLeaveSpecialCharacters() {
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append(baseUrl);
+        if (!urlParams.isEmpty()) {
+            urlBuilder.append('?');
+            urlBuilder.append(UrlHelper.createParameterString(urlParams).replace("%24", "$"));
+        }
+        return new ImmutableHttpRequest2(urlBuilder.toString(), method, headers, entity);
+    }
 }
