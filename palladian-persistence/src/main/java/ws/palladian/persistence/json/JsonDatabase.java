@@ -402,7 +402,7 @@ public class JsonDatabase {
         }
     }
 
-    private void updateIndex(String collection, JsonObject jsonObject, String filePath) {
+    private synchronized void updateIndex(String collection, JsonObject jsonObject, String filePath) {
         for (String indexedField : indexedFieldsForCollection.getOrDefault(collection, Collections.emptyList())) {
             List<String> valuesInObject = new ArrayList<>();
             Object value = jsonObject.get(indexedField);
