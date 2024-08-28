@@ -283,7 +283,11 @@ public class JsonDatabase {
                     return null;
                 }
                 String text = FileHelper.tryReadFileToStringNoReplacement(collectionFile);
-                return JsonObject.tryParse(text);
+                JsonObject jso = JsonObject.tryParse(text);
+                if (jso == null) {
+                    LOGGER.error("null json object when parsing json from file: " + collectionFile.getName());
+                }
+                return jso;
             }
         };
         jsonDbIterator.setIndex(startIndex);
@@ -312,7 +316,11 @@ public class JsonDatabase {
                     return null;
                 }
                 String text = FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(collectionFilePath)));
-                return JsonObject.tryParse(text);
+                JsonObject jso = JsonObject.tryParse(text);
+                if (jso == null) {
+                    LOGGER.error("null json object when parsing json from file: " + rootPath + collection + "/" + getFolderedPath(collectionFilePath));
+                }
+                return jso;
             }
         };
         jsonDbIterator.setIndex(0);
@@ -320,20 +328,6 @@ public class JsonDatabase {
 
         return jsonDbIterator;
     }
-
-    //    public boolean exists(String collection, String field, String value) {
-    //        // check if we have an index on the field
-    //        Map<String, List<String>> indexContent = indexMap.get(collection + "-idx-" + field);
-    //        if (indexContent != null) {
-    //            return indexContent.get(value) != null;
-    //        }
-    //
-    //        return false;
-    //    }
-
-    //    public JsonObject get(String collection, String id) {
-    //        return get(collection, "_id", id);
-    //    }
 
     public JsonObject getById(String collection, String id) {
         return JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(id + ".json"))));
