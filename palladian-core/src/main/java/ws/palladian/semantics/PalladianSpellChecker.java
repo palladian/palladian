@@ -396,13 +396,8 @@ public class PalladianSpellChecker {
     }
 
     /**
-     * <p>
      * Automatically detect and correct spelling mistakes in a word.
-     * </p>
-     * <p/>
-     * <p>
      * NOTE: The given word must be lowercase. This saves time in the process.
-     * </p>
      *
      * @param word The word to check for errors.
      * @return The auto-corrected word.
@@ -412,9 +407,7 @@ public class PalladianSpellChecker {
     }
 
     /**
-     * <p>
      * Automatically detect and correct spelling mistakes in a word.
-     * </p>
      *
      * @param word The word to check for errors.
      * @return The auto-corrected word.
@@ -514,7 +507,7 @@ public class PalladianSpellChecker {
                     }
                 }
             }
-            if (count > 0/* && contextUsed*/) {
+            if (count > 0 && (!useContext || contextUsed)) {
                 if (useContext && s.equals(word)) {
                     wordCountGivenWord += count;
                 }
