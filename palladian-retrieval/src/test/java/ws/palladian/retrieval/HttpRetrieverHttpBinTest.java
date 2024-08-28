@@ -24,7 +24,7 @@ public class HttpRetrieverHttpBinTest {
      * https://issues.apache.org/jira/browse/HTTPCLIENT-1763
      */
     @Test
-    //    @Ignore // XXX https://httpbin.org/ wasn't accessible May 2023 and stopping the build
+    @Ignore // XXX https://httpbin.org/ wasn't accessible May 2023 and stopping the build
     public void testCookiesExpiresDate() throws HttpException {
         // cookie expiring in the past should not be set
         String cookieValue = "foo=bar; Expires=Mon, 05 Oct 2021 01:48:58 GMT";
@@ -90,7 +90,7 @@ public class HttpRetrieverHttpBinTest {
      * https://gitlab.com/palladian/palladian-knime/-/issues/6
      */
     @Test
-    //    @Ignore // XXX https://httpbin.org/ wasn't accessible April 2023 and stopping the build
+    @Ignore // XXX https://httpbin.org/ wasn't accessible April 2023 and stopping the build
     public void testRedirects() throws HttpException {
         HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, "https://httpbin.org/status/301").create();
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
