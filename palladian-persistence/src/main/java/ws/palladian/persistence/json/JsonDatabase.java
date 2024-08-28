@@ -280,12 +280,12 @@ public class JsonDatabase {
                 }
                 File collectionFile = collectionFiles.get(index.getAndIncrement());
                 if (collectionFile == null) {
-                    return null;
+                    throw new NullPointerException("null json object when parsing json from file");
                 }
                 String text = FileHelper.tryReadFileToStringNoReplacement(collectionFile);
                 JsonObject jso = JsonObject.tryParse(text);
                 if (jso == null) {
-                    LOGGER.error("null json object when parsing json from file: " + collectionFile.getName());
+                    throw new NullPointerException("null json object when parsing json from file: " + collectionFile.getName());
                 }
                 return jso;
             }
@@ -313,12 +313,12 @@ public class JsonDatabase {
                 }
                 String collectionFilePath = collectionFiles.get(index.getAndIncrement());
                 if (collectionFilePath == null) {
-                    return null;
+                    throw new NullPointerException("null json object when parsing json from file");
                 }
                 String text = FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(collectionFilePath)));
                 JsonObject jso = JsonObject.tryParse(text);
                 if (jso == null) {
-                    LOGGER.error("null json object when parsing json from file: " + rootPath + collection + "/" + getFolderedPath(collectionFilePath));
+                    throw new NullPointerException("null json object when parsing json from file: " + rootPath + collection + "/" + getFolderedPath(collectionFilePath));
                 }
                 return jso;
             }
