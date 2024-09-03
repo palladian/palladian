@@ -369,7 +369,7 @@ public class JsonUtils {
         return list;
     }
 
-    public static JsonArray toJsonObjectArray(List<? extends Jsonable> objects) {
+    public static <T extends Jsonable> JsonArray toJsonObjectArray(List<T> objects) {
         JsonArray jsArray = new JsonArray();
         if (objects == null) {
             return jsArray;

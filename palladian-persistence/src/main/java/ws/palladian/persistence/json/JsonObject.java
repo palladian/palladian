@@ -21,7 +21,7 @@ import java.util.*;
  * @author Philipp Katz, David Urbansky
  * @version 2023-01-16
  */
-public class JsonObject extends AbstractMap<String, Object> implements Json, Serializable {
+public class JsonObject extends AbstractMap<String, Object> implements Json, Jsonable, Serializable {
     static {
         JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
             Object read = iter.read();
@@ -806,5 +806,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Ser
     public void removeNulls() {
         remove(null);
         map.keySet().removeIf(key -> map.get(key) == null);
+    }
+
+    @Override
+    public JsonObject asJson() {
+        return this;
     }
 }
