@@ -11,6 +11,7 @@ import ws.palladian.helper.collection.CollectionHelper;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -204,5 +205,11 @@ public class HttpRetrieverTest {
             HttpResult result = retriever.httpGet("https://api.cilabs.net/v1/conferences/ws15/info/attendees");
             System.out.println(result);
         }
+    }
+
+    @Test
+    public void testJsonCharset() throws HttpException {
+        var result = HttpRetrieverFactory.getHttpRetriever().httpGet("https://httpbin.org/json");
+        assertEquals(result.getCharsetOrDefault(), StandardCharsets.UTF_8);
     }
 }
