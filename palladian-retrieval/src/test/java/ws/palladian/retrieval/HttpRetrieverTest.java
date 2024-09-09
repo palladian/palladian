@@ -17,7 +17,6 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 
-@SuppressWarnings("restriction")
 public class HttpRetrieverTest {
 
     /** The logger for this class. */
