@@ -112,20 +112,20 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
             map = new Object2ObjectLinkedOpenHashMap<>();
             return;
         }
-        Any any;
-        try {
-            any = JsonIterator.deserialize(source);
-            map = any.as(Object2ObjectLinkedOpenHashMap.class);
-        } catch (Exception e) {
-            // remove trailing commas
-            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-            try {
-                any = JsonIterator.deserialize(source);
-                map = any.as(Object2ObjectLinkedOpenHashMap.class);
-            } catch (Exception e2) {
+//        Any any;
+//        try {
+//            any = JsonIterator.deserialize(source);
+//            map = any.as(Object2ObjectLinkedOpenHashMap.class);
+//        } catch (Exception e) {
+//            // remove trailing commas
+//            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+//            try {
+//                any = JsonIterator.deserialize(source);
+//                map = any.as(Object2ObjectLinkedOpenHashMap.class);
+//            } catch (Exception e2) {
                 parseFallback(new JsonTokener(source));
-            }
-        }
+//            }
+//        }
         if (map == null) {
             map = new Object2ObjectLinkedOpenHashMap<>();
         }

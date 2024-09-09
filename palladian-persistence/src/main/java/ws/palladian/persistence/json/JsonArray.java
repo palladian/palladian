@@ -86,20 +86,20 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
             list = new ObjectArrayList<>();
             return;
         }
-        Any any;
-        try {
-            any = JsonIterator.deserialize(source);
-            list = any.as(ObjectArrayList.class);
-        } catch (Exception e) {
-            // remove trailing commas
-            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-            try {
-                any = JsonIterator.deserialize(source);
-                list = any.as(ObjectArrayList.class);
-            } catch (Exception e2) {
+//        Any any;
+//        try {
+//            any = JsonIterator.deserialize(source);
+//            list = any.as(ObjectArrayList.class);
+//        } catch (Exception e) {
+//            // remove trailing commas
+//            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+//            try {
+//                any = JsonIterator.deserialize(source);
+//                list = any.as(ObjectArrayList.class);
+//            } catch (Exception e2) {
                 parseFallback(new JsonTokener(source));
-            }
-        }
+//            }
+//        }
         if (list == null) {
             list = new ObjectArrayList<>();
         }
