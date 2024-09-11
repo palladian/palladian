@@ -21,6 +21,7 @@ import java.util.Map;
  * @author Philipp Katz, David Urbansky
  * @version 2023-01-16
  */
+@SuppressWarnings("serial")
 public class JsonArray extends AbstractList<Object> implements Json, Serializable {
     static {
         JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
@@ -29,8 +30,8 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
                 return null;
             }
 
-            if (read instanceof Map) {
-                return new JsonObject((Map<String, Object>) read);
+            if (read instanceof Map map) {
+                return new JsonObject(map);
             } else if (read instanceof Collection collection) {
                 return new JsonArray(collection);
             }
@@ -81,7 +82,8 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      *               <code>]</code>&nbsp;<small>(right bracket)</small>.
      * @throws JsonException If there is a syntax error.
      */
-    public JsonArray(String source) throws JsonException {
+    @SuppressWarnings("unchecked")
+	public JsonArray(String source) throws JsonException {
         if (source == null || source.isEmpty()) {
             list = new ObjectArrayList<>();
             return;
@@ -163,8 +165,8 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
             for (int i = 0; i < length; i += 1) {
                 this.add(Array.get(object, i));
             }
-        } else if (object instanceof Collection) {
-            for (Object o : (Collection) object) {
+        } else if (object instanceof Collection collection) {
+            for (Object o : collection) {
                 this.add(o);
             }
         } else if (object instanceof JsonTokener jsonTokener) {
@@ -201,8 +203,8 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     public boolean add(Object value) {
         if (value instanceof Json) {
             return this.list.add(value);
-        } else if (value instanceof Map) {
-            return this.list.add(new JsonObject((Map<String, Object>) value));
+        } else if (value instanceof Map map) {
+            return this.list.add(new JsonObject(map));
         } else if (value instanceof Collection collection) {
             return this.list.add(new JsonArray(collection));
         } else {
