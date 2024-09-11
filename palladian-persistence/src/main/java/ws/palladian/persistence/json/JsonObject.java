@@ -22,6 +22,12 @@ import java.util.*;
  * @version 2023-01-16
  */
 public class JsonObject extends AbstractMap<String, Object> implements Json, Jsonable, Serializable {
+
+    /** There seems to be issues with json iter and it doesn't seem to be well-maintained -
+     * so allow to disable it here. - TODO this makes the current mess even messier- introduce
+     * a better solution to swap the parsers dynamically. */
+    public static boolean USE_JSON_ITER = true;
+
     static {
         JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
             Object read = iter.read();
@@ -112,20 +118,24 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
             map = new Object2ObjectLinkedOpenHashMap<>();
             return;
         }
-//        Any any;
-//        try {
-//            any = JsonIterator.deserialize(source);
-//            map = any.as(Object2ObjectLinkedOpenHashMap.class);
-//        } catch (Exception e) {
-//            // remove trailing commas
-//            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-//            try {
-//                any = JsonIterator.deserialize(source);
-//                map = any.as(Object2ObjectLinkedOpenHashMap.class);
-//            } catch (Exception e2) {
-                parseFallback(new JsonTokener(source));
-//            }
-//        }
+        if (USE_JSON_ITER) {
+          Any any;
+          try {
+              any = JsonIterator.deserialize(source);
+              map = any.as(Object2ObjectLinkedOpenHashMap.class);
+          } catch (Exception e) {
+              // remove trailing commas
+              source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+              try {
+                  any = JsonIterator.deserialize(source);
+                  map = any.as(Object2ObjectLinkedOpenHashMap.class);
+              } catch (Exception e2) {
+                  parseFallback(new JsonTokener(source));
+              }
+          }
+        } else {
+            parseFallback(new JsonTokener(source));
+        }
         if (map == null) {
             map = new Object2ObjectLinkedOpenHashMap<>();
         }
