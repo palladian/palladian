@@ -31,8 +31,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
 
             if (read instanceof Map) {
                 return new JsonObject((Map<String, Object>) read);
-            } else if (read instanceof Collection) {
-                return new JsonArray(read);
+            } else if (read instanceof Collection collection) {
+                return new JsonArray(collection);
             }
 
             return read;
@@ -66,8 +66,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
                 if (value != null) {
                     if (value instanceof Map) {
                         this.map.put(key.toString(), new JsonObject((Map<String, Object>) value));
-                    } else if (value instanceof Collection) {
-                        this.map.put(key.toString(), new JsonArray(value));
+                    } else if (value instanceof Collection collection) {
+                        this.map.put(key.toString(), new JsonArray(collection));
                     } else {
                         this.map.put(key.toString(), value);
                     }

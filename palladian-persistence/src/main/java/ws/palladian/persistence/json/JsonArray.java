@@ -31,8 +31,8 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
 
             if (read instanceof Map) {
                 return new JsonObject((Map<String, Object>) read);
-            } else if (read instanceof Collection) {
-                return new JsonArray(read);
+            } else if (read instanceof Collection collection) {
+                return new JsonArray(collection);
             }
 
             return read;
@@ -152,17 +152,19 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
         }
     }
 
-    JsonArray(Object array) {
+    JsonArray(Object object) throws JsonException {
         this();
-        if (array.getClass().isArray()) {
-            int length = Array.getLength(array);
+        if (object.getClass().isArray()) {
+            int length = Array.getLength(object);
             for (int i = 0; i < length; i += 1) {
-                this.add(Array.get(array, i));
+                this.add(Array.get(object, i));
             }
-        } else if (array instanceof Collection) {
-            for (Object o : (Collection) array) {
+        } else if (object instanceof Collection) {
+            for (Object o : (Collection) object) {
                 this.add(o);
             }
+        } else if (object instanceof JsonTokener jsonTokener) {
+            parseFallback(jsonTokener);
         } else {
             throw new IllegalArgumentException("JSON array initial value should be a string or collection or array.");
         }
@@ -197,8 +199,8 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
             return this.list.add(value);
         } else if (value instanceof Map) {
             return this.list.add(new JsonObject((Map<String, Object>) value));
-        } else if (value instanceof Collection) {
-            return this.list.add(new JsonArray(value));
+        } else if (value instanceof Collection collection) {
+            return this.list.add(new JsonArray(collection));
         } else {
             return this.list.add(value);
         }
