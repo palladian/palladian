@@ -21,7 +21,14 @@ import java.util.*;
  * @author Philipp Katz, David Urbansky
  * @version 2023-01-16
  */
+@SuppressWarnings("serial")
 public class JsonObject extends AbstractMap<String, Object> implements Json, Jsonable, Serializable {
+
+    /** There seems to be issues with json iter and it doesn't seem to be well-maintained -
+     * so allow to disable it here. - TODO this makes the current mess even messier- introduce
+     * a better solution to swap the parsers dynamically. */
+    public static boolean USE_JSON_ITER = true;
+
     static {
         JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
             Object read = iter.read();
@@ -29,10 +36,10 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
                 return null;
             }
 
-            if (read instanceof Map) {
-                return new JsonObject((Map<String, Object>) read);
-            } else if (read instanceof Collection) {
-                return new JsonArray(read);
+            if (read instanceof Map map) {
+                return new JsonObject(map);
+            } else if (read instanceof Collection collection) {
+                return new JsonArray(collection);
             }
 
             return read;
@@ -58,16 +65,16 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
      *
      * @param map A map object that can be used to initialize the contents of the JsonObject.
      */
-    public JsonObject(Map map) {
+    public JsonObject(Map<?, ?> map) {
         this.map = new Object2ObjectLinkedOpenHashMap<>();
         if (map != null) {
             for (Object key : map.keySet()) {
                 Object value = map.get(key);
                 if (value != null) {
-                    if (value instanceof Map) {
-                        this.map.put(key.toString(), new JsonObject((Map<String, Object>) value));
-                    } else if (value instanceof Collection) {
-                        this.map.put(key.toString(), new JsonArray(value));
+                    if (value instanceof Map mapValue) {
+                        this.map.put(key.toString(), new JsonObject(mapValue));
+                    } else if (value instanceof Collection collection) {
+                        this.map.put(key.toString(), new JsonArray(collection));
                     } else {
                         this.map.put(key.toString(), value);
                     }
@@ -107,24 +114,29 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
      *               <code>}</code>&nbsp;<small>(right brace)</small>.
      * @throws JsonException If there is a syntax error in the source string or a duplicated key.
      */
-    public JsonObject(String source) throws JsonException {
+    @SuppressWarnings("unchecked")
+	public JsonObject(String source) throws JsonException {
         if (source == null || source.isEmpty()) {
             map = new Object2ObjectLinkedOpenHashMap<>();
             return;
         }
-        Any any;
-        try {
-            any = JsonIterator.deserialize(source);
-            map = any.as(Object2ObjectLinkedOpenHashMap.class);
-        } catch (Exception e) {
-            // remove trailing commas
-            source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-            try {
-                any = JsonIterator.deserialize(source);
-                map = any.as(Object2ObjectLinkedOpenHashMap.class);
-            } catch (Exception e2) {
-                parseFallback(new JsonTokener(source));
-            }
+        if (USE_JSON_ITER) {
+          Any any;
+          try {
+              any = JsonIterator.deserialize(source);
+              map = any.as(Object2ObjectLinkedOpenHashMap.class);
+          } catch (Exception e) {
+              // remove trailing commas
+              source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+              try {
+                  any = JsonIterator.deserialize(source);
+                  map = any.as(Object2ObjectLinkedOpenHashMap.class);
+              } catch (Exception e2) {
+                  parseFallback(new JsonTokener(source));
+              }
+          }
+        } else {
+            parseFallback(new JsonTokener(source));
         }
         if (map == null) {
             map = new Object2ObjectLinkedOpenHashMap<>();
@@ -601,15 +613,13 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
         String key = pathSplit[0];
 
         Object value2 = null;
-        if (value instanceof List) {
-            List v = (List) value;
+        if (value instanceof List v) {
             int index = MathHelper.parseStringNumber(key).intValue();
             if (index >= v.size()) {
                 throw new JsonException("Illegal index: " + index);
             }
             value2 = v.get(index);
-        } else if (value instanceof Map) {
-            Map v = (Map) value;
+        } else if (value instanceof Map v) {
             if (!v.containsKey(key)) {
                 throw new JsonException("No key: " + key);
             }

@@ -140,22 +140,34 @@ public class HttpResult implements Serializable {
 
     /**
      * <p>
-     * Get the content of the supplied {@link HttpResult} as string. For conversion, the "Content-Type" HTTP header with
-     * a specified charset is considered. If no default encoding is specified, <i>ISO-8859-1</i> is assumed.
+     * Get the content of the supplied {@link HttpResult} as string. For conversion,
+     * the "Content-Type" HTTP header with a specified charset is considered. If no
+     * default encoding is specified, the “default” encoding is assumed, i.e.
+     * <i>UTF8</i> for JSON data, or otherwise <i>ISO-8859-1</i>.
      * </p>
      *
      * @return The string value of the supplied HttpResult.
      * @see <a href="http://www.w3.org/International/O-HTTP-charset.en.php">Setting the HTTP charset parameter</a>.
      */
     public String getStringContent() {
+        Charset charset = getCharsetOrDefault();
+        return getStringContent(charset);
+    }
+
+    /* for testing */ Charset getCharsetOrDefault() {
         String foundCharset = getCharset();
         Charset charset;
+        var contentType = getHeaderString("Content-Type");
         if (foundCharset != null && Charset.isSupported(foundCharset)) {
             charset = Charset.forName(foundCharset);
+        } else if (contentType != null && contentType.startsWith("application/json")) {
+            // JSON should always default to UTF8:
+            // https://stackoverflow.com/a/9254967/388827
+            charset = StandardCharsets.UTF_8;
         } else {
             charset = StandardCharsets.ISO_8859_1;
         }
-        return getStringContent(charset);
+        return charset;
     }
 
     public String getStringContent(Charset charset) {
