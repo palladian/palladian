@@ -10,7 +10,7 @@ import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.HttpRetrieverFactory;
 
-public final class OpenCageGeocoder implements Geocoder {
+public final class OpenCageGeocoder implements Geocoder, ReverseGeocoder {
 
     private final String apiKey;
 
@@ -37,6 +37,34 @@ public final class OpenCageGeocoder implements Geocoder {
             double lat = geometryObject.getDouble("lat");
             double lng = geometryObject.getDouble("lng");
             return GeoCoordinate.from(lat, lng);
+        } catch (HttpException e) {
+            throw new GeocoderException(e);
+        } catch (JsonException e) {
+            throw new GeocoderException(e);
+        }
+    }
+
+    @Override
+    public Place reverseGeoCode(GeoCoordinate coordinate) throws GeocoderException {
+        try {
+            // https://api.opencagedata.com/geocode/v1/json?q=52.3877830%2C9.7334394&key=YOUR-API-KEY
+            var url = String.format("https://api.opencagedata.com/geocode/v1/json?q=%s%%2C%s&key=%s",
+                    coordinate.getLatitude(), coordinate.getLongitude(), apiKey);
+            var retriever = HttpRetrieverFactory.getHttpRetriever();
+            var result = retriever.httpGet(url);
+            var jsonObject = new JsonObject(result.getStringContent());
+            var resultsArray = jsonObject.getJsonArray("results");
+            var resultsObject = resultsArray.getJsonObject(0);
+            var componentsObject = resultsObject.getJsonObject("components");
+            var placeBuilder = new ImmutablePlace.Builder();
+            placeBuilder.setHouseNumber(componentsObject.getString("house_number"));
+            placeBuilder.setStreet(componentsObject.getString("road"));
+            placeBuilder.setPostalcode(componentsObject.getString("postcode"));
+            placeBuilder.setCountry(componentsObject.getString("country"));
+            placeBuilder.setRegion(componentsObject.getString("region"));
+            placeBuilder.setCounty(componentsObject.getString("county"));
+            // locality, neighbourhood, label
+            return placeBuilder.create();
         } catch (HttpException e) {
             throw new GeocoderException(e);
         } catch (JsonException e) {
