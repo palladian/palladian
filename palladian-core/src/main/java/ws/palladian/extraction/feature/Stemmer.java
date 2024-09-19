@@ -28,18 +28,26 @@ public final class Stemmer implements Function<String, String> {
     }
 
     /**
-     * <p>
      * Create a new Snowball stemmer for the specified {@link Language}.
-     * </p>
      */
     private static SnowballProgram createStemmer(Language language) {
         switch (language) {
+            case ARABIC:
+                return new ArabicStemmer();
+            case ARMENIAN:
+                return new ArmenianStemmer();
+            case BASQUE:
+                return new BasqueStemmer();
+            case CATALAN:
+                return new CatalanStemmer();
             case DANISH:
                 return new DanishStemmer();
             case DUTCH:
                 return new DutchStemmer();
             case ENGLISH:
                 return new EnglishStemmer();
+            case ESTONIAN:
+                return new EstonianStemmer();
             case FINNISH:
                 return new FinnishStemmer();
             case FRENCH:
@@ -48,8 +56,12 @@ public final class Stemmer implements Function<String, String> {
                 return new GermanStemmer();
             case HUNGARIAN:
                 return new HungarianStemmer();
+            case IRISH:
+                return new IrishStemmer();
             case ITALIAN:
                 return new ItalianStemmer();
+            case LITHUANIAN:
+                return new LithuanianStemmer();
             case NORWEGIAN:
                 return new NorwegianStemmer();
             case PORTUGUESE:
