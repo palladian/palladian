@@ -18,6 +18,7 @@ import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.semantics.stemmers.SlovakStemmer;
 
 import java.io.InputStream;
 import java.util.*;
@@ -651,6 +652,8 @@ public class WordTransformer {
             }
 
             return String.valueOf(wordCharArray).substring(0, index);
+        } else if (language == Language.SLOVAK) {
+            return new SlovakStemmer().stem(word);
         } else {
             try {
                 return new Stemmer(language).stem(word);
@@ -934,7 +937,9 @@ public class WordTransformer {
     }
 
     public static void main(String[] args) {
-        String stemmedWord = WordTransformer.stemWord("vysavače", Language.CZECH);
+        String stemmedWord = WordTransformer.stemWord("vysâavače", Language.CZECH);
+        System.out.println(stemmedWord);
+        stemmedWord = WordTransformer.stemWord("študentov", Language.SLOVAK);
         System.out.println(stemmedWord);
         System.exit(0);
         StopWatch stopWatch = new StopWatch();
