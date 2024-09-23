@@ -175,8 +175,9 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
-        collector.checkThat(MathHelper.parseStringNumbers("2 3/4").size(), is(1));
         collector.checkThat(MathHelper.parseStringNumbers("27 / 32").size(), is(2));
+        collector.checkThat(MathHelper.parseStringNumbers("76-120Hz").size(), is(2));
+        collector.checkThat(MathHelper.parseStringNumbers("2 3/4").size(), is(1));
     }
 
     @Test
