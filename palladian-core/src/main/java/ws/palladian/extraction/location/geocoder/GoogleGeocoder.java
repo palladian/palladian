@@ -65,9 +65,14 @@ public final class GoogleGeocoder implements Geocoder {
         if (httpResult.errorStatus()) {
             throw new GeocoderException("Received HTTP status code " + httpResult.getStatusCode());
         }
-        LOGGER.debug("Response = " + httpResult.getStringContent());
+        String stringContent = httpResult.getStringContent();
+        LOGGER.debug("Response = " + stringContent);
+        return parseJson(stringContent);
+    }
+
+    /* visible for testing */ static GeoCoordinate parseJson(String jsonString) throws GeocoderException {
         try {
-            JsonObject resultJson = new JsonObject(httpResult.getStringContent());
+            JsonObject resultJson = new JsonObject(jsonString);
             String status = resultJson.getString("status");
             if (!status.equals("OK") && !status.equals("ZERO_RESULTS")) {
                 throw new GeocoderException("Received status code " + status);
@@ -84,7 +89,7 @@ public final class GoogleGeocoder implements Geocoder {
             double lng = locationJson.getDouble("lng");
             return GeoCoordinate.from(lat, lng);
         } catch (JsonException e) {
-            throw new GeocoderException("Error while parsing JSON result (" + httpResult.getStringContent() + ").", e);
+            throw new GeocoderException("Error while parsing JSON result (" + jsonString + ").", e);
         }
     }
 

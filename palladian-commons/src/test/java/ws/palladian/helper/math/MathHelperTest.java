@@ -175,18 +175,21 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
-        collector.checkThat(MathHelper.parseStringNumbers("2 3/4").size(), is(1));
         collector.checkThat(MathHelper.parseStringNumbers("27 / 32").size(), is(2));
+        collector.checkThat(MathHelper.parseStringNumbers("76-120Hz").size(), is(2));
+        collector.checkThat(MathHelper.parseStringNumbers("2 3/4").size(), is(1));
     }
 
     @Test
     public void testParseStringNumber() {
+        assertEquals(0.5, MathHelper.parseStringNumber("1/2 bla", -1d), 0.001);
+        assertEquals(0.0, MathHelper.parseStringNumber("no numbers here", 0.0), 0.01);
+        assertEquals(15, MathHelper.parseStringNumber("-abcl 15 °C"), 0.001);
+        assertEquals(1, MathHelper.parseStringNumber("$1"), 0.001);
         assertEquals(8., MathHelper.parseStringNumber("bla bla test . . . GREAT. (8"), 0.001);
         assertEquals(0.0005, MathHelper.parseStringNumber("1/2e-4 cm"), 0.001);
         assertEquals(3.125, MathHelper.parseStringNumber("3 1/8 bla"), 0.001);
-        assertEquals(0.5, MathHelper.parseStringNumber("1/2 bla"), 0.001);
         assertNull(MathHelper.parseStringNumber("i2c"));
-        assertEquals(15, MathHelper.parseStringNumber("-abcl 15 °C"), 0.001);
         assertEquals(0.00047, MathHelper.parseStringNumber("4.7e-4 cm"), 0.001);
         assertEquals(0.00047, MathHelper.parseStringNumber("4.7e-4 cm"), 0.001);
         assertEquals(0.00047, MathHelper.parseStringNumber("4.7e-4 cm"), 0.001);
@@ -202,7 +205,6 @@ public class MathHelperTest {
         assertEquals(100000, MathHelper.parseStringNumber("100,000"), 0.001);
         assertEquals(0.36, MathHelper.parseStringNumber("0,36", 0.0), 0.01);
         assertEquals(0.36, MathHelper.parseStringNumber("0,36 whatever", 0.0), 0.01);
-        assertEquals(0.0, MathHelper.parseStringNumber("no numbers here", 0.0), 0.01);
         assertEquals(1.5, MathHelper.parseStringNumber("1.5 c. bowls"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("0.5 bla"), 0.001);
         assertEquals(0.5, MathHelper.parseStringNumber("½ bla"), 0.001);

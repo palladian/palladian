@@ -942,10 +942,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         if (substringBetween.isEmpty()) {
             substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"language\" content=\"", "\"");
         }
-        if (substringBetween != null && !substringBetween.isEmpty() && substringBetween.length() < 6) {
+        if (substringBetween != null && !substringBetween.isEmpty() && substringBetween.length() < 8) {
             // remove country, e.g. en-US
             String[] parts = substringBetween.split("[-:]");
-            return Language.getByIso6391(parts[0]);
+            Language language = Language.getByIso6391(parts[0]);
+            if (language == null) {
+                language = Language.getByIso6392(parts[0]);
+            }
+            return language;
         }
 
         // use TLDs
@@ -967,13 +971,23 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.POLISH;
         } else if (domain.endsWith(".dk")) {
             return Language.DANISH;
+        } else if (domain.endsWith(".rs")) {
+            return Language.SERBIAN;
         } else if (domain.endsWith(".co.jp")) {
             return Language.JAPANESE;
         } else if (domain.endsWith(".pt")) {
             return Language.PORTUGUESE;
         } else if (domain.endsWith(".nl")) {
             return Language.DUTCH;
-        } else if (domain.endsWith(".ru")) {
+        } else if (domain.endsWith(".kz")) {
+            return Language.KAZAKH;
+        } else if (domain.endsWith(".md")) {
+            return Language.ROMANIAN;
+        } else if (domain.endsWith(".mk")) {
+            return Language.MACEDONIAN;
+        } else if (domain.endsWith(".mn")) {
+            return Language.MONGOLIAN;
+        } else if (domain.endsWith(".ru") || domain.endsWith(".by")) {
             return Language.RUSSIAN;
         } else if (domain.endsWith(".no")) {
             return Language.NORWEGIAN;
@@ -991,6 +1005,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.VIETNAMESE;
         } else if (domain.endsWith(".se")) {
             return Language.SWEDISH;
+        } else if (domain.endsWith(".si")) {
+            return Language.SLOVENE;
+        } else if (domain.endsWith(".tr")) {
+            return Language.TURKISH;
+        } else if (domain.endsWith(".ua")) {
+            return Language.UKRAINIAN;
         }
 
         return null;

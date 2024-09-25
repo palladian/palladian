@@ -18,13 +18,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * <p>
  * The MathHelper provides mathematical functionality.
- * </p>
- * <p>
  * We use FastMath for the following default math functions due to faster speeds: cos, sin, pow, atan2, log, and exp.
  * See https://gist.github.com/ijuma/840120 and https://blog.juma.me.uk/2011/02/23/performance-of-fastmath-from-commons-math/
- * </p>
  *
  * @author David Urbansky
  * @author Philipp Katz
@@ -43,8 +39,9 @@ public final class MathHelper {
 
     private static final Pattern FRACTION_PATTERN = Pattern.compile("(\\d+)/(\\d+)");
     private static final Pattern EX_PATTERN = Pattern.compile("\\d+\\.\\d+e-?\\d+");
-    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9]+(?=-|$|\\s)");
+    private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9]+?(?=[a-z-][0-9]|[0-9]|$)");
     private static final Pattern CLEAN_BEFORE_NUMBER = Pattern.compile("^[^0-9]+");
+    private static final Pattern CLEAN_PATTERN_REST_AFTER = Pattern.compile("((?<=\\d)[^0-9., ]+(.*)?)|( / .*)");
     private static final Pattern CLEAN_PATTERN1_AFTER = Pattern.compile("(?<=\\d)[^0-9., ]*( .*)?");
     private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
@@ -917,7 +914,7 @@ public final class MathHelper {
 
         stringNumber = stringNumber.toLowerCase();
 
-        Double value = defaultIfNothingFound;
+        Double value = null;
 
         // find fraction characters
         Set<String> remove = new HashSet<>();
@@ -1064,7 +1061,8 @@ public final class MathHelper {
         stringNumber = " " + stringNumber;
         stringNumber = CLEAN_PATTERN1.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         if (rest != null) {
-            rest.addAll(StringHelper.getRegexpMatches(CLEAN_PATTERN1_AFTER, stringNumber).stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList()));
+            rest.addAll(StringHelper.getRegexpMatches(CLEAN_PATTERN_REST_AFTER, stringNumber).stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList()));
+            stringNumber = CLEAN_PATTERN_REST_AFTER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         }
         stringNumber = CLEAN_PATTERN1_AFTER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
 
@@ -1080,11 +1078,12 @@ public final class MathHelper {
                 if (value == null) {
                     value = 0.;
                 }
-                stringNumber = PARENTHESES_PATTERN.matcher(stringNumber).replaceAll("");
                 value += Double.parseDouble(stringNumber);
             } catch (Exception e) {
                 return defaultIfNothingFound;
             }
+        } else if (value == null) {
+            return defaultIfNothingFound;
         }
 
         return value;

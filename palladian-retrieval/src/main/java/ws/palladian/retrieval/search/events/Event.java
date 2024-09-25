@@ -1,5 +1,8 @@
 package ws.palladian.retrieval.search.events;
 
+import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.persistence.json.Jsonable;
+
 import java.util.Date;
 
 /**
@@ -9,8 +12,7 @@ import java.util.Date;
  *
  * @author David Urbansky
  */
-public class Event {
-
+public class Event implements Jsonable {
     private String title = "";
     private String description = "";
     private Date startDate;
@@ -229,4 +231,23 @@ public class Event {
         return builder.toString();
     }
 
+    @Override
+    public JsonObject asJson() {
+        JsonObject json = new JsonObject();
+        json.put("title", title);
+        json.put("description", description);
+        json.put("startDate", startDate);
+        json.put("endDate", endDate);
+        json.put("recurringString", recurringString);
+        json.put("url", url);
+        json.put("venueName", venueName);
+        json.put("venueAddress", venueAddress);
+        json.put("venueZipCode", venueZipCode);
+        json.put("venueCity", venueCity);
+        json.put("venueRegion", venueRegion);
+        json.put("venueCountry", venueCountry);
+        json.put("venueLatitude", venueLatitude);
+        json.put("venueLongitude", venueLongitude);
+        return json;
+    }
 }

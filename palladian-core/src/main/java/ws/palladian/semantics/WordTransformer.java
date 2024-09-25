@@ -1,9 +1,13 @@
 package ws.palladian.semantics;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.cz.CzechStemmer;
 import org.apache.lucene.analysis.de.GermanLightStemmer;
 import org.apache.lucene.analysis.de.GermanMinimalStemmer;
+import org.apache.lucene.analysis.el.GreekStemmer;
 import org.apache.lucene.analysis.en.EnglishMinimalStemmer;
+import org.apache.lucene.analysis.id.IndonesianStemmer;
+import org.apache.lucene.analysis.lv.LatvianStemmer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.core.Annotation;
@@ -14,6 +18,7 @@ import ws.palladian.helper.collection.StringLengthComparator;
 import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.semantics.stemmers.SlovakStemmer;
 
 import java.io.InputStream;
 import java.util.*;
@@ -628,6 +633,27 @@ public class WordTransformer {
             return stemGermanWord(word);
         } else if (language == Language.ENGLISH) {
             return stemEnglishWord(word);
+        } else if (language == Language.GREEK || language == Language.CZECH || language == Language.INDONESIAN || language == Language.LATVIAN) {
+            char[] wordCharArray = word.toCharArray();
+
+            int index = 0;
+            if (language == Language.GREEK) {
+                GreekStemmer stemmer = new GreekStemmer();
+                index = stemmer.stem(wordCharArray, word.length());
+            } else if (language == Language.CZECH) {
+                CzechStemmer stemmer = new CzechStemmer();
+                index = stemmer.stem(wordCharArray, word.length());
+            } else if (language == Language.INDONESIAN) {
+                IndonesianStemmer stemmer = new IndonesianStemmer();
+                index = stemmer.stem(wordCharArray, word.length(), true);
+            } else if (language == Language.LATVIAN) {
+                LatvianStemmer stemmer = new LatvianStemmer();
+                index = stemmer.stem(wordCharArray, word.length());
+            }
+
+            return String.valueOf(wordCharArray).substring(0, index);
+        } else if (language == Language.SLOVAK) {
+            return new SlovakStemmer().stem(word);
         } else {
             try {
                 return new Stemmer(language).stem(word);
@@ -911,6 +937,11 @@ public class WordTransformer {
     }
 
     public static void main(String[] args) {
+        String stemmedWord = WordTransformer.stemWord("vysâavače", Language.CZECH);
+        System.out.println(stemmedWord);
+        stemmedWord = WordTransformer.stemWord("študentov", Language.SLOVAK);
+        System.out.println(stemmedWord);
+        System.exit(0);
         StopWatch stopWatch = new StopWatch();
         for (int i = 0; i < 1000; i++) {
             String word = WordTransformer.wordToPluralCaseSensitive("schuhbox", Language.GERMAN);

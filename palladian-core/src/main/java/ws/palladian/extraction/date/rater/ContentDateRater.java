@@ -79,6 +79,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
         for (ContentDate date : list) {
             if (dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
+                result.add(RatedDate.create(date, 0.99));
+            } else if (dateType.equals(PageDateType.PUBLISH) && date.isInLdJson()) {
                 result.add(RatedDate.create(date, 1.0));
             } else {
                 FeatureVector featureVector = DateInstanceFactory.createFeatureVector(date);

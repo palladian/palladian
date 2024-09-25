@@ -3,6 +3,7 @@ package ws.palladian.retrieval.search.web;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ws.palladian.helper.collection.IdTrie;
 import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
@@ -11,6 +12,7 @@ import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
 import java.util.Optional;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -178,5 +180,34 @@ public class OpenAiApi extends AiApi {
             return null;
         }
         return dataArray.tryGetJsonObject(0).tryGetString("url");
+    }
+
+    public static int estimateTokens(String text) {
+        int tokens = 0;
+        String[] words = text.split(" ");
+        for (String word : words) {
+            tokens += (int) Math.floor(word.length() / 3.);
+
+            // every special char, e.g. attached ! or , counts as one token
+            StringTokenizer stringTokenizer = new StringTokenizer(word, IdTrie.DELIMITERS);
+            int c = 0;
+            while (stringTokenizer.hasMoreTokens()) {
+                stringTokenizer.nextToken();
+                if (c > 0) {
+                    tokens++;
+                }
+                c++;
+            }
+        }
+
+        return tokens;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(OpenAiApi.estimateTokens("GPT-3.5 Turbo"));
+        System.out.println(OpenAiApi.estimateTokens(
+                "This state-of-the-art tool is designed to help users estimate their OpenAI API usage cost with utmost accuracy, providing a clear picture of what utilizing GPT-3.5 Turbo"));
+        System.out.println(OpenAiApi.estimateTokens(
+                "With the advance of artificial intelligence technologies comes the need for precise cost prediction tools. A prime example of this is the innovative and dynamic Free ChatGPT Token Calculator for the OpenAI API. This state-of-the-art tool is designed to help users estimate their OpenAI API usage cost with utmost accuracy, providing a clear picture of what utilizing GPT-3.5 Turbo or the upcoming GPT-4 Turbo will set you back financially. The token calculator essentially assists you in monitoring your expenditure by offering detailed analytics of the tokens used in API calls. Stay ahead in the tech world by deciphering the OpenAI API cost with the free ChatGPT GPT-3.5 and GPT-4 token pricing calculator and effectively leverage the power of GPT-3.5 and GPT-4 without worrying about unplanned expenses."));
     }
 }

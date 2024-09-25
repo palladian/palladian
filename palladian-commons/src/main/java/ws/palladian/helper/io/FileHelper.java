@@ -182,6 +182,10 @@ public final class FileHelper {
         return filePath;
     }
 
+    public static String getFileNameWithType(String path) {
+        return getFileName(path) + "." + getFileType(path);
+    }
+
     /**
      * Gets the file name without the file type.
      *
@@ -749,9 +753,10 @@ public final class FileHelper {
         try {
             writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
             writer.write(string.toString());
+            writer.flush();  // ensure all data is written out
             success = true;
         } catch (IOException e) {
-            LOGGER.error(e.getMessage() + " : " + filePath, e);
+            LOGGER.error("File was not written properly, " + e.getMessage() + " : " + filePath, e);
         } finally {
             close(writer);
         }

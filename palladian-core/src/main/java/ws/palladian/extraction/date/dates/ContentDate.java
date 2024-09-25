@@ -43,6 +43,7 @@ public final class ContentDate extends AbstractBodyDate {
     private boolean hasStructureDate = false;
     private boolean inMetaDates = false;
     private boolean inUrl = false;
+    private boolean inLdJson = false;
     private byte keywordPriority = -1;
 
     public ContentDate(ExtractedDate date) {
@@ -112,6 +113,14 @@ public final class ContentDate extends AbstractBodyDate {
 
     public boolean isInUrl() {
         return inUrl;
+    }
+
+    public boolean isInLdJson() {
+        return inLdJson;
+    }
+
+    public void setInLdJson(boolean inLdJson) {
+        this.inLdJson = inLdJson;
     }
 
     public void setRelDocPos(double relDocPos) {
