@@ -21,4 +21,10 @@ public interface PalladianVersion {
     /** Palladian info. */
     String INFO = "Palladian version " + VERSION + " (build " + BUILD + ")\n" + COPYRIGHT + "\n";
 
+    /** Git Branch of this build. */
+    String GIT_BRANCH = "${gitBranch}";
+
+    /** Git Commit SHA of this build. */
+    String GIT_COMMIT_SHA = "${gitCommitSha}";
+
 }

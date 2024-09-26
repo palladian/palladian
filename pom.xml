@@ -95,6 +95,8 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <project.jdk.version>17</project.jdk.version>
+        <gitBranch>${env.GITHUB_REF}</gitBranch>
+        <gitCommitSha>${env.GITHUB_SHA}</gitCommitSha>
     </properties>
     <profiles>
         <profile>
