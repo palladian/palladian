@@ -1031,7 +1031,7 @@ public final class MathHelper {
         // resolve fractions like "1/2"
         String lastFractionFound = "";
         Matcher matcher = FRACTION_PATTERN.matcher(stringNumber);
-        if (matcher.find()) {
+        if (matcher.find() && matcher.group(1) != null && matcher.group(2) != null && matcher.group(1).length() < 11 && matcher.group(2).length() < 11) {
             int nominator = Integer.parseInt(matcher.group(1));
             int denominator = Integer.parseInt(matcher.group(2));
             if (value == null) {
