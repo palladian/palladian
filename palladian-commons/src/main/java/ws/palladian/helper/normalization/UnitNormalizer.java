@@ -655,6 +655,9 @@ public class UnitNormalizer {
             if (isElectricChargeUnit(word)) {
                 unitType = UnitType.ELECTRIC_CHARGE;
             }
+            if (isEnergyUnit(word)) {
+                unitType = UnitType.ENERGY;
+            }
             if (isBandwidthUnit(word)) {
                 unitType = UnitType.BANDWIDTH;
             }
