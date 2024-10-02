@@ -1,9 +1,6 @@
-package ws.palladian.retrieval.parser.json;
+package ws.palladian.persistence.json;
 
 import org.junit.Test;
-import ws.palladian.persistence.json.JsonArray;
-import ws.palladian.persistence.json.JsonException;
-import ws.palladian.persistence.json.JsonObject;
 
 import java.util.Arrays;
 

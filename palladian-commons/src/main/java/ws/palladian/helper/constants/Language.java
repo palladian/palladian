@@ -44,6 +44,7 @@ public enum Language {
     CZECH("cs", "ces", "Czech", Script.LATIN), //
     DAKOTA(null, "dak", "Dakota"), //
     DANISH("da", "dan", "Danish", Script.LATIN), //
+    DARI(null, "prs", "Dari", Script.ARABIC), //
     DUTCH("nl", "nld", "Dutch", Script.LATIN), //
     ENGLISH("en", "eng", "English", Script.LATIN), //
     ESPERANTO("eo", "epo", "Esperanto", Script.LATIN), //
@@ -78,6 +79,7 @@ public enum Language {
     KABYLE(null, "kab", "Kabyle"), //
     KANNADA("kn", "kan", "Kannada"), //
     KAQCHIKEL(null, "cak", "Kaqchikel"), //
+    KAZAKH("kk", "kaz", "Kazakh", Script.CYRILLIC), //
     KEKCHI(null, "kek", "Q’eqchi’"), //
     KOREAN("ko", "kor", "Korean", Script.HANGEUL), //
     KURDISH("ku", "kur", "Kurdish", Script.ARABIC), //
@@ -95,6 +97,7 @@ public enum Language {
     MAORI("mi", "mri", "Māori"), //
     MARATHI("mr", "mar", "Marathi", Script.DEVANGARI), //
     MICMAC(null, "mic", "Mi'kmaq"), //
+    MONGOLIAN("mn", "mon", "Mongolian", Script.CYRILLIC), //
     MOSSI(null, "mos", "Mossi"), //
     NEPALI("ne", "nep", "Nepali", Script.DEVANGARI), //
     NORTHERN_NDEBELE("nd", "nde", "Northern Ndebele"), //

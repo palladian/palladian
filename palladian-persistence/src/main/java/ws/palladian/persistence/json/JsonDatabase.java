@@ -280,10 +280,14 @@ public class JsonDatabase {
                 }
                 File collectionFile = collectionFiles.get(index.getAndIncrement());
                 if (collectionFile == null) {
-                    return null;
+                    throw new NullPointerException("null json object when parsing json from file");
                 }
                 String text = FileHelper.tryReadFileToStringNoReplacement(collectionFile);
-                return JsonObject.tryParse(text);
+                JsonObject jso = JsonObject.tryParse(text);
+                if (jso == null) {
+                    throw new NullPointerException("null json object when parsing json from file: " + collectionFile.getName());
+                }
+                return jso;
             }
         };
         jsonDbIterator.setIndex(startIndex);
@@ -309,10 +313,14 @@ public class JsonDatabase {
                 }
                 String collectionFilePath = collectionFiles.get(index.getAndIncrement());
                 if (collectionFilePath == null) {
-                    return null;
+                    throw new NullPointerException("null json object when parsing json from file");
                 }
                 String text = FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(collectionFilePath)));
-                return JsonObject.tryParse(text);
+                JsonObject jso = JsonObject.tryParse(text);
+                if (jso == null) {
+                    throw new NullPointerException("null json object when parsing json from file: " + rootPath + collection + "/" + getFolderedPath(collectionFilePath));
+                }
+                return jso;
             }
         };
         jsonDbIterator.setIndex(0);
@@ -320,20 +328,6 @@ public class JsonDatabase {
 
         return jsonDbIterator;
     }
-
-    //    public boolean exists(String collection, String field, String value) {
-    //        // check if we have an index on the field
-    //        Map<String, List<String>> indexContent = indexMap.get(collection + "-idx-" + field);
-    //        if (indexContent != null) {
-    //            return indexContent.get(value) != null;
-    //        }
-    //
-    //        return false;
-    //    }
-
-    //    public JsonObject get(String collection, String id) {
-    //        return get(collection, "_id", id);
-    //    }
 
     public JsonObject getById(String collection, String id) {
         return JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(id + ".json"))));
@@ -408,7 +402,7 @@ public class JsonDatabase {
         }
     }
 
-    private void updateIndex(String collection, JsonObject jsonObject, String filePath) {
+    private synchronized void updateIndex(String collection, JsonObject jsonObject, String filePath) {
         for (String indexedField : indexedFieldsForCollection.getOrDefault(collection, Collections.emptyList())) {
             List<String> valuesInObject = new ArrayList<>();
             Object value = jsonObject.get(indexedField);

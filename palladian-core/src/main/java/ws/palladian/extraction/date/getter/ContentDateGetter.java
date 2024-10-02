@@ -16,19 +16,19 @@ import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateExactness;
 import ws.palladian.helper.date.DateParser;
+import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
 /**
- * <p>
  * This class extracts all dates out of the content of webpages.
- * </p>
  *
  * @author Martin Gregor
  */
@@ -95,15 +95,51 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
 
     /**
      * Get dates of text-nodes of body part of document.
+     * Also look at ld+json
      *
      * @param document Document to be searched.
      * @return List of dates.
      */
     private List<ContentDate> getContentDates(Document document) {
         List<ContentDate> dates = new ArrayList<>();
+
+        // get from HTML
+        String content = XPathHelper.getXhtmlNodeTextContent(document, "//main//time/@datetime");
+        if (content != null) {
+            ExtractedDate date = DateParser.findDate(content);
+            if (date != null) {
+                ContentDate contentDate = new ContentDate(date);
+                contentDate.setHasStructureDate(true);
+                contentDate.setTag("time");
+                contentDate.setKeyword("published");
+                dates.add(contentDate);
+            }
+        }
+
+        // get from JSON
+        List<Node> ldJsonNodes = XPathHelper.tryGetXhtmlNodes(document, "//script[@type='application/ld+json']");
+        for (Node ldJsonNode : ldJsonNodes) {
+            String json = ldJsonNode.getTextContent();
+            JsonObject jso = JsonObject.tryParse(json);
+            if (jso != null) {
+                String date = jso.tryQueryString("datePublished");
+                if (date != null) {
+                    ExtractedDate extractedDate = DateParser.findDate(date);
+                    if (extractedDate != null) {
+                        ContentDate contentDate = new ContentDate(extractedDate);
+                        contentDate.setInLdJson(true);
+                        contentDate.setHasStructureDate(true);
+                        contentDate.setTag("time");
+                        contentDate.setKeyword("published");
+                        dates.add(contentDate);
+                    }
+                }
+            }
+        }
+
         List<Node> textNodes = XPathHelper.getNodes(document, "//text()");
 
-        if (textNodes.isEmpty()) {
+        if (textNodes.isEmpty() && dates.isEmpty()) {
             return dates;
         }
 
@@ -129,9 +165,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     }
 
     /**
-     * <p>
      * Find {@link ContentDate}s in a {@link Text} {@link Node}.
-     * </p>
      *
      * @param textNode        The Text Node which to check, not <code>null</code>.
      * @param documentString  The String representation of the document.
@@ -139,7 +173,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @return {@link List} of {@link ContentDate}s extracted from the Node, or an empty List. Never <code>null</code>.
      */
     private List<ContentDate> checkTextNode(Text textNode, String documentString, Map<Integer, String> contentKeywords) {
-
         String text = replaceHtmlSymbols(textNode.getNodeValue());
 
         int index = -1;
@@ -151,12 +184,11 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         }
 
         List<ContentDate> dates = findAllDates(text);
-        if (dates.size() > 0) {
+        if (!dates.isEmpty()) {
             index = documentString.indexOf(text);
         }
 
         for (ContentDate date : dates) {
-
             boolean hasStructureDate = StructureDateGetter.getDate(tag) != null;
             if (!hasStructureDate && tag != parent) {
                 hasStructureDate = StructureDateGetter.getDate(parent) != null;
@@ -167,7 +199,6 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             boolean keyword3Class = true;
 
             date.setTag(tag.getNodeName());
-
             date.setSimpleTag(HtmlHelper.isSimpleElement(tag));
             date.setHTag(HtmlHelper.isHeadlineTag(tag));
 
@@ -205,9 +236,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     }
 
     /**
-     * <p>
      * Find all content keywords in a text.
-     * </p>
      *
      * @param text The text which to search for keywords, not <code>null</code>.
      * @return A {@link Map} with indices of the keywords as keys and their text values.
@@ -227,9 +256,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     }
 
     /**
-     * <p>
      * Find the keyword closest to the date.
-     * </p>
      *
      * @param date            The {@link ContentDate} for which to determine the closest keyword, not <code>null</code>.
      * @param documentString  The document as String representation, not <code>null</code>.
@@ -281,9 +308,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     }
 
     /**
-     * <p>
      * Check a {@link Node} for a date keyword (see {@link KeyWords#BODY_CONTENT_KEYWORDS_ALL}).
-     * </p>
      *
      * @param node The node which to check for a keyword, not <code>null</code>.
      * @return The keyword if found, or an empty String if no keyword was found.
@@ -321,10 +346,8 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     }
 
     /**
-     * <p>
      * Sometimes texts in webpages have special code for character. E.g. <i>&ampuuml;</i> or whitespace. To evaluate
      * this text reasonably you need to convert this code.
-     * </p>
      */
     private static String replaceHtmlSymbols(String text) {
         String result = StringEscapeUtils.unescapeHtml(text);

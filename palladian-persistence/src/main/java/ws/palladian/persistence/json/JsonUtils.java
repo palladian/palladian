@@ -305,7 +305,12 @@ public class JsonUtils {
         } else if (value instanceof Collection) {
             new JsonArray((Collection<?>) value).write(writer, indentFactor, indent);
         } else if (value.getClass().isArray()) {
-            new JsonArray(value).write(writer, indentFactor, indent);
+            try {
+                new JsonArray(value).write(writer, indentFactor, indent);
+            } catch (JsonException e) {
+                // JsonArray constructor with Array will never throw
+                throw new IllegalStateException(e);
+            }
         } else if (value instanceof Number) {
             writer.write(numberToString((Number) value));
         } else if (value instanceof Boolean) {
@@ -369,7 +374,7 @@ public class JsonUtils {
         return list;
     }
 
-    public static JsonArray toJsonObjectArray(List<? extends Jsonable> objects) {
+    public static <T extends Jsonable> JsonArray toJsonObjectArray(List<T> objects) {
         JsonArray jsArray = new JsonArray();
         if (objects == null) {
             return jsArray;

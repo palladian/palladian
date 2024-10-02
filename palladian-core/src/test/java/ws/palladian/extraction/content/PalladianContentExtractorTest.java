@@ -49,6 +49,11 @@ public class PalladianContentExtractorTest {
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
 
+        // Uzbek
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.gazeta.uz/uz"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.UZBEK));
+
         // Italian
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.corriere.it/"));
         language = palladianContentExtractor.detectLanguage();

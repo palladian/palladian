@@ -1,6 +1,8 @@
 package ws.palladian.retrieval.resources;
 
 import ws.palladian.helper.geo.GeoCoordinate;
+import ws.palladian.persistence.json.JsonObject;
+import ws.palladian.persistence.json.Jsonable;
 
 import java.util.Date;
 import java.util.Map;
@@ -13,8 +15,7 @@ import java.util.Set;
  *
  * @author Philipp Katz
  */
-public interface WebContent {
-
+public interface WebContent extends Jsonable {
     /**
      * @return Internal identifier of this content, used in case this item is stored in a database, or <code>-1</code>,
      * in case no identifier exists or the item has not been persisted.
@@ -68,4 +69,19 @@ public interface WebContent {
      */
     Map<String, Object> getAdditionalData();
 
+    @Override
+    default JsonObject asJson() {
+        JsonObject json = new JsonObject();
+        json.put("id", getId());
+        json.put("url", getUrl());
+        json.put("title", getTitle());
+        json.put("summary", getSummary());
+        json.put("published", getPublished());
+        json.put("coordinate", getCoordinate());
+        json.put("identifier", getIdentifier());
+        json.put("tags", getTags());
+        json.put("source", getSource());
+        json.put("additionalData", getAdditionalData());
+        return json;
+    }
 }

@@ -41,6 +41,7 @@ public final class MathHelper {
     private static final Pattern EX_PATTERN = Pattern.compile("\\d+\\.\\d+e-?\\d+");
     private static final Pattern CLEAN_PATTERN1 = Pattern.compile("^[^0-9]+?(?=[a-z-][0-9]|[0-9]|$)");
     private static final Pattern CLEAN_BEFORE_NUMBER = Pattern.compile("^[^0-9]+");
+    private static final Pattern CLEAN_PATTERN_REST_AFTER = Pattern.compile("((?<=\\d)[^0-9., ]+(.*)?)|( / .*)");
     private static final Pattern CLEAN_PATTERN1_AFTER = Pattern.compile("(?<=\\d)[^0-9., ]*( .*)?");
     private static final Pattern CLEAN_PATTERN2 = Pattern.compile("\\.(?!\\d)");
     private static final Pattern CLEAN_PATTERN3 = Pattern.compile("(?<!\\d)\\.");
@@ -1030,7 +1031,7 @@ public final class MathHelper {
         // resolve fractions like "1/2"
         String lastFractionFound = "";
         Matcher matcher = FRACTION_PATTERN.matcher(stringNumber);
-        if (matcher.find()) {
+        if (matcher.find() && matcher.group(1) != null && matcher.group(2) != null && matcher.group(1).length() < 11 && matcher.group(2).length() < 11) {
             int nominator = Integer.parseInt(matcher.group(1));
             int denominator = Integer.parseInt(matcher.group(2));
             if (value == null) {
@@ -1060,7 +1061,8 @@ public final class MathHelper {
         stringNumber = " " + stringNumber;
         stringNumber = CLEAN_PATTERN1.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         if (rest != null) {
-            rest.addAll(StringHelper.getRegexpMatches(CLEAN_PATTERN1_AFTER, stringNumber).stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList()));
+            rest.addAll(StringHelper.getRegexpMatches(CLEAN_PATTERN_REST_AFTER, stringNumber).stream().filter(s -> !s.trim().isEmpty()).collect(Collectors.toList()));
+            stringNumber = CLEAN_PATTERN_REST_AFTER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         }
         stringNumber = CLEAN_PATTERN1_AFTER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
 
