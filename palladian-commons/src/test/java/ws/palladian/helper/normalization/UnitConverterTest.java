@@ -14,6 +14,7 @@ public class UnitConverterTest {
 
     @Test
     public void testConvertUnit() {
+        assertEquals(720, UnitConverter.convert(2592000., "joule", "Wh"), 0.);
         assertEquals(63, UnitConverter.convert(63., "mm", "mm"), 0.);
         assertEquals(6.3, UnitConverter.convert(63., "mm", "cm"), 0.);
         assertEquals(32., UnitConverter.convert(0., "celsius", "fahrenheit"), 0.01);

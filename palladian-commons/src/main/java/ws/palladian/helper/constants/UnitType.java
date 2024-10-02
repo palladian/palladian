@@ -32,7 +32,7 @@ public enum UnitType {
     ELECTRICAL_RESISTANCE("ohm"), //
     POWER("watt"), //
     VOLTAGE("volt"), //
-    ENERGY("kilojoule"), //
+    ENERGY("joule"), //
     CURRENT("ampere"), //
     ELECTRIC_CHARGE("ampere-hour"), //
     TORQUE("Nm"), //
