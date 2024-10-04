@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.io.StringInputStream;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -88,12 +89,11 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             cookieString = ",requestSettings:" + UrlHelper.encodeParameter(requestSettings.toString());
         }
 
-        String requestUrl =
-                "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript
-                        + cookieString + "%7D";
+        String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + UrlHelper.encodeParameter(url)
+                + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + cookieString + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
-        JsonObject response = null;
+        JsonObject response;
         try {
             response = new DocumentRetriever().tryGetJsonObject(requestUrl);
             if (response == null) {
@@ -137,7 +137,12 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             } else {
                 document = ParserFactory.createHtmlParser().parse(new StringInputStream(htmlContentString));
             }
-            document.setDocumentURI(url);
+            String navUrl = Optional.ofNullable(response.tryQueryString("pageResponses[0]/navUrl")).orElse("");
+            if (!StringHelper.nullOrEmpty(navUrl)) {
+                document.setDocumentURI(navUrl);
+            } else {
+                document.setDocumentURI(url);
+            }
             callRetrieverCallback(document);
         } catch (Exception e) {
             e.printStackTrace();
