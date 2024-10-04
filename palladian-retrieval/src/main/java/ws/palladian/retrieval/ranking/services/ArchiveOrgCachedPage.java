@@ -64,6 +64,9 @@ public class ArchiveOrgCachedPage extends AbstractRankingService {
             var requestUrl = String.format("http://archive.org/wayback/available?url=%s",
                     UrlHelper.encodeParameter(url));
             var httpResult = retriever.httpGet(requestUrl);
+            if (httpResult.errorStatus()) {
+                throw new RankingServiceException("Encountered HTTP status " + httpResult.getStatusCode());
+            }
             var jsonObject = new JsonObject(httpResult.getStringContent());
             var archivedSnapshots = jsonObject.getJsonObject("archived_snapshots");
             var closest = archivedSnapshots.getJsonObject("closest");
