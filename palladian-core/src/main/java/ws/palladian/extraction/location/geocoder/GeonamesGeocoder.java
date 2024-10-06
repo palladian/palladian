@@ -61,4 +61,11 @@ public final class GeonamesGeocoder implements Geocoder {
         }
     }
 
+    // TODO - support reverse geocoding
+
+    // http://www.geonames.org/export/reverse-geocoding.html
+
+    // Extended Find nearby toponym / reverse geocoding
+    // http://www.geonames.org/export/web-services.html#findNearby
+
 }
