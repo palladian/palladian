@@ -4,12 +4,15 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ws.palladian.retrieval.ranking.RankingServiceException;
 
 public class ArchiveOrgCachedPageTest {
     @Test
+    @Ignore // not reliable - see: “If the url is not available (not archived or currently
+            // not accessible), the response will be: {"archived_snapshots":{}}”
     public void testArchiveOrgCachedPage() throws RankingServiceException {
         var urls = Arrays.asList(new String[] { //
                 "http://example.com", //

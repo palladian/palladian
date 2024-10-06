@@ -44,7 +44,8 @@ public class ArchiveOrgCachedPage extends AbstractRankingService {
 
         @Override
         public String getServiceDescription() {
-            return "Find whether a certain URL has been cached by Archive.org’s Wayback Machine.";
+            return "Find whether a certain URL has been cached by Archive.org’s Wayback Machine. "
+                    + "Note that API is not highly reliable at times and might then return false negative results.";
         }
     }
 
