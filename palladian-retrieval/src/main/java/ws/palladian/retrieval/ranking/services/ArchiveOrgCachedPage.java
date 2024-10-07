@@ -57,7 +57,7 @@ public class ArchiveOrgCachedPage extends AbstractRankingService {
             "Wayback Machine Timestamp", "Timestamp of the closest snapshot on Archive.org’s Wayback Machine",
             Long.class);
 
-    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(ARCHIVE_ORG_CACHED);
+    private static final List<RankingType<?>> RANKING_TYPES = Arrays.asList(ARCHIVE_ORG_CACHED, ARCHIVE_ORG_TIMESTAMP);
 
     @Override
     public Ranking getRanking(String url) throws RankingServiceException {
