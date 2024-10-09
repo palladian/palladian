@@ -273,6 +273,7 @@ public class SearchIntentParser {
 
     private ActivatedSearchIntentAction processMatch(QueryMatchType qmt, SearchIntent intent, String query, Matcher matcher, SearchIntentTrigger intentTrigger) {
         ActivatedSearchIntentAction intentAction = new ActivatedSearchIntentAction(intent.getIntentAction(), query);
+        intentAction.setIntentId(intent.getId());
         intentAction.setIntentTrigger(intentTrigger);
 
         switch (intentAction.getType()) {
