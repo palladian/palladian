@@ -138,7 +138,7 @@ public class SitemapRetriever {
             case LIST:
                 Sitemap sitemap1;
                 if (parseXml) {
-                    sitemap1 = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include);
+                    sitemap1 = getUrlsFromSitemapParsed(sitemapContent, goalNodePattern, include, urlToPriorityMap);
                 } else {
                     sitemap1 = getUrlsFromSitemap(sitemapContent, urlToPriorityMap, goalNodePattern, include, needsCleaning);
                 }
@@ -207,7 +207,7 @@ public class SitemapRetriever {
         }
     }
 
-    public static Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
+    public static Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include, Map<String, Double> urlToPriorityMap) {
         Pattern pattern = PatternHelper.compileOrGet("<!\\[CDATA\\[([^<>]+)]\\]>"); // CDATA can result in the extracted urls being empty, remove it in advance
         Matcher matcher = pattern.matcher(sitemapText);
         sitemapText = matcher.replaceAll("$1");
@@ -264,6 +264,9 @@ public class SitemapRetriever {
                         }
                     }
                     entries.add(new Sitemap.Entry(location, lastMod != null ? lastMod.getNormalizedDate() : null, priority));
+                    if (urlToPriorityMap != null && priority != null) {
+                        urlToPriorityMap.put(location, priority);
+                    }
                 }
             }
         } catch (ParserException e) {
