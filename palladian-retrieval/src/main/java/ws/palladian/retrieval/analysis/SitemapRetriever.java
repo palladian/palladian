@@ -2,7 +2,6 @@ package ws.palladian.retrieval.analysis;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import ws.palladian.helper.NoProgress;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
@@ -92,7 +91,8 @@ public class SitemapRetriever {
         return getSitemap(sitemapUrl, new HashMap<>(), goalNodePattern, include, progress, new HashSet<String>());
     }
 
-    private Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, ProgressReporter progress, Set<String> duplicateCheck) {
+    private Sitemap getSitemap(String sitemapUrl, Map<String, Double> urlToPriorityMap, Pattern goalNodePattern, boolean include, ProgressReporter progress,
+            Set<String> duplicateCheck) {
         Sitemap sitemap = new Sitemap();
 
         String sitemapContent;
@@ -170,7 +170,7 @@ public class SitemapRetriever {
                 break;
         }
 
-        return sitemap;        
+        return sitemap;
     }
 
     private String cleanUpSitemap(String sitemapText) {
@@ -205,6 +205,10 @@ public class SitemapRetriever {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include) {
+        return getUrlsFromSitemapParsed(sitemapText, goalNodePattern, include, null);
     }
 
     public static Sitemap getUrlsFromSitemapParsed(String sitemapText, Pattern goalNodePattern, boolean include, Map<String, Double> urlToPriorityMap) {
@@ -381,7 +385,7 @@ public class SitemapRetriever {
 
     /**
      * Try to find sitemaps via robots.txt in a given a URL.
-     * 
+     *
      * @param url The URL.
      * @return The discovered sitemaps, or an empty list.
      */
