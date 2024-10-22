@@ -299,7 +299,7 @@ public final class GoogleProgrammableSearchEngine extends AbstractMultifacetSear
             BasicWebContent.Builder builder = new BasicWebContent.Builder();
             builder.setTitle(jsonItem.getString("title"));
             builder.setUrl(jsonItem.getString("link"));
-            builder.setSummary(jsonItem.getString("snippet"));
+            builder.setSummary(jsonItem.tryGetString("snippet"));
             builder.setSource(SEARCHER_NAME);
             result.add(builder.create());
         }
