@@ -62,7 +62,7 @@ public final class OpenCageGeocoder implements Geocoder, ReverseGeocoder {
             placeBuilder.setNeighbourhood(componentsObject.tryGetString("neighbourhood"));
             placeBuilder.setPoliticalUnion(componentsObject.tryGetString("political_union"));
             placeBuilder.setPostalcode(componentsObject.tryGetString("postcode"));
-            placeBuilder.setProvince(componentsObject.tryGetString("province"));
+            // placeBuilder.setProvince(componentsObject.tryGetString("province"));
             placeBuilder.setRegion(componentsObject.tryGetString("region"));
             placeBuilder.setStreet(componentsObject.tryGetString("road"));
             placeBuilder.setState(componentsObject.tryGetString("state"));

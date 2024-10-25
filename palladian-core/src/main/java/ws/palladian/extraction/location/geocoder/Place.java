@@ -3,45 +3,48 @@ package ws.palladian.extraction.location.geocoder;
 import ws.palladian.helper.geo.GeoCoordinate;
 
 public interface Place {
-    String getHouseNumber();
 
-    String getStreet();
+	String getContinent();
 
-    String getPostalcode();
+	String getPoliticalUnion();
 
-    String getCountry();
+	String getCountry();
 
-    String getRegion();
+	String getState(); // treat synonymous to province
 
-    String getCounty();
+	// String getStateDistrict();
 
-    /** @deprecated No longer in use. */
-    @Deprecated
-    String getLocality();
+	// String getProvince();
 
-    String getNeighbourhood();
+	// String getRegion();
 
-    /** Label aka. formatted value */
-    String getLabel();
+	String getCounty();
 
-    String getProvince();
+	// String getMunicipality();
 
-    String getStateDistrict();
+	String getCity();
 
-    String getPoliticalUnion();
+	// String getNeighbourhood();
 
-    String getMunicipality();
+	String getCityDistrict();
 
-    String getCitySubdistrict();
+	String getCitySubdistrict();
 
-    String getContinent();
+	String getPostalcode();
 
-    String getCityDistrict();
+	String getStreet();
 
-    String getCity();
+	String getHouseNumber();
 
-    String getState();
+	/** @deprecated No longer in use. */
+	@Deprecated
+	String getLocality();
 
-    GeoCoordinate getCoordinate();
+	/** Label aka. formatted value */
+	String getLabel();
+	
+	String getName();
+
+	GeoCoordinate getCoordinate();
 
 }
