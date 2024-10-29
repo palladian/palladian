@@ -85,6 +85,10 @@ public class WikipediaImageSearcher extends AbstractSearcher<WebImage> {
             String firstKey = CollectionHelper.getFirst(pagesJso.keySet());
             String imageUrl = pagesJso.tryQueryString(firstKey + "/original/source");
 
+            if (imageUrl == null) {
+                return webImages;
+            }
+
             BasicWebImage.Builder builder = new BasicWebImage.Builder();
             builder.setAdditionalData("id", firstKey);
             builder.setUrl(imageUrl);
