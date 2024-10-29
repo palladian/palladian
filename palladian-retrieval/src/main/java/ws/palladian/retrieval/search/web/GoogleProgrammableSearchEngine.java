@@ -196,71 +196,40 @@ public final class GoogleProgrammableSearchEngine extends AbstractMultifacetSear
     private String getLanguageCode(Language language) {
         switch (language) {
             case ARABIC:
-                return "lang_ar";
             case BULGARIAN:
-                return "lang_bg";
             case CATALAN:
-                return "lang_ca";
             case CZECH:
-                return "lang_cs";
             case DANISH:
-                return "lang_da";
             case GERMAN:
-                return "lang_de";
             case GREEK:
-                return "lang_el";
             case ENGLISH:
-                return "lang_en";
             case SPANISH:
-                return "lang_es";
             case ESTONIAN:
-                return "lang_et";
             case FINNISH:
-                return "lang_fi";
             case FRENCH:
-                return "lang_fr";
             case CROATIAN:
-                return "lang_hr";
             case HUNGARIAN:
-                return "lang_hu";
             case INDONESIAN:
-                return "lang_id";
             case ICELANDIC:
-                return "lang_is";
             case ITALIAN:
-                return "lang_it";
+            case JAPANESE:
+            case KOREAN:
+            case LITHUANIAN:
+            case LATVIAN:
+            case DUTCH:
+            case NORWEGIAN:
+            case POLISH:
+            case PORTUGUESE:
+            case ROMANIAN:
+            case RUSSIAN:
+            case SLOVAK:
+            case SLOVENE:
+            case SERBIAN:
+            case SWEDISH:
+            case TURKISH:
+            	return "lang_" + language.getIso6391();
             case HEBREW:
                 return "lang_iw";
-            case JAPANESE:
-                return "lang_ja";
-            case KOREAN:
-                return "lang_ko";
-            case LITHUANIAN:
-                return "lang_lt";
-            case LATVIAN:
-                return "lang_lv";
-            case DUTCH:
-                return "lang_nl";
-            case NORWEGIAN:
-                return "lang_no";
-            case POLISH:
-                return "lang_pl";
-            case PORTUGUESE:
-                return "lang_pt";
-            case ROMANIAN:
-                return "lang_ro";
-            case RUSSIAN:
-                return "lang_ru";
-            case SLOVAK:
-                return "lang_sk";
-            case SLOVENE:
-                return "lang_sl";
-            case SERBIAN:
-                return "lang_sr";
-            case SWEDISH:
-                return "lang_sv";
-            case TURKISH:
-                return "lang_tr";
             case CHINESE:
                 return "lang_zh-CN";
             default:
@@ -299,7 +268,7 @@ public final class GoogleProgrammableSearchEngine extends AbstractMultifacetSear
             BasicWebContent.Builder builder = new BasicWebContent.Builder();
             builder.setTitle(jsonItem.getString("title"));
             builder.setUrl(jsonItem.getString("link"));
-            builder.setSummary(jsonItem.getString("snippet"));
+            builder.setSummary(jsonItem.tryGetString("snippet"));
             builder.setSource(SEARCHER_NAME);
             result.add(builder.create());
         }
