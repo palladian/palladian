@@ -299,22 +299,37 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("µV");
         unitList.add("µv");
+        unitList.add("microvolt");
+        unitList.add("microvolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.000001));
 
         unitList = new ArrayList<>();
         unitList.add("mV");
         unitList.add("mv");
+        unitList.add("millivolt");
+        unitList.add("millivolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.001));
 
         unitList = new ArrayList<>();
         unitList.add("kV");
         unitList.add("kv");
+        unitList.add("kilovolt");
+        unitList.add("kilovolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000.));
 
         unitList = new ArrayList<>();
         unitList.add("MV");
         unitList.add("mv");
+        unitList.add("megavolt");
+        unitList.add("megavolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000000.));
+
+        unitList = new ArrayList<>();
+        unitList.add("GV");
+        unitList.add("gv");
+        unitList.add("gigavolt");
+        unitList.add("gigavolts");
+        UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000000000.));
 
         // PIXEL units are normalized to 1
         unitList = new ArrayList<>();
