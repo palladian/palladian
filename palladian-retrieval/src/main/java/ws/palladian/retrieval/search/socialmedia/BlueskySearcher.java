@@ -143,6 +143,11 @@ public final class BlueskySearcher extends AbstractMultifacetSearcher<WebContent
                         break outer;
                     }
                 }
+
+                if (jsonPosts.size() < limit) {
+                    break outer;
+                }
+
             } catch (JsonException e) {
                 throw new SearcherException(e);
             }
