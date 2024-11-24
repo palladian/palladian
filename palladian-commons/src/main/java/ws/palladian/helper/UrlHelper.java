@@ -242,6 +242,48 @@ public final class UrlHelper {
         return url.replaceAll("#.*", "");
     }
 
+    public static String getDomainFast(String url) {
+        String result = "";
+        if (url == null || url.isEmpty()) {
+            return result;
+        }
+        url = url.toLowerCase();
+        url = url.replace("https://", "");
+        url = url.replace("http://", "");
+        result = url;
+
+        if (!url.isEmpty()) {
+            String suffix = "";
+            int suffixIndex = 0;
+            for (String domainSuffix : DOMAIN_SUFFIXES) {
+                suffixIndex = result.indexOf(domainSuffix + "/");
+                if (suffixIndex > -1) {
+                    suffix = domainSuffix;
+                    break;
+                }
+            }
+            if (suffixIndex <= 0) {
+                for (String domainSuffix : DOMAIN_SUFFIXES) {
+                    if (result.endsWith(domainSuffix)) {
+                        suffix = domainSuffix;
+                        suffixIndex = result.length() - suffix.length();
+                        break;
+                    }
+                }
+            }
+            if (suffixIndex > -1) {
+                result = result.substring(0, suffixIndex);
+            }
+            String[] parts = result.split("\\.");
+            result = parts[parts.length - 1] + suffix;
+
+            LOGGER.trace("root url for {} -> {}", url, result);
+        } else {
+            LOGGER.trace("no domain specified {}", url);
+        }
+        return result;
+    }
+
     /**
      * <p>
      * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to

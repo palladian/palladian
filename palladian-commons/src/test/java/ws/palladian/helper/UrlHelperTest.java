@@ -86,6 +86,51 @@ public class UrlHelperTest {
     }
 
     @Test
+    public void testGetDomainFast() {
+        collector.checkThat(UrlHelper.getDomainFast("https://example.com/index.html"), is("example.com"));
+        collector.checkThat(UrlHelper.getDomainFast("https://www.ashland.or.us/"), is("ashland.or.us"));
+        collector.checkThat(UrlHelper.getDomainFast("http://ailejeunesse.ccirs.qc.ca/"), is("ccirs.qc.ca"));
+        collector.checkThat(UrlHelper.getDomainFast("https://ashland.municipal.codes/"), is("municipal.codes"));
+        collector.checkThat(UrlHelper.getDomainFast("http://www.amazon.co.uk"), is("amazon.co.uk"));
+        collector.checkThat(UrlHelper.getDomainFast("http://amazon.co.uk"), is("amazon.co.uk"));
+        collector.checkThat(UrlHelper.getDomainFast("http://test.com"), is("test.com"));
+
+        collector.checkThat(UrlHelper.getDomainFast("http://bb.rentokil.com"), is("rentokil.com"));
+
+        collector.checkThat(UrlHelper.getDomainFast("http://sub.domain.with.points.test.ac.uk"), is("test.ac.uk"));
+        collector.checkThat(UrlHelper.getDomainFast("http://www.companies-reviews.com/review/3168408/Sales-Promotion-Agency-Expression/"), is("companies-reviews.com"));
+
+        // added by Philipp
+        assertEquals("", UrlHelper.getDomainFast(""));
+        assertEquals("", UrlHelper.getDomainFast(null));
+
+        // https://forum.knime.com/t/bug-url-domain-extractor-does-not-recognize-tld-and-breaks-for-upper-case/45642
+        assertEquals("upper-case.com", UrlHelper.getDomainFast("https://UPPER-CASE.COM"));
+        assertEquals("uppercase.com", UrlHelper.getDomainFast("https://UPPERCASE.COM"));
+
+        // https://forum.knime.com/t/url-domain-extractor-doesnt-work-with-new-tlds/42828
+        assertEquals("abc.crypto", UrlHelper.getDomainFast("http://abc.crypto"));
+        // assertEquals("abc.blockchain", UrlHelper.getDomain("http://abc.blockchain", false, false));
+        // assertEquals("abc.bitcoin", UrlHelper.getDomain("http://abc.bitcoin", false, false));
+        assertEquals("abc.coin", UrlHelper.getDomainFast("http://abc.coin"));
+        // assertEquals("abc.nft", UrlHelper.getDomain("http://abc.nft", false, false));
+        // assertEquals("abc.wallet", UrlHelper.getDomain("http://abc.wallet", false, false));
+        // assertEquals("abc.dao", UrlHelper.getDomain("http://abc.dao", false, false));
+        // assertEquals("abc.x", UrlHelper.getDomain("http://abc.x", false, false));
+        assertEquals("abc.com", UrlHelper.getDomainFast("http://abc.com"));
+
+//        assertEquals("flashdevices.net",
+//                UrlHelper.getDomainFast("http://www.flashdevices.net/2008/02/updated-flash-enabled-devices.html"));
+//
+//        assertEquals("wired.com",
+//                UrlHelper.getDomainFast("http://blog.wired.com/underwire/2008/10/theres-yet-anot.html"));
+//
+//        assertEquals("domain.co.ke", UrlHelper.getDomainFast("https://domain.domain.co.ke"));
+//        assertEquals("domain.com.mm", UrlHelper.getDomainFast("https://domain.com.mm"));
+
+    }
+
+    @Test
     public void testMakeFullUrl() {
         assertEquals("https://www.software-express.de/hersteller/microsoft/microsoft-365/add-ons/e5-compliance/", UrlHelper.makeFullUrl("https://www.software-express.de", null, "/hersteller/microsoft/microsoft-365/add-ons/10-year-audit-log-retention/../e5-compliance/"));
         assertEquals("https://www.software-express.de/hersteller/microsoft/microsoft-365/e5-compliance/", UrlHelper.makeFullUrl("https://www.software-express.de", null, "/hersteller/microsoft/microsoft-365/add-ons/10-year-audit-log-retention/../../e5-compliance/"));
