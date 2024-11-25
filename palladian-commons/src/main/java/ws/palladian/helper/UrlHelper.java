@@ -40,9 +40,6 @@ import java.util.stream.Collectors;
  * @author Julien Schmehl
  */
 public final class UrlHelper {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlHelper.class);
 
     /**
@@ -54,6 +51,8 @@ public final class UrlHelper {
      * RegEx pattern defining a session ID.
      */
     private static final Pattern SESSION_ID_PATTERN = Pattern.compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
+
+    private static final Pattern PROTOCOL_PATTERN = Pattern.compile("^https?://");
 
     /**
      * List of top level domains.
@@ -244,12 +243,11 @@ public final class UrlHelper {
 
     public static String getDomainFast(String url) {
         String result = "";
-        if (url == null || url.isEmpty()) {
+        if (StringHelper.nullOrEmpty(url)) {
             return result;
         }
         url = url.toLowerCase();
-        url = url.replace("https://", "");
-        url = url.replace("http://", "");
+        url = PROTOCOL_PATTERN.matcher(url).replaceAll("");
         result = url;
 
         if (!url.isEmpty()) {
