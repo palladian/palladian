@@ -23,8 +23,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -86,7 +86,7 @@ public final class UrlHelper {
                 .filter(d -> StringHelper.countOccurrences(d, ".") == 1) // only TLDs
                 .map(d -> d.substring(1)) // strip leading .
                 .collect(Collectors.joining("|"));
-        DOMAIN_SUFFIXES = Collections.unmodifiableList(domains);
+        DOMAIN_SUFFIXES = new CopyOnWriteArrayList<>(domains);
     }
 
     // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
