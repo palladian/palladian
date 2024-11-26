@@ -246,8 +246,8 @@ public final class UrlHelper {
         if (StringHelper.nullOrEmpty(url)) {
             return result;
         }
-        url = url.toLowerCase();
-        url = PROTOCOL_PATTERN.matcher(url).replaceAll("");
+        url = url.replaceAll("^https?://", "");
+        //        url = url.replace("http://", "");
         result = url;
 
         if (!url.isEmpty()) {
@@ -274,10 +274,6 @@ public final class UrlHelper {
             }
             String[] parts = result.split("\\.");
             result = parts[parts.length - 1] + suffix;
-
-            LOGGER.trace("root url for {} -> {}", url, result);
-        } else {
-            LOGGER.trace("no domain specified {}", url);
         }
         return result;
     }
