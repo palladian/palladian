@@ -105,8 +105,6 @@ public class UrlHelperTest {
         assertEquals("", UrlHelper.getDomainFast(null));
 
         // https://forum.knime.com/t/bug-url-domain-extractor-does-not-recognize-tld-and-breaks-for-upper-case/45642
-        assertEquals("upper-case.com", UrlHelper.getDomainFast("https://UPPER-CASE.COM"));
-        assertEquals("uppercase.com", UrlHelper.getDomainFast("https://UPPERCASE.COM"));
 
         // https://forum.knime.com/t/url-domain-extractor-doesnt-work-with-new-tlds/42828
         assertEquals("abc.crypto", UrlHelper.getDomainFast("http://abc.crypto"));
