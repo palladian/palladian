@@ -41,11 +41,11 @@ public class AnthropicApi extends AiApi {
 
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
-        return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
+        return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null, null);
     }
 
     @Override
-    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("x-api-key", apiKey).put("anthropic-version", "2023-06-01").create());
         JsonObject requestJson = new JsonObject();
