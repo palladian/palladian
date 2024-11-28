@@ -28,14 +28,19 @@ public abstract class AiApi {
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
-        return chat(messages, temperature, usedTokens, modelName, null,null);
+        return chat(messages, temperature, usedTokens, modelName, null, null);
     }
 
     public String chat(String prompt, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
         return chat(makeMessages(prompt), temperature, usedTokens, modelName, maxTokens, null);
     }
+
     public String chat(String prompt, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception {
         return chat(makeMessages(prompt), temperature, usedTokens, modelName, maxTokens, responseSchema);
+    }
+
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
+        return chat(messages, temperature, usedTokens, modelName, maxTokens, null);
     }
 
     public abstract String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception;
