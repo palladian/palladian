@@ -43,6 +43,10 @@ public abstract class AiApi {
         return chat(messages, temperature, usedTokens, modelName, maxTokens, null);
     }
 
+    public String chat(AiParameters params) throws Exception {
+        return chat(params.getMessages(), params.getTemperature(), params.getUsedTokens(), params.getModelName(), params.getMaxTokens(), params.getResponseSchema());
+    }
+
     public abstract String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception;
 
     private JsonArray makeMessages(String prompt) {
