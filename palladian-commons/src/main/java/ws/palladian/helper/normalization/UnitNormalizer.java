@@ -17,9 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>
  * The UnitNormalizer normalizes units.
- * </p>
  *
  * @author David Urbansky
  */
