@@ -96,7 +96,7 @@ public class PalladianLocationExtractor extends LocationExtractor {
 
     @Override
     public String getName() {
-        return String.format("PalladianLocationExtractor:%s", disambiguation);
+        return String.format("PalladianLocationExtractor:%s:%s", disambiguation, tagger);
     }
 
     public static void main(String[] args) {

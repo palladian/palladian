@@ -154,10 +154,11 @@ public final class NerHelper {
         int lastEndIndex = 0;
 
         // we need to sort in ascending order first
-        Collections.sort(annotations);
+        var annotationsCopy = new ArrayList<Annotation>(annotations);
+        Collections.sort(annotationsCopy);
 
         Annotation lastAnnotation = null;
-        for (Annotation annotation : annotations) {
+        for (Annotation annotation : annotationsCopy) {
 
             // ignore nested annotations
             if (annotation.getStartPosition() < lastEndIndex) {

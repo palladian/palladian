@@ -45,4 +45,9 @@ public final class DefaultCandidateExtractor implements ClassifyingTagger {
         List<Annotation> taggedEntities = tagger.getAnnotations(text);
         return ruleEngine.apply(text, taggedEntities);
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
 }
