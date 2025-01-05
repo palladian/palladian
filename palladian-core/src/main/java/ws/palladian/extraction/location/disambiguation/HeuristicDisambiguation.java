@@ -169,32 +169,19 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
 
     /* package */
     static Location selectLocation(Collection<Location> selection) {
-
-        // if we have a continent, take the continent
-        LocationSet result = new LocationSet(selection).whereConditionally(type(CONTINENT));
-        if (result.size() == 1) {
-            return CollectionHelper.getFirst(result);
-        }
-
-        // if locations are nested, take the "deepest" one
-        List<Location> toRemove = new ArrayList<>();
-        for (Location l1 : selection) {
-            for (Location l2 : selection) {
-                if (l2.descendantOf(l1)) {
-                    toRemove.add(l1);
-                    break; // inner loop
-                }
-            }
-        }
-
-        // as last step, compare by population
         return selection.stream() //
-                .filter(location -> !toRemove.contains(location)) //
                 .sorted(Comparator.<Location, Long>comparing( //
-                                location -> Optional.ofNullable(location.getPopulation()) //
-                                        // XXX dirty hack; favor cities
-                                        .map(population -> location.getType() == CITY ? 2 * population : population) //
-                                        .orElse(0l)) //
+                        location -> {
+                            Long population = Optional.ofNullable(location.getPopulation()).orElse(0l);
+                            switch (location.getType()) {
+                            case CONTINENT:
+                                return Long.MAX_VALUE; // if we have a continent, take the continent
+                            case CITY:
+                                return 5 * population; // strongly favor cities
+                            default:
+                                return population;
+                            }
+                        }) //
                         .reversed()) //
                 .findFirst() //
                 .orElse(null);
