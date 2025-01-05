@@ -190,25 +190,6 @@ public class HeuristicDisambiguation implements LocationDisambiguation {
     private Set<Location> getAnchors(MultiMap<? extends Annotation, Location> locations) {
         Set<Location> anchorLocations = new HashSet<>();
 
-        //        // check if one is contained in the other
-        //        for (Annotation currentAnnotation : locations.keySet()) {
-        //            Collection<Location> currentLocations = locations.get(currentAnnotation);
-        //            // iterate through other locations
-        //            for (Annotation otherAnnotation : locations.keySet()) {
-        //                if (otherAnnotation.equals(currentAnnotation)) {
-        //                    continue;
-        //                }
-        //                Collection<Location> otherLocations = locations.get(otherAnnotation);
-        //                for (Location currentLocation : currentLocations) {
-        //                    for (Location otherLocation : otherLocations) {
-        //                        if (currentLocation.descendantOf(otherLocation)) {
-        //                            LOGGER.debug("{} is descendant of {}", currentLocation, otherLocation);
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-
         // get prominent anchor locations; continents, countries and locations with very high population
         for (Location location : locations.allValues()) {
             LocationType type = location.getType();
