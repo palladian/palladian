@@ -1005,7 +1005,7 @@ public final class FileHelper {
             serialize(object, filePath);
             return true;
         } catch (IOException e) {
-            // ccl
+            e.printStackTrace();
         }
 
         return false;
