@@ -104,6 +104,18 @@ public class BertNer implements ClassifyingTagger, Closeable {
             }
         }
 
+        // TODO - manual exception - generalize this:
+        // <LOC>U.S</LOC>. -> <LOC>U.S.</LOC>
+        annotations = annotations.stream().map(annotation -> {
+            int start = annotation.getStartPosition();
+            int end = annotation.getEndPosition();
+            if (annotation.getValue().equals("U.S") && text.substring(end, end + 1).equals(".")) {
+                return new ClassifiedAnnotation(start, text.substring(start, end + 1), annotation.getCategoryEntries());
+            } else {
+                return annotation;
+            }
+        }).toList();
+
         return annotations;
     }
 
@@ -139,10 +151,12 @@ public class BertNer implements ClassifyingTagger, Closeable {
         // get output results
         var logits = (float[][][]) result.get(0).getValue();
         var charSpans = encoding.getCharTokenSpans();
+//        var tokens = encoding.getTokens();
 
         // (1) create annotations with categories and probabilities
         List<ClassifiedAnnotation> annotations = new ArrayList<>();
         for (int i = 0; i < logits[0].length; i++) {
+//        	System.out.println(tokens[i]);
             // start or end marker <s> and </s>
             if (charSpans[i] == null) {
                 continue;
@@ -157,6 +171,7 @@ public class BertNer implements ClassifyingTagger, Closeable {
                 var categoryNormalized = category.replaceAll("^\\w-", "");
                 categoriesBuilder.add(categoryNormalized, logitExp);
             }
+//            System.out.println(categoriesBuilder.create());
             annotations.add(new ClassifiedAnnotation(start, value, categoriesBuilder.create()));
         }
 

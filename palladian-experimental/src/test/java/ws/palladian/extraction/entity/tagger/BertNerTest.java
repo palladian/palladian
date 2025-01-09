@@ -37,4 +37,17 @@ public class BertNerTest {
         }
     }
 
+    @Test
+    @Ignore
+    public void testBertNer_errorCases_US() throws IOException {
+        var text = "In an era when advertisers often hired fine artists to add a touch of class to their campaigns, the “least commercial artist in the U.S.”";
+        try (var ner = BertNer.loadFrom(modelDirectory, tokenizerJson)) {
+            var annotations = ner.getAnnotations(text);
+            var textWithTags = NerHelper.tag(text, annotations, TaggingFormat.XML);
+            assertEquals(
+                    "In an era when advertisers often hired fine artists to add a touch of class to their campaigns, the “least commercial artist in the <LOC>U.S.</LOC>”",
+                    textWithTags);
+        }
+    }
+
 }
