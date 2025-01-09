@@ -14,13 +14,13 @@ public class OpenverseImageSearcherTest {
     public void testOpenverseSearcher() throws SearcherException {
         var openverseSearcher = new OpenverseImageSearcher();
 
-        var query = new MultifacetQuery.Builder().setText("paul klee offrande").setResultCount(10).create();
+        var query = new MultifacetQuery.Builder().setText("paul klee moonrise and sunset").setResultCount(10).create();
         var result = openverseSearcher.search(query);
         // CollectionHelper.print(result);
         assertEquals(1, result.getResultList().size());
-        assertEquals("Offrande fanée (1937) - Paul Klee (1879 - 1940)", result.getResultList().get(0).getTitle());
-        assertEquals("https://live.staticflickr.com/65535/25711504863_6356836710_b.jpg", result.getResultList().get(0).getUrl());
-        assertEquals("https://live.staticflickr.com/65535/25711504863_6356836710_b.jpg", result.getResultList().get(0).getImageUrl());
+        assertEquals("Paul Klee - Moonrise and Sunset 1919", result.getResultList().get(0).getTitle());
+        assertEquals("https://live.staticflickr.com/36/100935017_82a6798049_b.jpg", result.getResultList().get(0).getUrl());
+        assertEquals("https://live.staticflickr.com/36/100935017_82a6798049_b.jpg", result.getResultList().get(0).getImageUrl());
         assertEquals(Long.valueOf(1), result.getTotalResultCount());
     }
 
