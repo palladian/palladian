@@ -138,6 +138,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // if only one node matches the hints, we take it
         MAIN_NODE_HINTS_ONE_ONLY.add("article-jsonld");
         MAIN_NODE_HINTS_ONE_ONLY.add("article-text");
+        MAIN_NODE_HINTS_ONE_ONLY.add("articulo");
     }
 
     @Override
@@ -360,7 +361,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
                 if (resultNode == null && mainContentText.isEmpty()) {
                     // XXX
-                    mainContentText = fullTextContent;
+                    mainContentText = fullTextContent.trim();
                     return;
                 }
             }
@@ -438,7 +439,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//header//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//nav//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//button"));
-        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//form"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//form[not(descendant::article)]"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'head']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pageheader']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'header']//*"));
@@ -491,6 +492,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private Node getMainContentNodeWithHints() {
         Node mainNode = null;
 
+        // (//main//article)[1]
         //        List<Node> articleNodes = XPathHelper.getXhtmlNodes(getDocument(), "//main//article");
         //        if (articleNodes.size() > 1000) {
         //            mainNode = articleNodes.get(0);
