@@ -2,6 +2,8 @@ package ws.palladian.extraction.location.evaluation;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.math3.util.FastMath;
+import org.apache.lucene.store.FSDirectory;
+
 import ws.palladian.classification.dt.QuickDtModel;
 import ws.palladian.core.Annotation;
 import ws.palladian.extraction.entity.NamedEntityRecognizer;
@@ -13,6 +15,7 @@ import ws.palladian.extraction.location.disambiguation.ConfigurableFeatureExtrac
 import ws.palladian.extraction.location.disambiguation.FeatureBasedDisambiguation;
 import ws.palladian.extraction.location.disambiguation.HeuristicDisambiguation;
 import ws.palladian.extraction.location.persistence.LocationDatabase;
+import ws.palladian.extraction.location.persistence.lucene.LuceneLocationSource;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.ProgressReporter;
 import ws.palladian.helper.StopWatch;
@@ -21,6 +24,7 @@ import ws.palladian.persistence.DatabaseManagerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -445,26 +449,23 @@ public final class LocationExtractionEvaluator {
     public static void main(String[] args) throws IOException {
 
         LocationExtractionEvaluator evaluator = new LocationExtractionEvaluator();
-        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/2-validation");
-        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/2-validation");
-        // evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/2-validation");
+        // evaluator.addDataset("/Users/pk/temp/tud-loc-2013/0-all");
+        evaluator.addDataset("/Users/pk/temp/tud-loc-2013/1-training");
+        // evaluator.addDataset("/Users/pk/temp/tud-loc-2013/2-validation");
 
-        evaluator.addDataset("/Users/pk/Dropbox/Uni/Datasets/TUD-Loc-2013/TUD-Loc-2013_V2/3-test");
-        evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/LGL-converted/3-test");
-        evaluator.addDataset("/Users/pk/Dropbox/Uni/Dissertation_LocationLab/CLUST-converted/3-test");
-
-        LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        // LocationDatabase database = DatabaseManagerFactory.create(LocationDatabase.class, "locations");
+        LocationSource database = new LuceneLocationSource(FSDirectory.open(Paths.get("/Users/pk/temp/Palladian_Location_Database_2024-09-11_23-55-10")));
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new BaselineDisambiguation()));
         evaluator.addExtractor(new PalladianLocationExtractor(database, new HeuristicDisambiguation()));
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_tud_train_1375884663191.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_lgl_train_1375884760443.model");
         // BaggedDecisionTreeModel model = FileHelper.deserialize("data/temp/fd_clust_train_1375885091622.model");
-        QuickDtModel model;
+        // QuickDtModel model;
         // model = FileHelper.deserialize("data/temp/location_disambiguation_tud.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
         // model = FileHelper.deserialize("data/temp/location_disambiguation_lgl.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
-        model = FileHelper.deserialize("data/temp/location_disambiguation_clust.model");
+        // model = FileHelper.deserialize("data/temp/location_disambiguation_clust.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));
         // model = FileHelper.deserialize("data/temp/location_disambiguation_all.model");
         // evaluator.addExtractor(new PalladianLocationExtractor(database, new FeatureBasedDisambiguation(model)));

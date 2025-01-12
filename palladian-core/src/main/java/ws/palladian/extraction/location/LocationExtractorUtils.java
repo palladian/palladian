@@ -14,10 +14,10 @@ import java.util.function.Function;
  */
 public final class LocationExtractorUtils {
 
-    /** {@link Function} to unwrap a {@link Location} from a {@link LocationAnnotation}. */
+    /** @deprecated Just use `LocationAnnotation::getLocation` */
     public static final Function<LocationAnnotation, Location> ANNOTATION_LOCATION_FUNCTION = LocationAnnotation::getLocation;
 
-    /** {@link Function} for unwrapping a {@link GeoCoordinate} from a {@link Location}. */
+    /** @deprecated Just use `Location::getCoordinate` */
     public static final Function<Location, GeoCoordinate> LOCATION_COORDINATE_FUNCTION = Location::getCoordinate;
 
     public static String normalizeName(String value) {
