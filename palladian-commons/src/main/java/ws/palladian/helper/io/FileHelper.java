@@ -960,6 +960,7 @@ public final class FileHelper {
         try {
             return FileHelper.deserialize(filePath);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
