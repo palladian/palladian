@@ -397,7 +397,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        mainContentHtml = HtmlHelper.xmlToString(resultNode, true);
+        if (resultNode != null) {
+            mainContentHtml = HtmlHelper.xmlToString(resultNode, true);
+        }
 
         // if we didn't get clean text, let's take the content of the main node
         if (mainContentText.trim().length() < 100) {
