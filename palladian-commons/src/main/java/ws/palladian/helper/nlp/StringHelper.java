@@ -1038,6 +1038,20 @@ public final class StringHelper {
     }
 
     /**
+     * Trim each individual word in a string.
+     *
+     * @param text
+     * @return A text with trimmed words
+     */
+    public static String trimWords(String text) {
+        String[] split = text.split("\\s");
+        for (int i = 0; i < split.length; i++) {
+            split[i] = trim(split[i]);
+        }
+        return StringUtils.join(split, " ");
+    }
+
+    /**
      * Remove unwanted characters from beginning and end of string.
      *
      * @param string The string.
@@ -2169,9 +2183,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Trim each line in a String, i.e. remove whitespace from beginning/end of each line in the String.
-     * </p>
      *
      * @param text The string for which to trim lines.
      * @return The string with each line trimmed, <code>null</code> in case the supplied String was <code>null</code>.
@@ -2184,9 +2196,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Replace typographic ("curly") quotation marks and apostrophes by their "dumb" equivalents.
-     * </p>
      *
      * @param text The string in which to replace quotation marks and apostrohpes.
      * @return The normalized string, <code>null</code> in case the supplied String was <code>null</code>.
@@ -2199,9 +2209,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Print all groups in a {@link Matcher}; useful for debugging. Note: Invoke {@link Matcher#find()} in advance.
-     * </p>
      *
      * @param matcher The matcher, not <code>null</code>.
      */
@@ -2213,7 +2221,6 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Get all sub-phrases of a string by combining all consecutive words (e.g. "quick brown fox" gives
      * ["quick","quick brown","quick brown fox","brown","brown fox","fox"]).
      *
