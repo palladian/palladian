@@ -40,4 +40,4 @@ The latest snapshot version can be used like this:
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2024.
+The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2025.

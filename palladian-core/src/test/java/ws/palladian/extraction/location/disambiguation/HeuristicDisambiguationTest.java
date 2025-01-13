@@ -29,12 +29,12 @@ public class HeuristicDisambiguationTest {
     }
 
     @Test
-    public void test_chosesNestedLocationOverParent() {
-        Location l1 = new LocationBuilder().setId(2968815).setPrimaryName("Paris").setType(UNIT).setAncestorIds("/6295630/6255148/3017382/3012874/").create();
-        Location l2 = new LocationBuilder().setId(2988506).setPrimaryName("Paris").setType(UNIT).setAncestorIds("/6295630/6255148/3017382/3012874/2968815/").create();
-        Location l3 = new LocationBuilder().setId(6455259).setPrimaryName("Paris").setType(UNIT).setAncestorIds("/6295630/6255148/3017382/3012874/2968815/2988506/").create();
+    public void test_chosesMostPopulatedLocation() {
+        Location l1 = new LocationBuilder().setId(2968815).setPrimaryName("Paris").setType(UNIT).setPopulation(2165423L).setAncestorIds("/6295630/6255148/3017382/3012874/").create();
+        Location l2 = new LocationBuilder().setId(2988506).setPrimaryName("Paris").setType(UNIT).setPopulation(4380654L).setAncestorIds("/6295630/6255148/3017382/3012874/2968815/").create();
+        Location l3 = new LocationBuilder().setId(6455259).setPrimaryName("Paris").setType(UNIT).setPopulation(2190327L).setAncestorIds("/6295630/6255148/3017382/3012874/2968815/2988506/").create();
         Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2, l3));
-        assertEquals(l3, result);
+        assertEquals(l2, result);
     }
 
     @Test
@@ -53,6 +53,32 @@ public class HeuristicDisambiguationTest {
         Location l3 = new LocationBuilder().setId(6455259).setPrimaryName("Paris").setType(UNIT).setPopulation(2190327L).create();
         Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2, l3));
         assertEquals(l2, result);
+    }
+
+    @Test
+    public void test_chosesCityOverNonCity2() {
+        Location l1 = new LocationBuilder().setId(2950159).setPrimaryName("Berlin").setType(CITY).setPopulation(3426354L).setAncestorIds("/6295630/6255148/2921044/2950157/6547383/6547539/").create();
+        Location l2 = new LocationBuilder().setId(2950157).setPrimaryName("Land Berlin").setType(UNIT).setPopulation(3442675L).setAncestorIds("/6295630/6255148/2921044/").create();
+        Location l3 = new LocationBuilder().setId(6547539).setPrimaryName("Berlin").setType(UNIT).setPopulation(3669491L).setAncestorIds("/6295630/6255148/2921044/2950157/6547383/").create();
+        Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2, l3));
+        assertEquals(l1, result);
+    }
+
+    @Test
+    public void test_chosesCountryOverLandmark() {
+        Location l1 = new LocationBuilder().setId(3562993).setPrimaryName("Cuba").setType(LANDMARK).setPopulation(11167325L).setAncestorIds("/6295630/3562981/6255149/").create();
+        Location l2 = new LocationBuilder().setId(3562981).setPrimaryName("Republic of Cuba").setType(COUNTRY).setPopulation(11338138L).setAncestorIds("/6295630/6255149/").create();
+        Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2));
+        assertEquals(l2, result);
+    }
+
+    @Test
+    public void test_chosesUnitOverLandmark() {
+        Location l1 = new LocationBuilder().setId(5855799).setPrimaryName("Island of Hawai‘i").setType(LANDMARK).setPopulation(185079L).setAncestorIds("/6295630/6255149/6252001/5855797/5855765/").create();
+        Location l2 = new LocationBuilder().setId(5855765).setPrimaryName("Hawaii County").setType(UNIT).setPopulation(200629L).setAncestorIds("/6295630/6255149/6252001/5855797/").create();
+        Location l3 = new LocationBuilder().setId(5855797).setPrimaryName("Hawaii").setType(UNIT).setPopulation(1284220L).setAncestorIds("/6295630/6255149/6252001/").create();
+        Location result = HeuristicDisambiguation.selectLocation(Arrays.asList(l1, l2, l3));
+        assertEquals(l3, result);
     }
 
     // “Real world” test cases
