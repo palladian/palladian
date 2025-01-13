@@ -2,6 +2,7 @@ package ws.palladian.retrieval.feeds.persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.DatabaseManager;
 import ws.palladian.persistence.ResultSetCallback;
@@ -38,6 +39,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
     private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
+    private static final String GET_FEED_BY_PARTIAL_URL = "SELECT * FROM feeds WHERE feedUrl LIKE ?";
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, `language` = COALESCE(`language`, ?), feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
@@ -155,6 +157,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     @Override
     public Feed getFeedByUrl(String feedUrl) {
         return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_URL, feedUrl);
+    }
+
+    public Feed getFeedByPartialUrl(String feedUrlPart) {
+        String domain = UrlHelper.getDomain(feedUrlPart, false, false);
+        return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_PARTIAL_URL, "%" + domain + "%");
     }
 
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
