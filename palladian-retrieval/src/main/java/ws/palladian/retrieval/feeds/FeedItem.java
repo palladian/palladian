@@ -169,6 +169,9 @@ public class FeedItem implements WebContent {
     }
 
     public String getText() {
+        if (text == null) {
+            return null;
+        }
         return text.replaceAll("(\r\n)+", "\n");
     }
 
