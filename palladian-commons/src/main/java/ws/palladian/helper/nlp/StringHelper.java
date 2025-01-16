@@ -661,7 +661,8 @@ public final class StringHelper {
                 rightBorder = true;
             } else {
                 char nextChar = searchStringLowerCase.charAt(index + word.length());
-                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION);
+                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION || Character.getType(
+                        nextChar) == Character.CONNECTOR_PUNCTUATION);
             }
 
             // if word exists, cut it out and replace with replacement
