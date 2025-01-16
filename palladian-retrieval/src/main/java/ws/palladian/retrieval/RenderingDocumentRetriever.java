@@ -279,7 +279,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem with waiting", e);
             ThreadHelper.deepSleep(500);
         }
-        driver.manage().deleteAllCookies();
+        try {
+            driver.manage().deleteAllCookies();
+        } catch (Exception e) {
+            LOGGER.error("problem with deleting cookies", e);
+        }
     }
 
     /**
@@ -401,7 +405,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     this.goTo(url);
                     document = getCurrentWebDocument();
                 } catch (Exception e) {
-                    LOGGER.error("problem opening page", e);
+                    LOGGER.error("problem opening page " + url, e);
                 }
                 if (document == null && getErrorCallback() != null) {
                     getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
