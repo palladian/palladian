@@ -14,9 +14,9 @@ public class EToolsSearcherTest {
         var searcher = new EToolsSearcher();
         var results = searcher.search("cat", 10, Language.ENGLISH);
         // CollectionHelper.print(results);
-        assertEquals(results.size(), 10);
-        assertEquals(results.get(0).getUrl(),"https://en.wikipedia.org/wiki/Cat");
-        assertEquals(results.get(0).getTitle(),"Cat");
+        assertEquals(10, results.size());
+        assertEquals("https://en.wikipedia.org/wiki/Cat", results.get(0).getUrl());
+        assertEquals("Cat", results.get(0).getTitle());
     }
 
 }
