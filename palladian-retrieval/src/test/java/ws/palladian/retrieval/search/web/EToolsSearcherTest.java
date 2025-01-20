@@ -16,7 +16,7 @@ public class EToolsSearcherTest {
         // CollectionHelper.print(results);
         assertEquals(results.size(), 10);
         assertEquals(results.get(0).getUrl(),"https://en.wikipedia.org/wiki/Cat");
-        assertEquals(results.get(0).getTitle(),"Cat - Wikipedia");
+        assertEquals(results.get(0).getTitle(),"Cat");
     }
 
 }
