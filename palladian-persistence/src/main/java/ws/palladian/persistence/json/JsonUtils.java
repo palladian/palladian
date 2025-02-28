@@ -515,4 +515,12 @@ public class JsonUtils {
             }
         }
     }
+
+    public static float[] toFloatArray(JsonArray vectorArray) {
+        float[] vector = new float[vectorArray.size()];
+        for (int i = 0; i < vectorArray.size(); i++) {
+            vector[i] = vectorArray.tryGetDouble(i).floatValue();
+        }
+        return vector;
+    }
 }
