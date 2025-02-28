@@ -76,7 +76,7 @@ public class OpenAiApi extends AiApi {
         requestJson.put("input", text);
         requestJson.put("model", embeddingModel);
         THROTTLE.hold();
-        String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/v1/embeddings"), requestJson, false);
+        String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/embeddings"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
             throw new Exception("Could not parse json " + postResponseText);
