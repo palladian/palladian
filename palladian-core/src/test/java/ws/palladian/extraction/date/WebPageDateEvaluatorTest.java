@@ -27,9 +27,19 @@ public class WebPageDateEvaluatorTest {
 
     @Test
     public void testGetBestRatedDate() throws FileNotFoundException, ParserException {
-        File file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm");
-        Document document = htmlParser.parse(file);
-        RatedDate<ExtractedDate> date = WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
+        File file;
+        Document document;
+        RatedDate<ExtractedDate> date;
+
+        // TODO doesn't work right now because date rater rates the correct date too low
+        //        file = ResourceHelper.getResourceFile("/webPages/dateExtraction/pibgovin.htm");
+        //        document = htmlParser.parse(file);
+        //        date = WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
+        //        assertEquals("2025-02-14 20:34:00", date.getDate().getNormalizedDateString());
+
+        file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit2.htm");
+        document = htmlParser.parse(file);
+        date = WebPageDateEvaluator.getBestDate(document, PageDateType.PUBLISH);
         // TODO assertEquals("2010-09-02", wpde.getBestRatedDate().getNormalizedDateString());
 
         file = ResourceHelper.getResourceFile("/webPages/dateExtraction/zeit1.htm");

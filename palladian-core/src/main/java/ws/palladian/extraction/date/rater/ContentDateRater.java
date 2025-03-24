@@ -25,12 +25,10 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
- * <p>
  * This class evaluates content-dates. Doing this by dividing dates in three parts: Keyword in attribute, in text and no
  * keyword; each part will be rated different. Part one by keyword classes, see
  * {@link KeyWords#getKeywordPriority(String)} and age. Part two by distance of keyword an date, keyword classes and
  * age. Part three by age.
- * </p>
  *
  * @author Martin Gregor
  * @author Philipp Katz
@@ -78,10 +76,12 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         List<RatedDate<ContentDate>> result = new ArrayList<>();
 
         for (ContentDate date : list) {
-            if (dateType.equals(PageDateType.PUBLISH) && date.isInUrl()) {
-                result.add(RatedDate.create(date, 0.99));
-            } else if (dateType.equals(PageDateType.PUBLISH) && date.isInLdJson()) {
-                result.add(RatedDate.create(date, 1.0));
+            if (dateType.equals(PageDateType.PUBLISH)) {
+                if (date.isInUrl()) {
+                    result.add(RatedDate.create(date, 0.99));
+                } else if (date.isInLdJson()) {
+                    result.add(RatedDate.create(date, 1.0));
+                }
             } else {
                 FeatureVector featureVector = DateInstanceFactory.createFeatureVector(date);
                 try {
@@ -91,15 +91,12 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
                     LOGGER.error("Exception " + date.getDateString() + " " + featureVector, e);
                 }
             }
-
         }
         return result;
     }
 
     /**
-     * <p>
      * Build the model files for the classifier from the training CSV.
-     * </p>
      *
      * @param inputCsv   The path to the CSV file.
      * @param outputPath The path and filename for the model file.
