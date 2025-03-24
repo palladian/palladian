@@ -40,7 +40,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String GET_FEEDS = "SELECT * FROM feeds"; // ORDER BY id ASC";
     private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
     private static final String GET_FEED_BY_PARTIAL_URL = "SELECT * FROM feeds WHERE feedUrl LIKE ?";
-    private static final String GET_FEED_BY_PARTIAL_URL_OR_NAME = "SELECT * FROM feeds WHERE feedUrl LIKE ? OR `title` LIKE ?";
     private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
     private static final String UPDATE_FEED_META_INFORMATION = "UPDATE feeds SET  siteUrl = ?, added = ?, title = ?, `language` = COALESCE(`language`, ?), feedSize = ?, httpHeaderSize = ?, supportsPubSubHubBub = ?, isAccessibleFeed = ?, feedFormat = ?, hasItemIds = ?, hasPubDate = ?, hasCloud = ?, ttl = ?, hasSkipHours = ?, hasSkipDays = ?, hasUpdated = ?, hasPublished = ? WHERE id = ?";
 
@@ -163,11 +162,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     public Feed getFeedByPartialUrl(String feedUrlPart) {
         String domain = UrlHelper.getDomain(feedUrlPart, false, false);
         return runSingleQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_PARTIAL_URL, "%" + domain + "%");
-    }
-
-    public List<Feed> getFeedsByPartialName(String feedUrlPart) {
-        String domain = UrlHelper.getDomain(feedUrlPart, false, false);
-        return runQuery(FeedRowConverter.INSTANCE, GET_FEED_BY_PARTIAL_URL_OR_NAME, "%" + domain + "%", "%" + feedUrlPart + "%");
     }
 
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
