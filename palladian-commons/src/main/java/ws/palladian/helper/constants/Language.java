@@ -39,6 +39,7 @@ public enum Language {
     CHAMORRO(null, "cha", "Chamorro"), //
     CHEROKEE(null, "chr", "Cherokee"), //
     CHINESE("zh", "zho", "Chinese", Script.CHINESE), //
+    TAIWANESE(null, "nan", "Taiwanese", Script.CHINESE), //
     CHUVASH("cv", "chv", "Chuvash"), //
     CROATIAN("hr", "hrv", "Croatian", Script.LATIN), //
     CZECH("cs", "ces", "Czech", Script.LATIN), //
