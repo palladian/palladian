@@ -159,6 +159,12 @@ public class PalladianContentExtractorTest {
     public void testContentExtraction() throws PageContentExtractorException, FileNotFoundException, ParserException {
         PalladianContentExtractor extractor;
 
+        extractor = getExtractor("pageContentExtractor/news-sta.html");
+        collector.checkThat(extractor.getResultTitle(), is("Nagrada Astrid Lindgren letos švedski ilustratorki Evi Lindström"));
+        collector.checkThat(extractor.getResultText(), startsWith("Stockholm, 22. marca - Švedska"));
+        collector.checkThat(extractor.getResultText(), endsWith("Polona Lovšin in Boris A. Novak."));
+        collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-22 17:19:00"));
+
         extractor = getExtractor("pageContentExtractor/news-worldnewsera.html");
         collector.checkThat(extractor.getResultTitle(), is("United By Constitution, Divided By Religion - WorldNewsEra"));
         collector.checkThat(extractor.getResultText(), startsWith("Religion is nowhere defined in the Constitution of India"));
@@ -241,12 +247,6 @@ public class PalladianContentExtractorTest {
         collector.checkThat(extractor.getResultText(), containsString("WASHINGTON — A New Mexico county commissioner "));
         collector.checkThat(extractor.getResultText(), endsWith("Democratic President Joe Biden’s election. (Reporting by Jan Wolfe; Editing by Scott Malone and Bill Berkrot)"));
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-22 16:10:03"));
-
-        extractor = getExtractor("pageContentExtractor/news-sta.html");
-        collector.checkThat(extractor.getResultTitle(), is("Nagrada Astrid Lindgren letos švedski ilustratorki Evi Lindström"));
-        collector.checkThat(extractor.getResultText(), startsWith("Stockholm, 22. marca - Švedska"));
-        collector.checkThat(extractor.getResultText(), endsWith("Polona Lovšin in Boris A. Novak."));
-        collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-22 17:19:00"));
 
         extractor = getExtractor("pageContentExtractor/news-liberoquotidiano.html");
         collector.checkThat(extractor.getResultTitle(), is("Sostenibilità, la ricerca: bene la familiarità meno i comportamenti"));
