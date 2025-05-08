@@ -7,25 +7,18 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import ws.palladian.helper.math.MathHelper;
 
 /**
- * <p>
  * Access objects indexed by a one dimensional numeric index, e.g. get all entries with value > 123.45. Running such
  * range queries on databases is darn slow and can be replaced using this range map.
- * </p>
- * <p>
- * This is a more memory efficient version of the generic range map and is used for float=>[id] (sets of integers)
- * </p>
  *
- * <p>
+ * This is a more memory efficient version of the generic range map and is used for float=>[id] (sets of integers)
+ *
  * Complexity: O(n)
- * </p>
  *
  * @author David Urbansky
  */
 public class Number2IdRangeMap extends Float2ObjectAVLTreeMap<IntOpenHashSet> {
     /**
-     * <p>
      * Given a seed and a comparison type, get all values that adhere to the condition.
-     * </p>
      *
      * @param v              The seed value.
      * @param comparisonType The comparison type.

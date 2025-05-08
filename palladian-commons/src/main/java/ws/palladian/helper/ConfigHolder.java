@@ -40,7 +40,7 @@ public final class ConfigHolder {
     /**
      * @return The singleton instance of the {@link ConfigHolder}.
      */
-    public static final ConfigHolder getInstance() {
+    public static ConfigHolder getInstance() {
         return SingletonHolder.INSTANCE;
     }
 
