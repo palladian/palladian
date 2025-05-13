@@ -208,18 +208,25 @@ public class OpenAiApi extends AiApi {
         return StringHelper.clean(answer);
     }
 
+    public String createImage(String prompt, String size) {
+        return createImage(prompt, size, null);
+    }
     /**
      * @param prompt The textual prompt, e.g. "a black dog with a Christmas hat on"
-     * @param size   The picture size, must be either '256x256', '512x512', or '1024x1024'
+     * @param size   The picture size, see https://platform.openai.com/docs/pricing#image-generation
+     * @param quality   Either low, medium, or high
      */
-    public String createImage(String prompt, String size) {
+    public String createImage(String prompt, String size, String quality) {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(globalHeaders);
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("prompt", prompt);
         jsonObject.put("n", 1);
-        jsonObject.put("model", "dall-e-3");
+        jsonObject.put("model", "gpt-image-1");
+        if (quality != null) {
+            jsonObject.put("quality", quality);
+        }
         jsonObject.put("size", size);
         THROTTLE.hold();
         String responseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/images/generations"), jsonObject, false);
