@@ -49,7 +49,7 @@ public abstract class AiApi {
 
     public abstract String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception;
 
-    private JsonArray makeMessages(String prompt) {
+    public JsonArray makeMessages(String prompt) {
         JsonObject message = new JsonObject();
         message.put("role", "user");
         message.put("content", prompt);

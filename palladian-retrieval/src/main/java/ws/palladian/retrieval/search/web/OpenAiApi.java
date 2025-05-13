@@ -67,6 +67,32 @@ public class OpenAiApi extends AiApi {
         return getEmbedding(text, usedTokens, EMBEDDING_MODEL_SMALL);
     }
 
+    public String getResponse(String text, String modelName, JsonArray tools) throws Exception {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        HashMap<String, String> headers = new HashMap<>(globalHeaders);
+        headers.put("Content-Type", "application/json");
+        documentRetriever.setGlobalHeaders(headers);
+        JsonObject requestJson = new JsonObject();
+        requestJson.put("input", text);
+        requestJson.put("model", modelName);
+        if (!StringHelper.nullOrEmpty(tools)) {
+            requestJson.put("tools", tools);
+        }
+        THROTTLE.hold();
+        String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/responses"), requestJson, false);
+        JsonObject responseJson = JsonObject.tryParse(postResponseText);
+        if (responseJson == null) {
+            throw new Exception("Could not parse json " + postResponseText);
+        }
+        if (responseJson.tryQueryString("error/message") != null) {
+            throw new Exception(responseJson.tryQueryString("error/message"));
+        }
+
+        String answer = (String) responseJson.queryJsonPath("$..output[?(@.type=='message')].content[0].text");
+
+        return StringHelper.clean(answer);
+    }
+
     public float[] getEmbedding(String text, AtomicInteger usedTokens, String embeddingModel) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         HashMap<String, String> headers = new HashMap<>(globalHeaders);
@@ -193,6 +219,7 @@ public class OpenAiApi extends AiApi {
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("prompt", prompt);
         jsonObject.put("n", 1);
+        jsonObject.put("model", "dall-e-3");
         jsonObject.put("size", size);
         THROTTLE.hold();
         String responseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/images/generations"), jsonObject, false);
