@@ -440,7 +440,12 @@ public class ImageHandler {
             Set<String> detectedContentTypes = new HashSet<>();
             BufferedImage bi = load(url, detectedContentTypes);
 
-            String fileExtension = Optional.ofNullable(CollectionHelper.getFirst(detectedContentTypes)).orElse("jpg");
+            String fileExtensionUrl = FileHelper.getFileType(url);
+            String fileExtension = Optional.ofNullable(CollectionHelper.getFirst(detectedContentTypes)).orElse(fileExtensionUrl);
+
+            if (StringHelper.nullOrEmpty(fileExtension)) {
+                fileExtension = "jpg";
+            }
 
             if (!savePath.toLowerCase().endsWith(fileExtension.toLowerCase())) {
                 savePath += "." + fileExtension;
