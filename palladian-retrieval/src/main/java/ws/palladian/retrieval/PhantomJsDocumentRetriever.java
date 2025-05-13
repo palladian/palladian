@@ -65,7 +65,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             if (entry.getKey().matcher(url).find()) {
                 StringBuilder waitConditions = new StringBuilder();
                 for (String selector : entry.getValue()) {
-                    waitConditions.append("await page.waitForSelector(\"").append(selector).append("\");");
+                    waitConditions.append("await page.waitForSelector(\"").append(selector.replace("\"", "\\'")).append("\");");
                 }
                 overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();" + waitConditions + "page.done();'");
                 break;

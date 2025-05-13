@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.web;
 
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -19,6 +20,8 @@ public class QwantSearcherTest {
     @Rule
     public ErrorCollector collector = new ErrorCollector();
 
+    // ignoring as sometimes we get captcha requests
+    @Ignore
     @Test
     public void testSearch() throws Exception {
         QwantSearcher searcher = new QwantSearcher();

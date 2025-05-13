@@ -100,13 +100,14 @@ public final class JsoupParser extends BaseDocumentParser {
             return;
         }
         Map<String, String> namespaces = new HashMap<>();
-        Set<String> attrs = Collections.synchronizedSet(new HashSet<>());
-        document.getAllElements().parallelStream().forEach(el -> {
+        Set<String> attrs = new HashSet<>();
+        for (Element el : document.getAllElements()) {
             attrs.add(el.tag().getName());
             for (Attribute attribute : el.attributes()) {
                 attrs.add(attribute.getKey());
             }
-        });
+        }
+
         for (String attr : attrs) {
             if (!attr.contains(":")) {
                 continue;
