@@ -356,6 +356,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (document == null) {
             return false;
         }
+        HttpResult httpResult = (HttpResult) document.getUserData("httpResult");
+        if (httpResult != null && httpResult.getStatusCode() == 403) {
+            return false;
+        }
         String s = HtmlHelper.getInnerXml(document);
         if (!getGoodDocumentIndicatorTexts().isEmpty()) {
             return StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
