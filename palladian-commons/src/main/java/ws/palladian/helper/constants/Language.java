@@ -221,6 +221,9 @@ public enum Language {
      * @return The {@link Language} for the specified code, or <code>null</code> if no matching language was found.
      */
     public static Language getByIso6391(String iso6391) {
+        if (iso6391 == null) {
+            return null;
+        }
         return iso6391Map.get(iso6391.toLowerCase());
     }
 
