@@ -218,6 +218,8 @@ public class OpenAiApi extends AiApi {
      */
     public String createImage(String prompt, String size, String quality) {
         DocumentRetriever documentRetriever = new DocumentRetriever();
+        documentRetriever.getHttpRetriever().setSocketTimeout((int) TimeUnit.MINUTES.toMillis(5));
+        documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.MINUTES.toMillis(5));
         documentRetriever.setGlobalHeaders(globalHeaders);
 
         JsonObject jsonObject = new JsonObject();
@@ -241,7 +243,8 @@ public class OpenAiApi extends AiApi {
             LOGGER.error("could not generate image " + responseText);
             return null;
         }
-        return dataArray.tryGetJsonObject(0).tryGetString("url");
+
+        return dataArray.tryGetJsonObject(0).tryGetString("b64_json");
     }
 
     public static int estimateTokens(String text) {
