@@ -1,5 +1,8 @@
 package ws.palladian.extraction.multimedia;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.google.common.util.concurrent.AtomicDouble;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.util.FastMath;
@@ -29,8 +32,8 @@ import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ColorQuantizerDescriptor;
 import javax.media.jai.operator.ErodeDescriptor;
 import javax.media.jai.operator.GradientMagnitudeDescriptor;
-import java.awt.Color;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -43,8 +46,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 
 import static java.awt.color.ColorSpace.CS_GRAY;
@@ -224,7 +227,17 @@ public class ImageHandler {
                 }
             } else {
                 try {
-                    bufferedImage = ImageIO.read(new File(url));
+                    File inputFile = new File(url);
+                    bufferedImage = ImageIO.read(inputFile);
+
+                    // meta data handling in case it needs to be rotated
+                    Metadata metadata = ImageMetadataReader.readMetadata(inputFile); // File or InputStream
+                    ExifIFD0Directory exifDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+                    if (exifDir != null && exifDir.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                        int orientation = exifDir.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                        bufferedImage = applyExifOrientation(bufferedImage, orientation);
+                    }
                 } catch (Exception e) {
                     LOGGER.error(url + ", " + e.getMessage(), e);
                 }
@@ -234,6 +247,19 @@ public class ImageHandler {
         }
 
         return bufferedImage;
+    }
+
+    public static BufferedImage applyExifOrientation(BufferedImage image, int orientation) {
+        switch (orientation) {
+            case 6: // Rotate 90 CW
+                return Scalr.rotate(image, Scalr.Rotation.CW_90);
+            case 3: // Rotate 180
+                return Scalr.rotate(image, Scalr.Rotation.CW_180);
+            case 8: // Rotate 90 CCW
+                return Scalr.rotate(image, Scalr.Rotation.CW_270);
+            default:
+                return image; // no rotation needed
+        }
     }
 
     public static String getMatchingImageUrl(Collection<WebImage> images) {

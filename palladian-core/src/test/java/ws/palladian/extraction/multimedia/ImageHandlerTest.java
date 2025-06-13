@@ -45,6 +45,11 @@ public class ImageHandlerTest {
     public void testRescaleImage() throws FileNotFoundException {
         BufferedImage bufferedImage;
 
+        bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/imageB1.jpg"));
+        bufferedImage = ImageHandler.boxFit(bufferedImage, 250);
+        assertEquals(250, bufferedImage.getWidth());
+        assertEquals(370, bufferedImage.getHeight());
+
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
         bufferedImage = ImageHandler.boxCrop(bufferedImage, 200, 200);
         assertEquals(200, bufferedImage.getWidth());
