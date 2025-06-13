@@ -152,15 +152,28 @@ public class ImageHandler {
     }
 
     /**
-     * <p>
      * Load an image from disk.
-     * </p>
      *
      * @param imageFile The image file on disk.
      * @return The buffered image.
      */
     public static BufferedImage load(File imageFile) throws IOException {
-        return ImageIO.read(imageFile);
+        BufferedImage bufferedImage = ImageIO.read(imageFile);
+
+        try {
+            // meta data handling in case it needs to be rotated
+            Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
+            ExifIFD0Directory exifDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+            if (exifDir != null && exifDir.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                int orientation = exifDir.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                bufferedImage = applyExifOrientation(bufferedImage, orientation);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Could not read EXIF data from image " + imageFile.getAbsolutePath() + ", " + e.getMessage());
+        }
+
+        return bufferedImage;
     }
 
     /**
@@ -228,16 +241,7 @@ public class ImageHandler {
             } else {
                 try {
                     File inputFile = new File(url);
-                    bufferedImage = ImageIO.read(inputFile);
-
-                    // meta data handling in case it needs to be rotated
-                    Metadata metadata = ImageMetadataReader.readMetadata(inputFile); // File or InputStream
-                    ExifIFD0Directory exifDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-
-                    if (exifDir != null && exifDir.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
-                        int orientation = exifDir.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-                        bufferedImage = applyExifOrientation(bufferedImage, orientation);
-                    }
+                    bufferedImage = load(inputFile);
                 } catch (Exception e) {
                     LOGGER.error(url + ", " + e.getMessage(), e);
                 }
