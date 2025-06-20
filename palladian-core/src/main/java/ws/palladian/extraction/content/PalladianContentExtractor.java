@@ -1233,7 +1233,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                         }
                     }
                 }
-                if (jsonObject.containsKey("headline")) {
+                // url must not be the root domain, we want to have a specific page
+                String thisDocumentUrl = XPathHelper.getXhtmlNodeTextContent(webPage, "//link[@rel='canonical']/@href");
+                if (StringHelper.nullOrEmpty(thisDocumentUrl)) {
+                    thisDocumentUrl = webPage.getDocumentURI();
+                }
+                if (jsonObject.containsKey("headline") && (!jsonObject.containsKey("url") || jsonObject.tryGetString("url").equals(thisDocumentUrl))) {
                     return jsonObject;
                 }
             } catch (Exception e) {
