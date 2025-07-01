@@ -7,6 +7,8 @@ import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,7 +50,11 @@ public class ScrapingBeeDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         THROTTLE.hold();
-        String requestUrl = "https://app.scrapingbee.com/api/v1/?api_key=" + apiKey + "&render_js=" + useJsRendering + "&url=" + UrlHelper.encodeParameter(url);
+        String requestUrl = "https://app.scrapingbee.com/api/v1/?api_key=" + apiKey + "&render_js=" + useJsRendering + "&url=" + UrlHelper.encodeURIComponent(url);
+        Set<String> waitSelectors = useJsRendering ? getWaitConditionsForUrl(url) : Collections.emptySet();
+        if (!waitSelectors.isEmpty()) {
+            requestUrl += "&wait_for=" + UrlHelper.encodeURIComponent(String.join(",", waitSelectors));
+        }
         Document webDocument = documentRetriever.getWebDocument(requestUrl);
         if (webDocument != null) {
             webDocument.setDocumentURI(url);

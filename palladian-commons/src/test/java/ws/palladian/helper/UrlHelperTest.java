@@ -389,4 +389,11 @@ public class UrlHelperTest {
         url = "http://www.example.org/foo.html";
         assertEquals("http://www.example.org/foo.html", UrlHelper.parseBaseUrl(url));
     }
+
+    @Test
+    public void testEncodeURIComponent() {
+        assertEquals(UrlHelper.encodeURIComponent("test !'()~"), "test%20!'()~");
+        assertEquals(UrlHelper.encodeURIComponent("test+!'()~"), "test%2B!'()~");
+        assertEquals(UrlHelper.encodeURIComponent("https://www.royalmint.com/shop/ancient-historic/trial-of-the-pyx/UK-Proof-2022-1-925-Silver-Definitive/"), "https%3A%2F%2Fwww.royalmint.com%2Fshop%2Fancient-historic%2Ftrial-of-the-pyx%2FUK-Proof-2022-1-925-Silver-Definitive%2F");
+    }
 }

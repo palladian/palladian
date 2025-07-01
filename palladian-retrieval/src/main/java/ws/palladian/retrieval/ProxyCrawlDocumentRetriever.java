@@ -51,6 +51,9 @@ public class ProxyCrawlDocumentRetriever extends JsEnabledDocumentRetriever {
     public Document getWebDocument(String url) {
         THROTTLE.hold();
         String requestUrl = "https://api.crawlbase.com/?token=" + getActiveToken() + "&url=" + UrlHelper.encodeParameter(url);
+        if (!getWaitConditionsForUrl(url).isEmpty()) {
+            requestUrl += "&ajax_wait=true"; // no direct support for wait conditions, try to at least wait for all async requests to finish
+        }
         Document d = documentRetriever.getWebDocument(requestUrl);
         if (d != null) {
             try {
