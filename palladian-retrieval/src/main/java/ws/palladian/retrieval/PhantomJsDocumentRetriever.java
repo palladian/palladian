@@ -61,15 +61,13 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
         Map<Pattern, Set<String>> waitForElementsMap = getWaitForElementsMap();
 
         String overseerScript = "";
-        for (Map.Entry<Pattern, Set<String>> entry : waitForElementsMap.entrySet()) {
-            if (entry.getKey().matcher(url).find()) {
-                StringBuilder waitConditions = new StringBuilder();
-                for (String selector : entry.getValue()) {
-                    waitConditions.append("await page.waitForSelector(\"").append(selector.replace("\"", "\\'")).append("\");");
-                }
-                overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();" + waitConditions + "page.done();'");
-                break;
+        Set<String> waitSelectors = getWaitConditionsForUrl(url);
+        if (!waitSelectors.isEmpty()) {
+            StringBuilder waitConditions = new StringBuilder();
+            for (String selector : waitSelectors) {
+                waitConditions.append("await page.waitForSelector(\"").append(selector.replace("\"", "\\'")).append("\");");
             }
+            overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();" + waitConditions + "page.done();'");
         }
 
         String cookieString = "";

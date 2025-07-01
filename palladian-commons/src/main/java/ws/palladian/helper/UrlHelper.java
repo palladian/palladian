@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -454,6 +455,11 @@ public final class UrlHelper {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("UTF-8 encoding unsupported. This should not happen.", e);
         }
+    }
+
+    public static String encodeURIComponent(String string) {
+        return URLEncoder.encode(string, StandardCharsets.UTF_8).replaceAll("\\+", "%20").replaceAll("\\%21", "!").replaceAll("\\%27", "'").replaceAll("\\%28", "(").replaceAll(
+                "\\%29", ")").replaceAll("\\%7E", "~");
     }
 
     /**

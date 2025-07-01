@@ -71,4 +71,13 @@ public abstract class JsEnabledDocumentRetriever extends WebDocumentRetriever {
 
     /** Get how many requests are left. */
     public abstract int requestsLeft();
+
+    public Set<String> getWaitConditionsForUrl(String url) {
+        for (Map.Entry<Pattern, Set<String>> entry : waitForElementsMap.entrySet()) {
+            if (entry.getKey().matcher(url).find()) {
+               return entry.getValue();
+            }
+        }
+        return Collections.emptySet();
+    }
 }
