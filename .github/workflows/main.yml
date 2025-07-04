@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the master branch
   push:
     branches:
       - master
@@ -15,10 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # https://github.com/marketplace/actions/setup-java-jdk#publishing-using-apache-maven
+      # https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-Apache-Maven
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
