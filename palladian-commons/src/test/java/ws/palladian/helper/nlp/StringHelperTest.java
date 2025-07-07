@@ -227,6 +227,7 @@ public class StringHelperTest {
     @Test
     public void testTrim() {
         // System.out.println(StringHelper.trim("'80GB'))"));
+        assertEquals("Slave Zero X (Nintendo Switch)", StringHelper.trim("Slave Zero X (Nintendo Switch) –"));
         assertEquals("a++", StringHelper.trim("a++", "+"));
         assertEquals("++a++", StringHelper.trim("++a++", "+"));
         assertEquals("a", StringHelper.trim("++a++"));
