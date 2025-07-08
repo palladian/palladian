@@ -1035,8 +1035,21 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             // image as object, array, or simple string, all are possible
             // array
             JsonArray imagesArray = schemaJson.tryGetJsonArray("image");
-            if (imagesArray != null && !imagesArray.isEmpty() && imagesArray.tryGetString(0) != null) {
-                return new BasicWebImage.Builder().setImageUrl(imagesArray.tryGetString(0).trim()).create();
+
+            if (!StringHelper.nullOrEmpty(imagesArray)) {
+                // is the array an array of strings?
+                if (imagesArray.tryGetString(0) != null) {
+                    return new BasicWebImage.Builder().setImageUrl(imagesArray.tryGetString(0).trim()).create();
+                }
+                // is the array an array of objects?
+                JsonObject firstImageJsonObject = imagesArray.tryGetJsonObject(0);
+                if (firstImageJsonObject != null && firstImageJsonObject.tryGetString("url") != null) {
+                    String imageUrl = firstImageJsonObject.tryGetString("url").trim();
+                    if (imageUrl.startsWith("//")) {
+                        imageUrl = "https:" + imageUrl; // add protocol
+                    }
+                    return new BasicWebImage.Builder().setImageUrl(imageUrl).create();
+                }
             }
 
             // obj
