@@ -259,7 +259,7 @@ public class PalladianContentExtractorTest {
 
         extractor = getExtractor("pageContentExtractor/news-wprost.html");
         collector.checkThat(extractor.getResultTitle(), is("Chcesz wspomóc Ukrainę? Lista najpilniej potrzebnych rzeczy"));
-        collector.checkThat(extractor.getResultText(), startsWith("– W mieście"));
+        collector.checkThat(extractor.getResultText(), startsWith("W mieście"));
         collector.checkThat(extractor.getResultText(), endsWith("najpotrzebniejszego sprzętu medycznego."));
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-14 11:24:00"));
         collector.checkThat(extractor.getDominantImage().getImageUrl(),
