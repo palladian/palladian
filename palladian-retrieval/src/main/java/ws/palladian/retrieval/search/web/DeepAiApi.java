@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.search.web;
 
-import com.squareup.okhttp.*;
+import okhttp3.*;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class DeepAiApi /* TODO extends AiApi*/ {
         OkHttpClient client = new OkHttpClient();
 
         // Build the form body
-        RequestBody formBody = new MultipartBuilder().type(MultipartBuilder.FORM).addFormDataPart("image", imageFile.getName(),
+        RequestBody formBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("image", imageFile.getName(),
                 RequestBody.create(MediaType.parse("image/jpeg"), imageFile)).addFormDataPart("text", prompt).build();
 
         // Build the request
