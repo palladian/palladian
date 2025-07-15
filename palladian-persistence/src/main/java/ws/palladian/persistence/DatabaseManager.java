@@ -120,7 +120,7 @@ public class DatabaseManager {
 
         try {
             connection = getConnection();
-            connection.setAutoCommit(false);
+            setAutoCommit(connection, false);
 
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
@@ -140,7 +140,7 @@ public class DatabaseManager {
             }
 
             connection.commit();
-            connection.setAutoCommit(true);
+            setAutoCommit(connection, true);
         } catch (SQLException e) {
             rollback(connection);
             affectedRows = 0;
@@ -168,7 +168,7 @@ public class DatabaseManager {
 
         try {
             connection = getConnection();
-            connection.setAutoCommit(false);
+            setAutoCommit(connection, false);
 
             ps = connection.prepareStatement(sql, Statement.NO_GENERATED_KEYS);
 
@@ -182,7 +182,7 @@ public class DatabaseManager {
             }
 
             connection.commit();
-            connection.setAutoCommit(true);
+            setAutoCommit(connection, true);
         } catch (SQLException e) {
             rollback(connection);
             affectedRows = 0;
@@ -210,7 +210,7 @@ public class DatabaseManager {
 
         try {
             connection = getConnection();
-            connection.setAutoCommit(false);
+            setAutoCommit(connection, false);
 
             ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
@@ -230,7 +230,7 @@ public class DatabaseManager {
             }
 
             connection.commit();
-            connection.setAutoCommit(true);
+            setAutoCommit(connection, true);
         } catch (SQLException e) {
             rollback(connection);
             affectedRows = 0;
@@ -373,7 +373,7 @@ public class DatabaseManager {
 
         try {
             connection = getConnection();
-            connection.setAutoCommit(false);
+            setAutoCommit(connection, false);
             ps = connection.prepareStatement(sql);
 
             for (int i = 0; i < provider.getCount(); i++) {
@@ -384,7 +384,7 @@ public class DatabaseManager {
 
             result = ps.executeBatch();
             connection.commit();
-            connection.setAutoCommit(true);
+            setAutoCommit(connection, true);
         } catch (SQLException e) {
             rollback(connection);
             logError(e, sql);
@@ -1334,5 +1334,13 @@ public class DatabaseManager {
 
     public StringBuilder getLastError() {
         return lastError;
+    }
+
+    protected static void setAutoCommit(Connection connection, boolean autoCommit) throws SQLException {
+        try {
+            connection.setAutoCommit(autoCommit);
+        } catch (SQLFeatureNotSupportedException e) {
+            LOGGER.warn("Commit/rollback not supported", e);
+        }
     }
 }
