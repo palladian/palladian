@@ -119,7 +119,7 @@ public class JsonDatabase {
     }
 
     public synchronized Action upsert(String collectionName, JsonObject jsonDocument) {
-        // try finding the game by id (id_name)
+        // try finding the document by id
         JsonObject existingDocument = getById(collectionName, jsonDocument.tryGetString("_id"));
 
         // if we don't find any, we add, otherwise we merge
