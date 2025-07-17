@@ -519,6 +519,10 @@ public final class HtmlHelper {
      * @return
      */
     public static String getInnerXml(Node node) {
+        return getInnerXml(node, false);
+    }
+
+    public static String getInnerXml(Node node, boolean fixScriptAndStyleContent) {
         if (node == null) {
             return null;
         }
@@ -530,6 +534,62 @@ public final class HtmlHelper {
                 sb.append(outerXml);
             }
         }
+        String html = sb.toString();
+        if (fixScriptAndStyleContent) {
+            html = fixScriptAndStyleContent(html);
+            // Fix self-closing tags for non-void elements
+            html = html.replaceAll("<(div|span|p|section|article|header|footer|nav|main|aside)([^>]*)\\s*/>", "<$1$2></$1>");
+
+            // decode HTML entities like &#1234; to their character representation
+            Pattern entityPattern = Pattern.compile("&#(\\d+);");
+            Matcher entityMatcher = entityPattern.matcher(html);
+            sb = new StringBuilder();
+            while (entityMatcher.find()) {
+                int codePoint = Integer.parseInt(entityMatcher.group(1));
+                entityMatcher.appendReplacement(sb, new String(Character.toChars(codePoint)));
+            }
+            entityMatcher.appendTail(sb);
+            html = sb.toString();
+        }
+
+        return html;
+    }
+
+    private static String fixScriptAndStyleContent(String html) {
+        // Fix entities inside script tags
+        Pattern scriptPattern = Pattern.compile("(?s)(<script[^>]*>)(.*?)(</script>)");
+        Matcher scriptMatcher = scriptPattern.matcher(html);
+        StringBuilder sb = new StringBuilder();
+
+        while (scriptMatcher.find()) {
+            String opening = scriptMatcher.group(1);
+            String content = scriptMatcher.group(2);
+            String closing = scriptMatcher.group(3);
+
+            // Fix entities in the content
+            content = content.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&");
+
+            scriptMatcher.appendReplacement(sb, opening + Matcher.quoteReplacement(content) + closing);
+        }
+        scriptMatcher.appendTail(sb);
+        html = sb.toString();
+
+        // Fix entities inside style tags
+        Pattern stylePattern = Pattern.compile("(?s)(<style[^>]*>)(.*?)(</style>)");
+        Matcher styleMatcher = stylePattern.matcher(html);
+        sb = new StringBuilder();
+
+        while (styleMatcher.find()) {
+            String opening = styleMatcher.group(1);
+            String content = styleMatcher.group(2);
+            String closing = styleMatcher.group(3);
+
+            content = content.replace("&gt;", ">").replace("&lt;", "<").replace("&amp;", "&");
+
+            styleMatcher.appendReplacement(sb, opening + Matcher.quoteReplacement(content) + closing);
+        }
+        styleMatcher.appendTail(sb);
+
         return sb.toString();
     }
 
@@ -652,6 +712,11 @@ public final class HtmlHelper {
         } catch (TransformerException e) {
             LOGGER.error("Encountered TransformerException while transforming Node: " + e.getMessage());
         }
+        //        if (ret != null) {
+        //            // Unescape > and < inside <script> and <style> tags
+        //            ret = ret.replaceAll("(<script[^>]*?>)([\\s\\S]*?)(</script>)", m -> m.group(1) + m.group(2).replace("&gt;", ">").replace("&lt;", "<") + m.group(3));
+        //            ret = ret.replaceAll("(<style[^>]*?>)([\\s\\S]*?)(</style>)", m -> m.group(1) + m.group(2).replace("&gt;", ">").replace("&lt;", "<") + m.group(3));
+        //        }
         return ret;
     }
 
@@ -911,6 +976,26 @@ public final class HtmlHelper {
             }
         }
         return result;
+    }
+
+    public static void main(String[] args) {
+        String html = "<html><head><title>Test</title></head><body><script>console.log('Hello');let a = {\"test\": \"hello \\\"you\\\"\"}</script></body></html>";
+        System.out.println(html);
+        Pattern scriptPattern = Pattern.compile("(?s)(<script[^>]*>)(.*?)(</script>)");
+        Matcher scriptMatcher = scriptPattern.matcher(html);
+        StringBuilder sb = new StringBuilder();
+
+        while (scriptMatcher.find()) {
+            String opening = scriptMatcher.group(1);
+            String content = scriptMatcher.group(2);
+            String closing = scriptMatcher.group(3);
+
+            scriptMatcher.appendReplacement(sb, opening + Matcher.quoteReplacement(content) + closing);
+        }
+        scriptMatcher.appendTail(sb);
+        html = sb.toString();
+
+        System.out.println(html);
     }
 
 }
