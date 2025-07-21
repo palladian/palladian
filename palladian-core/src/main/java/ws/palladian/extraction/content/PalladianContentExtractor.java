@@ -1045,10 +1045,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 JsonObject firstImageJsonObject = imagesArray.tryGetJsonObject(0);
                 if (firstImageJsonObject != null && firstImageJsonObject.tryGetString("url") != null) {
                     String imageUrl = firstImageJsonObject.tryGetString("url").trim();
-                    if (imageUrl.startsWith("//")) {
-                        imageUrl = "https:" + imageUrl; // add protocol
+                    if (!StringHelper.nullOrEmpty(imageUrl)) {
+                        if (imageUrl.startsWith("//")) {
+                            imageUrl = "https:" + imageUrl; // add protocol
+                        }
+                        return new BasicWebImage.Builder().setImageUrl(imageUrl).create();
                     }
-                    return new BasicWebImage.Builder().setImageUrl(imageUrl).create();
                 }
             }
 
