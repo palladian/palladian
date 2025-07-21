@@ -772,7 +772,7 @@ public class ImageHandler {
             }
 
             return success;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error(e.getMessage());
         }
 
