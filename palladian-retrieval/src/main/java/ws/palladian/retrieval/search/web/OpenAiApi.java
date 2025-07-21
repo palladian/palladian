@@ -4,7 +4,6 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.IdTrie;
-import ws.palladian.helper.collection.MapBuilder;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
@@ -125,6 +124,19 @@ public class OpenAiApi extends AiApi {
         return embedding;
     }
 
+    public String chat(String systemPrompt, String userPrompt, String model) throws Exception {
+        JsonArray messages = new JsonArray();
+        JsonObject message = new JsonObject();
+        message.put("role", "system");
+        message.put("content", systemPrompt);
+        messages.add(message);
+        message = new JsonObject();
+        message.put("role", "user");
+        message.put("content", userPrompt);
+        messages.add(message);
+        return chat(messages, 1., null, model, null, null);
+    }
+
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
         return chat(messages, temperature, usedTokens, defaultModel, null, null);
@@ -211,10 +223,11 @@ public class OpenAiApi extends AiApi {
     public String createImage(String prompt, String size) {
         return createImage(prompt, size, null);
     }
+
     /**
-     * @param prompt The textual prompt, e.g. "a black dog with a Christmas hat on"
-     * @param size   The picture size, see https://platform.openai.com/docs/pricing#image-generation
-     * @param quality   Either low, medium, or high
+     * @param prompt  The textual prompt, e.g. "a black dog with a Christmas hat on"
+     * @param size    The picture size, see https://platform.openai.com/docs/pricing#image-generation
+     * @param quality Either low, medium, or high
      */
     public String createImage(String prompt, String size, String quality) {
         DocumentRetriever documentRetriever = new DocumentRetriever();
