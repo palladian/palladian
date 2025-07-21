@@ -424,6 +424,7 @@ public class PalladianSpellChecker {
         correction.set(false);
         boolean uppercase = false;
         int uppercaseCount = 0;
+        boolean useContext = this.useContext && (leftContext != null || rightContext != null);
         if (!caseSensitive) {
             uppercaseCount = StringHelper.countUppercaseLetters(word);
 
