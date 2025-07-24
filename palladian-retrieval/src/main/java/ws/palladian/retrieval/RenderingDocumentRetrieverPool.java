@@ -18,15 +18,15 @@ import java.util.concurrent.Future;
  * @author David Urbansky
  */
 public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocumentRetriever> {
-    private final DriverManagerType driverManagerType;
-    private final org.openqa.selenium.Proxy proxy;
-    private final String userAgent;
-    private final String driverVersionCode;
+    protected final DriverManagerType driverManagerType;
+    protected final org.openqa.selenium.Proxy proxy;
+    protected final String userAgent;
+    protected final String driverVersionCode;
 
     // we can pass the binary of the browser to use
-    private String binaryPath;
+    protected String binaryPath;
 
-    private Set<String> additionalOptions;
+    protected Set<String> additionalOptions;
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
         this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
