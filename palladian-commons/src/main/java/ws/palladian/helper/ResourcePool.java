@@ -8,8 +8,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class ResourcePool<T> {
     protected final BlockingQueue<T> pool;
-    private final ReentrantLock lock = new ReentrantLock();
-    private int createdObjects = 0;
+    protected final ReentrantLock lock = new ReentrantLock();
+    protected int createdObjects = 0;
     protected final int size;
 
     protected ResourcePool(int size) {
