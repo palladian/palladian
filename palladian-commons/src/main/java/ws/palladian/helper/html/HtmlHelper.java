@@ -538,7 +538,7 @@ public final class HtmlHelper {
         if (fixScriptAndStyleContent) {
             html = fixScriptAndStyleContent(html);
             // Fix self-closing tags for non-void elements
-            html = html.replaceAll("<(div|span|p|section|article|header|footer|nav|main|aside)([^>]*)\\s*/>", "<$1$2></$1>");
+            html = html.replaceAll("<(div|span|p|section|article|header|footer|nav|main|aside|script|link)([^>]*)\\s*/>", "<$1$2></$1>");
 
             // decode HTML entities like &#1234; to their character representation
             Pattern entityPattern = Pattern.compile("&#(\\d+);");
