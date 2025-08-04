@@ -574,7 +574,9 @@ public class PalladianSpellChecker {
             Integer max = Collections.max(candidates.keySet());
             if (!useContext || max > 3 * wordCountGivenWord) {
                 corrected = candidates.get(max);
-                correction.set(true);
+                if (!corrected.equalsIgnoreCase(word)) {
+                    correction.set(true);
+                }
             }
         }
 
