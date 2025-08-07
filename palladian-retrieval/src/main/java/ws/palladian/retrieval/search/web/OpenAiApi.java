@@ -29,7 +29,8 @@ public class OpenAiApi extends AiApi {
 
     private final String apiKey;
     private final String apiBase;
-    private String defaultModel = DEFAULT_MODEL;
+    private String model = DEFAULT_MODEL;
+    private String serviceTier = null;
     private Map<String, String> globalHeaders = new HashMap<>();
     private Map<String, String> queryParams = new HashMap<>();
 
@@ -40,6 +41,15 @@ public class OpenAiApi extends AiApi {
     public static final String EMBEDDING_MODEL_SMALL = "text-embedding-3-small";
     public static final String EMBEDDING_MODEL_LARGE = "text-embedding-3-large";
 
+    public static final String MODEL_GPT_3_5_TURBO = "gpt-3.5-turbo";
+    public static final String MODEL_GPT_4_TURBO = "gpt-4-turbo";
+    public static final String MODEL_GPT_4O = "gpt-4o";
+    public static final String MODEL_GPT_4O_MINI = "gpt-4o-mini";
+    public static final String MODEL_GPT_4O_NANO = "gpt-4o-nano";
+    public static final String MODEL_GPT_5 = "gpt-5";
+    public static final String MODEL_GPT_5_MINI = "gpt-5-mini";
+    public static final String MODEL_GPT_5_NANO = "gpt-5-nano";
+
     public OpenAiApi(Configuration configuration) {
         this(Optional.ofNullable(configuration.getString(CONFIG_API_KEY)).orElse((configuration.getString(CONFIG_API_KEY_FALLBACK))));
     }
@@ -48,7 +58,15 @@ public class OpenAiApi extends AiApi {
         this(apiKey, null);
     }
 
+    public OpenAiApi(String model, String serviceTier, String apiKey) {
+        this(apiKey, null, model, serviceTier);
+    }
+
     public OpenAiApi(String apiKey, String apiBase) {
+        this(apiKey, apiBase, DEFAULT_MODEL, null);
+    }
+
+    public OpenAiApi(String apiKey, String apiBase, String model, String serviceTier) {
         this.apiKey = apiKey;
         apiBase = Optional.ofNullable(apiBase).orElse("https://api.openai.com/v1");
         if (apiBase.endsWith("/")) {
@@ -56,6 +74,8 @@ public class OpenAiApi extends AiApi {
         }
         this.apiBase = apiBase;
         this.globalHeaders.put("Authorization", "Bearer " + apiKey);
+        this.model = model;
+        this.serviceTier = serviceTier;
     }
 
     public float[] getEmbedding(String text) throws Exception {
@@ -139,7 +159,15 @@ public class OpenAiApi extends AiApi {
 
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
-        return chat(messages, temperature, usedTokens, defaultModel, null, null);
+        return chat(messages, temperature, usedTokens, model, null, null);
+    }
+
+    public String chat(JsonArray messages) throws Exception {
+        return chat(messages, 1., null, model, null, null);
+    }
+
+    public String chat(JsonArray messages, JsonObject jsonSchema) throws Exception {
+        return chat(messages, 1., null, model, null, jsonSchema);
     }
 
     @Override
@@ -152,6 +180,9 @@ public class OpenAiApi extends AiApi {
         requestJson.put("messages", messages);
         requestJson.put("model", modelName);
         requestJson.put("temperature", temperature);
+        if (serviceTier != null) {
+            requestJson.put("service_tier", serviceTier);
+        }
         if (maxTokens != null) {
             requestJson.put("max_tokens", maxTokens);
         }
@@ -307,12 +338,20 @@ public class OpenAiApi extends AiApi {
         return this.queryParams.remove(key) != null;
     }
 
-    public String getDefaultModel() {
-        return defaultModel;
+    public String getModel() {
+        return model;
     }
 
-    public void setDefaultModel(String defaultModel) {
-        this.defaultModel = defaultModel;
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getServiceTier() {
+        return serviceTier;
+    }
+
+    public void setServiceTier(String serviceTier) {
+        this.serviceTier = serviceTier;
     }
 
     public static void main(String[] args) {
