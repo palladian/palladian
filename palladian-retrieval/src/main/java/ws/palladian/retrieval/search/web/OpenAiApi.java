@@ -350,6 +350,15 @@ public class OpenAiApi extends AiApi {
         this.model = model;
     }
 
+    // this should be deprecated
+    public void setDefaultModel(String model) {
+        this.model = model;
+    }
+
+    public String getDefaultModel() {
+        return DEFAULT_MODEL;
+    }
+
     public String getServiceTier() {
         return serviceTier;
     }
