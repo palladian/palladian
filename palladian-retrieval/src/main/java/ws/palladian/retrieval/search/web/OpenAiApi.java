@@ -31,6 +31,7 @@ public class OpenAiApi extends AiApi {
     private final String apiBase;
     private String model = DEFAULT_MODEL;
     private String serviceTier = null;
+    private String verbosity = null;
     private Map<String, String> globalHeaders = new HashMap<>();
     private Map<String, String> queryParams = new HashMap<>();
 
@@ -182,6 +183,9 @@ public class OpenAiApi extends AiApi {
         requestJson.put("temperature", temperature);
         if (serviceTier != null) {
             requestJson.put("service_tier", serviceTier);
+        }
+        if (verbosity != null) {
+            requestJson.put("verbosity", verbosity);
         }
         if (maxTokens != null) {
             requestJson.put("max_tokens", maxTokens);
@@ -352,6 +356,14 @@ public class OpenAiApi extends AiApi {
 
     public void setServiceTier(String serviceTier) {
         this.serviceTier = serviceTier;
+    }
+
+    public String getVerbosity() {
+        return verbosity;
+    }
+
+    public void setVerbosity(String verbosity) {
+        this.verbosity = verbosity;
     }
 
     public static void main(String[] args) {
