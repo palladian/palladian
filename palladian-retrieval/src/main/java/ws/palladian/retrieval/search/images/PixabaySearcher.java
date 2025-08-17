@@ -5,6 +5,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
@@ -22,9 +23,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>
  * Search for public domain images on <a href="http://www.pixabay.com/">Pixabay</a>.
- * </p>
  *
  * @author David Urbansky
  * @see <a href="https://pixabay.com/api/docs/">Pixabay API</a>
@@ -87,9 +86,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 100);
 
     /**
-     * <p>
      * Creates a new Pixabay searcher.
-     * </p>
      *
      * @param apiKey The API key for accessing Pixabay, not <code>null</code> or empty.
      */
@@ -104,9 +101,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
     }
 
     /**
-     * <p>
      * Creates a new Pixabay searcher.
-     * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing Pixabay, which must be
      *                      provided as string via key {@value PixabaySearcher#CONFIG_API_KEY} in the configuration.
@@ -139,8 +134,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
         var retriever = HttpRetrieverFactory.getHttpRetriever();
 
         for (int page = 1; page <= pagesNeeded; page++) {
-
-            String requestUrl = buildRequest(query.getText(), page, Math.max(3, Math.min(200, resultCount - results.size())), language);
+            String requestUrl = buildRequest(StringHelper.shorten(query.getText(), 100), page, Math.max(3, Math.min(200, resultCount - results.size())), language);
             try {
                 THROTTLE.hold();
                 var response = retriever.httpGet(requestUrl);
