@@ -94,6 +94,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * The cleansed entire text content of the page.
      */
     private String fullTextContent = "";
+    private String fullCleanedTextContent = "";
 
     private ExtractedDate publishDate = null;
 
@@ -216,11 +217,19 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public String getEntireTextContent() {
         fullTextContent = fullTextContent.replaceAll("(\t)+", "");
-        //        fullTextContent = Pattern.compile("^.{0,40}$", Pattern.MULTILINE).matcher(fullTextContent).replaceAll("\n");
+        //                fullTextContent = Pattern.compile("^.{0,40}$", Pattern.MULTILINE).matcher(fullTextContent).replaceAll("\n");
         fullTextContent = fullTextContent.replaceAll("\n(\\s)+\n", "\n\n");
         fullTextContent = fullTextContent.replaceAll("(\n){2,}", "\n\n");
 
         return fullTextContent;
+    }
+
+    public String getFullCleanedTextContent() {
+        fullCleanedTextContent = fullCleanedTextContent.replaceAll("(\t)+", "");
+        fullCleanedTextContent = fullCleanedTextContent.replaceAll("\n(\\s)+\n", "\n\n");
+        fullCleanedTextContent = fullCleanedTextContent.replaceAll("(\n){2,}", "\n\n");
+
+        return fullCleanedTextContent;
     }
 
     private void parseDocument() {
@@ -251,6 +260,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         schemaJson = getSchemaJson(document);
         publishDate = extractPublishDate();
         cleanDom();
+        fullCleanedTextContent = HtmlHelper.documentToText(document);
         if (schemaJson != null) {
             String articleBody = schemaJson.tryGetString("articleBody");
             if (articleBody == null) {
