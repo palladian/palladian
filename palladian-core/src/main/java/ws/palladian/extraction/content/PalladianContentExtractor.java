@@ -34,7 +34,6 @@ import ws.palladian.retrieval.resources.WebVideo;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -217,7 +216,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public String getEntireTextContent() {
         fullTextContent = fullTextContent.replaceAll("(\t)+", "");
-        fullTextContent = Pattern.compile("^.{0,40}$", Pattern.MULTILINE).matcher(fullTextContent).replaceAll("\n");
+        //        fullTextContent = Pattern.compile("^.{0,40}$", Pattern.MULTILINE).matcher(fullTextContent).replaceAll("\n");
         fullTextContent = fullTextContent.replaceAll("\n(\\s)+\n", "\n\n");
         fullTextContent = fullTextContent.replaceAll("(\n){2,}", "\n\n");
 
