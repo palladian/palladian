@@ -141,7 +141,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.21.12</version>
+            <version>3.25.5</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -199,7 +199,7 @@
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
-                <version>3.16.1</version>
+                <version>3.25.5</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
