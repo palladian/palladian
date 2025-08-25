@@ -2277,6 +2277,20 @@ public final class StringHelper {
         return c == null || c.isEmpty();
     }
 
+    public static String uuid(String string) {
+        UUID uuid;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(string.getBytes());
+            byte[] digest = md.digest();
+            uuid = UUID.nameUUIDFromBytes(digest);
+            return uuid.toString();
+        } catch (Exception e) {
+            LOGGER.error("Could not create UUID from string: " + string, e);
+            return null;
+        }
+    }
+
     /**
      * The main method.
      *
