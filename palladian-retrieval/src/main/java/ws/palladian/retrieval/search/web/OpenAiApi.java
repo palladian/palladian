@@ -27,7 +27,6 @@ public class OpenAiApi extends AiApi {
     private static final TimeWindowRequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 3500);
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAiApi.class);
 
-    private final String apiKey;
     private final String apiBase;
     private String model = DEFAULT_MODEL;
     private String serviceTier = null;
@@ -47,6 +46,7 @@ public class OpenAiApi extends AiApi {
     public static final String MODEL_GPT_4O = "gpt-4o";
     public static final String MODEL_GPT_4O_MINI = "gpt-4o-mini";
     public static final String MODEL_GPT_4O_NANO = "gpt-4o-nano";
+    public static final String MODEL_GPT_4_1_MINI = "gpt-4.1-mini";
     public static final String MODEL_GPT_5 = "gpt-5";
     public static final String MODEL_GPT_5_MINI = "gpt-5-mini";
     public static final String MODEL_GPT_5_NANO = "gpt-5-nano";
@@ -68,7 +68,6 @@ public class OpenAiApi extends AiApi {
     }
 
     public OpenAiApi(String apiKey, String apiBase, String model, String serviceTier) {
-        this.apiKey = apiKey;
         apiBase = Optional.ofNullable(apiBase).orElse("https://api.openai.com/v1");
         if (apiBase.endsWith("/")) {
             apiBase = apiBase.substring(0, apiBase.length() - 1);
@@ -180,11 +179,13 @@ public class OpenAiApi extends AiApi {
         JsonObject requestJson = new JsonObject();
         requestJson.put("messages", messages);
         requestJson.put("model", modelName);
-        requestJson.put("temperature", temperature);
-        if (serviceTier != null) {
+        if (!modelName.contains("gpt-5")) {
+            requestJson.put("temperature", temperature);
+        }
+        if (serviceTier != null && modelName.contains("gpt-5")) {
             requestJson.put("service_tier", serviceTier);
         }
-        if (verbosity != null) {
+        if (verbosity != null && modelName.contains("gpt-5")) {
             requestJson.put("verbosity", verbosity);
         }
         if (maxTokens != null) {
@@ -350,7 +351,7 @@ public class OpenAiApi extends AiApi {
         this.model = model;
     }
 
-    // this should be deprecated
+    // FIXME this should be deprecated
     public void setDefaultModel(String model) {
         this.model = model;
     }
