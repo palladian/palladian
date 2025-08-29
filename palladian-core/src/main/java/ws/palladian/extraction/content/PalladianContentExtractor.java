@@ -94,7 +94,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * The cleansed entire text content of the page.
      */
     private String fullTextContent = "";
-    private String fullCleanedTextContent = "";
+    private String fullCleanedTextContent = null;
 
     private ExtractedDate publishDate = null;
 
@@ -225,6 +225,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     public String getFullCleanedTextContent() {
+        if (fullCleanedTextContent == null) {
+            fullCleanedTextContent = HtmlHelper.documentToText(document);
+        }
         fullCleanedTextContent = fullCleanedTextContent.replaceAll("(\t)+", "");
         fullCleanedTextContent = fullCleanedTextContent.replaceAll("\n(\\s)+\n", "\n\n");
         fullCleanedTextContent = fullCleanedTextContent.replaceAll("(\n){2,}", "\n\n");
@@ -441,7 +444,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * Remove comment nodes, scripts, and iframes etc.
      * </p>
      */
-    private void cleanDom() {
+    public void cleanDom() {
         // remove comments
         removeCommentNodes();
 
