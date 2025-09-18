@@ -1215,6 +1215,10 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return getDominantImage(null, null);
     }
 
+    public void parseSchemaJson() {
+        this.schemaJson = getSchemaJson(getDocument());
+    }
+
     private JsonObject getSchemaJson(Document webPage) {
         List<Node> scriptNodes = XPathHelper.getXhtmlNodes(webPage, "//script[@type=\"application/ld+json\"]");
         for (Node scriptNode : scriptNodes) {
