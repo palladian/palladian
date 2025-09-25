@@ -64,4 +64,6 @@ public interface DocumentParser {
      */
     Document parse(File file) throws ParserException;
 
+    Document parse(String xml) throws ParserException;
+
 }

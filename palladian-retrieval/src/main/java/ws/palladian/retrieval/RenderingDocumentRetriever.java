@@ -375,12 +375,12 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public Document getCurrentWebDocument() {
         Document document = null;
-
+        String pageSource = driver.getPageSource();
+        if (pageSource == null) {
+            return document;
+        }
         try {
-            InputStream stream = new ByteArrayInputStream(driver.getPageSource().getBytes(StandardCharsets.UTF_8));
-            InputSource inputSource = new InputSource(stream);
-            inputSource.setEncoding(StandardCharsets.UTF_8.name());
-            document = ParserFactory.createHtmlParser().parse(inputSource);
+            document = ParserFactory.createHtmlParser().parse(pageSource);
             document.setDocumentURI(driver.getCurrentUrl());
         } catch (Exception e) {
             e.printStackTrace();

@@ -10,6 +10,7 @@ import ws.palladian.retrieval.HttpResult;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>
@@ -84,4 +85,11 @@ public abstract class BaseDocumentParser implements DocumentParser {
         return document;
     }
 
+    @Override
+    public Document parse(String xml) throws ParserException {
+        InputStream stream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+        InputSource inputSource = new InputSource(stream);
+        inputSource.setEncoding(StandardCharsets.UTF_8.name());
+        return parse(inputSource);
+    }
 }
