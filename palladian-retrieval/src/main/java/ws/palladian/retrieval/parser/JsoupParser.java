@@ -41,14 +41,16 @@ public final class JsoupParser extends BaseDocumentParser {
             byte[] inputBytes = inputStreamToByteArray(inputSource.getByteStream());
             String encoding = inputSource.getEncoding();
             String xml = byteArrayToString(inputBytes, encoding);
+            org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(xml);
             if (encoding == null) { // make sure content-type meta tag is handled correctly
-                String documentEncoding = getDocumentEncoding(Jsoup.parse(xml));
+                String documentEncoding = getDocumentEncoding(jsoupDocument);
                 if (documentEncoding != null && !documentEncoding.equalsIgnoreCase(StandardCharsets.UTF_8.name())) {
                     inputSource.setEncoding(documentEncoding);
                     xml = byteArrayToString(inputBytes, documentEncoding);
+                    jsoupDocument = Jsoup.parse(xml);
                 }
             }
-            return parse(xml);
+            return convertDocument(jsoupDocument);
         } catch (IOException e) {
             throw new ParserException(e);
         }
@@ -57,9 +59,13 @@ public final class JsoupParser extends BaseDocumentParser {
     @Override
     public Document parse(String xml) {
         org.jsoup.nodes.Document parse = Jsoup.parse(xml);
+        return convertDocument(parse);
+    }
+
+    private Document convertDocument(org.jsoup.nodes.Document document) {
         // unknown namespaces can cause problems with the documents (e.g. cloning or serializing), this is somehow handled by ValidatorNuParser out of the box
-        addNamespacesToHtml(parse);
-        return W3CDom.convert(parse);
+        addNamespacesToHtml(document);
+        return W3CDom.convert(document);
     }
 
     private static String getDocumentEncoding(org.jsoup.nodes.Document document) {
