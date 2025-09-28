@@ -11,6 +11,7 @@ import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.ParserException;
 import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.feeds.Feed;
@@ -106,6 +107,14 @@ public class RomeFeedParser extends AbstractFeedParser {
 
         if (syndFeed.getTitle() != null && !syndFeed.getTitle().isEmpty()) {
             result.getMetaInformation().setTitle(syndFeed.getTitle().trim());
+        }
+
+        if (!StringHelper.nullOrEmpty(syndFeed.getDescription())) {
+            result.getMetaInformation().setDescription(syndFeed.getDescription().trim());
+        }
+
+        if (syndFeed.getImage() != null && !StringHelper.nullOrEmpty(syndFeed.getImage().getUrl())) {
+            result.getMetaInformation().setImageUrl(syndFeed.getImage().getUrl().trim());
         }
 
         result.getMetaInformation().setLanguage(syndFeed.getLanguage());

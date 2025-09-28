@@ -37,6 +37,10 @@ public class FeedMetaInformation {
     /** The feed's title */
     private String title = null;
 
+    private String description = null;
+
+    private String imageUrl = null;
+
     /** The feed's language. */
     private String language = null;
 
@@ -439,4 +443,19 @@ public class FeedMetaInformation {
         return builder.toString();
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
