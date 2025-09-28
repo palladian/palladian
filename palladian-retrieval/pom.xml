@@ -10,7 +10,7 @@
     <name>Palladian: Retrieval</name>
     <description>Palladian Retrieval Functionality</description>
     <properties>
-        <selenium-version>4.11.0</selenium-version>
+        <selenium-version>4.35.0</selenium-version>
         <!--        <selenium-version>4.7.2</selenium-version>-->
     </properties>
     <dependencies>

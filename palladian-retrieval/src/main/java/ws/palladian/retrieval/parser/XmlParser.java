@@ -32,7 +32,6 @@ public class XmlParser extends BaseDocumentParser implements DocumentParser {
         try {
             // added by Philipp, 2011-01-28
             docBuilderFactory.setNamespaceAware(true);
-
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             return docBuilder.parse(inputSource);
         } catch (ParserConfigurationException e) {
