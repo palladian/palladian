@@ -1269,7 +1269,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                 if (StringHelper.nullOrEmpty(thisDocumentUrl)) {
                     thisDocumentUrl = webPage.getDocumentURI();
                 }
-                if (jsonObject.containsKey("headline") && (!jsonObject.containsKey("url") || jsonObject.tryGetString("url").equals(thisDocumentUrl))) {
+                if (/*jsonObject.containsKey("headline") && */(!jsonObject.containsKey("url") || jsonObject.tryGetString("url").equals(thisDocumentUrl))) {
                     return jsonObject;
                 }
             } catch (Exception e) {

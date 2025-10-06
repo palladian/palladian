@@ -2277,6 +2277,10 @@ public final class StringHelper {
         return c == null || c.isEmpty();
     }
 
+    public static boolean nullOrEmpty(Map c) {
+        return c == null || c.isEmpty();
+    }
+
     public static String uuid(String string) {
         UUID uuid;
         try {
