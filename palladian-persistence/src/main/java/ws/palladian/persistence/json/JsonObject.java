@@ -583,7 +583,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
     @Override
     public String toString(int indentFactor) {
         try {
-            Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).build();
+            Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).escapeUnicode(false).build();
             return JsonStream.serialize(conf, this);
         } catch (Exception e) {
             /** Fallback writer if Jsoniter fails */
