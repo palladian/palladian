@@ -133,7 +133,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
                 byte[] content = htmlContentString.getBytes(StandardCharsets.UTF_8);
                 document = ParserFactory.createHtmlParser().parse(new ByteArrayInputStream(content));
             } else {
-                document = ParserFactory.createHtmlParser().parse(new StringInputStream(htmlContentString));
+                document = ParserFactory.createHtmlParser().parse(htmlContentString);
             }
             String navUrl = Optional.ofNullable(response.tryQueryString("pageResponses[0]/navUrl")).orElse("");
             if (!StringHelper.nullOrEmpty(navUrl)) {
