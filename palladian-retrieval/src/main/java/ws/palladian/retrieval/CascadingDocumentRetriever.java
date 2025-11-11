@@ -367,7 +367,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (StringHelper.containsAny(s, getBadDocumentIndicatorTexts())) {
             return false;
         }
-        return !(s.isEmpty());
+        return s.length() > 500;
     }
 
     @Override

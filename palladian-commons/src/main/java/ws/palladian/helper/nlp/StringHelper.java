@@ -739,6 +739,9 @@ public final class StringHelper {
      * @return the string
      */
     public static String replaceProtectedSpace(String string) {
+        if (string == null) {
+            return null;
+        }
         return string.replaceAll("\u00A0", " ");
     }
 

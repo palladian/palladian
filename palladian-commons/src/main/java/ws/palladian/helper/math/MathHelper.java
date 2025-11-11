@@ -887,6 +887,9 @@ public final class MathHelper {
     }
 
     public static Double forceParseStringNumber(String stringNumber) {
+        if (stringNumber == null) {
+            return null;
+        }
         stringNumber = CLEAN_BEFORE_NUMBER.matcher(stringNumber).replaceAll(StringUtils.EMPTY);
         return parseStringNumber(stringNumber, null);
     }
