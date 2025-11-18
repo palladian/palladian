@@ -519,10 +519,14 @@ public final class HtmlHelper {
      * @return
      */
     public static String getInnerXml(Node node) {
-        return getInnerXml(node, false);
+        return getInnerXml(node, false, null);
     }
 
     public static String getInnerXml(Node node, boolean fixScriptAndStyleContent) {
+        return getInnerXml(node, fixScriptAndStyleContent, null);
+    }
+
+    public static String getInnerXml(Node node, boolean fixScriptAndStyleContent, String noParamsUrl) {
         if (node == null) {
             return null;
         }
@@ -550,6 +554,12 @@ public final class HtmlHelper {
             }
             entityMatcher.appendTail(sb);
             html = sb.toString();
+        }
+
+        if (noParamsUrl != null) {
+            html = html.replace(" href=\"/", " href=\"" + noParamsUrl + "/");
+            html = html.replaceAll(" href=\"(?!http)", " href=\"" + noParamsUrl + "/");
+            html = html.replaceAll(" src=\"(?!http)(?!//)(?!\")", " src=\"" + noParamsUrl + "/");
         }
 
         return html;
