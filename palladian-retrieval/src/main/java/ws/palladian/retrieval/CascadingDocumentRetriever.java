@@ -1,5 +1,6 @@
 package ws.palladian.retrieval;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -11,6 +12,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * <p>
@@ -139,6 +141,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return getWebDocument(url, null, null);
     }
 
+    public Document getWebDocument(String url, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
+        return getWebDocument(url, null, null, retrieverDocumentCallback);
+    }
+
     @Override
     public Document getWebDocument(String url, Thread thread) {
         return getWebDocument(url, null, thread);
@@ -165,6 +171,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread) {
+        return getWebDocument(url, resolvingExplanation, thread, null);
+    }
+
+    public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
         if (resolvingExplanation == null) {
             resolvingExplanation = new ArrayList<>();
         }
@@ -185,6 +195,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             goodDocument = isGoodDocument(document);
+
+            if (goodDocument && retrieverDocumentCallback != null) {
+                retrieverDocumentCallback.accept(Pair.of(documentRetriever, document));
+            }
+
             String message = goodDocument ? "success" : "fail";
             updateRequestTracker(RETRIEVER_PLAIN, goodDocument);
             resolvingExplanation.add(
@@ -212,6 +227,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
                 goodDocument = isGoodDocument(document);
 
+                if (goodDocument && retrieverDocumentCallback != null) {
+                    retrieverDocumentCallback.accept(Pair.of(renderingDocumentRetriever, document));
+                }
+
                 String message = goodDocument ? "success" : "fail";
                 updateRequestTracker(RETRIEVER_RENDERING_POOL, goodDocument);
                 resolvingExplanation.add(
@@ -234,6 +253,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             configure(cloudDocumentRetriever);
             document = cloudDocumentRetriever.getWebDocument(url);
             goodDocument = isGoodDocument(document);
+
+            if (goodDocument && retrieverDocumentCallback != null) {
+                retrieverDocumentCallback.accept(Pair.of(cloudDocumentRetriever, document));
+            }
+
             String message = goodDocument ? "success" : "fail";
             updateRequestTracker(RETRIEVER_PHANTOM_JS_CLOUD, goodDocument);
             resolvingExplanation.add(
@@ -249,6 +273,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             configure(cloudDocumentRetriever2);
             document = cloudDocumentRetriever2.getWebDocument(url);
             goodDocument = isGoodDocument(document);
+
+            if (goodDocument && retrieverDocumentCallback != null) {
+                retrieverDocumentCallback.accept(Pair.of(cloudDocumentRetriever2, document));
+            }
+
             String message = goodDocument ? "success" : "fail";
             updateRequestTracker(RETRIEVER_PROXY_CRAWL, goodDocument);
             resolvingExplanation.add(
@@ -264,6 +293,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             configure(cloudDocumentRetriever3);
             document = cloudDocumentRetriever3.getWebDocument(url);
             goodDocument = isGoodDocument(document);
+
+            if (goodDocument && retrieverDocumentCallback != null) {
+                retrieverDocumentCallback.accept(Pair.of(cloudDocumentRetriever3, document));
+            }
+
             String message = goodDocument ? "success" : "fail";
             updateRequestTracker(RETRIEVER_SCRAPING_BEE, goodDocument);
             resolvingExplanation.add(
@@ -279,6 +313,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             configure(cloudDocumentRetriever4);
             document = cloudDocumentRetriever4.getWebDocument(url);
             goodDocument = isGoodDocument(document);
+
+            if (goodDocument && retrieverDocumentCallback != null) {
+                retrieverDocumentCallback.accept(Pair.of(cloudDocumentRetriever4, document));
+            }
+
             String message = goodDocument ? "success" : "fail";
             updateRequestTracker(RETRIEVER_SCRAPER_API, goodDocument);
             resolvingExplanation.add(
