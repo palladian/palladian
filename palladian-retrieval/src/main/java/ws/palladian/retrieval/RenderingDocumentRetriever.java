@@ -192,6 +192,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
      * @param targetPath The path where the screenshot should be saved to.
      * @return The screenshot file.
      */
+    public BufferedImage getScreenshot() {
+        File scrFile = driver.getScreenshotAs(OutputType.FILE);
+
+        try {
+            return ImageIO.read(scrFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public File takeScreenshot(String targetPath) {
         File scrFile = driver.getScreenshotAs(OutputType.FILE);
 
