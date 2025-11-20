@@ -3,6 +3,7 @@ package ws.palladian.persistence.json;
 import com.jayway.jsonpath.JsonPath;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
+import com.jsoniter.output.EncodingMode;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Config;
 import com.jsoniter.spi.JsoniterSpi;
@@ -28,6 +29,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
      * so allow to disable it here. - TODO this makes the current mess even messier- introduce
      * a better solution to swap the parsers dynamically. */
     public static boolean USE_JSON_ITER = true;
+    public static boolean ESCAPE_UNICODE = false;
+    public static EncodingMode ENCODING_MODE = EncodingMode.STATIC_MODE;
 
     static {
         JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
@@ -583,7 +586,11 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
     @Override
     public String toString(int indentFactor) {
         try {
-            Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).escapeUnicode(false).build();
+            Config.Builder builder = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).escapeUnicode(ESCAPE_UNICODE);
+            if (ENCODING_MODE != null) {
+                builder.encodingMode(ENCODING_MODE);
+            }
+            Config conf = builder.build();
             return JsonStream.serialize(conf, this);
         } catch (Exception e) {
             /** Fallback writer if Jsoniter fails */
