@@ -2,6 +2,7 @@ package ws.palladian.persistence.json;
 
 import com.dslplatform.json.DslJson;
 import com.dslplatform.json.runtime.TypeDefinition;
+import com.dslplatform.json.runtime.Settings;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import ws.palladian.helper.nlp.PatternHelper;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public class JsonArray extends AbstractList<Object> implements Json, Serializable {
 
-    private static final DslJson<Object> DSL = new DslJson<>();
+    private static final DslJson<Object> DSL = new DslJson<>(Settings.withRuntime());
 
     /** The arrayList where the JsonArray's properties are kept. */
     private ObjectArrayList<Object> list;
@@ -494,7 +495,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
             Json child = (Json) value;
             return child.query(remainingPath);
         } else if (remainingPath.isEmpty()) {
-            return value;
+            return JsonUtils.coerceSimpleNumber(value);
         } else {
             throw new JsonException("No value/item for query.");
         }

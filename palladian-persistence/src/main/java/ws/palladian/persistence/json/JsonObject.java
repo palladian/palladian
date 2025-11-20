@@ -2,6 +2,7 @@ package ws.palladian.persistence.json;
 
 import com.dslplatform.json.DslJson;
 import com.dslplatform.json.runtime.TypeDefinition;
+import com.dslplatform.json.runtime.Settings;
 import com.jayway.jsonpath.JsonPath;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -20,8 +21,8 @@ import java.util.regex.Pattern;
 @SuppressWarnings("serial")
 public class JsonObject extends AbstractMap<String, Object> implements Json, Jsonable, Serializable {
 
-    // DSL-JSON instance for (de)serialization
-    private static final DslJson<Object> DSL = new DslJson<>();
+    // DSL-JSON instance for (de)serialization; enable runtime to support Map/List/Object graphs
+    private static final DslJson<Object> DSL = new DslJson<>(Settings.withRuntime());
     public static final Pattern CLEANING_PATTERN = PatternHelper.compileOrGet(",\\s*(?=[}\\]])");
 
     /** The map where the JsonObject's properties are kept. */
@@ -641,7 +642,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
 
         String remainingPath = pathSplit[1];
         if (remainingPath.isEmpty()) {
-            return value2;
+            return JsonUtils.coerceSimpleNumber(value2);
         }
 
         if (value2 instanceof Json) {
@@ -651,6 +652,7 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
             return query(value2, remainingPath.substring(1));
         }
     }
+
 
     public String tryQueryJsonPathString(String jPath) {
         try {
@@ -705,7 +707,25 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
         if (jsa == null || jsa.isEmpty()) {
             return null;
         }
-        return jsa.get(0);
+        Object value = jsa.get(0);
+        if (value instanceof java.math.BigDecimal bd) {
+            return bd.doubleValue();
+        }
+        if (value instanceof java.math.BigInteger bi) {
+            return bi.longValue();
+        }
+        // Coerce integral numbers which fit into Integer back to Integer to preserve legacy behavior
+        if (value instanceof Number n) {
+            if (n instanceof Long) {
+                long lv = n.longValue();
+                if (lv <= Integer.MAX_VALUE && lv >= Integer.MIN_VALUE) {
+                    return (int) lv;
+                }
+            } else if (n instanceof Short || n instanceof Byte) {
+                return n.intValue();
+            }
+        }
+        return value;
     }
 
     public List<Object> queryJsonPathArray(String jPath) {
@@ -713,7 +733,30 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
         if (jsa == null || jsa.isEmpty()) {
             return null;
         }
-        return new ArrayList<>(jsa);
+        ArrayList<Object> out = new ArrayList<>(jsa.size());
+        for (Object v : jsa) {
+            if (v instanceof java.math.BigDecimal bd) {
+                out.add(bd.doubleValue());
+            } else if (v instanceof java.math.BigInteger bi) {
+                out.add(bi.longValue());
+            } else if (v instanceof Number n) {
+                if (n instanceof Long) {
+                    long lv = n.longValue();
+                    if (lv <= Integer.MAX_VALUE && lv >= Integer.MIN_VALUE) {
+                        out.add((int) lv);
+                    } else {
+                        out.add(n);
+                    }
+                } else if (n instanceof Short || n instanceof Byte) {
+                    out.add(n.intValue());
+                } else {
+                    out.add(n);
+                }
+            } else {
+                out.add(v);
+            }
+        }
+        return out;
     }
 
     @Override

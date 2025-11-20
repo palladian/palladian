@@ -7,9 +7,7 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 /**
- * <p>
  * Test JSON parsing.
- * </p>
  *
  * @author Philipp Katz
  * @author David Urbansky
