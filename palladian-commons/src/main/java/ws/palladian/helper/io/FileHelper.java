@@ -245,9 +245,7 @@ public final class FileHelper {
     }
 
     /**
-     * <p>
      * Gets the file type of a URI.
-     * </p>
      *
      * @param path The path of the file
      * @return The file type without the period. E.g. abc.jpg => "jpg".
