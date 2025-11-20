@@ -2,6 +2,7 @@ package ws.palladian.persistence.json;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
+import com.jsoniter.output.EncodingMode;
 import com.jsoniter.output.JsonStream;
 import com.jsoniter.spi.Config;
 import com.jsoniter.spi.JsoniterSpi;
@@ -23,6 +24,10 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 public class JsonArray extends AbstractList<Object> implements Json, Serializable {
+
+    public static boolean ESCAPE_UNICODE = false;
+    public static EncodingMode ENCODING_MODE = EncodingMode.STATIC_MODE;
+
     static {
         JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
             Object read = iter.read();
@@ -422,7 +427,11 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
     @Override
     public String toString(int indentFactor) {
         try {
-            Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).escapeUnicode(false).build();
+            Config.Builder builder = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).escapeUnicode(ESCAPE_UNICODE);
+            if (ENCODING_MODE != null) {
+                builder = builder.encodingMode(ENCODING_MODE);
+            }
+            Config conf = builder.build();
             return JsonStream.serialize(conf, this);
         } catch (Exception e) {
             try {
