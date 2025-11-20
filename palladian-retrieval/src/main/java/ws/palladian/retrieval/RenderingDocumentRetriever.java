@@ -2,8 +2,8 @@ package ws.palladian.retrieval;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.github.bonigarcia.wdm.config.DriverManagerType;
-import org.openqa.selenium.Cookie;
 import org.openqa.selenium.*;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -85,7 +85,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.setAcceptInsecureCerts(true);
             options.addPreference("general.useragent.override", userAgent);
             options.addPreference("intl.accept_languages", "en-US");
-            options.addArguments("--headless");
+            options.addArguments("--headless=new");
             options.setProfile(profile);
             if (binaryPath != null) {
                 options.setBinary(binaryPath);
@@ -111,7 +111,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             ChromeOptions options = new ChromeOptions();
             options.setAcceptInsecureCerts(true);
 
-            options.addArguments("--headless");
+            options.addArguments("--headless=new");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
@@ -152,7 +152,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             ChromeOptions options = new ChromeOptions();
             options.setAcceptInsecureCerts(true);
 
-            options.addArguments("--headless");
+            options.addArguments("--headless=new");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
@@ -192,6 +192,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
      * @param targetPath The path where the screenshot should be saved to.
      * @return The screenshot file.
      */
+    public BufferedImage getScreenshot() {
+        File scrFile = driver.getScreenshotAs(OutputType.FILE);
+
+        try {
+            return ImageIO.read(scrFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public File takeScreenshot(String targetPath) {
         File scrFile = driver.getScreenshotAs(OutputType.FILE);
 

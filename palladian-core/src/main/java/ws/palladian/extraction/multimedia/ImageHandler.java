@@ -54,9 +54,7 @@ import static java.awt.color.ColorSpace.CS_GRAY;
 import static java.awt.image.BufferedImage.TYPE_BYTE_GRAY;
 
 /**
- * <p>
  * A handler for images.
- * </p>
  *
  * @author David Urbansky
  * @author Philipp Katz

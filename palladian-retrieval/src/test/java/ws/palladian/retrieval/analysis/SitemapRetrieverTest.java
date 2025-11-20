@@ -12,7 +12,7 @@ public class SitemapRetrieverTest {
     @Test
     public void testFindSitemap() {
         SitemapRetriever sitemapRetriever = new SitemapRetriever();
-        assertEquals(Arrays.asList("http://www.atlasobscura.com/sitemaps/sitemap_index.xml.gz"), sitemapRetriever.findSitemaps("https://www.atlasobscura.com"));
+        assertEquals(Arrays.asList("https://www.atlasobscura.com/sitemaps/sitemap_index.xml.gz"), sitemapRetriever.findSitemaps("https://www.atlasobscura.com"));
 
         assertEquals(Arrays.asList( //
                 "https://www.apple.com/shop/sitemap.xml", //
