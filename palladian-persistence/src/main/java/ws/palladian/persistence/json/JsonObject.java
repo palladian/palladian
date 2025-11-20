@@ -1,22 +1,17 @@
 package ws.palladian.persistence.json;
 
+import com.dslplatform.json.DslJson;
+import com.dslplatform.json.runtime.TypeDefinition;
 import com.jayway.jsonpath.JsonPath;
-import com.jsoniter.JsonIterator;
-import com.jsoniter.any.Any;
-import com.jsoniter.output.EncodingMode;
-import com.jsoniter.output.JsonStream;
-import com.jsoniter.spi.Config;
-import com.jsoniter.spi.JsoniterSpi;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import ws.palladian.helper.math.MathHelper;
 import ws.palladian.helper.nlp.PatternHelper;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Philipp Katz, David Urbansky
@@ -25,29 +20,9 @@ import java.util.*;
 @SuppressWarnings("serial")
 public class JsonObject extends AbstractMap<String, Object> implements Json, Jsonable, Serializable {
 
-    /** There seems to be issues with json iter and it doesn't seem to be well-maintained -
-     * so allow to disable it here. - TODO this makes the current mess even messier- introduce
-     * a better solution to swap the parsers dynamically. */
-    public static boolean USE_JSON_ITER = true;
-    public static boolean ESCAPE_UNICODE = false;
-    public static EncodingMode ENCODING_MODE = EncodingMode.STATIC_MODE;
-
-    static {
-        JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
-            Object read = iter.read();
-            if (read == null) {
-                return null;
-            }
-
-            if (read instanceof Map map) {
-                return new JsonObject(map);
-            } else if (read instanceof Collection collection) {
-                return new JsonArray(collection);
-            }
-
-            return read;
-        });
-    }
+    // DSL-JSON instance for (de)serialization
+    private static final DslJson<Object> DSL = new DslJson<>();
+    public static final Pattern CLEANING_PATTERN = PatternHelper.compileOrGet(",\\s*(?=[}\\]])");
 
     /** The map where the JsonObject's properties are kept. */
     private Object2ObjectMap<String, Object> map;
@@ -118,28 +93,55 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
      * @throws JsonException If there is a syntax error in the source string or a duplicated key.
      */
     @SuppressWarnings("unchecked")
-	public JsonObject(String source) throws JsonException {
+    public JsonObject(String source) throws JsonException {
         if (source == null || source.isEmpty()) {
             map = new Object2ObjectLinkedOpenHashMap<>();
             return;
         }
-        if (USE_JSON_ITER) {
-          Any any;
-          try {
-              any = JsonIterator.deserialize(source);
-              map = any.as(Object2ObjectLinkedOpenHashMap.class);
-          } catch (Exception e) {
-              // remove trailing commas
-              source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-              try {
-                  any = JsonIterator.deserialize(source);
-                  map = any.as(Object2ObjectLinkedOpenHashMap.class);
-              } catch (Exception e2) {
-                  parseFallback(new JsonTokener(source));
-              }
-          }
-        } else {
-            parseFallback(new JsonTokener(source));
+        try {
+            byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
+            Map<String, Object> parsed = (Map<String, Object>) DSL.deserialize(new TypeDefinition<Map<String, Object>>() {
+            }.type, bytes, bytes.length);
+            if (parsed != null) {
+                map = new Object2ObjectLinkedOpenHashMap<>();
+                for (Map.Entry<String, Object> entry : parsed.entrySet()) {
+                    Object value = entry.getValue();
+                    if (value instanceof Map<?, ?> m) {
+                        map.put(entry.getKey(), new JsonObject(m));
+                    } else if (value instanceof Collection<?> c) {
+                        map.put(entry.getKey(), new JsonArray(c));
+                    } else {
+                        map.put(entry.getKey(), value);
+                    }
+                }
+            } else {
+                String cleaned = CLEANING_PATTERN.matcher(source).replaceAll("");
+                parseFallback(new JsonTokener(cleaned));
+            }
+        } catch (Exception e) {
+            String cleaned = CLEANING_PATTERN.matcher(source).replaceAll("");
+            try {
+                byte[] bytes = cleaned.getBytes(StandardCharsets.UTF_8);
+                Map<String, Object> parsed = (Map<String, Object>) DSL.deserialize(new TypeDefinition<Map<String, Object>>() {
+                }.type, bytes, bytes.length);
+                if (parsed != null) {
+                    map = new Object2ObjectLinkedOpenHashMap<>();
+                    for (Map.Entry<String, Object> entry : parsed.entrySet()) {
+                        Object value = entry.getValue();
+                        if (value instanceof Map<?, ?> m) {
+                            map.put(entry.getKey(), new JsonObject(m));
+                        } else if (value instanceof Collection<?> c) {
+                            map.put(entry.getKey(), new JsonArray(c));
+                        } else {
+                            map.put(entry.getKey(), value);
+                        }
+                    }
+                } else {
+                    parseFallback(new JsonTokener(cleaned));
+                }
+            } catch (Exception e2) {
+                parseFallback(new JsonTokener(cleaned));
+            }
         }
         if (map == null) {
             map = new Object2ObjectLinkedOpenHashMap<>();
@@ -585,17 +587,21 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
 
     @Override
     public String toString(int indentFactor) {
-        try {
-            Config.Builder builder = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).escapeUnicode(ESCAPE_UNICODE);
-            if (ENCODING_MODE != null) {
-                builder.encodingMode(ENCODING_MODE);
-            }
-            Config conf = builder.build();
-            return JsonStream.serialize(conf, this);
-        } catch (Exception e) {
-            /** Fallback writer if Jsoniter fails */
+        // Pretty printing via fallback writer, compact via DSL-JSON
+        if (indentFactor > 0) {
             try {
                 return this.write(new StringWriter(), indentFactor, 0).toString();
+            } catch (IOException ex) {
+                return null;
+            }
+        }
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DSL.serialize(this.map, baos);
+            return new String(baos.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            try {
+                return this.write(new StringWriter(), 0, 0).toString();
             } catch (IOException ex) {
                 return null;
             }
