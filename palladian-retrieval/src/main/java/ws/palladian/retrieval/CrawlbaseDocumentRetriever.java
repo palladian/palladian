@@ -15,17 +15,15 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="https://crawlbase.com/docs/crawling-api/">Crawlbase API Docs</a>
  * @since 18.05.2021
  */
-public class ProxyCrawlDocumentRetriever extends JsEnabledDocumentRetriever {
+public class CrawlbaseDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKeyPlain;
     private final String apiKeyJs;
-
-    private boolean useJsRendering = false;
 
     /**
      * Identifier for the API key when supplied via {@link Configuration}.
      */
-    public static final String CONFIG_TOKEN_PLAIN = "api.proxycrawl.tokenplain";
-    public static final String CONFIG_TOKEN_JS = "api.proxycrawl.tokenjs";
+    public static final String CONFIG_TOKEN_PLAIN = "api.crawlbase.tokenplain";
+    public static final String CONFIG_TOKEN_JS = "api.crawlbase.tokenjs";
 
     /**
      * ProxyCrawl allows 20 requests/second.
@@ -34,17 +32,9 @@ public class ProxyCrawlDocumentRetriever extends JsEnabledDocumentRetriever {
 
     private final DocumentRetriever documentRetriever = new DocumentRetriever();
 
-    public ProxyCrawlDocumentRetriever(Configuration configuration) {
+    public CrawlbaseDocumentRetriever(Configuration configuration) {
         this.apiKeyPlain = configuration.getString(CONFIG_TOKEN_PLAIN);
         this.apiKeyJs = configuration.getString(CONFIG_TOKEN_JS);
-    }
-
-    public boolean isUseJsRendering() {
-        return useJsRendering;
-    }
-
-    public void setUseJsRendering(boolean useJsRendering) {
-        this.useJsRendering = useJsRendering;
     }
 
     @Override
