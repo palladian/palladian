@@ -13,6 +13,36 @@ public class JsonUtils {
         // util.
     }
 
+    /**
+     * Coerce numeric types to preserve legacy behavior across JSON helpers:
+     * - BigDecimal -> Double
+     * - BigInteger -> Long
+     * - Long within Integer range -> Integer
+     * - Short/Byte -> Integer
+     *
+     * This is used by JsonObject/JsonArray when returning leaf values in query traversals
+     * to match historical expectations (e.g., 1 instead of 1L).
+     */
+    public static Object coerceSimpleNumber(Object value) {
+        if (value instanceof java.math.BigDecimal bd) {
+            return bd.doubleValue();
+        }
+        if (value instanceof java.math.BigInteger bi) {
+            return bi.longValue();
+        }
+        if (value instanceof Number n) {
+            if (n instanceof Long) {
+                long lv = n.longValue();
+                if (lv <= Integer.MAX_VALUE && lv >= Integer.MIN_VALUE) {
+                    return (int) lv;
+                }
+            } else if (n instanceof Short || n instanceof Byte) {
+                return n.intValue();
+            }
+        }
+        return value;
+    }
+
     public static boolean parseBoolean(Object object) throws JsonException {
         try {
             if (object.equals(Boolean.FALSE) || object instanceof String && ((String) object).equalsIgnoreCase("false")) {

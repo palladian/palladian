@@ -49,9 +49,9 @@
             <version>2.5.2</version>
         </dependency>
         <dependency>
-            <groupId>com.jsoniter</groupId>
-            <artifactId>jsoniter</artifactId>
-            <version>0.9.23</version>
+            <groupId>com.dslplatform</groupId>
+            <artifactId>dsl-json</artifactId>
+            <version>2.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

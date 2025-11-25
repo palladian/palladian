@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class ScrapingBeeDocumentRetriever extends JsEnabledDocumentRetriever {
     private final String apiKey;
-    private boolean useJsRendering = false;
 
     private int requestsLeft = Integer.MAX_VALUE;
 
@@ -37,14 +36,6 @@ public class ScrapingBeeDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public ScrapingBeeDocumentRetriever(Configuration configuration) {
         apiKey = configuration.getString(CONFIG_API_KEY);
-    }
-
-    public boolean isUseJsRendering() {
-        return useJsRendering;
-    }
-
-    public void setUseJsRendering(boolean useJsRendering) {
-        this.useJsRendering = useJsRendering;
     }
 
     @Override

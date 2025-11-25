@@ -1,10 +1,8 @@
 package ws.palladian.extraction.location.geocoder;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
-import ws.palladian.persistence.json.JsonObject;
+import static org.junit.Assert.assertEquals;
 
 public class GoogleGeocoderTest {
 
@@ -21,13 +19,13 @@ public class GoogleGeocoderTest {
     // JSON array initial value should be a string or collection or array.
     // which only happened in the non-json-iter code path
     // see https://forum.knime.com/t/palladian-google-address-geocoder/82909
-    @Test
-    public void testJsonParsing_withoutJsonIter() throws GeocoderException {
-        JsonObject.USE_JSON_ITER = false;
-        var parsed2 = GoogleGeocoder.parseJson(result);
-        assertEquals(parsed2.getLatitude(), 56.205, 0.001);
-        assertEquals(parsed2.getLongitude(), 10.262, 0.001);
-        JsonObject.USE_JSON_ITER = true;
-    }
+    //    @Test
+    //    public void testJsonParsing_withoutJsonIter() throws GeocoderException {
+    //        JsonObject.USE_JSON_ITER = false;
+    //        var parsed2 = GoogleGeocoder.parseJson(result);
+    //        assertEquals(parsed2.getLatitude(), 56.205, 0.001);
+    //        assertEquals(parsed2.getLongitude(), 10.262, 0.001);
+    //        JsonObject.USE_JSON_ITER = true;
+    //    }
 
 }

@@ -279,9 +279,13 @@ public final class FileHelper {
         if (lastQM > -1) {
             fileType = fileType.substring(0, lastQM);
         }
+        lastQM = fileType.indexOf(";");
+        if (lastQM > -1) {
+            fileType = fileType.substring(0, lastQM);
+        }
 
-        // there must be no slashes in file types
-        if (fileType.contains("/")) {
+        // there must be no slashes or = in file types
+        if (fileType.contains("/") || fileType.contains("=")) {
             fileType = "";
         }
 
