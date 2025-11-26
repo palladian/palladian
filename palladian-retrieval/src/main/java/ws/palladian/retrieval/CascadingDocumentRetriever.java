@@ -115,8 +115,16 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return getWebDocument(url, null, null);
     }
 
+    public Document getRenderedWebDocument(String url) {
+        return getWebDocument(url, null, null, null, true);
+    }
+
     public Document getWebDocument(String url, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
         return getWebDocument(url, null, null, retrieverDocumentCallback);
+    }
+
+    public Document getRenderedWebDocument(String url, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
+        return getWebDocument(url, null, null, retrieverDocumentCallback, true);
     }
 
     @Override
@@ -142,6 +150,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
+        return getWebDocument(url, resolvingExplanation, thread, retrieverDocumentCallback, false);
+    }
+
+    public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback,
+            boolean mustBeRendering) {
         if (resolvingExplanation == null) {
             resolvingExplanation = new ArrayList<>();
         }
@@ -151,7 +164,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
         // try normal document retriever
         boolean goodDocument = false;
-        if (documentRetriever != null && shouldMakeRequest(documentRetriever)) {
+        if (documentRetriever != null && !mustBeRendering && shouldMakeRequest(documentRetriever)) {
             try {
                 if (thread != null) {
                     thread.setName("Retrieving (" + DocumentRetriever.class.getName() + "): " + url);
