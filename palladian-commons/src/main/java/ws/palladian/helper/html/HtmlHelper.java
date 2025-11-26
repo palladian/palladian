@@ -557,9 +557,16 @@ public final class HtmlHelper {
         }
 
         if (noParamsUrl != null) {
-            html = html.replace(" href=\"/", " href=\"" + noParamsUrl + "/");
-            html = html.replaceAll(" href=\"(?!http)", " href=\"" + noParamsUrl + "/");
+            String domain = UrlHelper.getDomain(noParamsUrl, true);
+            html = html.replaceAll(" href=\"/(?!/)", " href=\"" + domain + "/");
+            html = html.replaceAll(" src=\"/(?!/)", " src=\"" + domain + "/");
+            html = html.replaceAll(" href=\"(?!http)(?!//)", " href=\"" + noParamsUrl + "/");
             html = html.replaceAll(" src=\"(?!http)(?!//)(?!\")", " src=\"" + noParamsUrl + "/");
+
+            // also replace // with the protocol
+            String protocol = noParamsUrl.startsWith("https") ? "https:" : "http:";
+            html = html.replaceAll(" href=\"//", " href=\"" + protocol + "//");
+            html = html.replaceAll(" src=\"//", " src=\"" + protocol + "//");
         }
 
         return html;
