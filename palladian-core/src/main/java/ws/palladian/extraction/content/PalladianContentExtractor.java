@@ -1220,6 +1220,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     }
 
     private JsonObject getSchemaJson(Document webPage) {
+        if (webPage == null) {
+            return null;
+        }
         List<Node> scriptNodes = XPathHelper.getXhtmlNodes(webPage, "//script[@type=\"application/ld+json\"]");
         for (Node scriptNode : scriptNodes) {
             String jsonString = scriptNode.getTextContent();
