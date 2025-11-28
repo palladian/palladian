@@ -43,6 +43,8 @@ import java.util.regex.Pattern;
 public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(RenderingDocumentRetriever.class);
 
+    private volatile boolean invalidatedByCallback;
+
     protected RemoteWebDriver driver;
 
     protected Consumer<NoSuchSessionException> noSuchSessionExceptionCallback;
@@ -234,13 +236,30 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public void goTo(String url, boolean forceReload) {
-        String currentUrl = Optional.ofNullable(driver.getCurrentUrl()).orElse("");
+        String currentUrl = "";
+        try {
+            currentUrl = Optional.ofNullable(driver.getCurrentUrl()).orElse("");
+        } catch (NoSuchSessionException e) {
+            LOGGER.error("problem getting session", e);
+            if (getNoSuchSessionExceptionCallback() != null) {
+                getNoSuchSessionExceptionCallback().accept(e);
+            }
+            throw e; // fail fast for the current attempt
+        }
 
         if (cookies != null && !cookies.isEmpty()) {
             String domain = UrlHelper.getDomain(url, false, true);
             String currentDomain = UrlHelper.getDomain(currentUrl, false, true);
             if (!domain.equalsIgnoreCase(currentDomain)) { // first navigate to the domain so we can set cookies
-                driver.get(url);
+                try {
+                    driver.get(url);
+                } catch (NoSuchSessionException e) {
+                    LOGGER.error("problem getting session", e);
+                    if (getNoSuchSessionExceptionCallback() != null) {
+                        getNoSuchSessionExceptionCallback().accept(e);
+                    }
+                    throw e;
+                }
             }
             for (Map.Entry<String, String> entry : cookies.entrySet()) {
                 try {
@@ -252,7 +271,15 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         if (forceReload || !currentUrl.equals(url)) {
-            driver.get(url);
+            try {
+                driver.get(url);
+            } catch (NoSuchSessionException e) {
+                LOGGER.error("problem getting session", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(e);
+                }
+                throw e;
+            }
         }
 
         // check whether a pattern matches and we have elements to wait for
@@ -522,6 +549,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         try {
             driver.close();
             driver.quit();
+            driver = null;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -562,6 +590,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public void setNoSuchSessionExceptionCallback(Consumer<NoSuchSessionException> noSuchSessionExceptionCallback) {
         this.noSuchSessionExceptionCallback = noSuchSessionExceptionCallback;
+    }
+
+    public boolean isInvalidatedByCallback() {
+        return invalidatedByCallback;
+    }
+
+    public void markInvalidatedByCallback() {
+        this.invalidatedByCallback = true;
+    }
+
+    public void clearInvalidation() {
+        this.invalidatedByCallback = false;
     }
 
     public static void main(String... args) throws HttpException {

@@ -196,14 +196,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     thread.setName("Retrieving (rendering): " + url);
                 }
                 renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
-                //                for (Consumer<Document> retrieverCallback : getRetrieverCallbacks()) {
-                //                    renderingDocumentRetriever.addRetrieverCallback(retrieverCallback);
-                //                }
 
                 configure(renderingDocumentRetriever);
                 document = renderingDocumentRetriever.getWebDocument(url);
-
-                //                renderingDocumentRetriever.getRetrieverCallbacks().clear();
 
                 goodDocument = isGoodDocument(document);
 
@@ -221,7 +216,21 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             } finally {
                 if (renderingDocumentRetriever != null) {
                     renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
-                    renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
+                    try {
+                        boolean sessionGone = renderingDocumentRetriever.getDriver() == null || renderingDocumentRetriever.getDriver().getSessionId() == null
+                                || renderingDocumentRetriever.isInvalidatedByCallback();
+
+                        if (sessionGone) {
+                            renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
+                        } else {
+                            renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
+                        }
+                    } catch (Exception ex) {
+                        renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
+                    } finally {
+                        // clear the flag just in case this instance is reused (after replace it won’t, but safe anyway)
+                        renderingDocumentRetriever.clearInvalidation();
+                    }
                 }
             }
         }

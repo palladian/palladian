@@ -66,7 +66,15 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
     @Override
     public RenderingDocumentRetriever createObject() {
-        return new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath, additionalOptions);
+        RenderingDocumentRetriever renderingDocumentRetriever = new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath,
+                additionalOptions);
+
+        renderingDocumentRetriever.setNoSuchSessionExceptionCallback(e -> {
+            // mark as invalid so a new one will be created
+            renderingDocumentRetriever.markInvalidatedByCallback();
+        });
+
+        return renderingDocumentRetriever;
     }
 
     public void replace(RenderingDocumentRetriever resource) {
