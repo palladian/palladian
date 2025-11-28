@@ -245,6 +245,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 getNoSuchSessionExceptionCallback().accept(e);
             }
             throw e; // fail fast for the current attempt
+        } catch (WebDriverException e) {
+            if (isFatalWebDriverError(e)) {
+                LOGGER.error("fatal webdriver error on getCurrentUrl", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                } else {
+                    markInvalidatedByCallback();
+                }
+                throw new NoSuchSessionException(e.getMessage(), e);
+            } else {
+                throw e;
+            }
         }
 
         if (cookies != null && !cookies.isEmpty()) {
@@ -259,6 +271,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                         getNoSuchSessionExceptionCallback().accept(e);
                     }
                     throw e;
+                } catch (WebDriverException e) {
+                    if (isFatalWebDriverError(e)) {
+                        LOGGER.error("fatal webdriver error on driver.get (pre-cookie nav)", e);
+                        if (getNoSuchSessionExceptionCallback() != null) {
+                            getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                        } else {
+                            markInvalidatedByCallback();
+                        }
+                        throw new NoSuchSessionException(e.getMessage(), e);
+                    } else {
+                        throw e;
+                    }
                 }
             }
             for (Map.Entry<String, String> entry : cookies.entrySet()) {
@@ -279,6 +303,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(e);
                 }
                 throw e;
+            } catch (WebDriverException e) {
+                if (isFatalWebDriverError(e)) {
+                    LOGGER.error("fatal webdriver error on driver.get", e);
+                    if (getNoSuchSessionExceptionCallback() != null) {
+                        getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                    } else {
+                        markInvalidatedByCallback();
+                    }
+                    throw new NoSuchSessionException(e.getMessage(), e);
+                } else {
+                    throw e;
+                }
             }
         }
 
@@ -572,6 +608,19 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
             }
+            throw e;
+        } catch (WebDriverException e) {
+            if (isFatalWebDriverError(e)) {
+                LOGGER.error("fatal webdriver error while deleting cookies", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                } else {
+                    markInvalidatedByCallback();
+                }
+                throw new NoSuchSessionException(e.getMessage(), e);
+            } else {
+                LOGGER.error("problem with deleting cookies", e);
+            }
         }
     }
 
@@ -602,6 +651,23 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public void clearInvalidation() {
         this.invalidatedByCallback = false;
+    }
+
+    /**
+     * Detects fatal WebDriver errors that indicate the session/tab is no longer usable and should be replaced.
+     */
+    private boolean isFatalWebDriverError(Throwable t) {
+        if (!(t instanceof WebDriverException)) {
+            return false;
+        }
+        String m = String.valueOf(t.getMessage()).toLowerCase(Locale.ROOT);
+        return m.contains("tab crashed")
+                || m.contains("chrome not reachable")
+                || m.contains("disconnected")
+                || m.contains("received shutdown signal")
+                || m.contains("target window already closed")
+                || m.contains("target closed")
+                || m.contains("invalid session id");
     }
 
     public static void main(String... args) throws HttpException {

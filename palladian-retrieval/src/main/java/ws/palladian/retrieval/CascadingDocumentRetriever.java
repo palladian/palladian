@@ -1,6 +1,7 @@
 package ws.palladian.retrieval;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.openqa.selenium.NoSuchSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -188,50 +189,78 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RenderingDocumentRetrieverPool.class.getName())) {
-            // try rendering retriever
-            RenderingDocumentRetriever renderingDocumentRetriever = null;
+            // try rendering retriever with one-time retry in case the checked-out retriever was broken
+            boolean retried = false;
 
-            try {
-                if (thread != null) {
-                    thread.setName("Retrieving (rendering): " + url);
-                }
-                renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
+            for (int attempt = 0; attempt < 2; attempt++) { // bounded: at most 2 attempts
+                RenderingDocumentRetriever renderingDocumentRetriever = null;
+                boolean retryDueToBroken = false;
 
-                configure(renderingDocumentRetriever);
-                document = renderingDocumentRetriever.getWebDocument(url);
+                try {
+                    if (thread != null) {
+                        thread.setName("Retrieving (rendering): " + url);
+                    }
+                    renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
 
-                goodDocument = isGoodDocument(document);
+                    configure(renderingDocumentRetriever);
 
-                if (goodDocument && retrieverDocumentCallback != null) {
-                    retrieverDocumentCallback.accept(Pair.of(renderingDocumentRetriever, document));
-                }
+                    // Perform the actual fetch
+                    document = renderingDocumentRetriever.getWebDocument(url);
+                    goodDocument = isGoodDocument(document);
 
-                String message = goodDocument ? "success" : "fail";
-                updateRequestTracker(RenderingDocumentRetrieverPool.class.getName(), goodDocument);
-                resolvingExplanation.add(
-                        "used rendering js retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                                RenderingDocumentRetrieverPool.class.getName()));
-            } catch (Exception throwable) {
-                throwable.printStackTrace();
-            } finally {
-                if (renderingDocumentRetriever != null) {
-                    renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
-                    try {
-                        boolean sessionGone = renderingDocumentRetriever.getDriver() == null || renderingDocumentRetriever.getDriver().getSessionId() == null
-                                || renderingDocumentRetriever.isInvalidatedByCallback();
+                    // Detect if this attempt used a broken retriever (exception may have been caught internally)
+                    // We only decide to retry if the attempt produced no document and the retriever signaled invalidation
+                    retryDueToBroken = (document == null && renderingDocumentRetriever.isInvalidatedByCallback());
 
-                        if (sessionGone) {
-                            renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
-                        } else {
-                            renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
+                    // Only record/emit results if we are not going to retry due to a broken session
+                    if (!retryDueToBroken) {
+                        if (goodDocument && retrieverDocumentCallback != null) {
+                            retrieverDocumentCallback.accept(Pair.of(renderingDocumentRetriever, document));
                         }
-                    } catch (Exception ex) {
-                        renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
-                    } finally {
-                        // clear the flag just in case this instance is reused (after replace it won’t, but safe anyway)
-                        renderingDocumentRetriever.clearInvalidation();
+
+                        String message = goodDocument ? "success" : "fail";
+                        updateRequestTracker(RenderingDocumentRetrieverPool.class.getName(), goodDocument);
+                        resolvingExplanation.add(
+                                "used rendering js retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() +
+                                        " success count: " + getSuccessfulRequestCount(RenderingDocumentRetrieverPool.class.getName()));
+                    }
+                } catch (NoSuchSessionException nse) {
+                    // Explicit session-loss surfaced here; retry once with a fresh retriever
+                    retryDueToBroken = true;
+                    LOGGER.warn("Rendering retriever session invalid; will retry once with a fresh instance for {}", url);
+                } catch (Exception throwable) {
+                    // Other errors: no automatic retry; just log
+                    throwable.printStackTrace();
+                } finally {
+                    if (renderingDocumentRetriever != null) {
+                        renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
+                        try {
+                            boolean sessionGone = renderingDocumentRetriever.getDriver() == null
+                                    || renderingDocumentRetriever.getDriver().getSessionId() == null
+                                    || renderingDocumentRetriever.isInvalidatedByCallback();
+
+                            if (sessionGone) {
+                                renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
+                            } else {
+                                renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
+                            }
+                        } catch (Exception ex) {
+                            renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
+                        } finally {
+                            // clear the flag just in case this instance is reused (after replace it won’t, but safe anyway)
+                            renderingDocumentRetriever.clearInvalidation();
+                        }
                     }
                 }
+
+                // If the failure was caused by a broken session, retry exactly once using a fresh retriever
+                if (retryDueToBroken && !retried) {
+                    retried = true;
+                    continue; // do the second (and last) attempt
+                }
+
+                // either success, non-broken failure, or already retried once
+                break;
             }
         }
 
