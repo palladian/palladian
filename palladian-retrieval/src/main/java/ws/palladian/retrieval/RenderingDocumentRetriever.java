@@ -391,9 +391,43 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
             }
+            throw e;
+        } catch (WebDriverException e) {
+            if (isFatalWebDriverError(e)) {
+                LOGGER.error("fatal webdriver error during navigation in conditional goTo", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                } else {
+                    markInvalidatedByCallback();
+                }
+                throw new NoSuchSessionException(e.getMessage(), e);
+            } else {
+                throw e;
+            }
         }
         try {
             new WebDriverWait(driver, Duration.ofSeconds(timeoutInSeconds)).until(condition);
+        } catch (NoSuchSessionException e) {
+            LOGGER.error("problem getting session while waiting for condition", e);
+            if (getNoSuchSessionExceptionCallback() != null) {
+                getNoSuchSessionExceptionCallback().accept(e);
+            }
+            throw e;
+        } catch (WebDriverException e) {
+            if (isFatalWebDriverError(e)) {
+                LOGGER.error("fatal webdriver error while waiting for condition", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                } else {
+                    markInvalidatedByCallback();
+                }
+                throw new NoSuchSessionException(e.getMessage(), e);
+            } else {
+                LOGGER.error("problem with waiting for condition", e);
+                if (getWaitExceptionCallback() != null) {
+                    getWaitExceptionCallback().accept(new WaitException(url, e, null));
+                }
+            }
         } catch (Exception e) {
             LOGGER.error("problem with waiting for condition", e);
             if (getWaitExceptionCallback() != null) {
