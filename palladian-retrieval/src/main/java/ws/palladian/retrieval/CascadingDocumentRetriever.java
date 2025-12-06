@@ -221,8 +221,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                         String message = goodDocument ? "success" : "fail";
                         updateRequestTracker(RenderingDocumentRetrieverPool.class.getName(), goodDocument);
                         resolvingExplanation.add(
-                                "used rendering js retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() +
-                                        " success count: " + getSuccessfulRequestCount(RenderingDocumentRetrieverPool.class.getName()));
+                                "used rendering js retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
+                                        RenderingDocumentRetrieverPool.class.getName()));
                     }
                 } catch (NoSuchSessionException nse) {
                     // Explicit session-loss surfaced here; retry once with a fresh retriever
@@ -235,8 +235,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     if (renderingDocumentRetriever != null) {
                         renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
                         try {
-                            boolean sessionGone = renderingDocumentRetriever.getDriver() == null
-                                    || renderingDocumentRetriever.getDriver().getSessionId() == null
+                            boolean sessionGone = renderingDocumentRetriever.getDriver() == null || renderingDocumentRetriever.getDriver().getSessionId() == null
                                     || renderingDocumentRetriever.isInvalidatedByCallback();
 
                             if (sessionGone) {
@@ -283,6 +282,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                         "used " + cloudDocumentRetriever.getClass().getSimpleName() + " document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement()
                                 + " success count: " + getSuccessfulRequestCount(cloudDocumentRetriever.getClass().getName()));
                 cloudDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
+
+                LOGGER.info("Made request with " + cloudDocumentRetriever.getClass().getSimpleName() + " to " + url + " - goodDocument: " + goodDocument);
+
                 if (goodDocument) {
                     break;
                 }
