@@ -10,10 +10,10 @@ import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.StringTokenizer;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,6 +48,7 @@ public class OpenAiApi extends AiApi {
     public static final String MODEL_GPT_4O_NANO = "gpt-4o-nano";
     public static final String MODEL_GPT_4_1_MINI = "gpt-4.1-mini";
     public static final String MODEL_GPT_5 = "gpt-5";
+    public static final String MODEL_GPT_5_1 = "gpt-5.1";
     public static final String MODEL_GPT_5_MINI = "gpt-5-mini";
     public static final String MODEL_GPT_5_NANO = "gpt-5-nano";
 
@@ -220,6 +221,181 @@ public class OpenAiApi extends AiApi {
         }
 
         return content;
+    }
+
+    /**
+     * Send an image to OpenAI's chat API with a developer (system) message and an optional user prompt.
+     * The user message will contain both text and an image URL, enabling multimodal vision analysis.
+     *
+     * Example developer message (recommended by issue):
+     * "You are a nutritional expert. A user will give you an image of food and you estimate macro and micro nutrients as accurately as possible.\n\nYou identify the ingredients, estimate the amount and add up the nutritional information."
+     *
+     * @param developerMessage The system/developer instruction message to guide the assistant.
+     * @param imageUrl         The URL (or data URI) of the image to analyze.
+     * @param userPrompt       Optional additional user text prompt; can be null or empty.
+     * @param modelName        The model to use (e.g., gpt-4o). If null, defaults to this.model
+     * @return The assistant's textual response.
+     */
+    public String chatWithImage(String developerMessage, String imageUrl, String userPrompt, String modelName) throws Exception {
+        return chatWithImage(developerMessage, imageUrl, userPrompt, modelName, null);
+    }
+
+    /**
+     * Variant that allows passing a response JSON schema which will be sent via response_format/json_schema.
+     */
+    public String chatWithImage(String developerMessage, String imageUrl, String userPrompt, String modelName, JsonObject jsonSchema) throws Exception {
+        if (modelName == null) {
+            modelName = this.model;
+        }
+
+        JsonArray messages = new JsonArray();
+
+        // system/developer message
+        if (!StringHelper.nullOrEmpty(developerMessage)) {
+            JsonObject systemMsg = new JsonObject();
+            systemMsg.put("role", "system");
+            systemMsg.put("content", developerMessage);
+            messages.add(systemMsg);
+        }
+
+        // user message with multimodal content (text + image_url)
+        JsonArray contentArray = new JsonArray();
+        if (!StringHelper.nullOrEmpty(userPrompt)) {
+            JsonObject textPart = new JsonObject();
+            textPart.put("type", "text");
+            textPart.put("text", userPrompt);
+            contentArray.add(textPart);
+        }
+        JsonObject imagePart = new JsonObject();
+        imagePart.put("type", "image_url");
+        JsonObject imageUrlObj = new JsonObject();
+        imageUrlObj.put("url", imageUrl);
+        imagePart.put("image_url", imageUrlObj);
+        contentArray.add(imagePart);
+
+        JsonObject userMsg = new JsonObject();
+        userMsg.put("role", "user");
+        userMsg.put("content", contentArray);
+        messages.add(userMsg);
+
+        return chat(messages, 1., null, modelName, null, jsonSchema);
+    }
+
+    /**
+     * Send a binary image (no public URL) by inlining it as a base64 data URL in the user message.
+     *
+     * @param developerMessage System/developer instruction.
+     * @param imageBytes       Raw image bytes (e.g., read from a file upload).
+     * @param mimeType         MIME type like "image/jpeg", "image/png". If null, defaults to image/jpeg.
+     * @param userPrompt       Optional user text, can be null.
+     * @param modelName        Model to use; if null, uses instance default.
+     * @return Assistant's textual response.
+     */
+    public String chatWithImage(String developerMessage, byte[] imageBytes, String mimeType, String userPrompt, String modelName) throws Exception {
+        return chatWithImage(developerMessage, imageBytes, mimeType, userPrompt, modelName, null);
+    }
+
+    /**
+     * Variant for binary images that accepts a response JSON schema.
+     */
+    public String chatWithImage(String developerMessage, byte[] imageBytes, String mimeType, String userPrompt, String modelName, JsonObject jsonSchema) throws Exception {
+        if (imageBytes == null || imageBytes.length == 0) {
+            throw new IllegalArgumentException("imageBytes must not be null/empty");
+        }
+        String mt = StringHelper.nullOrEmpty(mimeType) ? "image/jpeg" : mimeType;
+        String dataUrl = toBase64DataUrl(imageBytes, mt);
+        return chatWithImage(developerMessage, dataUrl, userPrompt, modelName, jsonSchema);
+    }
+
+    /**
+     * Convenience: binary image with default model and no extra user prompt. Assumes JPEG if mimeType unknown.
+     */
+    public String chatWithImage(String developerMessage, byte[] imageBytes) throws Exception {
+        return chatWithImage(developerMessage, imageBytes, null, null, null);
+    }
+
+    /**
+     * Convenience: binary image with default model and optional user prompt.
+     */
+    public String chatWithImage(String developerMessage, byte[] imageBytes, String userPrompt) throws Exception {
+        return chatWithImage(developerMessage, imageBytes, null, userPrompt, null);
+    }
+
+    /**
+     * Send a local image file by reading bytes and inlining as data URL. Tries to infer MIME from file extension.
+     */
+    public String chatWithImage(String developerMessage, File imageFile, String userPrompt, String modelName) throws Exception {
+        return chatWithImage(developerMessage, imageFile, userPrompt, modelName, null);
+    }
+
+    /**
+     * File variant that accepts a response JSON schema.
+     */
+    public String chatWithImage(String developerMessage, File imageFile, String userPrompt, String modelName, JsonObject jsonSchema) throws Exception {
+        if (imageFile == null || !imageFile.exists() || !imageFile.isFile()) {
+            throw new IllegalArgumentException("imageFile must be an existing file");
+        }
+        byte[] bytes;
+        try {
+            bytes = Files.readAllBytes(imageFile.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read image file: " + imageFile.getAbsolutePath(), e);
+        }
+        String mime = guessMimeTypeFromFilename(imageFile.getName());
+        return chatWithImage(developerMessage, bytes, mime, userPrompt, modelName, jsonSchema);
+    }
+
+    /**
+     * Convenience: local image file with default model and no extra user prompt.
+     */
+    public String chatWithImage(String developerMessage, File imageFile) throws Exception {
+        return chatWithImage(developerMessage, imageFile, null, null);
+    }
+
+    /**
+     * Convenience: local image file with default model and optional user prompt.
+     */
+    public String chatWithImage(String developerMessage, File imageFile, String userPrompt) throws Exception {
+        return chatWithImage(developerMessage, imageFile, userPrompt, null);
+    }
+
+    /**
+     * Convenience overload using the instance's default model and no additional user prompt.
+     */
+    public String chatWithImage(String developerMessage, String imageUrl) throws Exception {
+        return chatWithImage(developerMessage, imageUrl, null, null);
+    }
+
+    /**
+     * Convenience overload using the instance's default model.
+     */
+    public String chatWithImage(String developerMessage, String imageUrl, String userPrompt) throws Exception {
+        return chatWithImage(developerMessage, imageUrl, userPrompt, null);
+    }
+
+    private static String toBase64DataUrl(byte[] data, String mimeType) {
+        String base64 = Base64.getEncoder().encodeToString(data);
+        return "data:" + mimeType + ";base64," + base64;
+    }
+
+    private static String guessMimeTypeFromFilename(String name) {
+        if (name == null) {
+            return "image/jpeg";
+        }
+        String lower = name.toLowerCase();
+        if (lower.endsWith(".png"))
+            return "image/png";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
+            return "image/jpeg";
+        if (lower.endsWith(".webp"))
+            return "image/webp";
+        if (lower.endsWith(".gif"))
+            return "image/gif";
+        if (lower.endsWith(".bmp"))
+            return "image/bmp";
+        if (lower.endsWith(".heic"))
+            return "image/heic";
+        return "image/jpeg";
     }
 
     public String completeText(String text) throws Exception {
