@@ -55,7 +55,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
                     } else if (value instanceof Collection collection) {
                         this.map.put(key.toString(), new JsonArray(collection));
                     } else {
-                        this.map.put(key.toString(), value);
+                        // Coerce simple numeric types to preserve expected types (e.g., small integers as Integer)
+                        this.map.put(key.toString(), JsonUtils.coerceSimpleNumber(value));
                     }
                 }
             }
@@ -112,7 +113,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
                     } else if (value instanceof Collection<?> c) {
                         map.put(entry.getKey(), new JsonArray(c));
                     } else {
-                        map.put(entry.getKey(), value);
+                        // Coerce simple numeric types to preserve expected types (e.g., small integers as Integer)
+                        map.put(entry.getKey(), JsonUtils.coerceSimpleNumber(value));
                     }
                 }
             } else {
@@ -134,7 +136,8 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
                         } else if (value instanceof Collection<?> c) {
                             map.put(entry.getKey(), new JsonArray(c));
                         } else {
-                            map.put(entry.getKey(), value);
+                            // Coerce simple numeric types to preserve expected types (e.g., small integers as Integer)
+                            map.put(entry.getKey(), JsonUtils.coerceSimpleNumber(value));
                         }
                     }
                 } else {
