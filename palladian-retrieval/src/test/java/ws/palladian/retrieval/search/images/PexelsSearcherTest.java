@@ -1,14 +1,15 @@
 package ws.palladian.retrieval.search.images;
 
+import org.junit.Ignore;
+import org.junit.Test;
+import ws.palladian.retrieval.search.SearcherException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.junit.Test;
-
-import ws.palladian.retrieval.search.SearcherException;
-
 public class PexelsSearcherTest {
     @Test
+    @Ignore // pexels seems to work without proper key too
     public void testInvalidApiKey() throws SearcherException {
         try {
             var searcher = new PexelsSearcher("invalid");
