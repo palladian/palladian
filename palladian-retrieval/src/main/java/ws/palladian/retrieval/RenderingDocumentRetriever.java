@@ -616,13 +616,21 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public boolean closeAndQuit() {
+        if (driver == null) {
+            return true;
+        }
         try {
-            driver.close();
+            try {
+                driver.close();
+            } catch (Exception e) {
+                LOGGER.debug("Could not close driver window", e);
+            }
             driver.quit();
-            driver = null;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Could not quit driver", e);
             return false;
+        } finally {
+            driver = null;
         }
 
         return true;
@@ -695,13 +703,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             return false;
         }
         String m = String.valueOf(t.getMessage()).toLowerCase(Locale.ROOT);
-        return m.contains("tab crashed")
-                || m.contains("chrome not reachable")
-                || m.contains("disconnected")
-                || m.contains("received shutdown signal")
-                || m.contains("target window already closed")
-                || m.contains("target closed")
-                || m.contains("invalid session id");
+        return m.contains("tab crashed") || m.contains("chrome not reachable") || m.contains("disconnected") || m.contains("received shutdown signal") || m.contains(
+                "target window already closed") || m.contains("target closed") || m.contains("invalid session id");
     }
 
     public static void main(String... args) throws HttpException {

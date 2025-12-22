@@ -83,7 +83,14 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         } catch (Exception e) {
             e.printStackTrace();
         }
-        pool.add(createObject());
+        RenderingDocumentRetriever newResource = createObject();
+        try {
+            pool.add(newResource);
+        } catch (Exception e) {
+            // If we cannot add to the pool (e.g. full), we must close the new resource to avoid leak
+            newResource.closeAndQuit();
+            e.printStackTrace();
+        }
     }
 
     public void closePool() {

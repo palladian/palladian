@@ -81,6 +81,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
             return "Search videos on <a href=\"https://www.youtube.com/\">YouTube</a> using the YouTube Data API v3.";
         }
     }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(YouTubeSearcher.class);
 
     /**
@@ -276,8 +277,12 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
     public String getCaptions(String videoId, boolean asXml) {
         DocumentRetriever simpleRetriever = new DocumentRetriever();
         RenderingDocumentRetriever retriever = new RenderingDocumentRetriever();
-        Document webDocument = retriever.getWebDocument("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
-        retriever.closeAndQuit();
+        Document webDocument;
+        try {
+            webDocument = retriever.getWebDocument("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
+        } finally {
+            retriever.closeAndQuit();
+        }
         //        String text = retriever.getText("https://www.youtube.com/watch?v=" + UrlHelper.encodeParameter(videoId));
         String text = HtmlHelper.getInnerXml(webDocument);
         String url = StringHelper.getSubstringBetween(text, "api\\/timedtext", "\\\"");
