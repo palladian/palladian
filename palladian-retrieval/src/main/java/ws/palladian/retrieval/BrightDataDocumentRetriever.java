@@ -1,6 +1,8 @@
 package ws.palladian.retrieval;
 
 import org.apache.commons.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.helper.RequestThrottle;
@@ -17,6 +19,8 @@ import java.util.concurrent.TimeUnit;
  * @since 21.11.2025
  */
 public class BrightDataDocumentRetriever extends JsEnabledDocumentRetriever {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrightDataDocumentRetriever.class);
+
     private final String apiKey;
     private final String zone;
 
@@ -41,23 +45,36 @@ public class BrightDataDocumentRetriever extends JsEnabledDocumentRetriever {
 
     @Override
     public Document getWebDocument(String url) {
-        THROTTLE.hold();
-
         Document webDocument;
         try {
-            String responseText = documentRetriever.postJsonObject("https://api.brightdata.com/request",
-                    JsonObject.tryParse("{\n  \"zone\": \"" + zone + "\",\n  \"url\": \"" + url + "\",\n  \"format\": \"raw\",\n  \"method\": \"GET\",\n  \"country\": \"us\"}"),
-                    false);
+            String responseText = getText(url);
+            if (responseText == null) {
+                return null;
+            }
             webDocument = ParserFactory.createHtmlParser().parse(responseText);
             if (webDocument != null) {
                 webDocument.setDocumentURI(url);
                 callRetrieverCallback(webDocument);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage(), e);
             return null;
         }
         return webDocument;
+    }
+
+    @Override
+    public String getText(String url) {
+        THROTTLE.hold();
+
+        try {
+            return documentRetriever.postJsonObject("https://api.brightdata.com/request",
+                    JsonObject.tryParse("{\n  \"zone\": \"" + zone + "\",\n  \"url\": \"" + url + "\",\n  \"format\": \"raw\",\n  \"method\": \"GET\",\n  \"country\": \"us\"}"),
+                    false);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return null;
+        }
     }
 
     @Override

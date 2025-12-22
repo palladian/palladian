@@ -22,9 +22,6 @@ import java.util.function.Predicate;
  * Created by David Urbansky on 07.10.2017.
  */
 public abstract class WebDocumentRetriever {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebDocumentRetriever.class);
 
     /**
