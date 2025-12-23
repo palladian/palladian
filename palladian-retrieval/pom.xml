@@ -84,13 +84,13 @@
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <!--            <version>5.3.1</version>-->
-            <version>5.4.1</version>
+            <version>6.3.3</version>
             <!--            <version>3.8.1</version>-->
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>33.5.0-jre</version>
         </dependency>
         <!-- END OF SELENIUM DEPENDENCIES -->
         <dependency>
