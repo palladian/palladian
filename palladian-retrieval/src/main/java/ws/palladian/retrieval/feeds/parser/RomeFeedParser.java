@@ -115,6 +115,88 @@ public class RomeFeedParser extends AbstractFeedParser {
 
         if (syndFeed.getImage() != null && !StringHelper.nullOrEmpty(syndFeed.getImage().getUrl())) {
             result.getMetaInformation().setImageUrl(syndFeed.getImage().getUrl().trim());
+        } else {
+            try {
+                // fallback to iTunes image if regular image is missing
+                com.rometools.rome.feed.module.Module itunesModule = syndFeed.getModule("http://www.itunes.com/dtds/podcast-1.0.dtd");
+                if (itunesModule == null) {
+                    // if it's not a formal iTunes module, it might be in the modules list as a generic element
+                    // or ROME might have it under a different key
+                    for (com.rometools.rome.feed.module.Module module : syndFeed.getModules()) {
+                        if (module.getUri() != null && module.getUri().contains("itunes")) {
+                            itunesModule = module;
+                            break;
+                        }
+                    }
+                }
+                if (itunesModule != null) {
+                    try {
+                        // we use reflection here to avoid a hard dependency on the rome-modules artifact, which might not be available
+                        Object image = null;
+                        try {
+                            image = itunesModule.getClass().getMethod("getImageUri").invoke(itunesModule);
+                        } catch (NoSuchMethodException e) {
+                            try {
+                                image = itunesModule.getClass().getMethod("getImage").invoke(itunesModule);
+                            } catch (NoSuchMethodException e2) {
+                                // if both fail, check for a generic "href" property if it's a simple module
+                                try {
+                                    image = itunesModule.getClass().getMethod("getHref").invoke(itunesModule);
+                                } catch (NoSuchMethodException e3) {
+                                    // ignore
+                                }
+                            }
+                        }
+                        if (image != null) {
+                            result.getMetaInformation().setImageUrl(image.toString().trim());
+                        }
+                    } catch (Exception e) {
+                        LOGGER.debug("Could not get iTunes image via reflection", e);
+                    }
+                }
+
+                // check media module as another fallback
+                if (StringHelper.nullOrEmpty(result.getMetaInformation().getImageUrl())) {
+                    com.rometools.rome.feed.module.Module mediaModule = syndFeed.getModule("http://search.yahoo.com/mrss/");
+                    if (mediaModule != null) {
+                        try {
+                            Object metadata = mediaModule.getClass().getMethod("getMetadata").invoke(mediaModule);
+                            if (metadata != null) {
+                                Object thumbnail = metadata.getClass().getMethod("getThumbnail").invoke(metadata);
+                                if (thumbnail != null && thumbnail.getClass().isArray() && java.lang.reflect.Array.getLength(thumbnail) > 0) {
+                                    Object firstThumb = java.lang.reflect.Array.get(thumbnail, 0);
+                                    Object url = firstThumb.getClass().getMethod("getUrl").invoke(firstThumb);
+                                    if (url != null) {
+                                        result.getMetaInformation().setImageUrl(url.toString().trim());
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            LOGGER.debug("Could not get Media image via reflection", e);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.error("Could not get image from iTunes module", e);
+            }
+        }
+
+        // still no image found? Try looking at foreign markup
+        try {
+            if (StringHelper.nullOrEmpty(result.getMetaInformation().getImageUrl())) {
+                List<org.jdom2.Element> foreignMarkup = syndFeed.getForeignMarkup();
+                for (org.jdom2.Element element : foreignMarkup) {
+                    if (element.getName().equals("image") && element.getNamespacePrefix().equals("itunes")) {
+                        String href = element.getAttributeValue("href");
+                        if (href != null && !href.isEmpty()) {
+                            result.getMetaInformation().setImageUrl(href.trim());
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Could not get image from foreign markup", e);
         }
 
         result.getMetaInformation().setLanguage(syndFeed.getLanguage());
