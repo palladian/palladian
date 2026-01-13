@@ -36,6 +36,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     // web document retriever -> [failed requests, skipped requests, successful requests]
     private final Map<String, Integer[]> requestTracker = new ConcurrentHashMap<>();
 
+    private String userAgent;
     private final DocumentRetriever documentRetriever;
     private final RenderingDocumentRetrieverPool renderingDocumentRetrieverPool;
     private final List<JsEnabledDocumentRetriever> cloudDocumentRetrievers = new ArrayList<>();
@@ -401,5 +402,23 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
         }
         return originalValue;
+    }
+
+    public Document getWithFakeUserAgent(String url) {
+        setFakeUserAgent();
+        Document document = documentRetriever.getWebDocument(url);
+        resetFakeUserAgent();
+        return document;
+    }
+
+    private void setFakeUserAgent() {
+        userAgent = documentRetriever.getGlobalHeaders().get("User-Agent");
+        documentRetriever.getGlobalHeaders().put("User-Agent", "PostmanRuntime/7.51.0");
+    }
+
+    private void resetFakeUserAgent() {
+        if (userAgent != null) {
+            documentRetriever.getGlobalHeaders().put("User-Agent", userAgent);
+        }
     }
 }

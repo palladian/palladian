@@ -93,7 +93,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
             globalHeaders.put("Accept-Encoding", "gzip, deflate");
         }
         if (!globalHeaders.containsKey("User-Agent") && !globalHeaders.containsKey("user-agent")) {
-            globalHeaders.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36");
+            globalHeaders.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36");
         }
     }
 
