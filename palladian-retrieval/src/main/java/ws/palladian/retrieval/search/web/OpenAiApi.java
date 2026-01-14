@@ -432,6 +432,66 @@ public class OpenAiApi extends AiApi {
         return StringHelper.clean(answer);
     }
 
+    public String completeWithImage(String prompt, String imageUrl) throws Exception {
+        return completeWithImage(prompt, imageUrl, model, null);
+    }
+
+    public String completeWithImage(String prompt, String imageUrl, String modelName, AtomicInteger usedTokens) throws Exception {
+        JsonArray messages = new JsonArray();
+        JsonObject userMsg = new JsonObject();
+        userMsg.put("role", "user");
+
+        JsonArray contentArray = new JsonArray();
+        if (!StringHelper.nullOrEmpty(prompt)) {
+            JsonObject textPart = new JsonObject();
+            textPart.put("type", "text");
+            textPart.put("text", prompt);
+            contentArray.add(textPart);
+        }
+        JsonObject imagePart = new JsonObject();
+        imagePart.put("type", "image_url");
+        JsonObject imageUrlObj = new JsonObject();
+        imageUrlObj.put("url", imageUrl);
+        imagePart.put("image_url", imageUrlObj);
+        contentArray.add(imagePart);
+
+        userMsg.put("content", contentArray);
+        messages.add(userMsg);
+
+        return chat(messages, 1.0, usedTokens, modelName, null, null);
+    }
+
+    public String completeWithImage(String prompt, byte[] imageBytes) throws Exception {
+        return completeWithImage(prompt, imageBytes, "image/jpeg", model, null);
+    }
+
+    public String completeWithImage(String prompt, byte[] imageBytes, String mimeType, String modelName, AtomicInteger usedTokens) throws Exception {
+        if (imageBytes == null || imageBytes.length == 0) {
+            throw new IllegalArgumentException("imageBytes must not be null/empty");
+        }
+        String mt = StringHelper.nullOrEmpty(mimeType) ? "image/jpeg" : mimeType;
+        String dataUrl = toBase64DataUrl(imageBytes, mt);
+        return completeWithImage(prompt, dataUrl, modelName, usedTokens);
+    }
+
+    public String completeWithImage(String prompt, File imageFile) throws Exception {
+        return completeWithImage(prompt, imageFile, model, null);
+    }
+
+    public String completeWithImage(String prompt, File imageFile, String modelName, AtomicInteger usedTokens) throws Exception {
+        if (imageFile == null || !imageFile.exists() || !imageFile.isFile()) {
+            throw new IllegalArgumentException("imageFile must be an existing file");
+        }
+        byte[] bytes;
+        try {
+            bytes = Files.readAllBytes(imageFile.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read image file: " + imageFile.getAbsolutePath(), e);
+        }
+        String mime = guessMimeTypeFromFilename(imageFile.getName());
+        return completeWithImage(prompt, bytes, mime, modelName, usedTokens);
+    }
+
     public String createImage(String prompt, String size) {
         return createImage(prompt, size, null);
     }
