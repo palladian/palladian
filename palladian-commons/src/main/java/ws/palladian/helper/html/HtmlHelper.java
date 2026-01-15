@@ -550,7 +550,7 @@ public final class HtmlHelper {
             // if the node is a document, we want to get the inner XML of the document element
             Node docNode = ((Document) node).getDocumentElement();
             if (docNode != null) {
-                html = childrenToString(node);
+                html = childrenToString(docNode);
             }
         }
 
