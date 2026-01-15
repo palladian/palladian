@@ -5,7 +5,6 @@ package ws.palladian.persistence;
 
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
@@ -67,7 +66,7 @@ public final class DatabaseManagerFactory {
                 File configFile = new File(DB_CONFIG_FILE);
                 LOGGER.debug("Trying to load configuration from {}", configFile.getAbsolutePath());
                 FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class).configure(
-                        new Parameters().properties().setFile(configFile));
+                        new Parameters().xml().setFile(configFile));
                 configuration = builder.getConfiguration();
             } catch (ConfigurationException e) {
                 throw new IllegalStateException("Error loading the configuration file from \"" + DB_CONFIG_FILE + "\": " + e.getMessage());
