@@ -526,19 +526,7 @@ public final class HtmlHelper {
         return getInnerXml(node, fixScriptAndStyleContent, null);
     }
 
-    public static String getInnerXml(Node node, boolean fixScriptAndStyleContent, String noParamsUrl) {
-        if (node == null) {
-            return null;
-        }
-
-        // if the node is a document, we want to get the inner XML of the document element
-        if (node instanceof Document) {
-            Node docNode = ((Document) node).getDocumentElement();
-            if (docNode != null) {
-                node = docNode;
-            }
-        }
-
+    private static String childrenToString(Node node) {
         StringBuilder sb = new StringBuilder();
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -547,7 +535,25 @@ public final class HtmlHelper {
                 sb.append(outerXml);
             }
         }
-        String html = sb.toString();
+
+        return sb.toString();
+    }
+
+    public static String getInnerXml(Node node, boolean fixScriptAndStyleContent, String noParamsUrl) {
+        if (node == null) {
+            return null;
+        }
+
+        String html = childrenToString(node);
+
+        if (html.isEmpty() && node instanceof Document) {
+            // if the node is a document, we want to get the inner XML of the document element
+            Node docNode = ((Document) node).getDocumentElement();
+            if (docNode != null) {
+                html = childrenToString(node);
+            }
+        }
+
         if (fixScriptAndStyleContent) {
             html = fixScriptAndStyleContent(html);
             // Fix self-closing tags for non-void elements
@@ -556,7 +562,7 @@ public final class HtmlHelper {
             // decode HTML entities like &#1234; to their character representation
             Pattern entityPattern = Pattern.compile("&#(\\d+);");
             Matcher entityMatcher = entityPattern.matcher(html);
-            sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             while (entityMatcher.find()) {
                 int codePoint = Integer.parseInt(entityMatcher.group(1));
                 entityMatcher.appendReplacement(sb, new String(Character.toChars(codePoint)));
