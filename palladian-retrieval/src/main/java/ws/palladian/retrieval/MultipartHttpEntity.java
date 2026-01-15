@@ -1,6 +1,6 @@
 package ws.palladian.retrieval;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.functional.Factory;
 
 import java.io.ByteArrayInputStream;

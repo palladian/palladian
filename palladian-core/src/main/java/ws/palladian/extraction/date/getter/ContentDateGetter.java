@@ -1,6 +1,6 @@
 package ws.palladian.extraction.date.getter;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -350,7 +350,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * this text reasonably you need to convert this code.
      */
     private static String replaceHtmlSymbols(String text) {
-        String result = StringEscapeUtils.unescapeHtml(text);
+        String result = StringEscapeUtils.unescapeHtml3(text);
         result = StringHelper.replaceProtectedSpace(result);
         result = StringHelper.removeDoubleWhitespaces(result);
 

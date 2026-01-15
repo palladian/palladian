@@ -1,6 +1,6 @@
 package ws.palladian.utils;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.math3.util.FastMath;
 import ws.palladian.helper.math.AbstractStats;
 import ws.palladian.helper.math.FatStats;

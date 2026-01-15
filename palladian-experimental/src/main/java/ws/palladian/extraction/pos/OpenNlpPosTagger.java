@@ -3,7 +3,7 @@ package ws.palladian.extraction.pos;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
 import opennlp.tools.postag.POSTaggerME;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.Cache;
 import ws.palladian.helper.io.FileHelper;
 

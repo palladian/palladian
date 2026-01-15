@@ -5,7 +5,7 @@ package ws.palladian.classification;
 
 import libsvm.svm;
 import libsvm.svm_node;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.core.AbstractClassifier;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.CategoryEntriesBuilder;
