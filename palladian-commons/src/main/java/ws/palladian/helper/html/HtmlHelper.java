@@ -530,6 +530,15 @@ public final class HtmlHelper {
         if (node == null) {
             return null;
         }
+
+        // if the node is a document, we want to get the inner XML of the document element
+        if (node instanceof Document) {
+            Node docNode = ((Document) node).getDocumentElement();
+            if (docNode != null) {
+                node = docNode;
+            }
+        }
+
         StringBuilder sb = new StringBuilder();
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
