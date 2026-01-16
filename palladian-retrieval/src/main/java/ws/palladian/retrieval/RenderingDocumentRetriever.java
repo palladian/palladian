@@ -239,15 +239,32 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public void goTo(String url, boolean forceReload) {
-        String currentUrl = "";
+        // Handle cookie deletion BEFORE navigation to ensure stability
         try {
-            currentUrl = Optional.ofNullable(driver.getCurrentUrl()).orElse("");
+            driver.manage().deleteAllCookies();
         } catch (NoSuchSessionException e) {
-            LOGGER.error("problem getting session", e);
+            LOGGER.error("problem getting session while deleting cookies", e);
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
             }
-            throw e; // fail fast for the current attempt
+            throw e;
+        } catch (WebDriverException e) {
+            if (isFatalWebDriverError(e)) {
+                LOGGER.error("fatal webdriver error while deleting cookies", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                } else {
+                    markInvalidatedByCallback();
+                }
+                throw new NoSuchSessionException(e.getMessage(), e);
+            } else {
+                LOGGER.error("problem with deleting cookies", e);
+            }
+        }
+
+        String currentUrl = "";
+        try {
+            currentUrl = Optional.ofNullable(driver.getCurrentUrl()).orElse("");
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error on getCurrentUrl", e);
@@ -258,7 +275,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 }
                 throw new NoSuchSessionException(e.getMessage(), e);
             } else {
-                throw e;
+                // If it's not fatal, we just assume we don't know the current URL
+                LOGGER.debug("Could not get current URL", e);
             }
         }
 
@@ -344,19 +362,38 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(
                         webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
             }
+            // settle down a bit
+            ThreadHelper.deepSleep(500);
+        } catch (NoSuchSessionException e) {
+            LOGGER.error("problem getting session while waiting", e);
+            if (getNoSuchSessionExceptionCallback() != null) {
+                getNoSuchSessionExceptionCallback().accept(e);
+            }
+            throw e;
+        } catch (WebDriverException e) {
+            if (isFatalWebDriverError(e)) {
+                LOGGER.error("fatal webdriver error while waiting", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                } else {
+                    markInvalidatedByCallback();
+                }
+                throw new NoSuchSessionException(e.getMessage(), e);
+            } else {
+                if (getWaitExceptionCallback() != null) {
+                    getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
+                }
+                LOGGER.error("problem with waiting", e);
+                // Throw exception to abort instead of continuing to potentially unstable state
+                throw new RuntimeException("Wait failed, aborting navigation to " + url, e);
+            }
         } catch (Exception e) {
             if (getWaitExceptionCallback() != null) {
                 getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
             }
             LOGGER.error("problem with waiting", e);
-        } catch (Throwable e) {
-            LOGGER.error("problem with waiting", e);
-            ThreadHelper.deepSleep(500);
-        }
-        try {
-            driver.manage().deleteAllCookies();
-        } catch (Exception e) {
-            LOGGER.error("problem with deleting cookies", e);
+            // Throw exception to abort instead of continuing to potentially unstable state
+            throw new RuntimeException("Wait failed, aborting navigation to " + url, e);
         }
     }
 
@@ -410,6 +447,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         try {
             new WebDriverWait(driver, Duration.ofSeconds(timeoutInSeconds)).until(condition);
+            // settle down a bit
+            ThreadHelper.deepSleep(500);
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session while waiting for condition", e);
             if (getNoSuchSessionExceptionCallback() != null) {
@@ -430,12 +469,16 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (getWaitExceptionCallback() != null) {
                     getWaitExceptionCallback().accept(new WaitException(url, e, null));
                 }
+                // Throw exception to abort instead of continuing to potentially unstable state
+                throw new RuntimeException("Wait for condition failed, aborting navigation to " + url, e);
             }
         } catch (Exception e) {
             LOGGER.error("problem with waiting for condition", e);
             if (getWaitExceptionCallback() != null) {
                 getWaitExceptionCallback().accept(new WaitException(url, e, null));
             }
+            // Throw exception to abort instead of continuing to potentially unstable state
+            throw new RuntimeException("Wait for condition failed, aborting navigation to " + url, e);
         }
     }
 
@@ -615,7 +658,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
      */
     @Override
     public void close() {
-        driver.close();
+        closeAndQuit();
     }
 
     public boolean closeAndQuit() {
