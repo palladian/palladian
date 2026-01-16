@@ -98,6 +98,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             driver = new FirefoxDriver(options);
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         } else if (browser == DriverManagerType.CHROME) {
             if (driverVersionCode != null) {
                 //                WebDriverManager.chromedriver().browserVersion(driverVersionCode).setup();
@@ -140,6 +141,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             driver = new ChromeDriver(options);
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
                 WebDriverManager.chromiumdriver().driverVersion(driverVersionCode).setup();
@@ -181,6 +183,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             driver = new ChromeDriver(options);
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         }
     }
 
@@ -671,6 +674,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         return Integer.MAX_VALUE;
     }
 
+    @Override
+    public void setTimeoutSeconds(int timeoutSeconds) {
+        super.setTimeoutSeconds(timeoutSeconds);
+        if (driver != null) {
+            try {
+                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+            } catch (Exception e) {
+                LOGGER.warn("Could not set page load timeout", e);
+            }
+        }
+    }
+
     public void setDriver(RemoteWebDriver driver) {
         this.driver = driver;
     }
@@ -704,7 +719,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         String m = String.valueOf(t.getMessage()).toLowerCase(Locale.ROOT);
         return m.contains("tab crashed") || m.contains("chrome not reachable") || m.contains("disconnected") || m.contains("received shutdown signal") || m.contains(
-                "target window already closed") || m.contains("target closed") || m.contains("invalid session id");
+                "target window already closed") || m.contains("target closed") || m.contains("invalid session id") || m.contains("loader has changed while resolving nodes");
     }
 
     public static void main(String... args) throws HttpException {
