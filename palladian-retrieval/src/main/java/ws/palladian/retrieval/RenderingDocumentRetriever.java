@@ -165,6 +165,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
             options.addArguments("--disable-background-networking");
+            options.addArguments("--disable-features=Translate,BackForwardCache,MediaRouter");
             options.addArguments("--mute-audio");
             options.addArguments("--autoplay-policy=user-required");
             options.addArguments("--start-maximized");
@@ -246,31 +247,6 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public void goTo(String url, boolean forceReload) {
-        // Handle cookie deletion BEFORE navigation to ensure stability.
-        // We navigate to about:blank first to have a clean, stable state for deletion.
-        try {
-            driver.get("about:blank");
-            driver.manage().deleteAllCookies();
-        } catch (NoSuchSessionException e) {
-            LOGGER.error("problem getting session while deleting cookies", e);
-            if (getNoSuchSessionExceptionCallback() != null) {
-                getNoSuchSessionExceptionCallback().accept(e);
-            }
-            throw e;
-        } catch (WebDriverException e) {
-            if (isFatalWebDriverError(e)) {
-                LOGGER.error("fatal webdriver error while deleting cookies", e);
-                if (getNoSuchSessionExceptionCallback() != null) {
-                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
-                } else {
-                    markInvalidatedByCallback();
-                }
-                throw new NoSuchSessionException(e.getMessage(), e);
-            } else {
-                LOGGER.error("problem with deleting cookies", e);
-            }
-        }
-
         String currentUrl = "";
         try {
             currentUrl = Optional.ofNullable(driver.getCurrentUrl()).orElse("");
@@ -564,6 +540,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 try {
                     this.goTo(url);
                     document = getCurrentWebDocument();
+                } catch (NoSuchSessionException e) {
+                    throw e; // Rethrow to let the pool handle it
                 } catch (Exception e) {
                     LOGGER.error("problem opening page " + url, e);
                 }
@@ -699,8 +677,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     public void deleteAllCookies() {
         super.deleteAllCookies();
         try {
-            driver.get("about:blank");
-            driver.manage().deleteAllCookies();
+            try {
+                driver.manage().deleteAllCookies();
+            } catch (Exception e) {
+                LOGGER.debug("Could not delete cookies on current page", e);
+            }
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session", e);
             if (getNoSuchSessionExceptionCallback() != null) {
@@ -730,11 +711,18 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public void setTimeoutSeconds(int timeoutSeconds) {
         super.setTimeoutSeconds(timeoutSeconds);
+
+        // When using retriever pools, CascadingDocumentRetriever.configure(...) calls setTimeoutSeconds
+        // after the WebDriver was already created. Selenium timeouts must be updated explicitly,
+        // otherwise the driver keeps its defaults (often 300s pageLoad timeout).
         if (driver != null) {
             try {
                 driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+                // keep script timeout in sync (used by executeScript / waits)
+                driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(timeoutSeconds));
             } catch (Exception e) {
-                LOGGER.warn("Could not set page load timeout", e);
+                // Don't fail retrieval if timeout cannot be applied (e.g. already-closed session).
+                LOGGER.debug("Could not apply Selenium timeouts ({}s) to driver.", timeoutSeconds, e);
             }
         }
     }
