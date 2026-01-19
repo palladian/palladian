@@ -118,6 +118,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
+            options.addArguments("--disable-background-networking");
+            options.addArguments("--disable-features=Translate,BackForwardCache,MediaRouter");
+            options.addArguments("--mute-audio");
+            options.addArguments("--autoplay-policy=user-required");
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
@@ -160,6 +164,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
+            options.addArguments("--disable-background-networking");
+            options.addArguments("--mute-audio");
+            options.addArguments("--autoplay-policy=user-required");
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
@@ -239,8 +246,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public void goTo(String url, boolean forceReload) {
-        // Handle cookie deletion BEFORE navigation to ensure stability
+        // Handle cookie deletion BEFORE navigation to ensure stability.
+        // We navigate to about:blank first to have a clean, stable state for deletion.
         try {
+            driver.get("about:blank");
             driver.manage().deleteAllCookies();
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session while deleting cookies", e);
@@ -690,6 +699,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     public void deleteAllCookies() {
         super.deleteAllCookies();
         try {
+            driver.get("about:blank");
             driver.manage().deleteAllCookies();
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session", e);
@@ -762,7 +772,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         String m = String.valueOf(t.getMessage()).toLowerCase(Locale.ROOT);
         return m.contains("tab crashed") || m.contains("chrome not reachable") || m.contains("disconnected") || m.contains("received shutdown signal") || m.contains(
-                "target window already closed") || m.contains("target closed") || m.contains("invalid session id") || m.contains("loader has changed while resolving nodes");
+                "target window already closed") || m.contains("target closed") || m.contains("invalid session id") || m.contains("loader has changed while resolving nodes")
+                || m.contains("timed out receiving message from renderer");
     }
 
     public static void main(String... args) throws HttpException {
