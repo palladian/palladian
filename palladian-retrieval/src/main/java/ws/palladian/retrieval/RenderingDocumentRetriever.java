@@ -115,13 +115,13 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.setAcceptInsecureCerts(true);
 
             options.addArguments("--headless=new");
+            options.addArguments("--no-default-browser-check");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
             options.addArguments("--disable-background-networking");
             options.addArguments("--disable-features=Translate,BackForwardCache,MediaRouter");
             options.addArguments("--mute-audio");
-            options.addArguments("--autoplay-policy=user-required");
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
@@ -161,13 +161,13 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.setAcceptInsecureCerts(true);
 
             options.addArguments("--headless=new");
+            options.addArguments("--no-default-browser-check");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
             options.addArguments("--disable-background-networking");
             options.addArguments("--disable-features=Translate,BackForwardCache,MediaRouter");
             options.addArguments("--mute-audio");
-            options.addArguments("--autoplay-policy=user-required");
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
