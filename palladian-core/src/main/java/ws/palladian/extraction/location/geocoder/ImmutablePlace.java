@@ -1,6 +1,9 @@
 package ws.palladian.extraction.location.geocoder;
 
+import java.util.ArrayList;
+
 import ws.palladian.helper.functional.Factory;
+import ws.palladian.helper.geo.GeoCoordinate;
 
 public final class ImmutablePlace implements Place {
     public static final class Builder implements Factory<ImmutablePlace> {
@@ -13,6 +16,17 @@ public final class ImmutablePlace implements Place {
         private String locality;
         private String neighbourhood;
         private String label;
+        private String state;
+        private String city;
+        private String cityDistrict;
+        private String continent;
+        private String citySubdistrict;
+        private String municipality;
+        private String politicalUnion;
+        private String stateDistrict;
+        private String province;
+        private GeoCoordinate coordinate;
+        private String name;
 
         public Builder setHouseNumber(String houseNumber) {
             this.houseNumber = houseNumber;
@@ -44,6 +58,7 @@ public final class ImmutablePlace implements Place {
             return this;
         }
 
+        @Deprecated
         public Builder setLocality(String locality) {
             this.locality = locality;
             return this;
@@ -59,10 +74,65 @@ public final class ImmutablePlace implements Place {
             return this;
         }
 
+        public Builder setState(String state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder setCity(String city) {
+            this.city = city;
+            return this;
+        }
+
+        public Builder setCityDistrict(String cityDistrict) {
+            this.cityDistrict = cityDistrict;
+            return this;
+        }
+
+        public Builder setContinent(String continent) {
+            this.continent = continent;
+            return this;
+        }
+
+        public Builder setCitySubdistrict(String citySubdistrict) {
+            this.citySubdistrict = citySubdistrict;
+            return this;
+        }
+
+        public Builder setMunicipality(String municipality) {
+            this.municipality = municipality;
+            return this;
+        }
+
+        public Builder setPoliticalUnion(String politicalUnion) {
+            this.politicalUnion = politicalUnion;
+            return this;
+        }
+
+        public Builder setStateDistrict(String stateDistrict) {
+            this.stateDistrict = stateDistrict;
+            return this;
+        }
+
+        public Builder setProvince(String province) {
+            this.province = province;
+            return this;
+        }
+
+        public Builder setCooordinate(GeoCoordinate coordinate) {
+            this.coordinate = coordinate;
+            return this;
+        }
+
         @Override
         public ImmutablePlace create() {
             return new ImmutablePlace(this);
         }
+
+		public void setName(String tryGetString) {
+			this.name=tryGetString;
+			
+		}
 
     }
 
@@ -75,6 +145,17 @@ public final class ImmutablePlace implements Place {
     private final String locality;
     private final String neighbourhood;
     private final String label;
+    private final String state;
+    private final String city;
+    private final String cityDistrict;
+    private final String continent;
+    private final String citySubdistrict;
+    private final String municipality;
+    private final String politicalUnion;
+    private final String stateDistrict;
+    private final String province;
+    private final GeoCoordinate coordinate;
+    private final String name;
 
     private ImmutablePlace(Builder builder) {
         houseNumber = builder.houseNumber;
@@ -86,6 +167,17 @@ public final class ImmutablePlace implements Place {
         locality = builder.locality;
         neighbourhood = builder.neighbourhood;
         label = builder.label;
+        state = builder.state;
+        city = builder.city;
+        cityDistrict = builder.cityDistrict;
+        continent = builder.continent;
+        citySubdistrict = builder.citySubdistrict;
+        municipality = builder.municipality;
+        politicalUnion = builder.politicalUnion;
+        stateDistrict = builder.stateDistrict;
+        province = builder.province;
+        coordinate = builder.coordinate;
+        name = builder.name;
     }
 
     @Override
@@ -108,10 +200,10 @@ public final class ImmutablePlace implements Place {
         return country;
     }
 
-    @Override
-    public String getRegion() {
-        return region;
-    }
+//    @Override
+//    public String getRegion() {
+//        return region;
+//    }
 
     @Override
     public String getCounty() {
@@ -123,10 +215,10 @@ public final class ImmutablePlace implements Place {
         return locality;
     }
 
-    @Override
-    public String getNeighbourhood() {
-        return neighbourhood;
-    }
+//    @Override
+//    public String getNeighbourhood() {
+//        return neighbourhood;
+//    }
 
     @Override
     public String getLabel() {
@@ -134,28 +226,121 @@ public final class ImmutablePlace implements Place {
     }
 
     @Override
+    public String getState() {
+        return state;
+    }
+
+    @Override
+    public String getCity() {
+        return city;
+    }
+
+    @Override
+    public String getCityDistrict() {
+        return cityDistrict;
+    }
+
+    @Override
+    public String getContinent() {
+        return continent;
+    }
+
+    @Override
+    public String getCitySubdistrict() {
+        return citySubdistrict;
+    }
+
+//    @Override
+//    public String getMunicipality() {
+//        return municipality;
+//    }
+
+    @Override
+    public String getPoliticalUnion() {
+        return politicalUnion;
+    }
+
+//    @Override
+//    public String getStateDistrict() {
+//        return stateDistrict;
+//    }
+//
+//    @Override
+//    public String getProvince() {
+//        return province;
+//    }
+
+    @Override
+    public GeoCoordinate getCoordinate() {
+        return coordinate;
+    }
+    
+    @Override
+    public String getName() {
+    	return name;
+    }
+
+    @Override
     public String toString() {
-        StringBuilder toStringBuilder = new StringBuilder();
-        toStringBuilder.append("ImmutablePlace [houseNumber=");
-        toStringBuilder.append(houseNumber);
-        toStringBuilder.append(", street=");
-        toStringBuilder.append(street);
-        toStringBuilder.append(", postalcode=");
-        toStringBuilder.append(postalcode);
-        toStringBuilder.append(", country=");
-        toStringBuilder.append(country);
-        toStringBuilder.append(", region=");
-        toStringBuilder.append(region);
-        toStringBuilder.append(", county=");
-        toStringBuilder.append(county);
-        toStringBuilder.append(", locality=");
-        toStringBuilder.append(locality);
-        toStringBuilder.append(", neighbourhood=");
-        toStringBuilder.append(neighbourhood);
-        toStringBuilder.append(", label=");
-        toStringBuilder.append(label);
-        toStringBuilder.append("]");
-        return toStringBuilder.toString();
+        var stringParts = new ArrayList<String>();
+        if (houseNumber != null) {
+            stringParts.add(String.format("houseNumber=%s", houseNumber));
+        }
+        if (street != null) {
+            stringParts.add(String.format("street=%s", street));
+        }
+        if (postalcode != null) {
+            stringParts.add(String.format("postalcode=%s", postalcode));
+        }
+        if (country != null) {
+            stringParts.add(String.format("country=%s", country));
+        }
+//        if (region != null) {
+//            stringParts.add(String.format("region=%s", region));
+//        }
+        if (county != null) {
+            stringParts.add(String.format("county=%s", county));
+        }
+        if (locality != null) {
+            stringParts.add(String.format("locality=%s", locality));
+        }
+//        if (neighbourhood != null) {
+//            stringParts.add(String.format("neighbourhood=%s", neighbourhood));
+//        }
+        if (label != null) {
+            stringParts.add(String.format("label=%s", label));
+        }
+        if (state != null) {
+            stringParts.add(String.format("state=%s", state));
+        }
+        if (city != null) {
+            stringParts.add(String.format("city=%s", city));
+        }
+        if (cityDistrict != null) {
+            stringParts.add(String.format("cityDistrict=%s", cityDistrict));
+        }
+        if (continent != null) {
+            stringParts.add(String.format("continent=%s", continent));
+        }
+        if (citySubdistrict != null) {
+            stringParts.add(String.format("citySubdistrict=%s", citySubdistrict));
+        }
+//        if (municipality != null) {
+//            stringParts.add(String.format("municipality=%s", municipality));
+//        }
+        if (politicalUnion != null) {
+            stringParts.add(String.format("politicalUnion=%s", politicalUnion));
+        }
+//        if (stateDistrict != null) {
+//            stringParts.add(String.format("stateDistrict=%s", stateDistrict));
+//        }
+//        if (province != null) {
+//            stringParts.add(String.format("province=%s", province));
+//        }
+        if (coordinate != null) {
+            stringParts.add(String.format("coordinate=%s", coordinate));
+        }
+        return String.format("Place [%s]", String.join(", ", stringParts));
     }
 
 }
