@@ -131,9 +131,12 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         for (String url : urls) {
             Callable<Document> task = () -> {
                 RenderingDocumentRetriever retriever = pool.acquire();
-                Document webDocument = retriever.getWebDocument(url);
-                pool.recycle(retriever);
-                return webDocument;
+                try {
+                    Document webDocument = retriever.getWebDocument(url);
+                    return webDocument;
+                } finally {
+                    pool.recycle(retriever);
+                }
             };
 
             results.add(exec.submit(task));

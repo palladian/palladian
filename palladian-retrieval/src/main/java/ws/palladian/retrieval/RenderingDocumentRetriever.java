@@ -98,6 +98,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             driver = new FirefoxDriver(options);
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         } else if (browser == DriverManagerType.CHROME) {
             if (driverVersionCode != null) {
                 //                WebDriverManager.chromedriver().browserVersion(driverVersionCode).setup();
@@ -114,9 +115,13 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.setAcceptInsecureCerts(true);
 
             options.addArguments("--headless=new");
+            options.addArguments("--no-default-browser-check");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
+            options.addArguments("--disable-background-networking");
+            options.addArguments("--disable-features=Translate,BackForwardCache,MediaRouter");
+            options.addArguments("--mute-audio");
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
@@ -140,6 +145,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             driver = new ChromeDriver(options);
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
                 WebDriverManager.chromiumdriver().driverVersion(driverVersionCode).setup();
@@ -155,9 +161,13 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.setAcceptInsecureCerts(true);
 
             options.addArguments("--headless=new");
+            options.addArguments("--no-default-browser-check");
             options.addArguments("--lang=en-US");
             options.addArguments("--disable-gpu");
             options.addArguments("--disable-extensions");
+            options.addArguments("--disable-background-networking");
+            options.addArguments("--disable-features=Translate,BackForwardCache,MediaRouter");
+            options.addArguments("--mute-audio");
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
@@ -181,6 +191,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             driver = new ChromeDriver(options);
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         }
     }
 
@@ -239,12 +250,6 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         String currentUrl = "";
         try {
             currentUrl = Optional.ofNullable(driver.getCurrentUrl()).orElse("");
-        } catch (NoSuchSessionException e) {
-            LOGGER.error("problem getting session", e);
-            if (getNoSuchSessionExceptionCallback() != null) {
-                getNoSuchSessionExceptionCallback().accept(e);
-            }
-            throw e; // fail fast for the current attempt
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error on getCurrentUrl", e);
@@ -255,7 +260,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 }
                 throw new NoSuchSessionException(e.getMessage(), e);
             } else {
-                throw e;
+                // If it's not fatal, we just assume we don't know the current URL
+                LOGGER.debug("Could not get current URL", e);
             }
         }
 
@@ -341,19 +347,38 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(
                         webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
             }
+            // settle down a bit
+            ThreadHelper.deepSleep(500);
+        } catch (NoSuchSessionException e) {
+            LOGGER.error("problem getting session while waiting", e);
+            if (getNoSuchSessionExceptionCallback() != null) {
+                getNoSuchSessionExceptionCallback().accept(e);
+            }
+            throw e;
+        } catch (WebDriverException e) {
+            if (isFatalWebDriverError(e)) {
+                LOGGER.error("fatal webdriver error while waiting", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                } else {
+                    markInvalidatedByCallback();
+                }
+                throw new NoSuchSessionException(e.getMessage(), e);
+            } else {
+                if (getWaitExceptionCallback() != null) {
+                    getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
+                }
+                LOGGER.error("problem with waiting", e);
+                // Throw exception to abort instead of continuing to potentially unstable state
+                throw new RuntimeException("Wait failed, aborting navigation to " + url, e);
+            }
         } catch (Exception e) {
             if (getWaitExceptionCallback() != null) {
                 getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
             }
             LOGGER.error("problem with waiting", e);
-        } catch (Throwable e) {
-            LOGGER.error("problem with waiting", e);
-            ThreadHelper.deepSleep(500);
-        }
-        try {
-            driver.manage().deleteAllCookies();
-        } catch (Exception e) {
-            LOGGER.error("problem with deleting cookies", e);
+            // Throw exception to abort instead of continuing to potentially unstable state
+            throw new RuntimeException("Wait failed, aborting navigation to " + url, e);
         }
     }
 
@@ -407,6 +432,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         try {
             new WebDriverWait(driver, Duration.ofSeconds(timeoutInSeconds)).until(condition);
+            // settle down a bit
+            ThreadHelper.deepSleep(500);
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session while waiting for condition", e);
             if (getNoSuchSessionExceptionCallback() != null) {
@@ -427,12 +454,16 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (getWaitExceptionCallback() != null) {
                     getWaitExceptionCallback().accept(new WaitException(url, e, null));
                 }
+                // Throw exception to abort instead of continuing to potentially unstable state
+                throw new RuntimeException("Wait for condition failed, aborting navigation to " + url, e);
             }
         } catch (Exception e) {
             LOGGER.error("problem with waiting for condition", e);
             if (getWaitExceptionCallback() != null) {
                 getWaitExceptionCallback().accept(new WaitException(url, e, null));
             }
+            // Throw exception to abort instead of continuing to potentially unstable state
+            throw new RuntimeException("Wait for condition failed, aborting navigation to " + url, e);
         }
     }
 
@@ -509,6 +540,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 try {
                     this.goTo(url);
                     document = getCurrentWebDocument();
+                } catch (NoSuchSessionException e) {
+                    throw e; // Rethrow to let the pool handle it
                 } catch (Exception e) {
                     LOGGER.error("problem opening page " + url, e);
                 }
@@ -612,7 +645,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
      */
     @Override
     public void close() {
-        driver.close();
+        closeAndQuit();
     }
 
     public boolean closeAndQuit() {
@@ -644,7 +677,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     public void deleteAllCookies() {
         super.deleteAllCookies();
         try {
-            driver.manage().deleteAllCookies();
+            try {
+                driver.manage().deleteAllCookies();
+            } catch (Exception e) {
+                LOGGER.debug("Could not delete cookies on current page", e);
+            }
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session", e);
             if (getNoSuchSessionExceptionCallback() != null) {
@@ -669,6 +706,25 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public int requestsLeft() {
         return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public void setTimeoutSeconds(int timeoutSeconds) {
+        super.setTimeoutSeconds(timeoutSeconds);
+
+        // When using retriever pools, CascadingDocumentRetriever.configure(...) calls setTimeoutSeconds
+        // after the WebDriver was already created. Selenium timeouts must be updated explicitly,
+        // otherwise the driver keeps its defaults (often 300s pageLoad timeout).
+        if (driver != null) {
+            try {
+                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+                // keep script timeout in sync (used by executeScript / waits)
+                driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(timeoutSeconds));
+            } catch (Exception e) {
+                // Don't fail retrieval if timeout cannot be applied (e.g. already-closed session).
+                LOGGER.debug("Could not apply Selenium timeouts ({}s) to driver.", timeoutSeconds, e);
+            }
+        }
     }
 
     public void setDriver(RemoteWebDriver driver) {
@@ -704,7 +760,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         String m = String.valueOf(t.getMessage()).toLowerCase(Locale.ROOT);
         return m.contains("tab crashed") || m.contains("chrome not reachable") || m.contains("disconnected") || m.contains("received shutdown signal") || m.contains(
-                "target window already closed") || m.contains("target closed") || m.contains("invalid session id");
+                "target window already closed") || m.contains("target closed") || m.contains("invalid session id") || m.contains("loader has changed while resolving nodes")
+                || m.contains("timed out receiving message from renderer");
     }
 
     public static void main(String... args) throws HttpException {

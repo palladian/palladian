@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.search.images;
 
-import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
@@ -19,44 +19,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
- * Search for free gifs from <a href="https://tenor.com">Tenor</a>.
- * </p>
+ * Search for free gifs from <a href="https://klipy.com">Klipy</a>.
  *
  * @author David Urbansky
- * @Deprecated use {@link KlipySearcher} instead. Tenor shuts down their public API in June 2026.
- * @see <a href="https://tenor.com/gifapi/documentation">Tenor API Docs</a>
+ * @see <a href="https://klipy.com/developers">Klipy API Docs</a>
  */
-public class TenorSearcher extends AbstractSearcher<WebImage> {
+public class KlipySearcher extends AbstractSearcher<WebImage> {
     /** The name of this searcher. */
-    private static final String SEARCHER_NAME = "Tenor";
+    private static final String SEARCHER_NAME = "Klipy";
 
     /** Identifier for the API key when supplied via {@link Configuration}. */
-    public static final String CONFIG_API_KEY = "api.tenor.key";
+    public static final String CONFIG_API_KEY = "api.klipy.key";
 
     private final String apiKey;
 
     /**
-     * <p>
-     * Creates a new Tenor searcher.
-     * </p>
+     * Creates a new Klipy searcher.
      *
-     * @param apiKey The API key for accessing Tenor, not <code>null</code> or empty.
+     * @param apiKey The API key for accessing Klipy, not <code>null</code> or empty.
      */
-    public TenorSearcher(String apiKey) {
+    public KlipySearcher(String apiKey) {
         Validate.notEmpty(apiKey, "apiKey must not be empty");
         this.apiKey = apiKey;
     }
 
     /**
      * <p>
-     * Creates a new Tenor searcher.
+     * Creates a new Klipy searcher.
      * </p>
      *
-     * @param configuration The configuration which must provide an API key for accessing Tenor, which must be
-     *                      provided as string via key {@value TenorSearcher#CONFIG_API_KEY} in the configuration.
+     * @param configuration The configuration which must provide an API key for accessing Klipy, which must be
+     *                      provided as string via key {@value KlipySearcher#CONFIG_API_KEY} in the configuration.
      */
-    public TenorSearcher(Configuration configuration) {
+    public KlipySearcher(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
@@ -77,23 +72,19 @@ public class TenorSearcher extends AbstractSearcher<WebImage> {
             if (jsonResponse == null) {
                 throw new SearcherException("Failed to get JSON from " + requestUrl);
             }
-            JsonObject json = new JsonObject(jsonResponse);
-            JsonArray jsonArray = json.getJsonArray("results");
+            JsonArray jsonArray = jsonResponse.queryJsonArray("data/data");
             for (int i = 0; i < jsonArray.size(); i++) {
                 JsonObject resultHit = jsonArray.getJsonObject(i);
 
-                JsonObject media = resultHit.tryGetJsonArray("media").getJsonObject(0);
                 BasicWebImage.Builder builder = new BasicWebImage.Builder();
-                builder.setUrl(resultHit.getString("url"));
-                builder.setImageUrl(media.tryQueryString("gif/url"));
+                builder.setUrl(resultHit.tryQueryString("file/hd/gif/url"));
+                builder.setImageUrl(resultHit.tryQueryString("file/hd/gif/url"));
                 builder.setTitle(resultHit.tryGetString("title"));
-                JsonArray dimensions = media.tryQueryJsonArray("gif/dims");
-                builder.setWidth(dimensions.getInt(0));
-                builder.setHeight(dimensions.getInt(1));
+                builder.setWidth(resultHit.tryQueryInt("file/hd/gif/width", 0));
+                builder.setHeight(resultHit.tryQueryInt("file/hd/gif/height", 0));
                 builder.setImageType(ImageType.GIF);
-                builder.setThumbnailUrl(media.tryQueryString("nanogif/url"));
+                builder.setThumbnailUrl(resultHit.tryQueryString("file/hd/gif/url"));
                 builder.setLicense(License.FREE);
-                builder.setLicenseLink("https://tenor.com/gifapi/documentation#attribution");
                 results.add(builder.create());
                 if (results.size() >= resultCount) {
                     break;
@@ -107,7 +98,7 @@ public class TenorSearcher extends AbstractSearcher<WebImage> {
     }
 
     private String buildRequest(String searchTerms, int limit) {
-        return String.format("https://api.tenor.com/v1/search?key=%s&q=%s&limit=%s", apiKey, UrlHelper.encodeParameter(searchTerms), limit);
+        return String.format("https://api.klipy.com/api/v1/%s/gifs/search?q=%s&per_page=%s", apiKey, UrlHelper.encodeParameter(searchTerms), limit);
     }
 
     @Override
@@ -116,7 +107,7 @@ public class TenorSearcher extends AbstractSearcher<WebImage> {
     }
 
     public static void main(String[] args) throws SearcherException {
-        TenorSearcher searcher = new TenorSearcher("KEY");
+        KlipySearcher searcher = new KlipySearcher("KEY");
         List<WebImage> results = searcher.search("pizza", 101);
         CollectionHelper.print(results);
     }
