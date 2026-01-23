@@ -552,8 +552,9 @@ public final class StringHelper {
     }
 
     public static String removeWords(List<String> words, String searchString) {
-        words.sort(StringLengthComparator.INSTANCE);
-        for (String word : words) {
+        List<String> sortedWords = new ArrayList<>(words);
+        sortedWords.sort(StringLengthComparator.INSTANCE);
+        for (String word : sortedWords) {
             searchString = removeWord(word, searchString);
         }
         return searchString;
