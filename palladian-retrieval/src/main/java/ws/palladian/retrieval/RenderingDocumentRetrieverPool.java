@@ -18,6 +18,9 @@ import java.util.concurrent.Future;
  * @author David Urbansky
  */
 public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocumentRetriever> {
+    public static final String NO_DELETE_DRIVER_COOKIES = "__no_delete_driver_cookies";
+    public static final String PAGE_LOAD_NORMAL = "__page_load_strategy_normal";
+    public static final String PAGE_LOAD_EAGER = "__page_load_strategy_eager";
     protected final DriverManagerType driverManagerType;
     protected final org.openqa.selenium.Proxy proxy;
     protected final String userAgent;
@@ -68,6 +71,12 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     public RenderingDocumentRetriever createObject() {
         RenderingDocumentRetriever renderingDocumentRetriever = new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath,
                 additionalOptions);
+
+        if (additionalOptions != null) {
+            if (additionalOptions.contains(NO_DELETE_DRIVER_COOKIES)) {
+                renderingDocumentRetriever.setDeleteDriverCookiesBeforeUse(false);
+            }
+        }
 
         renderingDocumentRetriever.setNoSuchSessionExceptionCallback(e -> {
             // mark as invalid so a new one will be created
