@@ -406,7 +406,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         String s = HtmlHelper.getInnerXml(document);
         if (!getGoodDocumentIndicatorTexts().isEmpty()) {
-            return StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
+            boolean good = StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
+            if (good) {
+                return true;
+            }
         }
         if (StringHelper.containsAny(s, getBadDocumentIndicatorTexts())) {
             return false;
