@@ -302,6 +302,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     thread.setName("Retrieving (" + cloudDocumentRetriever.getClass().getSimpleName() + "): " + url);
                 }
                 configure(cloudDocumentRetriever);
+                StopWatch stopWatch1 = new StopWatch();
                 document = cloudDocumentRetriever.getWebDocument(url);
                 goodDocument = isGoodDocument(document);
 
@@ -316,7 +317,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                                 + " success count: " + getSuccessfulRequestCount(cloudDocumentRetriever.getClass().getName()));
                 cloudDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
 
-                LOGGER.info("Made request with " + cloudDocumentRetriever.getClass().getSimpleName() + " to " + url + " - goodDocument: " + goodDocument);
+                LOGGER.info("Made request with " + cloudDocumentRetriever.getClass().getSimpleName() + " to " + url + " - goodDocument: " + goodDocument + " - time: "
+                        + stopWatch1.getElapsedTimeString());
 
                 if (goodDocument) {
                     break;
