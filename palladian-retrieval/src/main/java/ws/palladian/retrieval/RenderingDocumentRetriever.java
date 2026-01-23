@@ -30,6 +30,7 @@ import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
@@ -173,7 +174,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
             ClientConfig clientConfig = ClientConfig.defaultConfig().connectionTimeout(Duration.ofSeconds(15)).readTimeout(
                             Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
-                    .version("HTTP/1.1");                              // avoids HTTP/2 weirdness in some stacks
+                    .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
             driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
@@ -236,7 +237,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
             ClientConfig clientConfig = ClientConfig.defaultConfig().connectionTimeout(Duration.ofSeconds(15)).readTimeout(
                             Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
-                    .version("HTTP/1.1");                              // avoids HTTP/2 weirdness in some stacks
+                    .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
             driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
