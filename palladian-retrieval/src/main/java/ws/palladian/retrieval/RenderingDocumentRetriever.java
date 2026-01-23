@@ -5,12 +5,14 @@ import io.github.bonigarcia.wdm.config.DriverManagerType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.http.ClientConfig;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -169,7 +171,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 }
             }
 
-            driver = new ChromeDriver(options);
+            ClientConfig clientConfig = ClientConfig.defaultConfig().connectionTimeout(Duration.ofSeconds(15)).readTimeout(
+                            Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
+                    .version("HTTP/1.1");                              // avoids HTTP/2 weirdness in some stacks
+
+            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
@@ -228,7 +234,11 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 }
             }
 
-            driver = new ChromeDriver(options);
+            ClientConfig clientConfig = ClientConfig.defaultConfig().connectionTimeout(Duration.ofSeconds(15)).readTimeout(
+                            Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
+                    .version("HTTP/1.1");                              // avoids HTTP/2 weirdness in some stacks
+
+            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         }
     }
@@ -752,24 +762,24 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         return Integer.MAX_VALUE;
     }
 
-    @Override
-    public void setTimeoutSeconds(int timeoutSeconds) {
-        super.setTimeoutSeconds(timeoutSeconds);
-
-        // When using retriever pools, CascadingDocumentRetriever.configure(...) calls setTimeoutSeconds
-        // after the WebDriver was already created. Selenium timeouts must be updated explicitly,
-        // otherwise the driver keeps its defaults (often 300s pageLoad timeout).
-        if (driver != null) {
-            try {
-                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
-                // keep script timeout in sync (used by executeScript / waits)
-                driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(timeoutSeconds));
-            } catch (Exception e) {
-                // Don't fail retrieval if timeout cannot be applied (e.g. already-closed session).
-                LOGGER.debug("Could not apply Selenium timeouts ({}s) to driver.", timeoutSeconds, e);
-            }
-        }
-    }
+    //    @Override
+    //    public void setTimeoutSeconds(int timeoutSeconds) {
+    //        super.setTimeoutSeconds(timeoutSeconds);
+    //
+    //        // When using retriever pools, CascadingDocumentRetriever.configure(...) calls setTimeoutSeconds
+    //        // after the WebDriver was already created. Selenium timeouts must be updated explicitly,
+    //        // otherwise the driver keeps its defaults (often 300s pageLoad timeout).
+    //        if (driver != null) {
+    //            try {
+    //                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+    //                // keep script timeout in sync (used by executeScript / waits)
+    //                driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(timeoutSeconds));
+    //            } catch (Exception e) {
+    //                // Don't fail retrieval if timeout cannot be applied (e.g. already-closed session).
+    //                LOGGER.debug("Could not apply Selenium timeouts ({}s) to driver.", timeoutSeconds, e);
+    //            }
+    //        }
+    //    }
 
     public void setDriver(RemoteWebDriver driver) {
         this.driver = driver;
