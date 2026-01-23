@@ -116,7 +116,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             return null;
         }
 
-        if (htmlContentString.toLowerCase().startsWith("timout extracting")) {
+        if (htmlContentString.toLowerCase().startsWith("timeout extracting")) {
             return null;
         }
 
