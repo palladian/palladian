@@ -1,11 +1,14 @@
 package ws.palladian.retrieval;
 
 import io.github.bonigarcia.wdm.config.DriverManagerType;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ResourcePool;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +26,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     public static final String NO_DELETE_DRIVER_COOKIES = "__no_delete_driver_cookies";
     public static final String PAGE_LOAD_NORMAL = "__page_load_strategy_normal";
     public static final String PAGE_LOAD_EAGER = "__page_load_strategy_eager";
+
     protected final DriverManagerType driverManagerType;
     protected final org.openqa.selenium.Proxy proxy;
     protected final String userAgent;
@@ -37,9 +41,17 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     private final AtomicInteger replacedDrivers = new AtomicInteger(0);
     private final AtomicInteger quitFailures = new AtomicInteger(0);
     private final AtomicInteger quitTimeouts = new AtomicInteger(0);
+    private final AtomicInteger hardKills = new AtomicInteger(0);
 
     private final ScheduledExecutorService monitorExecutor = Executors.newSingleThreadScheduledExecutor();
     private final ExecutorService quitExecutor = Executors.newCachedThreadPool();
+
+    // Quit timeouts
+    private static final long QUIT_TIMEOUT_SECONDS = 10;
+
+    // Hard-kill behavior
+    private static final long TERM_WAIT_MILLIS = 250;
+    private static final long KILL_WAIT_MILLIS = 150;
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
         this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
@@ -66,8 +78,8 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         initializePool();
 
         monitorExecutor.scheduleAtFixedRate(() -> {
-            LOGGER.info("Pool Stats: createdDrivers={}, replacedDrivers={}, quitFailures={}, quitTimeouts={}", createdDrivers.get(), replacedDrivers.get(), quitFailures.get(),
-                    quitTimeouts.get());
+            LOGGER.info("Pool Stats: createdDrivers={}, replacedDrivers={}, quitFailures={}, quitTimeouts={}, hardKills={}", createdDrivers.get(), replacedDrivers.get(),
+                    quitFailures.get(), quitTimeouts.get(), hardKills.get());
         }, 60, 60, TimeUnit.SECONDS);
 
         // we have to shut down the browsers or the RAM will be used up rather quickly
@@ -77,7 +89,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
                     RenderingDocumentRetriever r = pool.poll(10, TimeUnit.SECONDS);
                     closeWithStats(r);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.warn("Error during pool shutdown hook", e);
                 }
             }
             quitExecutor.shutdownNow();
@@ -91,10 +103,8 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         RenderingDocumentRetriever renderingDocumentRetriever = new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath,
                 additionalOptions);
 
-        if (additionalOptions != null) {
-            if (additionalOptions.contains(NO_DELETE_DRIVER_COOKIES)) {
-                renderingDocumentRetriever.setDeleteDriverCookiesBeforeUse(false);
-            }
+        if (additionalOptions != null && additionalOptions.contains(NO_DELETE_DRIVER_COOKIES)) {
+            renderingDocumentRetriever.setDeleteDriverCookiesBeforeUse(false);
         }
 
         renderingDocumentRetriever.setNoSuchSessionExceptionCallback(e -> {
@@ -110,15 +120,16 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         try {
             closeWithStats(resource);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.warn("Error closing resource during replace()", e);
         }
+
         RenderingDocumentRetriever newResource = createObject();
         try {
             pool.add(newResource);
         } catch (Exception e) {
             // If we cannot add to the pool (e.g. full), we must close the new resource to avoid leak
             closeWithStats(newResource);
-            e.printStackTrace();
+            LOGGER.warn("Could not add new resource to pool during replace()", e);
         }
     }
 
@@ -128,7 +139,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
                 RenderingDocumentRetriever take = pool.take();
                 closeWithStats(take);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.warn("Error closing pool entry", e);
             }
         }
         quitExecutor.shutdownNow();
@@ -139,24 +150,132 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         if (resource == null) {
             return;
         }
+
+        // Capture Chrome PID *before* attempting quit (capabilities are in-memory)
+        final Long chromePid = getChromeBrowserPid(resource);
+
         Future<Boolean> future = quitExecutor.submit(resource::closeAndQuit);
         try {
-            Boolean result = future.get(30, TimeUnit.SECONDS);
+            Boolean result = future.get(QUIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             if (Boolean.FALSE.equals(result)) {
                 quitFailures.incrementAndGet();
+                // quit returned "false" => attempt hard kill
+                hardKill(resource, chromePid, "closeAndQuit returned false");
             }
         } catch (TimeoutException e) {
             quitTimeouts.incrementAndGet();
             future.cancel(true);
-            LOGGER.error("Timeout quitting driver", e);
+            LOGGER.error("Timeout quitting driver ({}s). Will hard-kill. chromePid={}", QUIT_TIMEOUT_SECONDS, chromePid, e);
+            hardKill(resource, chromePid, "quit timeout");
         } catch (Exception e) {
             quitFailures.incrementAndGet();
-            LOGGER.error("Error quitting driver", e);
+            LOGGER.error("Error quitting driver. Will hard-kill. chromePid={}", chromePid, e);
+            hardKill(resource, chromePid, "quit exception: " + e.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Try to read Chrome's PID from capabilities (goog:processID).
+     * This should not require a remote roundtrip.
+     */
+    private Long getChromeBrowserPid(RenderingDocumentRetriever resource) {
+        try {
+            RemoteWebDriver d = resource.getDriver();
+            if (d == null) {
+                return null;
+            }
+            Object raw = d.getCapabilities().getCapability("goog:processID");
+            if (raw instanceof Number) {
+                return ((Number) raw).longValue();
+            }
+            if (raw instanceof String) {
+                try {
+                    return Long.parseLong((String) raw);
+                } catch (NumberFormatException ignore) {
+                    return null;
+                }
+            }
+        } catch (Exception ignore) {
+            // Don't spam logs here; this is best-effort.
+        }
+        return null;
+    }
+
+    /**
+     * Hard-kill fallback. Kills Chrome PID if known and ensures this retriever cannot be reused.
+     */
+    private void hardKill(RenderingDocumentRetriever resource, Long chromePid, String reason) {
+        hardKills.incrementAndGet();
+
+        try {
+            // Ensure pool never reuses this instance
+            resource.markInvalidatedByCallback();
+
+            if (chromePid != null) {
+                // TERM then KILL
+                killPid(chromePid, false);
+                sleepQuiet(TERM_WAIT_MILLIS);
+                if (isPidAlive(chromePid)) {
+                    killPid(chromePid, true);
+                    sleepQuiet(KILL_WAIT_MILLIS);
+                }
+            } else {
+                LOGGER.warn("Hard-kill requested but chromePid is null (reason={}).", reason);
+            }
+        } finally {
+            // Important: if closeAndQuit hung, it may not have nulled driver. Do it here.
+            try {
+                resource.driver = null; // same package => allowed (driver is protected)
+            } catch (Exception ignore) {
+                // ignore
+            }
+        }
+
+        LOGGER.warn("Hard-kill executed (reason={}, chromePid={})", reason, chromePid);
+    }
+
+    private void killPid(long pid, boolean force) {
+        // kill -TERM <pid> or kill -KILL <pid>
+        String signal = force ? "-KILL" : "-TERM";
+        try {
+            Process p = new ProcessBuilder("kill", signal, Long.toString(pid)).redirectErrorStream(true).start();
+            drain(p);
+            p.waitFor(1, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            LOGGER.warn("Failed to send {} to pid={}", signal, pid, e);
+        }
+    }
+
+    private boolean isPidAlive(long pid) {
+        // kill -0 <pid> returns 0 if process exists and we have permission
+        try {
+            Process p = new ProcessBuilder("kill", "-0", Long.toString(pid)).redirectErrorStream(true).start();
+            drain(p);
+            int code = p.waitFor();
+            return code == 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void drain(Process p) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            while (br.readLine() != null) {
+                // drain
+            }
+        } catch (Exception ignore) {
+        }
+    }
+
+    private void sleepQuiet(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 
     // test drive
-
     public static void main(String[] args) {
         final RenderingDocumentRetrieverPool pool = new RenderingDocumentRetrieverPool(DriverManagerType.CHROME, 3);
 
@@ -184,15 +303,14 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
             Callable<Document> task = () -> {
                 RenderingDocumentRetriever retriever = pool.acquire();
                 try {
-                    Document webDocument = retriever.getWebDocument(url);
-                    return webDocument;
+                    return retriever.getWebDocument(url);
                 } finally {
                     pool.recycle(retriever);
                 }
             };
-
             results.add(exec.submit(task));
         }
+
         exec.shutdown();
         try {
             for (Future<Document> result : results) {
