@@ -1,16 +1,16 @@
 package ws.palladian.retrieval;
 
 import io.github.bonigarcia.wdm.config.DriverManagerType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ResourcePool;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Pool rendering document retrievers as instantiating them is time-consuming.
@@ -18,6 +18,8 @@ import java.util.concurrent.Future;
  * @author David Urbansky
  */
 public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocumentRetriever> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RenderingDocumentRetrieverPool.class);
+
     public static final String NO_DELETE_DRIVER_COOKIES = "__no_delete_driver_cookies";
     public static final String PAGE_LOAD_NORMAL = "__page_load_strategy_normal";
     public static final String PAGE_LOAD_EAGER = "__page_load_strategy_eager";
@@ -30,6 +32,14 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     protected String binaryPath;
 
     protected Set<String> additionalOptions;
+
+    private final AtomicInteger createdDrivers = new AtomicInteger(0);
+    private final AtomicInteger replacedDrivers = new AtomicInteger(0);
+    private final AtomicInteger quitFailures = new AtomicInteger(0);
+    private final AtomicInteger quitTimeouts = new AtomicInteger(0);
+
+    private final ScheduledExecutorService monitorExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final ExecutorService quitExecutor = Executors.newCachedThreadPool();
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
         this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
@@ -55,20 +65,29 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         this.additionalOptions = additionalOptions;
         initializePool();
 
+        monitorExecutor.scheduleAtFixedRate(() -> {
+            LOGGER.info("Pool Stats: createdDrivers={}, replacedDrivers={}, quitFailures={}, quitTimeouts={}", createdDrivers.get(), replacedDrivers.get(), quitFailures.get(),
+                    quitTimeouts.get());
+        }, 60, 60, TimeUnit.SECONDS);
+
         // we have to shut down the browsers or the RAM will be used up rather quickly
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             for (int i = 0; i < size; ++i) {
                 try {
-                    pool.take().closeAndQuit();
-                } catch (InterruptedException e) {
+                    RenderingDocumentRetriever r = pool.poll(10, TimeUnit.SECONDS);
+                    closeWithStats(r);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            quitExecutor.shutdownNow();
+            monitorExecutor.shutdownNow();
         }));
     }
 
     @Override
     public RenderingDocumentRetriever createObject() {
+        createdDrivers.incrementAndGet();
         RenderingDocumentRetriever renderingDocumentRetriever = new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath,
                 additionalOptions);
 
@@ -87,8 +106,9 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     }
 
     public void replace(RenderingDocumentRetriever resource) {
+        replacedDrivers.incrementAndGet();
         try {
-            resource.closeAndQuit();
+            closeWithStats(resource);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,7 +117,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
             pool.add(newResource);
         } catch (Exception e) {
             // If we cannot add to the pool (e.g. full), we must close the new resource to avoid leak
-            newResource.closeAndQuit();
+            closeWithStats(newResource);
             e.printStackTrace();
         }
     }
@@ -106,12 +126,35 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         for (int i = 0; i < size; i++) {
             try {
                 RenderingDocumentRetriever take = pool.take();
-                take.closeAndQuit();
+                closeWithStats(take);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        quitExecutor.shutdownNow();
+        monitorExecutor.shutdownNow();
     }
+
+    private void closeWithStats(RenderingDocumentRetriever resource) {
+        if (resource == null) {
+            return;
+        }
+        Future<Boolean> future = quitExecutor.submit(resource::closeAndQuit);
+        try {
+            Boolean result = future.get(30, TimeUnit.SECONDS);
+            if (Boolean.FALSE.equals(result)) {
+                quitFailures.incrementAndGet();
+            }
+        } catch (TimeoutException e) {
+            quitTimeouts.incrementAndGet();
+            future.cancel(true);
+            LOGGER.error("Timeout quitting driver", e);
+        } catch (Exception e) {
+            quitFailures.incrementAndGet();
+            LOGGER.error("Error quitting driver", e);
+        }
+    }
+
     // test drive
 
     public static void main(String[] args) {
