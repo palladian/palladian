@@ -24,6 +24,7 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.retrieval.helper.CookieAndAdCleanup;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
@@ -862,5 +863,15 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public void setPageLoadStrategy(PageLoadStrategy pageLoadStrategy) {
         this.pageLoadStrategy = pageLoadStrategy;
+    }
+
+    /**
+     * Removes cookie banners, layovers and ad-blocker warnings from the current page.
+     * Useful before taking screenshots.
+     */
+    public void removeCookieAndAddOverlays() {
+        if (driver != null) {
+            CookieAndAdCleanup.cleanup(driver);
+        }
     }
 }

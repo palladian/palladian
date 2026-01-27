@@ -80,7 +80,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         monitorExecutor.scheduleAtFixedRate(() -> {
             LOGGER.info("Pool Stats: createdDrivers={}, replacedDrivers={}, quitFailures={}, quitTimeouts={}, hardKills={}", createdDrivers.get(), replacedDrivers.get(),
                     quitFailures.get(), quitTimeouts.get(), hardKills.get());
-        }, 60, 60, TimeUnit.SECONDS);
+        }, 60, 300, TimeUnit.SECONDS);
 
         // we have to shut down the browsers or the RAM will be used up rather quickly
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
