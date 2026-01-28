@@ -47,6 +47,16 @@ public class StringHelperTest {
     }
 
     @Test
+    public void testRemoveWordsWithUnmodifiableList() {
+        List<String> words = java.util.Collections.unmodifiableList(java.util.Arrays.asList("world", "hello"));
+        try {
+            StringHelper.removeWords(words, "hello world");
+        } catch (UnsupportedOperationException e) {
+            fail("removeWords modified the input list!");
+        }
+    }
+
+    @Test
     public void testRemoveBrackets() {
         assertEquals("samsung s4", StringHelper.removeBrackets("samsung (galaxy) s4"));
         assertEquals("samsung s4", StringHelper.removeBrackets("samsung [galaxy] s4"));

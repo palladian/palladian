@@ -102,9 +102,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     /**
-     * <p>
      * Get a web page ((X)HTML document).
-     * </p>
      *
      * @param url The URL or file path of the web page.
      * @return The W3C document, or <code>null</code> in case of any error.
@@ -130,9 +128,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     /**
-     * <p>
      * Get XML document from a URL. The XML document must be well-formed.
-     * </p>
      *
      * @param url The URL or file path pointing to the XML document.
      * @return The XML document, or <code>null</code> in case of any error.

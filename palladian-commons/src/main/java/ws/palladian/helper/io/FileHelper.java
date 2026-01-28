@@ -1206,6 +1206,9 @@ public final class FileHelper {
     }
 
     public static boolean delete(File file) {
+        if (file == null) {
+            return false;
+        }
         return delete(file.getAbsolutePath(), false);
     }
 

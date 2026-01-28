@@ -551,9 +551,10 @@ public final class StringHelper {
         return searchString.replaceFirst(firstWord + "(\\s|$)", "");
     }
 
-    public static String removeWords(List<String> words, String searchString) {
-        words.sort(StringLengthComparator.INSTANCE);
-        for (String word : words) {
+    public static String removeWords(Collection<String> words, String searchString) {
+        List<String> sortedWords = new ArrayList<>(words);
+        sortedWords.sort(StringLengthComparator.INSTANCE);
+        for (String word : sortedWords) {
             searchString = removeWord(word, searchString);
         }
         return searchString;

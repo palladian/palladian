@@ -55,6 +55,14 @@ public abstract class ResourcePool<T> {
         return resource;
     }
 
+    public T poll(long timeout, TimeUnit unit) {
+        try {
+            return pool.poll(timeout, unit);
+        } catch (InterruptedException e) {
+            return null;
+        }
+    }
+
     public void recycle(T resource) {
         if (resource != null) {
             pool.add(resource);

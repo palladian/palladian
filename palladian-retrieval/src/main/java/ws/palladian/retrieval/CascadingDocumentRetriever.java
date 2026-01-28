@@ -11,8 +11,7 @@ import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 /**
@@ -40,6 +39,19 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private final DocumentRetriever documentRetriever;
     private final RenderingDocumentRetrieverPool renderingDocumentRetrieverPool;
     private final List<JsEnabledDocumentRetriever> cloudDocumentRetrievers = new ArrayList<>();
+
+    // separate executor used only for applying a hard timeout to rendering work
+    private static final ExecutorService RENDER_WATCHDOG_EXEC = Executors.newCachedThreadPool(new ThreadFactory() {
+        private final ThreadFactory delegate = Executors.defaultThreadFactory();
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = delegate.newThread(r);
+            t.setName("render-watchdog-" + t.getId());
+            t.setDaemon(true);
+            return t;
+        }
+    });
 
     public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, JsEnabledDocumentRetriever... cloudDocumentRetrievers) {
         this.documentRetriever = documentRetriever;
@@ -201,12 +213,32 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     if (thread != null) {
                         thread.setName("Retrieving (rendering): " + url);
                     }
-                    renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
+                    renderingDocumentRetriever = renderingDocumentRetrieverPool.poll(3, TimeUnit.SECONDS);
+                    if (renderingDocumentRetriever == null) {
+                        LOGGER.warn("Could not acquire rendering document retriever from pool for {}", url);
+                        goodDocument = false;
+                        break;
+                    }
 
                     configure(renderingDocumentRetriever);
 
-                    // Perform the actual fetch
-                    document = renderingDocumentRetriever.getWebDocument(url);
+                    final RenderingDocumentRetriever rdrFinal = renderingDocumentRetriever;
+                    Future<Document> future = RENDER_WATCHDOG_EXEC.submit(() -> rdrFinal.getWebDocument(url));
+
+                    // perform the actual fetch
+                    try {
+                        // IMPORTANT: hard-stop protection. If Selenium hangs, we stop waiting and replace the driver.
+                        document = future.get(getTimeoutSeconds(), TimeUnit.SECONDS);
+                    } catch (TimeoutException te) {
+                        future.cancel(true); // interrupts waiting thread; may not stop Selenium, but we stop blocking HERE.
+
+                        // mark “broken” and replace it, so the pool doesn't get drained forever
+                        rdrFinal.markInvalidatedByCallback();
+
+                        retryDueToBroken = false;
+                        throw new RuntimeException("Render watchdog timeout after " + getTimeoutSeconds() + "s for " + url, te);
+                    }
+
                     goodDocument = isGoodDocument(document);
 
                     // Detect if this attempt used a broken retriever (exception may have been caught internally)
@@ -270,6 +302,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     thread.setName("Retrieving (" + cloudDocumentRetriever.getClass().getSimpleName() + "): " + url);
                 }
                 configure(cloudDocumentRetriever);
+                StopWatch stopWatch1 = new StopWatch();
                 document = cloudDocumentRetriever.getWebDocument(url);
                 goodDocument = isGoodDocument(document);
 
@@ -284,7 +317,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                                 + " success count: " + getSuccessfulRequestCount(cloudDocumentRetriever.getClass().getName()));
                 cloudDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
 
-                LOGGER.info("Made request with " + cloudDocumentRetriever.getClass().getSimpleName() + " to " + url + " - goodDocument: " + goodDocument);
+                LOGGER.info("Made request with " + cloudDocumentRetriever.getClass().getSimpleName() + " to " + url + " - goodDocument: " + goodDocument + " - time: "
+                        + stopWatch1.getElapsedTimeString());
 
                 if (goodDocument) {
                     break;
@@ -372,7 +406,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         String s = HtmlHelper.getInnerXml(document);
         if (!getGoodDocumentIndicatorTexts().isEmpty()) {
-            return StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
+            boolean good = StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
+            if (good) {
+                return true;
+            }
         }
         if (StringHelper.containsAny(s, getBadDocumentIndicatorTexts())) {
             return false;

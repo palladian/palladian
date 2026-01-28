@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.io.StringInputStream;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -57,9 +55,6 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
 
     @Override
     public Document getWebDocument(String url) {
-        // any js wait for settings?
-        Map<Pattern, Set<String>> waitForElementsMap = getWaitForElementsMap();
-
         String overseerScript = "";
         Set<String> waitSelectors = getWaitConditionsForUrl(url);
         if (!waitSelectors.isEmpty()) {
@@ -70,8 +65,7 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();" + waitConditions + "page.done();'");
         }
 
-        String cookieString = "";
-
+        JsonObject requestSettings = new JsonObject();
         if (cookies != null && !cookies.isEmpty()) {
             String domain = UrlHelper.getDomain(url, false, true);
             JsonArray cookiesArr = new JsonArray();
@@ -82,13 +76,13 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
                 jo.put("value", entry.getValue());
                 cookiesArr.add(jo);
             }
-            JsonObject requestSettings = new JsonObject();
             requestSettings.put("cookies", cookiesArr);
-            cookieString = ",requestSettings:" + UrlHelper.encodeParameter(requestSettings.toString());
         }
+        requestSettings.put("maxWait", TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        String requestSettingsString = ",requestSettings:" + UrlHelper.encodeParameter(requestSettings.toString());
 
         String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + UrlHelper.encodeParameter(url)
-                + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + cookieString + "%7D";
+                + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + requestSettingsString + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
         JsonObject response;
@@ -119,6 +113,10 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
         int statusCode = Optional.ofNullable(response.tryQueryInt("content/statusCode")).orElse(200);
 
         if (htmlContentString == null || (statusCode >= 400 && !(count424and408Success && (statusCode == 424 || statusCode == 408)))) {
+            return null;
+        }
+
+        if (htmlContentString.toLowerCase().startsWith("timeout extracting")) {
             return null;
         }
 

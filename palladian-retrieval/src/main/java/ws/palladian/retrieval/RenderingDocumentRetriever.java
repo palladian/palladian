@@ -5,29 +5,33 @@ import io.github.bonigarcia.wdm.config.DriverManagerType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.http.ClientConfig;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
-import ws.palladian.helper.ThreadHelper;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
+import ws.palladian.retrieval.helper.CookieAndAdCleanup;
 import ws.palladian.retrieval.parser.ParserFactory;
 import ws.palladian.retrieval.search.DocumentRetrievalTrial;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
@@ -48,6 +52,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     protected RemoteWebDriver driver;
 
     protected Consumer<NoSuchSessionException> noSuchSessionExceptionCallback;
+
+    private boolean deleteDriverCookiesBeforeUse = true;
+    private PageLoadStrategy pageLoadStrategy = PageLoadStrategy.NORMAL;
 
     /**
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
@@ -97,6 +104,15 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 options.setCapability(CapabilityType.PROXY, proxy);
             }
 
+            if (additionalOptions != null) {
+                if (additionalOptions.contains(RenderingDocumentRetrieverPool.PAGE_LOAD_NORMAL)) {
+                    options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
+                } else if (additionalOptions.contains(RenderingDocumentRetrieverPool.PAGE_LOAD_EAGER)) {
+                    pageLoadStrategy = PageLoadStrategy.EAGER;
+                    options.setPageLoadStrategy(PageLoadStrategy.EAGER);
+                }
+            }
+
             driver = new FirefoxDriver(options);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         } else if (browser == DriverManagerType.CHROME) {
@@ -128,6 +144,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
             if (additionalOptions != null) {
                 for (String additionalOption : additionalOptions) {
+                    // custom flags start with __ and are not passed to the driver
+                    if (additionalOption.startsWith("__")) {
+                        continue;
+                    }
                     options.addArguments(additionalOption);
                 }
             }
@@ -144,7 +164,20 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 options.addArguments("--proxy-bypass-list=*");
             }
 
-            driver = new ChromeDriver(options);
+            if (additionalOptions != null) {
+                if (additionalOptions.contains(RenderingDocumentRetrieverPool.PAGE_LOAD_NORMAL)) {
+                    options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
+                } else if (additionalOptions.contains(RenderingDocumentRetrieverPool.PAGE_LOAD_EAGER)) {
+                    pageLoadStrategy = PageLoadStrategy.EAGER;
+                    options.setPageLoadStrategy(PageLoadStrategy.EAGER);
+                }
+            }
+
+            ClientConfig clientConfig = ClientConfig.defaultConfig().connectionTimeout(Duration.ofSeconds(15)).readTimeout(
+                            Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
+                    .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
+
+            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
@@ -174,6 +207,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
             if (additionalOptions != null) {
                 for (String additionalOption : additionalOptions) {
+                    // custom flags start with __ and are not passed to the driver
+                    if (additionalOption.startsWith("__")) {
+                        continue;
+                    }
                     options.addArguments(additionalOption);
                 }
             }
@@ -190,7 +227,20 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 options.addArguments("--proxy-bypass-list=*");
             }
 
-            driver = new ChromeDriver(options);
+            if (additionalOptions != null) {
+                if (additionalOptions.contains(RenderingDocumentRetrieverPool.PAGE_LOAD_NORMAL)) {
+                    options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
+                } else if (additionalOptions.contains(RenderingDocumentRetrieverPool.PAGE_LOAD_EAGER)) {
+                    pageLoadStrategy = PageLoadStrategy.EAGER;
+                    options.setPageLoadStrategy(PageLoadStrategy.EAGER);
+                }
+            }
+
+            ClientConfig clientConfig = ClientConfig.defaultConfig().connectionTimeout(Duration.ofSeconds(15)).readTimeout(
+                            Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
+                    .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
+
+            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
         }
     }
@@ -344,11 +394,17 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     return true;
                 });
             } else {
-                new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(
-                        webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                if (pageLoadStrategy == PageLoadStrategy.NORMAL) {
+                    // in normal mode, driver.get waits for full load, so this is just a fallback
+                    new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(
+                            webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                } else if (pageLoadStrategy == PageLoadStrategy.EAGER) {
+                    // in eager mode, wait for body presence
+                    //                    new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(webDriver -> ((JavascriptExecutor) webDriver).executeScript(
+                    //                            "return document.readyState").toString().matches("interactive|complete"));
+                    new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+                }
             }
-            // settle down a bit
-            ThreadHelper.deepSleep(500);
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session while waiting", e);
             if (getNoSuchSessionExceptionCallback() != null) {
@@ -432,8 +488,6 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         try {
             new WebDriverWait(driver, Duration.ofSeconds(timeoutInSeconds)).until(condition);
-            // settle down a bit
-            ThreadHelper.deepSleep(500);
         } catch (NoSuchSessionException e) {
             LOGGER.error("problem getting session while waiting for condition", e);
             if (getNoSuchSessionExceptionCallback() != null) {
@@ -676,29 +730,31 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public void deleteAllCookies() {
         super.deleteAllCookies();
-        try {
+        if (deleteDriverCookiesBeforeUse) {
             try {
-                driver.manage().deleteAllCookies();
-            } catch (Exception e) {
-                LOGGER.debug("Could not delete cookies on current page", e);
-            }
-        } catch (NoSuchSessionException e) {
-            LOGGER.error("problem getting session", e);
-            if (getNoSuchSessionExceptionCallback() != null) {
-                getNoSuchSessionExceptionCallback().accept(e);
-            }
-            throw e;
-        } catch (WebDriverException e) {
-            if (isFatalWebDriverError(e)) {
-                LOGGER.error("fatal webdriver error while deleting cookies", e);
-                if (getNoSuchSessionExceptionCallback() != null) {
-                    getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
-                } else {
-                    markInvalidatedByCallback();
+                try {
+                    driver.manage().deleteAllCookies();
+                } catch (Exception e) {
+                    LOGGER.debug("Could not delete cookies on current page", e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
-            } else {
-                LOGGER.error("problem with deleting cookies", e);
+            } catch (NoSuchSessionException e) {
+                LOGGER.error("problem getting session", e);
+                if (getNoSuchSessionExceptionCallback() != null) {
+                    getNoSuchSessionExceptionCallback().accept(e);
+                }
+                throw e;
+            } catch (WebDriverException e) {
+                if (isFatalWebDriverError(e)) {
+                    LOGGER.error("fatal webdriver error while deleting cookies", e);
+                    if (getNoSuchSessionExceptionCallback() != null) {
+                        getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
+                    } else {
+                        markInvalidatedByCallback();
+                    }
+                    throw new NoSuchSessionException(e.getMessage(), e);
+                } else {
+                    LOGGER.error("problem with deleting cookies", e);
+                }
             }
         }
     }
@@ -708,24 +764,24 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         return Integer.MAX_VALUE;
     }
 
-    @Override
-    public void setTimeoutSeconds(int timeoutSeconds) {
-        super.setTimeoutSeconds(timeoutSeconds);
-
-        // When using retriever pools, CascadingDocumentRetriever.configure(...) calls setTimeoutSeconds
-        // after the WebDriver was already created. Selenium timeouts must be updated explicitly,
-        // otherwise the driver keeps its defaults (often 300s pageLoad timeout).
-        if (driver != null) {
-            try {
-                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
-                // keep script timeout in sync (used by executeScript / waits)
-                driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(timeoutSeconds));
-            } catch (Exception e) {
-                // Don't fail retrieval if timeout cannot be applied (e.g. already-closed session).
-                LOGGER.debug("Could not apply Selenium timeouts ({}s) to driver.", timeoutSeconds, e);
-            }
-        }
-    }
+    //    @Override
+    //    public void setTimeoutSeconds(int timeoutSeconds) {
+    //        super.setTimeoutSeconds(timeoutSeconds);
+    //
+    //        // When using retriever pools, CascadingDocumentRetriever.configure(...) calls setTimeoutSeconds
+    //        // after the WebDriver was already created. Selenium timeouts must be updated explicitly,
+    //        // otherwise the driver keeps its defaults (often 300s pageLoad timeout).
+    //        if (driver != null) {
+    //            try {
+    //                driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+    //                // keep script timeout in sync (used by executeScript / waits)
+    //                driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(timeoutSeconds));
+    //            } catch (Exception e) {
+    //                // Don't fail retrieval if timeout cannot be applied (e.g. already-closed session).
+    //                LOGGER.debug("Could not apply Selenium timeouts ({}s) to driver.", timeoutSeconds, e);
+    //            }
+    //        }
+    //    }
 
     public void setDriver(RemoteWebDriver driver) {
         this.driver = driver;
@@ -791,5 +847,31 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         //// r.goTo("https://www.sitesearch360.com");
         // WebElement contentBlock = r.find("#fullContent");
         // System.out.println(contentBlock.getText());
+    }
+
+    public boolean isDeleteDriverCookiesBeforeUse() {
+        return deleteDriverCookiesBeforeUse;
+    }
+
+    public void setDeleteDriverCookiesBeforeUse(boolean deleteDriverCookiesBeforeUse) {
+        this.deleteDriverCookiesBeforeUse = deleteDriverCookiesBeforeUse;
+    }
+
+    public PageLoadStrategy getPageLoadStrategy() {
+        return pageLoadStrategy;
+    }
+
+    public void setPageLoadStrategy(PageLoadStrategy pageLoadStrategy) {
+        this.pageLoadStrategy = pageLoadStrategy;
+    }
+
+    /**
+     * Removes cookie banners, layovers and ad-blocker warnings from the current page.
+     * Useful before taking screenshots.
+     */
+    public void removeCookieAndAddOverlays() {
+        if (driver != null) {
+            CookieAndAdCleanup.cleanup(driver);
+        }
     }
 }
