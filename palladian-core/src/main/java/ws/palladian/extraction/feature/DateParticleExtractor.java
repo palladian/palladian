@@ -1,6 +1,6 @@
 package ws.palladian.extraction.feature;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.core.AppendedVector;
 import ws.palladian.core.FeatureVector;
 import ws.palladian.core.InstanceBuilder;

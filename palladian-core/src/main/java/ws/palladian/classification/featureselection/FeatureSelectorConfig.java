@@ -1,6 +1,6 @@
 package ws.palladian.classification.featureselection;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.classification.evaluation.ClassificationEvaluator;
 import ws.palladian.classification.evaluation.ConfusionMatrixEvaluator;
 import ws.palladian.classification.evaluation.roc.RocCurves;

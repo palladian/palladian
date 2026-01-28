@@ -1,6 +1,6 @@
 package ws.palladian.retrieval;
 
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.persistence.json.JsonArray;

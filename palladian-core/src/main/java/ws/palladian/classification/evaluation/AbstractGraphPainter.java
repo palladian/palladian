@@ -1,10 +1,10 @@
 package ws.palladian.classification.evaluation;
 
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
+import org.jfree.chart.ui.ApplicationFrame;
+import org.jfree.chart.ui.UIUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -49,12 +49,12 @@ public abstract class AbstractGraphPainter<D extends Graph> {
         ApplicationFrame frame = new ApplicationFrame("");
         frame.setContentPane(chartPanel);
         frame.pack();
-        RefineryUtilities.centerFrameOnScreen(frame);
+        UIUtils.centerFrameOnScreen(frame);
         frame.setVisible(true);
     }
 
     public void saveCurves(File file) throws IOException {
-        ChartUtilities.saveChartAsPNG(file, createChart(), 800, 600);
+        ChartUtils.saveChartAsPNG(file, createChart(), 800, 600);
     }
 
     protected abstract JFreeChart createChart();

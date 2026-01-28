@@ -2,7 +2,7 @@ package ws.palladian.extraction.sentence;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.core.ImmutableToken;
 import ws.palladian.core.Token;
 import ws.palladian.helper.collection.AbstractIterator;
