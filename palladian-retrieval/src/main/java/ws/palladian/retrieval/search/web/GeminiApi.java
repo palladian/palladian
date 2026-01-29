@@ -115,6 +115,10 @@ public class GeminiApi extends AiApi {
         return generateContent(geminiContents, temperature, usedTokens, modelName, maxTokens, responseSchema);
     }
 
+    public String chat(JsonArray contents, String modelName) throws Exception {
+        return generateContent(contents, 0.0, null, modelName != null ? modelName : this.model, null, null);
+    }
+
     /**
      * Chat with optional image/video files.
      */
