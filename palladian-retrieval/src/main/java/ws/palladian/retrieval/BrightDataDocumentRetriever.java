@@ -9,6 +9,9 @@ import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -80,5 +83,32 @@ public class BrightDataDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public int requestsLeft() {
         return requestsLeft;
+    }
+
+    public BufferedImage getWebImage(String url) {
+        THROTTLE.hold();
+
+        try {
+            JsonObject body = JsonObject.tryParse(
+                    "{\n" + "  \"zone\": \"" + zone + "\",\n" + "  \"url\": \"" + url + "\",\n" + "  \"format\": \"raw\",\n" + "  \"method\": \"GET\",\n"
+                            + "  \"country\": \"us\"\n" + "}");
+
+            HttpRequest2 request = new HttpRequest2Builder(HttpMethod.POST, "https://api.brightdata.com/request").addHeader("Authorization", "Bearer " + apiKey).addHeader(
+                    "Content-Type", "application/json").setEntity(new StringHttpEntity(body.toString(), "application/json")).create();
+
+            HttpResult result = documentRetriever.getHttpRetriever().execute(request);
+
+            if (result.getStatusCode() == 200) {
+                byte[] content = result.getContent();
+                if (content != null && content.length > 0) {
+                    return ImageIO.read(new ByteArrayInputStream(content));
+                }
+            } else {
+                LOGGER.warn("Bright Data returned status " + result.getStatusCode() + " for URL " + url + ": " + result.getStringContent());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Bright Data image retrieval failed for URL " + url + ": " + e.getMessage(), e);
+        }
+        return null;
     }
 }
