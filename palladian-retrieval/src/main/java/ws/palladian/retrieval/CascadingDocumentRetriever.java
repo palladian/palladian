@@ -114,6 +114,25 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return HtmlHelper.getInnerXml(webDocument);
     }
 
+    public String getPlainText(String url) {
+        String text = null;
+        if (documentRetriever != null) {
+            text = documentRetriever.getText(url);
+        }
+
+        if (StringHelper.nullOrEmpty(text)) {
+            for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+                if (cloudDocumentRetriever instanceof BrightDataDocumentRetriever) {
+                    text = cloudDocumentRetriever.getText(url);
+                    if (text != null && !text.isEmpty()) {
+                        break;
+                    }
+                }
+            }
+        }
+        return text;
+    }
+
     /**
      * Do not use a certain retriever for numberOfRequestsToSkip requests if it failed more than failingThreshold times.
      *
