@@ -16,8 +16,8 @@ import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -534,6 +534,10 @@ public class HttpRetriever {
      *                       status is returned, but no <code>location</code> field is provided.
      */
     public List<String> getRedirectUrls(String url) throws HttpException {
+        return getRedirectUrls(url, false);
+    }
+
+    public List<String> getRedirectUrls(String url, boolean tryGetOn4xx) throws HttpException {
         Validate.notEmpty(url, "url must not be empty");
 
         List<String> ret = new ArrayList<>();
@@ -546,19 +550,31 @@ public class HttpRetriever {
                 connectionManager);
 
         for (; ; ) {
-            HttpHead headRequest;
+            HttpUriRequestBase request;
             Proxy proxy = null;
             try {
-                headRequest = new HttpHead(url);
-                proxy = setProxy(url, headRequest, httpClientBuilder);
+                request = new HttpHead(url);
+                proxy = setProxy(url, request, httpClientBuilder);
             } catch (IllegalArgumentException e) {
                 throw new HttpException("Invalid URL: \"" + url + "\"");
             }
             try {
                 CloseableHttpClient client = httpClientBuilder.build();
-                ClassicHttpResponse response = client.execute(headRequest);
+                ClassicHttpResponse response = client.execute(request);
                 int statusCode = response.getCode();
                 LOGGER.debug("Result {} for {}", statusCode, url);
+
+                if (tryGetOn4xx && (statusCode == 404 || statusCode == 405)) {
+                    response.close();
+                    LOGGER.debug("Got {} for HEAD request to {}, retrying with GET", statusCode, url);
+                    request.abort();
+                    request = new HttpGet(url);
+                    proxy = setProxy(url, request, httpClientBuilder);
+                    response = client.execute(request);
+                    statusCode = response.getCode();
+                    LOGGER.debug("Result {} for GET {}", statusCode, url);
+                }
+
                 if (statusCode >= 300 && statusCode < 400) {
                     Header[] locationHeaders = response.getHeaders("location");
                     if (locationHeaders.length == 0) {
@@ -590,7 +606,7 @@ public class HttpRetriever {
                 proxyProvider.removeProxy(proxy);
                 throw new HttpException("Exception " + e + " for URL \"" + url + "\": " + e.getMessage(), e);
             } finally {
-                headRequest.abort();
+                request.abort();
             }
 
         }
