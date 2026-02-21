@@ -9,6 +9,8 @@ import ws.palladian.helper.StopWatch;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -114,19 +116,60 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return HtmlHelper.getInnerXml(webDocument);
     }
 
+    public JsonObject getJsonObject(String url) {
+        JsonObject jsonObject = null;
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+        if (!StringHelper.nullOrEmpty(text)) {
+            jsonObject = JsonObject.tryParse(text);
+        }
+        if (jsonObject == null) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+            if (!StringHelper.nullOrEmpty(text)) {
+                jsonObject = JsonObject.tryParse(text);
+            }
+        }
+        return jsonObject;
+    }
+
+    public JsonArray getJsonArray(String url) {
+        JsonArray jsonArray = null;
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+        if (!StringHelper.nullOrEmpty(text)) {
+            jsonArray = JsonArray.tryParse(text);
+        }
+        if (jsonArray == null) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+            if (!StringHelper.nullOrEmpty(text)) {
+                jsonArray = JsonArray.tryParse(text);
+            }
+        }
+        return jsonArray;
+    }
+
     public String getPlainText(String url) {
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+
+        if (StringHelper.nullOrEmpty(text)) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+        }
+        return text;
+    }
+
+    private String tryGetPlainTextWithSimpleRetriever(String url) {
         String text = null;
         if (documentRetriever != null) {
             text = documentRetriever.getText(url);
         }
+        return text;
+    }
 
-        if (StringHelper.nullOrEmpty(text)) {
-            for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
-                if (cloudDocumentRetriever instanceof BrightDataDocumentRetriever) {
-                    text = cloudDocumentRetriever.getText(url);
-                    if (text != null && !text.isEmpty()) {
-                        break;
-                    }
+    private String tryGetPlainTextWithCloudRetrievers(String url) {
+        String text = null;
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (cloudDocumentRetriever instanceof BrightDataDocumentRetriever) {
+                text = cloudDocumentRetriever.getText(url);
+                if (!StringHelper.nullOrEmpty(text)) {
+                    break;
                 }
             }
         }
