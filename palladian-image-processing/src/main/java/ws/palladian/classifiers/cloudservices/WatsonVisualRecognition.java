@@ -3,7 +3,7 @@ package ws.palladian.classifiers.cloudservices;
 import com.ibm.cloud.sdk.core.security.IamAuthenticator;
 import com.ibm.watson.visual_recognition.v3.VisualRecognition;
 import com.ibm.watson.visual_recognition.v3.model.*;
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;

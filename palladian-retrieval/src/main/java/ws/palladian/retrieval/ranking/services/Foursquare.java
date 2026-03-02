@@ -1,7 +1,7 @@
 package ws.palladian.retrieval.ranking.services;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.ranking.Ranking;

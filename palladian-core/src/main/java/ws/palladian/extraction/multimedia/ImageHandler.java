@@ -4,7 +4,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.google.common.util.concurrent.AtomicDouble;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.math3.util.FastMath;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;

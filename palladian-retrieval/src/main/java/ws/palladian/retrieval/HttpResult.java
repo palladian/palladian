@@ -1,6 +1,6 @@
 package ws.palladian.retrieval;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import ws.palladian.helper.collection.CaseInsensitiveMap;
 
 import java.io.Serializable;

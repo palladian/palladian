@@ -1,9 +1,12 @@
 package ws.palladian.kaggle.restaurants.utils;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.ConfigurationUtils;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.io.FileLocatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +41,11 @@ public final class Config {
 
     static {
         try {
-            URL configurationLocation = ConfigurationUtils.locate(FILE_NAME);
+            URL configurationLocation = FileLocatorUtils.locate(FileLocatorUtils.fileLocator().fileName(FILE_NAME).create());
             LOGGER.info("Configuration location = {}", configurationLocation);
-            CONFIG = new PropertiesConfiguration(configurationLocation);
+            FileBasedConfigurationBuilder<PropertiesConfiguration> builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class).configure(
+                    new Parameters().properties().setURL(configurationLocation));
+            CONFIG = builder.getConfiguration();
         } catch (ConfigurationException e) {
             throw new IllegalStateException();
         }

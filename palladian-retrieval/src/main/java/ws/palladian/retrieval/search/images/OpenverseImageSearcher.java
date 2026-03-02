@@ -1,6 +1,6 @@
 package ws.palladian.retrieval.search.images;
 
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.resources.BasicWebImage;
