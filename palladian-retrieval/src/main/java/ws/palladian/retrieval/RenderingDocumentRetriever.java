@@ -307,8 +307,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 // If it's not fatal, we just assume we don't know the current URL
                 LOGGER.debug("Could not get current URL", e);
@@ -325,8 +325,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     LOGGER.error("problem getting session", e);
                     if (getNoSuchSessionExceptionCallback() != null) {
                         getNoSuchSessionExceptionCallback().accept(e);
+                    } else {
+                        throw e;
                     }
-                    throw e;
                 } catch (WebDriverException e) {
                     if (isFatalWebDriverError(e)) {
                         LOGGER.error("fatal webdriver error on driver.get (pre-cookie nav)", e);
@@ -334,8 +335,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                             getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                         } else {
                             markInvalidatedByCallback();
+                            throw new NoSuchSessionException(e.getMessage(), e);
                         }
-                        throw new NoSuchSessionException(e.getMessage(), e);
                     } else {
                         throw e;
                     }
@@ -357,8 +358,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 LOGGER.error("problem getting session", e);
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(e);
+                } else {
+                    throw e;
                 }
-                throw e;
             } catch (WebDriverException e) {
                 if (isFatalWebDriverError(e)) {
                     LOGGER.error("fatal webdriver error on driver.get", e);
@@ -366,8 +368,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                         getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                     } else {
                         markInvalidatedByCallback();
+                        throw new NoSuchSessionException(e.getMessage(), e);
                     }
-                    throw new NoSuchSessionException(e.getMessage(), e);
                 } else {
                     throw e;
                 }
@@ -409,8 +411,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem getting session while waiting", e);
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
+            } else {
+                throw e;
             }
-            throw e;
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error while waiting", e);
@@ -418,8 +421,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 if (getWaitExceptionCallback() != null) {
                     getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
@@ -471,8 +474,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem getting session", e);
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
+            } else {
+                throw e;
             }
-            throw e;
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error during navigation in conditional goTo", e);
@@ -480,8 +484,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 throw e;
             }
@@ -492,8 +496,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem getting session while waiting for condition", e);
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
+            } else {
+                throw e;
             }
-            throw e;
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error while waiting for condition", e);
@@ -501,8 +506,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 LOGGER.error("problem with waiting for condition", e);
                 if (getWaitExceptionCallback() != null) {
@@ -741,8 +746,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 LOGGER.error("problem getting session", e);
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(e);
+                } else {
+                    throw e;
                 }
-                throw e;
             } catch (WebDriverException e) {
                 if (isFatalWebDriverError(e)) {
                     LOGGER.error("fatal webdriver error while deleting cookies", e);
@@ -750,8 +756,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                         getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                     } else {
                         markInvalidatedByCallback();
+                        throw new NoSuchSessionException(e.getMessage(), e);
                     }
-                    throw new NoSuchSessionException(e.getMessage(), e);
                 } else {
                     LOGGER.error("problem with deleting cookies", e);
                 }
