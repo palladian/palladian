@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  **/
 public class GeminiApi extends AiApi {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeminiApi.class);
-    public static final String CONFIG_API_KEY = "api.google.gemini";
+    public static final String CONFIG_API_KEY = "api.gemini.key";
 
     public enum Model {
         GEMINI_3_0_PRO("gemini-3-pro-preview"), GEMINI_3_0_FLASH("gemini-3-flash-preview"), NANO_BANANA_PRO("gemini-3-pro-image-preview"), VEO_3_1_PRO("veo-3.1-generate-preview");
