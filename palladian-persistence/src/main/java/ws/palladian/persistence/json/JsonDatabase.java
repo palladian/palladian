@@ -173,6 +173,8 @@ public class JsonDatabase {
                 JsonObject obj = JsonObject.tryParse(FileHelper.tryReadFileToStringNoReplacement(new File(rootPath + collection + "/" + getFolderedPath(filePath))));
                 if (obj != null) {
                     jsonObjects.add(obj);
+                } else {
+                    LOGGER.error("null json object when parsing json from file: " + rootPath + collection + "/" + getFolderedPath(filePath));
                 }
             }
             return jsonObjects;
