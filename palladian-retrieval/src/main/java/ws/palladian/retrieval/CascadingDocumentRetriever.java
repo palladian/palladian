@@ -411,6 +411,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (!goodDocument) {
             pair[0]++;
         } else {
+            pair[0] = 0;
             pair[2]++;
         }
     }
