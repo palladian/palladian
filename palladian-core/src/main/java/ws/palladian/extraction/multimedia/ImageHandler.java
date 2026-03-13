@@ -754,6 +754,10 @@ public class ImageHandler {
                 if (fileType.equalsIgnoreCase("jpg")) {
                     iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                     iwp.setCompressionQuality(Math.max(0.1f, Math.min(quality, 1.0f)));
+                } else if (fileType.equalsIgnoreCase("webp")) {
+                    iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    iwp.setCompressionType(iwp.getCompressionTypes()[0]); // Lossy
+                    iwp.setCompressionQuality(Math.max(0.0f, Math.min(quality, 1.0f)));
                 } else if (quality < 1) {
                     LOGGER.debug("compression is not supported for " + fileType + " files, " + filePath);
                 }

@@ -86,6 +86,12 @@
             <version>${twelvemonkeys-version}</version>
         </dependency>
         <dependency>
+            <!-- JNI bindings for Google's libwebp codec — provides WebP writing via ImageIO -->
+            <groupId>org.sejda.imageio</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.1.6</version>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
