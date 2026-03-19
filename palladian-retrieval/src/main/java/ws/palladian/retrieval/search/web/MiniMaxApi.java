@@ -28,6 +28,7 @@ public class MiniMaxApi extends AiApi {
     public static final String CONFIG_API_KEY = "api.minimax.key";
 
     public static final String M2_5 = "MiniMax-M2.5";
+    public static final String M2_7 = "MiniMax-M2.7";
     public static final String MINIMAX_TEXT_01 = "MiniMax-Text-01";
     public static final String ABAB_6_5S_CHAT = "abab6.5s-chat";
     public static final String ABAB_6_5_CHAT = "abab6.5-chat";
