@@ -141,6 +141,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+            options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 
             if (additionalOptions != null) {
                 for (String additionalOption : additionalOptions) {
@@ -179,6 +180,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
             driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+            applyCdpStealth();
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
                 WebDriverManager.chromiumdriver().driverVersion(driverVersionCode).setup();
@@ -204,6 +206,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+            options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 
             if (additionalOptions != null) {
                 for (String additionalOption : additionalOptions) {
@@ -242,6 +245,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
             driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+            applyCdpStealth();
         }
     }
 
@@ -250,9 +254,29 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     /**
+     * Apply Chrome DevTools Protocol commands to reduce bot-detection signals.
+     * <ul>
+     *   <li>Hides <code>navigator.webdriver</code></li>
+     *   <li>Spoofs plugins and language arrays so they look like a real browser</li>
+     * </ul>
+     */
+    private void applyCdpStealth() {
+        if (driver instanceof ChromeDriver) {
+            try {
+                Map<String, Object> cdpParams = new HashMap<>();
+                cdpParams.put("source", String.join("\n", "Object.defineProperty(navigator, 'webdriver', {get: () => undefined});",
+                        "Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});",
+                        "Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});", "window.chrome = { runtime: {} };"));
+                ((ChromeDriver) driver).executeCdpCommand("Page.addScriptToEvaluateOnNewDocument", cdpParams);
+            } catch (Exception e) {
+                LOGGER.debug("Could not apply CDP stealth commands", e);
+            }
+        }
+    }
+
+    /**
      * Take a screenshot and save it to the specified path.
      *
-     * @param targetPath The path where the screenshot should be saved to.
      * @return The screenshot file.
      */
     public BufferedImage getScreenshot() {
