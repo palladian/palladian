@@ -395,7 +395,7 @@ public class Crawler {
         }
     }
 
-    private String cleanUrl(String url) {
+    protected String cleanUrl(String url) {
         url = UrlHelper.removeSessionId(url);
         url = UrlHelper.removeAnchors(url);
         if (isStripQueryParams()) {

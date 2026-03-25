@@ -11,9 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * <p>
  * A simple JSON database. No 16MB file limits that mongo db has.
- * </p>
  *
  * @author David Urbansky
  * @since 28.06.2020
@@ -34,11 +32,25 @@ public class JsonDatabase {
         ADD, MERGE, NOTHING
     }
 
+    private boolean indexesLoaded = false;
+
     public JsonDatabase(String path, int numSubdirectories) {
         this(path, new HashMap<>(), numSubdirectories);
     }
 
+    /**
+     * Create a JsonDatabase without loading indexes from disk.
+     * Indexes will only be loaded on demand when {@link #get(String, String, String)} is called.
+     */
+    public JsonDatabase(String path, int numSubdirectories, boolean loadIndexes) {
+        this(path, new HashMap<>(), numSubdirectories, loadIndexes);
+    }
+
     public JsonDatabase(String path, Map<String, List<String>> collectionFieldIndexMap, int numSubdirectories) {
+        this(path, collectionFieldIndexMap, numSubdirectories, true);
+    }
+
+    public JsonDatabase(String path, Map<String, List<String>> collectionFieldIndexMap, int numSubdirectories, boolean loadIndexes) {
         this.rootPath = path;
         this.numSubdirectories = numSubdirectories;
         if (!rootPath.endsWith("/")) {
@@ -53,7 +65,9 @@ public class JsonDatabase {
             indexedFieldsForCollection.get(collectionName).addAll(fieldNames);
         }
 
-        this.loadIndexes();
+        if (loadIndexes) {
+            this.loadIndexes();
+        }
     }
 
     private synchronized void loadIndexes() {
@@ -84,6 +98,7 @@ public class JsonDatabase {
             indexedFieldsForCollection.get(collectionName).add(indexedField);
             indexMap.put(collectionName + indexName, indexContentMap);
         }
+        indexesLoaded = true;
     }
 
     public boolean add(String collectionName, JsonObject jsonObject) {
@@ -159,6 +174,10 @@ public class JsonDatabase {
     public List<JsonObject> get(String collection, String field, String value) {
         if (value == null) {
             return Collections.emptyList();
+        }
+        // lazy-load indexes on first query
+        if (!indexesLoaded) {
+            loadIndexes();
         }
         // check if we have an index on the field
         Map<String, List<String>> indexContent = indexMap.get(collection + "_idx-" + field);
@@ -299,6 +318,10 @@ public class JsonDatabase {
     }
 
     public JsonDbIterator<JsonObject> getAll(String collection, String field, String value) {
+        // lazy-load indexes on first query
+        if (!indexesLoaded) {
+            loadIndexes();
+        }
         Map<String, List<String>> indexContent = indexMap.get(collection + "_idx-" + field);
         final List<String> collectionFiles = new ArrayList<>(indexContent.get(value)); // need to make a copy otherwise it may grow when updating the index
 
