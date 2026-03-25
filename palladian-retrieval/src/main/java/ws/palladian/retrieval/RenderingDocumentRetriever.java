@@ -413,7 +413,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             if (!selectors.isEmpty()) {
                 new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(webDriver -> {
                     for (String cssSelector : selectors) {
-                        if (webDriver.findElement(By.cssSelector(cssSelector)) == null) {
+                        if (webDriver.findElements(By.cssSelector(cssSelector)).isEmpty()) {
                             return false;
                         }
                     }
