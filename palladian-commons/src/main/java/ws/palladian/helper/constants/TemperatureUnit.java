@@ -5,14 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * <p>
  * Temperature units.
- * </p>
  *
  * @author David Urbansky
  */
 public enum TemperatureUnit {
-    CELSIUS("celsius", "degrees celsius", "° celsius", "°celsius", "°c"), FAHRENHEIT("fahrenheit", "degrees fahrenheit", "° fahrenheit", "°fahrenheit", "°f"), KELVIN("kelvin",
+    CELSIUS("celsius", "degrees celsius", "° celsius", "°celsius", "°C"), FAHRENHEIT("fahrenheit", "degrees fahrenheit", "° fahrenheit", "°fahrenheit", "°F"), KELVIN("kelvin",
             "K");
 
     private final Set<String> names = new HashSet<>();
