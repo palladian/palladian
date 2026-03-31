@@ -51,6 +51,12 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     protected RemoteWebDriver driver;
 
+    /**
+     * The ChromeDriverService that manages the chromedriver OS process.
+     * Stored so we can explicitly stop it during cleanup to prevent orphaned chromedriver processes.
+     */
+    protected ChromeDriverService driverService;
+
     protected Consumer<NoSuchSessionException> noSuchSessionExceptionCallback;
 
     private boolean deleteDriverCookiesBeforeUse = true;
@@ -178,7 +184,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                             Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
                     .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
-            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
+            driverService = ChromeDriverService.createDefaultService();
+            driver = new ChromeDriver(driverService, options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
             applyCdpStealth();
         } else if (browser == DriverManagerType.CHROMIUM) {
@@ -243,7 +250,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                             Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
                     .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
-            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
+            driverService = ChromeDriverService.createDefaultService();
+            driver = new ChromeDriver(driverService, options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
             applyCdpStealth();
         }
@@ -733,6 +741,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public boolean closeAndQuit() {
         if (driver == null) {
+            stopDriverService();
             return true;
         }
         try {
@@ -747,9 +756,26 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             return false;
         } finally {
             driver = null;
+            stopDriverService();
         }
 
         return true;
+    }
+
+    /**
+     * Stop the ChromeDriverService (chromedriver OS process) if it is still running.
+     * This prevents orphaned chromedriver processes when driver.quit() fails or times out.
+     */
+    protected void stopDriverService() {
+        if (driverService != null) {
+            try {
+                driverService.stop();
+            } catch (Exception e) {
+                LOGGER.debug("Could not stop driver service", e);
+            } finally {
+                driverService = null;
+            }
+        }
     }
 
     public RemoteWebDriver getDriver() {
