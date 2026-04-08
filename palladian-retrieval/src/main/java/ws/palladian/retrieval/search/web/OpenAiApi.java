@@ -120,7 +120,9 @@ public class OpenAiApi extends AiApi {
         if (!StringHelper.nullOrEmpty(tools)) {
             requestJson.put("tools", tools);
         }
-        throttle.hold();
+        if (throttle != null) {
+            throttle.hold();
+        }
         String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/responses"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -140,7 +142,9 @@ public class OpenAiApi extends AiApi {
         JsonObject requestJson = new JsonObject();
         requestJson.put("input", text);
         requestJson.put("model", embeddingModel);
-        throttle.hold();
+        if (throttle != null) {
+            throttle.hold();
+        }
         String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/embeddings"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -214,7 +218,9 @@ public class OpenAiApi extends AiApi {
             responseFormatJson.put("json_schema", jsonSchema);
             requestJson.put("response_format", responseFormatJson);
         }
-        throttle.hold();
+        if (throttle != null) {
+            throttle.hold();
+        }
         String postResponseText = documentRetriever.postJsonObject(buildRequestUrl("/chat/completions"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -426,7 +432,9 @@ public class OpenAiApi extends AiApi {
         requestJson.put("temperature", 1.);
         requestJson.put("max_tokens", 64);
         requestJson.put("top_p", 1);
-        throttle.hold();
+        if (throttle != null) {
+            throttle.hold();
+        }
         String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/completions"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -529,7 +537,9 @@ public class OpenAiApi extends AiApi {
             jsonObject.put("quality", quality);
         }
         jsonObject.put("size", size);
-        throttle.hold();
+        if (throttle != null) {
+            throttle.hold();
+        }
         String responseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/images/generations"), jsonObject, false);
 
         JsonObject responseJson = JsonObject.tryParse(responseText);
