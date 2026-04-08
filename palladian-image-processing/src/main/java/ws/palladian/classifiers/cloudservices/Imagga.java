@@ -2,7 +2,7 @@ package ws.palladian.classifiers.cloudservices;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import ws.palladian.core.Category;
 import ws.palladian.core.CategoryEntries;
 import ws.palladian.core.ImmutableCategory;

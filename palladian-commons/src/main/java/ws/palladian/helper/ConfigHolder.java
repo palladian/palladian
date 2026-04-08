@@ -1,9 +1,12 @@
 package ws.palladian.helper;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.ConfigurationUtils;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.io.FileLocatorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +55,13 @@ public final class ConfigHolder {
 
     private static Configuration loadConfig() {
         Configuration config;
-        URL configUrl = ConfigurationUtils.locate(CONFIG_NAME);
+        URL configUrl = FileLocatorUtils.locate(FileLocatorUtils.fileLocator().fileName(CONFIG_NAME).create());
         if (configUrl != null) {
             LOGGER.debug("Found configuration at {}", configUrl);
             try {
-                config = new PropertiesConfiguration(configUrl);
+                FileBasedConfigurationBuilder<PropertiesConfiguration> builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class).configure(
+                        new Parameters().properties().setURL(configUrl));
+                config = builder.getConfiguration();
             } catch (ConfigurationException e) {
                 throw new IllegalStateException("Exception while loading the configuration: " + e.getMessage(), e);
             }

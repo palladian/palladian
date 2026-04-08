@@ -1,6 +1,6 @@
 package ws.palladian.helper.math;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.functional.Factory;
 
 import java.util.Collection;

@@ -1,7 +1,7 @@
 package ws.palladian.helper.nlp;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -1087,7 +1087,7 @@ public final class StringHelper {
             return string;
         }
 
-        string = StringEscapeUtils.unescapeHtml(string);
+        string = StringEscapeUtils.unescapeHtml3(string);
 
         // whitespace is also unwanted but trim() handles that, " " here is another character (ASCII code 160)
 
@@ -1197,7 +1197,7 @@ public final class StringHelper {
 
     public static String cleanKeepFormat(String text, String keepCharacters) {
         text = HtmlHelper.stripHtmlTags(text);
-        text = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(text);
+        text = org.apache.commons.text.StringEscapeUtils.unescapeHtml3(text);
         text = replaceProtectedSpace(text);
         text = removeDoubleWhitespaces(text);
         // text = removeNonAsciiCharacters(text);
@@ -2376,7 +2376,7 @@ public final class StringHelper {
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
 
         System.out.println(removeNonAsciiCharacters("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
-        System.out.println(org.apache.commons.lang.StringEscapeUtils.unescapeHtml("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
+        System.out.println(org.apache.commons.lang3.StringEscapeUtils.unescapeHtml3("beh\u00f6righetsbevis p\u00e5 arkitekturomr\u00e5det"));
         // System.out.println(StringHelper.numberCount("123abcdefg"));
 
         // System.out.println(WordTransformer.wordToSingular("yves"));

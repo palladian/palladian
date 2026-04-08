@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * <p>
@@ -127,7 +127,7 @@ public final class WikipediaSearcher extends AbstractMultifacetSearcher<WebConte
                     String title = resultItem.getString("title");
                     builder.setTitle(title);
                     var summary = StringEscapeUtils
-                            .unescapeHtml(HtmlHelper.stripHtmlTags(resultItem.getString("snippet")));
+                            .unescapeHtml3(HtmlHelper.stripHtmlTags(resultItem.getString("snippet")));
                     builder.setSummary(summary);
                     builder.setPublished(parseDate(resultItem.getString("timestamp")));
                     builder.setUrl(getPageUrl(baseUrl, title));
