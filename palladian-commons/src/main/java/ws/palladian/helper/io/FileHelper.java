@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -48,6 +49,9 @@ import java.util.zip.*;
  */
 public final class FileHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
+
+    /** Per-path lock objects used to make {@link #appendFile} thread-safe without blocking unrelated files. */
+    private static final ConcurrentHashMap<String, Object> FILE_APPEND_LOCKS = new ConcurrentHashMap<>();
 
     /**
      * The encoding used by this class, instead of relying on the System's default encoding.
@@ -802,18 +806,21 @@ public final class FileHelper {
      * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
     public static boolean appendFile(String filePath, CharSequence stringToAppend) {
-        boolean success = false;
-        Writer writer = null;
-        try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true), DEFAULT_ENCODING));
-            writer.append(stringToAppend);
-            success = true;
-        } catch (IOException e) {
-            LOGGER.error("IOException while appending to {}", filePath, e);
-        } finally {
-            close(writer);
+        Object lock = FILE_APPEND_LOCKS.computeIfAbsent(filePath, k -> new Object());
+        synchronized (lock) {
+            boolean success = false;
+            Writer writer = null;
+            try {
+                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true), DEFAULT_ENCODING));
+                writer.append(stringToAppend);
+                success = true;
+            } catch (IOException e) {
+                LOGGER.error("IOException while appending to {}", filePath, e);
+            } finally {
+                close(writer);
+            }
+            return success;
         }
-        return success;
     }
 
     /**

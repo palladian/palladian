@@ -50,6 +50,7 @@ public class OpenAiApi extends AiApi {
     public static final String MODEL_GPT_5 = "gpt-5";
     public static final String MODEL_GPT_5_1 = "gpt-5.1";
     public static final String MODEL_GPT_5_MINI = "gpt-5-mini";
+    public static final String MODEL_GPT_5_4_MINI = "gpt-5.4-mini";
     public static final String MODEL_GPT_5_NANO = "gpt-5-nano";
 
     public OpenAiApi(Configuration configuration) {

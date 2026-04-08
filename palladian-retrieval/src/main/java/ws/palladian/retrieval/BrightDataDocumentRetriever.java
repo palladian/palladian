@@ -71,9 +71,16 @@ public class BrightDataDocumentRetriever extends JsEnabledDocumentRetriever {
         THROTTLE.hold();
 
         try {
-            return documentRetriever.postJsonObject("https://api.brightdata.com/request",
-                    JsonObject.tryParse("{\n  \"zone\": \"" + zone + "\",\n  \"url\": \"" + url + "\",\n  \"format\": \"raw\",\n  \"method\": \"GET\",\n  \"country\": \"us\"}"),
-                    false);
+            JsonObject body = new JsonObject();
+            body.put("zone", zone);
+            body.put("url", url);
+            body.put("format", "raw");
+            body.put("method", "GET");
+            body.put("country", "us");
+            if (useJsRendering) {
+                body.put("js_render", true);
+            }
+            return documentRetriever.postJsonObject("https://api.brightdata.com/request", body, false);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return null;

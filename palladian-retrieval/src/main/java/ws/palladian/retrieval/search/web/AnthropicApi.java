@@ -31,6 +31,7 @@ public class AnthropicApi extends AiApi {
     // See https://docs.anthropic.com/claude/docs/models-overview
     public static final String HAIKU_4_5 = "claude-haiku-4-5";
     public static final String SONNET_4_5 = "claude-sonnet-4-5";
+    public static final String SONNET_4_6 = "claude-sonnet-4-6";
     public static final String OPUS_4_6 = "claude-opus-4-6";
     private static final String DEFAULT_MODEL = HAIKU_4_5;
 

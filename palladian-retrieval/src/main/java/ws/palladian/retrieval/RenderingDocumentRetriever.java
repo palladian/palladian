@@ -51,6 +51,12 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     protected RemoteWebDriver driver;
 
+    /**
+     * The ChromeDriverService that manages the chromedriver OS process.
+     * Stored so we can explicitly stop it during cleanup to prevent orphaned chromedriver processes.
+     */
+    protected ChromeDriverService driverService;
+
     protected Consumer<NoSuchSessionException> noSuchSessionExceptionCallback;
 
     private boolean deleteDriverCookiesBeforeUse = true;
@@ -141,6 +147,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+            options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 
             if (additionalOptions != null) {
                 for (String additionalOption : additionalOptions) {
@@ -177,8 +184,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                             Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
                     .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
-            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
+            driverService = ChromeDriverService.createDefaultService();
+            driver = new ChromeDriver(driverService, options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+            applyCdpStealth();
         } else if (browser == DriverManagerType.CHROMIUM) {
             if (driverVersionCode != null) {
                 WebDriverManager.chromiumdriver().driverVersion(driverVersionCode).setup();
@@ -204,6 +213,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             options.addArguments("--start-maximized");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("--user-agent=" + userAgent);
+            options.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
 
             if (additionalOptions != null) {
                 for (String additionalOption : additionalOptions) {
@@ -240,8 +250,10 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                             Duration.ofSeconds(timeoutSeconds))   // hard cap for driver commands
                     .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
-            driver = new ChromeDriver(ChromeDriverService.createDefaultService(), options, clientConfig);
+            driverService = ChromeDriverService.createDefaultService();
+            driver = new ChromeDriver(driverService, options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
+            applyCdpStealth();
         }
     }
 
@@ -250,9 +262,29 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     /**
+     * Apply Chrome DevTools Protocol commands to reduce bot-detection signals.
+     * <ul>
+     *   <li>Hides <code>navigator.webdriver</code></li>
+     *   <li>Spoofs plugins and language arrays so they look like a real browser</li>
+     * </ul>
+     */
+    private void applyCdpStealth() {
+        if (driver instanceof ChromeDriver) {
+            try {
+                Map<String, Object> cdpParams = new HashMap<>();
+                cdpParams.put("source", String.join("\n", "Object.defineProperty(navigator, 'webdriver', {get: () => undefined});",
+                        "Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});",
+                        "Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});", "window.chrome = { runtime: {} };"));
+                ((ChromeDriver) driver).executeCdpCommand("Page.addScriptToEvaluateOnNewDocument", cdpParams);
+            } catch (Exception e) {
+                LOGGER.debug("Could not apply CDP stealth commands", e);
+            }
+        }
+    }
+
+    /**
      * Take a screenshot and save it to the specified path.
      *
-     * @param targetPath The path where the screenshot should be saved to.
      * @return The screenshot file.
      */
     public BufferedImage getScreenshot() {
@@ -307,8 +339,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 // If it's not fatal, we just assume we don't know the current URL
                 LOGGER.debug("Could not get current URL", e);
@@ -325,8 +357,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     LOGGER.error("problem getting session", e);
                     if (getNoSuchSessionExceptionCallback() != null) {
                         getNoSuchSessionExceptionCallback().accept(e);
+                    } else {
+                        throw e;
                     }
-                    throw e;
                 } catch (WebDriverException e) {
                     if (isFatalWebDriverError(e)) {
                         LOGGER.error("fatal webdriver error on driver.get (pre-cookie nav)", e);
@@ -334,8 +367,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                             getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                         } else {
                             markInvalidatedByCallback();
+                            throw new NoSuchSessionException(e.getMessage(), e);
                         }
-                        throw new NoSuchSessionException(e.getMessage(), e);
                     } else {
                         throw e;
                     }
@@ -357,8 +390,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 LOGGER.error("problem getting session", e);
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(e);
+                } else {
+                    throw e;
                 }
-                throw e;
             } catch (WebDriverException e) {
                 if (isFatalWebDriverError(e)) {
                     LOGGER.error("fatal webdriver error on driver.get", e);
@@ -366,8 +400,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                         getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                     } else {
                         markInvalidatedByCallback();
+                        throw new NoSuchSessionException(e.getMessage(), e);
                     }
-                    throw new NoSuchSessionException(e.getMessage(), e);
                 } else {
                     throw e;
                 }
@@ -387,7 +421,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             if (!selectors.isEmpty()) {
                 new WebDriverWait(driver, Duration.ofSeconds(getTimeoutSeconds())).until(webDriver -> {
                     for (String cssSelector : selectors) {
-                        if (webDriver.findElement(By.cssSelector(cssSelector)) == null) {
+                        if (webDriver.findElements(By.cssSelector(cssSelector)).isEmpty()) {
                             return false;
                         }
                     }
@@ -409,8 +443,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem getting session while waiting", e);
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
+            } else {
+                throw e;
             }
-            throw e;
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error while waiting", e);
@@ -418,8 +453,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 if (getWaitExceptionCallback() != null) {
                     getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
@@ -471,8 +506,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem getting session", e);
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
+            } else {
+                throw e;
             }
-            throw e;
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error during navigation in conditional goTo", e);
@@ -480,8 +516,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 throw e;
             }
@@ -492,8 +528,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error("problem getting session while waiting for condition", e);
             if (getNoSuchSessionExceptionCallback() != null) {
                 getNoSuchSessionExceptionCallback().accept(e);
+            } else {
+                throw e;
             }
-            throw e;
         } catch (WebDriverException e) {
             if (isFatalWebDriverError(e)) {
                 LOGGER.error("fatal webdriver error while waiting for condition", e);
@@ -501,8 +538,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
                     markInvalidatedByCallback();
+                    throw new NoSuchSessionException(e.getMessage(), e);
                 }
-                throw new NoSuchSessionException(e.getMessage(), e);
             } else {
                 LOGGER.error("problem with waiting for condition", e);
                 if (getWaitExceptionCallback() != null) {
@@ -704,6 +741,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public boolean closeAndQuit() {
         if (driver == null) {
+            stopDriverService();
             return true;
         }
         try {
@@ -718,9 +756,26 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             return false;
         } finally {
             driver = null;
+            stopDriverService();
         }
 
         return true;
+    }
+
+    /**
+     * Stop the ChromeDriverService (chromedriver OS process) if it is still running.
+     * This prevents orphaned chromedriver processes when driver.quit() fails or times out.
+     */
+    protected void stopDriverService() {
+        if (driverService != null) {
+            try {
+                driverService.stop();
+            } catch (Exception e) {
+                LOGGER.debug("Could not stop driver service", e);
+            } finally {
+                driverService = null;
+            }
+        }
     }
 
     public RemoteWebDriver getDriver() {
@@ -741,8 +796,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 LOGGER.error("problem getting session", e);
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(e);
+                } else {
+                    throw e;
                 }
-                throw e;
             } catch (WebDriverException e) {
                 if (isFatalWebDriverError(e)) {
                     LOGGER.error("fatal webdriver error while deleting cookies", e);
@@ -750,8 +806,8 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                         getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                     } else {
                         markInvalidatedByCallback();
+                        throw new NoSuchSessionException(e.getMessage(), e);
                     }
-                    throw new NoSuchSessionException(e.getMessage(), e);
                 } else {
                     LOGGER.error("problem with deleting cookies", e);
                 }

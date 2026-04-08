@@ -6,9 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -39,6 +42,29 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private final DocumentRetriever documentRetriever;
     private final RenderingDocumentRetrieverPool renderingDocumentRetrieverPool;
     private final List<JsEnabledDocumentRetriever> cloudDocumentRetrievers = new ArrayList<>();
+
+    /**
+     * Domains where the rendering retriever returned a page with an interactive challenge
+     * (e.g. Cloudflare Turnstile, Vercel checkpoint). Mapped to the timestamp when the domain
+     * was added so entries can expire after {@link #INTERACTIVE_CHALLENGE_SKIP_DURATION_MS}.
+     */
+    private static final Map<String, Long> interactiveChallengeSkipDomains = new ConcurrentHashMap<>();
+
+    /**
+     * How long (ms) to skip the rendering retriever for a domain after an interactive challenge
+     * was detected. Default: 1 hour.
+     */
+    private static final long INTERACTIVE_CHALLENGE_SKIP_DURATION_MS = TimeUnit.HOURS.toMillis(1);
+
+    /**
+     * Substrings that indicate the page contains an <em>interactive</em> challenge that a headless
+     * browser cannot solve. When the rendering retriever returns a document matching any of these,
+     * the domain is added to {@link #interactiveChallengeSkipDomains}.
+     */
+    private static final List<String> INTERACTIVE_CHALLENGE_INDICATORS = Arrays.asList("<title>Just a moment...</title>", "challenges.cloudflare.com", "Verify you are human",
+            "Vercel Security Checkpoint", "captcha-delivery.com", "<title>CAPTCHA page</title>", "<title>Captcha Interception</title>",
+            "Please complete the security check to access", "Please complete a security check to continue", "<title>Are you a human?</title>", "<title>Bot or Not?</title>",
+            "Verifying you are human. This may take a few seconds", "_Incapsula_Resource");
 
     // separate executor used only for applying a hard timeout to rendering work
     private static final ExecutorService RENDER_WATCHDOG_EXEC = Executors.newCachedThreadPool(new ThreadFactory() {
@@ -114,19 +140,60 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return HtmlHelper.getInnerXml(webDocument);
     }
 
+    public JsonObject getJsonObject(String url) {
+        JsonObject jsonObject = null;
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+        if (!StringHelper.nullOrEmpty(text)) {
+            jsonObject = JsonObject.tryParse(text);
+        }
+        if (jsonObject == null) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+            if (!StringHelper.nullOrEmpty(text)) {
+                jsonObject = JsonObject.tryParse(text);
+            }
+        }
+        return jsonObject;
+    }
+
+    public JsonArray getJsonArray(String url) {
+        JsonArray jsonArray = null;
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+        if (!StringHelper.nullOrEmpty(text)) {
+            jsonArray = JsonArray.tryParse(text);
+        }
+        if (jsonArray == null) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+            if (!StringHelper.nullOrEmpty(text)) {
+                jsonArray = JsonArray.tryParse(text);
+            }
+        }
+        return jsonArray;
+    }
+
     public String getPlainText(String url) {
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+
+        if (StringHelper.nullOrEmpty(text)) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+        }
+        return text;
+    }
+
+    private String tryGetPlainTextWithSimpleRetriever(String url) {
         String text = null;
         if (documentRetriever != null) {
             text = documentRetriever.getText(url);
         }
+        return text;
+    }
 
-        if (StringHelper.nullOrEmpty(text)) {
-            for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
-                if (cloudDocumentRetriever instanceof BrightDataDocumentRetriever) {
-                    text = cloudDocumentRetriever.getText(url);
-                    if (text != null && !text.isEmpty()) {
-                        break;
-                    }
+    private String tryGetPlainTextWithCloudRetrievers(String url) {
+        String text = null;
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (cloudDocumentRetriever instanceof BrightDataDocumentRetriever) {
+                text = cloudDocumentRetriever.getText(url);
+                if (!StringHelper.nullOrEmpty(text)) {
+                    break;
                 }
             }
         }
@@ -197,7 +264,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
         // try normal document retriever
         boolean goodDocument = false;
-        if (documentRetriever != null && !mustBeRendering && shouldMakeRequest(documentRetriever)) {
+        if (documentRetriever != null && !mustBeRendering && shouldMakeRequest(documentRetriever) && !shouldSkipLocalRetrievalForDomain(url)) {
             try {
                 if (thread != null) {
                     thread.setName("Retrieving (" + DocumentRetriever.class.getName() + "): " + url);
@@ -213,6 +280,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 retrieverDocumentCallback.accept(Pair.of(documentRetriever, document));
             }
 
+            // if the rendering retriever got an interactive challenge page, remember the
+            // domain so we skip rendering and go straight to cloud retrievers next time
+            if (!goodDocument) {
+                checkAndMarkInteractiveChallenge(url, document);
+            }
+
             String message = goodDocument ? "success" : "fail";
             updateRequestTracker(DocumentRetriever.class.getName(), goodDocument);
             resolvingExplanation.add(
@@ -220,7 +293,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                             DocumentRetriever.class.getName()));
         }
 
-        if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RenderingDocumentRetrieverPool.class.getName())) {
+        if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RenderingDocumentRetrieverPool.class.getName()) && !shouldSkipLocalRetrievalForDomain(
+                url)) {
             // try rendering retriever with one-time retry in case the checked-out retriever was broken
             boolean retried = false;
 
@@ -259,6 +333,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     }
 
                     goodDocument = isGoodDocument(document);
+
+                    // if the rendering retriever got an interactive challenge page, remember the
+                    // domain so we skip rendering and go straight to cloud retrievers next time
+                    if (!goodDocument) {
+                        checkAndMarkInteractiveChallenge(url, document);
+                    }
 
                     // Detect if this attempt used a broken retriever (exception may have been caught internally)
                     // We only decide to retry if the attempt produced no document and the retriever signaled invalidation
@@ -368,6 +448,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (!goodDocument) {
             pair[0]++;
         } else {
+            pair[0] = 0;
             pair[2]++;
         }
     }
@@ -413,6 +494,47 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public Map<String, Integer[]> getRequestTracker() {
         return requestTracker;
+    }
+
+    /**
+     * Check whether the rendering retriever should be skipped for the given URL because
+     * a previous attempt returned an interactive challenge page for that domain.
+     */
+    private boolean shouldSkipLocalRetrievalForDomain(String url) {
+        String domain = UrlHelper.getDomain(url, false, false);
+        if (domain == null) {
+            return false;
+        }
+        Long addedAt = interactiveChallengeSkipDomains.get(domain);
+        if (addedAt == null) {
+            return false;
+        }
+        if (System.currentTimeMillis() - addedAt > INTERACTIVE_CHALLENGE_SKIP_DURATION_MS) {
+            interactiveChallengeSkipDomains.remove(domain);
+            LOGGER.info("Interactive-challenge skip expired for domain: {}", domain);
+            return false;
+        }
+        LOGGER.info("Skipping rendering retriever for domain {} (interactive challenge detected previously)", domain);
+        return true;
+    }
+
+    /**
+     * If the document contains indicators of an interactive challenge (Cloudflare Turnstile,
+     * Vercel checkpoint, etc.), mark the domain so the rendering retriever is skipped for
+     * subsequent requests.
+     */
+    private void checkAndMarkInteractiveChallenge(String url, Document document) {
+        if (document == null) {
+            return;
+        }
+        String html = HtmlHelper.getInnerXml(document);
+        if (StringHelper.containsAny(html, INTERACTIVE_CHALLENGE_INDICATORS)) {
+            String domain = UrlHelper.getDomain(url, false, false);
+            if (domain != null) {
+                interactiveChallengeSkipDomains.put(domain, System.currentTimeMillis());
+                LOGGER.info("Interactive challenge detected for domain: {} — rendering retriever will be skipped for this domain", domain);
+            }
+        }
     }
 
     private boolean isGoodDocument(Document document) {

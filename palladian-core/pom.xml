@@ -47,7 +47,7 @@
     </build>
     <properties>
         <lucene-version>8.11.2</lucene-version>
-        <twelvemonkeys-version>3.11.0</twelvemonkeys-version>
+        <twelvemonkeys-version>3.13.1</twelvemonkeys-version>
     </properties>
     <dependencies>
         <dependency>
@@ -84,6 +84,12 @@
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-webp</artifactId>
             <version>${twelvemonkeys-version}</version>
+        </dependency>
+        <dependency>
+            <!-- JNI bindings for Google's libwebp codec — provides WebP writing via ImageIO -->
+            <groupId>org.sejda.imageio</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.1.6</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

@@ -4,7 +4,9 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.google.common.util.concurrent.AtomicDouble;
-import org.apache.commons.lang3.Validate;
+import com.luciad.imageio.webp.WebPImageWriterSpi;
+import com.luciad.imageio.webp.WebPWriteParam;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.util.FastMath;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
@@ -745,6 +747,23 @@ public class ImageHandler {
             return false;
         }
         try {
+            // WebP: use webp-imageio JNI library directly (the SPI is not discovered by ImageIO)
+            if (fileType.equalsIgnoreCase("webp")) {
+                WebPWriteParam writeParam = new WebPWriteParam(Locale.getDefault());
+                writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                writeParam.setCompressionType(writeParam.getCompressionTypes()[WebPWriteParam.LOSSY_COMPRESSION]);
+                writeParam.setCompressionQuality(Math.max(0.0f, Math.min(quality, 1.0f)));
+
+                FileHelper.createDirectoriesAndFile(filePath);
+
+                ImageWriter writer = new WebPImageWriterSpi().createWriterInstance();
+                FileImageOutputStream output = new FileImageOutputStream(new File(filePath));
+                writer.setOutput(output);
+                writer.write(null, new IIOImage(image, null, null), writeParam);
+                output.close();
+                return true;
+            }
+
             Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(fileType.toUpperCase());
             boolean success = false;
             if (iter.hasNext()) {
