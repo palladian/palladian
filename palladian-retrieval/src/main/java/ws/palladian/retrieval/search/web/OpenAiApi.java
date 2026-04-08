@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class OpenAiApi extends AiApi {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAiApi.class);
+    private static final TimeWindowRequestThrottle DEFAULT_THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 3500);
 
     protected final String apiBase;
     protected String model = DEFAULT_MODEL;
@@ -34,7 +35,7 @@ public class OpenAiApi extends AiApi {
     protected Map<String, String> globalHeaders = new HashMap<>();
     protected Map<String, String> queryParams = new HashMap<>();
     protected Long requestTimeout;
-    protected TimeWindowRequestThrottle throttle = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 3500);
+    protected TimeWindowRequestThrottle throttle = DEFAULT_THROTTLE;
 
     public static final String CONFIG_API_KEY = "api.openai.key";
     public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
