@@ -266,7 +266,7 @@ public class Crawler {
         executor.shutdown();
 
         // wait until all threads are finish
-        LOGGER.info("waiting for all threads to finish...");
+        LOGGER.debug("waiting for all threads to finish...");
         StopWatch sw = new StopWatch();
         try {
             while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
@@ -275,7 +275,7 @@ public class Crawler {
         } catch (InterruptedException e) {
             LOGGER.error(e.getMessage(), e);
         }
-        LOGGER.info("...all threads finished in " + sw.getTotalElapsedTimeString());
+        LOGGER.debug("...all threads finished in " + sw.getTotalElapsedTimeString());
 
         // LOGGER.info("-----------------------------------------------");
         // LOGGER.info("-----------------------------------------------");
@@ -395,7 +395,7 @@ public class Crawler {
         }
     }
 
-    private String cleanUrl(String url) {
+    protected String cleanUrl(String url) {
         url = UrlHelper.removeSessionId(url);
         url = UrlHelper.removeAnchors(url);
         if (isStripQueryParams()) {

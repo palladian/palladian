@@ -89,7 +89,7 @@ class FeedTask implements Callable<FeedTaskResult> {
                 } catch (Exception e) {
                     resultSet.add(ERROR);
                 }
-
+                updateCheckIntervals(feed);
             } else {
                 // case 2: document has not been modified since last request
                 if (httpResult.getStatusCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {

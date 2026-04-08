@@ -26,8 +26,6 @@ import java.net.URL;
  * @author Philipp Katz
  */
 public final class ConfigHolder {
-
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigHolder.class);
 
     private static class SingletonHolder {
@@ -40,7 +38,7 @@ public final class ConfigHolder {
     /**
      * @return The singleton instance of the {@link ConfigHolder}.
      */
-    public static final ConfigHolder getInstance() {
+    public static ConfigHolder getInstance() {
         return SingletonHolder.INSTANCE;
     }
 
@@ -52,7 +50,7 @@ public final class ConfigHolder {
         config = loadConfig();
     }
 
-    private static final Configuration loadConfig() {
+    private static Configuration loadConfig() {
         Configuration config;
         URL configUrl = ConfigurationUtils.locate(CONFIG_NAME);
         if (configUrl != null) {

@@ -25,7 +25,7 @@ Palladian is available through Maven on “The Central Repository”. Add it to 
 </dependency>
 ```
 
-To use the `SNAPSHOT` builds, make sure to configure your `~/.m2/settings.xml` as shown [here](https://stackoverflow.com/a/7717234).
+To use the `SNAPSHOT` builds, make sure to configure your `~/.m2/settings.xml` as shown [here](https://central.sonatype.org/publish/publish-portal-snapshots/#consuming-snapshot-releases-for-your-project).
 
 The latest snapshot version can be used like this:
 
@@ -40,4 +40,4 @@ The latest snapshot version can be used like this:
 Who made it?
 ------------
 
-The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2024.
+The Palladian Toolkit was created by David Urbansky, Philipp Katz, Klemens Muthmann; 2009 — 2025.

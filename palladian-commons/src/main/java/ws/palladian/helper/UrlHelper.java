@@ -21,10 +21,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -40,9 +41,6 @@ import java.util.stream.Collectors;
  * @author Julien Schmehl
  */
 public final class UrlHelper {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlHelper.class);
 
     /**
@@ -54,6 +52,8 @@ public final class UrlHelper {
      * RegEx pattern defining a session ID.
      */
     private static final Pattern SESSION_ID_PATTERN = Pattern.compile("[&;]?(?<!\\w)(jsessionid=|s=|sid=|PHPSESSID=|sessionid=)[A-Za-z_0-9\\-]{12,200}(?!\\w)");
+
+    private static final Pattern PROTOCOL_PATTERN = Pattern.compile("^https?://");
 
     /**
      * List of top level domains.
@@ -86,7 +86,7 @@ public final class UrlHelper {
                 .filter(d -> StringHelper.countOccurrences(d, ".") == 1) // only TLDs
                 .map(d -> d.substring(1)) // strip leading .
                 .collect(Collectors.joining("|"));
-        DOMAIN_SUFFIXES = Collections.unmodifiableList(domains);
+        DOMAIN_SUFFIXES = new CopyOnWriteArrayList<>(domains);
     }
 
     // adapted version from <http://daringfireball.net/2010/07/improved_regex_for_matching_urls>
@@ -240,6 +240,43 @@ public final class UrlHelper {
 
     public static String removeAnchors(String url) {
         return url.replaceAll("#.*", "");
+    }
+
+    public static String getDomainFast(String url) {
+        String result = "";
+        if (StringHelper.nullOrEmpty(url)) {
+            return result;
+        }
+        url = url.replaceAll("^https?://", "");
+        //        url = url.replace("http://", "");
+        result = url;
+
+        if (!url.isEmpty()) {
+            String suffix = "";
+            int suffixIndex = 0;
+            for (String domainSuffix : DOMAIN_SUFFIXES) {
+                suffixIndex = result.indexOf(domainSuffix + "/");
+                if (suffixIndex > -1) {
+                    suffix = domainSuffix;
+                    break;
+                }
+            }
+            if (suffixIndex <= 0) {
+                for (String domainSuffix : DOMAIN_SUFFIXES) {
+                    if (result.endsWith(domainSuffix)) {
+                        suffix = domainSuffix;
+                        suffixIndex = result.length() - suffix.length();
+                        break;
+                    }
+                }
+            }
+            if (suffixIndex > -1) {
+                result = result.substring(0, suffixIndex);
+            }
+            String[] parts = result.split("\\.");
+            result = parts[parts.length - 1] + suffix;
+        }
+        return result;
     }
 
     /**
@@ -418,6 +455,11 @@ public final class UrlHelper {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("UTF-8 encoding unsupported. This should not happen.", e);
         }
+    }
+
+    public static String encodeURIComponent(String string) {
+        return URLEncoder.encode(string, StandardCharsets.UTF_8).replaceAll("\\+", "%20").replaceAll("\\%21", "!").replaceAll("\\%27", "'").replaceAll("\\%28", "(").replaceAll(
+                "\\%29", ")").replaceAll("\\%7E", "~");
     }
 
     /**

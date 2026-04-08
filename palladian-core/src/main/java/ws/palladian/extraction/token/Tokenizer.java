@@ -357,9 +357,7 @@ public final class Tokenizer {
     }
 
     /**
-     * <p>
      * Splits a text into sentences.
-     * </p>
      *
      * @param inputText The text to split.
      * @return The senteces as they appear in the text.

@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -48,6 +49,9 @@ import java.util.zip.*;
  */
 public final class FileHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileHelper.class);
+
+    /** Per-path lock objects used to make {@link #appendFile} thread-safe without blocking unrelated files. */
+    private static final ConcurrentHashMap<String, Object> FILE_APPEND_LOCKS = new ConcurrentHashMap<>();
 
     /**
      * The encoding used by this class, instead of relying on the System's default encoding.
@@ -245,9 +249,7 @@ public final class FileHelper {
     }
 
     /**
-     * <p>
      * Gets the file type of a URI.
-     * </p>
      *
      * @param path The path of the file
      * @return The file type without the period. E.g. abc.jpg => "jpg".
@@ -281,9 +283,13 @@ public final class FileHelper {
         if (lastQM > -1) {
             fileType = fileType.substring(0, lastQM);
         }
+        lastQM = fileType.indexOf(";");
+        if (lastQM > -1) {
+            fileType = fileType.substring(0, lastQM);
+        }
 
-        // there must be no slashes in file types
-        if (fileType.contains("/")) {
+        // there must be no slashes or = in file types
+        if (fileType.contains("/") || fileType.contains("=")) {
             fileType = "";
         }
 
@@ -800,18 +806,21 @@ public final class FileHelper {
      * @return <code>true</code>, if there were no errors, <code>false</code> otherwise.
      */
     public static boolean appendFile(String filePath, CharSequence stringToAppend) {
-        boolean success = false;
-        Writer writer = null;
-        try {
-            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true), DEFAULT_ENCODING));
-            writer.append(stringToAppend);
-            success = true;
-        } catch (IOException e) {
-            LOGGER.error("IOException while appending to {}", filePath, e);
-        } finally {
-            close(writer);
+        Object lock = FILE_APPEND_LOCKS.computeIfAbsent(filePath, k -> new Object());
+        synchronized (lock) {
+            boolean success = false;
+            Writer writer = null;
+            try {
+                writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath, true), DEFAULT_ENCODING));
+                writer.append(stringToAppend);
+                success = true;
+            } catch (IOException e) {
+                LOGGER.error("IOException while appending to {}", filePath, e);
+            } finally {
+                close(writer);
+            }
+            return success;
         }
-        return success;
     }
 
     /**
@@ -960,6 +969,7 @@ public final class FileHelper {
         try {
             return FileHelper.deserialize(filePath);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -1005,7 +1015,7 @@ public final class FileHelper {
             serialize(object, filePath);
             return true;
         } catch (IOException e) {
-            // ccl
+            e.printStackTrace();
         }
 
         return false;
@@ -1203,6 +1213,9 @@ public final class FileHelper {
     }
 
     public static boolean delete(File file) {
+        if (file == null) {
+            return false;
+        }
         return delete(file.getAbsolutePath(), false);
     }
 

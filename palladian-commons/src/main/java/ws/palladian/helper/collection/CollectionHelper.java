@@ -1080,9 +1080,7 @@ public final class CollectionHelper {
     }
 
     /**
-     * <p>
      * Shuffle the content of the given array.
-     * </p>
      *
      * @param array The array to shuffle, not <code>null</code>.
      */
@@ -1099,9 +1097,7 @@ public final class CollectionHelper {
     }
 
     /**
-     * <p>
      * Check, if the provided {@link Predicate} accepts all items from given {@link Iterable}.
-     * </p>
      *
      * @param iterable The iterable, not <code>null</code>.
      * @param filter   The filter, not <code>null</code>.

@@ -15,6 +15,9 @@ public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSea
     /** who triggered me? */
     private SearchIntentTrigger intentTrigger;
 
+    /** The id of the matched intent */
+    private Integer intentId;
+
     public ActivatedSearchIntentAction(SearchIntentAction<SearchIntentFilter> ia, String modifiedQuery) {
         try {
             ConvertUtilsBean convertUtilsBean = BeanUtilsBean2.getInstance().getConvertUtils();
@@ -53,5 +56,13 @@ public class ActivatedSearchIntentAction extends SearchIntentAction<ActivatedSea
 
     public SearchIntentTrigger getIntentTrigger() {
         return intentTrigger;
+    }
+
+    public Integer getIntentId() {
+        return intentId;
+    }
+
+    public void setIntentId(Integer intentId) {
+        this.intentId = intentId;
     }
 }

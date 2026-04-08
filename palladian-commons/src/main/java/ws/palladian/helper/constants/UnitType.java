@@ -32,7 +32,7 @@ public enum UnitType {
     ELECTRICAL_RESISTANCE("ohm"), //
     POWER("watt"), //
     VOLTAGE("volt"), //
-    ENERGY("kilojoule"), //
+    ENERGY("joule"), //
     CURRENT("ampere"), //
     ELECTRIC_CHARGE("ampere-hour"), //
     TORQUE("Nm"), //
@@ -220,12 +220,12 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("ampere");
         unitList.add("amp");
-        unitList.add("a");
+        unitList.add("A");
         UnitType.CURRENT.units.add(Pair.of(unitList, 1.));
 
         unitList = new ArrayList<>();
         unitList.add("milli ampere");
-        unitList.add("ma");
+        unitList.add("mA");
         UnitType.CURRENT.units.add(Pair.of(unitList, 0.001));
 
         // ELECTRIC_CHARGE units are normalized to 1 Ah
@@ -238,7 +238,7 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("milli ampere-hour");
         unitList.add("milli amp-hour");
-        unitList.add("mah");
+        unitList.add("mAh");
         UnitType.ELECTRIC_CHARGE.units.add(Pair.of(unitList, 0.001));
 
         // TORQUE units are normalized to 1 Newton Meter
@@ -299,22 +299,37 @@ public enum UnitType {
         unitList = new ArrayList<>();
         unitList.add("µV");
         unitList.add("µv");
+        unitList.add("microvolt");
+        unitList.add("microvolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.000001));
 
         unitList = new ArrayList<>();
         unitList.add("mV");
         unitList.add("mv");
+        unitList.add("millivolt");
+        unitList.add("millivolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 0.001));
 
         unitList = new ArrayList<>();
         unitList.add("kV");
         unitList.add("kv");
+        unitList.add("kilovolt");
+        unitList.add("kilovolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000.));
 
         unitList = new ArrayList<>();
         unitList.add("MV");
         unitList.add("mv");
+        unitList.add("megavolt");
+        unitList.add("megavolts");
         UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000000.));
+
+        unitList = new ArrayList<>();
+        unitList.add("GV");
+        unitList.add("gv");
+        unitList.add("gigavolt");
+        unitList.add("gigavolts");
+        UnitType.VOLTAGE.units.add(Pair.of(unitList, 1000000000.));
 
         // PIXEL units are normalized to 1
         unitList = new ArrayList<>();

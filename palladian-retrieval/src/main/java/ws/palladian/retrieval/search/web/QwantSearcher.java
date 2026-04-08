@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.search.web;
 
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +107,7 @@ public final class QwantSearcher extends AbstractMultifacetSearcher<WebContent> 
 
             String jsonString;
             try {
-                jsonString = okHttpClient.newCall(new com.squareup.okhttp.Request.Builder().url(searchUrl).build()).execute().body().string();
+                jsonString = okHttpClient.newCall(new Request.Builder().url(searchUrl).build()).execute().body().string();
             } catch (IOException e) {
                 throw new SearcherException("Search request failed.");
             }

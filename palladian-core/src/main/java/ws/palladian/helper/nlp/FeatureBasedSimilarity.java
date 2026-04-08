@@ -39,7 +39,7 @@ public final class FeatureBasedSimilarity extends AbstractStringMetric {
 
     private Set<String> extractFeatures(String s) {
         Iterator<String> featureIterator = preprocessor.apply(s);
-        return new HashSet<>(CollectionHelper.newArrayList(featureIterator));
+        return CollectionHelper.newHashSet(featureIterator);
     }
 
     @Override

@@ -140,7 +140,7 @@ public final class ProcessHelper {
     }
 
     public static void waitForThreadPool(ExecutorService executorService, StopWatch stopWatch) {
-        LOGGER.info("waiting for all threads to finish...");
+        LOGGER.debug("waiting for all threads to finish...");
         executorService.shutdown();
         try {
             while (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
@@ -149,6 +149,6 @@ public final class ProcessHelper {
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
-        LOGGER.info("...all threads finished in " + stopWatch.getTotalElapsedTimeString());
+        LOGGER.debug("...all threads finished in " + stopWatch.getTotalElapsedTimeString());
     }
 }

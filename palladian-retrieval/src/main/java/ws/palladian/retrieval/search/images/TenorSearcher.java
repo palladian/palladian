@@ -24,6 +24,7 @@ import java.util.List;
  * </p>
  *
  * @author David Urbansky
+ * @Deprecated use {@link KlipySearcher} instead. Tenor shuts down their public API in June 2026.
  * @see <a href="https://tenor.com/gifapi/documentation">Tenor API Docs</a>
  */
 public class TenorSearcher extends AbstractSearcher<WebImage> {

@@ -454,7 +454,7 @@ public class GeonamesImporterTest {
     public void testAlternativeNames() {
         Location location = locationStore.getLocation(2825297);
         Collection<AlternativeName> alternativeNames = location.getAlternativeNames();
-        assertEquals(58, alternativeNames.size());
+        assertEquals(60, alternativeNames.size());
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.GERMAN)));
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.ENGLISH)));
         assertTrue(alternativeNames.contains(new AlternativeName("Stuttgart", Language.SPANISH)));

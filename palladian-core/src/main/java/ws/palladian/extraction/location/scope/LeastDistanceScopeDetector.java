@@ -11,8 +11,6 @@ import ws.palladian.helper.geo.GeoCoordinate;
 import java.util.Collection;
 import java.util.List;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-
 public final class LeastDistanceScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "LeastDistance";
@@ -24,7 +22,7 @@ public final class LeastDistanceScopeDetector extends AbstractRankingScopeDetect
     @Override
     public Location getScope(Collection<LocationAnnotation> annotations) {
         Validate.notNull(annotations, "locations must not be null");
-        List<Location> locationList = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
+        List<Location> locationList = CollectionHelper.convertList(annotations, LocationAnnotation::getLocation);
         CollectionHelper.removeNulls(locationList);
         CollectionHelper.remove(locationList, LocationFilters.coordinate());
 

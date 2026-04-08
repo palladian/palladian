@@ -47,10 +47,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * on Atom autodiscovery</a>
  */
 public final class FeedDiscovery {
-
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedDiscovery.class);
 
     /**
@@ -165,9 +161,7 @@ public final class FeedDiscovery {
     }
 
     /**
-     * <p>
      * Discovers feed links in supplied page URL.
-     * </p>
      *
      * @param pageUrl
      * @return list of discovered feeds, empty list if no feeds are available, <code>null</code> if page could not
@@ -178,10 +172,8 @@ public final class FeedDiscovery {
         Document document = null;
 
         try {
-
             HttpResult httpResult = httpRetriever.httpGet(pageUrl);
             document = parser.parse(httpResult);
-
         } catch (Throwable t) {
             // NekoHTML produces various types of Exceptions, just catch them all here and log them.
             LOGGER.error("Error retrieving {} : {} ; {}", pageUrl, t.toString(), t.getMessage());
@@ -234,7 +226,6 @@ public final class FeedDiscovery {
 
         // check for Atom/RSS
         for (Node feedNode : feedNodes) {
-
             NamedNodeMap attributes = feedNode.getAttributes();
 
             // ignore if href attribute is missing
@@ -447,9 +438,7 @@ public final class FeedDiscovery {
     }
 
     /**
-     * <p>
      * Add multiple queries from a newline separeted query file.
-     * </p>
      *
      * @param filePath
      */
@@ -459,9 +448,7 @@ public final class FeedDiscovery {
     }
 
     /**
-     * <p>
      * Use the given queries and combine them, to get the specified targetCount of queries.
-     * </p>
      *
      * <ul>
      * <li>If targetCount is smaller than existing queries, existing queries are reduced to a random subset.</li>
@@ -514,5 +501,4 @@ public final class FeedDiscovery {
         queryQueue.addAll(combinedQueries);
 
     }
-
 }

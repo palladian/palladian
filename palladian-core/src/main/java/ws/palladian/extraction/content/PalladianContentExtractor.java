@@ -34,7 +34,6 @@ import ws.palladian.retrieval.resources.WebVideo;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -95,6 +94,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * The cleansed entire text content of the page.
      */
     private String fullTextContent = "";
+    private String fullCleanedTextContent = null;
 
     private ExtractedDate publishDate = null;
 
@@ -138,6 +138,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         // if only one node matches the hints, we take it
         MAIN_NODE_HINTS_ONE_ONLY.add("article-jsonld");
         MAIN_NODE_HINTS_ONE_ONLY.add("article-text");
+        MAIN_NODE_HINTS_ONE_ONLY.add("articulo");
     }
 
     @Override
@@ -216,11 +217,22 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      */
     public String getEntireTextContent() {
         fullTextContent = fullTextContent.replaceAll("(\t)+", "");
-        fullTextContent = Pattern.compile("^.{0,40}$", Pattern.MULTILINE).matcher(fullTextContent).replaceAll("\n");
+        //                fullTextContent = Pattern.compile("^.{0,40}$", Pattern.MULTILINE).matcher(fullTextContent).replaceAll("\n");
         fullTextContent = fullTextContent.replaceAll("\n(\\s)+\n", "\n\n");
         fullTextContent = fullTextContent.replaceAll("(\n){2,}", "\n\n");
 
         return fullTextContent;
+    }
+
+    public String getFullCleanedTextContent() {
+        if (fullCleanedTextContent == null) {
+            fullCleanedTextContent = HtmlHelper.documentToText(document);
+        }
+        fullCleanedTextContent = fullCleanedTextContent.replaceAll("(\t)+", "");
+        fullCleanedTextContent = fullCleanedTextContent.replaceAll("\n(\\s)+\n", "\n\n");
+        fullCleanedTextContent = fullCleanedTextContent.replaceAll("(\n){2,}", "\n\n");
+
+        return fullCleanedTextContent;
     }
 
     private void parseDocument() {
@@ -251,6 +263,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         schemaJson = getSchemaJson(document);
         publishDate = extractPublishDate();
         cleanDom();
+        fullCleanedTextContent = HtmlHelper.documentToText(document);
         if (schemaJson != null) {
             String articleBody = schemaJson.tryGetString("articleBody");
             if (articleBody == null) {
@@ -360,7 +373,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
 
                 if (resultNode == null && mainContentText.isEmpty()) {
                     // XXX
-                    mainContentText = fullTextContent;
+                    mainContentText = fullTextContent.trim();
                     return;
                 }
             }
@@ -396,7 +409,9 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             }
         }
 
-        mainContentHtml = HtmlHelper.xmlToString(resultNode, true);
+        if (resultNode != null) {
+            mainContentHtml = HtmlHelper.xmlToString(resultNode, true);
+        }
 
         // if we didn't get clean text, let's take the content of the main node
         if (mainContentText.trim().length() < 100) {
@@ -429,7 +444,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
      * Remove comment nodes, scripts, and iframes etc.
      * </p>
      */
-    private void cleanDom() {
+    public void cleanDom() {
         // remove comments
         removeCommentNodes();
 
@@ -438,7 +453,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//header//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//nav//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//button"));
-        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//form"));
+        removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//form[not(descendant::article)]"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'head']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'pageheader']//*"));
         removeNodes.addAll(XPathHelper.getXhtmlNodes(document, "//div[translate(@id,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')= 'header']//*"));
@@ -491,6 +506,7 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
     private Node getMainContentNodeWithHints() {
         Node mainNode = null;
 
+        // (//main//article)[1]
         //        List<Node> articleNodes = XPathHelper.getXhtmlNodes(getDocument(), "//main//article");
         //        if (articleNodes.size() > 1000) {
         //            mainNode = articleNodes.get(0);
@@ -942,10 +958,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         if (substringBetween.isEmpty()) {
             substringBetween = StringHelper.getSubstringBetween(innerXml, "<meta name=\"language\" content=\"", "\"");
         }
-        if (substringBetween != null && !substringBetween.isEmpty() && substringBetween.length() < 6) {
+        if (substringBetween != null && !substringBetween.isEmpty() && substringBetween.length() < 8) {
             // remove country, e.g. en-US
             String[] parts = substringBetween.split("[-:]");
-            return Language.getByIso6391(parts[0]);
+            Language language = Language.getByIso6391(parts[0]);
+            if (language == null) {
+                language = Language.getByIso6392(parts[0]);
+            }
+            return language;
         }
 
         // use TLDs
@@ -967,13 +987,23 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.POLISH;
         } else if (domain.endsWith(".dk")) {
             return Language.DANISH;
+        } else if (domain.endsWith(".rs")) {
+            return Language.SERBIAN;
         } else if (domain.endsWith(".co.jp")) {
             return Language.JAPANESE;
         } else if (domain.endsWith(".pt")) {
             return Language.PORTUGUESE;
         } else if (domain.endsWith(".nl")) {
             return Language.DUTCH;
-        } else if (domain.endsWith(".ru")) {
+        } else if (domain.endsWith(".kz")) {
+            return Language.KAZAKH;
+        } else if (domain.endsWith(".md")) {
+            return Language.ROMANIAN;
+        } else if (domain.endsWith(".mk")) {
+            return Language.MACEDONIAN;
+        } else if (domain.endsWith(".mn")) {
+            return Language.MONGOLIAN;
+        } else if (domain.endsWith(".ru") || domain.endsWith(".by")) {
             return Language.RUSSIAN;
         } else if (domain.endsWith(".no")) {
             return Language.NORWEGIAN;
@@ -991,6 +1021,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             return Language.VIETNAMESE;
         } else if (domain.endsWith(".se")) {
             return Language.SWEDISH;
+        } else if (domain.endsWith(".si")) {
+            return Language.SLOVENE;
+        } else if (domain.endsWith(".tr")) {
+            return Language.TURKISH;
+        } else if (domain.endsWith(".ua")) {
+            return Language.UKRAINIAN;
         }
 
         return null;
@@ -1011,8 +1047,23 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
             // image as object, array, or simple string, all are possible
             // array
             JsonArray imagesArray = schemaJson.tryGetJsonArray("image");
-            if (imagesArray != null && !imagesArray.isEmpty() && imagesArray.tryGetString(0) != null) {
-                return new BasicWebImage.Builder().setImageUrl(imagesArray.tryGetString(0).trim()).create();
+
+            if (!StringHelper.nullOrEmpty(imagesArray)) {
+                // is the array an array of strings?
+                if (imagesArray.tryGetString(0) != null) {
+                    return new BasicWebImage.Builder().setImageUrl(imagesArray.tryGetString(0).trim()).create();
+                }
+                // is the array an array of objects?
+                JsonObject firstImageJsonObject = imagesArray.tryGetJsonObject(0);
+                if (firstImageJsonObject != null && firstImageJsonObject.tryGetString("url") != null) {
+                    String imageUrl = firstImageJsonObject.tryGetString("url").trim();
+                    if (!StringHelper.nullOrEmpty(imageUrl)) {
+                        if (imageUrl.startsWith("//")) {
+                            imageUrl = "https:" + imageUrl; // add protocol
+                        }
+                        return new BasicWebImage.Builder().setImageUrl(imageUrl).create();
+                    }
+                }
             }
 
             // obj
@@ -1164,7 +1215,14 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
         return getDominantImage(null, null);
     }
 
+    public void parseSchemaJson() {
+        this.schemaJson = getSchemaJson(getDocument());
+    }
+
     private JsonObject getSchemaJson(Document webPage) {
+        if (webPage == null) {
+            return null;
+        }
         List<Node> scriptNodes = XPathHelper.getXhtmlNodes(webPage, "//script[@type=\"application/ld+json\"]");
         for (Node scriptNode : scriptNodes) {
             String jsonString = scriptNode.getTextContent();
@@ -1209,7 +1267,12 @@ public class PalladianContentExtractor extends WebPageContentExtractor {
                         }
                     }
                 }
-                if (jsonObject.containsKey("headline")) {
+                // url must not be the root domain, we want to have a specific page
+                String thisDocumentUrl = XPathHelper.getXhtmlNodeTextContent(webPage, "//link[@rel='canonical']/@href");
+                if (StringHelper.nullOrEmpty(thisDocumentUrl)) {
+                    thisDocumentUrl = webPage.getDocumentURI();
+                }
+                if (jsonObject.containsKey("headline") && (!jsonObject.containsKey("url") || jsonObject.tryGetString("url").equals(thisDocumentUrl))) {
                     return jsonObject;
                 }
             } catch (Exception e) {

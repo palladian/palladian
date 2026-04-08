@@ -11,9 +11,6 @@ import ws.palladian.helper.geo.GeoUtils;
 import java.util.Collection;
 import java.util.List;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
-
 public final class MidpointScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "Midpoint";
@@ -28,8 +25,8 @@ public final class MidpointScopeDetector extends AbstractRankingScopeDetector {
         if (annotations.isEmpty()) {
             return null;
         }
-        List<Location> locations = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
-        List<GeoCoordinate> coordinates = CollectionHelper.convertList(locations, LOCATION_COORDINATE_FUNCTION);
+        List<Location> locations = CollectionHelper.convertList(annotations, LocationAnnotation::getLocation);
+        List<GeoCoordinate> coordinates = CollectionHelper.convertList(locations, Location::getCoordinate);
         CollectionHelper.removeNulls(coordinates);
         if (coordinates.isEmpty()) {
             return null;

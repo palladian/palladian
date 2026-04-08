@@ -24,25 +24,32 @@ public abstract class AiApi {
     public abstract String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception;
 
     public String chat(String prompt, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
-        return chat(makeMessages(prompt), temperature, usedTokens, modelName, null);
+        return chat(makeMessages(prompt), temperature, usedTokens, modelName, null, null);
     }
 
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName) throws Exception {
-        return chat(messages, temperature, usedTokens, modelName, null);
+        return chat(messages, temperature, usedTokens, modelName, null, null);
     }
 
     public String chat(String prompt, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
-        JsonObject message = new JsonObject();
-        message.put("role", "user");
-        message.put("content", prompt);
-        JsonArray messages = new JsonArray();
-        messages.add(message);
-        return chat(messages, temperature, usedTokens, modelName, maxTokens);
+        return chat(makeMessages(prompt), temperature, usedTokens, modelName, maxTokens, null);
     }
 
-    public abstract String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception;
+    public String chat(String prompt, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception {
+        return chat(makeMessages(prompt), temperature, usedTokens, modelName, maxTokens, responseSchema);
+    }
 
-    private JsonArray makeMessages(String prompt) {
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
+        return chat(messages, temperature, usedTokens, modelName, maxTokens, null);
+    }
+
+    public String chat(AiParameters params) throws Exception {
+        return chat(params.getMessages(), params.getTemperature(), params.getUsedTokens(), params.getModelName(), params.getMaxTokens(), params.getResponseSchema());
+    }
+
+    public abstract String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception;
+
+    public JsonArray makeMessages(String prompt) {
         JsonObject message = new JsonObject();
         message.put("role", "user");
         message.put("content", prompt);

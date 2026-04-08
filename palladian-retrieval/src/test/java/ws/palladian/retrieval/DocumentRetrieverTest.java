@@ -43,4 +43,11 @@ public class DocumentRetrieverTest {
         List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//a");
         assertEquals(358, linkNodes.size());
     }
+
+    @Test
+    public void testDocumentToXml() {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        Document document = documentRetriever.getWebDocument("http://www.nintendoworldreport.com/review/37425/child-of-light-review");
+        assertEquals(true, HtmlHelper.getInnerXml(document).length() > 1000);
+    }
 }

@@ -107,8 +107,8 @@ public class Bag<T> extends AbstractCollection<T> implements Serializable {
     @Override
     public boolean add(T item) {
         Validate.notNull(item, "item must not be null");
-        add(item, 1);
-        return true;
+        int newCount = add(item, 1);
+        return newCount == 1;
     }
 
     @Override

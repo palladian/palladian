@@ -55,7 +55,7 @@ public final class StringHelper {
     private static final Pattern FOUR_BYTE_UTF8 = Pattern.compile("[^ -\uD7FF\uE000-\uFFFF\n\r]");
 
     public static final char[] TRIMMABLE_CHARACTERS = {',', '.', ':', ';', '!', '|', '?', '¬', ' ', ' ', '#', '\'', '"', '*', '/', '\\', '@', '<', '>', '=', '·', '^', '_', '+',
-            '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○', '-'};
+            '»', 'ￂ', '•', '”', '“', '´', '`', '¯', '~', '®', '™', '○', '–', '-'};
 
     private StringHelper() {
         // utility class.
@@ -551,9 +551,10 @@ public final class StringHelper {
         return searchString.replaceFirst(firstWord + "(\\s|$)", "");
     }
 
-    public static String removeWords(List<String> words, String searchString) {
-        words.sort(StringLengthComparator.INSTANCE);
-        for (String word : words) {
+    public static String removeWords(Collection<String> words, String searchString) {
+        List<String> sortedWords = new ArrayList<>(words);
+        sortedWords.sort(StringLengthComparator.INSTANCE);
+        for (String word : sortedWords) {
             searchString = removeWord(word, searchString);
         }
         return searchString;
@@ -661,7 +662,8 @@ public final class StringHelper {
                 rightBorder = true;
             } else {
                 char nextChar = searchStringLowerCase.charAt(index + word.length());
-                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION);
+                rightBorder = !(Character.isLetter(nextChar) || Character.isDigit(nextChar) || Character.getType(nextChar) == Character.DASH_PUNCTUATION || Character.getType(
+                        nextChar) == Character.CONNECTOR_PUNCTUATION);
             }
 
             // if word exists, cut it out and replace with replacement
@@ -738,6 +740,9 @@ public final class StringHelper {
      * @return the string
      */
     public static String replaceProtectedSpace(String string) {
+        if (string == null) {
+            return null;
+        }
         return string.replaceAll("\u00A0", " ");
     }
 
@@ -1035,6 +1040,20 @@ public final class StringHelper {
 
     public static String trimRight(String string, String keepCharacters) {
         return trim(string, false, true, keepCharacters);
+    }
+
+    /**
+     * Trim each individual word in a string.
+     *
+     * @param text
+     * @return A text with trimmed words
+     */
+    public static String trimWords(String text) {
+        String[] split = text.split("\\s");
+        for (int i = 0; i < split.length; i++) {
+            split[i] = trim(split[i]);
+        }
+        return StringUtils.join(split, " ");
     }
 
     /**
@@ -2169,9 +2188,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Trim each line in a String, i.e. remove whitespace from beginning/end of each line in the String.
-     * </p>
      *
      * @param text The string for which to trim lines.
      * @return The string with each line trimmed, <code>null</code> in case the supplied String was <code>null</code>.
@@ -2184,9 +2201,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Replace typographic ("curly") quotation marks and apostrophes by their "dumb" equivalents.
-     * </p>
      *
      * @param text The string in which to replace quotation marks and apostrohpes.
      * @return The normalized string, <code>null</code> in case the supplied String was <code>null</code>.
@@ -2199,9 +2214,7 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Print all groups in a {@link Matcher}; useful for debugging. Note: Invoke {@link Matcher#find()} in advance.
-     * </p>
      *
      * @param matcher The matcher, not <code>null</code>.
      */
@@ -2213,7 +2226,6 @@ public final class StringHelper {
     }
 
     /**
-     * <p>
      * Get all sub-phrases of a string by combining all consecutive words (e.g. "quick brown fox" gives
      * ["quick","quick brown","quick brown fox","brown","brown fox","fox"]).
      *
@@ -2267,6 +2279,24 @@ public final class StringHelper {
 
     public static boolean nullOrEmpty(Collection c) {
         return c == null || c.isEmpty();
+    }
+
+    public static boolean nullOrEmpty(Map c) {
+        return c == null || c.isEmpty();
+    }
+
+    public static String uuid(String string) {
+        UUID uuid;
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(string.getBytes());
+            byte[] digest = md.digest();
+            uuid = UUID.nameUUIDFromBytes(digest);
+            return uuid.toString();
+        } catch (Exception e) {
+            LOGGER.error("Could not create UUID from string: " + string, e);
+            return null;
+        }
     }
 
     /**

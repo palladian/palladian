@@ -175,8 +175,9 @@ public class MathHelperTest {
 
     @Test
     public void testParseStringNumbers() {
-        collector.checkThat(MathHelper.parseStringNumbers("2 3/4").size(), is(1));
         collector.checkThat(MathHelper.parseStringNumbers("27 / 32").size(), is(2));
+        collector.checkThat(MathHelper.parseStringNumbers("76-120Hz").size(), is(2));
+        collector.checkThat(MathHelper.parseStringNumbers("2 3/4").size(), is(1));
     }
 
     @Test
@@ -210,6 +211,7 @@ public class MathHelperTest {
         assertEquals(1.5, MathHelper.parseStringNumber("1½ bla"), 0.001);
         assertEquals(1.5, MathHelper.parseStringNumber("1 ½ bla"), 0.001);
         assertEquals(1777, MathHelper.parseStringNumber("1,777"), 0.001);
+        assertEquals(1, MathHelper.parseStringNumber("$1"), 0.001);
     }
 
     @Test

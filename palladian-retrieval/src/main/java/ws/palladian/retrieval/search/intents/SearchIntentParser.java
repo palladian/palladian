@@ -273,13 +273,18 @@ public class SearchIntentParser {
 
     private ActivatedSearchIntentAction processMatch(QueryMatchType qmt, SearchIntent intent, String query, Matcher matcher, SearchIntentTrigger intentTrigger) {
         ActivatedSearchIntentAction intentAction = new ActivatedSearchIntentAction(intent.getIntentAction(), query);
+        intentAction.setIntentId(intent.getId());
         intentAction.setIntentTrigger(intentTrigger);
 
         switch (intentAction.getType()) {
             case REWRITE:
                 String rewrite = intent.getIntentAction().getRewrite();
                 if (qmt == QueryMatchType.REGEX) {
-                    rewrite = matcher.replaceAll(intentAction.getRewrite()).toLowerCase();
+                    try {
+                        rewrite = matcher.replaceAll(intentAction.getRewrite()).toLowerCase();
+                    } catch (IndexOutOfBoundsException e) {
+                        // ccl, poor definition
+                    }
                 } else {
                     rewrite = query.replace(intentTrigger.getText(), intentAction.getRewrite());
                 }
@@ -289,7 +294,11 @@ public class SearchIntentParser {
             case REDIRECT:
                 String redirect = intentAction.getRedirect();
                 if (qmt == QueryMatchType.REGEX) {
-                    redirect = matcher.replaceAll(intentAction.getRedirect());
+                    try {
+                        redirect = matcher.replaceAll(intentAction.getRedirect());
+                    } catch (IndexOutOfBoundsException e) {
+                        // ccl, poor definition
+                    }
                 }
                 intentAction.setRedirect(redirect);
                 return intentAction;

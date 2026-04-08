@@ -9,8 +9,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 
 import java.util.*;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-
 public final class HighestTrustScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "Trust";
@@ -41,7 +39,7 @@ public final class HighestTrustScopeDetector extends AbstractRankingScopeDetecto
                 return Long.valueOf(p2).compareTo(p1);
             }
         });
-        List<Location> locationList = CollectionHelper.convertList(temp, ANNOTATION_LOCATION_FUNCTION);
+        List<Location> locationList = CollectionHelper.convertList(temp, LocationAnnotation::getLocation);
         CollectionHelper.removeNulls(locationList);
         CollectionHelper.remove(locationList, LocationFilters.coordinate());
         return CollectionHelper.getFirst(locationList);

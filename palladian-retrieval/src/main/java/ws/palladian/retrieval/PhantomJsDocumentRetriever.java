@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.UrlHelper;
-import ws.palladian.helper.io.StringInputStream;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.parser.ParserFactory;
@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -56,23 +55,17 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
 
     @Override
     public Document getWebDocument(String url) {
-        // any js wait for settings?
-        Map<Pattern, Set<String>> waitForElementsMap = getWaitForElementsMap();
-
         String overseerScript = "";
-        for (Map.Entry<Pattern, Set<String>> entry : waitForElementsMap.entrySet()) {
-            if (entry.getKey().matcher(url).find()) {
-                StringBuilder waitConditions = new StringBuilder();
-                for (String selector : entry.getValue()) {
-                    waitConditions.append("await page.waitForSelector(\"").append(selector).append("\");");
-                }
-                overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();" + waitConditions + "page.done();'");
-                break;
+        Set<String> waitSelectors = getWaitConditionsForUrl(url);
+        if (!waitSelectors.isEmpty()) {
+            StringBuilder waitConditions = new StringBuilder();
+            for (String selector : waitSelectors) {
+                waitConditions.append("await page.waitForSelector(\"").append(selector.replace("\"", "\\'")).append("\");");
             }
+            overseerScript = "," + UrlHelper.encodeParameter("\"overseerScript\":'page.manualWait();" + waitConditions + "page.done();'");
         }
 
-        String cookieString = "";
-
+        JsonObject requestSettings = new JsonObject();
         if (cookies != null && !cookies.isEmpty()) {
             String domain = UrlHelper.getDomain(url, false, true);
             JsonArray cookiesArr = new JsonArray();
@@ -83,17 +76,16 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
                 jo.put("value", entry.getValue());
                 cookiesArr.add(jo);
             }
-            JsonObject requestSettings = new JsonObject();
             requestSettings.put("cookies", cookiesArr);
-            cookieString = ",requestSettings:" + UrlHelper.encodeParameter(requestSettings.toString());
         }
+        requestSettings.put("maxWait", TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
+        String requestSettingsString = ",requestSettings:" + UrlHelper.encodeParameter(requestSettings.toString());
 
-        String requestUrl =
-                "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + url + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript
-                        + cookieString + "%7D";
+        String requestUrl = "https://phantomjscloud.com/api/browser/v2/" + apiKey + "/?request=%7Burl:%22" + UrlHelper.encodeParameter(url)
+                + "%22,renderType:%22plainText%22,outputAsJson:true" + overseerScript + requestSettingsString + "%7D";
         HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
         httpRetriever.setConnectionTimeout((int) TimeUnit.SECONDS.toMillis(getTimeoutSeconds()));
-        JsonObject response = null;
+        JsonObject response;
         try {
             response = new DocumentRetriever().tryGetJsonObject(requestUrl);
             if (response == null) {
@@ -124,6 +116,10 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
             return null;
         }
 
+        if (htmlContentString.toLowerCase().startsWith("timeout extracting")) {
+            return null;
+        }
+
         if (Optional.ofNullable(response.tryGetString("message")).orElse("").contains("OUT OF CREDITS")) {
             return null;
         }
@@ -135,9 +131,14 @@ public class PhantomJsDocumentRetriever extends JsEnabledDocumentRetriever {
                 byte[] content = htmlContentString.getBytes(StandardCharsets.UTF_8);
                 document = ParserFactory.createHtmlParser().parse(new ByteArrayInputStream(content));
             } else {
-                document = ParserFactory.createHtmlParser().parse(new StringInputStream(htmlContentString));
+                document = ParserFactory.createHtmlParser().parse(htmlContentString);
             }
-            document.setDocumentURI(url);
+            String navUrl = Optional.ofNullable(response.tryQueryString("pageResponses[0]/navUrl")).orElse("");
+            if (!StringHelper.nullOrEmpty(navUrl)) {
+                document.setDocumentURI(navUrl);
+            } else {
+                document.setDocumentURI(url);
+            }
             callRetrieverCallback(document);
         } catch (Exception e) {
             e.printStackTrace();

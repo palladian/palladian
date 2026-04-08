@@ -11,15 +11,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>
  * Use the moving average to predict the next feed update.
- * </p>
  *
  * @author David Urbansky
  */
 public class MavUpdateStrategy extends AbstractUpdateStrategy {
-
-    /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(MavUpdateStrategy.class);
 
     private final FeedUpdateMode updateMode;
@@ -79,7 +75,9 @@ public class MavUpdateStrategy extends AbstractUpdateStrategy {
         }
 
         // in case only one entry has been found use default check time
-        if (entries.size() <= 1) {
+        if (entries.isEmpty()) {
+            feed.setUpdateInterval(getAllowedInterval(getHighestInterval()));
+        } else if (entries.size() <= 1) {
             if (updateMode == FeedUpdateMode.MIN_DELAY) {
                 feed.setUpdateInterval(getAllowedInterval(DEFAULT_CHECK_TIME / 2));
             } else {

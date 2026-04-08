@@ -1,6 +1,11 @@
 package ws.palladian.extraction.multimedia;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.luciad.imageio.webp.WebPImageWriterSpi;
+import com.luciad.imageio.webp.WebPWriteParam;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math3.util.FastMath;
 import org.imgscalr.Scalr;
@@ -29,8 +34,8 @@ import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ColorQuantizerDescriptor;
 import javax.media.jai.operator.ErodeDescriptor;
 import javax.media.jai.operator.GradientMagnitudeDescriptor;
-import java.awt.Color;
 import java.awt.*;
+import java.awt.Color;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -43,17 +48,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 
 import static java.awt.color.ColorSpace.CS_GRAY;
 import static java.awt.image.BufferedImage.TYPE_BYTE_GRAY;
 
 /**
- * <p>
  * A handler for images.
- * </p>
  *
  * @author David Urbansky
  * @author Philipp Katz
@@ -149,15 +152,28 @@ public class ImageHandler {
     }
 
     /**
-     * <p>
      * Load an image from disk.
-     * </p>
      *
      * @param imageFile The image file on disk.
      * @return The buffered image.
      */
     public static BufferedImage load(File imageFile) throws IOException {
-        return ImageIO.read(imageFile);
+        BufferedImage bufferedImage = ImageIO.read(imageFile);
+
+        try {
+            // meta data handling in case it needs to be rotated
+            Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
+            ExifIFD0Directory exifDir = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+            if (exifDir != null && exifDir.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                int orientation = exifDir.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                bufferedImage = applyExifOrientation(bufferedImage, orientation);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Could not read EXIF data from image " + imageFile.getAbsolutePath() + ", " + e.getMessage());
+        }
+
+        return bufferedImage;
     }
 
     /**
@@ -224,7 +240,8 @@ public class ImageHandler {
                 }
             } else {
                 try {
-                    bufferedImage = ImageIO.read(new File(url));
+                    File inputFile = new File(url);
+                    bufferedImage = load(inputFile);
                 } catch (Exception e) {
                     LOGGER.error(url + ", " + e.getMessage(), e);
                 }
@@ -234,6 +251,19 @@ public class ImageHandler {
         }
 
         return bufferedImage;
+    }
+
+    public static BufferedImage applyExifOrientation(BufferedImage image, int orientation) {
+        switch (orientation) {
+            case 6: // Rotate 90 CW
+                return Scalr.rotate(image, Scalr.Rotation.CW_90);
+            case 3: // Rotate 180
+                return Scalr.rotate(image, Scalr.Rotation.CW_180);
+            case 8: // Rotate 90 CCW
+                return Scalr.rotate(image, Scalr.Rotation.CW_270);
+            default:
+                return image; // no rotation needed
+        }
     }
 
     public static String getMatchingImageUrl(Collection<WebImage> images) {
@@ -440,7 +470,12 @@ public class ImageHandler {
             Set<String> detectedContentTypes = new HashSet<>();
             BufferedImage bi = load(url, detectedContentTypes);
 
-            String fileExtension = Optional.ofNullable(CollectionHelper.getFirst(detectedContentTypes)).orElse("jpg");
+            String fileExtensionUrl = FileHelper.getFileType(url);
+            String fileExtension = Optional.ofNullable(CollectionHelper.getFirst(detectedContentTypes)).orElse(fileExtensionUrl);
+
+            if (StringHelper.nullOrEmpty(fileExtension)) {
+                fileExtension = "jpg";
+            }
 
             if (!savePath.toLowerCase().endsWith(fileExtension.toLowerCase())) {
                 savePath += "." + fileExtension;
@@ -712,6 +747,23 @@ public class ImageHandler {
             return false;
         }
         try {
+            // WebP: use webp-imageio JNI library directly (the SPI is not discovered by ImageIO)
+            if (fileType.equalsIgnoreCase("webp")) {
+                WebPWriteParam writeParam = new WebPWriteParam(Locale.getDefault());
+                writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                writeParam.setCompressionType(writeParam.getCompressionTypes()[WebPWriteParam.LOSSY_COMPRESSION]);
+                writeParam.setCompressionQuality(Math.max(0.0f, Math.min(quality, 1.0f)));
+
+                FileHelper.createDirectoriesAndFile(filePath);
+
+                ImageWriter writer = new WebPImageWriterSpi().createWriterInstance();
+                FileImageOutputStream output = new FileImageOutputStream(new File(filePath));
+                writer.setOutput(output);
+                writer.write(null, new IIOImage(image, null, null), writeParam);
+                output.close();
+                return true;
+            }
+
             Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(fileType.toUpperCase());
             boolean success = false;
             if (iter.hasNext()) {
@@ -737,7 +789,7 @@ public class ImageHandler {
             }
 
             return success;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.error(e.getMessage());
         }
 

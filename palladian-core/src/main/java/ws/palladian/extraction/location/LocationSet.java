@@ -10,7 +10,6 @@ import ws.palladian.helper.math.Stats;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.LOCATION_COORDINATE_FUNCTION;
 import static ws.palladian.extraction.location.LocationFilters.coordinate;
 import static ws.palladian.helper.collection.CollectionHelper.convertSet;
 import static ws.palladian.helper.collection.CollectionHelper.filterSet;
@@ -45,20 +44,20 @@ public class LocationSet extends AbstractSet<Location> {
         return new LocationSet(filterSet(this, filter));
     }
 
-    /**
-     * Get a filtered {@link LocationSet} with items matching the provided filter, in case at least one item matches,
-     * otherwise return the current locations.
-     *
-     * @param filter The filter, not <code>null</code>.
-     * @return A {@link LocationSet} with all items matching the filter, or the current locations, in case the filtered
-     * result would be empty.
-     * @see LocationFilters
-     */
-    public LocationSet whereConditionally(Predicate<? super Location> filter) {
-        Validate.notNull(filter, "filter must not be null");
-        LocationSet temp = where(filter);
-        return temp.size() > 0 ? temp : this;
-    }
+//    /**
+//     * Get a filtered {@link LocationSet} with items matching the provided filter, in case at least one item matches,
+//     * otherwise return the current locations.
+//     *
+//     * @param filter The filter, not <code>null</code>.
+//     * @return A {@link LocationSet} with all items matching the filter, or the current locations, in case the filtered
+//     * result would be empty.
+//     * @see LocationFilters
+//     */
+//    public LocationSet whereConditionally(Predicate<? super Location> filter) {
+//        Validate.notNull(filter, "filter must not be null");
+//        LocationSet temp = where(filter);
+//        return temp.size() > 0 ? temp : this;
+//    }
 
     // spatial properties
 
@@ -146,37 +145,37 @@ public class LocationSet extends AbstractSet<Location> {
      * @return All coordinates in this set, <code>null</code> values and {@link GeoCoordinate#NULL} are skipped.
      */
     public Set<GeoCoordinate> coordinates() {
-        return convertSet(where(coordinate()), LOCATION_COORDINATE_FUNCTION);
+        return convertSet(where(coordinate()), Location::getCoordinate);
     }
 
     // population properties
 
-    /**
-     * @return The biggest location in this set, or <code>null</code> in case this set was empty, or none of the
-     * locations had a population value.
-     * @see Location#getPopulation()
-     */
-    public Location biggest() {
-        Location biggest = null;
-        for (Location location : locations) {
-            Long population = location.getPopulation();
-            if (population != null) {
-                if (biggest == null || population > biggest.getPopulation()) {
-                    biggest = location;
-                }
-            }
-        }
-        return biggest;
-    }
+//    /**
+//     * @return The biggest location in this set, or <code>null</code> in case this set was empty, or none of the
+//     * locations had a population value.
+//     * @see Location#getPopulation()
+//     */
+//    public Location biggest() {
+//        Location biggest = null;
+//        for (Location location : locations) {
+//            Long population = location.getPopulation();
+//            if (population != null) {
+//                if (biggest == null || population > biggest.getPopulation()) {
+//                    biggest = location;
+//                }
+//            }
+//        }
+//        return biggest;
+//    }
 
-    /**
-     * @return The maximum population of all locations in this set.
-     * @see Location#getPopulation()
-     */
-    public long biggestPopulation() {
-        Location biggest = biggest();
-        return biggest == null || biggest.getPopulation() == null ? 0 : biggest.getPopulation();
-    }
+//    /**
+//     * @return The maximum population of all locations in this set.
+//     * @see Location#getPopulation()
+//     */
+//    public long biggestPopulation() {
+//        Location biggest = biggest();
+//        return biggest == null || biggest.getPopulation() == null ? 0 : biggest.getPopulation();
+//    }
 
     /**
      * @return The total population of all locations in this set.

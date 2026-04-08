@@ -93,7 +93,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
             globalHeaders.put("Accept-Encoding", "gzip, deflate");
         }
         if (!globalHeaders.containsKey("User-Agent") && !globalHeaders.containsKey("user-agent")) {
-            globalHeaders.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36");
+            globalHeaders.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36");
         }
     }
 
@@ -102,9 +102,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     /**
-     * <p>
      * Get a web page ((X)HTML document).
-     * </p>
      *
      * @param url The URL or file path of the web page.
      * @return The W3C document, or <code>null</code> in case of any error.
@@ -130,9 +128,7 @@ public class DocumentRetriever extends WebDocumentRetriever {
     // ////////////////////////////////////////////////////////////////
 
     /**
-     * <p>
      * Get XML document from a URL. The XML document must be well-formed.
-     * </p>
      *
      * @param url The URL or file path pointing to the XML document.
      * @return The XML document, or <code>null</code> in case of any error.

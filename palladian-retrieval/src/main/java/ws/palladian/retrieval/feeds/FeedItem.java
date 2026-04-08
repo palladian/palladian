@@ -169,7 +169,10 @@ public class FeedItem implements WebContent {
     }
 
     public String getText() {
-        return text;
+        if (text == null) {
+            return null;
+        }
+        return text.replaceAll("(\r\n)+", "\n");
     }
 
     public void setText(String text) {

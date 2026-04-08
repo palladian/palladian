@@ -6,6 +6,7 @@ import ws.palladian.helper.constants.DateFormat;
 import ws.palladian.helper.constants.RegExp;
 import ws.palladian.helper.date.DateParser;
 import ws.palladian.helper.date.ExtractedDate;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.HttpResult;
 
 import java.util.ArrayList;
@@ -24,7 +25,10 @@ public class UrlDateGetter extends TechniqueDateGetter<UrlDate> {
 
     @Override
     public List<UrlDate> getDates(String url) {
-        List<UrlDate> result = new ArrayList<UrlDate>();
+        if (StringHelper.nullOrEmpty(url)) {
+            return new ArrayList<>();
+        }
+        List<UrlDate> result = new ArrayList<>();
         for (DateFormat dateFormat : RegExp.URL_DATES) {
             ExtractedDate extractedDate = DateParser.findDate(url, dateFormat);
             if (extractedDate != null) {

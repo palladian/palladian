@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test cases for the image handler.
@@ -44,6 +45,11 @@ public class ImageHandlerTest {
     @Test
     public void testRescaleImage() throws FileNotFoundException {
         BufferedImage bufferedImage;
+
+        bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/imageB1.jpg"));
+        bufferedImage = ImageHandler.boxFit(bufferedImage, 250);
+        assertEquals(250, bufferedImage.getWidth());
+        assertEquals(370, bufferedImage.getHeight());
 
         bufferedImage = ImageHandler.load(ResourceHelper.getResourcePath("/images/batman3.png"));
         bufferedImage = ImageHandler.boxCrop(bufferedImage, 200, 200);
@@ -137,5 +143,13 @@ public class ImageHandlerTest {
         assertEquals(new Color("#273e7a", "Congress Blue", "Blue"), detectedColors.get(0));
         assertEquals(new Color("#cc1b36", "Crimson", "Red"), detectedColors.get(1));
         assertEquals(new Color("#eddfeb", "Carousel Pink", "Pink"), detectedColors.get(2));
+    }
+
+    @Test
+    public void testSaveImage() throws FileNotFoundException {
+        BufferedImage image = ImageHandler.load(ResourceHelper.getResourcePath("/images/af1.jpg"));
+        ImageHandler.saveImage(image, "webp", "data/test/images/af1_saved.webp", 0.8f);
+        image = ImageHandler.load("data/test/images/af1_saved.webp");
+        assertNotNull(image);
     }
 }

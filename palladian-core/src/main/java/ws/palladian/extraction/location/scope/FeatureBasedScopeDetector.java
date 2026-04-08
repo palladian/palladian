@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
 import static ws.palladian.extraction.location.LocationFilters.*;
 import static ws.palladian.helper.collection.CollectionHelper.coalesce;
 
@@ -88,7 +87,7 @@ public final class FeatureBasedScopeDetector extends AbstractRankingScopeDetecto
 
     private static Set<ClassifiableLocation> extractFeatures(Collection<LocationAnnotation> annotations) {
 
-        List<Location> locationList = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
+        List<Location> locationList = CollectionHelper.convertList(annotations, LocationAnnotation::getLocation);
         LocationSet allStats = new LocationSet(locationList);
         LocationSet coordinateStats = allStats.where(coordinate());
         if (coordinateStats.isEmpty()) {

@@ -9,6 +9,8 @@ import ws.palladian.helper.io.FileHelper;
 import ws.palladian.helper.io.LineAction;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -200,6 +202,10 @@ public final class CooccurrenceMatrix implements Serializable {
         return matrix;
     }
 
+    public Bag<String> getItems() {
+        return items;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -224,6 +230,34 @@ public final class CooccurrenceMatrix implements Serializable {
         builder.append('\n').append('\n');
         builder.append(pairs);
         return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        CooccurrenceMatrix cooccurrenceMatrix = new CooccurrenceMatrix();
+
+        // Sample input: a list of sentences
+        List<String> sentences = Arrays.asList("the cat sat on the mat", "the dog sat on the mat");
+
+        // Step 3: Process each sentence to build the co-occurrence counts
+        for (String sentence : sentences) {
+            String[] words = sentence.split(" ");
+
+            // Count co-occurrences
+            for (int i = 0; i < words.length; i++) {
+                String word1 = words[i];
+                // For each word, count co-occurrences with every other word that comes after it
+                for (int j = i + 1; j < words.length; j++) {
+                    String word2 = words[j];
+                    cooccurrenceMatrix.add(word1, word2);
+                    cooccurrenceMatrix.add(word2, word1);
+                    cooccurrenceMatrix.add(word1, 1);
+                    cooccurrenceMatrix.add(word2, 1);
+                }
+            }
+        }
+
+        System.out.println(cooccurrenceMatrix.getConditionalProbability("cat", "mat"));
+        System.out.println(cooccurrenceMatrix.getConditionalProbability("sat", "mat"));
     }
 
 }

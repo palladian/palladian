@@ -17,9 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>
  * The UnitNormalizer normalizes units.
- * </p>
  *
  * @author David Urbansky
  */
@@ -654,6 +652,9 @@ public class UnitNormalizer {
             }
             if (isElectricChargeUnit(word)) {
                 unitType = UnitType.ELECTRIC_CHARGE;
+            }
+            if (isEnergyUnit(word)) {
+                unitType = UnitType.ENERGY;
             }
             if (isBandwidthUnit(word)) {
                 unitType = UnitType.BANDWIDTH;

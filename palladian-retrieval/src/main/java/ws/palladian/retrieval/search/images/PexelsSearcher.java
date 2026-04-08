@@ -15,11 +15,7 @@ import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.License;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,9 +130,7 @@ public class PexelsSearcher extends AbstractMultifacetSearcher<WebImage> {
         var retriever = HttpRetrieverFactory.getHttpRetriever();
 
         for (int page = 1; page <= pagesNeeded; page++) {
-
-            String requestUrl = String.format("https://api.pexels.com/v1/search?query=%s&per_page=%s&page=%s",
-                    UrlHelper.encodeParameter(query.getText()), resultsPerPage, page);
+            String requestUrl = String.format("https://api.pexels.com/v1/search?query=%s&per_page=%s&page=%s", UrlHelper.encodeParameter(query.getText()), resultsPerPage, page);
             try {
                 var request = new HttpRequest2Builder(HttpMethod.GET, requestUrl).addHeader("Authorization", apiKey).create();
                 var result = retriever.execute(request);

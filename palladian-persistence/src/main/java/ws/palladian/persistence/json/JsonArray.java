@@ -1,10 +1,8 @@
 package ws.palladian.persistence.json;
 
-import com.jsoniter.JsonIterator;
-import com.jsoniter.any.Any;
-import com.jsoniter.output.JsonStream;
-import com.jsoniter.spi.Config;
-import com.jsoniter.spi.JsoniterSpi;
+import com.dslplatform.json.DslJson;
+import com.dslplatform.json.runtime.TypeDefinition;
+import com.dslplatform.json.runtime.Settings;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import ws.palladian.helper.nlp.PatternHelper;
 
@@ -13,6 +11,8 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Map;
@@ -23,22 +23,8 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 public class JsonArray extends AbstractList<Object> implements Json, Serializable {
-    static {
-        JsoniterSpi.registerTypeDecoder(Object.class, iter -> {
-            Object read = iter.read();
-            if (read == null) {
-                return null;
-            }
 
-            if (read instanceof Map map) {
-                return new JsonObject(map);
-            } else if (read instanceof Collection collection) {
-                return new JsonArray(collection);
-            }
-
-            return read;
-        });
-    }
+    private static final DslJson<Object> DSL = new DslJson<>(Settings.withRuntime());
 
     /** The arrayList where the JsonArray's properties are kept. */
     private ObjectArrayList<Object> list;
@@ -83,28 +69,39 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
      * @throws JsonException If there is a syntax error.
      */
     @SuppressWarnings("unchecked")
-	public JsonArray(String source) throws JsonException {
+    public JsonArray(String source) throws JsonException {
         if (source == null || source.isEmpty()) {
             list = new ObjectArrayList<>();
             return;
         }
-        if (JsonObject.USE_JSON_ITER) {
-          Any any;
-          try {
-              any = JsonIterator.deserialize(source);
-              list = any.as(ObjectArrayList.class);
-          } catch (Exception e) {
-              // remove trailing commas
-              source = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
-              try {
-                  any = JsonIterator.deserialize(source);
-                  list = any.as(ObjectArrayList.class);
-              } catch (Exception e2) {
-                  parseFallback(new JsonTokener(source));
-              }
-          }
-        } else {
-            parseFallback(new JsonTokener(source));
+        try {
+            byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
+            java.util.List<Object> parsed = (java.util.List<Object>) DSL.deserialize(new TypeDefinition<java.util.List<Object>>() {}.type, bytes, bytes.length);
+            if (parsed != null) {
+                list = new ObjectArrayList<>();
+                for (Object v : parsed) {
+                    this.add(v);
+                }
+            } else {
+                String cleaned = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+                parseFallback(new JsonTokener(cleaned));
+            }
+        } catch (Exception e) {
+            String cleaned = PatternHelper.compileOrGet(",\\s*(?=[}\\]])").matcher(source).replaceAll("");
+            try {
+                byte[] bytes = cleaned.getBytes(StandardCharsets.UTF_8);
+                java.util.List<Object> parsed = (java.util.List<Object>) DSL.deserialize(new TypeDefinition<java.util.List<Object>>() {}.type, bytes, bytes.length);
+                if (parsed != null) {
+                    list = new ObjectArrayList<>();
+                    for (Object v : parsed) {
+                        this.add(v);
+                    }
+                } else {
+                    parseFallback(new JsonTokener(cleaned));
+                }
+            } catch (Exception e2) {
+                parseFallback(new JsonTokener(cleaned));
+            }
         }
         if (list == null) {
             list = new ObjectArrayList<>();
@@ -421,12 +418,20 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
 
     @Override
     public String toString(int indentFactor) {
-        try {
-            Config conf = JsoniterSpi.getCurrentConfig().copyBuilder().indentionStep(indentFactor).build();
-            return JsonStream.serialize(conf, this);
-        } catch (Exception e) {
+        if (indentFactor > 0) {
             try {
                 return this.write(new StringWriter(), indentFactor, 0).toString();
+            } catch (IOException ex) {
+                return null;
+            }
+        }
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DSL.serialize(this.list, baos);
+            return new String(baos.toByteArray(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            try {
+                return this.write(new StringWriter(), 0, 0).toString();
             } catch (IOException ex) {
                 return null;
             }
@@ -490,7 +495,7 @@ public class JsonArray extends AbstractList<Object> implements Json, Serializabl
             Json child = (Json) value;
             return child.query(remainingPath);
         } else if (remainingPath.isEmpty()) {
-            return value;
+            return JsonUtils.coerceSimpleNumber(value);
         } else {
             throw new JsonException("No value/item for query.");
         }

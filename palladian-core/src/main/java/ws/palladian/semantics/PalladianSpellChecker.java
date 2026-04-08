@@ -424,6 +424,7 @@ public class PalladianSpellChecker {
         correction.set(false);
         boolean uppercase = false;
         int uppercaseCount = 0;
+        boolean useContext = this.useContext && (leftContext != null || rightContext != null);
         if (!caseSensitive) {
             uppercaseCount = StringHelper.countUppercaseLetters(word);
 
@@ -502,7 +503,7 @@ public class PalladianSpellChecker {
                 if (rightContext != null) {
                     int contextCount = contextCounter.count(s + "_" + rightContext);
                     if (contextCount > 0) {
-                        count += (int) (100 * s.length() * s.length() * Math.log(1 + contextCount));
+                        count += (int) (100 * s.length() * s.length() * Math.log(0.1 + contextCount));
                         contextUsed = true;
                     }
                 }
@@ -573,7 +574,9 @@ public class PalladianSpellChecker {
             Integer max = Collections.max(candidates.keySet());
             if (!useContext || max > 3 * wordCountGivenWord) {
                 corrected = candidates.get(max);
-                correction.set(true);
+                if (!corrected.equalsIgnoreCase(word)) {
+                    correction.set(true);
+                }
             }
         }
 

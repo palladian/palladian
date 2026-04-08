@@ -10,7 +10,6 @@ import ws.palladian.helper.collection.CollectionHelper;
 import java.util.Collection;
 import java.util.Set;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
 import static ws.palladian.extraction.location.LocationType.CONTINENT;
 import static ws.palladian.extraction.location.LocationType.COUNTRY;
 
@@ -25,7 +24,7 @@ public final class HighestPopulationScopeDetector extends AbstractRankingScopeDe
     @Override
     public Location getScope(Collection<LocationAnnotation> locations) {
         Validate.notNull(locations, "locations must not be null");
-        Set<Location> locationSet = CollectionHelper.convertSet(locations, ANNOTATION_LOCATION_FUNCTION);
+        Set<Location> locationSet = CollectionHelper.convertSet(locations, LocationAnnotation::getLocation);
         CollectionHelper.removeNulls(locationSet);
         CollectionHelper.remove(locationSet, LocationFilters.coordinate());
 

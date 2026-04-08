@@ -10,7 +10,7 @@
     <name>Palladian: Retrieval</name>
     <description>Palladian Retrieval Functionality</description>
     <properties>
-        <selenium-version>4.11.0</selenium-version>
+        <selenium-version>4.38.0</selenium-version>
         <!--        <selenium-version>4.7.2</selenium-version>-->
     </properties>
     <dependencies>
@@ -84,24 +84,29 @@
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <!--            <version>5.3.1</version>-->
-            <version>5.4.1</version>
+            <version>6.3.3</version>
             <!--            <version>3.8.1</version>-->
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>33.5.0-jre</version>
         </dependency>
         <!-- END OF SELENIUM DEPENDENCIES -->
         <dependency>
             <groupId>com.sendinblue</groupId>
             <artifactId>sib-api-v3-sdk</artifactId>
-            <version>6.0.0</version>
+            <version>7.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
         </dependency>
         <dependency>
             <groupId>com.sendgrid</groupId>
             <artifactId>sendgrid-java</artifactId>
-            <version>4.9.3</version>
+            <version>4.10.3</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

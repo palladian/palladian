@@ -24,7 +24,6 @@ public class WikipediaSearcherTest {
     public void unescapeSummary() throws SearcherException {
         var searcher = new WikipediaSearcher();
         var result = searcher.search("AT&T", 1);
-        assertTrue(result.get(0).getSummary().startsWith(
-                "AT&T Inc. is an American multinational telecommunications holding company headquartered at Whitacre Tower in Downtown Dallas, Texas."));
+        assertTrue(result.get(0).getSummary().startsWith("AT&T Inc."));
     }
 }

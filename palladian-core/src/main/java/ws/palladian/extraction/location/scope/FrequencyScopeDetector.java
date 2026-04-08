@@ -12,8 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import static ws.palladian.extraction.location.LocationExtractorUtils.ANNOTATION_LOCATION_FUNCTION;
-
 public final class FrequencyScopeDetector extends AbstractRankingScopeDetector {
 
     private static final String NAME = "Frequency";
@@ -28,7 +26,7 @@ public final class FrequencyScopeDetector extends AbstractRankingScopeDetector {
         if (annotations.isEmpty()) {
             return null;
         }
-        List<Location> locations = CollectionHelper.convertList(annotations, ANNOTATION_LOCATION_FUNCTION);
+        List<Location> locations = CollectionHelper.convertList(annotations, LocationAnnotation::getLocation);
         CollectionHelper.remove(locations, LocationFilters.coordinate());
         double maxCount = 0;
         Location selectedLocation = null;

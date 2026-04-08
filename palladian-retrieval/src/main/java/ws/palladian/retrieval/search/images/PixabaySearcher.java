@@ -5,6 +5,7 @@ import org.apache.commons.lang3.Validate;
 import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.constants.Language;
+import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
@@ -16,23 +17,13 @@ import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebImage;
 import ws.palladian.retrieval.resources.WebImage;
-import ws.palladian.retrieval.search.AbstractMultifacetSearcher;
-import ws.palladian.retrieval.search.License;
-import ws.palladian.retrieval.search.MultifacetQuery;
-import ws.palladian.retrieval.search.SearchResults;
-import ws.palladian.retrieval.search.SearcherException;
+import ws.palladian.retrieval.search.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>
  * Search for public domain images on <a href="http://www.pixabay.com/">Pixabay</a>.
- * </p>
  *
  * @author David Urbansky
  * @see <a href="https://pixabay.com/api/docs/">Pixabay API</a>
@@ -84,8 +75,8 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
     /** Identifier for the API key when supplied via {@link Configuration}. */
     public static final String CONFIG_API_KEY = "api.pixabay.key";
 
-    private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("id", "cs", "de", "en", "es", "fr", "it",
-            "nl", "no", "hu", "ru", "pl", "pt", "ro", "fi", "sv", "tr", "ja", "ko", "zh");
+    private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("id", "cs", "de", "en", "es", "fr", "it", "nl", "no", "hu", "ru", "pl", "pt", "ro", "fi", "sv", "tr",
+            "ja", "ko", "zh");
 
     private final String apiKey;
 
@@ -95,9 +86,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 100);
 
     /**
-     * <p>
      * Creates a new Pixabay searcher.
-     * </p>
      *
      * @param apiKey The API key for accessing Pixabay, not <code>null</code> or empty.
      */
@@ -112,9 +101,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
     }
 
     /**
-     * <p>
      * Creates a new Pixabay searcher.
-     * </p>
      *
      * @param configuration The configuration which must provide an API key for accessing Pixabay, which must be
      *                      provided as string via key {@value PixabaySearcher#CONFIG_API_KEY} in the configuration.
@@ -147,13 +134,12 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
         var retriever = HttpRetrieverFactory.getHttpRetriever();
 
         for (int page = 1; page <= pagesNeeded; page++) {
-
-            String requestUrl = buildRequest(query.getText(), page, Math.max(3, Math.min(200, resultCount - results.size())), language);
+            String requestUrl = buildRequest(StringHelper.shorten(query.getText(), 100), page, Math.max(3, Math.min(200, resultCount - results.size())), language);
             try {
                 THROTTLE.hold();
                 var response = retriever.httpGet(requestUrl);
                 if (response.errorStatus()) {
-                    throw new SearcherException("Encountered HTTP status " + response.getStatusCode());
+                    throw new SearcherException("Encountered HTTP status " + response.getStatusCode() + ", query " + query.getText());
                 }
                 JsonObject json = JsonObject.tryParse(response.getStringContent());
                 if (totalResults == null) {
@@ -195,8 +181,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
      */
     private static void checkSupportedLanguage(Language language) {
         if (!SUPPORTED_LANGUAGES.contains(language.getIso6391())) {
-            throw new IllegalArgumentException(
-                    "Unsupported language: " + language + "; supported are: " + String.join(", ", SUPPORTED_LANGUAGES));
+            throw new IllegalArgumentException("Unsupported language: " + language + "; supported are: " + String.join(", ", SUPPORTED_LANGUAGES));
         }
     }
 

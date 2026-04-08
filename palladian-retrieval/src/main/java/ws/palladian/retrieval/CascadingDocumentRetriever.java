@@ -1,32 +1,29 @@
 package ws.palladian.retrieval;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.openqa.selenium.NoSuchSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.html.HtmlHelper;
 import ws.palladian.helper.nlp.StringHelper;
+import ws.palladian.persistence.json.JsonArray;
+import ws.palladian.persistence.json.JsonObject;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 /**
- * <p>
  * Retrieve a document using different document retrievers.
- * </p>
  *
  * @author David Urbansky
  */
 public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(CascadingDocumentRetriever.class);
-    public static final String RETRIEVER_PLAIN = "Plain";
-    public static final String RETRIEVER_RENDERING_POOL = "RenderingPool";
-    public static final String RETRIEVER_PHANTOM_JS_CLOUD = "PhantomJsCloud";
-    public static final String RETRIEVER_PROXY_CRAWL = "ProxyCrawl";
-    public static final String RETRIEVER_SCRAPING_BEE = "ScrapingBee";
-    public static final String RETRIEVER_SCRAPER_API = "ScraperApi";
 
     /**
      * If this text is found, we try to resolve a captcha.
@@ -41,44 +38,63 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     // web document retriever -> [failed requests, skipped requests, successful requests]
     private final Map<String, Integer[]> requestTracker = new ConcurrentHashMap<>();
 
+    private String userAgent;
     private final DocumentRetriever documentRetriever;
     private final RenderingDocumentRetrieverPool renderingDocumentRetrieverPool;
-    private final PhantomJsDocumentRetriever cloudDocumentRetriever;
-    private final ProxyCrawlDocumentRetriever cloudDocumentRetriever2;
-    private final ScrapingBeeDocumentRetriever cloudDocumentRetriever3;
-    private final ScraperApiDocumentRetriever cloudDocumentRetriever4;
+    private final List<JsEnabledDocumentRetriever> cloudDocumentRetrievers = new ArrayList<>();
 
-    public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, PhantomJsDocumentRetriever cloudDocumentRetriever,
-            ProxyCrawlDocumentRetriever cloudDocumentRetriever2, ScrapingBeeDocumentRetriever cloudDocumentRetriever3) {
-        this(documentRetriever, retrieverPool, cloudDocumentRetriever, cloudDocumentRetriever2, cloudDocumentRetriever3, null);
-    }
+    /**
+     * Domains where the rendering retriever returned a page with an interactive challenge
+     * (e.g. Cloudflare Turnstile, Vercel checkpoint). Mapped to the timestamp when the domain
+     * was added so entries can expire after {@link #INTERACTIVE_CHALLENGE_SKIP_DURATION_MS}.
+     */
+    private static final Map<String, Long> interactiveChallengeSkipDomains = new ConcurrentHashMap<>();
 
-    public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, PhantomJsDocumentRetriever cloudDocumentRetriever,
-            ProxyCrawlDocumentRetriever cloudDocumentRetriever2, ScrapingBeeDocumentRetriever cloudDocumentRetriever3, ScraperApiDocumentRetriever cloudDocumentRetriever4) {
+    /**
+     * How long (ms) to skip the rendering retriever for a domain after an interactive challenge
+     * was detected. Default: 1 hour.
+     */
+    private static final long INTERACTIVE_CHALLENGE_SKIP_DURATION_MS = TimeUnit.HOURS.toMillis(1);
+
+    /**
+     * Substrings that indicate the page contains an <em>interactive</em> challenge that a headless
+     * browser cannot solve. When the rendering retriever returns a document matching any of these,
+     * the domain is added to {@link #interactiveChallengeSkipDomains}.
+     */
+    private static final List<String> INTERACTIVE_CHALLENGE_INDICATORS = Arrays.asList("<title>Just a moment...</title>", "challenges.cloudflare.com", "Verify you are human",
+            "Vercel Security Checkpoint", "captcha-delivery.com", "<title>CAPTCHA page</title>", "<title>Captcha Interception</title>",
+            "Please complete the security check to access", "Please complete a security check to continue", "<title>Are you a human?</title>", "<title>Bot or Not?</title>",
+            "Verifying you are human. This may take a few seconds", "_Incapsula_Resource");
+
+    // separate executor used only for applying a hard timeout to rendering work
+    private static final ExecutorService RENDER_WATCHDOG_EXEC = Executors.newCachedThreadPool(new ThreadFactory() {
+        private final ThreadFactory delegate = Executors.defaultThreadFactory();
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = delegate.newThread(r);
+            t.setName("render-watchdog-" + t.getId());
+            t.setDaemon(true);
+            return t;
+        }
+    });
+
+    public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, JsEnabledDocumentRetriever... cloudDocumentRetrievers) {
         this.documentRetriever = documentRetriever;
         this.renderingDocumentRetrieverPool = retrieverPool;
-        this.cloudDocumentRetriever = cloudDocumentRetriever;
-        this.cloudDocumentRetriever2 = cloudDocumentRetriever2;
-        this.cloudDocumentRetriever3 = cloudDocumentRetriever3;
-        this.cloudDocumentRetriever4 = cloudDocumentRetriever4;
+
+        this.cloudDocumentRetrievers.addAll(Arrays.asList(cloudDocumentRetrievers));
 
         if (this.documentRetriever != null) {
-            requestTracker.put(RETRIEVER_PLAIN, new Integer[]{0, 0, 0});
+            requestTracker.put(DocumentRetriever.class.getName(), new Integer[]{0, 0, 0});
         }
         if (this.renderingDocumentRetrieverPool != null) {
-            requestTracker.put(RETRIEVER_RENDERING_POOL, new Integer[]{0, 0, 0});
+            requestTracker.put(RenderingDocumentRetrieverPool.class.getName(), new Integer[]{0, 0, 0});
         }
-        if (this.cloudDocumentRetriever != null) {
-            requestTracker.put(RETRIEVER_PHANTOM_JS_CLOUD, new Integer[]{0, 0, 0});
-        }
-        if (this.cloudDocumentRetriever2 != null) {
-            requestTracker.put(RETRIEVER_PROXY_CRAWL, new Integer[]{0, 0, 0});
-        }
-        if (this.cloudDocumentRetriever3 != null) {
-            requestTracker.put(RETRIEVER_SCRAPING_BEE, new Integer[]{0, 0, 0});
-        }
-        if (this.cloudDocumentRetriever4 != null) {
-            requestTracker.put(RETRIEVER_SCRAPER_API, new Integer[]{0, 0, 0});
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (cloudDocumentRetriever != null) {
+                requestTracker.put(cloudDocumentRetriever.getClass().getName(), new Integer[]{0, 0, 0});
+            }
         }
     }
 
@@ -124,6 +140,66 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return HtmlHelper.getInnerXml(webDocument);
     }
 
+    public JsonObject getJsonObject(String url) {
+        JsonObject jsonObject = null;
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+        if (!StringHelper.nullOrEmpty(text)) {
+            jsonObject = JsonObject.tryParse(text);
+        }
+        if (jsonObject == null) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+            if (!StringHelper.nullOrEmpty(text)) {
+                jsonObject = JsonObject.tryParse(text);
+            }
+        }
+        return jsonObject;
+    }
+
+    public JsonArray getJsonArray(String url) {
+        JsonArray jsonArray = null;
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+        if (!StringHelper.nullOrEmpty(text)) {
+            jsonArray = JsonArray.tryParse(text);
+        }
+        if (jsonArray == null) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+            if (!StringHelper.nullOrEmpty(text)) {
+                jsonArray = JsonArray.tryParse(text);
+            }
+        }
+        return jsonArray;
+    }
+
+    public String getPlainText(String url) {
+        String text = tryGetPlainTextWithSimpleRetriever(url);
+
+        if (StringHelper.nullOrEmpty(text)) {
+            text = tryGetPlainTextWithCloudRetrievers(url);
+        }
+        return text;
+    }
+
+    private String tryGetPlainTextWithSimpleRetriever(String url) {
+        String text = null;
+        if (documentRetriever != null) {
+            text = documentRetriever.getText(url);
+        }
+        return text;
+    }
+
+    private String tryGetPlainTextWithCloudRetrievers(String url) {
+        String text = null;
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (cloudDocumentRetriever instanceof BrightDataDocumentRetriever) {
+                text = cloudDocumentRetriever.getText(url);
+                if (!StringHelper.nullOrEmpty(text)) {
+                    break;
+                }
+            }
+        }
+        return text;
+    }
+
     /**
      * Do not use a certain retriever for numberOfRequestsToSkip requests if it failed more than failingThreshold times.
      *
@@ -139,6 +215,18 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return getWebDocument(url, null, null);
     }
 
+    public Document getRenderedWebDocument(String url) {
+        return getWebDocument(url, null, null, null, true);
+    }
+
+    public Document getWebDocument(String url, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
+        return getWebDocument(url, null, null, retrieverDocumentCallback);
+    }
+
+    public Document getRenderedWebDocument(String url, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
+        return getWebDocument(url, null, null, retrieverDocumentCallback, true);
+    }
+
     @Override
     public Document getWebDocument(String url, Thread thread) {
         return getWebDocument(url, null, thread);
@@ -150,21 +238,23 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (documentRetriever != null) {
             documentRetriever.close();
         }
-        if (cloudDocumentRetriever != null) {
-            cloudDocumentRetriever.close();
-        }
-        if (cloudDocumentRetriever2 != null) {
-            cloudDocumentRetriever2.close();
-        }
-        if (cloudDocumentRetriever3 != null) {
-            cloudDocumentRetriever3.close();
-        }
-        if (cloudDocumentRetriever4 != null) {
-            cloudDocumentRetriever4.close();
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (cloudDocumentRetriever != null) {
+                cloudDocumentRetriever.close();
+            }
         }
     }
 
     public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread) {
+        return getWebDocument(url, resolvingExplanation, thread, null);
+    }
+
+    public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
+        return getWebDocument(url, resolvingExplanation, thread, retrieverDocumentCallback, false);
+    }
+
+    public Document getWebDocument(String url, List<String> resolvingExplanation, Thread thread, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback,
+            boolean mustBeRendering) {
         if (resolvingExplanation == null) {
             resolvingExplanation = new ArrayList<>();
         }
@@ -174,10 +264,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
         // try normal document retriever
         boolean goodDocument = false;
-        if (documentRetriever != null && shouldMakeRequest(RETRIEVER_PLAIN, null)) {
+        if (documentRetriever != null && !mustBeRendering && shouldMakeRequest(documentRetriever) && !shouldSkipLocalRetrievalForDomain(url)) {
             try {
                 if (thread != null) {
-                    thread.setName("Retrieving (plain): " + url);
+                    thread.setName("Retrieving (" + DocumentRetriever.class.getName() + "): " + url);
                 }
                 document = documentRetriever.getWebDocument(url);
             } catch (Exception e) {
@@ -185,106 +275,154 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
 
             goodDocument = isGoodDocument(document);
+
+            if (goodDocument && retrieverDocumentCallback != null) {
+                retrieverDocumentCallback.accept(Pair.of(documentRetriever, document));
+            }
+
+            // if the rendering retriever got an interactive challenge page, remember the
+            // domain so we skip rendering and go straight to cloud retrievers next time
+            if (!goodDocument) {
+                checkAndMarkInteractiveChallenge(url, document);
+            }
+
             String message = goodDocument ? "success" : "fail";
-            updateRequestTracker(RETRIEVER_PLAIN, goodDocument);
+            updateRequestTracker(DocumentRetriever.class.getName(), goodDocument);
             resolvingExplanation.add(
                     "used normal document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                            RETRIEVER_PLAIN));
+                            DocumentRetriever.class.getName()));
         }
 
-        if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RETRIEVER_RENDERING_POOL, null)) {
-            // try rendering retriever
-            RenderingDocumentRetriever renderingDocumentRetriever = null;
+        if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RenderingDocumentRetrieverPool.class.getName()) && !shouldSkipLocalRetrievalForDomain(
+                url)) {
+            // try rendering retriever with one-time retry in case the checked-out retriever was broken
+            boolean retried = false;
 
-            try {
-                if (thread != null) {
-                    thread.setName("Retrieving (rendering): " + url);
+            for (int attempt = 0; attempt < 2; attempt++) { // bounded: at most 2 attempts
+                RenderingDocumentRetriever renderingDocumentRetriever = null;
+                boolean retryDueToBroken = false;
+
+                try {
+                    if (thread != null) {
+                        thread.setName("Retrieving (rendering): " + url);
+                    }
+                    renderingDocumentRetriever = renderingDocumentRetrieverPool.poll(3, TimeUnit.SECONDS);
+                    if (renderingDocumentRetriever == null) {
+                        LOGGER.warn("Could not acquire rendering document retriever from pool for {}", url);
+                        goodDocument = false;
+                        break;
+                    }
+
+                    configure(renderingDocumentRetriever);
+
+                    final RenderingDocumentRetriever rdrFinal = renderingDocumentRetriever;
+                    Future<Document> future = RENDER_WATCHDOG_EXEC.submit(() -> rdrFinal.getWebDocument(url));
+
+                    // perform the actual fetch
+                    try {
+                        // IMPORTANT: hard-stop protection. If Selenium hangs, we stop waiting and replace the driver.
+                        document = future.get(getTimeoutSeconds(), TimeUnit.SECONDS);
+                    } catch (TimeoutException te) {
+                        future.cancel(true); // interrupts waiting thread; may not stop Selenium, but we stop blocking HERE.
+
+                        // mark “broken” and replace it, so the pool doesn't get drained forever
+                        rdrFinal.markInvalidatedByCallback();
+
+                        retryDueToBroken = false;
+                        throw new RuntimeException("Render watchdog timeout after " + getTimeoutSeconds() + "s for " + url, te);
+                    }
+
+                    goodDocument = isGoodDocument(document);
+
+                    // if the rendering retriever got an interactive challenge page, remember the
+                    // domain so we skip rendering and go straight to cloud retrievers next time
+                    if (!goodDocument) {
+                        checkAndMarkInteractiveChallenge(url, document);
+                    }
+
+                    // Detect if this attempt used a broken retriever (exception may have been caught internally)
+                    // We only decide to retry if the attempt produced no document and the retriever signaled invalidation
+                    retryDueToBroken = (document == null && renderingDocumentRetriever.isInvalidatedByCallback());
+
+                    // Only record/emit results if we are not going to retry due to a broken session
+                    if (!retryDueToBroken) {
+                        if (goodDocument && retrieverDocumentCallback != null) {
+                            retrieverDocumentCallback.accept(Pair.of(renderingDocumentRetriever, document));
+                        }
+
+                        String message = goodDocument ? "success" : "fail";
+                        updateRequestTracker(RenderingDocumentRetrieverPool.class.getName(), goodDocument);
+                        resolvingExplanation.add(
+                                "used rendering js retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
+                                        RenderingDocumentRetrieverPool.class.getName()));
+                    }
+                } catch (NoSuchSessionException nse) {
+                    // Explicit session-loss surfaced here; retry once with a fresh retriever
+                    retryDueToBroken = true;
+                    LOGGER.warn("Rendering retriever session invalid; will retry once with a fresh instance for {}", url);
+                } catch (Exception throwable) {
+                    // Other errors: no automatic retry; just log
+                    throwable.printStackTrace();
+                } finally {
+                    if (renderingDocumentRetriever != null) {
+                        renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
+                        try {
+                            boolean sessionGone = renderingDocumentRetriever.getDriver() == null || renderingDocumentRetriever.getDriver().getSessionId() == null
+                                    || renderingDocumentRetriever.isInvalidatedByCallback();
+
+                            if (sessionGone) {
+                                renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
+                            } else {
+                                renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
+                            }
+                        } catch (Exception ex) {
+                            renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
+                        } finally {
+                            // clear the flag just in case this instance is reused (after replace it won’t, but safe anyway)
+                            renderingDocumentRetriever.clearInvalidation();
+                        }
+                    }
                 }
-                renderingDocumentRetriever = renderingDocumentRetrieverPool.acquire();
-                //                for (Consumer<Document> retrieverCallback : getRetrieverCallbacks()) {
-                //                    renderingDocumentRetriever.addRetrieverCallback(retrieverCallback);
-                //                }
 
-                configure(renderingDocumentRetriever);
-                document = renderingDocumentRetriever.getWebDocument(url);
+                // If the failure was caused by a broken session, retry exactly once using a fresh retriever
+                if (retryDueToBroken && !retried) {
+                    retried = true;
+                    continue; // do the second (and last) attempt
+                }
 
-                //                renderingDocumentRetriever.getRetrieverCallbacks().clear();
+                // either success, non-broken failure, or already retried once
+                break;
+            }
+        }
 
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (!goodDocument && cloudDocumentRetriever != null && shouldMakeRequest(cloudDocumentRetriever)) {
+                if (thread != null) {
+                    thread.setName("Retrieving (" + cloudDocumentRetriever.getClass().getSimpleName() + "): " + url);
+                }
+                configure(cloudDocumentRetriever);
+                StopWatch stopWatch1 = new StopWatch();
+                document = cloudDocumentRetriever.getWebDocument(url);
                 goodDocument = isGoodDocument(document);
 
+                if (goodDocument && retrieverDocumentCallback != null) {
+                    retrieverDocumentCallback.accept(Pair.of(cloudDocumentRetriever, document));
+                }
+
                 String message = goodDocument ? "success" : "fail";
-                updateRequestTracker(RETRIEVER_RENDERING_POOL, goodDocument);
+                updateRequestTracker(cloudDocumentRetriever.getClass().getName(), goodDocument);
                 resolvingExplanation.add(
-                        "used rendering js retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                                RETRIEVER_RENDERING_POOL));
-            } catch (Exception throwable) {
-                throwable.printStackTrace();
-            } finally {
-                if (renderingDocumentRetriever != null) {
-                    renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
-                    renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
+                        "used " + cloudDocumentRetriever.getClass().getSimpleName() + " document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement()
+                                + " success count: " + getSuccessfulRequestCount(cloudDocumentRetriever.getClass().getName()));
+                cloudDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
+
+                LOGGER.info("Made request with " + cloudDocumentRetriever.getClass().getSimpleName() + " to " + url + " - goodDocument: " + goodDocument + " - time: "
+                        + stopWatch1.getElapsedTimeString());
+
+                if (goodDocument) {
+                    break;
                 }
             }
-        }
-
-        if (!goodDocument && cloudDocumentRetriever != null && shouldMakeRequest(RETRIEVER_PHANTOM_JS_CLOUD, cloudDocumentRetriever)) {
-            if (thread != null) {
-                thread.setName("Retrieving (phantomjs): " + url);
-            }
-            configure(cloudDocumentRetriever);
-            document = cloudDocumentRetriever.getWebDocument(url);
-            goodDocument = isGoodDocument(document);
-            String message = goodDocument ? "success" : "fail";
-            updateRequestTracker(RETRIEVER_PHANTOM_JS_CLOUD, goodDocument);
-            resolvingExplanation.add(
-                    "used phantom js cloud document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                            RETRIEVER_PHANTOM_JS_CLOUD));
-            cloudDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
-        }
-
-        if (!goodDocument && cloudDocumentRetriever2 != null && shouldMakeRequest(RETRIEVER_PROXY_CRAWL, cloudDocumentRetriever2)) {
-            if (thread != null) {
-                thread.setName("Retrieving (proxycrawl): " + url);
-            }
-            configure(cloudDocumentRetriever2);
-            document = cloudDocumentRetriever2.getWebDocument(url);
-            goodDocument = isGoodDocument(document);
-            String message = goodDocument ? "success" : "fail";
-            updateRequestTracker(RETRIEVER_PROXY_CRAWL, goodDocument);
-            resolvingExplanation.add(
-                    "used proxy crawl document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                            RETRIEVER_PROXY_CRAWL));
-            cloudDocumentRetriever2.setWaitForElementsMap(Collections.emptyMap());
-        }
-
-        if (!goodDocument && cloudDocumentRetriever3 != null && shouldMakeRequest(RETRIEVER_SCRAPING_BEE, cloudDocumentRetriever3)) {
-            if (thread != null) {
-                thread.setName("Retrieving (scrapingbee): " + url);
-            }
-            configure(cloudDocumentRetriever3);
-            document = cloudDocumentRetriever3.getWebDocument(url);
-            goodDocument = isGoodDocument(document);
-            String message = goodDocument ? "success" : "fail";
-            updateRequestTracker(RETRIEVER_SCRAPING_BEE, goodDocument);
-            resolvingExplanation.add(
-                    "used scraping bee document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                            RETRIEVER_SCRAPING_BEE));
-            cloudDocumentRetriever3.setWaitForElementsMap(Collections.emptyMap());
-        }
-
-        if (!goodDocument && cloudDocumentRetriever4 != null && shouldMakeRequest(RETRIEVER_SCRAPER_API, cloudDocumentRetriever4)) {
-            if (thread != null) {
-                thread.setName("Retrieving (scraperapi): " + url);
-            }
-            configure(cloudDocumentRetriever4);
-            document = cloudDocumentRetriever4.getWebDocument(url);
-            goodDocument = isGoodDocument(document);
-            String message = goodDocument ? "success" : "fail";
-            updateRequestTracker(RETRIEVER_SCRAPER_API, goodDocument);
-            resolvingExplanation.add(
-                    "used scraperapi document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                            RETRIEVER_SCRAPER_API));
-            cloudDocumentRetriever4.setWaitForElementsMap(Collections.emptyMap());
         }
 
         if (document != null) {
@@ -310,19 +448,17 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (!goodDocument) {
             pair[0]++;
         } else {
+            pair[0] = 0;
             pair[2]++;
         }
     }
 
-    private boolean shouldMakeRequest(String retrieverKey, JsEnabledDocumentRetriever renderingDocumentRetriever) {
-        Integer[] retrieverSettings = failingThresholdAndNumberOfRequestsToSkip.get(retrieverKey);
+    private boolean shouldMakeRequest(String renderingDocumentRetrieverName) {
+        Integer[] retrieverSettings = failingThresholdAndNumberOfRequestsToSkip.get(renderingDocumentRetrieverName);
         if (retrieverSettings == null) {
             return true;
         }
-        if (renderingDocumentRetriever != null && renderingDocumentRetriever.requestsLeft() < 1) {
-            return false;
-        }
-        Integer[] pair = requestTracker.get(retrieverKey);
+        Integer[] pair = requestTracker.get(renderingDocumentRetrieverName);
         if (pair == null) {
             return true;
         }
@@ -340,6 +476,14 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return true;
     }
 
+    private boolean shouldMakeRequest(WebDocumentRetriever renderingDocumentRetriever) {
+        if (renderingDocumentRetriever != null && renderingDocumentRetriever instanceof JsEnabledDocumentRetriever
+                && ((JsEnabledDocumentRetriever) renderingDocumentRetriever).requestsLeft() < 1) {
+            return false;
+        }
+        return shouldMakeRequest(renderingDocumentRetriever.getClass().getName());
+    }
+
     public Integer getSuccessfulRequestCount(String retrieverKey) {
         Integer[] integers = requestTracker.get(retrieverKey);
         if (integers == null || integers.length < 3) {
@@ -352,18 +496,66 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return requestTracker;
     }
 
+    /**
+     * Check whether the rendering retriever should be skipped for the given URL because
+     * a previous attempt returned an interactive challenge page for that domain.
+     */
+    private boolean shouldSkipLocalRetrievalForDomain(String url) {
+        String domain = UrlHelper.getDomain(url, false, false);
+        if (domain == null) {
+            return false;
+        }
+        Long addedAt = interactiveChallengeSkipDomains.get(domain);
+        if (addedAt == null) {
+            return false;
+        }
+        if (System.currentTimeMillis() - addedAt > INTERACTIVE_CHALLENGE_SKIP_DURATION_MS) {
+            interactiveChallengeSkipDomains.remove(domain);
+            LOGGER.info("Interactive-challenge skip expired for domain: {}", domain);
+            return false;
+        }
+        LOGGER.info("Skipping rendering retriever for domain {} (interactive challenge detected previously)", domain);
+        return true;
+    }
+
+    /**
+     * If the document contains indicators of an interactive challenge (Cloudflare Turnstile,
+     * Vercel checkpoint, etc.), mark the domain so the rendering retriever is skipped for
+     * subsequent requests.
+     */
+    private void checkAndMarkInteractiveChallenge(String url, Document document) {
+        if (document == null) {
+            return;
+        }
+        String html = HtmlHelper.getInnerXml(document);
+        if (StringHelper.containsAny(html, INTERACTIVE_CHALLENGE_INDICATORS)) {
+            String domain = UrlHelper.getDomain(url, false, false);
+            if (domain != null) {
+                interactiveChallengeSkipDomains.put(domain, System.currentTimeMillis());
+                LOGGER.info("Interactive challenge detected for domain: {} — rendering retriever will be skipped for this domain", domain);
+            }
+        }
+    }
+
     private boolean isGoodDocument(Document document) {
         if (document == null) {
             return false;
         }
+        HttpResult httpResult = (HttpResult) document.getUserData("httpResult");
+        if (httpResult != null && httpResult.getStatusCode() == 403) {
+            return false;
+        }
         String s = HtmlHelper.getInnerXml(document);
         if (!getGoodDocumentIndicatorTexts().isEmpty()) {
-            return StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
+            boolean good = StringHelper.containsAny(s, getGoodDocumentIndicatorTexts());
+            if (good) {
+                return true;
+            }
         }
         if (StringHelper.containsAny(s, getBadDocumentIndicatorTexts())) {
             return false;
         }
-        return !(s.isEmpty());
+        return s.length() > 500;
     }
 
     @Override
@@ -381,14 +573,30 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     public boolean renderJs(boolean renderJs) {
         boolean originalValue = false;
-        if (cloudDocumentRetriever2 != null) {
-            originalValue = cloudDocumentRetriever2.isUseJsRendering();
-            cloudDocumentRetriever2.setUseJsRendering(renderJs);
-        }
-        if (cloudDocumentRetriever3 != null) {
-            originalValue = cloudDocumentRetriever3.isUseJsRendering();
-            cloudDocumentRetriever3.setUseJsRendering(renderJs);
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (cloudDocumentRetriever != null) {
+                originalValue = cloudDocumentRetriever.isUseJsRendering();
+                cloudDocumentRetriever.setUseJsRendering(renderJs);
+            }
         }
         return originalValue;
+    }
+
+    public Document getWithFakeUserAgent(String url) {
+        setFakeUserAgent();
+        Document document = documentRetriever.getWebDocument(url);
+        resetFakeUserAgent();
+        return document;
+    }
+
+    private void setFakeUserAgent() {
+        userAgent = documentRetriever.getGlobalHeaders().get("User-Agent");
+        documentRetriever.getGlobalHeaders().put("User-Agent", "PostmanRuntime/7.51.0");
+    }
+
+    private void resetFakeUserAgent() {
+        if (userAgent != null) {
+            documentRetriever.getGlobalHeaders().put("User-Agent", userAgent);
+        }
     }
 }

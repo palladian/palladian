@@ -22,9 +22,6 @@ import java.util.function.Predicate;
  * Created by David Urbansky on 07.10.2017.
  */
 public abstract class WebDocumentRetriever {
-    /**
-     * The logger for this class.
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(WebDocumentRetriever.class);
 
     /**
@@ -182,7 +179,7 @@ public abstract class WebDocumentRetriever {
             executor.shutdown();
 
             // wait until all threads are finish
-            LOGGER.info("waiting for all " + num + " threads to finish...");
+            LOGGER.debug("waiting for all " + num + " threads to finish...");
             StopWatch sw = new StopWatch();
             try {
                 while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
@@ -191,7 +188,7 @@ public abstract class WebDocumentRetriever {
             } catch (InterruptedException e) {
                 LOGGER.error(e.getMessage(), e);
             }
-            LOGGER.info("...all threads finished in " + sw.getTotalElapsedTimeString());
+            LOGGER.debug("...all threads finished in " + sw.getTotalElapsedTimeString());
         }
     }
 

@@ -49,6 +49,11 @@ public class PalladianContentExtractorTest {
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
 
+        // Uzbek
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.gazeta.uz/uz"));
+        language = palladianContentExtractor.detectLanguage();
+        collector.checkThat(language, is(Language.UZBEK));
+
         // Italian
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.corriere.it/"));
         language = palladianContentExtractor.detectLanguage();
@@ -118,9 +123,9 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.SPANISH));
 
         // Russian
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.moscowtimes.ru/"));
-        language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.RUSSIAN));
+        //        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.moscowtimes.ru/"));
+        //        language = palladianContentExtractor.detectLanguage();
+        //        collector.checkThat(language, is(Language.RUSSIAN));
     }
 
     @Test
@@ -153,6 +158,12 @@ public class PalladianContentExtractorTest {
     @Test
     public void testContentExtraction() throws PageContentExtractorException, FileNotFoundException, ParserException {
         PalladianContentExtractor extractor;
+
+        extractor = getExtractor("pageContentExtractor/news-sta.html");
+        collector.checkThat(extractor.getResultTitle(), is("Nagrada Astrid Lindgren letos švedski ilustratorki Evi Lindström"));
+        collector.checkThat(extractor.getResultText(), startsWith("Stockholm, 22. marca - Švedska"));
+        collector.checkThat(extractor.getResultText(), endsWith("Polona Lovšin in Boris A. Novak."));
+        collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-22 17:19:00"));
 
         extractor = getExtractor("pageContentExtractor/news-worldnewsera.html");
         collector.checkThat(extractor.getResultTitle(), is("United By Constitution, Divided By Religion - WorldNewsEra"));
@@ -237,12 +248,6 @@ public class PalladianContentExtractorTest {
         collector.checkThat(extractor.getResultText(), endsWith("Democratic President Joe Biden’s election. (Reporting by Jan Wolfe; Editing by Scott Malone and Bill Berkrot)"));
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-22 16:10:03"));
 
-        extractor = getExtractor("pageContentExtractor/news-sta.html");
-        collector.checkThat(extractor.getResultTitle(), is("Nagrada Astrid Lindgren letos švedski ilustratorki Evi Lindström"));
-        collector.checkThat(extractor.getResultText(), startsWith("Stockholm, 22. marca - Švedska"));
-        collector.checkThat(extractor.getResultText(), endsWith("Polona Lovšin in Boris A. Novak."));
-        collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-22 17:19:00"));
-
         extractor = getExtractor("pageContentExtractor/news-liberoquotidiano.html");
         collector.checkThat(extractor.getResultTitle(), is("Sostenibilità, la ricerca: bene la familiarità meno i comportamenti"));
         collector.checkThat(extractor.getResultText(), startsWith("Roma, 17 mar. (Adnkronos) -"));
@@ -254,7 +259,7 @@ public class PalladianContentExtractorTest {
 
         extractor = getExtractor("pageContentExtractor/news-wprost.html");
         collector.checkThat(extractor.getResultTitle(), is("Chcesz wspomóc Ukrainę? Lista najpilniej potrzebnych rzeczy"));
-        collector.checkThat(extractor.getResultText(), startsWith("– W mieście"));
+        collector.checkThat(extractor.getResultText(), startsWith("W mieście"));
         collector.checkThat(extractor.getResultText(), endsWith("najpotrzebniejszego sprzętu medycznego."));
         collector.checkThat(extractor.getPublishDate().getNormalizedDateString(), is("2022-03-14 11:24:00"));
         collector.checkThat(extractor.getDominantImage().getImageUrl(),

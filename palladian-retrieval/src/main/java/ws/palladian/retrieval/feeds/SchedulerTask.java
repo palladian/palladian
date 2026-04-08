@@ -18,18 +18,18 @@ import java.util.concurrent.TimeUnit;
  * @author David Urbansky
  * @author Philipp Katz
  */
-class SchedulerTask extends TimerTask {
+public class SchedulerTask extends TimerTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerTask.class);
 
     /** The thread pool managing threads that read feeds. */
-    private final ExecutorService threadPool;
+    protected final ExecutorService threadPool;
 
     /** Tasks currently scheduled but not yet checked. */
-    private final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
+    protected final Map<Integer, Future<FeedTaskResult>> scheduledTasks;
 
-    private final Long lastWakeUpTime = null;
+    protected final Long lastWakeUpTime = null;
 
-    private final FeedReaderSettings settings;
+    protected final FeedReaderSettings settings;
 
     /**
      * <p>
@@ -38,7 +38,7 @@ class SchedulerTask extends TimerTask {
      *
      * @param settings necessary settings, not <code>null</code>.
      */
-    SchedulerTask(FeedReaderSettings settings) {
+    protected SchedulerTask(FeedReaderSettings settings) {
         this.threadPool = Executors.newFixedThreadPool(settings.getNumThreads());
         this.scheduledTasks = new HashMap<>();
         this.settings = settings;
@@ -70,7 +70,7 @@ class SchedulerTask extends TimerTask {
      * tend to block those parallel requests.
      * </p>
      */
-    private Collection<Feed> getFeeds() {
+    protected Collection<Feed> getFeeds() {
         if (lastWakeUpTime == null) {
             List<Feed> feedList = new ArrayList<>();
             feedList.addAll(settings.getStore().getFeeds());
@@ -88,7 +88,7 @@ class SchedulerTask extends TimerTask {
      * @param feed The feed to check.
      * @return {@code true} if this feeds check interval is over and {@code false} otherwise.
      */
-    private boolean needsLookup(Feed feed) {
+    protected boolean needsLookup(Feed feed) {
         final long now = System.currentTimeMillis();
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(
@@ -141,7 +141,7 @@ class SchedulerTask extends TimerTask {
      *
      * @param feedId The feed to check and remove if the {@link FeedTask} is done.
      */
-    private void removeFeedTaskIfDone(int feedId) {
+    protected void removeFeedTaskIfDone(int feedId) {
         final Future<FeedTaskResult> future = scheduledTasks.get(feedId);
         if (future != null && future.isDone()) {
             scheduledTasks.remove(feedId);

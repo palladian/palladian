@@ -28,8 +28,14 @@ public class AnthropicApi extends AiApi {
 
     public static final String CONFIG_API_KEY = "api.anthropic.key";
 
-    /** See https://docs.anthropic.com/claude/docs/models-overview */
-    private static final String DEFAULT_MODEL = "claude-3-5-sonnet-20240620";
+    // See https://docs.anthropic.com/claude/docs/models-overview
+    public static final String HAIKU_4_5 = "claude-haiku-4-5";
+    public static final String SONNET_4_5 = "claude-sonnet-4-5";
+    public static final String SONNET_4_6 = "claude-sonnet-4-6";
+    public static final String OPUS_4_6 = "claude-opus-4-6";
+    private static final String DEFAULT_MODEL = HAIKU_4_5;
+
+    private String model = DEFAULT_MODEL;
 
     public AnthropicApi(String apiKey) {
         this.apiKey = apiKey;
@@ -39,13 +45,17 @@ public class AnthropicApi extends AiApi {
         this(configuration.getString(CONFIG_API_KEY));
     }
 
-    @Override
-    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
-        return chat(messages, temperature, usedTokens, DEFAULT_MODEL, null);
+    public void setModel(String model) {
+        this.model = model;
     }
 
     @Override
-    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens) throws Exception {
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens) throws Exception {
+        return chat(messages, temperature, usedTokens, model, null, null);
+    }
+
+    @Override
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception {
         DocumentRetriever documentRetriever = new DocumentRetriever();
         documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("x-api-key", apiKey).put("anthropic-version", "2023-06-01").create());
         JsonObject requestJson = new JsonObject();

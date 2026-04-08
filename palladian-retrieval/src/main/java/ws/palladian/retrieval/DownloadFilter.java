@@ -78,5 +78,4 @@ public class DownloadFilter implements Predicate<String> {
         }
         return accepted;
     }
-
 }
