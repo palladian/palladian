@@ -8,6 +8,7 @@ import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.persistence.json.JsonArray;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpRetriever;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 
 import java.io.File;
@@ -24,15 +25,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created 15.02.2023
  */
 public class OpenAiApi extends AiApi {
-    private static final TimeWindowRequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 3500);
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAiApi.class);
 
-    private final String apiBase;
-    private String model = DEFAULT_MODEL;
-    private String serviceTier = null;
-    private String verbosity = null;
-    private Map<String, String> globalHeaders = new HashMap<>();
-    private Map<String, String> queryParams = new HashMap<>();
+    protected final String apiBase;
+    protected String model = DEFAULT_MODEL;
+    protected String serviceTier = null;
+    protected String verbosity = null;
+    protected Map<String, String> globalHeaders = new HashMap<>();
+    protected Map<String, String> queryParams = new HashMap<>();
+    protected Long requestTimeout;
+    protected TimeWindowRequestThrottle throttle = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 3500);
 
     public static final String CONFIG_API_KEY = "api.openai.key";
     public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
@@ -80,6 +82,27 @@ public class OpenAiApi extends AiApi {
         this.serviceTier = serviceTier;
     }
 
+    protected DocumentRetriever createDocumentRetriever() {
+        return createDocumentRetriever(true);
+    }
+
+    protected DocumentRetriever createDocumentRetriever(boolean addJsonHeader) {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        HashMap<String, String> headers = new HashMap<>(globalHeaders);
+        if (addJsonHeader) {
+            headers.put("Content-Type", "application/json");
+        }
+        documentRetriever.setGlobalHeaders(headers);
+        if (requestTimeout != null) {
+            HttpRetriever httpRetriever = documentRetriever.getHttpRetriever();
+            httpRetriever.setConnectionTimeout(requestTimeout.intValue());
+            httpRetriever.setSocketTimeout(requestTimeout.intValue());
+            httpRetriever.setConnectionTimeoutRedirects(requestTimeout.intValue());
+            httpRetriever.setSocketTimeoutRedirects(requestTimeout.intValue());
+        }
+        return documentRetriever;
+    }
+
     public float[] getEmbedding(String text) throws Exception {
         return getEmbedding(text, null);
     }
@@ -89,17 +112,14 @@ public class OpenAiApi extends AiApi {
     }
 
     public String getResponse(String text, String modelName, JsonArray tools) throws Exception {
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        HashMap<String, String> headers = new HashMap<>(globalHeaders);
-        headers.put("Content-Type", "application/json");
-        documentRetriever.setGlobalHeaders(headers);
+        DocumentRetriever documentRetriever = createDocumentRetriever();
         JsonObject requestJson = new JsonObject();
         requestJson.put("input", text);
         requestJson.put("model", modelName);
         if (!StringHelper.nullOrEmpty(tools)) {
             requestJson.put("tools", tools);
         }
-        THROTTLE.hold();
+        throttle.hold();
         String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/responses"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -115,14 +135,11 @@ public class OpenAiApi extends AiApi {
     }
 
     public float[] getEmbedding(String text, AtomicInteger usedTokens, String embeddingModel) throws Exception {
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        HashMap<String, String> headers = new HashMap<>(globalHeaders);
-        headers.put("Content-Type", "application/json");
-        documentRetriever.setGlobalHeaders(headers);
+        DocumentRetriever documentRetriever = createDocumentRetriever();
         JsonObject requestJson = new JsonObject();
         requestJson.put("input", text);
         requestJson.put("model", embeddingModel);
-        THROTTLE.hold();
+        throttle.hold();
         String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/embeddings"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -174,10 +191,7 @@ public class OpenAiApi extends AiApi {
 
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject jsonSchema) throws Exception {
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        HashMap<String, String> headers = new HashMap<>(globalHeaders);
-        headers.put("Content-Type", "application/json");
-        documentRetriever.setGlobalHeaders(headers);
+        DocumentRetriever documentRetriever = createDocumentRetriever();
         JsonObject requestJson = new JsonObject();
         requestJson.put("messages", messages);
         requestJson.put("model", modelName);
@@ -199,7 +213,7 @@ public class OpenAiApi extends AiApi {
             responseFormatJson.put("json_schema", jsonSchema);
             requestJson.put("response_format", responseFormatJson);
         }
-        THROTTLE.hold();
+        throttle.hold();
         String postResponseText = documentRetriever.postJsonObject(buildRequestUrl("/chat/completions"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -404,17 +418,14 @@ public class OpenAiApi extends AiApi {
     }
 
     public String completeText(String text, String modelName, AtomicInteger usedTokens) throws Exception {
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        HashMap<String, String> headers = new HashMap<>(globalHeaders);
-        headers.put("Content-Type", "application/json");
-        documentRetriever.setGlobalHeaders(headers);
+        DocumentRetriever documentRetriever = createDocumentRetriever();
         JsonObject requestJson = new JsonObject();
         requestJson.put("prompt", text);
         requestJson.put("model", modelName);
         requestJson.put("temperature", 1.);
         requestJson.put("max_tokens", 64);
         requestJson.put("top_p", 1);
-        THROTTLE.hold();
+        throttle.hold();
         String postResponseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/completions"), requestJson, false);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
@@ -503,10 +514,11 @@ public class OpenAiApi extends AiApi {
      * @param quality Either low, medium, or high
      */
     public String createImage(String prompt, String size, String quality) {
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        documentRetriever.getHttpRetriever().setSocketTimeout((int) TimeUnit.MINUTES.toMillis(5));
-        documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.MINUTES.toMillis(5));
-        documentRetriever.setGlobalHeaders(globalHeaders);
+        DocumentRetriever documentRetriever = createDocumentRetriever(false);
+        if (requestTimeout == null) {
+            documentRetriever.getHttpRetriever().setSocketTimeout((int) TimeUnit.MINUTES.toMillis(5));
+            documentRetriever.getHttpRetriever().setConnectionTimeout((int) TimeUnit.MINUTES.toMillis(5));
+        }
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("prompt", prompt);
@@ -516,7 +528,7 @@ public class OpenAiApi extends AiApi {
             jsonObject.put("quality", quality);
         }
         jsonObject.put("size", size);
-        THROTTLE.hold();
+        throttle.hold();
         String responseText = documentRetriever.tryPostJsonObject(buildRequestUrl("/images/generations"), jsonObject, false);
 
         JsonObject responseJson = JsonObject.tryParse(responseText);
@@ -611,6 +623,14 @@ public class OpenAiApi extends AiApi {
 
     public void setVerbosity(String verbosity) {
         this.verbosity = verbosity;
+    }
+
+    public Long getRequestTimeout() {
+        return requestTimeout;
+    }
+
+    public void setRequestTimeout(Long requestTimeout) {
+        this.requestTimeout = requestTimeout;
     }
 
     public static void main(String[] args) {
