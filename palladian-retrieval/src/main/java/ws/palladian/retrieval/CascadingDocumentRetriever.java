@@ -25,6 +25,8 @@ import java.util.function.Consumer;
 public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(CascadingDocumentRetriever.class);
 
+    private final ScheduledExecutorService trackerLogExecutor;
+
     /**
      * If this text is found, we try to resolve a captcha.
      */
@@ -96,6 +98,13 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 requestTracker.put(cloudDocumentRetriever.getClass().getName(), new Integer[]{0, 0, 0});
             }
         }
+
+        trackerLogExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "cascading-retriever-tracker-log");
+            t.setDaemon(true);
+            return t;
+        });
+        trackerLogExecutor.scheduleAtFixedRate(this::logTrackerInfo, 5, 5, TimeUnit.MINUTES);
     }
 
     public String getBadDocumentIndicatorText() {
@@ -234,6 +243,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     @Override
     public void close() {
+        trackerLogExecutor.shutdownNow();
         super.close();
         if (documentRetriever != null) {
             documentRetriever.close();
@@ -291,6 +301,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             resolvingExplanation.add(
                     "used normal document retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
                             DocumentRetriever.class.getName()));
+            LOGGER.info("Made request with DocumentRetriever to " + url + " - goodDocument: " + goodDocument + " - time: " + stopWatch.getElapsedTimeString());
         }
 
         if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RenderingDocumentRetrieverPool.class.getName()) && !shouldSkipLocalRetrievalForDomain(
@@ -383,6 +394,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                         }
                     }
                 }
+
+                LOGGER.info("Made request with RenderingDocumentRetriever to " + url + " - goodDocument: " + goodDocument + " - time: " + stopWatch.getElapsedTimeString());
 
                 // If the failure was caused by a broken session, retry exactly once using a fresh retriever
                 if (retryDueToBroken && !retried) {
@@ -597,6 +610,33 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private void resetFakeUserAgent() {
         if (userAgent != null) {
             documentRetriever.getGlobalHeaders().put("User-Agent", userAgent);
+        }
+    }
+
+    private void logTrackerInfo() {
+        try {
+            StringBuilder sb = new StringBuilder("CascadingDocumentRetriever tracker status:\n");
+
+            sb.append("  requestTracker:\n");
+            for (Map.Entry<String, Integer[]> entry : requestTracker.entrySet()) {
+                Integer[] v = entry.getValue();
+                sb.append("    ").append(entry.getKey())
+                        .append(" -> [failed=").append(v[0])
+                        .append(", skipped=").append(v[1])
+                        .append(", successful=").append(v[2]).append("]\n");
+            }
+
+            sb.append("  failingThresholdAndNumberOfRequestsToSkip:\n");
+            for (Map.Entry<String, Integer[]> entry : failingThresholdAndNumberOfRequestsToSkip.entrySet()) {
+                Integer[] v = entry.getValue();
+                sb.append("    ").append(entry.getKey())
+                        .append(" -> [failingThreshold=").append(v[0])
+                        .append(", numberOfRequestsToSkip=").append(v[1]).append("]\n");
+            }
+
+            LOGGER.info(sb.toString());
+        } catch (Exception e) {
+            LOGGER.warn("Failed to log tracker info", e);
         }
     }
 }
