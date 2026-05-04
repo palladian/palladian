@@ -637,10 +637,23 @@ public class JsonObject extends AbstractMap<String, Object> implements Json, Jso
             }
             value2 = v.get(index);
         } else if (value instanceof Map v) {
-            if (!v.containsKey(key)) {
-                throw new JsonException("No key: " + key);
+            if (v.containsKey(key)) {
+                value2 = v.get(key);
+            } else {
+                // Fall back to case-insensitive key lookup so callers don't have to worry about
+                // varying casing (e.g. "aggregateRating" vs "AggregateRating").
+                String matchedKey = null;
+                for (Object k : v.keySet()) {
+                    if (k instanceof String ks && ks.equalsIgnoreCase(key)) {
+                        matchedKey = ks;
+                        break;
+                    }
+                }
+                if (matchedKey == null) {
+                    throw new JsonException("No key: " + key);
+                }
+                value2 = v.get(matchedKey);
             }
-            value2 = v.get(key);
         }
 
         String remainingPath = pathSplit[1];
