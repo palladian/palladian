@@ -855,6 +855,65 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         return invalidatedByCallback;
     }
 
+    /**
+     * Wait on the live driver for an auto-solving bot-management challenge page (e.g. Akamai Bot
+     * Manager interstitial) to resolve. Such pages contain a sensor script that POSTs a challenge
+     * token and then calls <code>location.reload(true)</code> once the challenge passes. Giving
+     * the browser a few extra seconds usually yields the real page without having to escalate to
+     * a cloud retriever.
+     * <p>
+     * This method blocks up to <code>maxWaitSeconds</code> and polls the current page source for
+     * the absence of any of the supplied challenge markers. It does not throw on timeout — the
+     * caller is expected to re-fetch the current document and re-evaluate it afterwards.
+     *
+     * @param challengeMarkers Substrings whose presence in the page source indicates the challenge
+     *                         is still showing.
+     * @param maxWaitSeconds   Maximum time to wait in seconds.
+     * @return <code>true</code> if the challenge markers disappeared within the time budget,
+     * <code>false</code> otherwise (including when the driver is unusable).
+     */
+    public boolean awaitChallengeResolution(List<String> challengeMarkers, int maxWaitSeconds) {
+        if (driver == null || challengeMarkers == null || challengeMarkers.isEmpty()) {
+            return false;
+        }
+        long deadline = System.currentTimeMillis() + maxWaitSeconds * 1000L;
+        while (System.currentTimeMillis() < deadline) {
+            try {
+                String source = driver.getPageSource();
+                if (source == null || !ws.palladian.helper.nlp.StringHelper.containsAny(source, challengeMarkers)) {
+                    // challenge markers gone — wait one more short beat for the post-reload
+                    // document to finish settling (readyState=complete)
+                    try {
+                        new WebDriverWait(driver, Duration.ofSeconds(Math.min(5, maxWaitSeconds))).until(
+                                webDriver -> "complete".equals(((JavascriptExecutor) webDriver).executeScript("return document.readyState")));
+                    } catch (Exception ignore) {
+                        // best effort
+                    }
+                    return true;
+                }
+            } catch (NoSuchSessionException e) {
+                LOGGER.warn("Session lost while waiting for challenge resolution", e);
+                return false;
+            } catch (WebDriverException e) {
+                if (isFatalWebDriverError(e)) {
+                    LOGGER.warn("Fatal webdriver error while waiting for challenge resolution", e);
+                    markInvalidatedByCallback();
+                    return false;
+                }
+                // transient — keep polling
+            } catch (Exception e) {
+                LOGGER.debug("Error polling page source during challenge wait", e);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return false;
+    }
+
     public void markInvalidatedByCallback() {
         this.invalidatedByCallback = true;
     }

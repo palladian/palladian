@@ -43,6 +43,13 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private String userAgent;
     private final DocumentRetriever documentRetriever;
     private final RenderingDocumentRetrieverPool renderingDocumentRetrieverPool;
+    /**
+     * Optional second rendering pool that runs <em>after</em> the regular rendering pool but
+     * <em>before</em> the cloud retrievers. Intended for stealthier setups (e.g. CloakBrowser)
+     * which are heavier/slower but more likely to bypass bot management. Either pool may be
+     * {@code null}, so callers can run only-cloak, only-rendering, or both side-by-side.
+     */
+    private final RenderingDocumentRetrieverPool cloakBrowserDocumentRetrieverPool;
     private final List<JsEnabledDocumentRetriever> cloudDocumentRetrievers = new ArrayList<>();
 
     /**
@@ -68,6 +75,24 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             "Please complete the security check to access", "Please complete a security check to continue", "<title>Are you a human?</title>", "<title>Bot or Not?</title>",
             "Verifying you are human. This may take a few seconds", "_Incapsula_Resource");
 
+    /**
+     * Substrings that indicate the page contains an <em>auto-solving</em> bot-management challenge
+     * (primarily Akamai Bot Manager interstitials). Such pages usually clear themselves within a
+     * few seconds via a <code>location.reload(true)</code> issued by the sensor script once the
+     * challenge token is accepted. For these we do NOT skip the rendering retriever — instead we
+     * give the live driver a short additional wait window and re-read the document.
+     */
+    private static final List<String> AUTO_SOLVING_CHALLENGE_INDICATORS = Arrays.asList("sec-if-cpt-container", "techlab-cdn.com", "scf-akamai-logo-sec-abc",
+            "Powered and protected by", "sec-bc-tile-container");
+
+    /**
+     * Maximum time (seconds) we wait on the live driver for an auto-solving challenge to resolve
+     * before re-reading the page. Intentionally separate from (and added on top of) the normal
+     * render watchdog timeout, because the browser has already loaded once — we are only waiting
+     * for the sensor round-trip + reload.
+     */
+    private int autoSolvingChallengeWaitSeconds = 10;
+
     // separate executor used only for applying a hard timeout to rendering work
     private static final ExecutorService RENDER_WATCHDOG_EXEC = Executors.newCachedThreadPool(new ThreadFactory() {
         private final ThreadFactory delegate = Executors.defaultThreadFactory();
@@ -82,8 +107,27 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     });
 
     public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, JsEnabledDocumentRetriever... cloudDocumentRetrievers) {
+        this(documentRetriever, retrieverPool, null, cloudDocumentRetrievers);
+    }
+
+    public CascadingDocumentRetriever(JsEnabledDocumentRetriever... cloudDocumentRetrievers) {
+        this(null, null, null, cloudDocumentRetrievers);
+    }
+
+    /**
+     * Full constructor allowing both a regular rendering pool and an additional stealth-rendering
+     * pool (e.g. CloakBrowser). Any of the three local retrievers may be {@code null}.
+     *
+     * @param documentRetriever       plain HTTP retriever (cheap fast path), may be {@code null}
+     * @param retrieverPool           regular rendering pool (e.g. headless Chrome), may be {@code null}
+     * @param cloakBrowserPool        additional stealth rendering pool (e.g. CloakBrowser), may be {@code null}
+     * @param cloudDocumentRetrievers cloud-based retrievers tried last
+     */
+    public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, RenderingDocumentRetrieverPool cloakBrowserPool,
+            JsEnabledDocumentRetriever... cloudDocumentRetrievers) {
         this.documentRetriever = documentRetriever;
         this.renderingDocumentRetrieverPool = retrieverPool;
+        this.cloakBrowserDocumentRetrieverPool = cloakBrowserPool;
 
         this.cloudDocumentRetrievers.addAll(Arrays.asList(cloudDocumentRetrievers));
 
@@ -92,6 +136,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
         if (this.renderingDocumentRetrieverPool != null) {
             requestTracker.put(RenderingDocumentRetrieverPool.class.getName(), new Integer[]{0, 0, 0});
+        }
+        if (this.cloakBrowserDocumentRetrieverPool != null) {
+            requestTracker.put(this.cloakBrowserDocumentRetrieverPool.getClass().getName(), new Integer[]{0, 0, 0});
         }
         for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
             if (cloudDocumentRetriever != null) {
@@ -304,108 +351,25 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.info("Made request with DocumentRetriever to " + url + " - goodDocument: " + goodDocument + " - time: " + stopWatch.getElapsedTimeString());
         }
 
+        if (!goodDocument && cloakBrowserDocumentRetrieverPool != null && shouldMakeRequest(cloakBrowserDocumentRetrieverPool.getClass().getName())
+                && !shouldSkipLocalRetrievalForDomain(url)) {
+            String label = cloakBrowserDocumentRetrieverPool.getClass().getSimpleName();
+            RenderingPoolResult r = tryRenderingPool(cloakBrowserDocumentRetrieverPool, cloakBrowserDocumentRetrieverPool.getClass().getName(), label, url, thread, stopWatch,
+                    resolvingExplanation, retrieverDocumentCallback);
+            if (r.document != null) {
+                document = r.document;
+            }
+            goodDocument = r.goodDocument;
+        }
+
         if (!goodDocument && renderingDocumentRetrieverPool != null && shouldMakeRequest(RenderingDocumentRetrieverPool.class.getName()) && !shouldSkipLocalRetrievalForDomain(
                 url)) {
-            // try rendering retriever with one-time retry in case the checked-out retriever was broken
-            boolean retried = false;
-
-            for (int attempt = 0; attempt < 2; attempt++) { // bounded: at most 2 attempts
-                RenderingDocumentRetriever renderingDocumentRetriever = null;
-                boolean retryDueToBroken = false;
-
-                try {
-                    if (thread != null) {
-                        thread.setName("Retrieving (rendering): " + url);
-                    }
-                    renderingDocumentRetriever = renderingDocumentRetrieverPool.poll(3, TimeUnit.SECONDS);
-                    if (renderingDocumentRetriever == null) {
-                        LOGGER.warn("Could not acquire rendering document retriever from pool for {}", url);
-                        goodDocument = false;
-                        break;
-                    }
-
-                    configure(renderingDocumentRetriever);
-
-                    final RenderingDocumentRetriever rdrFinal = renderingDocumentRetriever;
-                    Future<Document> future = RENDER_WATCHDOG_EXEC.submit(() -> rdrFinal.getWebDocument(url));
-
-                    // perform the actual fetch
-                    try {
-                        // IMPORTANT: hard-stop protection. If Selenium hangs, we stop waiting and replace the driver.
-                        document = future.get(getTimeoutSeconds(), TimeUnit.SECONDS);
-                    } catch (TimeoutException te) {
-                        future.cancel(true); // interrupts waiting thread; may not stop Selenium, but we stop blocking HERE.
-
-                        // mark “broken” and replace it, so the pool doesn't get drained forever
-                        rdrFinal.markInvalidatedByCallback();
-
-                        retryDueToBroken = false;
-                        throw new RuntimeException("Render watchdog timeout after " + getTimeoutSeconds() + "s for " + url, te);
-                    }
-
-                    goodDocument = isGoodDocument(document);
-
-                    // if the rendering retriever got an interactive challenge page, remember the
-                    // domain so we skip rendering and go straight to cloud retrievers next time
-                    if (!goodDocument) {
-                        checkAndMarkInteractiveChallenge(url, document);
-                    }
-
-                    // Detect if this attempt used a broken retriever (exception may have been caught internally)
-                    // We only decide to retry if the attempt produced no document and the retriever signaled invalidation
-                    retryDueToBroken = (document == null && renderingDocumentRetriever.isInvalidatedByCallback());
-
-                    // Only record/emit results if we are not going to retry due to a broken session
-                    if (!retryDueToBroken) {
-                        if (goodDocument && retrieverDocumentCallback != null) {
-                            retrieverDocumentCallback.accept(Pair.of(renderingDocumentRetriever, document));
-                        }
-
-                        String message = goodDocument ? "success" : "fail";
-                        updateRequestTracker(RenderingDocumentRetrieverPool.class.getName(), goodDocument);
-                        resolvingExplanation.add(
-                                "used rendering js retriever: " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(
-                                        RenderingDocumentRetrieverPool.class.getName()));
-                    }
-                } catch (NoSuchSessionException nse) {
-                    // Explicit session-loss surfaced here; retry once with a fresh retriever
-                    retryDueToBroken = true;
-                    LOGGER.warn("Rendering retriever session invalid; will retry once with a fresh instance for {}", url);
-                } catch (Exception throwable) {
-                    // Other errors: no automatic retry; just log
-                    throwable.printStackTrace();
-                } finally {
-                    if (renderingDocumentRetriever != null) {
-                        renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
-                        try {
-                            boolean sessionGone = renderingDocumentRetriever.getDriver() == null || renderingDocumentRetriever.getDriver().getSessionId() == null
-                                    || renderingDocumentRetriever.isInvalidatedByCallback();
-
-                            if (sessionGone) {
-                                renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
-                            } else {
-                                renderingDocumentRetrieverPool.recycle(renderingDocumentRetriever);
-                            }
-                        } catch (Exception ex) {
-                            renderingDocumentRetrieverPool.replace(renderingDocumentRetriever);
-                        } finally {
-                            // clear the flag just in case this instance is reused (after replace it won’t, but safe anyway)
-                            renderingDocumentRetriever.clearInvalidation();
-                        }
-                    }
-                }
-
-                LOGGER.info("Made request with RenderingDocumentRetriever to " + url + " - goodDocument: " + goodDocument + " - time: " + stopWatch.getElapsedTimeString());
-
-                // If the failure was caused by a broken session, retry exactly once using a fresh retriever
-                if (retryDueToBroken && !retried) {
-                    retried = true;
-                    continue; // do the second (and last) attempt
-                }
-
-                // either success, non-broken failure, or already retried once
-                break;
+            RenderingPoolResult r = tryRenderingPool(renderingDocumentRetrieverPool, RenderingDocumentRetrieverPool.class.getName(), "rendering js retriever", url, thread,
+                    stopWatch, resolvingExplanation, retrieverDocumentCallback);
+            if (r.document != null) {
+                document = r.document;
             }
+            goodDocument = r.goodDocument;
         }
 
         for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
@@ -451,6 +415,122 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         renderingDocumentRetriever.setTimeoutSeconds(getTimeoutSeconds());
         renderingDocumentRetriever.setWaitExceptionCallback(getWaitExceptionCallback());
         renderingDocumentRetriever.setCookies(this.cookies);
+    }
+
+    /** Holds the outcome of a single rendering-pool attempt cascade. */
+    private static final class RenderingPoolResult {
+        Document document;
+        boolean goodDocument;
+    }
+
+    /**
+     * Run the rendering branch against the given pool. Encapsulates the watchdog timeout,
+     * Akamai-style auto-solving challenge wait, and the broken-session one-time retry that
+     * are shared by both the regular rendering pool and the optional CloakBrowser pool.
+     */
+    private RenderingPoolResult tryRenderingPool(RenderingDocumentRetrieverPool pool, String trackerKey, String label, String url, Thread thread, StopWatch stopWatch,
+            List<String> resolvingExplanation, Consumer<Pair<WebDocumentRetriever, Document>> retrieverDocumentCallback) {
+        RenderingPoolResult result = new RenderingPoolResult();
+        boolean retried = false;
+
+        for (int attempt = 0; attempt < 2; attempt++) { // bounded: at most 2 attempts
+            RenderingDocumentRetriever renderingDocumentRetriever = null;
+            boolean retryDueToBroken = false;
+
+            try {
+                if (thread != null) {
+                    thread.setName("Retrieving (" + label + "): " + url);
+                }
+                renderingDocumentRetriever = pool.poll(3, TimeUnit.SECONDS);
+                if (renderingDocumentRetriever == null) {
+                    LOGGER.warn("Could not acquire rendering document retriever ({}) from pool for {}", label, url);
+                    break;
+                }
+
+                configure(renderingDocumentRetriever);
+
+                final RenderingDocumentRetriever rdrFinal = renderingDocumentRetriever;
+                Future<Document> future = RENDER_WATCHDOG_EXEC.submit(() -> rdrFinal.getWebDocument(url));
+
+                try {
+                    // hard-stop protection: if Selenium hangs, we stop waiting and replace the driver.
+                    result.document = future.get(getTimeoutSeconds(), TimeUnit.SECONDS);
+                } catch (TimeoutException te) {
+                    future.cancel(true);
+                    rdrFinal.markInvalidatedByCallback();
+                    retryDueToBroken = false;
+                    throw new RuntimeException("Render watchdog timeout after " + getTimeoutSeconds() + "s for " + url, te);
+                }
+
+                result.goodDocument = isGoodDocument(result.document);
+
+                // Auto-solving challenge (Akamai etc.) — wait on live driver and re-read.
+                if (!result.goodDocument && isAutoSolvingChallenge(result.document)) {
+                    LOGGER.info("Auto-solving challenge detected for {} ({}) — waiting up to {}s on live driver", url, label, autoSolvingChallengeWaitSeconds);
+                    StopWatch waitStopWatch = new StopWatch();
+                    boolean resolved = rdrFinal.awaitChallengeResolution(AUTO_SOLVING_CHALLENGE_INDICATORS, autoSolvingChallengeWaitSeconds);
+                    try {
+                        result.document = rdrFinal.getCurrentWebDocument();
+                    } catch (Exception e) {
+                        LOGGER.debug("Could not re-read document after challenge wait", e);
+                    }
+                    result.goodDocument = isGoodDocument(result.document);
+                    resolvingExplanation.add(
+                            "auto-solving challenge " + (resolved && result.goodDocument ? "resolved" : "unresolved") + " after " + waitStopWatch.getElapsedTimeString());
+                    LOGGER.info("Auto-solving challenge wait for {} ({}) — resolved: {}, goodDocument: {}, time: {}", url, label, resolved, result.goodDocument,
+                            waitStopWatch.getElapsedTimeString());
+                }
+
+                if (!result.goodDocument) {
+                    checkAndMarkInteractiveChallenge(url, result.document);
+                }
+
+                retryDueToBroken = (result.document == null && renderingDocumentRetriever.isInvalidatedByCallback());
+
+                if (!retryDueToBroken) {
+                    if (result.goodDocument && retrieverDocumentCallback != null) {
+                        retrieverDocumentCallback.accept(Pair.of(renderingDocumentRetriever, result.document));
+                    }
+
+                    String message = result.goodDocument ? "success" : "fail";
+                    updateRequestTracker(trackerKey, result.goodDocument);
+                    resolvingExplanation.add(
+                            "used " + label + ": " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(trackerKey));
+                }
+            } catch (NoSuchSessionException nse) {
+                retryDueToBroken = true;
+                LOGGER.warn("Rendering retriever ({}) session invalid; will retry once with a fresh instance for {}", label, url);
+            } catch (Exception throwable) {
+                throwable.printStackTrace();
+            } finally {
+                if (renderingDocumentRetriever != null) {
+                    renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
+                    try {
+                        boolean sessionGone = renderingDocumentRetriever.getDriver() == null || renderingDocumentRetriever.getDriver().getSessionId() == null
+                                || renderingDocumentRetriever.isInvalidatedByCallback();
+
+                        if (sessionGone) {
+                            pool.replace(renderingDocumentRetriever);
+                        } else {
+                            pool.recycle(renderingDocumentRetriever);
+                        }
+                    } catch (Exception ex) {
+                        pool.replace(renderingDocumentRetriever);
+                    } finally {
+                        renderingDocumentRetriever.clearInvalidation();
+                    }
+                }
+            }
+
+            LOGGER.info("Made request with " + label + " to " + url + " - goodDocument: " + result.goodDocument + " - time: " + stopWatch.getElapsedTimeString());
+
+            if (retryDueToBroken && !retried) {
+                retried = true;
+                continue;
+            }
+            break;
+        }
+        return result;
     }
 
     private void updateRequestTracker(String retrieverKey, boolean goodDocument) {
@@ -535,6 +615,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * If the document contains indicators of an interactive challenge (Cloudflare Turnstile,
      * Vercel checkpoint, etc.), mark the domain so the rendering retriever is skipped for
      * subsequent requests.
+     * <p>
+     * Auto-solving challenges (Akamai Bot Manager, see {@link #AUTO_SOLVING_CHALLENGE_INDICATORS})
+     * are intentionally NOT included here — they usually clear themselves given a bit of wait
+     * time on the live driver, so we keep the rendering retriever eligible for the domain.
      */
     private void checkAndMarkInteractiveChallenge(String url, Document document) {
         if (document == null) {
@@ -548,6 +632,27 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 LOGGER.info("Interactive challenge detected for domain: {} — rendering retriever will be skipped for this domain", domain);
             }
         }
+    }
+
+    /**
+     * Detect whether the document looks like an auto-solving bot-management challenge page
+     * (Akamai Bot Manager interstitial, etc.) that should resolve itself if we just wait a bit
+     * longer on the live driver.
+     */
+    private boolean isAutoSolvingChallenge(Document document) {
+        if (document == null) {
+            return false;
+        }
+        String html = HtmlHelper.getInnerXml(document);
+        return StringHelper.containsAny(html, AUTO_SOLVING_CHALLENGE_INDICATORS);
+    }
+
+    public int getAutoSolvingChallengeWaitSeconds() {
+        return autoSolvingChallengeWaitSeconds;
+    }
+
+    public void setAutoSolvingChallengeWaitSeconds(int autoSolvingChallengeWaitSeconds) {
+        this.autoSolvingChallengeWaitSeconds = autoSolvingChallengeWaitSeconds;
     }
 
     private boolean isGoodDocument(Document document) {
@@ -620,18 +725,13 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             sb.append("  requestTracker:\n");
             for (Map.Entry<String, Integer[]> entry : requestTracker.entrySet()) {
                 Integer[] v = entry.getValue();
-                sb.append("    ").append(entry.getKey())
-                        .append(" -> [failed=").append(v[0])
-                        .append(", skipped=").append(v[1])
-                        .append(", successful=").append(v[2]).append("]\n");
+                sb.append("    ").append(entry.getKey()).append(" -> [failed=").append(v[0]).append(", skipped=").append(v[1]).append(", successful=").append(v[2]).append("]\n");
             }
 
             sb.append("  failingThresholdAndNumberOfRequestsToSkip:\n");
             for (Map.Entry<String, Integer[]> entry : failingThresholdAndNumberOfRequestsToSkip.entrySet()) {
                 Integer[] v = entry.getValue();
-                sb.append("    ").append(entry.getKey())
-                        .append(" -> [failingThreshold=").append(v[0])
-                        .append(", numberOfRequestsToSkip=").append(v[1]).append("]\n");
+                sb.append("    ").append(entry.getKey()).append(" -> [failingThreshold=").append(v[0]).append(", numberOfRequestsToSkip=").append(v[1]).append("]\n");
             }
 
             LOGGER.info(sb.toString());
