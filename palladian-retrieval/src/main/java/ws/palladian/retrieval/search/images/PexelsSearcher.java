@@ -14,7 +14,9 @@ import ws.palladian.retrieval.HttpRetrieverFactory;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.*;
 
 import java.util.ArrayList;
@@ -175,6 +177,76 @@ public class PexelsSearcher extends AbstractMultifacetSearcher<WebImage> {
     @Override
     public String getName() {
         return SEARCHER_NAME;
+    }
+
+    /**
+     * Search for videos on Pexels.
+     *
+     * @param query        The search query.
+     * @param resultCount  The maximum number of results to return.
+     * @param verticalOnly If {@code true}, request portrait-orientation videos only (uses the Pexels API
+     *                     {@code orientation=portrait} parameter).
+     * @return A list of {@link WebVideo} results (may be empty, never {@code null}).
+     */
+    public List<WebVideo> searchVideos(String query, int resultCount, boolean verticalOnly) throws SearcherException {
+        List<WebVideo> results = new ArrayList<>();
+        int resultsPerPage = Math.min(80, Math.max(1, resultCount));
+        int pagesNeeded = (int) Math.ceil(resultCount / (double) resultsPerPage);
+        var retriever = HttpRetrieverFactory.getHttpRetriever();
+        for (int page = 1; page <= pagesNeeded && results.size() < resultCount; page++) {
+            StringBuilder url = new StringBuilder("https://api.pexels.com/videos/search?query=").append(UrlHelper.encodeParameter(query)).append("&per_page=").append(resultsPerPage)
+                    .append("&page=").append(page);
+            if (verticalOnly) {
+                url.append("&orientation=portrait");
+            }
+            try {
+                var request = new HttpRequest2Builder(HttpMethod.GET, url.toString()).addHeader("Authorization", apiKey).create();
+                var response = retriever.execute(request);
+                if (response.errorStatus()) {
+                    throw new SearcherException("Encountered HTTP status " + response.getStatusCode());
+                }
+                JsonObject json = new JsonObject(response.getStringContent());
+                JsonArray videos = json.tryGetJsonArray("videos", new JsonArray());
+                for (int i = 0; i < videos.size() && results.size() < resultCount; i++) {
+                    JsonObject hit = videos.getJsonObject(i);
+                    JsonArray files = hit.tryGetJsonArray("video_files");
+                    if (files == null || files.isEmpty()) {
+                        continue;
+                    }
+                    JsonObject chosen = null;
+                    for (int j = 0; j < files.size(); j++) {
+                        JsonObject f = files.getJsonObject(j);
+                        if (!"video/mp4".equalsIgnoreCase(f.tryGetString("file_type"))) {
+                            continue;
+                        }
+                        if (chosen == null) {
+                            chosen = f;
+                        }
+                        if ("hd".equalsIgnoreCase(f.tryGetString("quality"))) {
+                            chosen = f;
+                            break;
+                        }
+                    }
+                    if (chosen == null) {
+                        continue;
+                    }
+                    BasicWebVideo.Builder b = new BasicWebVideo.Builder();
+                    b.setIdentifier(hit.tryGetInt("id") + "");
+                    b.setSource(SEARCHER_NAME);
+                    b.setTitle("");
+                    b.setUrl(hit.tryGetString("url"));
+                    b.setVideoUrl(chosen.tryGetString("link"));
+                    b.setDuration(hit.tryGetInt("duration"));
+                    b.setThumbnailUrl(hit.tryGetString("image"));
+                    results.add(b.create());
+                }
+            } catch (JsonException e) {
+                throw new SearcherException(e);
+            } catch (HttpException e) {
+                throw new SearcherException(e);
+            }
+        }
+        return results;
     }
 
     public static void main(String[] args) throws SearcherException {

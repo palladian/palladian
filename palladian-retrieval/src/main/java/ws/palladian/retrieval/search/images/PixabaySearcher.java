@@ -16,7 +16,9 @@ import ws.palladian.retrieval.configuration.StringConfigurationOption;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebImage;
+import ws.palladian.retrieval.resources.BasicWebVideo;
 import ws.palladian.retrieval.resources.WebImage;
+import ws.palladian.retrieval.resources.WebVideo;
 import ws.palladian.retrieval.search.*;
 
 import java.util.*;
@@ -200,6 +202,90 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
     private String buildRequest(String searchTerms, int page, int resultsPerPage, Language language) {
         return String.format("http://pixabay.com/api/?key=%s&search_term=%s&image_type=all&page=%s&per_page=%s&lang=%s", apiKey, UrlHelper.encodeParameter(searchTerms), page,
                 resultsPerPage, language.getIso6391());
+    }
+
+    /**
+     * Search for videos on Pixabay.
+     *
+     * @param query        The search query.
+     * @param resultCount  The maximum number of results to return.
+     * @param verticalOnly If {@code true}, only return videos whose height is greater than their width.
+     *                     The Pixabay video API does not expose an orientation filter, so this is applied client-side.
+     * @return A list of {@link WebVideo} results (may be empty, never {@code null}).
+     */
+    public List<WebVideo> searchVideos(String query, int resultCount, boolean verticalOnly) throws SearcherException {
+        List<WebVideo> results = new ArrayList<>();
+        // When verticalOnly is true, the Pixabay video API has no orientation filter, so we may scan many
+        // landscape hits before finding enough vertical ones. Use the largest page size the API allows
+        // (200) and keep paginating until we either fill the request or exhaust results / hit the page cap.
+        // When verticalOnly is false, request just enough to satisfy resultCount.
+        final int resultsPerPage = verticalOnly ? 200 : Math.min(200, Math.max(3, resultCount));
+        final int maxPages = verticalOnly ? 10 : (int) Math.ceil(resultCount / (double) resultsPerPage);
+        var retriever = HttpRetrieverFactory.getHttpRetriever();
+        for (int page = 1; page <= maxPages && results.size() < resultCount; page++) {
+            String url = String.format("https://pixabay.com/api/videos/?key=%s&q=%s&video_type=all&page=%d&per_page=%d", apiKey,
+                    UrlHelper.encodeParameter(StringHelper.shorten(query, 100)), page, resultsPerPage);
+            try {
+                THROTTLE.hold();
+                var response = retriever.httpGet(url);
+                if (response.errorStatus()) {
+                    throw new SearcherException("Encountered HTTP status " + response.getStatusCode() + ", query " + query);
+                }
+                JsonObject json = JsonObject.tryParse(response.getStringContent());
+                JsonArray hits = Optional.ofNullable(json).orElse(new JsonObject()).tryGetJsonArray("hits");
+                if (hits == null || hits.isEmpty()) {
+                    break;
+                }
+                for (int i = 0; i < hits.size() && results.size() < resultCount; i++) {
+                    JsonObject hit = hits.getJsonObject(i);
+                    JsonObject videos = hit.tryGetJsonObject("videos");
+                    if (videos == null) {
+                        continue;
+                    }
+                    JsonObject chosen = Optional.ofNullable(videos.tryGetJsonObject("medium"))
+                            .orElse(Optional.ofNullable(videos.tryGetJsonObject("large"))
+                                    .orElse(Optional.ofNullable(videos.tryGetJsonObject("small")).orElse(videos.tryGetJsonObject("tiny"))));
+                    if (chosen == null) {
+                        continue;
+                    }
+                    Integer w = chosen.tryGetInt("width");
+                    Integer h = chosen.tryGetInt("height");
+                    if (verticalOnly && w != null && h != null && h <= w) {
+                        continue;
+                    }
+                    BasicWebVideo.Builder b = new BasicWebVideo.Builder();
+                    b.setIdentifier(hit.tryGetInt("id") + "");
+                    b.setSource(SEARCHER_NAME);
+                    b.setTitle(hit.tryGetString("tags"));
+                    b.setUrl(hit.tryGetString("pageURL"));
+                    b.setVideoUrl(chosen.tryGetString("url"));
+                    b.setDuration(hit.tryGetInt("duration"));
+                    b.setViews(hit.tryGetInt("views"));
+                    // Newer Pixabay video API includes a thumbnail URL per size; fall back to the legacy
+                    // Vimeo CDN URL built from picture_id when the field is absent.
+                    String thumbnailUrl = chosen.tryGetString("thumbnail");
+                    if (thumbnailUrl == null || thumbnailUrl.isEmpty()) {
+                        String pictureId = hit.tryGetString("picture_id");
+                        if (pictureId != null && !pictureId.isEmpty()) {
+                            thumbnailUrl = "https://i.vimeocdn.com/video/" + pictureId + "_295x166.jpg";
+                        }
+                    }
+                    if (thumbnailUrl != null) {
+                        b.setThumbnailUrl(thumbnailUrl);
+                    }
+                    results.add(b.create());
+                }
+                // If the API returned fewer hits than the page size we asked for, there are no more pages.
+                if (hits.size() < resultsPerPage) {
+                    break;
+                }
+            } catch (JsonException e) {
+                throw new SearcherException(e);
+            } catch (HttpException e) {
+                throw new SearcherException(e);
+            }
+        }
+        return results;
     }
 
     @Override
