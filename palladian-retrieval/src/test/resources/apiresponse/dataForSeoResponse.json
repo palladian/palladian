@@ -1,0 +1,110 @@
+{
+  "version": "0.1.20240801",
+  "status_code": 20000,
+  "status_message": "Ok.",
+  "time": "1.2345 sec.",
+  "cost": 0.00075,
+  "tasks_count": 1,
+  "tasks_error": 0,
+  "tasks": [
+    {
+      "id": "01010101-1234-0066-0000-abcdef000001",
+      "status_code": 20000,
+      "status_message": "Ok.",
+      "time": "1.1234 sec.",
+      "cost": 0.00075,
+      "result_count": 1,
+      "path": ["v3", "serp", "google", "organic", "live", "regular"],
+      "data": {
+        "api": "serp",
+        "function": "live",
+        "se": "google",
+        "se_type": "organic",
+        "language_code": "en",
+        "location_code": 2840,
+        "keyword": "albert einstein",
+        "depth": 3
+      },
+      "result": [
+        {
+          "keyword": "albert einstein",
+          "type": "organic",
+          "se_domain": "google.com",
+          "location_code": 2840,
+          "language_code": "en",
+          "check_url": "https://www.google.com/search?q=albert+einstein",
+          "datetime": "2026-05-20 08:00:00 +00:00",
+          "se_results_count": 123000000,
+          "items_count": 3,
+          "items": [
+            {
+              "type": "organic",
+              "rank_group": 1,
+              "rank_absolute": 1,
+              "position": "left",
+              "xpath": "/html[1]/body[1]/...",
+              "domain": "en.wikipedia.org",
+              "title": "Albert Einstein - Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Albert_Einstein",
+              "cache_url": null,
+              "related_search_url": null,
+              "breadcrumb": "https://en.wikipedia.org › wiki › Albert_Einstein",
+              "website_name": "Wikipedia",
+              "is_image": false,
+              "is_video": false,
+              "is_featured_snippet": false,
+              "is_malicious": false,
+              "is_web_story": false,
+              "description": "Albert Einstein was a German-born theoretical physicist who developed the theory of relativity, one of the two pillars of modern physics."
+            },
+            {
+              "type": "featured_snippet",
+              "rank_group": 1,
+              "rank_absolute": 2,
+              "position": "left",
+              "title": "Knowledge panel",
+              "url": "https://en.wikipedia.org/wiki/Albert_Einstein",
+              "description": "Should not be returned."
+            },
+            {
+              "type": "organic",
+              "rank_group": 2,
+              "rank_absolute": 3,
+              "position": "left",
+              "xpath": "/html[1]/body[1]/...",
+              "domain": "www.britannica.com",
+              "title": "Albert Einstein | Biography, Education, Discoveries, & Facts",
+              "url": "https://www.britannica.com/biography/Albert-Einstein",
+              "breadcrumb": "https://www.britannica.com › biography › Albert-Einstein",
+              "website_name": "Encyclopedia Britannica",
+              "is_image": false,
+              "is_video": false,
+              "is_featured_snippet": false,
+              "is_malicious": false,
+              "is_web_story": false,
+              "description": "Albert Einstein, German-born physicist who developed the special and general theories of relativity and won the Nobel Prize for Physics in 1921."
+            },
+            {
+              "type": "organic",
+              "rank_group": 3,
+              "rank_absolute": 4,
+              "position": "left",
+              "xpath": "/html[1]/body[1]/...",
+              "domain": "www.nobelprize.org",
+              "title": "Albert Einstein - Biographical - NobelPrize.org",
+              "url": "https://www.nobelprize.org/prizes/physics/1921/einstein/biographical/",
+              "breadcrumb": "https://www.nobelprize.org › einstein › biographical",
+              "website_name": "NobelPrize.org",
+              "is_image": false,
+              "is_video": false,
+              "is_featured_snippet": false,
+              "is_malicious": false,
+              "is_web_story": false,
+              "description": "Albert Einstein was born at Ulm, in Wuerttemberg, Germany, on March 14, 1879."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
