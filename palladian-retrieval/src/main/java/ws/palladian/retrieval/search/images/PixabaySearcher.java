@@ -242,9 +242,8 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
                     if (videos == null) {
                         continue;
                     }
-                    JsonObject chosen = Optional.ofNullable(videos.tryGetJsonObject("medium"))
-                            .orElse(Optional.ofNullable(videos.tryGetJsonObject("large"))
-                                    .orElse(Optional.ofNullable(videos.tryGetJsonObject("small")).orElse(videos.tryGetJsonObject("tiny"))));
+                    JsonObject chosen = Optional.ofNullable(videos.tryGetJsonObject("medium")).orElse(Optional.ofNullable(videos.tryGetJsonObject("large"))
+                            .orElse(Optional.ofNullable(videos.tryGetJsonObject("small")).orElse(videos.tryGetJsonObject("tiny"))));
                     if (chosen == null) {
                         continue;
                     }
@@ -260,7 +259,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
                     b.setUrl(hit.tryGetString("pageURL"));
                     b.setVideoUrl(chosen.tryGetString("url"));
                     b.setDuration(hit.tryGetInt("duration"));
-                    b.setViews(hit.tryGetInt("views"));
+                    b.setViews(hit.tryGetLong("views"));
                     // Newer Pixabay video API includes a thumbnail URL per size; fall back to the legacy
                     // Vimeo CDN URL built from picture_id when the field is absent.
                     String thumbnailUrl = chosen.tryGetString("thumbnail");

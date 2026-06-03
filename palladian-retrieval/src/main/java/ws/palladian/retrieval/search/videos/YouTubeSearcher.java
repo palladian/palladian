@@ -533,7 +533,7 @@ public final class YouTubeSearcher extends AbstractMultifacetSearcher<WebVideo> 
         builder.setUrl("https://www.youtube.com/watch?v=" + videoId);
         builder.setVideoUrl("https://www.youtube.com/watch?v=" + videoId);
         builder.setDuration(parseIso8601Duration(entry.queryString("contentDetails/duration")));
-        builder.setViews(entry.tryQueryInt("statistics/viewCount"));
+        builder.setViews(entry.tryQueryLong("statistics/viewCount"));
         builder.setSummary(entry.queryString("snippet/description"));
         builder.setThumbnailUrl(entry.queryString("snippet/thumbnails/high/url"));
         // like/dislike statistics

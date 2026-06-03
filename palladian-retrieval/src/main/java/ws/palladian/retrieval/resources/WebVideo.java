@@ -20,7 +20,7 @@ public interface WebVideo extends WebContent {
     /**
      * @return The number of views of this video, or <code>null</code> in case no view count was specified.
      */
-    Integer getViews();
+    Long getViews();
 
     /**
      * @return The rating of this video in a range [0, 1], where higher values denote a better rating, or

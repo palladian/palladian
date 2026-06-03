@@ -26,7 +26,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
         protected String videoUrl;
         protected String thumbnailUrl;
         protected Integer duration;
-        protected Integer views;
+        protected Long views;
         protected Double rating;
 
         public Builder setVideoUrl(String videoUrl) {
@@ -44,7 +44,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
             return this;
         }
 
-        public Builder setViews(Integer views) {
+        public Builder setViews(Long views) {
             this.views = views;
             return this;
         }
@@ -74,7 +74,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     private final String videoUrl;
     private final String thumbnailUrl;
     private final Integer duration;
-    private final Integer views;
+    private final Long views;
     private final Double rating;
 
     private BasicWebVideo(Builder builder) {
@@ -97,7 +97,7 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
     }
 
     @Override
-    public Integer getViews() {
+    public Long getViews() {
         return views;
     }
 
@@ -149,9 +149,8 @@ public class BasicWebVideo extends BasicWebContent implements WebVideo {
         if (getClass() != obj.getClass())
             return false;
         BasicWebVideo other = (BasicWebVideo) obj;
-        return Objects.equals(duration, other.duration) && Objects.equals(rating, other.rating)
-                && Objects.equals(thumbnailUrl, other.thumbnailUrl) && Objects.equals(videoUrl, other.videoUrl)
-                && Objects.equals(views, other.views);
+        return Objects.equals(duration, other.duration) && Objects.equals(rating, other.rating) && Objects.equals(thumbnailUrl, other.thumbnailUrl) && Objects.equals(videoUrl,
+                other.videoUrl) && Objects.equals(views, other.views);
     }
 
 }
