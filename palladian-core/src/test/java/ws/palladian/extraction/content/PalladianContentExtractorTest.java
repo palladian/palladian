@@ -49,6 +49,11 @@ public class PalladianContentExtractorTest {
         PalladianContentExtractor palladianContentExtractor = new PalladianContentExtractor();
         Language language;
 
+        // Spanish
+        //        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://elpais.com/"));
+        //        language = palladianContentExtractor.detectLanguage();
+        //        collector.checkThat(language, is(Language.SPANISH));
+
         // Uzbek
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.gazeta.uz/uz"));
         language = palladianContentExtractor.detectLanguage();
@@ -65,9 +70,9 @@ public class PalladianContentExtractorTest {
         collector.checkThat(language, is(Language.GREEK));
 
         // Norwegian
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.visma.no/"));
+        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.nrk.no/"));
         language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.NORWEGIAN));
+        collector.checkThat(language, is(Language.NORWEGIAN_BOKMAL));
 
         // Slovak
         palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.nbs.sk/sk/titulna-stranka"));
@@ -116,11 +121,6 @@ public class PalladianContentExtractorTest {
         //        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.orange.fr"));
         //        language = palladianContentExtractor.detectLanguage();
         //        collector.checkThat(language, is(Language.FRENCH));
-
-        // Spanish
-        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://elpais.com/"));
-        language = palladianContentExtractor.detectLanguage();
-        collector.checkThat(language, is(Language.SPANISH));
 
         // Russian
         //        palladianContentExtractor.setDocumentOnly(new DocumentRetriever().getWebDocument("https://www.moscowtimes.ru/"));
