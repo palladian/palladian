@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(CascadingDocumentRetriever.class);
 
-    private final ScheduledExecutorService trackerLogExecutor;
+    private final ExecutorService trackerLogExecutor;
 
     /**
      * If this text is found, we try to resolve a captcha.
@@ -114,16 +114,27 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         this(null, null, null, cloudDocumentRetrievers);
     }
 
+    public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, RenderingDocumentRetrieverPool cloakBrowserPool,
+            JsEnabledDocumentRetriever... cloudDocumentRetrievers) {
+        this(Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "cascading-retriever-tracker-log");
+            t.setDaemon(true);
+            return t;
+        }), documentRetriever, retrieverPool, cloakBrowserPool, cloudDocumentRetrievers);
+        ((ScheduledExecutorService) trackerLogExecutor).scheduleAtFixedRate(this::logTrackerInfo, 5, 5, TimeUnit.MINUTES);
+    }
+
     /**
      * Full constructor allowing both a regular rendering pool and an additional stealth-rendering
      * pool (e.g. CloakBrowser). Any of the three local retrievers may be {@code null}.
      *
+     * @param trackerLogExecutor      the executor service that periodically logs usage information
      * @param documentRetriever       plain HTTP retriever (cheap fast path), may be {@code null}
      * @param retrieverPool           regular rendering pool (e.g. headless Chrome), may be {@code null}
      * @param cloakBrowserPool        additional stealth rendering pool (e.g. CloakBrowser), may be {@code null}
      * @param cloudDocumentRetrievers cloud-based retrievers tried last
      */
-    public CascadingDocumentRetriever(DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, RenderingDocumentRetrieverPool cloakBrowserPool,
+    public CascadingDocumentRetriever(ExecutorService trackerLogExecutor, DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, RenderingDocumentRetrieverPool cloakBrowserPool,
             JsEnabledDocumentRetriever... cloudDocumentRetrievers) {
         this.documentRetriever = documentRetriever;
         this.renderingDocumentRetrieverPool = retrieverPool;
@@ -146,12 +157,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             }
         }
 
-        trackerLogExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "cascading-retriever-tracker-log");
-            t.setDaemon(true);
-            return t;
-        });
-        trackerLogExecutor.scheduleAtFixedRate(this::logTrackerInfo, 5, 5, TimeUnit.MINUTES);
+        this.trackerLogExecutor = trackerLogExecutor;
     }
 
     public String getBadDocumentIndicatorText() {
@@ -290,7 +296,9 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     @Override
     public void close() {
-        trackerLogExecutor.shutdownNow();
+        if (trackerLogExecutor != null) {
+            trackerLogExecutor.shutdownNow();
+        }
         super.close();
         if (documentRetriever != null) {
             documentRetriever.close();
@@ -589,6 +597,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return requestTracker;
     }
 
+    public Map<String, Integer[]> getFailingThresholdAndNumberOfRequestsToSkip() {
+        return failingThresholdAndNumberOfRequestsToSkip;
+    }
+
     /**
      * Check whether the rendering retriever should be skipped for the given URL because
      * a previous attempt returned an interactive challenge page for that domain.
@@ -718,23 +730,26 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
     }
 
+    public String getUsageSummaryMessage() {
+        StringBuilder sb = new StringBuilder("CascadingDocumentRetriever tracker status:\n");
+
+        sb.append("  requestTracker:\n");
+        for (Map.Entry<String, Integer[]> entry : requestTracker.entrySet()) {
+            Integer[] v = entry.getValue();
+            sb.append("    ").append(entry.getKey()).append(" -> [failed=").append(v[0]).append(", skipped=").append(v[1]).append(", successful=").append(v[2]).append("]\n");
+        }
+
+        sb.append("  failingThresholdAndNumberOfRequestsToSkip:\n");
+        for (Map.Entry<String, Integer[]> entry : failingThresholdAndNumberOfRequestsToSkip.entrySet()) {
+            Integer[] v = entry.getValue();
+            sb.append("    ").append(entry.getKey()).append(" -> [failingThreshold=").append(v[0]).append(", numberOfRequestsToSkip=").append(v[1]).append("]\n");
+        }
+        return sb.toString();
+    }
+
     private void logTrackerInfo() {
         try {
-            StringBuilder sb = new StringBuilder("CascadingDocumentRetriever tracker status:\n");
-
-            sb.append("  requestTracker:\n");
-            for (Map.Entry<String, Integer[]> entry : requestTracker.entrySet()) {
-                Integer[] v = entry.getValue();
-                sb.append("    ").append(entry.getKey()).append(" -> [failed=").append(v[0]).append(", skipped=").append(v[1]).append(", successful=").append(v[2]).append("]\n");
-            }
-
-            sb.append("  failingThresholdAndNumberOfRequestsToSkip:\n");
-            for (Map.Entry<String, Integer[]> entry : failingThresholdAndNumberOfRequestsToSkip.entrySet()) {
-                Integer[] v = entry.getValue();
-                sb.append("    ").append(entry.getKey()).append(" -> [failingThreshold=").append(v[0]).append(", numberOfRequestsToSkip=").append(v[1]).append("]\n");
-            }
-
-            LOGGER.info(sb.toString());
+            LOGGER.info(getUsageSummaryMessage());
         } catch (Exception e) {
             LOGGER.warn("Failed to log tracker info", e);
         }
