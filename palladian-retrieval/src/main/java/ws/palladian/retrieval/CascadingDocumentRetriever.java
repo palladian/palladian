@@ -92,6 +92,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * for the sensor round-trip + reload.
      */
     private int autoSolvingChallengeWaitSeconds = 10;
+    private int pollTimeoutSeconds = 3;
 
     // separate executor used only for applying a hard timeout to rendering work
     private static final ExecutorService RENDER_WATCHDOG_EXEC = Executors.newCachedThreadPool(new ThreadFactory() {
@@ -449,7 +450,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (thread != null) {
                     thread.setName("Retrieving (" + label + "): " + url);
                 }
-                renderingDocumentRetriever = pool.poll(3, TimeUnit.SECONDS);
+                renderingDocumentRetriever = pool.poll(pollTimeoutSeconds, TimeUnit.SECONDS);
                 if (renderingDocumentRetriever == null) {
                     LOGGER.warn("Could not acquire rendering document retriever ({}) from pool for {}", label, url);
                     break;
@@ -753,5 +754,13 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         } catch (Exception e) {
             LOGGER.warn("Failed to log tracker info", e);
         }
+    }
+
+    public int getPollTimeoutSeconds() {
+        return pollTimeoutSeconds;
+    }
+
+    public void setPollTimeoutSeconds(int pollTimeoutSeconds) {
+        this.pollTimeoutSeconds = pollTimeoutSeconds;
     }
 }
