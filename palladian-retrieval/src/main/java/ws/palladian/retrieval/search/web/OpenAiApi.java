@@ -197,16 +197,17 @@ public class OpenAiApi extends AiApi {
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject jsonSchema) throws Exception {
         DocumentRetriever documentRetriever = createDocumentRetriever();
+        boolean isThinkingModel = modelName.contains("gpt-5") || modelName.matches("^o[0-9]+(-.*)?$");
         JsonObject requestJson = new JsonObject();
         requestJson.put("messages", messages);
         requestJson.put("model", modelName);
-        if (!modelName.contains("gpt-5")) {
+        if (!isThinkingModel) {
             requestJson.put("temperature", temperature);
         }
-        if (serviceTier != null && modelName.contains("gpt-5")) {
+        if (serviceTier != null && isThinkingModel) {
             requestJson.put("service_tier", serviceTier);
         }
-        if (verbosity != null && modelName.contains("gpt-5")) {
+        if (verbosity != null && isThinkingModel) {
             requestJson.put("verbosity", verbosity);
         }
         if (maxTokens != null) {
