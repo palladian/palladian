@@ -32,6 +32,7 @@ public class OpenAiApi extends AiApi {
     protected String model = DEFAULT_MODEL;
     protected String serviceTier = null;
     protected String verbosity = null;
+    protected String reasoningEffort = null;
     protected Map<String, String> globalHeaders = new HashMap<>();
     protected Map<String, String> queryParams = new HashMap<>();
     protected Long requestTimeout;
@@ -196,6 +197,15 @@ public class OpenAiApi extends AiApi {
 
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject jsonSchema) throws Exception {
+        return chat(messages, temperature, usedTokens, modelName, maxTokens, jsonSchema, reasoningEffort);
+    }
+
+    /**
+     * Chat variant that allows specifying the reasoning effort for reasoning models (e.g. "minimal", "low", "medium",
+     * "high"). When {@code reasoningEffort} is null the parameter is omitted from the request, so the model uses its
+     * default. Only sent for gpt-5 models, consistent with the verbosity / service_tier handling.
+     */
+    public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject jsonSchema, String reasoningEffort) throws Exception {
         DocumentRetriever documentRetriever = createDocumentRetriever();
         JsonObject requestJson = new JsonObject();
         requestJson.put("messages", messages);
@@ -208,6 +218,9 @@ public class OpenAiApi extends AiApi {
         }
         if (verbosity != null && modelName.contains("gpt-5")) {
             requestJson.put("verbosity", verbosity);
+        }
+        if (reasoningEffort != null && modelName.contains("gpt-5")) {
+            requestJson.put("reasoning_effort", reasoningEffort);
         }
         if (maxTokens != null) {
             requestJson.put("max_tokens", maxTokens);
@@ -634,6 +647,14 @@ public class OpenAiApi extends AiApi {
 
     public void setVerbosity(String verbosity) {
         this.verbosity = verbosity;
+    }
+
+    public String getReasoningEffort() {
+        return reasoningEffort;
+    }
+
+    public void setReasoningEffort(String reasoningEffort) {
+        this.reasoningEffort = reasoningEffort;
     }
 
     public Long getRequestTimeout() {
