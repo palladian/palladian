@@ -106,6 +106,15 @@ public class HttpRetriever {
      */
     public static final int DEFAULT_NUM_RETRIES = 1;
 
+    /**
+     * The maximum interval to wait between retries. Apache's {@link DefaultHttpRequestRetryStrategy} returns the
+     * server-supplied {@code Retry-After} header verbatim from its {@code getRetryInterval()}, which a hostile or
+     * misconfigured server can set to hours/days (or a far-future date). That made a pooled worker {@code Thread.sleep}
+     * for the whole duration and hung the caller indefinitely (gamebrain update service, 2026-06-23). We cap it so a
+     * single request can never block for longer than this between retries.
+     */
+    public static final TimeValue MAX_RETRY_INTERVAL = TimeValue.ofSeconds(5);
+
     // ///////////// Apache HttpComponents ////////
 
     /**
@@ -313,7 +322,15 @@ public class HttpRetriever {
         }
 
         httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
-        DefaultHttpRequestRetryStrategy retryStrategy = new DefaultHttpRequestRetryStrategy(numRetries, TimeValue.ofSeconds(1L));
+        // Cap the retry interval: Apache honors the server's Retry-After header here, which can be arbitrarily large.
+        // A single hostile/misconfigured Retry-After once made a pooled worker sleep > 30 min and hung the whole
+        // update service (2026-06-23). Never wait longer than MAX_RETRY_INTERVAL between retries.
+        DefaultHttpRequestRetryStrategy retryStrategy = new DefaultHttpRequestRetryStrategy(numRetries, TimeValue.ofSeconds(1L)) {
+            @Override
+            public TimeValue getRetryInterval(HttpResponse response, int execCount, HttpContext context) {
+                return capRetryInterval(super.getRetryInterval(response, execCount, context), MAX_RETRY_INTERVAL);
+            }
+        };
         httpClientBuilder.setRetryStrategy(retryStrategy);
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
@@ -352,6 +369,18 @@ public class HttpRetriever {
         httpClientBuilder.setDefaultCookieStore(new ApacheCookieStoreAdapter(Objects.requireNonNullElseGet(cookieStore, DefaultCookieStore::new)));
 
         return httpClientBuilder;
+    }
+
+    /**
+     * Cap a retry interval to at most {@code max}. Apache may return the server-controlled {@code Retry-After} value
+     * here, which can be arbitrarily large; we must never sleep longer than {@code max} between retries. A null or
+     * negative interval is normalized to zero. Package-visible for testing.
+     */
+    static TimeValue capRetryInterval(TimeValue interval, TimeValue max) {
+        if (interval == null || interval.toMilliseconds() < 0) {
+            return TimeValue.ofMilliseconds(0);
+        }
+        return interval.toMilliseconds() > max.toMilliseconds() ? max : interval;
     }
 
     private String createUrl(HttpRequest httpRequest) {
