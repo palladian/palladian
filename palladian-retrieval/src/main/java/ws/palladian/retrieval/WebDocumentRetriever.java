@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ProgressMonitor;
 import ws.palladian.helper.StopWatch;
+import ws.palladian.helper.UrlHelper;
 import ws.palladian.helper.collection.CollectionHelper;
 import ws.palladian.helper.functional.Predicates;
 import ws.palladian.helper.html.HtmlHelper;
@@ -66,6 +67,15 @@ public abstract class WebDocumentRetriever {
     Map<String, String> globalHeaders = new HashMap<>();
     ;
 
+    /**
+     * Domains this retriever must never fetch, stored as the registered domain (lowercased, no
+     * sub-domain), e.g. {@code toyota-4runner.org}. Empty means "no restriction". This is the
+     * per-instance blacklist behind {@link #addBlacklistDomain(String)} / {@link #shouldExtract(String)};
+     * {@link CascadingDocumentRetriever} uses it to keep high-traffic, low-value domains away from the
+     * paid/cloud retrievers.
+     */
+    private final Set<String> blacklistedDomains = new HashSet<>();
+
     public abstract Document getWebDocument(String url);
 
     public Document getWebDocument(String url, Thread thread) {
@@ -78,6 +88,45 @@ public abstract class WebDocumentRetriever {
             return null;
         }
         return HtmlHelper.getInnerXml(webDocument);
+    }
+
+    /**
+     * Blacklist a domain so this retriever never fetches it. The argument may be a bare domain
+     * ({@code toyota-4runner.org}), include a sub-domain / www ({@code www.toyota-4runner.org}) or even
+     * be a full URL ({@code https://www.toyota-4runner.org/thread}); it is normalized to the registered
+     * domain so that every sub-domain of it is matched by {@link #shouldExtract(String)}.
+     *
+     * @param domain the domain to blacklist; {@code null}/blank is ignored.
+     */
+    public void addBlacklistDomain(String domain) {
+        if (domain == null) {
+            return;
+        }
+        String d = domain.trim().toLowerCase();
+        if (d.isEmpty()) {
+            return;
+        }
+        // UrlHelper.getDomain needs a parseable URL, so prefix a protocol for bare domains.
+        String normalized = UrlHelper.getDomain(d.contains("://") ? d : "http://" + d, false, false);
+        blacklistedDomains.add(normalized == null || normalized.isEmpty() ? d : normalized);
+    }
+
+    public Set<String> getBlacklistedDomains() {
+        return blacklistedDomains;
+    }
+
+    /**
+     * @param url the URL to check.
+     * @return {@code false} if the URL's registered domain has been blacklisted via
+     * {@link #addBlacklistDomain(String)}; {@code true} otherwise (including when the blacklist is empty
+     * or the domain cannot be determined).
+     */
+    public boolean shouldExtract(String url) {
+        if (blacklistedDomains.isEmpty()) {
+            return true;
+        }
+        String domain = UrlHelper.getDomain(url, false, false);
+        return domain == null || domain.isEmpty() || !blacklistedDomains.contains(domain);
     }
 
     public Map<String, String> getGlobalHeaders() {

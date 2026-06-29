@@ -381,8 +381,18 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             goodDocument = r.goodDocument;
         }
 
+        // A blacklisted domain must never reach the (paid/metered) cloud retrievers. The cheaper local
+        // retrievers above already ran; here we simply skip the whole cloud tail. The blacklist can live on
+        // the cascade itself (applies to all cloud retrievers) and/or on an individual cloud retriever.
+        boolean allowCloudRetrievers = shouldExtract(url);
+        if (!goodDocument && !allowCloudRetrievers && !cloudDocumentRetrievers.isEmpty()) {
+            resolvingExplanation.add("skipped paid/cloud retrievers (domain blacklisted): " + url);
+            LOGGER.info("Skipping all cloud/paid retrievers for blacklisted domain: {}", url);
+        }
+
         for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
-            if (!goodDocument && cloudDocumentRetriever != null && shouldMakeRequest(cloudDocumentRetriever)) {
+            if (!goodDocument && cloudDocumentRetriever != null && allowCloudRetrievers && cloudDocumentRetriever.shouldExtract(url)
+                    && shouldMakeRequest(cloudDocumentRetriever)) {
                 if (thread != null) {
                     thread.setName("Retrieving (" + cloudDocumentRetriever.getClass().getSimpleName() + "): " + url);
                 }
