@@ -714,8 +714,15 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         // structural check before the textual ones: a document can be textually unsuspicious
         // (or even contain a good indicator) yet be the wrong page for the request — e.g. an
         // anti-bot redirect onto the home page. Good indicator texts must not rescue such a page.
-        if (documentValidator != null && !documentValidator.test(requestedUrl, document)) {
-            return false;
+        if (documentValidator != null) {
+            try {
+                if (!documentValidator.test(requestedUrl, document)) {
+                    return false;
+                }
+            } catch (RuntimeException e) {
+                LOGGER.warn("Document validator threw an exception for requestedUrl={} (documentURI={}); rejecting document", requestedUrl, document.getDocumentURI(), e);
+                return false;
+            }
         }
         String s = HtmlHelper.getInnerXml(document);
         if (!getGoodDocumentIndicatorTexts().isEmpty()) {
