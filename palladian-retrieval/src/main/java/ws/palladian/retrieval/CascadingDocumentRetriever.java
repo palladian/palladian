@@ -15,6 +15,7 @@ import ws.palladian.persistence.json.JsonObject;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -32,6 +33,21 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      */
     private List<String> badDocumentIndicatorTexts;
     private List<String> goodDocumentIndicatorTexts;
+
+    /**
+     * Optional structural acceptance check, consulted for every stage result in addition to the
+     * good/bad indicator texts. Receives the originally REQUESTED url and the fetched document;
+     * returning {@code false} rejects the document and makes the cascade escalate to the next
+     * stage. {@code null} (the default) keeps the current behavior.
+     *
+     * <p>Motivation: a page can be textually unsuspicious yet wrong for the request. E.g. some
+     * shops 301-redirect deep product URLs to their home page for datacenter IPs — the home page
+     * is a valid, &gt;500-char page matching no bad indicator, so the cascade would accept it at
+     * the first (cheap, datacenter) stage and never escalate to the cloud retrievers whose
+     * residential IPs would fetch the real page. A validator comparing the requested url with
+     * {@code document.getDocumentURI()} catches exactly that.</p>
+     */
+    private BiPredicate<String, Document> documentValidator;
 
     /**
      * Keep track of failing requests.
@@ -182,6 +198,15 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             this.badDocumentIndicatorTexts = new ArrayList<>();
         }
         badDocumentIndicatorTexts.add(badDocumentIndicatorText);
+    }
+
+    public BiPredicate<String, Document> getDocumentValidator() {
+        return documentValidator;
+    }
+
+    /** See {@link #documentValidator}: {@code (requestedUrl, document) -> accept?}; rejecting escalates to the next stage. */
+    public void setDocumentValidator(BiPredicate<String, Document> documentValidator) {
+        this.documentValidator = documentValidator;
     }
 
     public List<String> getGoodDocumentIndicatorTexts() {
@@ -340,7 +365,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 LOGGER.error(e.getMessage(), e);
             }
 
-            goodDocument = isGoodDocument(document);
+            goodDocument = isGoodDocument(url, document);
 
             if (goodDocument && retrieverDocumentCallback != null) {
                 retrieverDocumentCallback.accept(Pair.of(documentRetriever, document));
@@ -399,7 +424,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 configure(cloudDocumentRetriever);
                 StopWatch stopWatch1 = new StopWatch();
                 document = cloudDocumentRetriever.getWebDocument(url);
-                goodDocument = isGoodDocument(document);
+                goodDocument = isGoodDocument(url, document);
 
                 if (goodDocument && retrieverDocumentCallback != null) {
                     retrieverDocumentCallback.accept(Pair.of(cloudDocumentRetriever, document));
@@ -481,7 +506,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     throw new RuntimeException("Render watchdog timeout after " + getTimeoutSeconds() + "s for " + url, te);
                 }
 
-                result.goodDocument = isGoodDocument(result.document);
+                result.goodDocument = isGoodDocument(url, result.document);
 
                 // Auto-solving challenge (Akamai etc.) — wait on live driver and re-read.
                 if (!result.goodDocument && isAutoSolvingChallenge(result.document)) {
@@ -493,7 +518,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     } catch (Exception e) {
                         LOGGER.debug("Could not re-read document after challenge wait", e);
                     }
-                    result.goodDocument = isGoodDocument(result.document);
+                    result.goodDocument = isGoodDocument(url, result.document);
                     resolvingExplanation.add(
                             "auto-solving challenge " + (resolved && result.goodDocument ? "resolved" : "unresolved") + " after " + waitStopWatch.getElapsedTimeString());
                     LOGGER.info("Auto-solving challenge wait for {} ({}) — resolved: {}, goodDocument: {}, time: {}", url, label, resolved, result.goodDocument,
@@ -678,13 +703,26 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         this.autoSolvingChallengeWaitSeconds = autoSolvingChallengeWaitSeconds;
     }
 
-    private boolean isGoodDocument(Document document) {
+    private boolean isGoodDocument(String requestedUrl, Document document) {
         if (document == null) {
             return false;
         }
         HttpResult httpResult = (HttpResult) document.getUserData("httpResult");
         if (httpResult != null && httpResult.getStatusCode() == 403) {
             return false;
+        }
+        // structural check before the textual ones: a document can be textually unsuspicious
+        // (or even contain a good indicator) yet be the wrong page for the request — e.g. an
+        // anti-bot redirect onto the home page. Good indicator texts must not rescue such a page.
+        if (documentValidator != null) {
+            try {
+                if (!documentValidator.test(requestedUrl, document)) {
+                    return false;
+                }
+            } catch (RuntimeException e) {
+                LOGGER.warn("Document validator threw an exception for requestedUrl={} (documentURI={}); rejecting document", requestedUrl, document.getDocumentURI(), e);
+                return false;
+            }
         }
         String s = HtmlHelper.getInnerXml(document);
         if (!getGoodDocumentIndicatorTexts().isEmpty()) {

@@ -740,26 +740,30 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public boolean closeAndQuit() {
-        if (driver == null) {
-            stopDriverService();
-            return true;
-        }
+        boolean ok = true;
         try {
-            try {
-                driver.close();
-            } catch (Exception e) {
-                LOGGER.debug("Could not close driver window", e);
+            if (driver != null) {
+                try {
+                    driver.close();
+                } catch (Throwable t) {
+                    LOGGER.debug("Could not close driver window", t);
+                }
+                driver.quit();
             }
-            driver.quit();
-        } catch (Exception e) {
-            LOGGER.error("Could not quit driver", e);
-            return false;
+        } catch (Throwable t) {
+            LOGGER.warn("Could not quit driver", t);
+            ok = false;
         } finally {
             driver = null;
-            stopDriverService();
+            try {
+                stopDriverService();
+            } catch (Throwable t) {
+                LOGGER.warn("Could not stop driver service", t);
+                ok = false;
+            }
         }
 
-        return true;
+        return ok;
     }
 
     /**
@@ -767,11 +771,12 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
      * This prevents orphaned chromedriver processes when driver.quit() fails or times out.
      */
     protected void stopDriverService() {
-        if (driverService != null) {
+        ChromeDriverService service = driverService;
+        if (service != null) {
             try {
-                driverService.stop();
-            } catch (Exception e) {
-                LOGGER.debug("Could not stop driver service", e);
+                if (service.isRunning()) {
+                    service.stop();
+                }
             } finally {
                 driverService = null;
             }

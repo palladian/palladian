@@ -7,13 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import ws.palladian.helper.ResourcePool;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Pool rendering document retrievers as instantiating them is time-consuming.
@@ -52,6 +53,8 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     // Hard-kill behavior
     private static final long TERM_WAIT_MILLIS = 250;
     private static final long KILL_WAIT_MILLIS = 150;
+    private static final long MONITOR_INTERVAL_SECONDS = 60;
+    private static final long LEAK_REAPER_MIN_AGE_SECONDS = 60;
 
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size) {
         this(driverManagerType, size, null, HttpRetriever.USER_AGENT, null);
@@ -78,9 +81,17 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         initializePool();
 
         monitorExecutor.scheduleAtFixedRate(() -> {
-            LOGGER.info("Pool Stats: createdDrivers={}, replacedDrivers={}, quitFailures={}, quitTimeouts={}, hardKills={}", createdDrivers.get(), replacedDrivers.get(),
-                    quitFailures.get(), quitTimeouts.get(), hardKills.get());
-        }, 60, 300, TimeUnit.SECONDS);
+            try {
+                LOGGER.info("Pool Stats: createdDrivers={}, replacedDrivers={}, quitFailures={}, quitTimeouts={}, hardKills={}", createdDrivers.get(), replacedDrivers.get(),
+                        quitFailures.get(), quitTimeouts.get(), hardKills.get());
+                int reaped = reapLeakedChildlessChromedrivers(ProcessHandle.current(), LEAK_REAPER_MIN_AGE_SECONDS);
+                if (reaped > 0) {
+                    LOGGER.warn("Reaped {} leaked childless chromedriver process(es)", reaped);
+                }
+            } catch (Throwable t) {
+                LOGGER.warn("Error during rendering pool monitor task", t);
+            }
+        }, MONITOR_INTERVAL_SECONDS, MONITOR_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
         // we have to shut down the browsers or the RAM will be used up rather quickly
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -202,25 +213,27 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     }
 
     /**
-     * Hard-kill fallback. Kills Chrome PID if known and ensures this retriever cannot be reused.
+     * Hard-kill fallback. Kills the chromedriver/Chrome process tree if known and ensures this retriever cannot be reused.
      */
     private void hardKill(RenderingDocumentRetriever resource, Long chromePid, String reason) {
         hardKills.incrementAndGet();
+        ProcessHandle root = resolveKillRoot(chromePid);
+        int signaledProcesses = 0;
 
         try {
             // Ensure pool never reuses this instance
             resource.markInvalidatedByCallback();
 
-            if (chromePid != null) {
-                // TERM then KILL
-                killPid(chromePid, false);
-                sleepQuiet(TERM_WAIT_MILLIS);
-                if (isPidAlive(chromePid)) {
-                    killPid(chromePid, true);
-                    sleepQuiet(KILL_WAIT_MILLIS);
-                }
+            if (root != null) {
+                signaledProcesses = terminateProcessTree(root);
             } else {
-                LOGGER.warn("Hard-kill requested but chromePid is null (reason={}).", reason);
+                LOGGER.warn("Hard-kill requested but no kill root could be resolved (reason={}, chromePid={}).", reason, chromePid);
+            }
+
+            try {
+                resource.stopDriverService();
+            } catch (Throwable t) {
+                LOGGER.warn("Could not stop driver service during hard-kill (reason={}, chromePid={})", reason, chromePid, t);
             }
         } finally {
             // Important: if closeAndQuit hung, it may not have nulled driver. Do it here.
@@ -231,47 +244,117 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
             }
         }
 
-        LOGGER.warn("Hard-kill executed (reason={}, chromePid={})", reason, chromePid);
+        LOGGER.warn("Hard-kill executed (reason={}, chromePid={}, rootPid={}, signaledProcesses={})", reason, chromePid, root != null ? root.pid() : null,
+                signaledProcesses);
     }
 
-    private void killPid(long pid, boolean force) {
-        // kill -TERM <pid> or kill -KILL <pid>
-        String signal = force ? "-KILL" : "-TERM";
-        try {
-            Process p = new ProcessBuilder("kill", signal, Long.toString(pid)).redirectErrorStream(true).start();
-            drain(p);
-            p.waitFor(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            LOGGER.warn("Failed to send {} to pid={}", signal, pid, e);
+    static ProcessHandle resolveKillRoot(Long browserPid) {
+        if (browserPid == null) {
+            return null;
         }
+        ProcessHandle browser = ProcessHandle.of(browserPid).orElse(null);
+        if (browser == null) {
+            return null;
+        }
+        ProcessHandle parent = browser.parent().orElse(null);
+        if (parent != null && parent.pid() > 1 && isChromedriver(parent)) {
+            return parent;
+        }
+        return browser;
     }
 
-    private boolean isPidAlive(long pid) {
-        // kill -0 <pid> returns 0 if process exists and we have permission
-        try {
-            Process p = new ProcessBuilder("kill", "-0", Long.toString(pid)).redirectErrorStream(true).start();
-            drain(p);
-            int code = p.waitFor();
-            return code == 0;
-        } catch (Exception e) {
+    static boolean isChromedriver(ProcessHandle process) {
+        if (process == null) {
             return false;
         }
+        ProcessHandle.Info info = process.info();
+        return containsChromedriver(info.command().orElse(null)) || containsChromedriver(info.commandLine().orElse(null));
     }
 
-    private void drain(Process p) {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-            while (br.readLine() != null) {
-                // drain
-            }
-        } catch (Exception ignore) {
+    private static boolean containsChromedriver(String value) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains("chromedriver");
+    }
+
+    static int reapLeakedChildlessChromedrivers(ProcessHandle parent, long minAgeSeconds) {
+        if (parent == null) {
+            return 0;
         }
+        Instant cutoff = Instant.now().minusSeconds(Math.max(0, minAgeSeconds));
+        int reaped = 0;
+        List<ProcessHandle> children = parent.children().collect(Collectors.toList());
+        for (ProcessHandle child : children) {
+            if (!isChromedriver(child)) {
+                continue;
+            }
+            if (child.children().findAny().isPresent()) {
+                continue;
+            }
+            if (!isOlderThan(child, cutoff)) {
+                continue;
+            }
+            LOGGER.warn("Reaping leaked childless chromedriver pid={}", child.pid());
+            terminateProcessTree(child);
+            reaped++;
+        }
+        return reaped;
     }
 
-    private void sleepQuiet(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
+    private static boolean isOlderThan(ProcessHandle process, Instant cutoff) {
+        return process.info().startInstant().map(start -> !start.isAfter(cutoff)).orElse(false);
+    }
+
+    static int terminateProcessTree(ProcessHandle root) {
+        if (root == null) {
+            return 0;
+        }
+        List<ProcessHandle> tree = root.descendants().collect(Collectors.toCollection(ArrayList::new));
+        tree.add(root);
+
+        int signaled = signalProcesses(tree, false);
+        waitForExit(tree, TERM_WAIT_MILLIS);
+        signaled += signalProcesses(tree, true);
+        waitForExit(tree, KILL_WAIT_MILLIS);
+        return signaled;
+    }
+
+    private static int signalProcesses(List<ProcessHandle> processes, boolean force) {
+        int signaled = 0;
+        for (ProcessHandle process : processes) {
+            if (!process.isAlive()) {
+                continue;
+            }
+            try {
+                boolean accepted = force ? process.destroyForcibly() : process.destroy();
+                if (accepted) {
+                    signaled++;
+                }
+            } catch (SecurityException | UnsupportedOperationException e) {
+                LOGGER.warn("Could not {} process pid={}", force ? "force-kill" : "terminate", process.pid(), e);
+            }
+        }
+        return signaled;
+    }
+
+    private static void waitForExit(List<ProcessHandle> processes, long millis) {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(millis);
+        for (ProcessHandle process : processes) {
+            if (!process.isAlive()) {
+                continue;
+            }
+            long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) {
+                return;
+            }
+            try {
+                process.onExit().get(remaining, TimeUnit.NANOSECONDS);
+            } catch (TimeoutException e) {
+                return;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            } catch (ExecutionException e) {
+                LOGGER.debug("Error while waiting for process exit pid={}", process.pid(), e);
+            }
         }
     }
 
