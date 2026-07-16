@@ -24,7 +24,7 @@ public class GeminiApi extends AiApi {
     public static final String CONFIG_API_KEY = "api.gemini.key";
 
     public enum Model {
-        GEMINI_3_0_PRO("gemini-3-pro-preview"), GEMINI_3_0_FLASH("gemini-3-flash-preview"), GEMINI_3_1_FLASH_LITE("gemini-3.1-flash-lite-preview"), NANO_BANANA_PRO(
+        GEMINI_3_0_PRO("gemini-3-pro-preview"), GEMINI_3_0_FLASH("gemini-3-flash-preview"), GEMINI_3_5_FLASH("gemini-3.5-flash"), GEMINI_3_1_FLASH_LITE("gemini-3.1-flash-lite"), NANO_BANANA_PRO(
                 "gemini-3-pro-image-preview"), VEO_3_1_PRO("veo-3.1-generate-preview");
 
         private final String name;

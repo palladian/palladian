@@ -55,6 +55,7 @@ public class OpenAiApi extends AiApi {
     public static final String MODEL_GPT_5_1 = "gpt-5.1";
     public static final String MODEL_GPT_5_MINI = "gpt-5-mini";
     public static final String MODEL_GPT_5_4_MINI = "gpt-5.4-mini";
+    public static final String MODEL_GPT_5_6_LUNA = "gpt-5.6-luna";
     public static final String MODEL_GPT_5_NANO = "gpt-5-nano";
 
     public OpenAiApi(Configuration configuration) {
@@ -223,7 +224,13 @@ public class OpenAiApi extends AiApi {
             requestJson.put("reasoning_effort", reasoningEffort);
         }
         if (maxTokens != null) {
-            requestJson.put("max_tokens", maxTokens);
+            // gpt-5 family (reasoning models) rejects the legacy "max_tokens" field with a 400 and
+            // requires "max_completion_tokens" instead — consistent with the gpt-5 handling above
+            if (modelName.contains("gpt-5")) {
+                requestJson.put("max_completion_tokens", maxTokens);
+            } else {
+                requestJson.put("max_tokens", maxTokens);
+            }
         }
         if (jsonSchema != null) {
             JsonObject responseFormatJson = new JsonObject();
