@@ -56,16 +56,9 @@ public class AnthropicApi extends AiApi {
 
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema) throws Exception {
-        DocumentRetriever documentRetriever = new DocumentRetriever();
-        documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("x-api-key", apiKey).put("anthropic-version", "2023-06-01").create());
-        JsonObject requestJson = new JsonObject();
-        requestJson.put("messages", messages);
-        requestJson.put("model", modelName);
-        requestJson.put("temperature", temperature);
-        requestJson.put("max_tokens", Optional.ofNullable(maxTokens).orElse(4096));
+        JsonObject requestJson = buildRequestJson(messages, temperature, modelName, maxTokens);
 
-        THROTTLE.hold();
-        String postResponseText = documentRetriever.postJsonObject("https://api.anthropic.com/v1/messages", requestJson, false);
+        String postResponseText = executeRequest("https://api.anthropic.com/v1/messages", requestJson);
         JsonObject responseJson = JsonObject.tryParse(postResponseText);
         if (responseJson == null) {
             throw new Exception("Could not parse json " + postResponseText);
@@ -87,6 +80,78 @@ public class AnthropicApi extends AiApi {
         }
 
         return content;
+    }
+
+    /**
+     * Convenience overload mirroring {@link OpenAiApi#chat(String, String, String)}: pass the stable instructions as a
+     * dedicated system prompt. The system prompt is hoisted into Anthropic's top-level {@code system} field and marked
+     * cacheable (see {@link #buildRequestJson}), so a large, stable system prompt is served from Anthropic's prompt
+     * cache on repeated calls at ~0.1x input cost.
+     */
+    public String chat(String systemPrompt, String userPrompt, String modelName) throws Exception {
+        JsonArray messages = new JsonArray();
+        JsonObject systemMessage = new JsonObject();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", systemPrompt);
+        messages.add(systemMessage);
+        JsonObject userMessage = new JsonObject();
+        userMessage.put("role", "user");
+        userMessage.put("content", userPrompt);
+        messages.add(userMessage);
+        return chat(messages, 1., null, modelName, null, null);
+    }
+
+    /**
+     * Build the Anthropic request body from OpenAI-style messages.
+     * <p>
+     * Anthropic's Messages API only accepts {@code user}/{@code assistant} roles inside {@code messages} and expects the
+     * system prompt as a separate top-level {@code system} field. We therefore hoist any {@code system}-role messages
+     * into that field (as {@code text} content blocks) and attach a {@code cache_control} breakpoint to the last system
+     * block. Because prompt caching is a prefix match, this lets a large, stable system prefix be served from cache on
+     * repeated requests. Prompt caching is GA on {@code anthropic-version: 2023-06-01}, so no beta header is required.
+     * <p>
+     * When there is no system message the request is byte-for-byte identical to the previous behavior (no {@code system}
+     * field, no {@code cache_control}) — a volatile user prompt is never marked cacheable, so no cache-write premium is
+     * paid for nothing.
+     */
+    JsonObject buildRequestJson(JsonArray messages, double temperature, String modelName, Integer maxTokens) {
+        JsonArray chatMessages = new JsonArray();
+        JsonArray systemBlocks = new JsonArray();
+        for (int i = 0; i < messages.size(); i++) {
+            JsonObject message = (JsonObject) messages.get(i);
+            if ("system".equals(message.tryGetString("role"))) {
+                JsonObject systemBlock = new JsonObject();
+                systemBlock.put("type", "text");
+                systemBlock.put("text", message.tryGetString("content"));
+                systemBlocks.add(systemBlock);
+            } else {
+                chatMessages.add(message);
+            }
+        }
+
+        JsonObject requestJson = new JsonObject();
+        if (!systemBlocks.isEmpty()) {
+            JsonObject cacheControl = new JsonObject();
+            cacheControl.put("type", "ephemeral");
+            ((JsonObject) systemBlocks.get(systemBlocks.size() - 1)).put("cache_control", cacheControl);
+            requestJson.put("system", systemBlocks);
+        }
+        requestJson.put("messages", chatMessages);
+        requestJson.put("model", modelName);
+        requestJson.put("temperature", temperature);
+        requestJson.put("max_tokens", Optional.ofNullable(maxTokens).orElse(4096));
+        return requestJson;
+    }
+
+    /**
+     * Perform the HTTP POST. Isolated so tests can subclass and stub the network call (see {@code AnthropicApiTest},
+     * same pattern as {@link GeminiApi}).
+     */
+    protected String executeRequest(String url, JsonObject request) throws Exception {
+        DocumentRetriever documentRetriever = new DocumentRetriever();
+        documentRetriever.setGlobalHeaders(MapBuilder.createPut("Content-Type", "application/json").put("x-api-key", apiKey).put("anthropic-version", "2023-06-01").create());
+        THROTTLE.hold();
+        return documentRetriever.postJsonObject(url, request, false);
     }
 
     public static void main(String[] args) throws Exception {
