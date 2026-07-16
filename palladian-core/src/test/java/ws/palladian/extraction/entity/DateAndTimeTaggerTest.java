@@ -18,4 +18,28 @@ public class DateAndTimeTaggerTest {
         assertEquals(10, annotations.get(0).getValue().length());
     }
 
+    /**
+     * A date string appearing N times must produce exactly N annotations (one per occurrence), not N*N.
+     * findDates returns one ExtractedDate per occurrence and the tagger scans all occurrences per entry,
+     * which used to multiply: 1000 repeated year mentions produced a million annotations and gigabyte-scale
+     * allocation bursts on date-heavy crawled pages.
+     */
+    @Test
+    public void testRepeatedDatesProduceLinearAnnotations() {
+        DateAndTimeTagger tagger = DateAndTimeTagger.DEFAULT;
+
+        int repeats = 50;
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < repeats; i++) {
+            text.append("The event on 21.12.2012 was memorable. ");
+        }
+
+        List<DateAnnotation> annotations = tagger.getAnnotations(text.toString());
+        assertEquals(repeats, annotations.size());
+
+        // each annotation must point at a distinct position
+        long distinctPositions = annotations.stream().map(DateAnnotation::getStartPosition).distinct().count();
+        assertEquals(repeats, distinctPositions);
+    }
+
 }
