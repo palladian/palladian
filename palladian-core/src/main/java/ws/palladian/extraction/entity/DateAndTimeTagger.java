@@ -11,7 +11,9 @@ import ws.palladian.helper.date.ExtractedDate;
 import ws.palladian.helper.nlp.StringHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -42,12 +44,23 @@ public class DateAndTimeTagger implements Tagger {
 
         List<ExtractedDate> allDates = DateParser.findDates(text, dateFormats);
 
+        // findDates returns one ExtractedDate PER OCCURRENCE, and the occurrence scan below already yields
+        // every position of a date string - scanning again for each duplicate would create N*N annotations
+        // for a date string appearing N times (a text with 1000 repeated year mentions produced a million
+        // annotations), so each unique date string must be processed only once
+        Set<String> processedDateStrings = new HashSet<>();
+
         for (ExtractedDate dateTime : allDates) {
+            String dateString = dateTime.getDateString();
+            if (!processedDateStrings.add(dateString)) {
+                continue;
+            }
+
             // get the offset
-            List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(text, dateTime.getDateString());
+            List<Integer> occurrenceIndices = StringHelper.getOccurrenceIndices(text, dateString);
 
             for (Integer index : occurrenceIndices) {
-                annotations.add(new DateAnnotation(index, dateTime.getDateString(), dateTime));
+                annotations.add(new DateAnnotation(index, dateString, dateTime));
             }
         }
 
