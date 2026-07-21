@@ -64,8 +64,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * <em>before</em> the cloud retrievers. Intended for stealthier setups (e.g. CloakBrowser)
      * which are heavier/slower but more likely to bypass bot management. Either pool may be
      * {@code null}, so callers can run only-cloak, only-rendering, or both side-by-side.
+     * <p>
+     * {@code volatile} + swappable via {@link #setCloakBrowserDocumentRetrieverPool} so a caller
+     * can hot-replace the pool at runtime (e.g. after a stealth-browser container is restarted)
+     * without rebuilding the cascade. Read on request threads, written on a health-check thread.
      */
-    private final RenderingDocumentRetrieverPool cloakBrowserDocumentRetrieverPool;
+    private volatile RenderingDocumentRetrieverPool cloakBrowserDocumentRetrieverPool;
     private final List<JsEnabledDocumentRetriever> cloudDocumentRetrievers = new ArrayList<>();
 
     /**
@@ -318,6 +322,25 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public Document getWebDocument(String url, Thread thread) {
         return getWebDocument(url, null, thread);
+    }
+
+    /** @return the current stealth-rendering (e.g. CloakBrowser) pool, or {@code null} if none is configured/available. */
+    public RenderingDocumentRetrieverPool getCloakBrowserDocumentRetrieverPool() {
+        return cloakBrowserDocumentRetrieverPool;
+    }
+
+    /**
+     * Hot-swap the stealth-rendering (e.g. CloakBrowser) pool. Passing {@code null} disables the stealth stage; a
+     * non-null pool is picked up by subsequent requests without rebuilding the cascade. Also seeds the request-tracker
+     * entry when absent so the skip-after-N-failures logic works for a pool set after construction.
+     *
+     * @param cloakBrowserPool the new pool, or {@code null} to disable the stealth stage
+     */
+    public void setCloakBrowserDocumentRetrieverPool(RenderingDocumentRetrieverPool cloakBrowserPool) {
+        this.cloakBrowserDocumentRetrieverPool = cloakBrowserPool;
+        if (cloakBrowserPool != null) {
+            requestTracker.putIfAbsent(cloakBrowserPool.getClass().getName(), new Integer[]{0, 0, 0});
+        }
     }
 
     @Override
