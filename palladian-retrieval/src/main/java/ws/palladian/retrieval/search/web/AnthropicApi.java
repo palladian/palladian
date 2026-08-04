@@ -68,19 +68,87 @@ public class AnthropicApi extends AiApi {
             throw new Exception(responseJson.tryQueryString("error/message"));
         }
 
-        String content = null;
-
-        try {
-            content = responseJson.tryQueryString("content[0]/text");
-
-            if (usedTokens != null) {
+        // account for the tokens first: they are billed no matter whether we manage to read the completion below
+        if (usedTokens != null) {
+            try {
                 usedTokens.addAndGet(responseJson.tryQueryInt("usage/input_tokens") + responseJson.tryQueryInt("usage/output_tokens"));
+            } catch (Exception e) {
+                LOGGER.warn("Could not read the token usage of the " + modelName + " response: " + e.getMessage());
             }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+        }
+
+        String content = extractText(responseJson);
+        String stopReason = responseJson.tryGetString("stop_reason");
+
+        // a truncated completion must never look like an empty one — the caller's remedy is a higher max_tokens, not a
+        // retry with another model
+        if ("max_tokens".equals(stopReason)) {
+            LOGGER.warn(modelName + " hit its max_tokens limit, the completion is truncated (" + (content == null ? "no text at all" : content.length() + " chars") + ")");
+        }
+        if (content == null) {
+            LOGGER.warn("The " + modelName + " response carried no text content block (stop_reason=" + stopReason + ", content blocks: " + describeContentBlockTypes(responseJson)
+                    + ")");
         }
 
         return content;
+    }
+
+    /**
+     * Extracts the completion from an Anthropic Messages response by <b>content block type</b>, never by position.
+     * <p>
+     * {@code content} is an array of typed blocks, and a thinking-capable model puts a {@code thinking} block first —
+     * {@code claude-sonnet-5} does so even when the request never asks for extended thinking, answering in
+     * {@code content[1]}. Reading {@code content[0]/text} therefore returned {@code null} for a perfectly good
+     * completion while the tokens were still billed (this silently emptied every generated "Games Like X" SEO
+     * description for 18 days). Same trap for any future {@code tool_use}/{@code redacted_thinking} block.
+     * <p>
+     * All {@code text} blocks are concatenated (newline-separated) rather than just the first, so an interleaved
+     * thinking/text/thinking/text response keeps every part of the answer. A single-{@code text}-block response — what
+     * every non-thinking model returns — comes back byte-identical to the previous behavior.
+     *
+     * @return the completion text, or {@code null} if the response contains no non-empty text block.
+     */
+    static String extractText(JsonObject responseJson) {
+        JsonArray content = responseJson.tryGetJsonArray("content");
+        if (content == null) {
+            return null;
+        }
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < content.size(); i++) {
+            JsonObject block = content.tryGetJsonObject(i);
+            if (block == null || !"text".equals(block.tryGetString("type"))) {
+                continue;
+            }
+            String blockText = block.tryGetString("text");
+            if (blockText == null || blockText.isEmpty()) {
+                continue;
+            }
+            if (text.length() > 0) {
+                text.append("\n");
+            }
+            text.append(blockText);
+        }
+        return text.length() == 0 ? null : text.toString();
+    }
+
+    /**
+     * Lists the {@code type} of every content block, so a "no text block" warning names what the model sent instead
+     * (e.g. {@code thinking} only) and a new block type is diagnosable from the log alone.
+     */
+    static String describeContentBlockTypes(JsonObject responseJson) {
+        JsonArray content = responseJson.tryGetJsonArray("content");
+        if (content == null || content.isEmpty()) {
+            return "none";
+        }
+        StringBuilder types = new StringBuilder();
+        for (int i = 0; i < content.size(); i++) {
+            JsonObject block = content.tryGetJsonObject(i);
+            if (types.length() > 0) {
+                types.append(", ");
+            }
+            types.append(block == null ? "?" : String.valueOf(block.tryGetString("type")));
+        }
+        return types.toString();
     }
 
     /**

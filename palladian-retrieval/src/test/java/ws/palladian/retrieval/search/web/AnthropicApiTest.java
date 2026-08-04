@@ -9,12 +9,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Offline tests for {@link AnthropicApi}'s request building — specifically the system-prompt hoisting and prompt-cache
- * breakpoint. Uses the same subclass-and-stub pattern as {@link GeminiApiTest} (override {@code executeRequest}) so no
- * network call is made; here the stub also captures the request JSON for assertions.
+ * Offline tests for {@link AnthropicApi}: request building (system-prompt hoisting and prompt-cache breakpoint) and
+ * completion extraction (type-based, so a thinking block cannot swallow the answer). Uses the same subclass-and-stub
+ * pattern as {@link GeminiApiTest} (override {@code executeRequest}) so no network call is made; here the stub also
+ * captures the request JSON for assertions.
  *
  * @author David Urbansky
  */
@@ -22,6 +24,8 @@ public class AnthropicApiTest {
 
     private static class CapturingAnthropicApi extends AnthropicApi {
         JsonObject capturedRequest;
+        /** Response the stub replies with; defaults to a single text block (what a non-thinking model returns). */
+        String stubbedResponse = response(textBlock("ok"));
 
         CapturingAnthropicApi() {
             super("test-key");
@@ -30,20 +34,44 @@ public class AnthropicApiTest {
         @Override
         protected String executeRequest(String url, JsonObject request) {
             this.capturedRequest = request;
-            // minimal valid Anthropic Messages response
-            JsonObject response = new JsonObject();
-            JsonArray content = new JsonArray();
-            JsonObject textBlock = new JsonObject();
-            textBlock.put("type", "text");
-            textBlock.put("text", "ok");
-            content.add(textBlock);
-            response.put("content", content);
-            JsonObject usage = new JsonObject();
-            usage.put("input_tokens", 10);
-            usage.put("output_tokens", 5);
-            response.put("usage", usage);
-            return response.toString();
+            return stubbedResponse;
         }
+    }
+
+    private static JsonObject textBlock(String text) {
+        JsonObject block = new JsonObject();
+        block.put("type", "text");
+        block.put("text", text);
+        return block;
+    }
+
+    /** A {@code thinking} block as {@code claude-sonnet-5} really sends it: a {@code type}, but no {@code text} key. */
+    private static JsonObject thinkingBlock() {
+        JsonObject block = new JsonObject();
+        block.put("type", "thinking");
+        block.put("thinking", "Let me consider the request…");
+        block.put("signature", "abc123");
+        return block;
+    }
+
+    /** Minimal valid Anthropic Messages response carrying the given content blocks. */
+    private static String response(JsonObject... blocks) {
+        return response("end_turn", blocks);
+    }
+
+    private static String response(String stopReason, JsonObject... blocks) {
+        JsonObject response = new JsonObject();
+        JsonArray content = new JsonArray();
+        for (JsonObject block : blocks) {
+            content.add(block);
+        }
+        response.put("content", content);
+        response.put("stop_reason", stopReason);
+        JsonObject usage = new JsonObject();
+        usage.put("input_tokens", 10);
+        usage.put("output_tokens", 5);
+        response.put("usage", usage);
+        return response.toString();
     }
 
     private static JsonObject message(String role, String contentText) {
@@ -134,5 +162,65 @@ public class AnthropicApiTest {
         assertEquals(1, sentMessages.size());
         assertEquals("user", ((JsonObject) sentMessages.get(0)).getString("role"));
         assertEquals("USER PROMPT", ((JsonObject) sentMessages.get(0)).getString("content"));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  completion extraction — by block TYPE, never by position
+    // ═══════════════════════════════════════════════════════════════════════
+
+    @Test
+    public void thinkingBlockFirst_answerStillExtracted() throws Exception {
+        // the regression: claude-sonnet-5 returns [thinking, text] even without an extended-thinking request, so
+        // content[0]/text was null and a paid-for completion was thrown away
+        CapturingAnthropicApi api = new CapturingAnthropicApi();
+        api.stubbedResponse = response(thinkingBlock(), textBlock("<p>The answer.</p>"));
+
+        AtomicInteger usedTokens = new AtomicInteger(0);
+        assertEquals("<p>The answer.</p>", api.chat(new JsonArray(), 1.0, usedTokens, AnthropicApi.SONNET_5, null, null));
+        assertEquals("tokens are billed either way and must still be counted", 15, usedTokens.get());
+    }
+
+    @Test
+    public void textOnlyResponse_unchanged() {
+        // a non-thinking model's single-block response must come back byte-identical to the pre-fix behavior
+        assertEquals("plain answer", AnthropicApi.extractText(JsonObject.tryParse(response(textBlock("plain answer")))));
+    }
+
+    @Test
+    public void interleavedThinkingAndText_concatenatesEveryTextBlock() {
+        String extracted = AnthropicApi.extractText(
+                JsonObject.tryParse(response(thinkingBlock(), textBlock("first half"), thinkingBlock(), textBlock("second half"))));
+        assertEquals("first half\nsecond half", extracted);
+    }
+
+    @Test
+    public void noTextBlockAtAll_returnsNullWithoutThrowing() throws Exception {
+        CapturingAnthropicApi api = new CapturingAnthropicApi();
+        api.stubbedResponse = response(thinkingBlock());
+        assertNull(api.chat(new JsonArray(), 1.0, null, AnthropicApi.SONNET_5, null, null));
+    }
+
+    @Test
+    public void emptyOrMissingContent_returnsNull() {
+        assertNull(AnthropicApi.extractText(JsonObject.tryParse(response())));
+        assertNull(AnthropicApi.extractText(JsonObject.tryParse("{\"stop_reason\":\"end_turn\"}")));
+        // a text block whose text is empty is not an answer either
+        assertNull(AnthropicApi.extractText(JsonObject.tryParse(response(textBlock("")))));
+    }
+
+    @Test
+    public void truncatedAnswer_isReturnedNotDiscarded() throws Exception {
+        // stop_reason=max_tokens is a distinct condition: partial content, not an empty response
+        CapturingAnthropicApi api = new CapturingAnthropicApi();
+        api.stubbedResponse = response("max_tokens", thinkingBlock(), textBlock("<p>Half a sen"));
+        assertEquals("<p>Half a sen", api.chat(new JsonArray(), 1.0, null, AnthropicApi.SONNET_5, null, null));
+    }
+
+    @Test
+    public void describeContentBlockTypes_namesWhatTheModelSentInstead() {
+        assertEquals("thinking, text", AnthropicApi.describeContentBlockTypes(JsonObject.tryParse(response(thinkingBlock(), textBlock("x")))));
+        assertEquals("thinking", AnthropicApi.describeContentBlockTypes(JsonObject.tryParse(response(thinkingBlock()))));
+        assertEquals("none", AnthropicApi.describeContentBlockTypes(JsonObject.tryParse(response())));
+        assertEquals("none", AnthropicApi.describeContentBlockTypes(JsonObject.tryParse("{}")));
     }
 }

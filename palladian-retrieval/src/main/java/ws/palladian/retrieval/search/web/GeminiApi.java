@@ -196,19 +196,54 @@ public class GeminiApi extends AiApi {
             }
         }
 
-        JsonArray candidates = response.getJsonArray("candidates");
-        if (candidates != null && candidates.size() > 0) {
-            JsonObject candidate = (JsonObject) candidates.get(0);
-            JsonObject content = candidate.getJsonObject("content");
-            if (content != null) {
-                JsonArray parts = content.getJsonArray("parts");
-                if (parts != null && parts.size() > 0) {
-                    return ((JsonObject) parts.get(0)).getString("text");
-                }
-            }
+        JsonArray candidates = response.tryGetJsonArray("candidates");
+        if (candidates == null || candidates.isEmpty()) {
+            return null;
         }
+        JsonObject candidate = candidates.tryGetJsonObject(0);
+        String text = candidate == null ? null : extractText(candidate.tryGetJsonObject("content"));
+        if (text == null) {
+            LOGGER.warn("The " + modelName + " response carried no answer part (finishReason=" + (candidate == null ? "?" : candidate.tryGetString("finishReason")) + ")");
+        }
+        return text;
+    }
 
-        return null;
+    /**
+     * Extracts the answer from a candidate's {@code content}, skipping {@code thought} parts and parts that carry no
+     * {@code text} at all (a bare {@code thoughtSignature}, {@code functionCall}, {@code inlineData}, …).
+     * <p>
+     * Deliberately not positional: {@code parts[0]} is only the answer for a non-reasoning model. A thinking model puts
+     * its reasoning parts first, so reading {@code parts[0].text} silently discards the completion while the tokens are
+     * still billed — exactly the trap that emptied every Anthropic-generated SEO description for 18 days
+     * (see {@code AnthropicApi.extractText}). All answer parts are concatenated so a chunked answer stays whole; a
+     * single-part response comes back byte-identical to the previous behavior.
+     *
+     * @return the answer text, or {@code null} if there is no non-empty answer part.
+     */
+    static String extractText(JsonObject content) {
+        if (content == null) {
+            return null;
+        }
+        JsonArray parts = content.tryGetJsonArray("parts");
+        if (parts == null) {
+            return null;
+        }
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < parts.size(); i++) {
+            JsonObject part = parts.tryGetJsonObject(i);
+            if (part == null || Boolean.TRUE.equals(part.tryGetBoolean("thought"))) {
+                continue;
+            }
+            String partText = part.tryGetString("text");
+            if (partText == null || partText.isEmpty()) {
+                continue;
+            }
+            if (text.length() > 0) {
+                text.append("\n");
+            }
+            text.append(partText);
+        }
+        return text.length() == 0 ? null : text.toString();
     }
 
     public String generateImage(String prompt, String modelName) throws Exception {
