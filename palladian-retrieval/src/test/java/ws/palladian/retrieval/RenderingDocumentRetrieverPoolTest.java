@@ -76,6 +76,40 @@ public class RenderingDocumentRetrieverPoolTest {
         }
     }
 
+    /**
+     * A remote-attach driver (CloakBrowser) is childless by design; while we still own its port it must survive the
+     * reaper. Without this the whole cloak tier was killed 60s after every pool build.
+     */
+    @Test
+    public void reaperSkipsOwnedChildlessChromedriver() throws Exception {
+        int port = 45871;
+        try (ProcessFixture fixture = ProcessFixture.startChildlessChromedriverWithPort(port)) {
+            ChromedriverProcessRegistry.registerPort(port);
+            try {
+                int reaped = RenderingDocumentRetrieverPool.reapLeakedChildlessChromedrivers(ProcessHandle.current(), 0);
+
+                assertEquals("an owned chromedriver must not be reaped", 0, reaped);
+                assertTrue("owned remote-attach chromedriver must survive", fixture.handle().isAlive());
+            } finally {
+                ChromedriverProcessRegistry.unregisterPort(port);
+            }
+        }
+    }
+
+    /** Once ownership is given up (service stopped) a surviving chromedriver is a real leak and must still be reaped. */
+    @Test
+    public void reaperStillKillsUnownedChildlessChromedriverWithPort() throws Exception {
+        int port = 45872;
+        try (ProcessFixture fixture = ProcessFixture.startChildlessChromedriverWithPort(port)) {
+            ChromedriverProcessRegistry.unregisterPort(port); // not owned
+
+            int reaped = RenderingDocumentRetrieverPool.reapLeakedChildlessChromedrivers(ProcessHandle.current(), 0);
+
+            assertEquals(1, reaped);
+            assertProcessDead(fixture.handle());
+        }
+    }
+
     private static ProcessHandle waitForChild(ProcessHandle parent) throws InterruptedException {
         long deadline = System.currentTimeMillis() + PROCESS_WAIT_MILLIS;
         while (System.currentTimeMillis() < deadline) {
@@ -152,6 +186,27 @@ public class RenderingDocumentRetrieverPoolTest {
             try {
                 Path executable = createNamedSymlink(tempDir, "chromedriver-test", "/bin/sleep");
                 Process process = new ProcessBuilder(executable.toString(), "60").redirectErrorStream(true).start();
+                return new ProcessFixture(tempDir, process);
+            } catch (Throwable t) {
+                // An Assume abort or launch failure must not leak the temp dir since close() never runs.
+                deleteRecursively(tempDir);
+                throw t;
+            }
+        }
+
+        /**
+         * A childless "chromedriver" whose command line carries a {@code --port=}, standing in for a remote-attach
+         * driver. Uses bash's {@code read -t} builtin so the script waits WITHOUT forking a child — the childlessness
+         * is the whole point of the test.
+         */
+        static ProcessFixture startChildlessChromedriverWithPort(int port) throws IOException {
+            Path tempDir = Files.createTempDirectory("palladian-chromedriver-test");
+            try {
+                Assume.assumeTrue("/bin/bash must exist for the owned-chromedriver tests", Files.exists(Paths.get("/bin/bash")));
+                Path executable = tempDir.resolve("chromedriver-test");
+                Files.writeString(executable, "#!/bin/bash\nread -t 60 _\n");
+                Assume.assumeTrue("script must be made executable", executable.toFile().setExecutable(true));
+                Process process = new ProcessBuilder(executable.toString(), "--port=" + port).redirectErrorStream(true).start();
                 return new ProcessFixture(tempDir, process);
             } catch (Throwable t) {
                 // An Assume abort or launch failure must not leak the temp dir since close() never runs.

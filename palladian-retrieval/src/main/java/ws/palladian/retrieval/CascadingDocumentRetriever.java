@@ -652,6 +652,19 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return integers[2];
     }
 
+    /**
+     * The current run of consecutive failed requests for the given retriever (reset to 0 by any successful request),
+     * or {@code null} when the retriever is not tracked in this cascade. A steadily growing value means the tier is
+     * effectively dead even though the retriever keeps being asked.
+     */
+    public Integer getConsecutiveFailedRequestCount(String retrieverKey) {
+        Integer[] integers = requestTracker.get(retrieverKey);
+        if (integers == null || integers.length < 1) {
+            return null;
+        }
+        return integers[0];
+    }
+
     public Map<String, Integer[]> getRequestTracker() {
         return requestTracker;
     }

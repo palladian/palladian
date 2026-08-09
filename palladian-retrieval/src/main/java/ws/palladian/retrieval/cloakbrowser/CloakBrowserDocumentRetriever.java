@@ -119,7 +119,11 @@ public class CloakBrowserDocumentRetriever extends RenderingDocumentRetriever {
                 .readTimeout(Duration.ofSeconds(getTimeoutSeconds()))
                 .version(HttpClient.Version.HTTP_1_1.name());
         this.driverService = service;
-        ChromeDriver chromeDriver = new ChromeDriver(this.driverService, options, clientConfig);
+        // Ownership-aware creation: this driver attaches to the remote Chrome in the CloakBrowser container and
+        // never spawns a local Chrome child, so the pool's "childless chromedriver == leak" reaper would kill it
+        // 60s after every build (which silently zeroed out the whole cloak tier) unless its port is registered as
+        // owned for the driver's whole lifetime.
+        ChromeDriver chromeDriver = createOwnedChromeDriver(this.driverService, options, clientConfig);
         chromeDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(getTimeoutSeconds()));
         setDriver(chromeDriver);
         LOGGER.info("CloakBrowserDocumentRetriever attached to {} (Chrome {}, driver {})",

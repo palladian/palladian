@@ -286,6 +286,13 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
             if (!isChromedriver(child)) {
                 continue;
             }
+            // A driver we still own is never a leak — even when it looks childless. A remote-attach driver
+            // (e.g. CloakBrowser via debuggerAddress) drives a Chrome in a container and never spawns a local
+            // child, so without this guard it was killed 60s after every pool build.
+            if (ChromedriverProcessRegistry.isOwned(child)) {
+                LOGGER.debug("Not reaping chromedriver pid={} - it belongs to a live driver service", child.pid());
+                continue;
+            }
             if (child.children().findAny().isPresent()) {
                 continue;
             }

@@ -185,7 +185,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
             driverService = ChromeDriverService.createDefaultService();
-            driver = new ChromeDriver(driverService, options, clientConfig);
+            driver = createOwnedChromeDriver(driverService, options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
             applyCdpStealth();
         } else if (browser == DriverManagerType.CHROMIUM) {
@@ -251,7 +251,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     .version(HttpClient.Version.HTTP_1_1.name());                              // avoids HTTP/2 weirdness in some stacks
 
             driverService = ChromeDriverService.createDefaultService();
-            driver = new ChromeDriver(driverService, options, clientConfig);
+            driver = createOwnedChromeDriver(driverService, options, clientConfig);
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeoutSeconds));
             applyCdpStealth();
         }
@@ -767,6 +767,31 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     /**
+     * Create a {@link ChromeDriver} on a service whose chromedriver port stays registered as owned for as long as
+     * the process can exist. Ownership must be claimed BEFORE the driver starts (a slow session-create can outlive
+     * the reaper's minimum age), and it must be given back when construction fails: Selenium stops the service on a
+     * failed session-create, but without the unregister the port would stay owned forever and shield a future
+     * leaked chromedriver on the same port from the reaper.
+     */
+    protected static ChromeDriver createOwnedChromeDriver(ChromeDriverService service, ChromeOptions options, ClientConfig clientConfig) {
+        ChromedriverProcessRegistry.register(service);
+        try {
+            return new ChromeDriver(service, options, clientConfig);
+        } catch (Throwable t) {
+            try {
+                if (service.isRunning()) {
+                    service.stop();
+                }
+            } catch (Throwable stopProblem) {
+                LOGGER.warn("Could not stop driver service after failed driver construction", stopProblem);
+            }
+            // Unregister only after the stop attempt so the reaper cannot race in mid-teardown.
+            ChromedriverProcessRegistry.unregister(service);
+            throw t;
+        }
+    }
+
+    /**
      * Stop the ChromeDriverService (chromedriver OS process) if it is still running.
      * This prevents orphaned chromedriver processes when driver.quit() fails or times out.
      */
@@ -778,6 +803,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     service.stop();
                 }
             } finally {
+                // Give up ownership: if the chromedriver process survives the stop, it IS a leak and the
+                // pool's reaper should be free to kill it.
+                ChromedriverProcessRegistry.unregister(service);
                 driverService = null;
             }
         }
@@ -930,14 +958,20 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * Detects fatal WebDriver errors that indicate the session/tab is no longer usable and should be replaced.
      */
-    private boolean isFatalWebDriverError(Throwable t) {
+    static boolean isFatalWebDriverError(Throwable t) {
         if (!(t instanceof WebDriverException)) {
             return false;
+        }
+        // UnreachableBrowserException means the driver lost the browser entirely — the session can never come back,
+        // so the retriever must be REPLACED, not recycled. Matched by name so this compiles against Selenium
+        // versions that have deprecated/moved the class.
+        if ("UnreachableBrowserException".equals(t.getClass().getSimpleName())) {
+            return true;
         }
         String m = String.valueOf(t.getMessage()).toLowerCase(Locale.ROOT);
         return m.contains("tab crashed") || m.contains("chrome not reachable") || m.contains("disconnected") || m.contains("received shutdown signal") || m.contains(
                 "target window already closed") || m.contains("target closed") || m.contains("invalid session id") || m.contains("loader has changed while resolving nodes")
-                || m.contains("timed out receiving message from renderer");
+                || m.contains("timed out receiving message from renderer") || m.contains("may have died") || m.contains("error communicating with the remote browser");
     }
 
     public static void main(String... args) throws HttpException {
