@@ -47,7 +47,18 @@ import java.util.regex.Pattern;
 public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     private static final Logger LOGGER = LoggerFactory.getLogger(RenderingDocumentRetriever.class);
 
+    /** Label used when a caller invalidates without saying why. */
+    public static final String INVALIDATION_CAUSE_UNSPECIFIED = "unspecified";
+
     private volatile boolean invalidatedByCallback;
+
+    /**
+     * Why this retriever was invalidated during the current borrow. Purely diagnostic: the pool aggregates these
+     * labels so "the pool replaces N drivers a day" can be broken down into <em>which</em> defect causes it —
+     * without it, every replacement looks the same and the cause has to be re-derived from stack traces.
+     * Labels must be short and low-cardinality (they are map keys); {@code null} means "not invalidated".
+     */
+    private volatile String invalidationCause;
 
     protected RemoteWebDriver driver;
 
@@ -338,7 +349,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
-                    markInvalidatedByCallback();
+                    markInvalidatedByCallback("fatal-current-url");
                     throw new NoSuchSessionException(e.getMessage(), e);
                 }
             } else {
@@ -366,7 +377,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                         if (getNoSuchSessionExceptionCallback() != null) {
                             getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                         } else {
-                            markInvalidatedByCallback();
+                            markInvalidatedByCallback("fatal-nav-precookie");
                             throw new NoSuchSessionException(e.getMessage(), e);
                         }
                     } else {
@@ -399,7 +410,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     if (getNoSuchSessionExceptionCallback() != null) {
                         getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                     } else {
-                        markInvalidatedByCallback();
+                        markInvalidatedByCallback("fatal-nav");
                         throw new NoSuchSessionException(e.getMessage(), e);
                     }
                 } else {
@@ -452,7 +463,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
-                    markInvalidatedByCallback();
+                    markInvalidatedByCallback("fatal-wait-elements");
                     throw new NoSuchSessionException(e.getMessage(), e);
                 }
             } else {
@@ -515,7 +526,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
-                    markInvalidatedByCallback();
+                    markInvalidatedByCallback("fatal-nav-conditional");
                     throw new NoSuchSessionException(e.getMessage(), e);
                 }
             } else {
@@ -537,7 +548,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (getNoSuchSessionExceptionCallback() != null) {
                     getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                 } else {
-                    markInvalidatedByCallback();
+                    markInvalidatedByCallback("fatal-wait-condition");
                     throw new NoSuchSessionException(e.getMessage(), e);
                 }
             } else {
@@ -838,7 +849,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     if (getNoSuchSessionExceptionCallback() != null) {
                         getNoSuchSessionExceptionCallback().accept(new NoSuchSessionException(e.getMessage(), e));
                     } else {
-                        markInvalidatedByCallback();
+                        markInvalidatedByCallback("fatal-delete-cookies");
                         throw new NoSuchSessionException(e.getMessage(), e);
                     }
                 } else {
@@ -930,7 +941,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
             } catch (WebDriverException e) {
                 if (isFatalWebDriverError(e)) {
                     LOGGER.warn("Fatal webdriver error while waiting for challenge resolution", e);
-                    markInvalidatedByCallback();
+                    markInvalidatedByCallback("fatal-challenge-wait");
                     return false;
                 }
                 // transient — keep polling
@@ -948,11 +959,31 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public void markInvalidatedByCallback() {
+        markInvalidatedByCallback(INVALIDATION_CAUSE_UNSPECIFIED);
+    }
+
+    /**
+     * Mark this retriever as unusable so the pool replaces it instead of recycling it.
+     *
+     * @param cause short, low-cardinality label naming the defect (e.g. {@code render-watchdog-timeout}); it is
+     *              aggregated into the pool's stats line. The FIRST cause of a borrow wins — later marks are
+     *              consequences of it, and the first one is the one worth fixing.
+     */
+    public void markInvalidatedByCallback(String cause) {
+        if (!invalidatedByCallback) {
+            this.invalidationCause = cause == null ? INVALIDATION_CAUSE_UNSPECIFIED : cause;
+        }
         this.invalidatedByCallback = true;
+    }
+
+    /** @return the label passed to {@link #markInvalidatedByCallback(String)}, or {@code null} if still valid. */
+    public String getInvalidationCause() {
+        return invalidationCause;
     }
 
     public void clearInvalidation() {
         this.invalidatedByCallback = false;
+        this.invalidationCause = null;
     }
 
     /**

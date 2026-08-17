@@ -524,7 +524,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     result.document = future.get(getTimeoutSeconds(), TimeUnit.SECONDS);
                 } catch (TimeoutException te) {
                     future.cancel(true);
-                    rdrFinal.markInvalidatedByCallback();
+                    rdrFinal.markInvalidatedByCallback("render-watchdog-timeout");
                     retryDueToBroken = false;
                     throw new RuntimeException("Render watchdog timeout after " + getTimeoutSeconds() + "s for " + url, te);
                 }
@@ -573,16 +573,15 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 if (renderingDocumentRetriever != null) {
                     renderingDocumentRetriever.setWaitForElementsMap(Collections.emptyMap());
                     try {
-                        boolean sessionGone = renderingDocumentRetriever.getDriver() == null || renderingDocumentRetriever.getDriver().getSessionId() == null
-                                || renderingDocumentRetriever.isInvalidatedByCallback();
+                        RenderingDocumentRetrieverPool.ReplaceReason replaceReason = classifyPoolReturn(renderingDocumentRetriever);
 
-                        if (sessionGone) {
-                            pool.replace(renderingDocumentRetriever);
+                        if (replaceReason != null) {
+                            pool.replace(renderingDocumentRetriever, replaceReason);
                         } else {
                             pool.recycle(renderingDocumentRetriever);
                         }
                     } catch (Exception ex) {
-                        pool.replace(renderingDocumentRetriever);
+                        pool.replace(renderingDocumentRetriever, RenderingDocumentRetrieverPool.ReplaceReason.RECYCLE_FAILED);
                     } finally {
                         renderingDocumentRetriever.clearInvalidation();
                     }
@@ -598,6 +597,30 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             break;
         }
         return result;
+    }
+
+    /**
+     * Decide whether a borrowed driver can go back into the pool. Pure and package-private so the decision that
+     * drives all Chrome churn is unit-testable without a browser — the three conditions used to be inlined in a
+     * {@code finally} block, which is why "which one fires?" could only be answered by adding logging in prod.
+     * <p>
+     * The evaluation order is load-bearing and unchanged: a null driver cannot be asked for its session, and a
+     * driver whose session already went away is reported as {@code SESSION_NULL} rather than as whatever later
+     * invalidated it.
+     *
+     * @return the reason it must be replaced, or {@code null} when it is healthy and can be recycled.
+     */
+    static RenderingDocumentRetrieverPool.ReplaceReason classifyPoolReturn(RenderingDocumentRetriever retriever) {
+        if (retriever.getDriver() == null) {
+            return RenderingDocumentRetrieverPool.ReplaceReason.DRIVER_NULL;
+        }
+        if (retriever.getDriver().getSessionId() == null) {
+            return RenderingDocumentRetrieverPool.ReplaceReason.SESSION_NULL;
+        }
+        if (retriever.isInvalidatedByCallback()) {
+            return RenderingDocumentRetrieverPool.ReplaceReason.INVALIDATED;
+        }
+        return null;
     }
 
     private void updateRequestTracker(String retrieverKey, boolean goodDocument) {

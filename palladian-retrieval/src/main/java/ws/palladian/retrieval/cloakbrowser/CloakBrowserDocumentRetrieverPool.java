@@ -17,9 +17,11 @@ import ws.palladian.retrieval.RenderingDocumentRetrieverPool;
  * session supervision (replace on session loss, pool stats) is reused unchanged.
  * <p>
  * <b>Implementation note:</b> the super constructor calls {@link #initializePool()} which
- * calls {@link #createObject()} via polymorphic dispatch <em>before</em> subclass fields
+ * calls {@link #createRetriever()} via polymorphic dispatch <em>before</em> subclass fields
  * are initialised. We smuggle the debugger address through a ThreadLocal so
- * {@code createObject} can read it during super-construction.
+ * {@code createRetriever} can read it during super-construction. Note this overrides
+ * {@code createRetriever()}, not {@code createObject()} — the latter is final in the parent so the
+ * created-driver counter cannot be bypassed (it was, and this pool's created count read 0 forever).
  *
  * @author GitHub Copilot
  * @since 2026-04-21
@@ -82,7 +84,7 @@ public class CloakBrowserDocumentRetrieverPool extends RenderingDocumentRetrieve
     }
 
     @Override
-    public RenderingDocumentRetriever createObject() {
+    protected RenderingDocumentRetriever createRetriever() {
         // During super-construction, subclass fields are still null — read from ThreadLocals.
         String addr = CONSTRUCTION_DEBUGGER_ADDRESS.get();
         if (addr == null) {
@@ -98,7 +100,7 @@ public class CloakBrowserDocumentRetrieverPool extends RenderingDocumentRetrieve
         }
 
         CloakBrowserDocumentRetriever retriever = new CloakBrowserDocumentRetriever(addr, driverPath, driverDir);
-        retriever.setNoSuchSessionExceptionCallback(e -> retriever.markInvalidatedByCallback());
+        retriever.setNoSuchSessionExceptionCallback(e -> retriever.markInvalidatedByCallback("no-such-session-callback"));
         LOGGER.info("Created CloakBrowser retriever attached to {}", addr);
         return retriever;
     }

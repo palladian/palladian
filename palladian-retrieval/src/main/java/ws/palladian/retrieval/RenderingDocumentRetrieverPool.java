@@ -9,8 +9,10 @@ import ws.palladian.helper.ResourcePool;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,11 +40,46 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
     protected Set<String> additionalOptions;
 
+    /**
+     * Why a borrowed driver had to be destroyed instead of handed back. Counted per reason because
+     * "the pool replaced N drivers" on its own says nothing about which defect to fix — and
+     * {@code createdDrivers} cannot answer it either: {@code createObject()} runs only from
+     * {@code initializePool()} and {@link #replace}, so {@code created == size + replaced} is an
+     * identity, not a measurement.
+     */
+    public enum ReplaceReason {
+        /** The driver reference was already gone (a previous hard-kill nulled it). */
+        DRIVER_NULL,
+        /** The WebDriver session id was null — {@code quit()} had already run. */
+        SESSION_NULL,
+        /** Something called {@link RenderingDocumentRetriever#markInvalidatedByCallback(String)}. */
+        INVALIDATED,
+        /** Handing the driver back to the pool threw. */
+        RECYCLE_FAILED,
+        /** Replaced through the legacy no-reason API. */
+        UNSPECIFIED
+    }
+
+    private static final AtomicInteger POOL_SEQUENCE = new AtomicInteger(0);
+
+    /** Identifies this pool in the log: several pools, in several JVMs, share one app.log. */
+    private final String poolId;
+
     private final AtomicInteger createdDrivers = new AtomicInteger(0);
     private final AtomicInteger replacedDrivers = new AtomicInteger(0);
     private final AtomicInteger quitFailures = new AtomicInteger(0);
     private final AtomicInteger quitTimeouts = new AtomicInteger(0);
     private final AtomicInteger hardKills = new AtomicInteger(0);
+
+    /** Successful borrows — the denominator {@code createdDrivers} can never provide. */
+    private final AtomicInteger borrowedDrivers = new AtomicInteger(0);
+    private final AtomicInteger recycledDrivers = new AtomicInteger(0);
+    /** Borrow attempts that found the pool empty within the caller's timeout. */
+    private final AtomicInteger borrowTimeouts = new AtomicInteger(0);
+
+    private final AtomicInteger[] replaceReasons = newReasonCounters();
+    /** Bounded-cardinality histogram of {@link RenderingDocumentRetriever#getInvalidationCause()} labels. */
+    private final ConcurrentHashMap<String, AtomicInteger> invalidationCauses = new ConcurrentHashMap<>();
 
     private final ScheduledExecutorService monitorExecutor = Executors.newSingleThreadScheduledExecutor();
     private final ExecutorService quitExecutor = Executors.newCachedThreadPool();
@@ -72,6 +109,8 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     public RenderingDocumentRetrieverPool(DriverManagerType driverManagerType, int size, org.openqa.selenium.Proxy proxy, String userAgent, String driverVersionCode,
             String binaryPath, Set<String> additionalOptions) {
         super(size);
+        // must be set before initializePool(): createObject() may already want to name the pool it belongs to
+        this.poolId = createPoolId(getClass().getSimpleName(), size);
         this.driverManagerType = driverManagerType;
         this.proxy = proxy;
         this.userAgent = userAgent;
@@ -82,8 +121,9 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
         monitorExecutor.scheduleAtFixedRate(() -> {
             try {
-                LOGGER.info("Pool Stats: createdDrivers={}, replacedDrivers={}, quitFailures={}, quitTimeouts={}, hardKills={}", createdDrivers.get(), replacedDrivers.get(),
-                        quitFailures.get(), quitTimeouts.get(), hardKills.get());
+                LOGGER.info("Pool Stats {}: borrowed={}, recycled={}, borrowTimeouts={}, createdDrivers={}, replacedDrivers={} [{}], quitFailures={}, quitTimeouts={}, "
+                                + "hardKills={}, invalidationCauses={}", poolId, borrowedDrivers.get(), recycledDrivers.get(), borrowTimeouts.get(), createdDrivers.get(),
+                        replacedDrivers.get(), formatReplaceReasons(), quitFailures.get(), quitTimeouts.get(), hardKills.get(), formatInvalidationCauses());
                 int reaped = reapLeakedChildlessChromedrivers(ProcessHandle.current(), LEAK_REAPER_MIN_AGE_SECONDS);
                 if (reaped > 0) {
                     LOGGER.warn("Reaped {} leaked childless chromedriver process(es)", reaped);
@@ -108,9 +148,20 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         }));
     }
 
+    /**
+     * Final on purpose: {@code createdDrivers} is counted here so every subclass is counted too.
+     * {@code CloakBrowserDocumentRetrieverPool} used to override {@code createObject()} without calling
+     * {@code super}, which left its created count permanently at 0 while its replaced count grew.
+     * Subclasses override {@link #createRetriever()} instead.
+     */
     @Override
-    public RenderingDocumentRetriever createObject() {
+    public final RenderingDocumentRetriever createObject() {
         createdDrivers.incrementAndGet();
+        return createRetriever();
+    }
+
+    /** Build one retriever for this pool. Override to pool a different {@link RenderingDocumentRetriever} flavour. */
+    protected RenderingDocumentRetriever createRetriever() {
         RenderingDocumentRetriever renderingDocumentRetriever = new RenderingDocumentRetriever(driverManagerType, proxy, userAgent, driverVersionCode, binaryPath,
                 additionalOptions);
 
@@ -120,14 +171,63 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
         renderingDocumentRetriever.setNoSuchSessionExceptionCallback(e -> {
             // mark as invalid so a new one will be created
-            renderingDocumentRetriever.markInvalidatedByCallback();
+            renderingDocumentRetriever.markInvalidatedByCallback("no-such-session-callback");
         });
 
         return renderingDocumentRetriever;
     }
 
+    @Override
+    public RenderingDocumentRetriever poll(long timeout, TimeUnit unit) {
+        RenderingDocumentRetriever resource = super.poll(timeout, unit);
+        if (resource == null) {
+            borrowTimeouts.incrementAndGet();
+        } else {
+            borrowedDrivers.incrementAndGet();
+        }
+        return resource;
+    }
+
+    @Override
+    public RenderingDocumentRetriever acquire() throws Exception {
+        RenderingDocumentRetriever resource = super.acquire();
+        if (resource != null) {
+            borrowedDrivers.incrementAndGet();
+        }
+        return resource;
+    }
+
+    @Override
+    public RenderingDocumentRetriever acquire(long timeout, TimeUnit unit) throws Exception {
+        RenderingDocumentRetriever resource = super.acquire(timeout, unit);
+        if (resource != null) {
+            borrowedDrivers.incrementAndGet();
+        }
+        return resource;
+    }
+
+    @Override
+    public void recycle(RenderingDocumentRetriever resource) {
+        // counted after the hand-back: a full pool throws, and that path becomes a replace, not a recycle
+        super.recycle(resource);
+        if (resource != null) {
+            recycledDrivers.incrementAndGet();
+        }
+    }
+
     public void replace(RenderingDocumentRetriever resource) {
+        replace(resource, ReplaceReason.UNSPECIFIED);
+    }
+
+    /**
+     * Destroy a borrowed driver and put a fresh one in its place.
+     *
+     * @param reason why the driver could not be recycled — counted so the churn can be attributed to a defect
+     *               instead of re-derived from stack traces.
+     */
+    public void replace(RenderingDocumentRetriever resource, ReplaceReason reason) {
         replacedDrivers.incrementAndGet();
+        countReplaceReason(reason, resource);
         try {
             closeWithStats(resource);
         } catch (Exception e) {
@@ -142,6 +242,111 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
             closeWithStats(newResource);
             LOGGER.warn("Could not add new resource to pool during replace()", e);
         }
+    }
+
+    private void countReplaceReason(ReplaceReason reason, RenderingDocumentRetriever resource) {
+        ReplaceReason effective = reason == null ? ReplaceReason.UNSPECIFIED : reason;
+        replaceReasons[effective.ordinal()].incrementAndGet();
+        if (effective == ReplaceReason.INVALIDATED && resource != null) {
+            String cause = resource.getInvalidationCause();
+            invalidationCauses.computeIfAbsent(cause == null ? RenderingDocumentRetriever.INVALIDATION_CAUSE_UNSPECIFIED : cause, k -> new AtomicInteger(0))
+                    .incrementAndGet();
+        }
+    }
+
+    private static AtomicInteger[] newReasonCounters() {
+        AtomicInteger[] counters = new AtomicInteger[ReplaceReason.values().length];
+        for (int i = 0; i < counters.length; i++) {
+            counters[i] = new AtomicInteger(0);
+        }
+        return counters;
+    }
+
+    /**
+     * A stable name for this pool instance. All JVMs on a host log into one {@code app.log} and several pools live
+     * in each, so a bare stats line cannot be attributed to a pool — which is exactly what stalled the 2026-08-16
+     * churn diagnosis. Includes the creating call site, so "which pool is this?" is answered by reading the line.
+     */
+    private static String createPoolId(String simpleClassName, int size) {
+        long pid;
+        try {
+            pid = ProcessHandle.current().pid();
+        } catch (Throwable t) {
+            pid = -1;
+        }
+        return simpleClassName + "#" + POOL_SEQUENCE.incrementAndGet() + " created-by=" + findCreatorFrame() + " size=" + size + " pid=" + pid;
+    }
+
+    /** @return {@code SimpleClass.method:line} of the first frame outside the pool machinery, or {@code unknown}. */
+    static String findCreatorFrame() {
+        for (StackTraceElement frame : new Throwable().getStackTrace()) {
+            String className = frame.getClassName();
+            if (className.startsWith("java.") || className.startsWith("jdk.")) {
+                continue;
+            }
+            // skip the pool constructors themselves (this class and any subclass such as the CloakBrowser pool)
+            if (className.startsWith("ws.palladian.retrieval") && className.endsWith("Pool")) {
+                continue;
+            }
+            int lastDot = className.lastIndexOf('.');
+            String simpleName = lastDot < 0 ? className : className.substring(lastDot + 1);
+            return simpleName + "." + frame.getMethodName() + ":" + frame.getLineNumber();
+        }
+        return "unknown";
+    }
+
+    /** e.g. {@code INVALIDATED=812, SESSION_NULL=3} — zero-valued reasons are omitted to keep the line readable. */
+    String formatReplaceReasons() {
+        StringBuilder builder = new StringBuilder();
+        for (ReplaceReason reason : ReplaceReason.values()) {
+            int count = replaceReasons[reason.ordinal()].get();
+            if (count == 0) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(reason).append('=').append(count);
+        }
+        return builder.length() == 0 ? "none" : builder.toString();
+    }
+
+    /** e.g. {@code render-watchdog-timeout=780, fatal-nav=32} — highest first, so the dominant defect leads. */
+    String formatInvalidationCauses() {
+        if (invalidationCauses.isEmpty()) {
+            return "none";
+        }
+        return invalidationCauses.entrySet().stream().sorted(Comparator.comparingInt((Map.Entry<String, AtomicInteger> e) -> e.getValue().get()).reversed())
+                .map(e -> e.getKey() + "=" + e.getValue().get()).collect(Collectors.joining(", "));
+    }
+
+    public String getPoolId() {
+        return poolId;
+    }
+
+    public int getBorrowedDriverCount() {
+        return borrowedDrivers.get();
+    }
+
+    public int getRecycledDriverCount() {
+        return recycledDrivers.get();
+    }
+
+    public int getCreatedDriverCount() {
+        return createdDrivers.get();
+    }
+
+    public int getReplacedDriverCount() {
+        return replacedDrivers.get();
+    }
+
+    public int getReplaceCount(ReplaceReason reason) {
+        return replaceReasons[reason.ordinal()].get();
+    }
+
+    public int getInvalidationCauseCount(String cause) {
+        AtomicInteger counter = invalidationCauses.get(cause);
+        return counter == null ? 0 : counter.get();
     }
 
     public void closePool() {
@@ -222,7 +427,7 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
         try {
             // Ensure pool never reuses this instance
-            resource.markInvalidatedByCallback();
+            resource.markInvalidatedByCallback("hard-kill");
 
             if (root != null) {
                 signaledProcesses = terminateProcessTree(root);
