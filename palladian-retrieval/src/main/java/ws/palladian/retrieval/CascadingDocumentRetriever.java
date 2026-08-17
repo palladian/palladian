@@ -114,6 +114,14 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private int autoSolvingChallengeWaitSeconds = 10;
     private int pollTimeoutSeconds = 3;
 
+    /**
+     * Slack the render watchdog gets on top of the timeouts it supervises. See
+     * {@link #renderWatchdogTimeout(int, int)} for why it cannot simply be {@code timeoutSeconds}.
+     */
+    private int renderWatchdogGraceSeconds = DEFAULT_RENDER_WATCHDOG_GRACE_SECONDS;
+
+    static final int DEFAULT_RENDER_WATCHDOG_GRACE_SECONDS = 15;
+
     // separate executor used only for applying a hard timeout to rendering work
     private static final ExecutorService RENDER_WATCHDOG_EXEC = Executors.newCachedThreadPool(new ThreadFactory() {
         private final ThreadFactory delegate = Executors.defaultThreadFactory();
@@ -519,14 +527,15 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 final RenderingDocumentRetriever rdrFinal = renderingDocumentRetriever;
                 Future<Document> future = RENDER_WATCHDOG_EXEC.submit(() -> rdrFinal.getWebDocument(url));
 
+                int watchdogSeconds = renderWatchdogTimeout(getTimeoutSeconds(), renderWatchdogGraceSeconds);
                 try {
                     // hard-stop protection: if Selenium hangs, we stop waiting and replace the driver.
-                    result.document = future.get(getTimeoutSeconds(), TimeUnit.SECONDS);
+                    result.document = future.get(watchdogSeconds, TimeUnit.SECONDS);
                 } catch (TimeoutException te) {
                     future.cancel(true);
                     rdrFinal.markInvalidatedByCallback("render-watchdog-timeout");
                     retryDueToBroken = false;
-                    throw new RuntimeException("Render watchdog timeout after " + getTimeoutSeconds() + "s for " + url, te);
+                    throw new RuntimeException("Render watchdog timeout after " + watchdogSeconds + "s for " + url, te);
                 }
 
                 result.goodDocument = isGoodDocument(url, result.document);
@@ -597,6 +606,38 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             break;
         }
         return result;
+    }
+
+    /**
+     * How long the render watchdog waits before it gives up on {@code getWebDocument} and destroys the driver.
+     * <p>
+     * <b>Why this is not simply {@code timeoutSeconds}.</b> It used to be, and that left the watchdog with
+     * <em>zero</em> headroom over the timeouts it supervises: {@code timeoutSeconds} is also the driver's
+     * {@code pageLoadTimeout} <em>and</em> the Selenium client's per-command {@code readTimeout}
+     * ({@link RenderingDocumentRetriever}'s constructor). One {@code getWebDocument} issues several commands —
+     * {@code getCurrentUrl}, optional cookie navigation, {@code get}, element waits, {@code getPageSource} — and
+     * then parses the HTML locally, so a page that merely <em>approaches</em> its page-load timeout blew the
+     * watchdog. Every trip calls {@code markInvalidatedByCallback}, which forces {@code pool.replace()}: a slow
+     * page cost a whole Chrome relaunch. Worse, it self-amplifies, because the relaunches are what make pages slow.
+     * <p>
+     * The watchdog is a last-resort stop for a Selenium call that never returns at all; the inner timeouts are what
+     * bound a merely slow page. So it is sized as a multiple of the inner bound plus slack for local parsing.
+     *
+     * @param timeoutSeconds the cascade's per-request timeout, which is also each inner Selenium bound
+     * @param graceSeconds   extra slack for local work (parsing) that no Selenium timeout covers
+     */
+    static int renderWatchdogTimeout(int timeoutSeconds, int graceSeconds) {
+        long inner = Math.max(1, timeoutSeconds);
+        long computed = 2 * inner + Math.max(0, graceSeconds);
+        return (int) Math.min(computed, Integer.MAX_VALUE);
+    }
+
+    public int getRenderWatchdogGraceSeconds() {
+        return renderWatchdogGraceSeconds;
+    }
+
+    public void setRenderWatchdogGraceSeconds(int renderWatchdogGraceSeconds) {
+        this.renderWatchdogGraceSeconds = renderWatchdogGraceSeconds;
     }
 
     /**
