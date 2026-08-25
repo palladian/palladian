@@ -108,6 +108,110 @@ public class GeminiApiTest {
         return content;
     }
 
+    // ════════════════════════════════════════════════════════════════════════
+    //  reasoning controls — omitted unless asked for
+    // ════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Neither knob set must omit {@code thinkingConfig} altogether rather than send an empty object — every existing
+     * caller goes through this path, and an empty config is a request shape the provider has never been sent.
+     */
+    @Test
+    public void thinkingConfig_omittedWhenUnset() {
+        assertNull(GeminiApi.buildThinkingConfig(null, null));
+    }
+
+    @Test
+    public void thinkingConfig_levelOnly() {
+        JsonObject config = GeminiApi.buildThinkingConfig("low", null);
+        assertEquals("low", config.tryGetString("thinkingLevel"));
+        assertNull("budget must not be invented when only a level was set", config.tryGetInt("thinkingBudget"));
+    }
+
+    @Test
+    public void thinkingConfig_budgetOnly() {
+        JsonObject config = GeminiApi.buildThinkingConfig(null, Integer.valueOf(0));
+        assertEquals(Integer.valueOf(0), config.tryGetInt("thinkingBudget"));
+        assertNull("level must not be invented when only a budget was set", config.tryGetString("thinkingLevel"));
+    }
+
+    /** Both are accepted together so a caller can straddle model generations without a code change. */
+    @Test
+    public void thinkingConfig_bothKnobs() {
+        JsonObject config = GeminiApi.buildThinkingConfig("high", Integer.valueOf(2048));
+        assertEquals("high", config.tryGetString("thinkingLevel"));
+        assertEquals(Integer.valueOf(2048), config.tryGetInt("thinkingBudget"));
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  generationConfig — what actually goes on the wire
+    // ════════════════════════════════════════════════════════════════════════
+
+    /**
+     * The legacy file overload must keep sending temperature 1.0 and nothing else — callers other than the recipe
+     * extractor still use it, and silently constraining them would be an untested behaviour change.
+     */
+    @Test
+    public void legacyFileOverload_sendsTemperatureOneAndNoConstraints() throws Exception {
+        CapturingGeminiApi api = new CapturingGeminiApi();
+        api.chat("prompt", "some-model");
+
+        JsonObject generationConfig = api.lastRequest.getJsonObject("generationConfig");
+        assertEquals(1.0, generationConfig.getDouble("temperature"), 0.0001);
+        assertNull(generationConfig.tryGetInt("maxOutputTokens"));
+        assertNull(generationConfig.tryGetJsonObject("response_schema"));
+        assertNull("unset reasoning controls must not reach the wire", generationConfig.tryGetJsonObject("thinkingConfig"));
+    }
+
+    /**
+     * The constrained overload is the whole point of this change: it must carry the low temperature, the output cap,
+     * the schema (with the JSON mime type that activates it) and the reasoning control in one request.
+     */
+    @Test
+    public void constrainedOverload_sendsEveryConstraint() throws Exception {
+        CapturingGeminiApi api = new CapturingGeminiApi();
+        api.setThinkingLevel("low");
+
+        JsonObject schema = new JsonObject();
+        schema.put("type", "OBJECT");
+
+        api.chat("prompt", 0.2, "some-model", Integer.valueOf(8192), schema);
+
+        JsonObject generationConfig = api.lastRequest.getJsonObject("generationConfig");
+        assertEquals(0.2, generationConfig.getDouble("temperature"), 0.0001);
+        assertEquals(Integer.valueOf(8192), generationConfig.tryGetInt("maxOutputTokens"));
+        assertEquals("application/json", generationConfig.tryGetString("response_mime_type"));
+        assertEquals("OBJECT", generationConfig.getJsonObject("response_schema").tryGetString("type"));
+        assertEquals("low", generationConfig.getJsonObject("thinkingConfig").tryGetString("thinkingLevel"));
+    }
+
+    /** Records the outgoing request so the wire shape can be asserted without a network call. */
+    private static class CapturingGeminiApi extends GeminiApi {
+        private JsonObject lastRequest;
+
+        public CapturingGeminiApi() {
+            super("YOUR_API_KEY");
+        }
+
+        @Override
+        protected String executeRequest(String url, JsonObject request) {
+            this.lastRequest = request;
+            JsonObject part = new JsonObject();
+            part.put("text", "{}");
+            JsonArray parts = new JsonArray();
+            parts.add(part);
+            JsonObject content = new JsonObject();
+            content.put("parts", parts);
+            JsonObject candidate = new JsonObject();
+            candidate.put("content", content);
+            JsonArray candidates = new JsonArray();
+            candidates.add(candidate);
+            JsonObject response = new JsonObject();
+            response.put("candidates", candidates);
+            return response.toString();
+        }
+    }
+
     private static class MockGeminiApi extends GeminiApi {
         public MockGeminiApi() {
             super("YOUR_API_KEY");

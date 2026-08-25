@@ -45,6 +45,22 @@ public class GeminiApi extends AiApi {
     private final AtomicInteger totalInputTokens = new AtomicInteger(0);
     private final AtomicInteger totalOutputTokens = new AtomicInteger(0);
 
+    /**
+     * Optional reasoning controls. Both default to {@code null}, which omits {@code thinkingConfig} entirely and
+     * leaves the provider's default in place — so existing callers are unaffected.
+     * <p>
+     * These matter for latency, not just cost: a thinking-capable model given an image, no output cap and no schema
+     * will reason for as long as it likes. A recipe extraction measured at ~46s against ~2s for the same model on a
+     * text-only prompt.
+     * <p>
+     * The two knobs are different generations of the same idea — Gemini 3.x takes a coarse {@code thinkingLevel}
+     * ("low"/"high"), older models take an integer {@code thinkingBudget} (0 disables). Set whichever the target
+     * model accepts; setting neither preserves today's behaviour.
+     */
+    private String thinkingLevel;
+
+    private Integer thinkingBudget;
+
     public GeminiApi(Configuration configuration) {
         this(configuration.getString(CONFIG_API_KEY));
     }
@@ -63,6 +79,24 @@ public class GeminiApi extends AiApi {
 
     public String getModel() {
         return model;
+    }
+
+    /** @param thinkingLevel "low" or "high" for Gemini 3.x models; {@code null} to omit the field. */
+    public void setThinkingLevel(String thinkingLevel) {
+        this.thinkingLevel = thinkingLevel;
+    }
+
+    public String getThinkingLevel() {
+        return thinkingLevel;
+    }
+
+    /** @param thinkingBudget reasoning-token budget (0 disables thinking on models that support it); {@code null} to omit. */
+    public void setThinkingBudget(Integer thinkingBudget) {
+        this.thinkingBudget = thinkingBudget;
+    }
+
+    public Integer getThinkingBudget() {
+        return thinkingBudget;
     }
 
     public int getTotalInputTokens() {
@@ -122,8 +156,36 @@ public class GeminiApi extends AiApi {
 
     /**
      * Chat with optional image/video files.
+     * <p>
+     * Temperature is 1.0 here for backwards compatibility — this overload predates the constrained one below and
+     * several callers rely on its current behaviour. An extraction or classification task should prefer
+     * {@link #chat(String, double, String, Integer, JsonObject, File...)} and pass a low temperature, an output cap
+     * and a response schema.
      */
     public String chat(String prompt, String modelName, File... files) throws Exception {
+        return generateContent(buildContents(prompt, files), 1.0, null, modelName != null ? modelName : this.model, null, null);
+    }
+
+    /**
+     * Chat with optional files under full generation control.
+     * <p>
+     * Exists because the convenience overload above hardcodes temperature 1.0 and sends neither an output cap nor a
+     * schema, which is wrong for structured extraction: the model samples freely, has no length bound, and returns
+     * prose-wrapped JSON the caller then has to string-parse.
+     *
+     * @param temperature    sampling temperature; use a low value for extraction.
+     * @param maxTokens      {@code maxOutputTokens}, or {@code null} to omit. Note that on a thinking-capable model
+     *                       reasoning tokens count against this budget, so too small a value yields an empty
+     *                       completion (returned as {@code null}, not an error).
+     * @param responseSchema Gemini response schema, or {@code null} to omit. When set, the response is JSON matching
+     *                       the schema rather than free text.
+     */
+    public String chat(String prompt, double temperature, String modelName, Integer maxTokens, JsonObject responseSchema, File... files) throws Exception {
+        return generateContent(buildContents(prompt, files), temperature, null, modelName != null ? modelName : this.model, maxTokens, responseSchema);
+    }
+
+    /** Build the {@code contents} array for a single user turn: the text prompt plus any inlined files. */
+    private JsonArray buildContents(String prompt, File... files) throws Exception {
         JsonArray contents = new JsonArray();
         JsonObject userContent = new JsonObject();
         userContent.put("role", "user");
@@ -149,8 +211,25 @@ public class GeminiApi extends AiApi {
 
         userContent.put("parts", parts);
         contents.add(userContent);
+        return contents;
+    }
 
-        return generateContent(contents, 1.0, null, modelName != null ? modelName : this.model, null, null);
+    /**
+     * Build the {@code thinkingConfig} object, or {@code null} when neither knob is set so the field is omitted
+     * entirely. Package-private and static so the emitted shape is unit-testable without a network call.
+     */
+    static JsonObject buildThinkingConfig(String thinkingLevel, Integer thinkingBudget) {
+        if (thinkingLevel == null && thinkingBudget == null) {
+            return null;
+        }
+        JsonObject thinkingConfig = new JsonObject();
+        if (thinkingLevel != null) {
+            thinkingConfig.put("thinkingLevel", thinkingLevel);
+        }
+        if (thinkingBudget != null) {
+            thinkingConfig.put("thinkingBudget", thinkingBudget.intValue());
+        }
+        return thinkingConfig;
     }
 
     private String generateContent(JsonArray contents, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject responseSchema)
@@ -168,6 +247,10 @@ public class GeminiApi extends AiApi {
         if (responseSchema != null) {
             generationConfig.put("response_mime_type", "application/json");
             generationConfig.put("response_schema", responseSchema);
+        }
+        JsonObject thinkingConfig = buildThinkingConfig(thinkingLevel, thinkingBudget);
+        if (thinkingConfig != null) {
+            generationConfig.put("thinkingConfig", thinkingConfig);
         }
         request.put("generationConfig", generationConfig);
 
