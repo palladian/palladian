@@ -50,6 +50,25 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private BiPredicate<String, Document> documentValidator;
 
     /**
+     * Tracker/skip key of the stealth-rendering stage. Keyed by ROLE, deliberately <em>not</em> by
+     * {@code cloakBrowserPool.getClass().getName()}: the stage accepts any
+     * {@link RenderingDocumentRetrieverPool}, so a caller passing the parent type (rather than a
+     * {@code CloakBrowser…} subclass) produced a key byte-identical to the regular rendering stage's.
+     * Both stages then silently share one counter row <em>and</em> one {@link #shouldMakeRequest}
+     * skip state: a {@link #pauseFailingRetriever} throttle meant for the Chrome pool would also
+     * skip the stealth pool, and since a skip resets the consecutive-failure run WITHOUT a success
+     * it would blind any dead-tier watchdog reading these counters.
+     */
+    public static final String CLOAK_POOL_TRACKER_KEY = "cloak-rendering-pool";
+
+    /**
+     * Optional human-readable name of this cascade, printed in the periodic tracker-status log.
+     * Without it every cascade logs an identical header and the only way to tell which instance a
+     * report belongs to is to reverse-engineer its retriever key set. May be {@code null}.
+     */
+    private volatile String name;
+
+    /**
      * Keep track of failing requests.
      */
     private final Map<String, Integer[]> failingThresholdAndNumberOfRequestsToSkip = new ConcurrentHashMap<>();
@@ -60,10 +79,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     private final DocumentRetriever documentRetriever;
     private final RenderingDocumentRetrieverPool renderingDocumentRetrieverPool;
     /**
-     * Optional second rendering pool that runs <em>after</em> the regular rendering pool but
-     * <em>before</em> the cloud retrievers. Intended for stealthier setups (e.g. CloakBrowser)
-     * which are heavier/slower but more likely to bypass bot management. Either pool may be
-     * {@code null}, so callers can run only-cloak, only-rendering, or both side-by-side.
+     * Optional second rendering pool that runs <em>before</em> the regular rendering pool (and
+     * therefore well before the paid cloud retrievers). Intended for stealthier setups (e.g.
+     * CloakBrowser) which are heavier/slower but more likely to bypass bot management, so they are
+     * worth trying before a plain headless Chrome that bot management already knows. Either pool
+     * may be {@code null}, so callers can run only-cloak, only-rendering, or both side-by-side.
      * <p>
      * {@code volatile} + swappable via {@link #setCloakBrowserDocumentRetrieverPool} so a caller
      * can hot-replace the pool at runtime (e.g. after a stealth-browser container is restarted)
@@ -160,7 +180,10 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * @param trackerLogExecutor      the executor service that periodically logs usage information
      * @param documentRetriever       plain HTTP retriever (cheap fast path), may be {@code null}
      * @param retrieverPool           regular rendering pool (e.g. headless Chrome), may be {@code null}
-     * @param cloakBrowserPool        additional stealth rendering pool (e.g. CloakBrowser), may be {@code null}
+     * @param cloakBrowserPool        additional stealth rendering pool (e.g. CloakBrowser), may be {@code null}.
+     *                                Tracked under {@link #CLOAK_POOL_TRACKER_KEY} regardless of its concrete
+     *                                class, so passing the parent type here cannot collide with the regular
+     *                                rendering stage's counters or skip state.
      * @param cloudDocumentRetrievers cloud-based retrievers tried last
      */
     public CascadingDocumentRetriever(ExecutorService trackerLogExecutor, DocumentRetriever documentRetriever, RenderingDocumentRetrieverPool retrieverPool, RenderingDocumentRetrieverPool cloakBrowserPool,
@@ -178,7 +201,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             requestTracker.put(RenderingDocumentRetrieverPool.class.getName(), new Integer[]{0, 0, 0});
         }
         if (this.cloakBrowserDocumentRetrieverPool != null) {
-            requestTracker.put(this.cloakBrowserDocumentRetrieverPool.getClass().getName(), new Integer[]{0, 0, 0});
+            requestTracker.put(CLOAK_POOL_TRACKER_KEY, new Integer[]{0, 0, 0});
         }
         for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
             if (cloudDocumentRetriever != null) {
@@ -187,6 +210,22 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         this.trackerLogExecutor = trackerLogExecutor;
+    }
+
+    /** @return this cascade's name as printed in the tracker-status log, or {@code null} if unnamed. */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Name this cascade so its periodic tracker-status report identifies itself. Recommended for every
+     * long-lived cascade in an application that builds more than one — the report is otherwise
+     * indistinguishable between instances.
+     *
+     * @param name short identifier, e.g. {@code "news-comprehensive"}; may be {@code null}
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getBadDocumentIndicatorText() {
@@ -303,6 +342,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     /**
      * Do not use a certain retriever for numberOfRequestsToSkip requests if it failed more than failingThreshold times.
      *
+     * @param retrieverKey           The retriever's tracker key: {@code X.class.getName()} for the plain and cloud
+     *                               retrievers, {@code RenderingDocumentRetrieverPool.class.getName()} for the
+     *                               rendering stage, {@link #CLOAK_POOL_TRACKER_KEY} for the stealth stage. Note a
+     *                               skip resets that stage's consecutive-failure run <em>without</em> a success, so
+     *                               throttling a stage also blinds any watchdog reading its failure run.
      * @param failingThreshold       The number of requests to fail before ignoring.
      * @param numberOfRequestsToSkip The number of requests to skip before trying that retriever again.
      */
@@ -347,7 +391,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     public void setCloakBrowserDocumentRetrieverPool(RenderingDocumentRetrieverPool cloakBrowserPool) {
         this.cloakBrowserDocumentRetrieverPool = cloakBrowserPool;
         if (cloakBrowserPool != null) {
-            requestTracker.putIfAbsent(cloakBrowserPool.getClass().getName(), new Integer[]{0, 0, 0});
+            requestTracker.putIfAbsent(CLOAK_POOL_TRACKER_KEY, new Integer[]{0, 0, 0});
         }
     }
 
@@ -416,11 +460,11 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.info("Made request with DocumentRetriever to " + url + " - goodDocument: " + goodDocument + " - time: " + stopWatch.getElapsedTimeString());
         }
 
-        if (!goodDocument && cloakBrowserDocumentRetrieverPool != null && shouldMakeRequest(cloakBrowserDocumentRetrieverPool.getClass().getName())
-                && !shouldSkipLocalRetrievalForDomain(url)) {
-            String label = cloakBrowserDocumentRetrieverPool.getClass().getSimpleName();
-            RenderingPoolResult r = tryRenderingPool(cloakBrowserDocumentRetrieverPool, cloakBrowserDocumentRetrieverPool.getClass().getName(), label, url, thread, stopWatch,
-                    resolvingExplanation, retrieverDocumentCallback);
+        // read the volatile once: a health-check thread may swap the pool (incl. to null) mid-request
+        RenderingDocumentRetrieverPool cloakPool = cloakBrowserDocumentRetrieverPool;
+        if (!goodDocument && cloakPool != null && shouldMakeRequest(CLOAK_POOL_TRACKER_KEY) && !shouldSkipLocalRetrievalForDomain(url)) {
+            String label = cloakPool.getClass().getSimpleName();
+            RenderingPoolResult r = tryRenderingPool(cloakPool, CLOAK_POOL_TRACKER_KEY, label, url, thread, stopWatch, resolvingExplanation, retrieverDocumentCallback);
             if (r.document != null) {
                 document = r.document;
             }
@@ -677,7 +721,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
     }
 
-    private boolean shouldMakeRequest(String renderingDocumentRetrieverName) {
+    /**
+     * Whether the stage under {@code retrieverKey} may be asked, given its {@link #pauseFailingRetriever} throttle.
+     * Package-private (not private) so a test can assert that a throttle applies to exactly one stage's key — the
+     * stages share this map, so a key collision silently makes one stage's failures skip another.
+     */
+    boolean shouldMakeRequest(String renderingDocumentRetrieverName) {
         Integer[] retrieverSettings = failingThresholdAndNumberOfRequestsToSkip.get(renderingDocumentRetrieverName);
         if (retrieverSettings == null) {
             return true;
@@ -879,13 +928,32 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
     }
 
+    /**
+     * The periodic tracker report. Identifies the cascade by {@link #getName() name} when it has one, and annotates
+     * the role-keyed stealth row with the concrete pool class currently attached — so the report says both which
+     * cascade it belongs to and which implementation is serving that stage.
+     */
     public String getUsageSummaryMessage() {
-        StringBuilder sb = new StringBuilder("CascadingDocumentRetriever tracker status:\n");
+        String cascadeName = name;
+        // the name goes AFTER the original header literal, never inside it: log queries anchored on
+        // "CascadingDocumentRetriever tracker status" predate naming and must keep matching
+        StringBuilder sb = new StringBuilder("CascadingDocumentRetriever tracker status");
+        if (cascadeName != null && !cascadeName.isEmpty()) {
+            sb.append(" [").append(cascadeName).append(']');
+        }
+        sb.append(":\n");
+
+        RenderingDocumentRetrieverPool cloakPool = cloakBrowserDocumentRetrieverPool;
+        String cloakPoolClass = cloakPool == null ? null : cloakPool.getClass().getSimpleName();
 
         sb.append("  requestTracker:\n");
         for (Map.Entry<String, Integer[]> entry : requestTracker.entrySet()) {
             Integer[] v = entry.getValue();
-            sb.append("    ").append(entry.getKey()).append(" -> [failed=").append(v[0]).append(", skipped=").append(v[1]).append(", successful=").append(v[2]).append("]\n");
+            sb.append("    ").append(entry.getKey());
+            if (CLOAK_POOL_TRACKER_KEY.equals(entry.getKey())) {
+                sb.append(" [").append(cloakPoolClass == null ? "detached" : cloakPoolClass).append(']');
+            }
+            sb.append(" -> [failed=").append(v[0]).append(", skipped=").append(v[1]).append(", successful=").append(v[2]).append("]\n");
         }
 
         sb.append("  failingThresholdAndNumberOfRequestsToSkip:\n");
