@@ -24,6 +24,12 @@ import java.util.regex.Pattern;
 public final class PageAnalyzer {
     public static final Logger LOGGER = LoggerFactory.getLogger(PageAnalyzer.class);
 
+    /**
+     * DOM node names that are not element names, so they can never be a valid XPath location step. A node's
+     * {@code getNodeName()} yields these verbatim for text, comment and CDATA nodes.
+     */
+    private static final String[] NON_ELEMENT_NODE_NAMES = {"#text", "#comment", "#cdata-section"};
+
     private PageAnalyzer() {
         // no instance.
     }
@@ -395,10 +401,16 @@ public final class PageAnalyzer {
             // System.out.println(node.getNodeName()+" "+node.getNodeType()+" "+node.getNodeValue());
             xpath = currentNode + "/" + xpath;
 
-            // remove "#text" from xpath
-            int textNodeIndex = xpath.indexOf("/#text");
-            if (textNodeIndex > -1) {
-                xpath = xpath.substring(0, textNodeIndex);
+            // Drop every DOM node whose name is not a usable location step. getNodeName() returns the literal
+            // "#text", "#comment" or "#cdata-section" for those node types, and splicing one into a path produces an
+            // XPath that is guaranteed to throw the moment it is evaluated ("A location step was expected following
+            // the '/' or '//' token" for e.g. "//#comment[6]"). Only "#text" was handled here, which is why comment
+            // nodes produced 3,405 XPathExpressionExceptions in a single week of news extraction.
+            for (String nonElementNodeName : NON_ELEMENT_NODE_NAMES) {
+                int nonElementIndex = xpath.indexOf("/" + nonElementNodeName);
+                if (nonElementIndex > -1) {
+                    xpath = xpath.substring(0, nonElementIndex);
+                }
             }
 
             node = node.getParentNode();
