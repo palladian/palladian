@@ -116,14 +116,31 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             "Verifying you are human. This may take a few seconds", "_Incapsula_Resource");
 
     /**
-     * Substrings that indicate the page contains an <em>auto-solving</em> bot-management challenge
-     * (primarily Akamai Bot Manager interstitials). Such pages usually clear themselves within a
-     * few seconds via a <code>location.reload(true)</code> issued by the sensor script once the
-     * challenge token is accepted. For these we do NOT skip the rendering retriever — instead we
-     * give the live driver a short additional wait window and re-read the document.
+     * Substrings that indicate the page contains an <em>auto-solving</em> bot-management challenge.
+     * Such pages usually clear themselves within a few seconds once the challenge token is
+     * accepted. For these we do NOT skip the rendering retriever — instead we give the live
+     * driver a short additional wait window and re-read the document.
+     * <ul>
+     *   <li>Akamai Bot Manager: the sensor script issues a {@code location.reload(true)}.</li>
+     *   <li>Cloudflare managed challenge: a stealth browser passes it on its own — the page then
+     *       reads "Verification successful. Waiting for … to respond" and navigates to the origin.
+     *       A render that returns straight after the interstitial's own {@code load} event reads
+     *       that page instead of the one behind it.</li>
+     * </ul>
+     * <p>
+     * The Cloudflare entries match the interstitial only — its title and its body copy — and
+     * deliberately not {@code challenges.cloudflare.com}: that host also serves the Turnstile
+     * widget embedded in ordinary login and newsletter forms, and {@link
+     * RenderingDocumentRetriever#awaitChallengeResolution} waits until every marker is gone, so a
+     * real page carrying one would burn the whole wait window on every fetch.
+     * <p>
+     * A page matching both this list and {@link #INTERACTIVE_CHALLENGE_INDICATORS} is waited on
+     * first; only if it is still bad afterwards is the domain marked for skipping. Waiting is the
+     * only way to tell a managed challenge that passes from one that escalates to a checkbox —
+     * both start on the same interstitial.
      */
     private static final List<String> AUTO_SOLVING_CHALLENGE_INDICATORS = Arrays.asList("sec-if-cpt-container", "techlab-cdn.com", "scf-akamai-logo-sec-abc",
-            "Powered and protected by", "sec-bc-tile-container");
+            "Powered and protected by", "sec-bc-tile-container", "<title>Just a moment...</title>", "Performing security verification");
 
     /**
      * Maximum time (seconds) we wait on the live driver for an auto-solving challenge to resolve
@@ -836,7 +853,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * (Akamai Bot Manager interstitial, etc.) that should resolve itself if we just wait a bit
      * longer on the live driver.
      */
-    private boolean isAutoSolvingChallenge(Document document) {
+    /** Package-private so a test can pin which pages are waited on and which are not. */
+    static boolean isAutoSolvingChallenge(Document document) {
         if (document == null) {
             return false;
         }
