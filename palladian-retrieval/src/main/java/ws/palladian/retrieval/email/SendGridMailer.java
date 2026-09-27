@@ -39,11 +39,15 @@ public class SendGridMailer {
 
     private final Set<String> mailCategories = new HashSet<>();
 
+    /** Custom headers for every mail this instance sends, in the order they were added. */
+    private final Map<String, String> mailHeaders = new LinkedHashMap<>();
+
     // avoid abuse
     public static int maxEmailsPerDay = 2000;
 
     /**
-     * The number of sent emails in a sliding 24 hour window, by timestamps.
+     * The number of sent emails in a sliding 24 hour window, by timestamps. Shared by every sending thread, so
+     * every access holds its lock.
      */
     private static final List<Long> sentEmails = new ArrayList<>();
 
@@ -108,10 +112,12 @@ public class SendGridMailer {
         }
 
         long yesterday = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1);
-        sentEmails.removeIf(ts -> ts < yesterday);
-        if (sentEmails.size() > maxEmailsPerDay) {
-            LOGGER.error("email could not be sent because quota limit of " + maxEmailsPerDay + " emails per day was reached");
-            return false;
+        synchronized (sentEmails) {
+            sentEmails.removeIf(ts -> ts < yesterday);
+            if (sentEmails.size() > maxEmailsPerDay) {
+                LOGGER.error("email could not be sent because quota limit of " + maxEmailsPerDay + " emails per day was reached");
+                return false;
+            }
         }
 
         // emails must be unique across to, cc, and bcc otherwise sendgrid throws an error
@@ -180,7 +186,7 @@ public class SendGridMailer {
                 mail.addAttachments(attachments);
             }
 
-            mailCategories.forEach(mail::addCategory);
+            decorate(mail);
 
             SendGrid sg = new SendGrid(apiKey);
             Request request = new Request();
@@ -192,12 +198,20 @@ public class SendGridMailer {
             if (responseHeaders != null) {
                 responseHeaders.putAll(apiResponse.getHeaders());
             }
+            // The client returns 4xx/5xx responses instead of throwing, so a refused mail looked sent.
+            if (!isAccepted(apiResponse)) {
+                LOGGER.error("send grid refused mail with status {}: {}, to Emails: {}", apiResponse.getStatusCode(), apiResponse.getBody(),
+                        CollectionHelper.joinReadable(toEmails));
+                return false;
+            }
 
             // add email to sent, remove timestamps older than 24 hours from list
-            sentEmails.add(System.currentTimeMillis());
+            synchronized (sentEmails) {
+                sentEmails.add(System.currentTimeMillis());
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
-            LOGGER.error("send grid could not send mail: " + ex.getMessage(), ", to Emails: " + CollectionHelper.joinReadable(toEmails));
+            LOGGER.error("send grid could not send mail: {}, to Emails: {}", ex.getMessage(), CollectionHelper.joinReadable(toEmails));
             return false;
         }
 
@@ -256,5 +270,55 @@ public class SendGridMailer {
 
     public boolean addCategory(String category) {
         return this.mailCategories.add(category);
+    }
+
+    /**
+     * Add a custom header to every mail this instance sends, for example {@code List-Unsubscribe} and
+     * {@code List-Unsubscribe-Post} (RFC 8058). Adding the same name twice keeps the last value.
+     *
+     * @throws IllegalArgumentException for a blank name, a null value, or a line break in either. A CR or LF
+     *                                  would let whoever supplies the value append headers of their own.
+     */
+    public void addHeader(String name, String value) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("A mail header needs a name");
+        }
+        if (!isFieldName(name)) {
+            // SendGrid would refuse the whole mail over it, so refuse the header where the mistake is made.
+            throw new IllegalArgumentException("A mail header name must be printable ASCII without spaces or colons");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Mail header " + name + " needs a value");
+        }
+        if (containsLineBreak(value)) {
+            throw new IllegalArgumentException("A mail header must not contain a line break");
+        }
+        this.mailHeaders.put(name, value);
+    }
+
+    /** Whether SendGrid took the mail. Anything but a 2xx is a refusal (401 bad key, 400 bad payload, 413 too large). */
+    static boolean isAccepted(Response response) {
+        return response != null && response.getStatusCode() >= 200 && response.getStatusCode() < 300;
+    }
+
+    /** An RFC 5322 field name: printable US-ASCII (33 to 126) except the colon. */
+    private static boolean isFieldName(String name) {
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (c < 33 || c > 126 || c == ':') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Apply this instance's categories and custom headers to a mail. Package-visible so a test can check the request body. */
+    void decorate(Mail mail) {
+        mailCategories.forEach(mail::addCategory);
+        mailHeaders.forEach(mail::addHeader);
+    }
+
+    private static boolean containsLineBreak(String text) {
+        return text.indexOf('\r') >= 0 || text.indexOf('\n') >= 0;
     }
 }
