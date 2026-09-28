@@ -73,6 +73,16 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
     private boolean deleteDriverCookiesBeforeUse = true;
     private PageLoadStrategy pageLoadStrategy = PageLoadStrategy.NORMAL;
 
+    /** Label for a driver replaced because it stopped answering; see {@link #recordNavigationOutcome(Throwable)}. */
+    public static final String INVALIDATION_CAUSE_CONSECUTIVE_DRIVER_TIMEOUTS = "consecutive-driver-timeouts";
+
+    /**
+     * After this many page requests in a row whose driver command was never answered, the retriever marks itself
+     * invalid so the pool replaces it. 0 disables it (the default, so pools that launch their own Chrome are unchanged).
+     */
+    private int maxConsecutiveDriverTimeouts = 0;
+    private int consecutiveDriverTimeouts = 0;
+
     /**
      * Default constructor, doesn't force reloading pages when <code>goTo</code> with the current url is called.
      */
@@ -642,10 +652,12 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 try {
                     this.goTo(url);
                     document = getCurrentWebDocument();
+                    recordNavigationOutcome(null);
                 } catch (NoSuchSessionException e) {
                     throw e; // Rethrow to let the pool handle it
                 } catch (Exception e) {
                     LOGGER.error("problem opening page " + url, e);
+                    recordNavigationOutcome(e);
                 }
                 if (document == null && getErrorCallback() != null) {
                     getErrorCallback().accept(new DocumentRetrievalTrial(url, null));
@@ -755,7 +767,7 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         try {
             if (driver != null) {
                 try {
-                    driver.close();
+                    closeDriverWindow();
                 } catch (Throwable t) {
                     LOGGER.debug("Could not close driver window", t);
                 }
@@ -775,6 +787,58 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         }
 
         return ok;
+    }
+
+    /** Close the window this session drives, before {@code quit()}. Overridden where the session doesn't own the browser. */
+    protected void closeDriverWindow() {
+        driver.close();
+    }
+
+    /**
+     * Count page requests in a row whose driver command was never answered, and invalidate the retriever once
+     * {@link #setMaxConsecutiveDriverTimeouts(int) the limit} is reached. Any other outcome, success or a failure the
+     * driver did answer, proves the session still responds and resets the count.
+     * <p>
+     * Only the Selenium client giving up counts. One such failure can be a slow page: the driver's page-load timeout
+     * and the client's read timeout are both {@code timeoutSeconds}, so the client often gives up first. Several in a
+     * row, on different URLs, mean the session is wedged, and recycling it hands the same dead tab out forever.
+     *
+     * @param failure what {@link #getWebDocument(String)} caught, or {@code null} on success
+     */
+    void recordNavigationOutcome(Throwable failure) {
+        if (!isDriverUnresponsive(failure)) {
+            consecutiveDriverTimeouts = 0;
+            return;
+        }
+        consecutiveDriverTimeouts++;
+        if (maxConsecutiveDriverTimeouts > 0 && consecutiveDriverTimeouts >= maxConsecutiveDriverTimeouts) {
+            LOGGER.warn("Driver left {} page requests in a row unanswered, marking it for replacement", consecutiveDriverTimeouts);
+            markInvalidatedByCallback(INVALIDATION_CAUSE_CONSECUTIVE_DRIVER_TIMEOUTS);
+        }
+    }
+
+    /**
+     * Whether the Selenium client gave up waiting for the driver's answer: its HTTP client throws a
+     * {@link java.util.concurrent.TimeoutException}, which reaches us wrapped (in a Selenium {@link TimeoutException},
+     * and by {@link #goTo(String)}'s wait block in a {@link RuntimeException}). A {@code WebDriverWait} that runs out
+     * does not carry one.
+     */
+    static boolean isDriverUnresponsive(Throwable t) {
+        for (int depth = 0; t != null && depth < 10; depth++) {
+            if (t instanceof java.util.concurrent.TimeoutException) {
+                return true;
+            }
+            t = t.getCause();
+        }
+        return false;
+    }
+
+    public int getMaxConsecutiveDriverTimeouts() {
+        return maxConsecutiveDriverTimeouts;
+    }
+
+    public void setMaxConsecutiveDriverTimeouts(int maxConsecutiveDriverTimeouts) {
+        this.maxConsecutiveDriverTimeouts = maxConsecutiveDriverTimeouts;
     }
 
     /**

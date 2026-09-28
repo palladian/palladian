@@ -1,5 +1,7 @@
 package ws.palladian.retrieval.cloakbrowser;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WindowType;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -58,8 +60,11 @@ public class CloakBrowserDocumentRetriever extends RenderingDocumentRetriever {
      */
     public static final String CONFIG_CHROMEDRIVER_DIR = "cloakbrowser.chromedriver_dir";
     private static final Pattern BROWSER_VERSION_PATTERN = Pattern.compile("Chrome/(\\d+)\\.");
+    /** Unanswered page requests in a row after which the session is replaced (a replace costs ~1 s). */
+    static final int MAX_CONSECUTIVE_DRIVER_TIMEOUTS = 3;
     private final String debuggerAddress;
     private final String remoteBrowserVersion;
+    private final String ownTabHandle;
     /**
      * @param debuggerAddress host:port of a running CloakBrowser CDP endpoint,
      *                        e.g. "127.0.0.1:9222".
@@ -126,9 +131,56 @@ public class CloakBrowserDocumentRetriever extends RenderingDocumentRetriever {
         ChromeDriver chromeDriver = createOwnedChromeDriver(this.driverService, options, clientConfig);
         chromeDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(getTimeoutSeconds()));
         setDriver(chromeDriver);
-        LOGGER.info("CloakBrowserDocumentRetriever attached to {} (Chrome {}, driver {})",
+        this.ownTabHandle = openOwnTab(chromeDriver);
+        // The client's read timeout equals the page-load timeout, so a wedged tab surfaces as the client giving up,
+        // never as the driver's own (fatal) timeout: without this the pool recycles the dead session forever.
+        setMaxConsecutiveDriverTimeouts(MAX_CONSECUTIVE_DRIVER_TIMEOUTS);
+        LOGGER.info("CloakBrowserDocumentRetriever attached to {} (Chrome {}, driver {}, {})",
                 this.debuggerAddress, remoteBrowserVersion != null ? remoteBrowserVersion : "?",
-                resolvedDriver != null ? resolvedDriver : "WebDriverManager");
+                resolvedDriver != null ? resolvedDriver : "WebDriverManager",
+                ownTabHandle != null ? "own tab " + ownTabHandle : "SHARED attached tab");
+    }
+
+    /**
+     * Open a fresh tab for this session and switch to it.
+     * <p>
+     * Attaching via {@code debuggerAddress} hands the session a tab that is already open in the shared browser (the
+     * container's CDP proxy cannot open one). One wedged tab then broke every session built after it, across JVM
+     * restarts, and sessions from different JVMs could land on the same tab. Package-private + static so it is
+     * unit-testable without a browser.
+     *
+     * @return the new tab's window handle, or {@code null} if it could not be opened: the session then keeps the tab
+     * it attached to (the old behaviour) rather than failing a pool build.
+     */
+    static String openOwnTab(WebDriver driver) {
+        try {
+            driver.switchTo().newWindow(WindowType.TAB);
+            return driver.getWindowHandle();
+        } catch (Exception e) {
+            LOGGER.warn("CloakBrowser could not open its own tab, falling back to the shared tab it attached to: {}", e.toString());
+            return null;
+        }
+    }
+
+    /**
+     * Close only the tab this session opened. The tab it attached to belongs to the shared browser, maybe to another
+     * JVM's session, and closing the browser's last tab takes the browser down with it.
+     */
+    @Override
+    protected void closeDriverWindow() {
+        closeOwnTab(driver, ownTabHandle);
+    }
+
+    /** Package-private + static so it is unit-testable without a browser; a {@code null} handle closes nothing. */
+    static void closeOwnTab(WebDriver driver, String ownTabHandle) {
+        if (ownTabHandle != null) {
+            driver.switchTo().window(ownTabHandle).close();
+        }
+    }
+
+    /** Window handle of this session's own tab, or {@code null} if it fell back to the tab it attached to. */
+    public String getOwnTabHandle() {
+        return ownTabHandle;
     }
 
     /**
