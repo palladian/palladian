@@ -82,6 +82,9 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
 
     private final String apiKey;
 
+    /** Sends {@code safesearch=true}: only images and videos "suitable for all ages". Pixabay's default is off. */
+    private boolean safeSearch = false;
+
     /**
      * ProxyCrawl allows 100 requests/minute.
      */
@@ -199,9 +202,27 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
         return ImageType.UNKNOWN;
     }
 
-    private String buildRequest(String searchTerms, int page, int resultsPerPage, Language language) {
+    String buildRequest(String searchTerms, int page, int resultsPerPage, Language language) {
         return String.format("http://pixabay.com/api/?key=%s&search_term=%s&image_type=all&page=%s&per_page=%s&lang=%s", apiKey, UrlHelper.encodeParameter(searchTerms), page,
-                resultsPerPage, language.getIso6391());
+                resultsPerPage, language.getIso6391()) + safeSearchParameter();
+    }
+
+    String buildVideoRequest(String query, int page, int resultsPerPage) {
+        return String.format("https://pixabay.com/api/videos/?key=%s&q=%s&video_type=all&page=%d&per_page=%d", apiKey,
+                UrlHelper.encodeParameter(StringHelper.shorten(query, 100)), page, resultsPerPage) + safeSearchParameter();
+    }
+
+    private String safeSearchParameter() {
+        return safeSearch ? "&safesearch=true" : "";
+    }
+
+    public boolean isSafeSearch() {
+        return safeSearch;
+    }
+
+    /** @param safeSearch {@code true} to ask Pixabay for images and videos suitable for all ages only. */
+    public void setSafeSearch(boolean safeSearch) {
+        this.safeSearch = safeSearch;
     }
 
     /**
@@ -223,8 +244,7 @@ public class PixabaySearcher extends AbstractMultifacetSearcher<WebImage> {
         final int maxPages = verticalOnly ? 10 : (int) Math.ceil(resultCount / (double) resultsPerPage);
         var retriever = HttpRetrieverFactory.getHttpRetriever();
         for (int page = 1; page <= maxPages && results.size() < resultCount; page++) {
-            String url = String.format("https://pixabay.com/api/videos/?key=%s&q=%s&video_type=all&page=%d&per_page=%d", apiKey,
-                    UrlHelper.encodeParameter(StringHelper.shorten(query, 100)), page, resultsPerPage);
+            String url = buildVideoRequest(query, page, resultsPerPage);
             try {
                 THROTTLE.hold();
                 var response = retriever.httpGet(url);

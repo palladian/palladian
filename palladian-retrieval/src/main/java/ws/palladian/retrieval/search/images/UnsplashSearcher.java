@@ -88,6 +88,12 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
     private final String apiKey;
 
     /**
+     * Sends {@code content_filter=high}, which also removes content "that may be unsuitable for younger audiences".
+     * Unsplash's default ({@code low}) already keeps out what breaks its submission guidelines, such as nudity or violence.
+     */
+    private boolean safeSearch = false;
+
+    /**
      * <p>
      * Creates a new Unsplash searcher.
      * </p>
@@ -177,12 +183,24 @@ public class UnsplashSearcher extends AbstractSearcher<WebImage> {
         return results;
     }
 
-    private String buildRequest(String searchTerms, int page, int resultsPerPage, Orientation orientation) {
+    String buildRequest(String searchTerms, int page, int resultsPerPage, Orientation orientation) {
         String request = String.format("https://api.unsplash.com/search/photos?query=%s&per_page=%s&page=%s", UrlHelper.encodeParameter(searchTerms), resultsPerPage, page);
         if (orientation != null) {
             request += "&orientation=" + orientation.name().toLowerCase();
         }
+        if (safeSearch) {
+            request += "&content_filter=high";
+        }
         return request;
+    }
+
+    public boolean isSafeSearch() {
+        return safeSearch;
+    }
+
+    /** @param safeSearch {@code true} to search with Unsplash's stricter content filter ({@code content_filter=high}). */
+    public void setSafeSearch(boolean safeSearch) {
+        this.safeSearch = safeSearch;
     }
 
     public JsonObject getPhotoInformation(String photoId) {
