@@ -5,6 +5,7 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.ASM;
 import com.sendgrid.helpers.mail.objects.Attachments;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
@@ -41,6 +42,9 @@ public class SendGridMailer {
 
     /** Custom headers for every mail this instance sends, in the order they were added. */
     private final Map<String, String> mailHeaders = new LinkedHashMap<>();
+
+    /** The SendGrid unsubscribe group for every mail this instance sends, or null to send without one. */
+    private Integer unsubscribeGroupId;
 
     // avoid abuse
     public static int maxEmailsPerDay = 2000;
@@ -272,6 +276,10 @@ public class SendGridMailer {
         return this.mailCategories.add(category);
     }
 
+    public void setUnsubscribeGroupId(Integer unsubscribeGroupId) {
+        this.unsubscribeGroupId = unsubscribeGroupId;
+    }
+
     /**
      * Add a custom header to every mail this instance sends, for example {@code List-Unsubscribe} and
      * {@code List-Unsubscribe-Post} (RFC 8058). Adding the same name twice keeps the last value.
@@ -312,9 +320,14 @@ public class SendGridMailer {
         return true;
     }
 
-    /** Apply this instance's categories and custom headers to a mail. Package-visible so a test can check the request body. */
+    /** Apply this instance's categories, unsubscribe group and custom headers to a mail. Package-visible so a test can check the request body. */
     void decorate(Mail mail) {
         mailCategories.forEach(mail::addCategory);
+        if (unsubscribeGroupId != null) {
+            ASM asm = new ASM();
+            asm.setGroupId(unsubscribeGroupId);
+            mail.setASM(asm);
+        }
         mailHeaders.forEach(mail::addHeader);
     }
 
