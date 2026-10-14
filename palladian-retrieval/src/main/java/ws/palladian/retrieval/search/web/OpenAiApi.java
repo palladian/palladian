@@ -41,15 +41,22 @@ public class OpenAiApi extends AiApi {
     public static final String CONFIG_API_KEY = "api.openai.key";
     public static final String CONFIG_API_KEY_FALLBACK = "api.openai.apiKey";
 
-    private static final String DEFAULT_MODEL = "gpt-4o";
+    /** Small, fast and cheap. A call that needs a stronger model names it. */
+    private static final String DEFAULT_MODEL = "gpt-5.6-luna";
     public static final String EMBEDDING_MODEL_SMALL = "text-embedding-3-small";
     public static final String EMBEDDING_MODEL_LARGE = "text-embedding-3-large";
 
     public static final String MODEL_GPT_3_5_TURBO = "gpt-3.5-turbo";
     public static final String MODEL_GPT_4_TURBO = "gpt-4-turbo";
+    /** @deprecated OpenAI retires gpt-4o on 2027-01-14; use {@link #MODEL_GPT_5_1}. */
+    @Deprecated
     public static final String MODEL_GPT_4O = "gpt-4o";
+    /** @deprecated OpenAI retires gpt-4o-mini on 2027-01-14; use {@link #MODEL_GPT_5_6_LUNA}. */
+    @Deprecated
     public static final String MODEL_GPT_4O_MINI = "gpt-4o-mini";
     public static final String MODEL_GPT_4O_NANO = "gpt-4o-nano";
+    /** @deprecated OpenAI retires gpt-4.1-mini on 2027-01-14; use {@link #MODEL_GPT_5_6_LUNA}. */
+    @Deprecated
     public static final String MODEL_GPT_4_1_MINI = "gpt-4.1-mini";
     public static final String MODEL_GPT_5 = "gpt-5";
     public static final String MODEL_GPT_5_1 = "gpt-5.1";
