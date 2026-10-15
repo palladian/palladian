@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A wrapper for OpenAI's APIs.
@@ -203,6 +205,48 @@ public class OpenAiApi extends AiApi {
         return chat(messages, 1., null, model, null, jsonSchema);
     }
 
+    private static final Pattern GPT_GENERATION = Pattern.compile("gpt-(\\d+)");
+
+    /**
+     * Whether a model reasons: the gpt-5 family and every later generation (gpt-6-luna, ...). Reasoning models reject
+     * {@code temperature} and the legacy {@code max_tokens} with a 400, and take {@code reasoning_effort},
+     * {@code verbosity} and {@code service_tier}.
+     */
+    public static boolean isReasoningModel(String modelName) {
+        Matcher generation = GPT_GENERATION.matcher(modelName);
+        return generation.find() && Integer.parseInt(generation.group(1)) >= 5;
+    }
+
+    /** The Chat Completions request body. */
+    JsonObject chatRequest(JsonArray messages, double temperature, String modelName, Integer maxTokens, JsonObject jsonSchema, String reasoningEffort) {
+        boolean reasoning = isReasoningModel(modelName);
+        JsonObject requestJson = new JsonObject();
+        requestJson.put("messages", messages);
+        requestJson.put("model", modelName);
+        if (!reasoning) {
+            requestJson.put("temperature", temperature);
+        }
+        if (serviceTier != null && reasoning) {
+            requestJson.put("service_tier", serviceTier);
+        }
+        if (verbosity != null && reasoning) {
+            requestJson.put("verbosity", verbosity);
+        }
+        if (reasoningEffort != null && reasoning) {
+            requestJson.put("reasoning_effort", reasoningEffort);
+        }
+        if (maxTokens != null) {
+            requestJson.put(reasoning ? "max_completion_tokens" : "max_tokens", maxTokens);
+        }
+        if (jsonSchema != null) {
+            JsonObject responseFormatJson = new JsonObject();
+            responseFormatJson.put("type", "json_schema");
+            responseFormatJson.put("json_schema", jsonSchema);
+            requestJson.put("response_format", responseFormatJson);
+        }
+        return requestJson;
+    }
+
     @Override
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject jsonSchema) throws Exception {
         return chat(messages, temperature, usedTokens, modelName, maxTokens, jsonSchema, reasoningEffort);
@@ -211,40 +255,11 @@ public class OpenAiApi extends AiApi {
     /**
      * Chat variant that allows specifying the reasoning effort for reasoning models (e.g. "minimal", "low", "medium",
      * "high"). When {@code reasoningEffort} is null the parameter is omitted from the request, so the model uses its
-     * default. Only sent for gpt-5 models, consistent with the verbosity / service_tier handling.
+     * default. Only sent to reasoning models ({@link #isReasoningModel}), like verbosity and service_tier.
      */
     public String chat(JsonArray messages, double temperature, AtomicInteger usedTokens, String modelName, Integer maxTokens, JsonObject jsonSchema, String reasoningEffort) throws Exception {
         DocumentRetriever documentRetriever = createDocumentRetriever();
-        JsonObject requestJson = new JsonObject();
-        requestJson.put("messages", messages);
-        requestJson.put("model", modelName);
-        if (!modelName.contains("gpt-5")) {
-            requestJson.put("temperature", temperature);
-        }
-        if (serviceTier != null && modelName.contains("gpt-5")) {
-            requestJson.put("service_tier", serviceTier);
-        }
-        if (verbosity != null && modelName.contains("gpt-5")) {
-            requestJson.put("verbosity", verbosity);
-        }
-        if (reasoningEffort != null && modelName.contains("gpt-5")) {
-            requestJson.put("reasoning_effort", reasoningEffort);
-        }
-        if (maxTokens != null) {
-            // gpt-5 family (reasoning models) rejects the legacy "max_tokens" field with a 400 and
-            // requires "max_completion_tokens" instead — consistent with the gpt-5 handling above
-            if (modelName.contains("gpt-5")) {
-                requestJson.put("max_completion_tokens", maxTokens);
-            } else {
-                requestJson.put("max_tokens", maxTokens);
-            }
-        }
-        if (jsonSchema != null) {
-            JsonObject responseFormatJson = new JsonObject();
-            responseFormatJson.put("type", "json_schema");
-            responseFormatJson.put("json_schema", jsonSchema);
-            requestJson.put("response_format", responseFormatJson);
-        }
+        JsonObject requestJson = chatRequest(messages, temperature, modelName, maxTokens, jsonSchema, reasoningEffort);
         if (throttle != null) {
             throttle.hold();
         }
