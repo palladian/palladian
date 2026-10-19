@@ -15,7 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 
 /**
@@ -84,8 +87,33 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     private final ScheduledExecutorService monitorExecutor = Executors.newSingleThreadScheduledExecutor();
     private final ExecutorService quitExecutor = Executors.newCachedThreadPool();
 
+    /**
+     * Every retriever this pool created and has not closed yet, <em>borrowed ones included</em>. Closing only what
+     * sits idle in the queue left every borrowed driver running when the JVM exited, and a chromedriver whose JVM is
+     * gone is reparented to init, where no reaper can ever tell it apart from a live one again.
+     */
+    private final Set<RenderingDocumentRetriever> openRetrievers = ConcurrentHashMap.newKeySet();
+    private final AtomicBoolean closed = new AtomicBoolean(false);
+    private final CountDownLatch closedLatch = new CountDownLatch(1);
+    /** Closes that have claimed a retriever and not finished quitting it yet, on whatever thread runs them. */
+    private final AtomicInteger closesInFlight = new AtomicInteger(0);
+
+    /** Pools the JVM shutdown hook still has to close. A closed pool leaves, so the hook keeps no dead pool alive. */
+    private static final Set<RenderingDocumentRetrieverPool> OPEN_POOLS = ConcurrentHashMap.newKeySet();
+    private static final AtomicBoolean SHUTDOWN_HOOK_INSTALLED = new AtomicBoolean(false);
+
     // Quit timeouts
     private static final long QUIT_TIMEOUT_SECONDS = 10;
+
+    /** How long {@link #closePool()} lets borrowed drivers come back on their own before it closes them anyway. */
+    private static final long BORROWED_GRACE_MILLIS = 5000;
+    /** Upper bound for closing a batch of drivers in parallel: one quit timeout plus the hard-kill that may follow it. */
+    private static final long CLOSE_DEADLINE_SECONDS = QUIT_TIMEOUT_SECONDS + 5;
+    /**
+     * How long anyone waits for one closePool(): idle round, grace, forced round, plus a margin for thread start-up and
+     * polling, so a waiter never gives up just before the closer finishes.
+     */
+    private static final long CLOSE_POOL_WAIT_MILLIS = BORROWED_GRACE_MILLIS + TimeUnit.SECONDS.toMillis(2 * CLOSE_DEADLINE_SECONDS) + 2000;
 
     // Hard-kill behavior
     private static final long TERM_WAIT_MILLIS = 250;
@@ -117,7 +145,17 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         this.driverVersionCode = driverVersionCode;
         this.binaryPath = binaryPath;
         this.additionalOptions = additionalOptions;
-        initializePool();
+        try {
+            initializePool();
+        } catch (RuntimeException | Error e) {
+            // a pool that fails half-way through its initial fill must not leave the browsers it did start behind
+            closePool(0);
+            throw e;
+        }
+
+        // we have to shut down the browsers or the RAM will be used up rather quickly
+        OPEN_POOLS.add(this);
+        installShutdownHook();
 
         monitorExecutor.scheduleAtFixedRate(() -> {
             try {
@@ -132,20 +170,53 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
                 LOGGER.warn("Error during rendering pool monitor task", t);
             }
         }, MONITOR_INTERVAL_SECONDS, MONITOR_INTERVAL_SECONDS, TimeUnit.SECONDS);
+    }
 
-        // we have to shut down the browsers or the RAM will be used up rather quickly
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            for (int i = 0; i < size; ++i) {
-                try {
-                    RenderingDocumentRetriever r = pool.poll(10, TimeUnit.SECONDS);
-                    closeWithStats(r);
-                } catch (Exception e) {
-                    LOGGER.warn("Error during pool shutdown hook", e);
-                }
+    /**
+     * One hook for the whole JVM, not one per pool: hooks run in no particular order, and the final sweep for
+     * chromedrivers no pool closed must run after every pool is done, or it kills drivers another pool is still
+     * quitting.
+     */
+    private static void installShutdownHook() {
+        if (SHUTDOWN_HOOK_INSTALLED.compareAndSet(false, true)) {
+            Runtime.getRuntime().addShutdownHook(new Thread(RenderingDocumentRetrieverPool::closeAllPoolsAtShutdown, "rendering-pool-shutdown"));
+        }
+    }
+
+    /**
+     * Close every open pool in parallel, then kill any chromedriver tree this JVM still has: one that was started
+     * outside a pool, or one whose quit outlived the deadline. Whatever survives this is reparented to init the
+     * moment the JVM exits.
+     */
+    static void closeAllPoolsAtShutdown() {
+        closeAllPoolsThenSweep(() -> terminateChromedriverChildren(ProcessHandle.current()));
+    }
+
+    /** @param sweep runs once every pool is closed or the wait ran out; answers how many process trees it killed */
+    static void closeAllPoolsThenSweep(IntSupplier sweep) {
+        List<RenderingDocumentRetrieverPool> pools = new ArrayList<>(OPEN_POOLS);
+        List<Thread> closers = new ArrayList<>();
+        for (RenderingDocumentRetrieverPool openPool : pools) {
+            Thread closer = new Thread(openPool::closePool, "rendering-pool-shutdown-" + openPool.poolId);
+            closer.setDaemon(true);
+            closer.start();
+            closers.add(closer);
+        }
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(CLOSE_POOL_WAIT_MILLIS);
+        for (Thread closer : closers) {
+            long remainingMillis = TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime());
+            if (remainingMillis <= 0) {
+                break;
             }
-            quitExecutor.shutdownNow();
-            monitorExecutor.shutdownNow();
-        }));
+            try {
+                closer.join(remainingMillis);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        int reaped = sweep.getAsInt();
+        LOGGER.info("JVM shutdown: closed {} rendering pool(s), killed {} leftover chromedriver process tree(s)", pools.size(), reaped);
     }
 
     /**
@@ -157,7 +228,14 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
     @Override
     public final RenderingDocumentRetriever createObject() {
         createdDrivers.incrementAndGet();
-        return createRetriever();
+        RenderingDocumentRetriever retriever = createRetriever();
+        if (retriever != null) {
+            openRetrievers.add(retriever);
+            // callers also use createObject() as a factory and quit the driver themselves (NewsFrontpageDownloader):
+            // without this, every such retriever stayed tracked forever and every closePool() waited out the grace
+            retriever.setOnClose(() -> openRetrievers.remove(retriever));
+        }
+        return retriever;
     }
 
     /** Build one retriever for this pool. Override to pool a different {@link RenderingDocumentRetriever} flavour. */
@@ -208,10 +286,27 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
 
     @Override
     public void recycle(RenderingDocumentRetriever resource) {
+        if (closed.get()) {
+            // a driver borrowed before closePool() comes back to a pool nobody will drain again
+            closeOnce(resource);
+            return;
+        }
         // counted after the hand-back: a full pool throws, and that path becomes a replace, not a recycle
         super.recycle(resource);
         if (resource != null) {
             recycledDrivers.incrementAndGet();
+        }
+        takeBackIfClosed(resource);
+    }
+
+    /**
+     * closePool() may have drained the queue between our check of {@link #closed} and the hand-back. A driver queued
+     * after that drain would be closed by the forced round but stay in the queue, and a later poll() would hand out a
+     * dead retriever: take it out again and close it here.
+     */
+    void takeBackIfClosed(RenderingDocumentRetriever resource) {
+        if (resource != null && closed.get() && pool.remove(resource)) {
+            closeOnce(resource);
         }
     }
 
@@ -226,22 +321,40 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
      *               instead of re-derived from stack traces.
      */
     public void replace(RenderingDocumentRetriever resource, ReplaceReason reason) {
+        if (closed.get()) {
+            // a closed pool must not start a browser that nothing would ever close; it replaces nothing, so it is not
+            // counted either, which keeps created == size + replaced an identity
+            closeOnce(resource);
+            return;
+        }
+        // counted before the close: a hard-kill during it overwrites the invalidation cause with "hard-kill"
         replacedDrivers.incrementAndGet();
         countReplaceReason(reason, resource);
         try {
-            closeWithStats(resource);
+            closeOnce(resource);
         } catch (Exception e) {
             LOGGER.warn("Error closing resource during replace()", e);
         }
+        if (closed.get()) {
+            // closePool() ran while the old driver was being closed
+            return;
+        }
 
         RenderingDocumentRetriever newResource = createObject();
+        if (closed.get()) {
+            // closePool() ran while the new browser was starting
+            closeOnce(newResource);
+            return;
+        }
         try {
             pool.add(newResource);
         } catch (Exception e) {
             // If we cannot add to the pool (e.g. full), we must close the new resource to avoid leak
-            closeWithStats(newResource);
+            closeOnce(newResource);
             LOGGER.warn("Could not add new resource to pool during replace()", e);
+            return;
         }
+        takeBackIfClosed(newResource);
     }
 
     private void countReplaceReason(ReplaceReason reason, RenderingDocumentRetriever resource) {
@@ -349,17 +462,109 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         return counter == null ? 0 : counter.get();
     }
 
+    /**
+     * Close every driver this pool created, borrowed ones included, and stop the pool. Idle drivers are closed at
+     * once; borrowed ones get {@link #BORROWED_GRACE_MILLIS} to come back (a recycle or replace into a closed pool
+     * closes them), and whatever is still out after that is closed under its borrower. Bounded: it used to
+     * {@code take()} one driver per slot and blocked forever on a driver that was never handed back. A second
+     * caller waits for the first instead of closing anything twice.
+     */
     public void closePool() {
-        for (int i = 0; i < size; i++) {
+        closePool(BORROWED_GRACE_MILLIS);
+    }
+
+    void closePool(long borrowedGraceMillis) {
+        if (!closed.compareAndSet(false, true)) {
+            awaitClosed();
+            return;
+        }
+        try {
+            List<RenderingDocumentRetriever> idle = new ArrayList<>();
+            pool.drainTo(idle);
+            closeInParallel(idle);
+            // a borrower handing its driver back closes it on its own thread; wait for that close too, not just the claim
+            waitUntil(() -> openRetrievers.isEmpty() && closesInFlight.get() == 0, System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(borrowedGraceMillis));
+            long closeDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(CLOSE_DEADLINE_SECONDS);
+            List<RenderingDocumentRetriever> stillOpen = new ArrayList<>(openRetrievers);
+            if (!stillOpen.isEmpty()) {
+                LOGGER.warn("Closing {} driver(s) of {} that were not handed back within {}ms", stillOpen.size(), poolId, borrowedGraceMillis);
+                closeInParallel(stillOpen);
+            }
+            waitUntil(() -> closesInFlight.get() == 0, closeDeadline);
+        } finally {
+            // shutdown(), not shutdownNow(): interrupting a quit that is still running loses its chromedriver
+            quitExecutor.shutdown();
+            monitorExecutor.shutdownNow();
+            closedLatch.countDown();
+            // only now: the shutdown hook must still see a pool that another thread is closing, and wait for it
+            OPEN_POOLS.remove(this);
+        }
+    }
+
+    private void awaitClosed() {
+        try {
+            if (!closedLatch.await(CLOSE_POOL_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                LOGGER.warn("Gave up waiting for {} to finish closing", poolId);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private static void waitUntil(BooleanSupplier condition, long deadlineNanos) {
+        while (!condition.getAsBoolean() && System.nanoTime() < deadlineNanos) {
             try {
-                RenderingDocumentRetriever take = pool.take();
-                closeWithStats(take);
-            } catch (Exception e) {
-                LOGGER.warn("Error closing pool entry", e);
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
             }
         }
-        quitExecutor.shutdownNow();
-        monitorExecutor.shutdownNow();
+    }
+
+    /** Quit drivers side by side: one at a time, a pool of 23 took minutes and the JVM was killed half-way. */
+    private void closeInParallel(List<RenderingDocumentRetriever> retrievers) {
+        if (retrievers.isEmpty()) {
+            return;
+        }
+        ExecutorService closer = Executors.newFixedThreadPool(retrievers.size(), runnable -> {
+            Thread thread = new Thread(runnable, "rendering-pool-close");
+            thread.setDaemon(true);
+            return thread;
+        });
+        for (RenderingDocumentRetriever retriever : retrievers) {
+            closer.execute(() -> closeOnce(retriever));
+        }
+        closer.shutdown();
+        try {
+            if (!closer.awaitTermination(CLOSE_DEADLINE_SECONDS, TimeUnit.SECONDS)) {
+                LOGGER.warn("Closing {} driver(s) of {} took longer than {}s", retrievers.size(), poolId, CLOSE_DEADLINE_SECONDS);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * Close a retriever exactly once, however many paths reach it (replace, recycle into a closed pool, closePool,
+     * the shutdown hook). Removing it from {@link #openRetrievers} is the claim; a retriever this pool did not create
+     * or already closed is left alone.
+     */
+    private void closeOnce(RenderingDocumentRetriever resource) {
+        if (resource == null) {
+            return;
+        }
+        // counted before the claim, so closePool() never sees "nothing open, nothing closing" in between
+        closesInFlight.incrementAndGet();
+        try {
+            if (openRetrievers.remove(resource)) {
+                closeWithStats(resource);
+            }
+        } catch (Throwable t) {
+            LOGGER.warn("Error closing a driver of {}", poolId, t);
+        } finally {
+            closesInFlight.decrementAndGet();
+        }
     }
 
     private void closeWithStats(RenderingDocumentRetriever resource) {
@@ -370,7 +575,14 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         // Capture Chrome PID *before* attempting quit (capabilities are in-memory)
         final Long chromePid = getChromeBrowserPid(resource);
 
-        Future<Boolean> future = quitExecutor.submit(resource::closeAndQuit);
+        Future<Boolean> future;
+        try {
+            future = quitExecutor.submit(resource::closeAndQuit);
+        } catch (RejectedExecutionException e) {
+            // the pool finished closing while this driver was still out
+            hardKill(resource, chromePid, "pool already closed");
+            return;
+        }
         try {
             Boolean result = future.get(QUIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             if (Boolean.FALSE.equals(result)) {
@@ -515,7 +727,34 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         return process.info().startInstant().map(start -> !start.isAfter(cutoff)).orElse(false);
     }
 
-    static int terminateProcessTree(ProcessHandle root) {
+    /**
+     * Kill every chromedriver child of {@code parent} with its whole tree, owned or not. Only for a JVM that is
+     * exiting: there, a driver that is still running is one the pools could not close in time.
+     *
+     * @return the number of chromedriver trees killed
+     */
+    static int terminateChromedriverChildren(ProcessHandle parent) {
+        if (parent == null) {
+            return 0;
+        }
+        int killed = 0;
+        for (ProcessHandle child : parent.children().collect(Collectors.toList())) {
+            if (child.isAlive() && isChromedriver(child)) {
+                terminateProcessTree(child);
+                killed++;
+            }
+        }
+        return killed;
+    }
+
+    /**
+     * SIGTERM {@code root} and all its descendants, wait briefly, then SIGKILL whatever is left. The descendants are
+     * listed before anything is signaled, so a child that is reparented to init when its parent dies is still
+     * reached. Public so a process that stops another JVM can clean up that JVM's browsers the same way.
+     *
+     * @return the number of signals that were accepted
+     */
+    public static int terminateProcessTree(ProcessHandle root) {
         if (root == null) {
             return 0;
         }

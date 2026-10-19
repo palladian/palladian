@@ -70,6 +70,9 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
 
     protected Consumer<NoSuchSessionException> noSuchSessionExceptionCallback;
 
+    /** Set by the pool that created this retriever, so a close that bypasses the pool still stops it being tracked. */
+    private volatile Runnable onClose;
+
     private boolean deleteDriverCookiesBeforeUse = true;
     private PageLoadStrategy pageLoadStrategy = PageLoadStrategy.NORMAL;
 
@@ -784,9 +787,17 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                 LOGGER.warn("Could not stop driver service", t);
                 ok = false;
             }
+            Runnable closeListener = onClose;
+            if (closeListener != null) {
+                closeListener.run();
+            }
         }
 
         return ok;
+    }
+
+    void setOnClose(Runnable onClose) {
+        this.onClose = onClose;
     }
 
     /** Close the window this session drives, before {@code quit()}. Overridden where the session doesn't own the browser. */
