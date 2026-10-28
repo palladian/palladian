@@ -53,11 +53,11 @@
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.lz4/lz4-java -->
+        <!-- https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java (maintained fork of org.lz4, same net.jpountz API) -->
         <dependency>
-            <groupId>org.lz4</groupId>
+            <groupId>at.yawk.lz4</groupId>
             <artifactId>lz4-java</artifactId>
-            <version>1.8.1</version>
+            <version>1.12.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
