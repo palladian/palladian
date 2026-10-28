@@ -17,6 +17,10 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
@@ -65,6 +69,7 @@ public class CloakBrowserDocumentRetriever extends RenderingDocumentRetriever {
     private final String debuggerAddress;
     private final String remoteBrowserVersion;
     private final String ownTabHandle;
+    private final CloakBrowserTabRegistry tabRegistry;
     /**
      * @param debuggerAddress host:port of a running CloakBrowser CDP endpoint,
      *                        e.g. "127.0.0.1:9222".
@@ -132,6 +137,13 @@ public class CloakBrowserDocumentRetriever extends RenderingDocumentRetriever {
         chromeDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(getTimeoutSeconds()));
         setDriver(chromeDriver);
         this.ownTabHandle = openOwnTab(chromeDriver);
+        this.tabRegistry = CloakBrowserTabRegistry.forAddress(this.debuggerAddress);
+        // Only with a tab of our own, opened first: the sweep then can never close the browser's last tab, nor the
+        // tab a session without its own attached to (which may be a gone session's registered tab).
+        if (ownTabHandle != null) {
+            tabRegistry.register(ownTabHandle);
+            closeAbandonedTabs();
+        }
         // The client's read timeout equals the page-load timeout, so a wedged tab surfaces as the client giving up,
         // never as the driver's own (fatal) timeout: without this the pool recycles the dead session forever.
         setMaxConsecutiveDriverTimeouts(MAX_CONSECUTIVE_DRIVER_TIMEOUTS);
@@ -165,10 +177,47 @@ public class CloakBrowserDocumentRetriever extends RenderingDocumentRetriever {
     /**
      * Close only the tab this session opened. The tab it attached to belongs to the shared browser, maybe to another
      * JVM's session, and closing the browser's last tab takes the browser down with it.
+     * <p>
+     * Through the browser first, not through this session: a session is mostly replaced because it is wedged, and a
+     * close sent through its chromedriver then hangs and fails. That left 206 tabs (10 cores, 18 GB) in skycraft's
+     * shared browser. If both ways fail, the tab is marked abandoned and the next session build closes it.
      */
     @Override
     protected void closeDriverWindow() {
-        closeOwnTab(driver, ownTabHandle);
+        closeOwnTab(ownTabHandle, targetIds -> CloakBrowserDevTools.closeTargets(debuggerAddress, targetIds), driver, tabRegistry);
+    }
+
+    /** Package-private + static so it is unit-testable without a browser; a {@code null} handle closes nothing. */
+    static void closeOwnTab(String ownTabHandle, Function<Collection<String>, Set<String>> closeOverDevTools, WebDriver driver,
+            CloakBrowserTabRegistry tabRegistry) {
+        if (ownTabHandle == null) {
+            return;
+        }
+        if (!closeOverDevTools.apply(List.of(ownTabHandle)).contains(ownTabHandle)) {
+            try {
+                closeOwnTab(driver, ownTabHandle);
+            } catch (RuntimeException e) {
+                LOGGER.warn("CloakBrowser could not close its tab {}, leaving it to the next session build: {}", ownTabHandle, e.toString());
+                tabRegistry.abandon(ownTabHandle);
+                throw e;
+            }
+        }
+        tabRegistry.release(ownTabHandle);
+    }
+
+    /** Close the tabs of sessions that are gone (see {@link CloakBrowserTabRegistry}). Never fails a session build. */
+    private void closeAbandonedTabs() {
+        try {
+            int closed = tabRegistry.sweep(CloakBrowserDevTools.listPageTargetIds(debuggerAddress),
+                    targetIds -> CloakBrowserDevTools.closeTargets(debuggerAddress, targetIds));
+            if (closed > 0) {
+                LOGGER.info("CloakBrowser closed {} tab(s) left behind by sessions that are gone", closed);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            LOGGER.warn("CloakBrowser could not sweep abandoned tabs at {}: {}", debuggerAddress, e.toString());
+        }
     }
 
     /** Package-private + static so it is unit-testable without a browser; a {@code null} handle closes nothing. */

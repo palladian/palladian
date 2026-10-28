@@ -1,19 +1,25 @@
 package ws.palladian.retrieval.cloakbrowser;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WindowType;
 
 import java.lang.reflect.Proxy;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit tests for the CloakBrowser session's own tab — the fix for the 2026-09-24 outage where every session attached
@@ -116,9 +122,74 @@ public class CloakBrowserOwnTabTest {
 
     @Test(expected = NoSuchWindowException.class)
     public void closeFailurePropagatesToTheCallerThatLogsIt() {
-        WebDriver driver = (WebDriver) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{WebDriver.class}, (proxy, method, args) -> {
+        CloakBrowserDocumentRetriever.closeOwnTab(failingDriver(), OWN_TAB);
+    }
+
+    private WebDriver failingDriver() {
+        return (WebDriver) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{WebDriver.class}, (proxy, method, args) -> {
             throw new NoSuchWindowException("no such window: target window already closed");
         });
-        CloakBrowserDocumentRetriever.closeOwnTab(driver, OWN_TAB);
+    }
+
+    /** Own tab ids as Chrome's target ids look, so the registry records them. */
+    private static final String OWN_TARGET = "C1C14BB2826C48B04F16A66A5D28310E";
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
+    private CloakBrowserTabRegistry registry() {
+        CloakBrowserTabRegistry registry = new CloakBrowserTabRegistry(folder.getRoot().toPath());
+        registry.register(OWN_TARGET);
+        return registry;
+    }
+
+    /** The regression: a wedged session could not close its tab through chromedriver, so it stayed open for weeks. */
+    @Test
+    public void closesThroughTheBrowserWithoutTouchingTheSession() {
+        RecordingDriver recording = new RecordingDriver();
+        CloakBrowserTabRegistry registry = registry();
+        List<String> closedOverDevTools = new ArrayList<>();
+
+        CloakBrowserDocumentRetriever.closeOwnTab(OWN_TARGET, ids -> {
+            closedOverDevTools.addAll(ids);
+            return Set.copyOf(ids);
+        }, recording.driver(), registry);
+
+        assertEquals(List.of(OWN_TARGET), closedOverDevTools);
+        assertTrue(recording.calls.isEmpty());
+        assertFalse(Files.exists(folder.getRoot().toPath().resolve(OWN_TARGET)));
+    }
+
+    @Test
+    public void fallsBackToTheSessionWhenTheBrowserCannotBeReached() {
+        RecordingDriver recording = new RecordingDriver();
+        CloakBrowserTabRegistry registry = registry();
+
+        CloakBrowserDocumentRetriever.closeOwnTab(OWN_TARGET, ids -> Collections.emptySet(), recording.driver(), registry);
+
+        assertEquals(List.of("window:" + OWN_TARGET, "close:" + OWN_TARGET), recording.calls);
+        assertFalse(Files.exists(folder.getRoot().toPath().resolve(OWN_TARGET)));
+    }
+
+    /** Neither way worked: the next session build closes it. */
+    @Test
+    public void marksTheTabAbandonedWhenNothingCanCloseIt() throws Exception {
+        CloakBrowserTabRegistry registry = registry();
+        try {
+            CloakBrowserDocumentRetriever.closeOwnTab(OWN_TARGET, ids -> Collections.emptySet(), failingDriver(), registry);
+            fail("the failure must still reach closeAndQuit");
+        } catch (NoSuchWindowException expected) {
+            // logged by the caller
+        }
+        assertEquals(CloakBrowserTabRegistry.ABANDONED, Files.readString(folder.getRoot().toPath().resolve(OWN_TARGET)));
+    }
+
+    @Test
+    public void aSessionWithoutItsOwnTabClosesNothing() {
+        RecordingDriver recording = new RecordingDriver();
+        CloakBrowserDocumentRetriever.closeOwnTab(null, ids -> {
+            throw new AssertionError("nothing to close");
+        }, recording.driver(), registry());
+        assertTrue(recording.calls.isEmpty());
     }
 }

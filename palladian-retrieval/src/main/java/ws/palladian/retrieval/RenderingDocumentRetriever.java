@@ -901,6 +901,33 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
         return driver;
     }
 
+    /**
+     * Load {@code about:blank}, so a browser waiting in a pool runs none of the last page's scripts.
+     *
+     * @return {@code false} if the browser did not load it; a retriever without a driver has nothing to blank.
+     */
+    public boolean blank() {
+        if (driver == null) {
+            return true;
+        }
+        if (deleteDriverCookiesBeforeUse) {
+            // now, while the last page is loaded: the borrower's deleteAllCookies() only reaches the loaded page's
+            // cookies, and about:blank has none
+            try {
+                driver.manage().deleteAllCookies();
+            } catch (Exception e) {
+                LOGGER.debug("Could not delete cookies on current page", e);
+            }
+        }
+        try {
+            driver.get("about:blank");
+            return true;
+        } catch (Exception e) {
+            LOGGER.debug("Could not load about:blank", e);
+            return false;
+        }
+    }
+
     @Override
     public void deleteAllCookies() {
         super.deleteAllCookies();

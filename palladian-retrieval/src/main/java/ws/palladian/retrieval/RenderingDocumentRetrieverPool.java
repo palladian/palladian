@@ -59,6 +59,8 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         INVALIDATED,
         /** Handing the driver back to the pool threw. */
         RECYCLE_FAILED,
+        /** The browser did not load {@code about:blank} on its way back into the pool. */
+        BLANK_FAILED,
         /** Replaced through the legacy no-reason API. */
         UNSPECIFIED
     }
@@ -289,6 +291,12 @@ public class RenderingDocumentRetrieverPool extends ResourcePool<RenderingDocume
         if (closed.get()) {
             // a driver borrowed before closePool() comes back to a pool nobody will drain again
             closeOnce(resource);
+            return;
+        }
+        // An idle browser must not keep running the last page's scripts: one parked news-reader tab held 11.8 GB and a
+        // core for 20 h. A browser that cannot even load about:blank is not fit to hand out again.
+        if (resource != null && !resource.blank()) {
+            replace(resource, ReplaceReason.BLANK_FAILED);
             return;
         }
         // counted after the hand-back: a full pool throws, and that path becomes a replace, not a recycle
