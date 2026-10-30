@@ -10,6 +10,8 @@ import org.apache.hc.client5.http.auth.Credentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.entity.DeflateInputStream;
+import org.apache.hc.client5.http.entity.InputStreamFactory;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
@@ -25,6 +27,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ws.palladian.helper.UrlHelper;
@@ -39,6 +42,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 
 /**
  * <p>
@@ -114,6 +118,23 @@ public class HttpRetriever {
      * single request can never block for longer than this between retries.
      */
     public static final TimeValue MAX_RETRY_INTERVAL = TimeValue.ofSeconds(5);
+
+    /**
+     * The content codings we advertise ({@code Accept-Encoding}) and decode: gzip, x-gzip, deflate, br, which is the
+     * httpclient5 5.4 default. We pin them because the 5.6 default depends on the classpath: it advertises every codec
+     * commons-compress offers (lz4, bzip2, pack200, deflate64, ...) and decodes br through commons-compress, which fails
+     * with a {@link NoSuchMethodError} when an older commons-io wins ("Unable to decode Content-Encoding 'br'"). Its
+     * own {@code BrotliInputStreamFactory} is no way out either, since in 5.6 it needs brotli4j. br is decoded by
+     * org.brotli:dec, as in 5.4, so 5.4 and 5.6 behave the same.
+     */
+    static final LinkedHashMap<String, InputStreamFactory> CONTENT_DECODERS = new LinkedHashMap<>();
+
+    static {
+        CONTENT_DECODERS.put("gzip", GZIPInputStream::new);
+        CONTENT_DECODERS.put("x-gzip", GZIPInputStream::new);
+        CONTENT_DECODERS.put("deflate", DeflateInputStream::new);
+        CONTENT_DECODERS.put("br", BrotliInputStream::new);
+    }
 
     // ///////////// Apache HttpComponents ////////
 
@@ -322,6 +343,7 @@ public class HttpRetriever {
         }
 
         httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
+        httpClientBuilder.setContentDecoderRegistry(CONTENT_DECODERS);
         // Cap the retry interval: Apache honors the server's Retry-After header here, which can be arbitrarily large.
         // A single hostile/misconfigured Retry-After once made a pooled worker sleep > 30 min and hung the whole
         // update service (2026-06-23). Never wait longer than MAX_RETRY_INTERVAL between retries.

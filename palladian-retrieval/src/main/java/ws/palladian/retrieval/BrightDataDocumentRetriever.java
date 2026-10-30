@@ -71,20 +71,25 @@ public class BrightDataDocumentRetriever extends JsEnabledDocumentRetriever {
         THROTTLE.hold();
 
         try {
-            JsonObject body = new JsonObject();
-            body.put("zone", zone);
-            body.put("url", url);
-            body.put("format", "raw");
-            body.put("method", "GET");
-            body.put("country", "us");
-            if (useJsRendering) {
-                body.put("js_render", true);
-            }
-            return documentRetriever.postJsonObject("https://api.brightdata.com/request", body, false);
+            return documentRetriever.postJsonObject("https://api.brightdata.com/request", buildRequestBody(url), false);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    /** The page request body; it asks for rendering only if {@link #shouldRenderJs(String)} says so. */
+    JsonObject buildRequestBody(String url) {
+        JsonObject body = new JsonObject();
+        body.put("zone", zone);
+        body.put("url", url);
+        body.put("format", "raw");
+        body.put("method", "GET");
+        body.put("country", "us");
+        if (shouldRenderJs(url)) {
+            body.put("js_render", true);
+        }
+        return body;
     }
 
     @Override

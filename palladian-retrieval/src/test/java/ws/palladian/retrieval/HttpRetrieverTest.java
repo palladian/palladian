@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 import ws.palladian.helper.collection.CollectionHelper;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -21,6 +23,9 @@ public class HttpRetrieverTest {
 
     /** The logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetrieverTest.class);
+
+    /** {@code <p>Brotli decoded: café</p>}, compressed with the brotli CLI. */
+    private static final String BROTLI_BODY = "jw2APHA+QnJvdGxpIGRlY29kZWQ6IGNhZsOpPC9wPgM=";
 
     private HttpServer httpServer;
 
@@ -39,6 +44,20 @@ public class HttpRetrieverTest {
         httpServer.createContext("/", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) throws IOException {
+            }
+        });
+        // answers in brotli whatever the client asked for, and echoes the Accept-Encoding it received
+        httpServer.createContext("/brotli", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange) throws IOException {
+                byte[] body = Base64.getDecoder().decode(BROTLI_BODY);
+                exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
+                exchange.getResponseHeaders().add("Content-Encoding", "br");
+                exchange.getResponseHeaders().add("X-Received-Accept-Encoding", exchange.getRequestHeaders().getFirst("Accept-Encoding"));
+                exchange.sendResponseHeaders(200, body.length);
+                try (OutputStream out = exchange.getResponseBody()) {
+                    out.write(body);
+                }
             }
         });
         httpServer.setExecutor(Executors.newSingleThreadExecutor());
@@ -65,6 +84,18 @@ public class HttpRetrieverTest {
     @After
     public void tearDown() {
         httpServer.stop(0);
+    }
+
+    /**
+     * httpclient5 5.6 decodes br through commons-compress by default, which threw NoSuchMethodError against our
+     * commons-io; it also advertised lz4, bzip2, pack200 and deflate64. The pinned decoder map must keep both in check.
+     */
+    @Test
+    public void testBrotliIsAdvertisedAndDecoded() throws HttpException {
+        HttpResult result = HttpRetrieverFactory.getHttpRetriever().httpGet("http://localhost:" + port + "/brotli");
+        assertEquals(200, result.getStatusCode());
+        assertEquals("gzip, x-gzip, deflate, br", result.getHeaderString("X-Received-Accept-Encoding"));
+        assertEquals("<p>Brotli decoded: café</p>", result.getStringContent());
     }
 
     @Test(timeout = 5000, expected = HttpException.class)

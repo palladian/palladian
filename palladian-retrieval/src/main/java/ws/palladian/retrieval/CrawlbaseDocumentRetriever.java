@@ -40,7 +40,7 @@ public class CrawlbaseDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         THROTTLE.hold();
-        String requestUrl = "https://api.crawlbase.com/?token=" + getActiveToken() + "&url=" + UrlHelper.encodeParameter(url);
+        String requestUrl = "https://api.crawlbase.com/?token=" + getActiveToken(url) + "&url=" + UrlHelper.encodeParameter(url);
         if (!getWaitConditionsForUrl(url).isEmpty()) {
             requestUrl += "&ajax_wait=true"; // no direct support for wait conditions, try to at least wait for all async requests to finish
         }
@@ -66,7 +66,8 @@ public class CrawlbaseDocumentRetriever extends JsEnabledDocumentRetriever {
         return Integer.MAX_VALUE;
     }
 
-    private String getActiveToken() {
-        return isUseJsRendering() ? apiKeyJs : apiKeyPlain;
+    /** The JS token renders, the normal token does not, so the token follows {@link #shouldRenderJs(String)}. */
+    String getActiveToken(String url) {
+        return shouldRenderJs(url) ? apiKeyJs : apiKeyPlain;
     }
 }

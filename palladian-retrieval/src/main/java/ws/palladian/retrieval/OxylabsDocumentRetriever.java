@@ -15,6 +15,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Use the Oxylabs Web Unblocker service to retrieve web documents, with optional JavaScript rendering.
+ * <p>
+ * Unlike the other cloud retrievers, JavaScript rendering is <b>on by default</b> here: this retriever always rendered
+ * before it honoured {@link #shouldRenderJs(String)}, and callers rely on that. Turn rendering off per domain with
+ * {@link #addNoRenderDomain(String)}; Oxylabs bills by the GB and a rendered page loads all its subresources, so a
+ * domain whose content is in the raw HTML costs a fraction without rendering.
  *
  * @author David Urbansky
  * @see <a href="https://developers.oxylabs.io/advanced-proxy-solutions/web-unblocker/making-requests">Oxylabs Docs</a>
@@ -44,6 +49,7 @@ public class OxylabsDocumentRetriever extends JsEnabledDocumentRetriever {
     public OxylabsDocumentRetriever(Configuration configuration) {
         username = configuration.getString(CONFIG_USERNAME);
         password = configuration.getString(CONFIG_PASSWORD);
+        useJsRendering = true;
     }
 
     @Override
@@ -71,9 +77,7 @@ public class OxylabsDocumentRetriever extends JsEnabledDocumentRetriever {
         THROTTLE.hold();
 
         try {
-            HttpRequest2 request = new HttpRequest2Builder(HttpMethod.GET, url).addHeader("X-Oxylabs-Render", "html").addHeader("X-Oxylabs-Geo-Location", "United States").create();
-
-            HttpResult result = execute(request);
+            HttpResult result = execute(buildRequest(url));
 
             if (result != null && result.getStatusCode() == 200) {
                 return result.getStringContent();
@@ -84,6 +88,15 @@ public class OxylabsDocumentRetriever extends JsEnabledDocumentRetriever {
             LOGGER.error(e.getMessage(), e);
         }
         return null;
+    }
+
+    /** The page request; it carries the render header only if {@link #shouldRenderJs(String)} says so. */
+    HttpRequest2 buildRequest(String url) {
+        HttpRequest2Builder builder = new HttpRequest2Builder(HttpMethod.GET, url);
+        if (shouldRenderJs(url)) {
+            builder.addHeader("X-Oxylabs-Render", "html");
+        }
+        return builder.addHeader("X-Oxylabs-Geo-Location", "United States").create();
     }
 
     @Override

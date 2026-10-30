@@ -917,6 +917,22 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         return Integer.MAX_VALUE;
     }
 
+    /**
+     * Hand this domain to every cloud retriever of this cascade, so the ones that can switch rendering off fetch it
+     * without JavaScript (see {@link JsEnabledDocumentRetriever#addNoRenderDomain(String)}; PhantomJS Cloud still
+     * renders). Each retriever checks the URL itself, so unlike {@link #renderJs(boolean)} nothing is toggled per
+     * request. The local rendering pools are free and unaffected.
+     */
+    @Override
+    public void addNoRenderDomain(String domain) {
+        super.addNoRenderDomain(domain);
+        for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
+            if (cloudDocumentRetriever != null) {
+                cloudDocumentRetriever.addNoRenderDomain(domain);
+            }
+        }
+    }
+
     public boolean renderJs(boolean renderJs) {
         boolean originalValue = false;
         for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {

@@ -41,8 +41,9 @@ public class ScraperApiDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         THROTTLE.hold();
-        String requestUrl = " http://api.scraperapi.com?api_key=" + apiKey + "&render=" + useJsRendering + "&url=" + UrlHelper.encodeURIComponent(url);
-        Set<String> waitSelectors = useJsRendering ? getWaitConditionsForUrl(url) : Collections.emptySet();
+        boolean render = shouldRenderJs(url);
+        String requestUrl = " http://api.scraperapi.com?api_key=" + apiKey + "&render=" + render + "&url=" + UrlHelper.encodeURIComponent(url);
+        Set<String> waitSelectors = render ? getWaitConditionsForUrl(url) : Collections.emptySet();
         if (!waitSelectors.isEmpty()) {
             Map<String, String> headers = Optional.ofNullable(documentRetriever.getGlobalHeaders()).orElse(new HashMap<>());
             JsonObject instruction = new JsonObject();
@@ -63,7 +64,7 @@ public class ScraperApiDocumentRetriever extends JsEnabledDocumentRetriever {
             computeRequestsLeft();
         } else {
             requestsLeft--;
-            if (useJsRendering) { // 10 credits with JS rendering
+            if (render) { // 10 credits with JS rendering
                 requestsLeft -= 9;
             }
             // refresh every once in a while

@@ -99,16 +99,10 @@ public abstract class WebDocumentRetriever {
      * @param domain the domain to blacklist; {@code null}/blank is ignored.
      */
     public void addBlacklistDomain(String domain) {
-        if (domain == null) {
-            return;
+        String normalized = toRegisteredDomain(domain);
+        if (normalized != null) {
+            blacklistedDomains.add(normalized);
         }
-        String d = domain.trim().toLowerCase();
-        if (d.isEmpty()) {
-            return;
-        }
-        // UrlHelper.getDomain needs a parseable URL, so prefix a protocol for bare domains.
-        String normalized = UrlHelper.getDomain(d.contains("://") ? d : "http://" + d, false, false);
-        blacklistedDomains.add(normalized == null || normalized.isEmpty() ? d : normalized);
     }
 
     public Set<String> getBlacklistedDomains() {
@@ -122,11 +116,39 @@ public abstract class WebDocumentRetriever {
      * or the domain cannot be determined).
      */
     public boolean shouldExtract(String url) {
-        if (blacklistedDomains.isEmpty()) {
-            return true;
+        return !isListedDomain(blacklistedDomains, url);
+    }
+
+    /**
+     * Normalize an entry for a per-domain list (the blacklist here, the no-render list in
+     * {@link JsEnabledDocumentRetriever}) to its registered domain, so the entry matches every sub-domain. The
+     * argument may be a bare domain, a sub-domain / www host or a full URL.
+     *
+     * @return the lowercased registered domain, or {@code null} for {@code null}/blank input.
+     */
+    static String toRegisteredDomain(String domain) {
+        if (domain == null) {
+            return null;
+        }
+        String d = domain.trim().toLowerCase();
+        if (d.isEmpty()) {
+            return null;
+        }
+        // UrlHelper.getDomain needs a parseable URL, so prefix a protocol for bare domains.
+        String normalized = UrlHelper.getDomain(d.contains("://") ? d : "http://" + d, false, false);
+        return normalized == null || normalized.isEmpty() ? d : normalized;
+    }
+
+    /**
+     * @return {@code true} if the URL's registered domain is in the given set of {@link #toRegisteredDomain(String)
+     * registered domains}; {@code false} when the set is empty or the domain cannot be determined.
+     */
+    static boolean isListedDomain(Set<String> registeredDomains, String url) {
+        if (registeredDomains.isEmpty()) {
+            return false;
         }
         String domain = UrlHelper.getDomain(url, false, false);
-        return domain == null || domain.isEmpty() || !blacklistedDomains.contains(domain);
+        return domain != null && !domain.isEmpty() && registeredDomains.contains(domain);
     }
 
     public Map<String, String> getGlobalHeaders() {

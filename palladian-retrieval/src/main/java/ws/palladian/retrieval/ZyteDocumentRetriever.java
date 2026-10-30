@@ -4,11 +4,13 @@ import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import ws.palladian.persistence.json.JsonException;
 import ws.palladian.persistence.json.JsonObject;
 import ws.palladian.retrieval.helper.RequestThrottle;
 import ws.palladian.retrieval.helper.TimeWindowRequestThrottle;
 import ws.palladian.retrieval.parser.ParserFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
@@ -73,41 +75,48 @@ public class ZyteDocumentRetriever extends JsEnabledDocumentRetriever {
         THROTTLE.hold();
 
         try {
-            JsonObject requestBody = new JsonObject();
-            requestBody.put("url", url);
-
-            if (useJsRendering) {
-                requestBody.put("browserHtml", true);
-            } else {
-                requestBody.put("httpResponseBody", true);
-            }
-
-            String response = documentRetriever.postJsonObject(API_URL, requestBody, false);
+            String response = documentRetriever.postJsonObject(API_URL, buildRequestBody(url), false);
 
             if (response == null) {
                 return null;
             }
 
-            if (useJsRendering) {
-                // browserHtml returns the HTML directly in the "browserHtml" field
-                JsonObject jsonResponse = JsonObject.tryParse(response);
-                if (jsonResponse != null && jsonResponse.containsKey("browserHtml")) {
-                    return jsonResponse.getString("browserHtml");
-                }
-                return response;
-            } else {
-                // httpResponseBody returns base64-encoded content in the "httpResponseBody" field
-                JsonObject jsonResponse = JsonObject.tryParse(response);
-                if (jsonResponse != null && jsonResponse.containsKey("httpResponseBody")) {
-                    String base64Body = jsonResponse.getString("httpResponseBody");
-                    return new String(Base64.getDecoder().decode(base64Body));
-                }
-                return response;
-            }
+            return parseResponse(response);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return null;
         }
+    }
+
+    /**
+     * The page from Zyte's answer: the field that was requested (rendering is decided per URL, see
+     * {@link #buildRequestBody(String)}), or the answer itself if it carries neither.
+     */
+    static String parseResponse(String response) throws JsonException {
+        JsonObject jsonResponse = JsonObject.tryParse(response);
+        if (jsonResponse != null && jsonResponse.containsKey("browserHtml")) {
+            // browserHtml returns the HTML directly in the "browserHtml" field
+            return jsonResponse.getString("browserHtml");
+        }
+        if (jsonResponse != null && jsonResponse.containsKey("httpResponseBody")) {
+            // httpResponseBody returns the base64-encoded bytes; UTF-8, not the platform charset, which is ASCII on
+            // a JVM started with LANG=C and would garble every non-ASCII character
+            String base64Body = jsonResponse.getString("httpResponseBody");
+            return new String(Base64.getDecoder().decode(base64Body), StandardCharsets.UTF_8);
+        }
+        return response;
+    }
+
+    /** The page request body: rendered {@code browserHtml} only if {@link #shouldRenderJs(String)} says so. */
+    JsonObject buildRequestBody(String url) {
+        JsonObject requestBody = new JsonObject();
+        requestBody.put("url", url);
+        if (shouldRenderJs(url)) {
+            requestBody.put("browserHtml", true);
+        } else {
+            requestBody.put("httpResponseBody", true);
+        }
+        return requestBody;
     }
 
     @Override

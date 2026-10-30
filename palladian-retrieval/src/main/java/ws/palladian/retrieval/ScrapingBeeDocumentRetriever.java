@@ -41,8 +41,9 @@ public class ScrapingBeeDocumentRetriever extends JsEnabledDocumentRetriever {
     @Override
     public Document getWebDocument(String url) {
         THROTTLE.hold();
-        String requestUrl = "https://app.scrapingbee.com/api/v1/?api_key=" + apiKey + "&render_js=" + useJsRendering + "&url=" + UrlHelper.encodeURIComponent(url);
-        Set<String> waitSelectors = useJsRendering ? getWaitConditionsForUrl(url) : Collections.emptySet();
+        boolean render = shouldRenderJs(url);
+        String requestUrl = "https://app.scrapingbee.com/api/v1/?api_key=" + apiKey + "&render_js=" + render + "&url=" + UrlHelper.encodeURIComponent(url);
+        Set<String> waitSelectors = render ? getWaitConditionsForUrl(url) : Collections.emptySet();
         if (!waitSelectors.isEmpty()) {
             requestUrl += "&wait_for=" + UrlHelper.encodeURIComponent(String.join(",", waitSelectors));
         }
@@ -55,7 +56,7 @@ public class ScrapingBeeDocumentRetriever extends JsEnabledDocumentRetriever {
             computeRequestsLeft();
         } else {
             requestsLeft--;
-            if (useJsRendering) { // 5 credits with JS rendering
+            if (render) { // 5 credits with JS rendering
                 requestsLeft -= 4;
             }
             // refresh every once in a while
