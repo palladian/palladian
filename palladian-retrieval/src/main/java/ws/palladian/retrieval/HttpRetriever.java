@@ -14,6 +14,7 @@ import org.apache.hc.client5.http.entity.DeflateInputStream;
 import org.apache.hc.client5.http.entity.InputStreamFactory;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -354,6 +355,15 @@ public class HttpRetriever {
             }
         };
         httpClientBuilder.setRetryStrategy(retryStrategy);
+        // newer httpclient versions do not follow a redirect to another scheme, host or port if the request has
+        // headers like Cookie or Authorization (e.g. http -> https with a Cookie header) and return the 3xx instead;
+        // restore the previous behavior and always follow
+        httpClientBuilder.setRedirectStrategy(new DefaultRedirectStrategy() {
+            @Override
+            public boolean isRedirectAllowed(HttpHost currentTarget, HttpHost newTarget, org.apache.hc.core5.http.HttpRequest redirect, HttpContext context) {
+                return true;
+            }
+        });
         /*
          * fix #261 to get connection metrics for head requests, see also discussion at
          * http://old.nabble.com/ConnectionShutdownException-when-trying-to-get-metrics-after-HEAD-request-td31358878.html

@@ -2,11 +2,13 @@ package ws.palladian.retrieval;
 
 import org.apache.commons.lang3.Validate;
 
+import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -112,7 +114,12 @@ public class HttpRetrieverFactory implements Factory<HttpRetriever>, Closeable {
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .register("https", socketFactory)
                 .build();
-        connectionManager = new PoolingHttpClientConnectionManager(registry);
+        // httpcore5 5.4 limits header lines to 8192 chars by default, restore the previous unlimited behavior;
+        // otherwise sites sending long headers (e.g. big Content-Security-Policy, Link or Set-Cookie) fail with
+        // "Maximum line length limit exceeded"
+        Http1Config http1Config = Http1Config.custom().setMaxLineLength(-1).build();
+        ManagedHttpClientConnectionFactory connectionFactory = ManagedHttpClientConnectionFactory.builder().http1Config(http1Config).build();
+        connectionManager = new PoolingHttpClientConnectionManager(registry, connectionFactory);
         connectionManager.setMaxTotal(numConnections);
         connectionManager.setDefaultMaxPerRoute(numConnectionsPerRoute);
     }
