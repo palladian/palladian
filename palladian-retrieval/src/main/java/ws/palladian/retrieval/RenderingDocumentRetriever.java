@@ -484,17 +484,26 @@ public class RenderingDocumentRetriever extends JsEnabledDocumentRetriever {
                     getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
                 }
                 LOGGER.error("problem with waiting", e);
-                // Throw exception to abort instead of continuing to potentially unstable state
-                throw new RuntimeException("Wait failed, aborting navigation to " + url, e);
+                abortIfRequired(url, e);
             }
         } catch (Exception e) {
             if (getWaitExceptionCallback() != null) {
                 getWaitExceptionCallback().accept(new WaitException(url, e, CollectionHelper.joinReadable(selectors)));
             }
             LOGGER.error("problem with waiting", e);
-            // Throw exception to abort instead of continuing to potentially unstable state
+            abortIfRequired(url, e);
+        }
+    }
+
+    /**
+     * Throw to abort instead of continuing to a potentially unstable state, unless configured to fall back to the page
+     * as rendered so far. An unresponsive driver always aborts, reading the page would hang as well.
+     */
+    private void abortIfRequired(String url, Exception e) {
+        if (isAbortOnWaitFailure() || isDriverUnresponsive(e)) {
             throw new RuntimeException("Wait failed, aborting navigation to " + url, e);
         }
+        LOGGER.warn("Wait failed for {}, falling back to the page as rendered so far", url);
     }
 
     /**

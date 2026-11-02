@@ -550,6 +550,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         renderingDocumentRetriever.setWaitForElementsMap(getWaitForElementsMap());
         renderingDocumentRetriever.setTimeoutSeconds(getTimeoutSeconds());
         renderingDocumentRetriever.setWaitExceptionCallback(getWaitExceptionCallback());
+        renderingDocumentRetriever.setAbortOnWaitFailure(isAbortOnWaitFailure());
         renderingDocumentRetriever.setCookies(this.cookies);
     }
 

@@ -27,6 +27,12 @@ public abstract class JsEnabledDocumentRetriever extends WebDocumentRetriever {
     private final Set<String> noRenderDomains = new HashSet<>();
 
     /**
+     * Whether a failed wait (e.g. a waited-for element never appeared) aborts the page. When false, the page is read
+     * as rendered so far.
+     */
+    protected boolean abortOnWaitFailure = true;
+
+    /**
      * We can configure the retriever to wait for certain elements on certain URLs that match the given pattern.
      */
     protected Map<Pattern, Set<String>> waitForElementsMap = new HashMap<>();
@@ -98,6 +104,14 @@ public abstract class JsEnabledDocumentRetriever extends WebDocumentRetriever {
 
     public void setUseJsRendering(boolean useJsRendering) {
         this.useJsRendering = useJsRendering;
+    }
+
+    public boolean isAbortOnWaitFailure() {
+        return abortOnWaitFailure;
+    }
+
+    public void setAbortOnWaitFailure(boolean abortOnWaitFailure) {
+        this.abortOnWaitFailure = abortOnWaitFailure;
     }
 
     /**
