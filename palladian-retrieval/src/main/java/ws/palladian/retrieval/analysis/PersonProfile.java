@@ -2,6 +2,8 @@ package ws.palladian.retrieval.analysis;
 
 import ws.palladian.helper.nlp.StringHelper;
 
+import java.util.Arrays;
+
 public class PersonProfile {
     private String firstName;
     private String middleName;
@@ -84,17 +86,23 @@ public class PersonProfile {
         return fullName;
     }
 
+    /**
+     * Fill the name parts from a formatted name: one word is the first name, two are first and last name, more are first
+     * name, middle name (all words in between) and last name. A part that is already set is kept.
+     */
     public void setFullName(String fullName) {
-        String[] parts = fullName.trim().split(" ");
-        if (parts.length == 3) {
+        if (fullName == null || fullName.trim().isEmpty()) {
+            return;
+        }
+        String[] parts = fullName.trim().split("\\s+");
+        if (firstName == null) {
             setFirstName(parts[0]);
-            setMiddleName(parts[1]);
-            setLastName(parts[2]);
-        } else if (parts.length == 2) {
-            setFirstName(parts[0]);
-            setLastName(parts[1]);
-        } else if (parts.length == 1) {
-            setLastName(parts[0]);
+        }
+        if (parts.length >= 2 && lastName == null) {
+            setLastName(parts[parts.length - 1]);
+        }
+        if (parts.length >= 3 && middleName == null) {
+            setMiddleName(String.join(" ", Arrays.copyOfRange(parts, 1, parts.length - 1)));
         }
     }
 
