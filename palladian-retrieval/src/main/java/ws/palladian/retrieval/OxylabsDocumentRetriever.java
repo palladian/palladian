@@ -77,16 +77,30 @@ public class OxylabsDocumentRetriever extends JsEnabledDocumentRetriever {
         THROTTLE.hold();
 
         try {
-            HttpResult result = execute(buildRequest(url));
-
-            if (result != null && result.getStatusCode() == 200) {
-                return result.getStringContent();
-            } else if (result != null) {
-                LOGGER.warn("Oxylabs returned status " + result.getStatusCode() + " for URL " + url + ": " + result.getStringContent());
-            }
+            return pageText(execute(buildRequest(url)), url);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
+        return null;
+    }
+
+    /**
+     * The page of any 2xx answer. Oxylabs passes on the target's own status: imdb.com answers 202 with its AWS WAF
+     * challenge, the rendered page behind it arrives with that 202 still attached, and dropping it threw away a billed
+     * fetch of the real page. Whether a 2xx body is the page or a challenge is the caller's call (the cascade's
+     * bad-document indicators).
+     *
+     * @return the content, or {@code null} for no result or a non-2xx status
+     */
+    static String pageText(HttpResult result, String url) {
+        if (result == null) {
+            return null;
+        }
+        int status = result.getStatusCode();
+        if (status >= 200 && status < 300) {
+            return result.getStringContent();
+        }
+        LOGGER.warn("Oxylabs returned status " + status + " for URL " + url + ": " + result.getStringContent());
         return null;
     }
 
