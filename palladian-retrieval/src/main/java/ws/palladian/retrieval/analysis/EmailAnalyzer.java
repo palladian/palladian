@@ -28,8 +28,10 @@ public class EmailAnalyzer {
 
     /**
      * Build a profile for an email address. Names come from the public Gravatar profile of that address, gaps are filled
-     * by parsing the address with NameAPI (when an API key is set). The image is the Gravatar avatar of that exact
-     * address, or null when it has none. The username is the Gravatar username, or null.
+     * by parsing the address with NameAPI (when an API key is set): the first given name is the first name, further given
+     * names are the middle name, and initials (j.smith) are not used as a name. The image is the Gravatar avatar of that
+     * exact address, or null when it has none. The username is the Gravatar username, or null. Every lookup uses a
+     * {@value #QUICK_TIMEOUT_MS} ms timeout.
      */
     public PersonProfile getProfile(String emailAddress) {
         PersonProfile personProfile = new PersonProfile();
@@ -39,9 +41,10 @@ public class EmailAnalyzer {
         String md5 = gravatarHash(emailAddress);
         String profileUrl = "https://www.gravatar.com/" + md5 + ".json";
         JsonObject gravatarResponse = null;
+        HttpRetriever quickHttpRetriever = createQuickHttpRetriever();
 
         try {
-            gravatarResponse = new DocumentRetriever().getJsonObject(profileUrl);
+            gravatarResponse = new DocumentRetriever(quickHttpRetriever).getJsonObject(profileUrl);
         } catch (Exception e) {
             // ccl
         }
@@ -62,8 +65,6 @@ public class EmailAnalyzer {
             personProfile.setFullName(firstEntry.tryQueryString("name/formatted"));
         }
 
-        HttpRetriever quickHttpRetriever = createQuickHttpRetriever();
-
         // the profile's thumbnailUrl uses the hash of the account's primary address, which looks unrelated to this one
         if (hasGravatarAvatar(quickHttpRetriever, md5)) {
             personProfile.setImageUrl(gravatarAvatarUrl(md5));
@@ -78,13 +79,10 @@ public class EmailAnalyzer {
 
                 JsonArray nameMatches = Optional.ofNullable(parsedEmailJson.tryGetJsonArray("nameMatches")).orElse(new JsonArray());
                 if (!nameMatches.isEmpty()) {
-                    String firstName = nameMatches.tryGetJsonObject(0).tryQueryString("givenNames[0]/name");
-                    String firstNameType = nameMatches.tryGetJsonObject(0).tryQueryString("givenNames[0]/nameType");
-                    if (firstNameType != null && firstNameType.equals("INITIAL")) {
-                        firstName = null;
-                    }
-                    String lastName = nameMatches.tryGetJsonObject(0).tryQueryString("surnames[0]/name");
-                    fillMissingNames(personProfile, firstName, lastName);
+                    JsonObject bestMatch = nameMatches.tryGetJsonObject(0);
+                    String[] givenNames = splitGivenNames(bestMatch.tryGetJsonArray("givenNames"));
+                    String lastName = bestMatch.tryQueryString("surnames[0]/name");
+                    fillMissingNames(personProfile, givenNames[0], givenNames[1], lastName);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,12 +97,45 @@ public class EmailAnalyzer {
      * cleared. A last name that repeats the first name (a single token read both ways) is ignored.
      */
     static void fillMissingNames(PersonProfile profile, String firstName, String lastName) {
+        fillMissingNames(profile, firstName, null, lastName);
+    }
+
+    /** Like {@link #fillMissingNames(PersonProfile, String, String)}, plus a middle name that repeats neither of the others. */
+    static void fillMissingNames(PersonProfile profile, String firstName, String middleName, String lastName) {
         if (StringHelper.nullOrEmpty(profile.getFirstName()) && !StringHelper.nullOrEmpty(firstName)) {
             profile.setFirstName(firstName);
         }
         if (StringHelper.nullOrEmpty(profile.getLastName()) && !StringHelper.nullOrEmpty(lastName) && !lastName.equalsIgnoreCase(profile.getFirstName())) {
             profile.setLastName(lastName);
         }
+        if (StringHelper.nullOrEmpty(profile.getMiddleName()) && !StringHelper.nullOrEmpty(middleName) && !middleName.equalsIgnoreCase(profile.getFirstName())
+                && !middleName.equalsIgnoreCase(profile.getLastName())) {
+            profile.setMiddleName(middleName);
+        }
+    }
+
+    /**
+     * NameAPI's given names, initials left out: the first one is the first name, the rest (joined with spaces) the
+     * middle name. Either is null when there is none.
+     */
+    static String[] splitGivenNames(JsonArray givenNames) {
+        String firstName = null;
+        StringBuilder middleName = new StringBuilder();
+        if (givenNames != null) {
+            for (int i = 0; i < givenNames.size(); i++) {
+                JsonObject givenName = givenNames.tryGetJsonObject(i);
+                String name = givenName == null ? null : givenName.tryGetString("name");
+                if (StringHelper.nullOrEmpty(name) || "INITIAL".equals(givenName.tryGetString("nameType"))) {
+                    continue;
+                }
+                if (firstName == null) {
+                    firstName = name.trim();
+                } else {
+                    middleName.append(middleName.length() == 0 ? "" : " ").append(name.trim());
+                }
+            }
+        }
+        return new String[]{firstName, middleName.length() == 0 ? null : middleName.toString()};
     }
 
     /** Gravatar's hash of an address: MD5 of the trimmed, lower-cased address. */
@@ -143,12 +174,31 @@ public class EmailAnalyzer {
      * @param apiKey The api key for quickemailverification.com.
      */
     public static EmailVerificationResult verify(String email, String apiKey) {
+        return verify(email, apiKey, new DocumentRetriever());
+    }
+
+    /**
+     * Verify an email, giving up after {@code timeoutMs} for connecting and for waiting on the answer (a slow mail server
+     * makes QuickEmailVerification slow).
+     *
+     * @return the verification, or null when it failed or timed out.
+     */
+    public static EmailVerificationResult verify(String email, String apiKey, int timeoutMs) {
+        HttpRetriever httpRetriever = HttpRetrieverFactory.getHttpRetriever();
+        httpRetriever.setConnectionTimeout(timeoutMs);
+        httpRetriever.setSocketTimeout(timeoutMs);
+        httpRetriever.setConnectionTimeoutRedirects(timeoutMs);
+        httpRetriever.setSocketTimeoutRedirects(timeoutMs);
+        return verify(email, apiKey, new DocumentRetriever(httpRetriever));
+    }
+
+    private static EmailVerificationResult verify(String email, String apiKey, DocumentRetriever documentRetriever) {
         if (email.isEmpty()) {
             return null;
         }
-        JsonObject response = new DocumentRetriever().tryGetJsonObject(
+        JsonObject response = documentRetriever.tryGetJsonObject(
                 "http://api.quickemailverification.com/v1/verify?email=" + UrlHelper.encodeParameter(email) + "&apikey=" + apiKey);
-        if (response == null || response.tryGetString("success").equals("false")) {
+        if (response == null || "false".equals(response.tryGetString("success")) || response.tryGetString("result") == null) {
             return null;
         }
 

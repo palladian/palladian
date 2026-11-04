@@ -18,7 +18,7 @@ public class PersonProfile {
 
     public void setFirstName(String firstName) {
         if (firstName != null) {
-            firstName = StringHelper.upperCaseFirstLetter(firstName);
+            firstName = capitalizeName(firstName);
         }
         this.firstName = firstName;
     }
@@ -29,7 +29,7 @@ public class PersonProfile {
 
     public void setMiddleName(String middleName) {
         if (middleName != null) {
-            middleName = StringHelper.upperCaseFirstLetter(middleName);
+            middleName = capitalizeName(middleName);
         }
         this.middleName = middleName;
     }
@@ -40,7 +40,7 @@ public class PersonProfile {
 
     public void setLastName(String lastName) {
         if (lastName != null) {
-            lastName = StringHelper.upperCaseFirstLetter(lastName);
+            lastName = capitalizeName(lastName);
         }
         this.lastName = lastName;
     }
@@ -104,6 +104,28 @@ public class PersonProfile {
         if (parts.length >= 3 && middleName == null) {
             setMiddleName(String.join(" ", Arrays.copyOfRange(parts, 1, parts.length - 1)));
         }
+    }
+
+    /**
+     * Upper-case the first letter of every word and the letter after a hyphen or an apostrophe of a name written all
+     * in lower case (as NameAPI reads it from an address): "mary ann" gives "Mary Ann", "jean-luc" "Jean-Luc", "o'brien"
+     * "O'Brien". A name with any capital letter was typed by its owner (Gravatar) and is kept as it is: "Van der Berg",
+     * "McDonald", "Ng'ang'a".
+     */
+    static String capitalizeName(String name) {
+        for (int i = 0; i < name.length(); i++) {
+            if (Character.isUpperCase(name.charAt(i)) || Character.isTitleCase(name.charAt(i))) {
+                return name;
+            }
+        }
+        StringBuilder capitalized = new StringBuilder(name.length());
+        boolean startOfPart = true;
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            capitalized.append(startOfPart ? Character.toUpperCase(c) : c);
+            startOfPart = Character.isWhitespace(c) || c == '-' || c == '\'' || c == '\u2019';
+        }
+        return capitalized.toString();
     }
 
     @Override

@@ -57,4 +57,23 @@ public class PersonProfileTest {
         collector.checkThat(profile.getLastName(), nullValue());
         collector.checkThat(profile.getFullName(), is(""));
     }
+
+    @Test
+    public void namesAreCapitalisedPerWordWithoutLowerCasing() {
+        collector.checkThat(PersonProfile.capitalizeName("mary ann"), is("Mary Ann"));
+        collector.checkThat(PersonProfile.capitalizeName("jean-luc"), is("Jean-Luc"));
+        collector.checkThat(PersonProfile.capitalizeName("o'brien"), is("O'Brien"));
+        collector.checkThat(PersonProfile.capitalizeName("McDonald"), is("McDonald"));
+        collector.checkThat(PersonProfile.capitalizeName(""), is(""));
+        // a name with a capital letter was typed by its owner and keeps its casing
+        collector.checkThat(PersonProfile.capitalizeName("Van der Berg"), is("Van der Berg"));
+        collector.checkThat(PersonProfile.capitalizeName("Ng'ang'a"), is("Ng'ang'a"));
+        collector.checkThat(PersonProfile.capitalizeName("de La Cruz"), is("de La Cruz"));
+        collector.checkThat(PersonProfile.capitalizeName("ng'ang'a"), is("Ng'Ang'A"));
+
+        PersonProfile profile = new PersonProfile();
+        profile.setFirstName("mary ann");
+        profile.setLastName("lee");
+        collector.checkThat(profile.getFullName(), is("Mary Ann Lee"));
+    }
 }

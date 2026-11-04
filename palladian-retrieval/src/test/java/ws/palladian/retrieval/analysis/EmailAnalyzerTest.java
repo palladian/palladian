@@ -1,6 +1,7 @@
 package ws.palladian.retrieval.analysis;
 
 import org.hamcrest.Matchers;
+import ws.palladian.persistence.json.JsonArray;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -55,5 +56,24 @@ public class EmailAnalyzerTest {
         String md5 = EmailAnalyzer.gravatarHash("  DAVID.urbansky@semknox.com ");
         collector.checkThat(md5, is("dce196cd00ed7df3bebdcb0b23a0f4db"));
         collector.checkThat(EmailAnalyzer.gravatarAvatarUrl(md5), is("https://0.gravatar.com/avatar/dce196cd00ed7df3bebdcb0b23a0f4db"));
+    }
+
+    @Test
+    public void givenNamesAfterTheFirstAreTheMiddleNameAndInitialsAreDropped() {
+        // NameAPI's answers for john.michael.smith@, mary_ann.lee@ and j.smith@ (lower case, as it sends them)
+        String[] john = EmailAnalyzer.splitGivenNames(JsonArray.tryParse("[{\"name\":\"john\",\"nameType\":\"NAME\"},{\"name\":\"michael\",\"nameType\":\"NAME\"}]"));
+        collector.checkThat(john[0], is("john"));
+        collector.checkThat(john[1], is("michael"));
+        String[] maryAnn = EmailAnalyzer.splitGivenNames(JsonArray.tryParse("[{\"name\":\"mary ann\",\"nameType\":\"NAME\"}]"));
+        collector.checkThat(maryAnn[0], is("mary ann"));
+        collector.checkThat(maryAnn[1], Matchers.nullValue());
+        String[] initial = EmailAnalyzer.splitGivenNames(JsonArray.tryParse("[{\"name\":\"j.\",\"nameType\":\"INITIAL\"}]"));
+        collector.checkThat(initial[0], Matchers.nullValue());
+        collector.checkThat(initial[1], Matchers.nullValue());
+        collector.checkThat(EmailAnalyzer.splitGivenNames(null)[0], Matchers.nullValue());
+
+        PersonProfile profile = new PersonProfile();
+        EmailAnalyzer.fillMissingNames(profile, john[0], john[1], "smith");
+        collector.checkThat(profile.getFullName(), is("John Michael Smith"));
     }
 }
