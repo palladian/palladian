@@ -1,9 +1,11 @@
 package ws.palladian.retrieval;
 
+import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -25,6 +27,22 @@ public class OxylabsDocumentRetrieverTest {
         String page = "<html><script id=\"__NEXT_DATA__\">{\"tconst\":\"tt36586020\"}</script></html>";
         assertEquals(page, OxylabsDocumentRetriever.pageText(result(202, page), URL));
         assertEquals(page, OxylabsDocumentRetriever.pageText(result(200, page), URL));
+    }
+
+    /** imdb.com picks the page language from this header, so a rendered or a plain fetch must both ask for English. */
+    @Test
+    public void everyPageIsAskedForInEnglish() {
+        BaseConfiguration config = new BaseConfiguration();
+        config.addProperty(OxylabsDocumentRetriever.CONFIG_USERNAME, "u");
+        config.addProperty(OxylabsDocumentRetriever.CONFIG_PASSWORD, "p");
+        OxylabsDocumentRetriever oxylabs = new OxylabsDocumentRetriever(config);
+        oxylabs.addNoRenderDomain("inquirer.net");
+
+        for (String page : new String[]{URL, "https://entertainment.inquirer.net/487051/x"}) {
+            Map<String, String> headers = oxylabs.buildRequest(page).getHeaders();
+            assertEquals("en-US", headers.get("Accept-Language"));
+            assertEquals("Oxylabs documents this as what lets a custom header through", "1", headers.get("X-Oxylabs-Force-Headers"));
+        }
     }
 
     @Test

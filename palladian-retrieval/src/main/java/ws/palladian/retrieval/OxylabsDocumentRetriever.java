@@ -44,6 +44,13 @@ public class OxylabsDocumentRetriever extends JsEnabledDocumentRetriever {
 
     private static final RequestThrottle THROTTLE = new TimeWindowRequestThrottle(1, TimeUnit.MINUTES, 100);
 
+    /**
+     * The page language we ask for. Sites like imdb.com pick it from this header: left to Oxylabs, 11 of 63 IMDb title
+     * pages came back German or Portuguese despite the US geo-location, with translated genres and that country's
+     * release date.
+     */
+    private static final String PAGE_LANGUAGE = "en-US";
+
     private final DocumentRetriever documentRetriever = new DocumentRetriever();
 
     public OxylabsDocumentRetriever(Configuration configuration) {
@@ -110,7 +117,10 @@ public class OxylabsDocumentRetriever extends JsEnabledDocumentRetriever {
         if (shouldRenderJs(url)) {
             builder.addHeader("X-Oxylabs-Render", "html");
         }
-        return builder.addHeader("X-Oxylabs-Geo-Location", "United States").create();
+        return builder.addHeader("X-Oxylabs-Geo-Location", "United States")
+                .addHeader("X-Oxylabs-Force-Headers", "1")
+                .addHeader("Accept-Language", PAGE_LANGUAGE)
+                .create();
     }
 
     @Override
