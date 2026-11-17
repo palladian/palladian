@@ -3,7 +3,10 @@ package ws.palladian.retrieval.parser;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import ws.palladian.helper.nlp.PatternHelper;
@@ -65,7 +68,19 @@ public final class JsoupParser extends BaseDocumentParser {
     private Document convertDocument(org.jsoup.nodes.Document document) {
         // unknown namespaces can cause problems with the documents (e.g. cloning or serializing), this is somehow handled by ValidatorNuParser out of the box
         addNamespacesToHtml(document);
+        removeTrailingComments(document);
         return W3CDom.convert(document);
+    }
+
+    /**
+     * Since jsoup 1.23, comments after the html element are kept as document-level nodes. XPathHelper expects the html
+     * element to be the document's last child, so drop them.
+     */
+    private static void removeTrailingComments(org.jsoup.nodes.Document document) {
+        Node last;
+        while ((last = document.lastChild()) instanceof Comment || last instanceof TextNode) {
+            last.remove();
+        }
     }
 
     private static String getDocumentEncoding(org.jsoup.nodes.Document document) {
