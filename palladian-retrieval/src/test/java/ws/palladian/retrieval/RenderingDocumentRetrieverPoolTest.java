@@ -69,6 +69,8 @@ public class RenderingDocumentRetrieverPoolTest {
     @Test
     public void reaperDoesNotKillFreshChildlessChromedriverChildren() throws Exception {
         try (ProcessFixture fixture = ProcessFixture.startChildlessChromedriver()) {
+            assertTrue("stand-in chromedriver must be running before the reaper runs", fixture.handle().isAlive());
+
             int reaped = RenderingDocumentRetrieverPool.reapLeakedChildlessChromedrivers(ProcessHandle.current(), 3600);
 
             assertEquals(0, reaped);
@@ -184,7 +186,7 @@ public class RenderingDocumentRetrieverPoolTest {
         static ProcessFixture startChildlessChromedriver() throws IOException {
             Path tempDir = Files.createTempDirectory("palladian-chromedriver-test");
             try {
-                Path executable = createNamedSymlink(tempDir, "chromedriver-test", "/bin/sleep");
+                Path executable = createNamedCopy(tempDir, "chromedriver-test", "/bin/sleep");
                 Process process = new ProcessBuilder(executable.toString(), "60").redirectErrorStream(true).start();
                 return new ProcessFixture(tempDir, process);
             } catch (Throwable t) {
@@ -215,15 +217,19 @@ public class RenderingDocumentRetrieverPoolTest {
             }
         }
 
-        private static Path createNamedSymlink(Path tempDir, String name, String target) throws IOException {
+        /**
+         * A real binary copied under a chromedriver-ish name. It has to be a COPY and must not be a symlink: Linux
+         * resolves {@code /proc/<pid>/exe} to the link TARGET, and {@link ProcessHandle.Info} drops argv[0] whenever
+         * that link is readable, so with a symlink the stand-in reports {@code /usr/bin/sleep} and does not look like
+         * a chromedriver at all. A real chromedriver is a real file whose name carries the identity - that is what
+         * the copy reproduces.
+         */
+        private static Path createNamedCopy(Path tempDir, String name, String target) throws IOException {
             Path targetPath = Paths.get(target);
             Assume.assumeTrue(target + " must exist for process-tree tests", Files.exists(targetPath));
             Path executable = tempDir.resolve(name);
-            try {
-                Files.createSymbolicLink(executable, targetPath);
-            } catch (UnsupportedOperationException | IOException | SecurityException e) {
-                Assume.assumeNoException("symbolic links are required for process-tree tests", e);
-            }
+            Files.copy(targetPath, executable);
+            Assume.assumeTrue("copy must be made executable", executable.toFile().setExecutable(true));
             return executable;
         }
 
