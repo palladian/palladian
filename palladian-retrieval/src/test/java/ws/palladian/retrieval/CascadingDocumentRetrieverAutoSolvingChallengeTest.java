@@ -146,7 +146,7 @@ public class CascadingDocumentRetrieverAutoSolvingChallengeTest {
             assertEquals("the cascade must wait on the live driver instead of rejecting the interstitial", 1, retriever.waits.get());
             assertSame("the page behind the interstitial is the result, not the interstitial", resolved, doc);
             assertEquals("counted as a stealth-stage success", Integer.valueOf(1),
-                    cascade.getRequestTracker().get(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY)[2]);
+                    cascade.getSuccessfulRequestCount(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
         } finally {
             cascade.close();
         }
@@ -176,7 +176,7 @@ public class CascadingDocumentRetrieverAutoSolvingChallengeTest {
             cascade.getRenderedWebDocument("https://never-clears.example/p/2");
 
             assertEquals("waited once, then the old behaviour: the domain is skipped", 1, retriever.renders.get());
-            assertEquals(Integer.valueOf(1), cascade.getRequestTracker().get(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY)[0]);
+            assertEquals(Integer.valueOf(1), cascade.getConsecutiveFailedRequestCount(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
         } finally {
             cascade.close();
         }

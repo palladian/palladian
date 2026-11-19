@@ -93,7 +93,7 @@ public class CascadingDocumentRetrieverCloakPoolTest {
             assertNull("cascade built with a null cloak pool must report null", cascade.getCloakBrowserDocumentRetrieverPool());
             cascade.setCloakBrowserDocumentRetrieverPool(null); // disabling the stealth stage must not throw
             assertNull("setting null keeps the stealth stage disabled", cascade.getCloakBrowserDocumentRetrieverPool());
-            assertFalse("a cascade without a cloak pool must not register a cloak row", cascade.getRequestTracker().containsKey(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
+            assertFalse("a cascade without a cloak pool must not register a cloak row", cascade.getRequestStats().containsKey(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
         } finally {
             cascade.close();
         }
@@ -117,11 +117,11 @@ public class CascadingDocumentRetrieverCloakPoolTest {
         CascadingDocumentRetriever cascade = cascade(pool);
         try {
             assertSame(pool, cascade.getCloakBrowserDocumentRetrieverPool());
-            assertTrue("the constructor must register the cloak stage under its role key", cascade.getRequestTracker().containsKey(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
-            assertFalse("the tracker key must not be derived from the concrete pool class", cascade.getRequestTracker().containsKey(DriverlessPool.class.getName()));
+            assertTrue("the constructor must register the cloak stage under its role key", cascade.getRequestStats().containsKey(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
+            assertFalse("the tracker key must not be derived from the concrete pool class", cascade.getRequestStats().containsKey(DriverlessPool.class.getName()));
             assertFalse("a parent-typed cloak pool must not collide with the rendering stage's key",
-                    cascade.getRequestTracker().containsKey(RenderingDocumentRetrieverPool.class.getName()));
-            assertEquals("exactly the plain/cloud/cloak stages are tracked (no regular rendering pool was passed)", 2, cascade.getRequestTracker().size());
+                    cascade.getRequestStats().containsKey(RenderingDocumentRetrieverPool.class.getName()));
+            assertEquals("exactly the plain/cloud/cloak stages are tracked (no regular rendering pool was passed)", 2, cascade.getRequestStats().size());
             assertEquals(Integer.valueOf(0), cascade.getSuccessfulRequestCount(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
         } finally {
             cascade.close();
@@ -136,8 +136,8 @@ public class CascadingDocumentRetrieverCloakPoolTest {
             DriverlessPool pool = newPool();
             cascade.setCloakBrowserDocumentRetrieverPool(pool);
             assertSame(pool, cascade.getCloakBrowserDocumentRetrieverPool());
-            assertTrue(cascade.getRequestTracker().containsKey(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
-            assertFalse(cascade.getRequestTracker().containsKey(DriverlessPool.class.getName()));
+            assertTrue(cascade.getRequestStats().containsKey(CascadingDocumentRetriever.CLOAK_POOL_TRACKER_KEY));
+            assertFalse(cascade.getRequestStats().containsKey(DriverlessPool.class.getName()));
         } finally {
             cascade.close();
         }
@@ -149,11 +149,13 @@ public class CascadingDocumentRetrieverCloakPoolTest {
      */
     @Test
     public void pausingTheRenderingStageDoesNotPauseTheCloakStage() {
-        CascadingDocumentRetriever cascade = cascade(newPool());
+        CascadingDocumentRetriever cascade = new CascadingDocumentRetriever((DocumentRetriever) null, newPool(), newPool(), new NoopCloud());
         try {
             // throttle the Chrome pool, then push it over the threshold
             cascade.pauseFailingRetriever(RenderingDocumentRetrieverPool.class.getName(), 1, 5);
-            cascade.getRequestTracker().put(RenderingDocumentRetrieverPool.class.getName(), new Integer[]{3, 0, 0});
+            for (int i = 0; i < 3; i++) {
+                cascade.getRequestStats().get(RenderingDocumentRetrieverPool.class.getName()).recordFailure();
+            }
 
             assertFalse("the throttled Chrome pool must be skipped", cascade.shouldMakeRequest(RenderingDocumentRetrieverPool.class.getName()));
             assertTrue("the stealth stage must be unaffected by the Chrome pool's throttle",
