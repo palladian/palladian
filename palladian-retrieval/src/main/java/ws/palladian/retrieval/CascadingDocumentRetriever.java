@@ -73,17 +73,21 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * Keep track of failing requests.
      */
     private final Map<String, Integer[]> failingThresholdAndNumberOfRequestsToSkip = new ConcurrentHashMap<>();
-    // web document retriever -> [failed requests, skipped requests, successful requests]
-    private final Map<String, Integer[]> requestTracker = new ConcurrentHashMap<>();
-    // web document retriever -> its request counts since the cascade was created, kept for every key in the request tracker
-    private final Map<String, RequestTotals> requestTotals = new ConcurrentHashMap<>();
+    // web document retriever -> its request counts
+    private final Map<String, RequestStats> requestTracker = new ConcurrentHashMap<>();
 
     /**
-     * The request counts of one retriever stage since the cascade was created. The request tracker only holds the consecutive failure run that drives
-     * {@link #pauseFailingRetriever}, so it cannot tell how many requests failed overall.
+     * The request counts of one retriever stage, updated from every crawling thread.
+     * <p>
+     * The consecutive failure run and the requests skipped in the current pause drive {@link #pauseFailingRetriever}: a success resets the run, the end of a
+     * pause resets both. The totals count everything since the cascade was created.
      */
-    public static final class RequestTotals {
+    public static final class RequestStats {
+        private final AtomicInteger consecutiveFailed = new AtomicInteger();
+        private final AtomicInteger pauseSkipped = new AtomicInteger();
+
         private final AtomicInteger requests = new AtomicInteger();
+        private final AtomicInteger successful = new AtomicInteger();
         private final AtomicInteger failed = new AtomicInteger();
         private final AtomicInteger skipped = new AtomicInteger();
         /** rendering stages: no driver came free within the poll timeout */
@@ -91,16 +95,66 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         /** rendering stages: the driver's session was gone, the request is retried once with another driver */
         private final AtomicInteger brokenSessions = new AtomicInteger();
 
-        void recordRequest(boolean successful) {
+        void recordSuccess() {
             requests.incrementAndGet();
-            if (!successful) {
-                failed.incrementAndGet();
+            successful.incrementAndGet();
+            consecutiveFailed.set(0);
+        }
+
+        void recordFailure() {
+            recordFailureWithoutRun();
+            consecutiveFailed.incrementAndGet();
+        }
+
+        /**
+         * A failed request that does not extend the consecutive failure run: the stage did not get to answer (no driver, a dead session, a crash), which is
+         * not the stage refusing pages, so it must not pause the stage.
+         */
+        void recordFailureWithoutRun() {
+            requests.incrementAndGet();
+            failed.incrementAndGet();
+        }
+
+        void recordPollTimeout() {
+            pollTimeouts.incrementAndGet();
+            recordFailureWithoutRun();
+        }
+
+        void recordBrokenSession() {
+            brokenSessions.incrementAndGet();
+            recordFailureWithoutRun();
+        }
+
+        /** Skip the request if the stage failed at least {@code failingThreshold} times in a row, end the pause after {@code numberOfRequestsToSkip} skips. */
+        synchronized boolean shouldSkip(int failingThreshold, int numberOfRequestsToSkip) {
+            if (consecutiveFailed.get() < failingThreshold) {
+                return false;
             }
+            if (pauseSkipped.get() >= numberOfRequestsToSkip) {
+                consecutiveFailed.set(0);
+                pauseSkipped.set(0);
+                return false;
+            }
+            pauseSkipped.incrementAndGet();
+            skipped.incrementAndGet();
+            return true;
+        }
+
+        public int getConsecutiveFailed() {
+            return consecutiveFailed.get();
+        }
+
+        public int getPauseSkipped() {
+            return pauseSkipped.get();
         }
 
         /** @return the requests made with this stage, successful or not; skipped requests were not made */
         public int getRequests() {
             return requests.get();
+        }
+
+        public int getSuccessful() {
+            return successful.get();
         }
 
         public int getFailed() {
@@ -119,10 +173,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
             return brokenSessions.get();
         }
 
+        /** The first three fields keep the format and meaning of the old tracker row, log queries rely on them. */
         @Override
         public String toString() {
-            return "requests=" + getRequests() + ", failed=" + getFailed() + ", skipped=" + getSkipped() + ", pollTimeouts=" + getPollTimeouts()
-                    + ", brokenSessions=" + getBrokenSessions();
+            return "failed=" + getConsecutiveFailed() + ", skipped=" + getPauseSkipped() + ", successful=" + getSuccessful() + ", requests=" + getRequests()
+                    + ", totalFailed=" + getFailed() + ", totalSkipped=" + getSkipped() + ", pollTimeouts=" + getPollTimeouts() + ", brokenSessions="
+                    + getBrokenSessions();
         }
     }
 
@@ -263,17 +319,17 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         this.cloudDocumentRetrievers.addAll(Arrays.asList(cloudDocumentRetrievers));
 
         if (this.documentRetriever != null) {
-            requestTracker.put(DocumentRetriever.class.getName(), new Integer[]{0, 0, 0});
+            requestTracker.put(DocumentRetriever.class.getName(), new RequestStats());
         }
         if (this.renderingDocumentRetrieverPool != null) {
-            requestTracker.put(RenderingDocumentRetrieverPool.class.getName(), new Integer[]{0, 0, 0});
+            requestTracker.put(RenderingDocumentRetrieverPool.class.getName(), new RequestStats());
         }
         if (this.cloakBrowserDocumentRetrieverPool != null) {
-            requestTracker.put(CLOAK_POOL_TRACKER_KEY, new Integer[]{0, 0, 0});
+            requestTracker.put(CLOAK_POOL_TRACKER_KEY, new RequestStats());
         }
         for (JsEnabledDocumentRetriever cloudDocumentRetriever : cloudDocumentRetrievers) {
             if (cloudDocumentRetriever != null) {
-                requestTracker.put(cloudDocumentRetriever.getClass().getName(), new Integer[]{0, 0, 0});
+                requestTracker.put(cloudDocumentRetriever.getClass().getName(), new RequestStats());
             }
         }
 
@@ -459,7 +515,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     public void setCloakBrowserDocumentRetrieverPool(RenderingDocumentRetrieverPool cloakBrowserPool) {
         this.cloakBrowserDocumentRetrieverPool = cloakBrowserPool;
         if (cloakBrowserPool != null) {
-            requestTracker.putIfAbsent(CLOAK_POOL_TRACKER_KEY, new Integer[]{0, 0, 0});
+            requestTracker.putIfAbsent(CLOAK_POOL_TRACKER_KEY, new RequestStats());
         }
     }
 
@@ -632,10 +688,7 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                 renderingDocumentRetriever = pool.poll(pollTimeoutSeconds, TimeUnit.SECONDS);
                 if (renderingDocumentRetriever == null) {
                     LOGGER.warn("Could not acquire rendering document retriever ({}) from pool for {}", label, url);
-                    updateRequestTotals(trackerKey, totals -> {
-                        totals.pollTimeouts.incrementAndGet();
-                        totals.recordRequest(false);
-                    });
+                    recordRequest(trackerKey, RequestStats::recordPollTimeout);
                     break;
                 }
 
@@ -690,15 +743,15 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
                     resolvingExplanation.add(
                             "used " + label + ": " + message + " in " + stopWatch.getElapsedTimeStringAndIncrement() + " success count: " + getSuccessfulRequestCount(trackerKey));
                 } else {
-                    recordBrokenSession(trackerKey);
+                    recordRequest(trackerKey, RequestStats::recordBrokenSession);
                 }
             } catch (NoSuchSessionException nse) {
                 retryDueToBroken = true;
-                recordBrokenSession(trackerKey);
+                recordRequest(trackerKey, RequestStats::recordBrokenSession);
                 LOGGER.warn("Rendering retriever ({}) session invalid; will retry once with a fresh instance for {}", label, url);
             } catch (Exception throwable) {
                 // e.g. the render watchdog
-                updateRequestTotals(trackerKey, totals -> totals.recordRequest(false));
+                recordRequest(trackerKey, RequestStats::recordFailureWithoutRun);
                 throwable.printStackTrace();
             } finally {
                 if (renderingDocumentRetriever != null) {
@@ -787,33 +840,13 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     private void updateRequestTracker(String retrieverKey, boolean goodDocument) {
-        Integer[] pair = requestTracker.get(retrieverKey);
-        if (pair == null) {
-            return;
-        }
-        if (!goodDocument) {
-            pair[0]++;
-        } else {
-            pair[0] = 0;
-            pair[2]++;
-        }
-        updateRequestTotals(retrieverKey, totals -> totals.recordRequest(goodDocument));
+        recordRequest(retrieverKey, goodDocument ? RequestStats::recordSuccess : RequestStats::recordFailure);
     }
 
-    /**
-     * Counted as a failed request, but it does not extend the consecutive failure run: the stage did not get to answer, which is not the stage refusing
-     * pages, so it must not pause the stage.
-     */
-    private void recordBrokenSession(String retrieverKey) {
-        updateRequestTotals(retrieverKey, totals -> {
-            totals.brokenSessions.incrementAndGet();
-            totals.recordRequest(false);
-        });
-    }
-
-    private void updateRequestTotals(String retrieverKey, Consumer<RequestTotals> update) {
-        if (requestTracker.containsKey(retrieverKey)) {
-            update.accept(requestTotals.computeIfAbsent(retrieverKey, k -> new RequestTotals()));
+    private void recordRequest(String retrieverKey, Consumer<RequestStats> update) {
+        RequestStats stats = requestTracker.get(retrieverKey);
+        if (stats != null) {
+            update.accept(stats);
         }
     }
 
@@ -827,23 +860,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         if (retrieverSettings == null) {
             return true;
         }
-        Integer[] pair = requestTracker.get(renderingDocumentRetrieverName);
-        if (pair == null) {
-            return true;
-        }
-        // check whether enough requests were skipped, if so, reset
-        if (pair[0] >= retrieverSettings[0]) {
-            if (pair[1] >= retrieverSettings[1]) {
-                pair[0] = 0;
-                pair[1] = 0;
-                return true;
-            } else {
-                pair[1]++;
-                updateRequestTotals(renderingDocumentRetrieverName, totals -> totals.skipped.incrementAndGet());
-                return false;
-            }
-        }
-        return true;
+        RequestStats stats = requestTracker.get(renderingDocumentRetrieverName);
+        return stats == null || !stats.shouldSkip(retrieverSettings[0], retrieverSettings[1]);
     }
 
     private boolean shouldMakeRequest(WebDocumentRetriever renderingDocumentRetriever) {
@@ -855,11 +873,8 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
     }
 
     public Integer getSuccessfulRequestCount(String retrieverKey) {
-        Integer[] integers = requestTracker.get(retrieverKey);
-        if (integers == null || integers.length < 3) {
-            return null;
-        }
-        return integers[2];
+        RequestStats stats = requestTracker.get(retrieverKey);
+        return stats == null ? null : stats.getSuccessful();
     }
 
     /**
@@ -868,22 +883,27 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
      * effectively dead even though the retriever keeps being asked.
      */
     public Integer getConsecutiveFailedRequestCount(String retrieverKey) {
-        Integer[] integers = requestTracker.get(retrieverKey);
-        if (integers == null || integers.length < 1) {
-            return null;
-        }
-        return integers[0];
-    }
-
-    public Map<String, Integer[]> getRequestTracker() {
-        return requestTracker;
+        RequestStats stats = requestTracker.get(retrieverKey);
+        return stats == null ? null : stats.getConsecutiveFailed();
     }
 
     /**
-     * @return the request counts per retriever since the cascade was created; a retriever that was never asked has no entry
+     * @return the request counts per retriever stage
      */
-    public Map<String, RequestTotals> getRequestTotals() {
-        return Collections.unmodifiableMap(requestTotals);
+    public Map<String, RequestStats> getRequestStats() {
+        return Collections.unmodifiableMap(requestTracker);
+    }
+
+    /**
+     * @return a snapshot of the request counts per retriever stage as [consecutive failed requests, requests skipped in the current pause, successful
+     * requests]; changing it does not change the tracker
+     * @deprecated use {@link #getRequestStats()}
+     */
+    @Deprecated
+    public Map<String, Integer[]> getRequestTracker() {
+        Map<String, Integer[]> snapshot = new HashMap<>();
+        requestTracker.forEach((key, stats) -> snapshot.put(key, new Integer[]{stats.getConsecutiveFailed(), stats.getPauseSkipped(), stats.getSuccessful()}));
+        return snapshot;
     }
 
     public Map<String, Integer[]> getFailingThresholdAndNumberOfRequestsToSkip() {
@@ -1068,15 +1088,12 @@ public class CascadingDocumentRetriever extends JsEnabledDocumentRetriever {
         String cloakPoolClass = cloakPool == null ? null : cloakPool.getClass().getSimpleName();
 
         sb.append("  requestTracker:\n");
-        for (Map.Entry<String, Integer[]> entry : requestTracker.entrySet()) {
-            Integer[] v = entry.getValue();
+        for (Map.Entry<String, RequestStats> entry : requestTracker.entrySet()) {
             sb.append("    ").append(entry.getKey());
             if (CLOAK_POOL_TRACKER_KEY.equals(entry.getKey())) {
                 sb.append(" [").append(cloakPoolClass == null ? "detached" : cloakPoolClass).append(']');
             }
-            sb.append(" -> [failed=").append(v[0]).append(", skipped=").append(v[1]).append(", successful=").append(v[2]).append("]");
-            // after the bracket above, whose format log queries rely on
-            sb.append(" totals [").append(requestTotals.getOrDefault(entry.getKey(), new RequestTotals())).append("]\n");
+            sb.append(" -> [").append(entry.getValue()).append("]\n");
         }
 
         sb.append("  failingThresholdAndNumberOfRequestsToSkip:\n");

@@ -17,11 +17,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * The request tracker only holds the consecutive failure run, which every success resets, so a stage that failed on half of its pages showed
+ * The request tracker used to hold only the consecutive failure run, which every success resets, so a stage that failed on half of its pages showed
  * {@code failed=0} after its last success. Attempts that never reached the stage (no driver came free, the session was gone, the render crashed) were not
- * counted at all. The request totals count all of them.
+ * counted at all. The totals count all of them.
  */
-public class CascadingDocumentRetrieverRequestTotalsTest {
+public class CascadingDocumentRetrieverRequestStatsTest {
 
     private static final String RENDERING_KEY = RenderingDocumentRetrieverPool.class.getName();
 
@@ -134,6 +134,10 @@ public class CascadingDocumentRetrieverRequestTotalsTest {
         return cascade;
     }
 
+    private static CascadingDocumentRetriever.RequestStats stats(CascadingDocumentRetriever cascade, String key) {
+        return cascade.getRequestStats().get(key);
+    }
+
     @Test
     public void aSuccessResetsTheFailureRunButNotTheTotals() throws Exception {
         CountingCloud cloud = new CountingCloud(2, goodDocument());
@@ -142,12 +146,11 @@ public class CascadingDocumentRetrieverRequestTotalsTest {
             cascade.getWebDocument("https://totals.example/p/" + i);
         }
 
-        String key = CountingCloud.class.getName();
-        CascadingDocumentRetriever.RequestTotals totals = cascade.getRequestTotals().get(key);
-        assertEquals(3, totals.getRequests());
-        assertEquals("the failures before the success are still counted", 2, totals.getFailed());
-        assertEquals(Integer.valueOf(0), cascade.getConsecutiveFailedRequestCount(key));
-        assertEquals(Integer.valueOf(1), cascade.getSuccessfulRequestCount(key));
+        CascadingDocumentRetriever.RequestStats stats = stats(cascade, CountingCloud.class.getName());
+        assertEquals(3, stats.getRequests());
+        assertEquals("the failures before the success are still counted", 2, stats.getFailed());
+        assertEquals(1, stats.getSuccessful());
+        assertEquals(0, stats.getConsecutiveFailed());
     }
 
     @Test
@@ -160,24 +163,33 @@ public class CascadingDocumentRetrieverRequestTotalsTest {
             cascade.getWebDocument("https://pause.example/p/" + i);
         }
 
-        CascadingDocumentRetriever.RequestTotals totals = cascade.getRequestTotals().get(CountingCloud.class.getName());
+        CascadingDocumentRetriever.RequestStats stats = stats(cascade, CountingCloud.class.getName());
         assertEquals(3, cloud.requests.get());
-        assertEquals(3, totals.getRequests());
-        assertEquals(3, totals.getFailed());
-        assertEquals("the end of the pause must not reset the skip total", 3, totals.getSkipped());
+        assertEquals(3, stats.getRequests());
+        assertEquals(3, stats.getFailed());
+        assertEquals(1, stats.getConsecutiveFailed());
+        assertEquals("the end of the pause resets the pause count", 0, stats.getPauseSkipped());
+        assertEquals("but not the total", 3, stats.getSkipped());
 
-        // the tracker's own bracket keeps its format, the totals follow it
+        // the first three fields keep the format and meaning of the old tracker row
         String summary = cascade.getUsageSummaryMessage();
         assertTrue(summary, summary.contains(CountingCloud.class.getName()
-                + " -> [failed=1, skipped=0, successful=0] totals [requests=3, failed=3, skipped=3, pollTimeouts=0, brokenSessions=0]"));
+                + " -> [failed=1, skipped=0, successful=0, requests=3, totalFailed=3, totalSkipped=3, pollTimeouts=0, brokenSessions=0]"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
-    public void aStageThatWasNeverAskedReportsZeroTotals() {
-        CascadingDocumentRetriever cascade = cloudOnly(new CountingCloud(0, null));
-        assertTrue(cascade.getRequestTotals().isEmpty());
-        String summary = cascade.getUsageSummaryMessage();
-        assertTrue(summary, summary.contains("-> [failed=0, skipped=0, successful=0] totals [requests=0, failed=0, skipped=0, pollTimeouts=0, brokenSessions=0]"));
+    public void theDeprecatedTrackerIsASnapshotInTheOldLayout() throws Exception {
+        CountingCloud cloud = new CountingCloud(1, goodDocument());
+        CascadingDocumentRetriever cascade = cloudOnly(cloud);
+        cascade.getWebDocument("https://snapshot.example/p/1");
+        cascade.getWebDocument("https://snapshot.example/p/2");
+        cascade.getWebDocument("https://snapshot.example/p/3");
+
+        Integer[] row = cascade.getRequestTracker().get(CountingCloud.class.getName());
+        assertEquals(Integer.valueOf(0), row[0]);
+        assertEquals(Integer.valueOf(0), row[1]);
+        assertEquals(Integer.valueOf(2), row[2]);
     }
 
     @Test
@@ -185,11 +197,11 @@ public class CascadingDocumentRetrieverRequestTotalsTest {
         CascadingDocumentRetriever cascade = renderingOnly(new ExhaustedPool());
         cascade.getRenderedWebDocument("https://exhausted.example/p/1");
 
-        CascadingDocumentRetriever.RequestTotals totals = cascade.getRequestTotals().get(RENDERING_KEY);
-        assertEquals(1, totals.getPollTimeouts());
-        assertEquals(1, totals.getRequests());
-        assertEquals(1, totals.getFailed());
-        assertEquals(Integer.valueOf(0), cascade.getConsecutiveFailedRequestCount(RENDERING_KEY));
+        CascadingDocumentRetriever.RequestStats stats = stats(cascade, RENDERING_KEY);
+        assertEquals(1, stats.getPollTimeouts());
+        assertEquals(1, stats.getRequests());
+        assertEquals(1, stats.getFailed());
+        assertEquals(0, stats.getConsecutiveFailed());
     }
 
     @Test
@@ -198,11 +210,11 @@ public class CascadingDocumentRetrieverRequestTotalsTest {
         CascadingDocumentRetriever cascade = renderingOnly(new ScriptedPool());
         cascade.getRenderedWebDocument("https://dead-session.example/p/1");
 
-        CascadingDocumentRetriever.RequestTotals totals = cascade.getRequestTotals().get(RENDERING_KEY);
-        assertEquals("the first attempt and its retry", 2, totals.getBrokenSessions());
-        assertEquals(2, totals.getRequests());
-        assertEquals(2, totals.getFailed());
-        assertEquals(Integer.valueOf(0), cascade.getConsecutiveFailedRequestCount(RENDERING_KEY));
+        CascadingDocumentRetriever.RequestStats stats = stats(cascade, RENDERING_KEY);
+        assertEquals("the first attempt and its retry", 2, stats.getBrokenSessions());
+        assertEquals(2, stats.getRequests());
+        assertEquals(2, stats.getFailed());
+        assertEquals(0, stats.getConsecutiveFailed());
     }
 
     @Test
@@ -211,9 +223,9 @@ public class CascadingDocumentRetrieverRequestTotalsTest {
         CascadingDocumentRetriever cascade = renderingOnly(new ScriptedPool());
         cascade.getRenderedWebDocument("https://crash.example/p/1");
 
-        CascadingDocumentRetriever.RequestTotals totals = cascade.getRequestTotals().get(RENDERING_KEY);
-        assertEquals(1, totals.getRequests());
-        assertEquals(1, totals.getFailed());
-        assertEquals(Integer.valueOf(0), cascade.getConsecutiveFailedRequestCount(RENDERING_KEY));
+        CascadingDocumentRetriever.RequestStats stats = stats(cascade, RENDERING_KEY);
+        assertEquals(1, stats.getRequests());
+        assertEquals(1, stats.getFailed());
+        assertEquals(0, stats.getConsecutiveFailed());
     }
 }
