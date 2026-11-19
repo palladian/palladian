@@ -10,6 +10,7 @@ import ws.palladian.helper.constants.Language;
 import ws.palladian.helper.html.XPathHelper;
 import ws.palladian.helper.nlp.StringHelper;
 import ws.palladian.retrieval.DocumentRetriever;
+import ws.palladian.retrieval.HttpResult;
 import ws.palladian.retrieval.configuration.ConfigurationOption;
 import ws.palladian.retrieval.helper.FixedIntervalRequestThrottle;
 import ws.palladian.retrieval.resources.BasicWebContent;
@@ -90,6 +91,12 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
     // private static final String JS_URL = "https://duckduckgo.com/d.js?q=%s&t=A&l=us-en&p=1&s=%s";
     private static final String HTML_URL = "https://html.duckduckgo.com/html/?q=%s";
 
+    /**
+     * DuckDuckGo answers a client it does not like with {@code 202 Accepted} and an anti-bot "anomaly" page instead
+     * of results, so anything but a plain 200 means "we were refused", not "no hits".
+     */
+    private static final int HTTP_OK = 200;
+
     @Override
     public List<WebContent> search(String query, int resultCount, Language language) throws SearcherException {
         DocumentRetriever documentRetriever = new DocumentRetriever();
@@ -103,6 +110,15 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
             document = documentRetriever.getWebDocument(requestUrl);
         } catch (Exception e) {
             throw new SearcherException("HTTP error while searching for \"" + query + "\" with " + getName() + " (request URL: \"" + requestUrl + "\"): " + e.getMessage(), e);
+        }
+
+        if (document == null) {
+            throw new SearcherException("No result page from " + getName() + " while searching for \"" + query + "\" (request URL: \"" + requestUrl + "\")");
+        }
+        int statusCode = getStatusCode(document);
+        if ((statusCode != -1 && statusCode != HTTP_OK) || isAntiBotPage(document)) {
+            throw new SearcherException(getName() + " refused the request and served its anti-bot page instead of results (HTTP status " + statusCode + ") while searching for \""
+                    + query + "\" (request URL: \"" + requestUrl + "\")");
         }
 
         return search(document, resultCount);
@@ -128,6 +144,21 @@ public final class DuckDuckGoSearcher extends AbstractSearcher<WebContent> {
         }
 
         return CollectionHelper.getSublist(result, 0, resultCount);
+    }
+
+    /**
+     * @return {@code true} if DuckDuckGo answered with the CAPTCHA-style "anomaly" page it serves to clients it does
+     * not like (typically shared or datacenter egress IPs) rather than with results. A served result page never
+     * carries that modal, so this does not hide a genuine "no hits" answer.
+     */
+    private static boolean isAntiBotPage(Document document) {
+        return !XPathHelper.getXhtmlNodes(document, "//div[contains(@class,'anomaly-modal')]").isEmpty();
+    }
+
+    /** @return the HTTP status the result page came with, or -1 when it is not known. */
+    private static int getStatusCode(Document document) {
+        Object httpResult = document.getUserData(DocumentRetriever.HTTP_RESULT_KEY);
+        return httpResult instanceof HttpResult ? ((HttpResult) httpResult).getStatusCode() : -1;
     }
 
     @Override

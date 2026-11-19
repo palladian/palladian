@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -61,7 +62,7 @@ public class RenderingDocumentRetrieverPoolTest {
 
             int reaped = RenderingDocumentRetrieverPool.reapLeakedChildlessChromedrivers(ProcessHandle.current(), 0);
 
-            assertEquals(1, reaped);
+            assertEquals("the reaper should have reaped the stand-in chromedriver (" + fixture.diagnosis() + ")", 1, reaped);
             assertProcessDead(fixture.handle());
         }
     }
@@ -69,10 +70,12 @@ public class RenderingDocumentRetrieverPoolTest {
     @Test
     public void reaperDoesNotKillFreshChildlessChromedriverChildren() throws Exception {
         try (ProcessFixture fixture = ProcessFixture.startChildlessChromedriver()) {
+            assertTrue("stand-in chromedriver must be running before the reaper runs (" + fixture.diagnosis() + ")", fixture.handle().isAlive());
+
             int reaped = RenderingDocumentRetrieverPool.reapLeakedChildlessChromedrivers(ProcessHandle.current(), 3600);
 
             assertEquals(0, reaped);
-            assertTrue("fresh childless chromedriver must survive the age guard", fixture.handle().isAlive());
+            assertTrue("fresh childless chromedriver must survive the age guard (" + fixture.diagnosis() + ")", fixture.handle().isAlive());
         }
     }
 
@@ -105,7 +108,7 @@ public class RenderingDocumentRetrieverPoolTest {
 
             int reaped = RenderingDocumentRetrieverPool.reapLeakedChildlessChromedrivers(ProcessHandle.current(), 0);
 
-            assertEquals(1, reaped);
+            assertEquals("the reaper should have reaped the stand-in chromedriver (" + fixture.diagnosis() + ")", 1, reaped);
             assertProcessDead(fixture.handle());
         }
     }
@@ -182,10 +185,31 @@ public class RenderingDocumentRetrieverPoolTest {
         }
 
         static ProcessFixture startChildlessChromedriver() throws IOException {
+            return startChildlessChromedriver(new String[0]);
+        }
+
+        /**
+         * A childless, long-lived stand-in for a chromedriver: a {@code #!/bin/bash} script parked in the
+         * {@code read} BUILTIN, so it neither forks a child - the childlessness is the whole point of these tests -
+         * nor execs another program, which would replace the chromedriver-ish name in the command line.
+         * <p>
+         * Deliberately neither a symlink to nor a copy of {@code /bin/sleep}. Linux resolves {@code /proc/<pid>/exe}
+         * through symlinks and {@link ProcessHandle.Info} then drops argv[0], so a symlinked name is invisible to
+         * {@link RenderingDocumentRetrieverPool#isChromedriver}; and a copy dies on the spot wherever coreutils is a
+         * multi-call binary, since it dispatches on its own argv[0] and knows no utility called "chromedriver-test".
+         * A script keeps its own path in argv[1], which the JDK does report.
+         */
+        private static ProcessFixture startChildlessChromedriver(String... arguments) throws IOException {
             Path tempDir = Files.createTempDirectory("palladian-chromedriver-test");
             try {
-                Path executable = createNamedSymlink(tempDir, "chromedriver-test", "/bin/sleep");
-                Process process = new ProcessBuilder(executable.toString(), "60").redirectErrorStream(true).start();
+                Assume.assumeTrue("/bin/bash must exist for the childless-chromedriver tests", Files.exists(Paths.get("/bin/bash")));
+                Path executable = tempDir.resolve("chromedriver-test");
+                Files.writeString(executable, "#!/bin/bash\nread -t 60 _\n");
+                Assume.assumeTrue("script must be made executable", executable.toFile().setExecutable(true));
+                String[] command = new String[arguments.length + 1];
+                command[0] = executable.toString();
+                System.arraycopy(arguments, 0, command, 1, arguments.length);
+                Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
                 return new ProcessFixture(tempDir, process);
             } catch (Throwable t) {
                 // An Assume abort or launch failure must not leak the temp dir since close() never runs.
@@ -196,35 +220,10 @@ public class RenderingDocumentRetrieverPoolTest {
 
         /**
          * A childless "chromedriver" whose command line carries a {@code --port=}, standing in for a remote-attach
-         * driver. Uses bash's {@code read -t} builtin so the script waits WITHOUT forking a child — the childlessness
-         * is the whole point of the test.
+         * driver.
          */
         static ProcessFixture startChildlessChromedriverWithPort(int port) throws IOException {
-            Path tempDir = Files.createTempDirectory("palladian-chromedriver-test");
-            try {
-                Assume.assumeTrue("/bin/bash must exist for the owned-chromedriver tests", Files.exists(Paths.get("/bin/bash")));
-                Path executable = tempDir.resolve("chromedriver-test");
-                Files.writeString(executable, "#!/bin/bash\nread -t 60 _\n");
-                Assume.assumeTrue("script must be made executable", executable.toFile().setExecutable(true));
-                Process process = new ProcessBuilder(executable.toString(), "--port=" + port).redirectErrorStream(true).start();
-                return new ProcessFixture(tempDir, process);
-            } catch (Throwable t) {
-                // An Assume abort or launch failure must not leak the temp dir since close() never runs.
-                deleteRecursively(tempDir);
-                throw t;
-            }
-        }
-
-        private static Path createNamedSymlink(Path tempDir, String name, String target) throws IOException {
-            Path targetPath = Paths.get(target);
-            Assume.assumeTrue(target + " must exist for process-tree tests", Files.exists(targetPath));
-            Path executable = tempDir.resolve(name);
-            try {
-                Files.createSymbolicLink(executable, targetPath);
-            } catch (UnsupportedOperationException | IOException | SecurityException e) {
-                Assume.assumeNoException("symbolic links are required for process-tree tests", e);
-            }
-            return executable;
+            return startChildlessChromedriver("--port=" + port);
         }
 
         private static Path createNamedScript(Path tempDir, String name, String content) throws IOException {
@@ -237,6 +236,23 @@ public class RenderingDocumentRetrieverPoolTest {
 
         ProcessHandle handle() {
             return process.toHandle();
+        }
+
+        /**
+         * What the stand-in process is doing - and, once it has exited, why. A stand-in that dies on its own turns
+         * every assertion here into a riddle, so say it out loud instead.
+         */
+        String diagnosis() {
+            if (process.isAlive()) {
+                return "pid=" + process.pid() + " alive";
+            }
+            String output;
+            try {
+                output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            } catch (IOException e) {
+                output = "<output unreadable: " + e.getMessage() + ">";
+            }
+            return "pid=" + process.pid() + " exited with " + process.exitValue() + (output.isEmpty() ? "" : ", output: " + output);
         }
 
         @Override
